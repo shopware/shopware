@@ -2,13 +2,18 @@
 
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
         <service id="Shopware\Core\Content\Cookie\Service\CookieService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="sales_channel_analytics.repository"/>
             <argument type="service" id="translator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cookie\Service\CookieProvider">
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument>%session.storage.options%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Cookie\SalesChannel\CookieRoute" public="true">

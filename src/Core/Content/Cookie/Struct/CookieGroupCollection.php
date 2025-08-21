@@ -6,11 +6,25 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * Collection of {@see CookieGroup} indexed by the group's snippet name
+ *
  * @extends Collection<CookieGroup>
  */
 #[Package('framework')]
 class CookieGroupCollection extends Collection
 {
+    public function set($key, $element): void
+    {
+        parent::set($element->snippetName, $element);
+    }
+
+    public function add($element): void
+    {
+        $this->validateType($element);
+
+        parent::set($element->snippetName, $element);
+    }
+
     public function getApiAlias(): string
     {
         return 'cookie_group_collection';

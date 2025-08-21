@@ -3,13 +3,28 @@
 namespace Shopware\Core\Content\Cookie\Struct;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
-class CookieGroup extends CookieStruct
+class CookieGroup extends Struct
 {
+    public bool $isRequired = false;
+
+    public ?string $snippetDescription;
+
+    public ?string $cookie;
+
+    public ?string $value;
+
+    public ?int $expiration;
+
+    public ?CookieEntryCollection $entries;
+
     public function __construct(
-        public bool $isRequired,
-        public CookieEntryCollection $entries = new CookieEntryCollection(),
+        public string $snippetName,
     ) {
     }
 

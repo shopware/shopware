@@ -25,8 +25,6 @@ readonly class CookieService
 {
     /**
      * @param EntityRepository<SalesChannelAnalyticsCollection> $salesChannelAnalyticsRepository
-     *
-     * @internal
      */
     public function __construct(
         private SystemConfigService $systemConfigService,
@@ -35,91 +33,86 @@ readonly class CookieService
     ) {
     }
 
-    /**
-     * Returns a CookieGroupCollection based on the provided cookie groups and sales channel context.
-     *
-     * @param array<string|int, mixed> $cookieGroups
-     */
-    public function getCookieGroupCollection(array $cookieGroups, ?SalesChannelContext $salesChannelContext, bool $translate = true): CookieGroupCollection
-    {
-        $cookieGroups = $this->normalizeCookieGroups($cookieGroups);
-        if ($salesChannelContext !== null) {
-            $cookieGroups = $this->filterCookieGroups($salesChannelContext, $cookieGroups);
-        }
+    //    /**
+    //     * Returns a CookieGroupCollection based on the provided cookie groups and sales channel context.
+    //     *
+    //     * @param array<string|int, mixed> $cookieGroups
+    //     */
+    //    public function getCookieGroupCollection(array $cookieGroups, ?SalesChannelContext $salesChannelContext, bool $translate = true): CookieGroupCollection
+    //    {
+    //        $cookieGroups = $this->normalizeCookieGroups($cookieGroups);
+    //        if ($salesChannelContext !== null) {
+    //            $cookieGroups = $this->filterCookieGroups($salesChannelContext, $cookieGroups);
+    //        }
+    //
+    //        if ($translate) {
+    //            $cookieGroups = $this->translateCookieGroups($cookieGroups);
+    //        }
+    //
+    //        return $this->convertToCookieGroupCollection($cookieGroups);
+    //    }
+    //
+    //    /**
+    //     * Converts an array of cookie groups to a CookieGroupCollection.
+    //     *
+    //     * @param array<string|int, CookieGroup> $cookieGroups
+    //     */
+    //    private function convertToCookieGroupCollection(array $cookieGroups): CookieGroupCollection
+    //    {
+    //        $collection = new CookieGroupCollection();
+    //        foreach ($cookieGroups as $group) {
+    //            $collection->add($group);
+    //        }
+    //
+    //        return $collection;
+    //    }
+    //
+    //    /**
+    //     * @param array<string|int, mixed|CookieGroup> $cookieGroups // legacy arrays OR CookieGroup[]
+    //     *
+    //     * @return array<string|int, mixed|CookieGroup>
+    //     */
+    //    private function normalizeCookieGroups(array $cookieGroups): array
+    //    {
+    //        // NEW typed shape (array of CookieGroup instances)
+    //        if (!empty($cookieGroups) && $cookieGroups[array_key_first($cookieGroups)] instanceof CookieGroup) {
+    //            return $cookieGroups;
+    //        }
+    //
+    //        // LEGACY array shape -> convert to objects
+    //        $normalized = [];
+    //        foreach ($cookieGroups as $group) {
+    //            $cookieGroup = new CookieGroup(
+    //                (bool) ($group['isRequired'] ?? false),
+    //                new CookieEntryCollection(array_values(array_map(function (array $cookieEntry): CookieEntry {
+    //                    $entry = new CookieEntry((bool) ($cookieEntry['hidden'] ?? false));
+    //                    $this->hydrateCookieStructFromArray($entry, data: $cookieEntry);
+    //
+    //                    return $entry;
+    //                }, (array) ($group['entries'] ?? [])))),
+    //            );
+    //
+    //            $this->hydrateCookieStructFromArray($cookieGroup, $group);
+    //
+    //            $normalized[] = $cookieGroup;
+    //        }
+    //
+    //        return $normalized;
+    //    }
+    //
+    //    /**
+    //     * @param array<string, mixed> $data
+    //     */
+    //    private function hydrateCookieStructFromArray(CookieStruct $struct, array $data): void
+    //    {
+    //        $struct->snippetName = $data['snippet_name'] ?? null;
+    //        $struct->snippetDescription = $data['snippet_description'] ?? null;
+    //        $struct->cookie = $data['cookie'] ?? null;
+    //        $struct->value = $data['value'] ?? null;
+    //        $struct->expiration = $data['expiration'] ?? null;
+    //    }
 
-        if ($translate) {
-            $cookieGroups = $this->translateCookieGroups($cookieGroups);
-        }
-
-        return $this->convertToCookieGroupCollection($cookieGroups);
-    }
-
-    /**
-     * Converts an array of cookie groups to a CookieGroupCollection.
-     *
-     * @param array<string|int, CookieGroup> $cookieGroups
-     */
-    private function convertToCookieGroupCollection(array $cookieGroups): CookieGroupCollection
-    {
-        $collection = new CookieGroupCollection();
-        foreach ($cookieGroups as $group) {
-            $collection->add($group);
-        }
-
-        return $collection;
-    }
-
-    /**
-     * @param array<string|int, mixed|CookieGroup> $cookieGroups // legacy arrays OR CookieGroup[]
-     *
-     * @return array<string|int, mixed|CookieGroup>
-     */
-    private function normalizeCookieGroups(array $cookieGroups): array
-    {
-        // NEW typed shape (array of CookieGroup instances)
-        if (!empty($cookieGroups) && $cookieGroups[array_key_first($cookieGroups)] instanceof CookieGroup) {
-            return $cookieGroups;
-        }
-
-        // LEGACY array shape -> convert to objects
-        $normalized = [];
-        foreach ($cookieGroups as $group) {
-            $cookieGroup = new CookieGroup(
-                (bool) ($group['isRequired'] ?? false),
-                new CookieEntryCollection(array_values(array_map(function (array $cookieEntry): CookieEntry {
-                    $entry = new CookieEntry((bool) ($cookieEntry['hidden'] ?? false));
-                    $this->hydrateCookieStructFromArray($entry, data: $cookieEntry);
-
-                    return $entry;
-                }, (array) ($group['entries'] ?? [])))),
-            );
-
-            $this->hydrateCookieStructFromArray($cookieGroup, $group);
-
-            $normalized[] = $cookieGroup;
-        }
-
-        return $normalized;
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function hydrateCookieStructFromArray(CookieStruct $struct, array $data): void
-    {
-        $struct->snippetName = $data['snippet_name'] ?? null;
-        $struct->snippetDescription = $data['snippet_description'] ?? null;
-        $struct->cookie = $data['cookie'] ?? null;
-        $struct->value = $data['value'] ?? null;
-        $struct->expiration = $data['expiration'] ?? null;
-    }
-
-    /**
-     * @param array<string|int, mixed> $cookieGroups
-     *
-     * @return array<string|int, mixed>
-     */
-    private function filterCookieGroups(SalesChannelContext $context, array $cookieGroups): array
+    public function filterCookieGroups(CookieGroupCollection $cookieGroups, SalesChannelContext $context): CookieGroupCollection
     {
         $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
         $cookieGroups = $this->filterWishlistCookie($context->getSalesChannelId(), $cookieGroups);
@@ -129,23 +122,17 @@ readonly class CookieService
 
     /**
      * Translates the snippet names and descriptions of cookie groups and their entries.
-     *
-     * @param array<string|int, CookieGroup> $cookieGroups
-     *
-     * @return array<string|int, CookieGroup>
      */
-    private function translateCookieGroups(array $cookieGroups): array
+    public function translateCookieGroups(CookieGroupCollection $cookieGroups): void
     {
         foreach ($cookieGroups as $group) {
-            if (isset($group->snippetName)) {
-                $group->snippetName = $this->translator->trans($group->snippetName);
-            }
+            $group->snippetName = $this->translator->trans($group->snippetName);
 
             if (isset($group->snippetDescription)) {
                 $group->snippetDescription = $this->translator->trans($group->snippetDescription);
             }
 
-            if (isset($group->entries) && \is_array($group->entries)) {
+            if (isset($group->entries)) {
                 foreach ($group->entries as $entry) {
                     if (isset($entry->snippetName)) {
                         $entry->snippetName = $this->translator->trans($entry->snippetName);
@@ -157,16 +144,9 @@ readonly class CookieService
                 }
             }
         }
-
-        return $cookieGroups;
     }
 
-    /**
-     * @param array<string|int, CookieGroup> $cookieGroups
-     *
-     * @return array<string|int, CookieGroup>
-     */
-    private function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array
+    private function filterGoogleAnalyticsCookie(SalesChannelContext $context, CookieGroupCollection $cookieGroups): CookieGroupCollection
     {
         $salesChannel = $context->getSalesChannel();
 
@@ -179,21 +159,23 @@ readonly class CookieService
             );
         }
 
-        if ($salesChannel->getAnalytics()?->isActive() === true) {
+        if ($salesChannel->getAnalytics()?->isActive()) {
             return $cookieGroups;
         }
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
             if ($cookieGroup->snippetName === 'cookie.groupStatistical') {
-                $cookieGroup = $this->filterCookieGroup('cookie.groupStatisticalGoogleAnalytics', $cookieGroup);
+                $cookieGroup = $this->filterCookieGroup('google-analytics-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
                 }
 
                 continue;
-            } elseif ($cookieGroup->snippetName === 'cookie.groupMarketing') {
-                $cookieGroup = $this->filterCookieGroup('cookie.groupMarketingAdConsent', $cookieGroup);
+            }
+
+            if ($cookieGroup->snippetName === 'cookie.groupMarketing') {
+                $cookieGroup = $this->filterCookieGroup('google-ads-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
                 }
@@ -204,32 +186,10 @@ readonly class CookieService
             $filteredGroups[] = $cookieGroup;
         }
 
-        return $filteredGroups;
+        return new CookieGroupCollection($filteredGroups);
     }
 
-    private function filterCookieGroup(string $cookieSnippetName, ?CookieGroup $cookieGroup): ?CookieGroup
-    {
-        if ($cookieGroup === null) {
-            return null;
-        }
-
-        $cookieGroup->entries = $cookieGroup->entries->filter(function (CookieEntry $item) use ($cookieSnippetName) {
-            return $item->snippetName !== $cookieSnippetName;
-        });
-
-        if (\count($cookieGroup->entries) === 0) {
-            return null;
-        }
-
-        return $cookieGroup;
-    }
-
-    /**
-     * @param array<string|int, CookieGroup> $cookieGroups
-     *
-     * @return array<string|int, CookieGroup>
-     */
-    private function filterWishlistCookie(string $salesChannelId, array $cookieGroups): array
+    private function filterWishlistCookie(string $salesChannelId, CookieGroupCollection $cookieGroups): CookieGroupCollection
     {
         if ($this->systemConfigService->getBool('core.cart.wishlistEnabled', $salesChannelId)) {
             return $cookieGroups;
@@ -238,7 +198,7 @@ readonly class CookieService
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
             if ($cookieGroup->snippetName === 'cookie.groupComfortFeatures') {
-                $cookieGroup = $this->filterCookieGroup('cookie.groupComfortFeaturesWishlist', $cookieGroup);
+                $cookieGroup = $this->filterCookieGroup('wishlist-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
                 }
@@ -249,15 +209,10 @@ readonly class CookieService
             $filteredGroups[] = $cookieGroup;
         }
 
-        return $filteredGroups;
+        return new CookieGroupCollection($filteredGroups);
     }
 
-    /**
-     * @param array<string|int, CookieGroup> $cookieGroups
-     *
-     * @return array<string|int, CookieGroup>
-     */
-    private function filterGoogleReCaptchaCookie(string $salesChannelId, array $cookieGroups): array
+    private function filterGoogleReCaptchaCookie(string $salesChannelId, CookieGroupCollection $cookieGroups): CookieGroupCollection
     {
         $googleRecaptchaActive = $this->systemConfigService->getBool(
             'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV2::CAPTCHA_NAME . '.isActive',
@@ -274,7 +229,7 @@ readonly class CookieService
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
             if ($cookieGroup->snippetName === 'cookie.groupRequired') {
-                $cookieGroup = $this->filterCookieGroup('cookie.groupRequiredCaptcha', $cookieGroup);
+                $cookieGroup = $this->filterCookieGroup('_GRECAPTCHA', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
                 }
@@ -285,6 +240,23 @@ readonly class CookieService
             $filteredGroups[] = $cookieGroup;
         }
 
-        return $filteredGroups;
+        return new CookieGroupCollection($filteredGroups);
+    }
+
+    private function filterCookieGroup(string $cookieName, CookieGroup $cookieGroup): ?CookieGroup
+    {
+        if (!isset($cookieGroup->entries)) {
+            return null;
+        }
+
+        $cookieGroup->entries = $cookieGroup->entries->filter(function (CookieEntry $item) use ($cookieName) {
+            return $item->cookie !== $cookieName;
+        });
+
+        if (\count($cookieGroup->entries) === 0) {
+            return null;
+        }
+
+        return $cookieGroup;
     }
 }

@@ -17,10 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 #[Package('after-sales')]
 final class InvoiceRenderer extends AbstractDocumentRenderer
@@ -146,7 +145,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $doc->setContext($context);
 
                     $filesystem = new Filesystem();
-                    $filesystem->dumpFile(__DIR__ . '/../document_debug/' .(new \DateTime())->format('Ymd-His') . '.log', var_export($doc, true));
+                    $filesystem->dumpFile(__DIR__ . '/../document_debug/' . (new \DateTime())->format('Ymd-His') . '.log', var_export($doc, true));
 
                     $doc->setContent($this->fileRendererRegistry->render($doc));
 

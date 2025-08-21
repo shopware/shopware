@@ -9,13 +9,16 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppCollection;
@@ -75,8 +78,14 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
      */
     protected EntityRepository $orderTransactionRepository;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
+    /**
+     * @var EntityRepository<PaymentMethodCollection>
+     */
     private EntityRepository $paymentMethodRepository;
 
     private StateMachineRegistry $stateMachineRegistry;
@@ -85,6 +94,9 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
+    /**
+     * @var EntityRepository<OrderTransactionCaptureCollection>
+     */
     private EntityRepository $orderTransactionCaptureRepository;
 
     /**

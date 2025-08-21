@@ -13,6 +13,20 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AsyncAwsS3WriteBatchAdapter extends AsyncAwsS3Adapter implements WriteBatchInterface
 {
+    /**
+     * @param S3Client $client // needs to be defined, because parent constructor also allows unknown type
+     * @param int<1, max> $batchSize
+     */
+    public function __construct(
+        S3Client $client,
+        string $bucket,
+        string $prefix = '',
+        ?PortableVisibilityConverter $visibility = null,
+        private readonly int $batchSize = 250
+    ) {
+        parent::__construct($client, $bucket, $prefix, $visibility);
+    }
+
     public function writeBatch(CopyBatchInput ...$files): void
     {
         /** @var S3Client $s3Client */
@@ -28,8 +42,8 @@ class AsyncAwsS3WriteBatchAdapter extends AsyncAwsS3Adapter implements WriteBatc
         /** @var PortableVisibilityConverter $visibilityConverter */
         $visibilityConverter = \Closure::bind(fn () => $this->visibility, $this, parent::class)();
 
-        // Copy the files in batches of 250 files. This is necessary to have open sockets and not run into the "Too many open files" error.
-        foreach (array_chunk($files, 250) as $filesBatch) {
+        // Copy the files in batches. This is necessary to have open sockets and not run into the "Too many open files" error.
+        foreach (array_chunk($files, $this->batchSize) as $filesBatch) {
             $requests = [];
 
             foreach ($filesBatch as $file) {

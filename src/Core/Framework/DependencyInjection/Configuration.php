@@ -128,6 +128,11 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('')
                     ->info('Path prefix to be prepended to the path when using a local download strategy')
                 ->end()
+                ->integerNode('batch_write_size')
+                    ->defaultValue(250)
+                    ->min(1)
+                    ->info('Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter')
+                ->end()
             ->end();
 
         return $rootNode;

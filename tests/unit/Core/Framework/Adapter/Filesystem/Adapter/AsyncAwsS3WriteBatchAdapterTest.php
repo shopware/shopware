@@ -78,4 +78,28 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
         $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test', '', new PortableVisibilityConverter());
         $adapter->writeBatch(new CopyBatchInput('invalid', ['test.txt']));
     }
+
+    public function testConfigurableBatchSize(): void
+    {
+        $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
+        file_put_contents($tmpFile, 'test');
+
+        $s3Client = $this->createMock(S3Client::class);
+        $result = ResultMockFactory::create(PutObjectOutput::class);
+
+        $batchSize = 2;
+        $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test', '', new PortableVisibilityConverter(), $batchSize);
+
+        $files = [];
+        for ($i = 0; $i < 5; ++$i) {
+            $files[] = new CopyBatchInput($tmpFile, ["test{$i}.txt"]);
+        }
+
+        $s3Client
+            ->expects($this->exactly(5))
+            ->method('putObject')
+            ->willReturn($result);
+
+        $adapter->writeBatch(...$files);
+    }
 }

@@ -17,6 +17,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class AwsS3v3Factory implements AdapterFactoryInterface
 {
     /**
+     * @param int<1, max> $batchWriteSize
+     */
+    public function __construct(
+        private readonly int $batchWriteSize = 250
+    ) {}
+
+    /**
      * @param array<string, mixed> $config
      */
     public function create(array $config): FilesystemAdapter
@@ -44,7 +51,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
 
         $client = new S3Client($s3Opts);
 
-        return new AsyncAwsS3WriteBatchAdapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
+        return new AsyncAwsS3WriteBatchAdapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter(), $this->batchWriteSize);
     }
 
     public function getType(): string

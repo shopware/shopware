@@ -342,14 +342,14 @@ class CartRuleLoader implements ResetInterface
                 $parameters['%' . $key . '%'] = $value;
             }
 
-            $message = $this->translator->trans(
+            $translatedMessage = $this->translator->trans(
                 'checkout.' . $error->getMessageKey(),
                 $parameters,
                 null,
                 $context->getLanguageInfo()->localeCode
             );
 
-            $error->setMessage($message);
+            $error->setTranslatedMessage($translatedMessage);
         }
     }
 }

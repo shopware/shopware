@@ -25,6 +25,8 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     final public const LEVEL_ERROR = 20;
 
+    private ?string $translatedMessage = null;
+
     /**
      * The trace has to be cleaned up to remove service references that are not serializable.
      *
@@ -81,13 +83,14 @@ abstract class Error extends \Exception implements \JsonSerializable
         return true;
     }
 
-    /**
-     * This method is used to set the message after the error has been created.
-     * It is useful for translating the message or modifying it before displaying.
-     */
-    public function setMessage(string $message): void
+    public function getTranslatedMessage(): ?string
     {
-        $this->message = $message;
+        return $this->translatedMessage;
+    }
+
+    public function setTranslatedMessage(string $translatedMessage): void
+    {
+        $this->translatedMessage = $translatedMessage;
     }
 
     /**
@@ -99,6 +102,7 @@ abstract class Error extends \Exception implements \JsonSerializable
         $data['key'] = $this->getId();
         $data['level'] = $this->getLevel();
         $data['message'] = $this->getMessage();
+        $data['translatedMessage'] = $this->getTranslatedMessage();
         $data['messageKey'] = $this->getMessageKey();
         $data['parameters'] = $this->getParameters();
         $data['block'] = $this->blockOrder();

@@ -173,7 +173,7 @@ trait TestShortHands
 
         static::assertNotEmpty($stocks, \sprintf('Product with id %s not found', $productId));
 
-        static::assertSame($stock, $stocks['stock'], \sprintf('Product with id %s has wrong stock', $productId));
+        static::assertSame($stock, (int) $stocks['stock'], \sprintf('Product with id %s has wrong stock', $productId));
 
         static::assertSame($available, (int) $stocks['available_stock'], \sprintf('Product with id %s has wrong available stock', $productId));
     }

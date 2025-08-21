@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,24 +57,15 @@ class NavigationRouteTest extends TestCase
             $this->categoryTreePathResolver
         );
 
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-        $salesChannel->setNavigationCategoryId(Uuid::randomHex());
-
-        $this->salesChannelContext = Generator::generateSalesChannelContext(
-            salesChannel: $salesChannel
-        );
+        $this->salesChannelContext = Generator::generateSalesChannelContext();
     }
 
     public function testLoadAddsCacheTagsCorrectly(): void
     {
         $activeId = Uuid::randomHex();
-        $rootId = Uuid::randomHex();
+        $rootId = Generator::NAVIGATION_CATEGORY;
         $request = new Request();
         $criteria = new Criteria();
-
-        // Configure the sales channel to use our rootId as navigation category
-        $this->salesChannelContext->getSalesChannel()->setNavigationCategoryId($rootId);
 
         $this->connection
             ->expects($this->once())
@@ -131,12 +121,9 @@ class NavigationRouteTest extends TestCase
     public function testLoadAddsDeprecatedCacheTagsCorrectly(): void
     {
         $activeId = Uuid::randomHex();
-        $rootId = Uuid::randomHex();
+        $rootId = Generator::NAVIGATION_CATEGORY;
         $request = new Request();
         $criteria = new Criteria();
-
-        // Configure the sales channel to use our rootId as navigation category
-        $this->salesChannelContext->getSalesChannel()->setNavigationCategoryId($rootId);
 
         $this->connection
             ->expects($this->once())

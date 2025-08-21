@@ -17,7 +17,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Cookie\SalesChannel\CookieRoute" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Cookie\Service\CookieProvider"/>
             <argument type="service" id="Shopware\Core\Content\Cookie\Service\CookieService"/>
         </service>
     </services>

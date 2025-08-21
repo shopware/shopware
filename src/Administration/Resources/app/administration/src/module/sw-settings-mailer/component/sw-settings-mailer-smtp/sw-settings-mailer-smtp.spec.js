@@ -161,7 +161,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
         await flushPromises();
 
         // OAuth grant type selector should be visible
-        const grantTypeSelect = wrapper.find('sw-single-select');
+        const grantTypeSelect = wrapper.find('select[aria-label="sw-settings-mailer.card-smtp.oauth-grant-type"]');
         expect(grantTypeSelect.exists()).toBe(true);
 
         // OAuth URL field should be visible
@@ -236,7 +236,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
         });
         await flushPromises();
 
-        const encryptionSelect = wrapper.find('sw-single-select[aria-label="sw-settings-mailer.card-smtp.encryption"]');
+        const encryptionSelect = wrapper.find('select[aria-label="sw-settings-mailer.card-smtp.encryption"]');
         expect(encryptionSelect.exists()).toBe(true);
     });
 

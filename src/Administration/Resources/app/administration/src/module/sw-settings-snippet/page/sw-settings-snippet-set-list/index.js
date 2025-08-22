@@ -125,9 +125,7 @@ export default {
         loadBaseFiles() {
             return this.snippetSetService.getBaseFiles().then((response) => {
                 this.baseFiles = Object.values(response.items ?? {})
-                    .filter((file, index, self) =>
-                        index === self.findIndex(other => other.name === file.name),
-                    )
+                    .filter((file, index, self) => index === self.findIndex((other) => other.name === file.name))
                     .sort((a, b) => a.name.localeCompare(b.name));
             });
         },

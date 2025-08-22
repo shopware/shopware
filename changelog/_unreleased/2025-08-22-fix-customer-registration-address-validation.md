@@ -6,14 +6,14 @@ author_email: m.bens@shopware.com
 author_github: @SpiGAndromeda
 ---
 # Core
-* Fixed validation in `RegisterRoute::validateRegistrationData()` to properly validate billing and shipping address data types
+* Changed validation in `RegisterRoute::validateRegistrationData()` to properly validate billing and shipping address data types
 * Added explicit type validation for `billingAddress` field requiring `associative_array` type
 * Added validation for `shippingAddress` field allowing either `associative_array` type or `null` value using `AtLeastOneOf` constraint
-* Fixed condition logic to prevent validation builder failures when billing address is not a DataBag but shipping address is null
+* Changed condition logic to prevent validation builder failures when billing address is not a DataBag but shipping address is null
 ___
 # API
-* Fixed Store API `/store-api/account/register` endpoint to return proper 400 status code with JSON validation errors when invalid address data is provided
-* Completed the fix for issue #11842 which was partially addressed in PR #11712
+* Changed Store API `/store-api/account/register` endpoint to return proper 400 status code with JSON validation errors when invalid address data is provided
+* Changed error handling to complete the fix for issue #11842 which was partially addressed in PR #11712
 ___
 # Upgrade Information
 

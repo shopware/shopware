@@ -7,6 +7,7 @@
     <services>
         <service id="Shopware\Core\System\SalesChannel\SalesChannelDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.hookable"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition">
@@ -23,6 +24,7 @@
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.hookable"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition">

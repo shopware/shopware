@@ -55,7 +55,7 @@ class ImportExportLogApiTest extends TestCase
         $data = $this->prepareImportExportLogTestData($num);
 
         foreach ($data as $entry) {
-            $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         }
@@ -69,7 +69,7 @@ class ImportExportLogApiTest extends TestCase
                 $this->logRepository->create(array_values($data), $this->context);
             }
 
-            $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
 
@@ -112,14 +112,14 @@ class ImportExportLogApiTest extends TestCase
             $expectData[$id] = array_values($data)[$idx];
             unset($updateData[$idx]['id']);
 
-            $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, $updateData[$idx], [], [
+            $this->getBrowser()->jsonRequest('PATCH', $this->prepareRoute() . $id, $updateData[$idx], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         }
 
-        $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
@@ -148,7 +148,7 @@ class ImportExportLogApiTest extends TestCase
         $this->logRepository->create(array_values($data), $this->context);
 
         foreach (array_values($data) as $expect) {
-            $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $expect['id'], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
@@ -167,7 +167,7 @@ class ImportExportLogApiTest extends TestCase
 
     public function testImportExportLogDetailNotFound(): void
     {
-        $this->getBrowser()->request('GET', $this->prepareRoute() . Uuid::randomHex(), [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . Uuid::randomHex(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
@@ -189,7 +189,7 @@ class ImportExportLogApiTest extends TestCase
         static::assertNotNull($searchData);
         foreach ($searchData as $key => $value) {
             $filter['filter'][$key] = $invalidData[$key];
-            $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(true), $filter, [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
@@ -198,7 +198,7 @@ class ImportExportLogApiTest extends TestCase
             static::assertSame(0, $content['total']);
 
             $filter['filter'][$key] = $value;
-            $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(true), $filter, [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
@@ -216,7 +216,7 @@ class ImportExportLogApiTest extends TestCase
         $this->logRepository->create(array_values($data), $this->context);
         $deleteId = array_column($data, 'id')[0];
 
-        $this->getBrowser()->request('DELETE', $this->prepareRoute() . Uuid::randomHex(), [], [], [
+        $this->getBrowser()->jsonRequest('DELETE', $this->prepareRoute() . Uuid::randomHex(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
@@ -225,7 +225,7 @@ class ImportExportLogApiTest extends TestCase
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
         static::assertCount($num, $records);
 
-        $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
+        $this->getBrowser()->jsonRequest('DELETE', $this->prepareRoute() . $deleteId, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();

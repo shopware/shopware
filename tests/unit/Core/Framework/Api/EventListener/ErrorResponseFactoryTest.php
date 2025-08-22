@@ -104,6 +104,27 @@ class ErrorResponseFactoryTest extends TestCase
         ], $responseBody);
     }
 
+    public function testConvertExceptionToErrorCoversUnitEnum(): void
+    {
+        $enum = TestEnum::FOO;
+
+        $errorArray = [
+            'paramOne' => 1,
+            'paramTwo' => 2,
+        ];
+
+        $simpleShopwareHttpException = new SimpleShopwareHttpException($errorArray);
+
+        $errorResponseFactory = new ErrorResponseFactory();
+        $error = $errorResponseFactory->getErrorsFromException($simpleShopwareHttpException, true)[0];
+
+        $error['meta']['enumValue'] = $enum;
+        $converted = (new \ReflectionMethod(ErrorResponseFactory::class, 'convert'))
+            ->invoke(new ErrorResponseFactory(), $error);
+
+        static::assertSame(TestEnum::class, $converted['meta']['enumValue']);
+    }
+
     public function testItOverridesWithStatusCodeFromHttpException(): void
     {
         $exceptionDetail = 'this is a regular exception';
@@ -340,4 +361,12 @@ class SimpleShopwareHttpException extends ShopwareHttpException
     {
         return Response::HTTP_I_AM_A_TEAPOT;
     }
+}
+
+/**
+ * @internal
+ */
+enum TestEnum
+{
+    case FOO;
 }

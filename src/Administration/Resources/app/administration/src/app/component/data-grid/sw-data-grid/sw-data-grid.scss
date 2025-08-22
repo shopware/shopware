@@ -1,9 +1,8 @@
-@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-data-grid {
     overflow: hidden;
-    background-color: $color-white;
+    background-color: var(--color-elevation-surface-default);
 
     &.sw-data-grid--full-page {
         width: 100%;
@@ -27,11 +26,11 @@
     .sw-data-grid__cell {
         padding: 0;
         margin: 0;
-        font-size: $font-size-xs;
-        color: $color-darkgray-200;
-        border-right: 1px solid $color-gray-300;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary-default);
+        border-right: 1px solid var(--color-border-primary-default);
         overflow: hidden;
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-default);
 
         &:last-child {
             border-right: 0 none;
@@ -39,7 +38,7 @@
     }
 
     &.sw-data-grid--actions .sw-data-grid__cell {
-        border-right: 1px solid $color-gray-300;
+        border-right: 1px solid var(--color-border-primary-default);
 
         &:last-child,
         &:nth-last-child(2) {
@@ -51,10 +50,10 @@
         @include truncate;
 
         min-width: 0;
-        padding: 20px;
-        line-height: 22px;
-        height: 64px;
-        font-size: $font-size-xs;
+        padding: var(--scale-size-20);
+        height: var(--scale-size-64);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-size-xs);
         display: flex;
         align-items: center;
 
@@ -63,7 +62,7 @@
             margin-bottom: 0;
 
             &:not(:last-child) {
-                margin-right: 8px;
+                margin-right: var(--scale-size-8);
             }
         }
 
@@ -88,8 +87,14 @@
         }
 
         a {
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
             text-decoration: none;
+
+            &:focus-visible {
+                outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+                outline-offset: var(--scale-size-2);
+                border-radius: var(--border-radius-2xs);
+            }
 
             &:hover {
                 text-decoration: underline;
@@ -152,13 +157,13 @@
         bottom: 0;
         width: 0;
         height: 100%;
-        background-color: $color-gray-300;
+        background-color: var(--color-border-primary-default);
         cursor: ew-resize;
         opacity: 0;
         transition: all 0.2s ease-in-out;
 
         &.is--column-resizing {
-            background-color: darken($color-gray-300, 10%);
+            background-color: var(--color-border-brand-selected);
         }
     }
 
@@ -166,7 +171,7 @@
         margin-left: 5px;
 
         .mt-icon {
-            color: $color-gray-300;
+            color: var(--color-icon-secondary-default);
         }
     }
 
@@ -183,14 +188,14 @@
         position: sticky;
         top: 0;
         background-clip: padding-box;
-        box-shadow: inset 0 -1px 0 $color-gray-300;
-        background-color: $color-white;
+        box-shadow: inset 0 -1px 0 var(--color-border-primary-default);
+        background-color: var(--color-elevation-surface-default);
         z-index: 6;
         overflow: visible;
 
         &.sw-data-grid__cell--selection {
             z-index: 7;
-            box-shadow: inset -1px -1px 0 0 $color-gray-300;
+            box-shadow: inset -1px -1px 0 0 var(--color-border-primary-default);
         }
 
         .sw-data-grid__cell-content {
@@ -201,7 +206,7 @@
 
     .sw-data-grid__cell--sortable:hover {
         cursor: pointer;
-        background-color: $color-gray-100;
+        background-color: var(--color-interaction-secondary-hover);
     }
 
     .sw-data-grid__cell--property {
@@ -214,12 +219,12 @@
         }
 
         &.is--column-resizing {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
         }
 
         &:hover {
             .sw-data-grid__action-edit-column .mt-icon {
-                color: $color-darkgray-200;
+                color: var(--color-icon-primary-default);
             }
         }
     }
@@ -236,7 +241,7 @@
         min-width: 88px;
         max-width: 88px;
         border-right: 0;
-        box-shadow: inset -1px 0 0 $color-gray-300;
+        box-shadow: inset -1px 0 0 var(--color-border-primary-default);
         overflow: visible;
         z-index: 5;
 
@@ -257,14 +262,15 @@
         position: absolute;
         white-space: nowrap;
         overflow: hidden;
-        color: $color-darkgray-200;
-        background: $color-white;
-        font-size: $font-size-xs;
+        color: var(--color-text-primary-default);
+        background: var(--color-elevation-surface-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         left: 0;
         right: 0;
-        height: 64px;
+        height: var(--scale-size-64);
         z-index: 7;
-        border-bottom: 1px inset $color-gray-300;
+        border-bottom: 1px inset var(--color-border-primary-default);
         padding: 20px 12px 20px 100px;
     }
 
@@ -286,33 +292,33 @@
         }
 
         &.sw-data-grid__bulk-max-selection {
-            color: $color-crimson-500;
+            color: var(--color-text-critical-default);
         }
     }
 
     .sw-data-grid__body .sw-data-grid__row {
         &:nth-child(even) .sw-data-grid__cell {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-primary-default);
         }
 
         &:hover .sw-data-grid__cell {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
 
             a {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
         }
 
         &.is--inline-edit {
             .sw-data-grid__cell {
-                background-color: $color-shopware-brand-50;
-                border-top: 1px solid $color-shopware-brand-500;
-                border-bottom: 1px solid $color-shopware-brand-500;
+                background-color: var(--color-background-brand-default);
+                border-top: 1px solid var(--color-border-brand-selected);
+                border-bottom: 1px solid var(--color-border-brand-selected);
             }
 
             .sw-data-grid__cell-content {
                 padding: 10px;
-                color: darken($color-gray-300, 10%);
+                color: var(--color-text-secondary-default);
 
                 .mt-field {
                     margin-bottom: 0;
@@ -322,7 +328,7 @@
             .sw-data-grid__cell-value {
                 display: inline-block;
                 margin: 0 10px;
-                color: darken($color-gray-300, 10%);
+                color: var(--color-text-secondary-default);
                 user-select: none;
                 cursor: default;
             }
@@ -330,7 +336,7 @@
 
         &.is--selected {
             .sw-data-grid__cell {
-                background-color: $color-shopware-brand-50;
+                background-color: var(--color-background-brand-default);
             }
         }
     }
@@ -341,7 +347,7 @@
         width: 88px;
         min-width: 88px;
         max-width: 88px;
-        box-shadow: inset 1px 0 0 $color-gray-300;
+        box-shadow: inset 1px 0 0 var(--color-border-primary-default);
         overflow: visible;
         z-index: 4;
 
@@ -362,26 +368,34 @@
         display: inline-block;
         position: relative;
         margin: 0;
-        line-height: $line-height-xs;
-        padding: 4px 12px;
+        line-height: var(--font-line-height-xs);
+        font-size: var(--font-size-xs);
+        padding: var(--scale-size-4) var(--scale-size-12);
         text-decoration: none;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         cursor: pointer;
+        border-radius: var(--border-radius-xs);
 
-        &:hover {
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
+        }
+
+        &:hover,
+        &:focus-visible {
             text-decoration: underline;
         }
 
         &.link-danger {
-            color: $color-crimson-500;
+            color: var(--color-text-critical-default);
         }
 
         &.link-warning {
-            color: $color-pumpkin-spice-500;
+            color: var(--color-text-attention-default);
         }
 
         &.link-primary {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
         }
     }
 
@@ -390,9 +404,9 @@
         position: relative;
         width: 48px;
         height: 48px;
-        border: 1px solid $color-gray-300;
-        border-radius: $border-radius-default;
-        background-color: $color-white;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        background-color: var(--color-background-primary-default);
         margin-right: 15px;
         flex-shrink: 0;
 
@@ -414,7 +428,7 @@
     }
 
     .sw-data-grid__cell-settings {
-        box-shadow: inset 1px -1px 0 $color-gray-300;
+        box-shadow: inset 1px -1px 0 var(--color-border-primary-default);
         z-index: 7;
     }
 
@@ -512,16 +526,12 @@
     .sw-data-grid__body {
         .sw-data-grid__row {
             &:nth-child(even) .sw-data-grid__cell {
-                background-color: $color-white;
-            }
-
-            &:hover .sw-data-grid__cell {
-                background-color: $color-shopware-brand-50;
+                background-color: var(--color-elevation-surface-default);
             }
 
             &.is--inline-edit .sw-data-grid__cell,
             &.is--selected .sw-data-grid__cell {
-                background-color: $color-shopware-brand-50;
+                background-color: var(--color-background-brand-default);
             }
 
             &:last-child {
@@ -538,7 +548,7 @@
 
         .sw-data-grid__cell {
             border-right: 0 none;
-            border-bottom: 1px solid $color-gray-300;
+            border-bottom: 1px solid var(--color-border-primary-default);
         }
     }
 
@@ -547,10 +557,10 @@
     }
 
     .sw-data-grid__cell--header.sw-data-grid__cell--selection {
-        box-shadow: inset 0 -1px 0 0 $color-gray-300;
+        box-shadow: inset 0 -1px 0 0 var(--color-border-primary-default);
     }
 
     .sw-data-grid__cell-settings {
-        box-shadow: inset 0 -1px 0 $color-gray-300;
+        box-shadow: inset 0 -1px 0 var(--color-border-primary-default);
     }
 }

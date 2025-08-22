@@ -71,6 +71,7 @@
                                     <div class="image-slider-item-container">
                                         {% if image.url %}
                                             <a href="{{ image.url }}"
+                                               {% if image.ariaLabel %}aria-label="{{ image.ariaLabel }}"{% endif %}
                                                class="image-slider-link"
                                                {% if image.newTab %}target="_blank" rel="noopener"{% endif %}
                                             >

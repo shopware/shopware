@@ -16,6 +16,7 @@ export default {
         'loginService',
         'repositoryFactory',
         'acl',
+        'ssoSettingsService',
     ],
 
     emits: ['get-list'],
@@ -26,6 +27,12 @@ export default {
         Mixin.getByName('salutation'),
     ],
 
+    created() {
+        this.ssoSettingsService.isSso().then((isSso) => {
+            this.isSso = isSso.isSso;
+        });
+    },
+
     data() {
         return {
             user: [],
@@ -35,6 +42,8 @@ export default {
             confirmPassword: '',
             sortBy: 'username',
             isConfirmingPassword: false,
+            showInvitationModal: false,
+            isSso: false,
         };
     },
 
@@ -73,6 +82,24 @@ export default {
         },
 
         userColumns() {
+            if (this.isSso) {
+                return [
+                    {
+                        property: 'email',
+                        label: this.$tc('sw-users-permissions.users.user-grid.labelEmail'),
+                    },
+                    {
+                        property: 'aclRoles',
+                        sortable: false,
+                        label: this.$tc('sw-users-permissions.users.user-grid.labelRoles'),
+                    },
+                    {
+                        property: 'status',
+                        label: this.$tc('sw-users-permissions.users.user-grid.status'),
+                    },
+                ];
+            }
+
             return [
                 {
                     property: 'username',
@@ -134,6 +161,26 @@ export default {
             this.itemToDelete = user;
         },
 
+        onUserInvited() {
+            this.getList();
+            this.closeInvitationModal();
+        },
+
+        openInvitationModal() {
+            this.showInvitationModal = true;
+        },
+
+        closeInvitationModal() {
+            this.showInvitationModal = false;
+        },
+
+        invitationFailed() {
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                message: this.$tc('sw-users-permissions.sso.error.cannotInviteUser'),
+            });
+        },
+
         async onConfirmDelete(user) {
             const username = `${user.firstName} ${user.lastName} `;
             const titleDeleteSuccess = this.$tc('global.default.success');
@@ -150,39 +197,45 @@ export default {
                 },
                 0,
             );
+
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message'),
                 });
+
+                this.onCloseDeleteModal();
+
                 return;
             }
 
-            let verifiedToken;
-            try {
-                this.isConfirmingPassword = true;
-                verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
-            } catch (e) {
-                this.createNotificationError({
-                    title: this.$tc(
-                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
-                    ),
-                    message: this.$tc(
-                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
-                    ),
-                });
-            } finally {
-                this.confirmPassword = '';
-                this.isConfirmingPassword = false;
-            }
-
-            if (!verifiedToken) {
-                return;
-            }
-
-            this.confirmPasswordModal = false;
             const context = { ...Shopware.Context.api };
-            context.authToken.access = verifiedToken;
+            if (!this.isSso) {
+                let verifiedToken;
+                try {
+                    this.isConfirmingPassword = true;
+                    verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
+                } catch (e) {
+                    this.createNotificationError({
+                        title: this.$tc(
+                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
+                        ),
+                        message: this.$tc(
+                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
+                        ),
+                    });
+                } finally {
+                    this.confirmPassword = '';
+                    this.isConfirmingPassword = false;
+                }
+
+                if (!verifiedToken) {
+                    return;
+                }
+
+                this.confirmPasswordModal = false;
+                context.authToken.access = verifiedToken;
+            }
 
             this.userRepository
                 .delete(user.id, context)
@@ -199,6 +252,7 @@ export default {
                         message: messageDeleteError,
                     });
                 });
+
             this.onCloseDeleteModal();
         },
 

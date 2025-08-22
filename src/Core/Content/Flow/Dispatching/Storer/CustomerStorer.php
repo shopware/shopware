@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -20,6 +21,8 @@ class CustomerStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -90,10 +93,9 @@ class CustomerStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        $customer = $this->customerRepository->search($criteria, $context)->get($id);
+        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($id);
 
         if ($customer) {
-            /** @var CustomerEntity $customer */
             return $customer;
         }
 

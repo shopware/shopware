@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Custo
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -1132,6 +1133,9 @@ class CustomFieldTest extends TestCase
         $attributeRepo->create($attributes, Context::createDefaultContext());
     }
 
+    /**
+     * @return EntityRepository<CustomFieldCollection>
+     */
     private function getTestRepository(): EntityRepository
     {
         $definition = $this->registerDefinition(
@@ -1139,6 +1143,7 @@ class CustomFieldTest extends TestCase
             CustomFieldTestTranslationDefinition::class
         );
 
+        /** @var EntityRepository<CustomFieldCollection> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

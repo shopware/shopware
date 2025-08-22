@@ -10,21 +10,26 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ *
+ * @phpstan-import-type CookieGroupArray from CookieProviderInterface
+ */
 #[Package('framework')]
 class CookieProvider
 {
     private readonly string $sessionName;
 
     /**
-     * @internal
-     *
      * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         array $sessionOptions = [],
+        private readonly ?CookieProviderInterface $legacyCookieProvider = null,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
@@ -37,6 +42,11 @@ class CookieProvider
         $cookieGroups->add($this->getCookieGroupStatistical());
         $cookieGroups->add($this->getCookieGroupComfortFeatures());
         $cookieGroups->add($this->getCookieGroupMarketing());
+
+        if ($this->legacyCookieProvider) {
+            /** @deprecated tag:v6.8.0 - Converting can be removed completely */
+            $this->convertLegacyCookies($cookieGroups, $this->legacyCookieProvider->getCookieGroups());
+        }
 
         return $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $salesChannelContext))->cookieGroupCollection;
     }
@@ -163,5 +173,60 @@ class CookieProvider
         $entryGoogleAds->expiration = 30;
 
         return $entryGoogleAds;
+    }
+
+    /**
+     * @param list<CookieGroupArray> $legacyCookieGroups
+     */
+    private function convertLegacyCookies(CookieGroupCollection $cookieGroupCollection, array $legacyCookieGroups): void
+    {
+        foreach ($legacyCookieGroups as $legacyCookieGroup) {
+            $cookieGroup = $cookieGroupCollection->get($legacyCookieGroup['snippet_name']) ?? new CookieGroup($legacyCookieGroup['snippet_name']);
+
+            if (\array_key_exists('snippet_description', $legacyCookieGroup)) {
+                $cookieGroup->snippetKeyDescription = $legacyCookieGroup['snippet_description'];
+            }
+
+            if (\array_key_exists('cookie', $legacyCookieGroup)) {
+                $cookieGroup->setCookie($legacyCookieGroup['cookie']);
+            }
+
+            if (\array_key_exists('value', $legacyCookieGroup)) {
+                $cookieGroup->value = $legacyCookieGroup['value'];
+            }
+
+            if (\array_key_exists('expiration', $legacyCookieGroup)) {
+                $cookieGroup->expiration = (int) $legacyCookieGroup['expiration'];
+            }
+
+            if (\array_key_exists('entries', $legacyCookieGroup)) {
+                $cookieEntries = $cookieGroup->getEntries() ?? new CookieEntryCollection();
+                foreach ($legacyCookieGroup['entries'] as $entry) {
+                    $cookieEntry = new CookieEntry($entry['cookie']);
+
+                    if (\array_key_exists('snippet_name', $entry)) {
+                        $cookieEntry->snippetKeyName = $entry['snippet_name'];
+                    }
+
+                    if (\array_key_exists('snippet_description', $entry)) {
+                        $cookieEntry->snippetKeyDescription = $entry['snippet_description'];
+                    }
+
+                    if (\array_key_exists('value', $entry)) {
+                        $cookieEntry->value = $entry['value'];
+                    }
+
+                    if (\array_key_exists('expiration', $entry)) {
+                        $cookieEntry->expiration = (int) $entry['expiration'];
+                    }
+
+                    $cookieEntries->add($cookieEntry);
+                }
+
+                $cookieGroup->setEntries($cookieEntries);
+            }
+
+            $cookieGroupCollection->add($cookieGroup);
+        }
     }
 }

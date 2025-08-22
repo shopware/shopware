@@ -14,6 +14,7 @@
         <service id="Shopware\Core\Content\Cookie\Service\CookieProvider">
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument>%session.storage.options%</argument>
+            <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Content\Cookie\SalesChannel\CookieRoute" public="true">

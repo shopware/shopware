@@ -3,10 +3,8 @@
 namespace Shopware\Core\Content\Cookie\Service;
 
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
-use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Content\Cookie\Struct\CookieStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -32,85 +30,6 @@ readonly class CookieService
         private TranslatorInterface $translator
     ) {
     }
-
-    //    /**
-    //     * Returns a CookieGroupCollection based on the provided cookie groups and sales channel context.
-    //     *
-    //     * @param array<string|int, mixed> $cookieGroups
-    //     */
-    //    public function getCookieGroupCollection(array $cookieGroups, ?SalesChannelContext $salesChannelContext, bool $translate = true): CookieGroupCollection
-    //    {
-    //        $cookieGroups = $this->normalizeCookieGroups($cookieGroups);
-    //        if ($salesChannelContext !== null) {
-    //            $cookieGroups = $this->filterCookieGroups($salesChannelContext, $cookieGroups);
-    //        }
-    //
-    //        if ($translate) {
-    //            $cookieGroups = $this->translateCookieGroups($cookieGroups);
-    //        }
-    //
-    //        return $this->convertToCookieGroupCollection($cookieGroups);
-    //    }
-    //
-    //    /**
-    //     * Converts an array of cookie groups to a CookieGroupCollection.
-    //     *
-    //     * @param array<string|int, CookieGroup> $cookieGroups
-    //     */
-    //    private function convertToCookieGroupCollection(array $cookieGroups): CookieGroupCollection
-    //    {
-    //        $collection = new CookieGroupCollection();
-    //        foreach ($cookieGroups as $group) {
-    //            $collection->add($group);
-    //        }
-    //
-    //        return $collection;
-    //    }
-    //
-    //    /**
-    //     * @param array<string|int, mixed|CookieGroup> $cookieGroups // legacy arrays OR CookieGroup[]
-    //     *
-    //     * @return array<string|int, mixed|CookieGroup>
-    //     */
-    //    private function normalizeCookieGroups(array $cookieGroups): array
-    //    {
-    //        // NEW typed shape (array of CookieGroup instances)
-    //        if (!empty($cookieGroups) && $cookieGroups[array_key_first($cookieGroups)] instanceof CookieGroup) {
-    //            return $cookieGroups;
-    //        }
-    //
-    //        // LEGACY array shape -> convert to objects
-    //        $normalized = [];
-    //        foreach ($cookieGroups as $group) {
-    //            $cookieGroup = new CookieGroup(
-    //                (bool) ($group['isRequired'] ?? false),
-    //                new CookieEntryCollection(array_values(array_map(function (array $cookieEntry): CookieEntry {
-    //                    $entry = new CookieEntry((bool) ($cookieEntry['hidden'] ?? false));
-    //                    $this->hydrateCookieStructFromArray($entry, data: $cookieEntry);
-    //
-    //                    return $entry;
-    //                }, (array) ($group['entries'] ?? [])))),
-    //            );
-    //
-    //            $this->hydrateCookieStructFromArray($cookieGroup, $group);
-    //
-    //            $normalized[] = $cookieGroup;
-    //        }
-    //
-    //        return $normalized;
-    //    }
-    //
-    //    /**
-    //     * @param array<string, mixed> $data
-    //     */
-    //    private function hydrateCookieStructFromArray(CookieStruct $struct, array $data): void
-    //    {
-    //        $struct->snippetKeyName = $data['snippet_name'] ?? null;
-    //        $struct->snippetKeyDescription = $data['snippet_description'] ?? null;
-    //        $struct->cookie = $data['cookie'] ?? null;
-    //        $struct->value = $data['value'] ?? null;
-    //        $struct->expiration = $data['expiration'] ?? null;
-    //    }
 
     public function filterCookieGroups(CookieGroupCollection $cookieGroups, SalesChannelContext $context): CookieGroupCollection
     {

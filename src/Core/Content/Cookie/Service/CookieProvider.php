@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,14 +39,14 @@ class CookieProvider
     {
         $cookieGroups = new CookieGroupCollection();
 
-        $cookieGroups->add($this->getCookieGroupRequiredEntries());
-        $cookieGroups->add($this->getCookieGroupStatistical());
-        $cookieGroups->add($this->getCookieGroupComfortFeatures());
-        $cookieGroups->add($this->getCookieGroupMarketing());
-
-        if ($this->legacyCookieProvider) {
+        if ($this->legacyCookieProvider && !Feature::isActive('v6.8.0.0')) {
             /** @deprecated tag:v6.8.0 - Converting can be removed completely */
             $this->convertLegacyCookies($cookieGroups, $this->legacyCookieProvider->getCookieGroups());
+        } else {
+            $cookieGroups->add($this->getCookieGroupRequiredEntries());
+            $cookieGroups->add($this->getCookieGroupStatistical());
+            $cookieGroups->add($this->getCookieGroupComfortFeatures());
+            $cookieGroups->add($this->getCookieGroupMarketing());
         }
 
         return $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $salesChannelContext))->cookieGroupCollection;

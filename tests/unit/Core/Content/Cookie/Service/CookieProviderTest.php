@@ -9,8 +9,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Storefront\Framework\Cookie\CookieProvider as LegacyCookieProvider;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -36,6 +38,9 @@ class CookieProviderTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertNotNull($requiredGroup->getEntries());
         static::assertCount(4, $requiredGroup->getEntries());
+
+        $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
+        static::assertNotNull($sessionCookie);
 
         $statisticalGroup = $cookieGroups->get('cookie.groupStatistical');
         static::assertInstanceOf(CookieGroup::class, $statisticalGroup);
@@ -65,5 +70,27 @@ class CookieProviderTest extends TestCase
 
         $testGroup = $cookieGroups->get('test');
         static::assertInstanceOf(CookieGroup::class, $testGroup);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyCookieConverting(): void
+    {
+        $legacyCookieProvider = new LegacyCookieProvider(['name' => 'test-session-name-']);
+
+        $cookieGroups = (new CookieProvider(
+            new EventDispatcher(),
+            [],
+            $legacyCookieProvider,
+        ))->getCookieGroups(Generator::generateSalesChannelContext());
+
+        static::assertCount(4, $cookieGroups);
+
+        $requiredGroup = $cookieGroups->get('cookie.groupRequired');
+        static::assertInstanceOf(CookieGroup::class, $requiredGroup);
+        static::assertNotNull($requiredGroup->getEntries());
+        static::assertCount(4, $requiredGroup->getEntries());
+
+        $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
+        static::assertNotNull($sessionCookie);
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Cookie;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 
 #[Package('framework')]
 /**
@@ -12,11 +13,86 @@ use Shopware\Core\Framework\Log\Package;
  */
 class CookieProvider implements CookieProviderInterface
 {
+    private const REQUIRED_COOKIES = [
+        'isRequired' => true,
+        'snippet_name' => 'cookie.groupRequired',
+        'snippet_description' => 'cookie.groupRequiredDescription',
+        'entries' => [
+            [
+                'snippet_name' => 'cookie.groupRequiredSession',
+            ],
+            [
+                'snippet_name' => 'cookie.groupRequiredTimezone',
+                'cookie' => 'timezone',
+            ],
+            [
+                'snippet_name' => 'cookie.groupRequiredAccepted',
+                'cookie' => 'cookie-preference',
+                'value' => '1',
+                'expiration' => '30',
+                'hidden' => true,
+            ],
+            [
+                'snippet_name' => 'cookie.groupRequiredCaptcha',
+                'cookie' => '_GRECAPTCHA',
+                'value' => '1',
+            ],
+        ],
+    ];
+
+    private const STATISTICAL_COOKIES = [
+        'snippet_name' => 'cookie.groupStatistical',
+        'snippet_description' => 'cookie.groupStatisticalDescription',
+        'entries' => [
+            [
+                'snippet_name' => 'cookie.groupStatisticalGoogleAnalytics',
+                'cookie' => 'google-analytics-enabled',
+                'expiration' => '30',
+                'value' => '1',
+            ],
+        ],
+    ];
+
+    private const COMFORT_FEATURES_COOKIES = [
+        'snippet_name' => 'cookie.groupComfortFeatures',
+        'entries' => [
+            [
+                'snippet_name' => 'cookie.groupComfortFeaturesWishlist',
+                'cookie' => 'wishlist-enabled',
+                'expiration' => '30',
+                'value' => '1',
+            ],
+            [
+                'snippet_name' => 'cookie.groupComfortFeaturesYoutubeVideo',
+                'cookie' => 'youtube-video',
+                'expiration' => '30',
+                'value' => '1',
+            ],
+        ],
+    ];
+
+    private const MARKETING_COOKIES = [
+        'snippet_name' => 'cookie.groupMarketing',
+        'snippet_description' => 'cookie.groupMarketingDescription',
+        'entries' => [
+            [
+                'snippet_name' => 'cookie.groupMarketingAdConsent',
+                'cookie' => 'google-ads-enabled',
+                'expiration' => '30',
+                'value' => '1',
+            ],
+        ],
+    ];
+
+    private readonly string $sessionName;
+
     /**
      * @internal
      */
-    public function __construct()
-    {
+    public function __construct(
+        array $sessionOptions = [],
+    ) {
+        $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
     /**
@@ -29,7 +105,14 @@ class CookieProvider implements CookieProviderInterface
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use CookieGroupCollectEvent instead to introduce cookies')
         );
 
+        $requiredCookies = self::REQUIRED_COOKIES;
+        $requiredCookies['entries'][0]['cookie'] = $this->sessionName;
+
         return [
+            $requiredCookies,
+            self::STATISTICAL_COOKIES,
+            self::MARKETING_COOKIES,
+            self::COMFORT_FEATURES_COOKIES,
         ];
     }
 }

@@ -459,7 +459,7 @@ class AppEntity extends Entity
     /**
      * @internal
      */
-    public function setAppSecret(?string $appSecret): void
+    public function setAppSecret(#[\SensitiveParameter] ?string $appSecret): void
     {
         $this->appSecret = $appSecret;
     }

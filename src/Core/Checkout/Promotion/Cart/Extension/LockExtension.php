@@ -23,7 +23,6 @@ class LockExtension extends Struct
      */
     public function __construct(
         public readonly array $locks
-    )
-    {
+    ) {
     }
 }

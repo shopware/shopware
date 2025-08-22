@@ -75,7 +75,7 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
             return;
         }
 
-        foreach ($lockExtension->getLocks() as $lock) {
+        foreach ($lockExtension->locks as $lock) {
             $lock->release();
         }
 

@@ -22,15 +22,8 @@ class LockExtension extends Struct
      * @param array<string, LockInterface> $locks
      */
     public function __construct(
-        private readonly array $locks
-    ) {
-    }
-
-    /**
-     * @return array<string, LockInterface>
-     */
-    public function getLocks(): array
+        public readonly array $locks
+    )
     {
-        return $this->locks;
     }
 }

@@ -63,7 +63,7 @@ class PromotionRedemptionLockerTest extends TestCase
         $lockExtension = $extension->getExtensionOfType(LockExtension::KEY, LockExtension::class);
         static::assertNotNull($lockExtension);
 
-        static::assertSame([$lineItem->getPayloadValue('code') => $lock], $lockExtension->getLocks());
+        static::assertSame([$lineItem->getPayloadValue('code') => $lock], $lockExtension->locks);
     }
 
     public function testAcquireLockWithMultiplePromotionItem(): void
@@ -98,7 +98,7 @@ class PromotionRedemptionLockerTest extends TestCase
         $lockExtension = $extension->getExtensionOfType(LockExtension::KEY, LockExtension::class);
         static::assertNotNull($lockExtension);
 
-        static::assertSame([$firstLineItem->getPayloadValue('code') => $lock], $lockExtension->getLocks());
+        static::assertSame([$firstLineItem->getPayloadValue('code') => $lock], $lockExtension->locks);
     }
 
     public function testAcquireLockWithValidPromotionItemFails(): void

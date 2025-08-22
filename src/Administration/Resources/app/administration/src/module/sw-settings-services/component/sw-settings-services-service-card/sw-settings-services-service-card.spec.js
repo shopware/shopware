@@ -213,6 +213,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(popoverItem.isVisible()).toBeTruthy();
 
         await popoverItem.trigger('click');
+        // Wait 32ms for debounce
+        await new Promise((resolve) => {
+            setTimeout(resolve, 32);
+        });
 
         const modal = card.findComponent(MtModal);
         expect(modal.exists()).toBeTruthy();
@@ -279,6 +283,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(popoverButton.isVisible()).toBeTruthy();
 
         await popoverButton.trigger('click');
+        // Wait 32ms for debounce
+        await new Promise((resolve) => {
+            setTimeout(resolve, 32);
+        });
 
         const popoverItem = card
             .findAllComponents(MtPopoverItem)
@@ -286,6 +294,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(popoverItem).toBeDefined();
 
         await popoverItem.trigger('click');
+        // Wait 32ms for debounce
+        await new Promise((resolve) => {
+            setTimeout(resolve, 32);
+        });
 
         expect(Shopware.Service('shopwareExtensionService').activateExtension).toHaveBeenCalledWith('service-name', 'app');
         expect(window.location.reload).toHaveBeenCalled();
@@ -366,6 +378,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(popoverButton.isVisible()).toBeTruthy();
 
         await popoverButton.trigger('click');
+        // Wait 32ms for debounce
+        await new Promise((resolve) => {
+            setTimeout(resolve, 32);
+        });
 
         const popoverItem = card
             .findAllComponents(MtPopoverItem)
@@ -373,6 +389,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(popoverItem).toBeDefined();
 
         await popoverItem.trigger('click');
+        // Wait 32ms for debounce
+        await new Promise((resolve) => {
+            setTimeout(resolve, 32);
+        });
 
         const permissionsModal = card.getComponent({ name: 'sw-extension-permissions-modal' });
 

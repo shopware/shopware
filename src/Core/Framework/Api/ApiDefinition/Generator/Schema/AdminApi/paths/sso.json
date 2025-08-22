@@ -1,0 +1,58 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "SSO",
+        "version": "v1"
+    },
+    "paths": {
+        "\/oauth\/sso\/config": {
+            "get": {
+                "tags": [
+                    "Experimental",
+                    "SSO Login configuration"
+                ],
+                "summary": "Experimental: Loads SSO login configuration.",
+                "description": "Experimental: Loads the SSO login configuration to configure the forward to the Shopware SSO login page.",
+                "operationId": "loadSsoLoginConfig",
+                "responses": {
+                    "200": {
+                        "description": "Experimental: Returns the configuration for the SSO login page forward.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "useDefault": {
+                                            "description": "Experimental: Indicates which login is used. Default or SSO.",
+                                            "type": "boolean"
+                                        },
+                                        "url": {
+                                            "description": "Experimental: Contains the return url for the Shopware SSO login.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/oauth\/sso\/code": {
+            "get": {
+                "tags": [
+                    "Experimental",
+                    "SSO Login callback"
+                ],
+                "summary": "Experimental: Callback for SSO login",
+                "description": "Experimental: Logs in the user into the Shopware shop and forwards to the admin",
+                "operationId": "callBackWithCode",
+                "responses": {
+                    "302": {
+                        "description": "Experimental: Forwards to the Shopware admin"
+                    }
+                }
+            }
+        }
+    }
+}

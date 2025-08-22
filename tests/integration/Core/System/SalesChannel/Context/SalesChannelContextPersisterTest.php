@@ -344,7 +344,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertArrayNotHasKey(SalesChannelContextService::CUSTOMER_ID, $result);
     }
 
-    #[DataProvider('revokeTokensDataProvider')]
+    #[DataProvider('revokeTokensTestDataProvider')]
     public function testRevokeTokens(string $token, ?string $preserveToken): void
     {
         $customerId = $this->createCustomer();
@@ -367,7 +367,7 @@ class SalesChannelContextPersisterTest extends TestCase
         }
     }
 
-    public static function revokeTokensDataProvider(): \Generator
+    public static function revokeTokensTestDataProvider(): \Generator
     {
         yield [Uuid::randomHex(), ''];
         yield [$token = Uuid::randomHex(), $token];

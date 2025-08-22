@@ -23,6 +23,7 @@ export default {
         'searchPreferencesService',
         'searchRankingService',
         'userConfigService',
+        'ssoSettingsService',
     ],
 
     mixins: [
@@ -250,15 +251,23 @@ export default {
                 return;
             }
 
-            if (this.checkEmail() === false) {
-                return;
-            }
+            this.ssoSettingsService.isSso().then((response) => {
+                if (response.isSso) {
+                    this.saveUser();
 
-            const passwordCheck = this.checkPassword();
+                    return;
+                }
 
-            if (passwordCheck === null || passwordCheck === true) {
-                this.confirmPasswordModal = true;
-            }
+                if (this.checkEmail() === false) {
+                    return;
+                }
+
+                const passwordCheck = this.checkPassword();
+
+                if (passwordCheck === null || passwordCheck === true) {
+                    this.confirmPasswordModal = true;
+                }
+            });
         },
 
         checkEmail() {

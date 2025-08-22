@@ -817,7 +817,7 @@ class RegisterRouteTest extends TestCase
 
                 $billingAddressDefinition = $subs['billingAddress'];
 
-                static::assertCount(5, $billingAddressDefinition->getProperties());
+                static::assertCount(6, $billingAddressDefinition->getProperties());
                 static::assertArrayNotHasKey('vatIds', $billingAddressDefinition->getProperties());
 
                 return true;
@@ -913,7 +913,7 @@ class RegisterRouteTest extends TestCase
             ->with($data, static::callback(function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();
 
-                static::assertArrayHasKey('billingAddress', $subs);
+                static::assertArrayNotHasKey('billingAddress', $subs);
 
                 $billingAddressConstraints = $definition->getProperty('billingAddress');
                 static::assertCount(1, $billingAddressConstraints);

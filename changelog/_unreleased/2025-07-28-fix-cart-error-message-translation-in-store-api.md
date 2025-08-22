@@ -6,4 +6,4 @@ author_github: gecolay
 ---
 # Core
 * Changed `Shopware\Core\Checkout\Cart\CartRuleLoader` to override the cart error messages with the correct translated string
-* Added `setMessage` helper function to `Shopware\Core\Checkout\Cart\Error\Error`
+* Added `$translatedMessage` field + get & set functions to `Shopware\Core\Checkout\Cart\Error\Error`

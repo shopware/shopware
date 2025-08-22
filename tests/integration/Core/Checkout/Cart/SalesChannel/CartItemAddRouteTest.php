@@ -161,7 +161,7 @@ class CartItemAddRouteTest extends TestCase
         static::assertSame(0, $response['price']['totalPrice']);
         static::assertCount(0, $response['lineItems']);
         static::assertCount(1, $response['errors']);
-        static::assertSame('The product "Test" is not available any more', array_column($response['errors'], 'message')[0]);
+        static::assertSame('The product Test is no longer available', array_column($response['errors'], 'message')[0]);
     }
 
     public function testFillCartMultipleProducts(): void

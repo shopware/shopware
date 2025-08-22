@@ -22,6 +22,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class CookieProvider
 {
+    final public const SNIPPET_NAME_COOKIE_GROUP_REQUIRED = 'cookie.groupRequired';
+    final public const SNIPPET_NAME_COOKIE_GROUP_STATISTICAL = 'cookie.groupStatistical';
+    final public const SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES = 'cookie.groupComfortFeatures';
+    final public const SNIPPET_NAME_COOKIE_GROUP_MARKETING = 'cookie.groupMarketing';
+
     private readonly string $sessionName;
 
     /**
@@ -54,7 +59,7 @@ class CookieProvider
 
     private function getCookieGroupRequiredEntries(): CookieGroup
     {
-        $cookieGroupRequired = new CookieGroup('cookie.groupRequired');
+        $cookieGroupRequired = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         $cookieGroupRequired->snippetKeyDescription = 'cookie.groupRequiredDescription';
         $cookieGroupRequired->setEntries(new CookieEntryCollection([
             $this->getRequiredSessionEntry(),
@@ -95,7 +100,7 @@ class CookieProvider
 
     private function getCookieGroupStatistical(): CookieGroup
     {
-        $cookieGroupStatistical = new CookieGroup('cookie.groupStatistical');
+        $cookieGroupStatistical = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
         $cookieGroupStatistical->setEntries(new CookieEntryCollection([
             $this->getGoogleAnalyticsEntry(),
         ]));
@@ -116,7 +121,7 @@ class CookieProvider
 
     private function getCookieGroupComfortFeatures(): CookieGroup
     {
-        $cookieGroupComfortFeatures = new CookieGroup('cookie.groupComfortFeatures');
+        $cookieGroupComfortFeatures = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         $cookieGroupComfortFeatures->setEntries(new CookieEntryCollection([
             $this->getWishlistEntry(),
             $this->getYoutubeVideoEntry(),
@@ -147,7 +152,7 @@ class CookieProvider
 
     private function getCookieGroupMarketing(): CookieGroup
     {
-        $cookieGroupMarketing = new CookieGroup('cookie.groupMarketing');
+        $cookieGroupMarketing = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
         $cookieGroupMarketing->snippetKeyDescription = 'cookie.groupMarketingDescription';
         $cookieGroupMarketing->setEntries(new CookieEntryCollection([
             $this->getGoogleAdsEntry(),

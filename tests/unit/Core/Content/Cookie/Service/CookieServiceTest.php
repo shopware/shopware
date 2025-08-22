@@ -23,10 +23,10 @@ class CookieServiceTest extends TestCase
 {
     public function testGetCookieGroupCollectionWithNoAnalytics(): void
     {
-        $statisticalGroup = new CookieGroup('cookie.groupStatistical');
+        $statisticalGroup = new CookieGroup(\Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
         $statisticalGroup->setEntries(new CookieEntryCollection([new CookieEntry('google-analytics-enabled')]));
 
-        $marketingGroup = new CookieGroup('cookie.groupMarketing');
+        $marketingGroup = new CookieGroup(\Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
         $marketingGroup->setEntries(new CookieEntryCollection([new CookieEntry('google-ads-enabled')]));
 
         $otherGroup = new CookieGroup('cookie.groupOther');

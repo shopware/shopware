@@ -82,7 +82,7 @@ readonly class CookieService
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup->snippetKeyName === 'cookie.groupStatistical') {
+            if ($cookieGroup->snippetKeyName === CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL) {
                 $cookieGroup = $this->filterCookieGroup('google-analytics-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
@@ -91,7 +91,7 @@ readonly class CookieService
                 continue;
             }
 
-            if ($cookieGroup->snippetKeyName === 'cookie.groupMarketing') {
+            if ($cookieGroup->snippetKeyName === CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING) {
                 $cookieGroup = $this->filterCookieGroup('google-ads-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
@@ -114,7 +114,7 @@ readonly class CookieService
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup->snippetKeyName === 'cookie.groupComfortFeatures') {
+            if ($cookieGroup->snippetKeyName === CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES) {
                 $cookieGroup = $this->filterCookieGroup('wishlist-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;

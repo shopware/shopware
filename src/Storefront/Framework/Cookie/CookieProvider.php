@@ -15,7 +15,7 @@ class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [
         'isRequired' => true,
-        'snippet_name' => 'cookie.groupRequired',
+        'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED,
         'snippet_description' => 'cookie.groupRequiredDescription',
         'entries' => [
             [
@@ -36,7 +36,7 @@ class CookieProvider implements CookieProviderInterface
     ];
 
     private const STATISTICAL_COOKIES = [
-        'snippet_name' => 'cookie.groupStatistical',
+        'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL,
         'snippet_description' => 'cookie.groupStatisticalDescription',
         'entries' => [
             [
@@ -49,7 +49,7 @@ class CookieProvider implements CookieProviderInterface
     ];
 
     private const COMFORT_FEATURES_COOKIES = [
-        'snippet_name' => 'cookie.groupComfortFeatures',
+        'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES,
         'entries' => [
             [
                 'snippet_name' => 'cookie.groupComfortFeaturesWishlist',
@@ -67,7 +67,7 @@ class CookieProvider implements CookieProviderInterface
     ];
 
     private const MARKETING_COOKIES = [
-        'snippet_name' => 'cookie.groupMarketing',
+        'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING,
         'snippet_description' => 'cookie.groupMarketingDescription',
         'entries' => [
             [

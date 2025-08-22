@@ -58,7 +58,7 @@ class CaptchaCookieCollectListenerTest extends TestCase
 
     public function testCaptchaCookieIsAdded(): void
     {
-        $cookieGroup = new CookieGroup('cookie.groupRequired');
+        $cookieGroup = new CookieGroup(\Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         $cookieGroup->isRequired = true;
 
         $event = new CookieGroupCollectEvent(
@@ -68,7 +68,7 @@ class CaptchaCookieCollectListenerTest extends TestCase
 
         $this->listener->__invoke($event);
 
-        $captchaCookie = $event->cookieGroupCollection->get('cookie.groupRequired')?->getEntries()?->get('_GRECAPTCHA');
+        $captchaCookie = $event->cookieGroupCollection->get(\Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED)?->getEntries()?->get('_GRECAPTCHA');
         static::assertNotNull($captchaCookie);
     }
 }

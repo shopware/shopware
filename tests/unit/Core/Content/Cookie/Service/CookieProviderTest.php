@@ -34,7 +34,7 @@ class CookieProviderTest extends TestCase
 
         static::assertCount(4, $cookieGroups);
 
-        $requiredGroup = $cookieGroups->get('cookie.groupRequired');
+        $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertNotNull($requiredGroup->getEntries());
         static::assertCount(3, $requiredGroup->getEntries());
@@ -46,17 +46,17 @@ class CookieProviderTest extends TestCase
         static::assertNotNull($cookiePreferenceCookie);
         static::assertTrue($cookiePreferenceCookie->hidden);
 
-        $statisticalGroup = $cookieGroups->get('cookie.groupStatistical');
+        $statisticalGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
         static::assertInstanceOf(CookieGroup::class, $statisticalGroup);
         static::assertNotNull($statisticalGroup->getEntries());
         static::assertCount(1, $statisticalGroup->getEntries());
 
-        $comfortFeaturesGroup = $cookieGroups->get('cookie.groupComfortFeatures');
+        $comfortFeaturesGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         static::assertInstanceOf(CookieGroup::class, $comfortFeaturesGroup);
         static::assertNotNull($comfortFeaturesGroup->getEntries());
         static::assertCount(2, $comfortFeaturesGroup->getEntries());
 
-        $marketingGroup = $cookieGroups->get('cookie.groupMarketing');
+        $marketingGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
         static::assertInstanceOf(CookieGroup::class, $marketingGroup);
         static::assertNotNull($marketingGroup->getEntries());
         static::assertCount(1, $marketingGroup->getEntries());
@@ -89,7 +89,7 @@ class CookieProviderTest extends TestCase
 
         static::assertCount(4, $cookieGroups);
 
-        $requiredGroup = $cookieGroups->get('cookie.groupRequired');
+        $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertTrue($requiredGroup->isRequired);
         static::assertNotNull($requiredGroup->getEntries());

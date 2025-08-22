@@ -94,7 +94,7 @@ class CookieGroupCollectListenerTest extends TestCase
         $coreCookieEntry = new CookieEntry('core.something');
         $coreCookieEntry->snippetKeyName = 'cookie.core';
 
-        $coreCookieGroup = new CookieGroup('cookie.groupRequired');
+        $coreCookieGroup = new CookieGroup(\Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         $coreCookieGroup->setEntries(new CookieEntryCollection([$coreCookieEntry]));
 
         $event = new CookieGroupCollectEvent(
@@ -109,7 +109,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
-        static::assertSame('cookie.groupRequired', $firstGroup->snippetKeyName);
+        static::assertSame(\Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED, $firstGroup->snippetKeyName);
         $entries = $firstGroup->getEntries();
         static::assertNotNull($entries);
         static::assertCount(3, $entries);

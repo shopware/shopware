@@ -817,8 +817,110 @@ class RegisterRouteTest extends TestCase
 
                 $billingAddressDefinition = $subs['billingAddress'];
 
-                static::assertCount(4, $billingAddressDefinition->getProperties());
+                static::assertCount(5, $billingAddressDefinition->getProperties());
                 static::assertArrayNotHasKey('vatIds', $billingAddressDefinition->getProperties());
+
+                return true;
+            }));
+
+        $definitionFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $definitionFactory
+            ->method('create')
+            ->willReturn(new DataValidationDefinition());
+
+        $registerRoute = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $definitionFactory,
+            $definitionFactory,
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $countryRepository,
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+            $definitionFactory,
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testRegisterWithNonArrayBillingAddressViolation(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(true);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $customerEntity->setEmail('test@test.de');
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition(),
+        );
+
+        $countryId = Uuid::randomHex();
+
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $country->setVatIdRequired(true);
+
+        $countryRepository = $this->createMock(SalesChannelRepository::class);
+        $countryRepository
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    CountryDefinition::ENTITY_NAME,
+                    1,
+                    new CountryCollection([$country]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            );
+
+        $salutationId = Uuid::randomHex();
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => 'Max Mustermanns Address',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'salutationId' => $salutationId,
+            'lastName' => 'Mustermann',
+            'firstName' => 'Max',
+            'vatIds' => ['123'],
+            'storefrontUrl' => 'foo',
+        ];
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+                $subs = $definition->getSubDefinitions();
+
+                static::assertArrayHasKey('billingAddress', $subs);
+
+                $billingAddressConstraints = $definition->getProperty('billingAddress');
+                static::assertCount(1, $billingAddressConstraints);
+
+                $billingAddressConstraint = $billingAddressConstraints[0];
+                static::assertInstanceOf(Type::class, $billingAddressConstraint);
+                static::assertEquals('associative_array', $billingAddressConstraint->type);
 
                 return true;
             }));

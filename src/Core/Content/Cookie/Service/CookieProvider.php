@@ -60,7 +60,6 @@ class CookieProvider
             $this->getRequiredSessionEntry(),
             $this->getRequiredTimezoneEntry(),
             $this->getRequiredAcceptedEntry(),
-            $this->getRequiredCaptchaEntry(),
         ]));
         $cookieGroupRequired->isRequired = true;
 
@@ -92,15 +91,6 @@ class CookieProvider
         $entryRequiredAccepted->hidden = true;
 
         return $entryRequiredAccepted;
-    }
-
-    private function getRequiredCaptchaEntry(): CookieEntry
-    {
-        $entryRequiredCaptcha = new CookieEntry('_GRECAPTCHA');
-        $entryRequiredCaptcha->snippetKeyName = 'cookie.groupRequiredCaptcha';
-        $entryRequiredCaptcha->value = '1';
-
-        return $entryRequiredCaptcha;
     }
 
     private function getCookieGroupStatistical(): CookieGroup
@@ -182,7 +172,11 @@ class CookieProvider
     private function convertLegacyCookies(CookieGroupCollection $cookieGroupCollection, array $legacyCookieGroups): void
     {
         foreach ($legacyCookieGroups as $legacyCookieGroup) {
-            $cookieGroup = $cookieGroupCollection->get($legacyCookieGroup['snippet_name']) ?? new CookieGroup($legacyCookieGroup['snippet_name']);
+            $cookieGroup = $cookieGroupCollection->get($legacyCookieGroup['snippet_name']);
+            if ($cookieGroup === null) {
+                $cookieGroup = new CookieGroup($legacyCookieGroup['snippet_name']);
+                $cookieGroupCollection->add($cookieGroup);
+            }
 
             if (\array_key_exists('snippet_description', $legacyCookieGroup)) {
                 $cookieGroup->snippetKeyDescription = $legacyCookieGroup['snippet_description'];
@@ -200,8 +194,17 @@ class CookieProvider
                 $cookieGroup->expiration = (int) $legacyCookieGroup['expiration'];
             }
 
+            if (\array_key_exists('isRequired', $legacyCookieGroup)) {
+                $cookieGroup->isRequired = $legacyCookieGroup['isRequired'];
+            }
+
             if (\array_key_exists('entries', $legacyCookieGroup)) {
-                $cookieEntries = $cookieGroup->getEntries() ?? new CookieEntryCollection();
+                $cookieEntries = $cookieGroup->getEntries();
+                if ($cookieEntries === null) {
+                    $cookieEntries = new CookieEntryCollection();
+                    $cookieGroup->setEntries($cookieEntries);
+                }
+
                 foreach ($legacyCookieGroup['entries'] as $entry) {
                     $cookieEntry = new CookieEntry($entry['cookie']);
 
@@ -221,13 +224,13 @@ class CookieProvider
                         $cookieEntry->expiration = (int) $entry['expiration'];
                     }
 
+                    if (\array_key_exists('hidden', $entry)) {
+                        $cookieEntry->hidden = (bool) $entry['hidden'];
+                    }
+
                     $cookieEntries->add($cookieEntry);
                 }
-
-                $cookieGroup->setEntries($cookieEntries);
             }
-
-            $cookieGroupCollection->add($cookieGroup);
         }
     }
 }

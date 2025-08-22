@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-import-type Cookie from AppEntity
  */
 #[Package('framework')]
-class CookieGroupCollectListener
+class AppCookieCollectListener
 {
     /**
      * @param EntityRepository<AppCollection> $appRepository
@@ -54,7 +54,11 @@ class CookieGroupCollectListener
     private function addCookies(CookieGroupCollection $cookieGroupCollection, array $appCookies): void
     {
         foreach ($appCookies as $cookie) {
-            $cookieGroup = $cookieGroupCollection->get($cookie['snippet_name']) ?? new CookieGroup($cookie['snippet_name']);
+            $cookieGroup = $cookieGroupCollection->get($cookie['snippet_name']);
+            if ($cookieGroup === null) {
+                $cookieGroup = new CookieGroup($cookie['snippet_name']);
+                $cookieGroupCollection->add($cookieGroup);
+            }
 
             if (\array_key_exists('snippet_description', $cookie)) {
                 $cookieGroup->snippetKeyDescription = $cookie['snippet_description'];
@@ -73,7 +77,12 @@ class CookieGroupCollectListener
             }
 
             if (\array_key_exists('entries', $cookie)) {
-                $cookieEntries = $cookieGroup->getEntries() ?? new CookieEntryCollection();
+                $cookieEntries = $cookieGroup->getEntries();
+                if ($cookieEntries === null) {
+                    $cookieEntries = new CookieEntryCollection();
+                    $cookieGroup->setEntries($cookieEntries);
+                }
+
                 foreach ($cookie['entries'] as $entry) {
                     $cookieEntry = new CookieEntry($entry['cookie']);
 
@@ -95,10 +104,7 @@ class CookieGroupCollectListener
 
                     $cookieEntries->add($cookieEntry);
                 }
-                $cookieGroup->setEntries($cookieEntries);
             }
-
-            $cookieGroupCollection->add($cookieGroup);
         }
     }
 }

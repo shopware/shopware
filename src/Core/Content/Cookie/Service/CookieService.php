@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
-use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -34,9 +32,8 @@ readonly class CookieService
     public function filterCookieGroups(CookieGroupCollection $cookieGroups, SalesChannelContext $context): CookieGroupCollection
     {
         $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
-        $cookieGroups = $this->filterWishlistCookie($context->getSalesChannelId(), $cookieGroups);
 
-        return $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
+        return $this->filterWishlistCookie($context->getSalesChannelId(), $cookieGroups);
     }
 
     /**
@@ -119,37 +116,6 @@ readonly class CookieService
         foreach ($cookieGroups as $cookieGroup) {
             if ($cookieGroup->snippetKeyName === 'cookie.groupComfortFeatures') {
                 $cookieGroup = $this->filterCookieGroup('wishlist-enabled', $cookieGroup);
-                if ($cookieGroup !== null) {
-                    $filteredGroups[] = $cookieGroup;
-                }
-
-                continue;
-            }
-
-            $filteredGroups[] = $cookieGroup;
-        }
-
-        return new CookieGroupCollection($filteredGroups);
-    }
-
-    private function filterGoogleReCaptchaCookie(string $salesChannelId, CookieGroupCollection $cookieGroups): CookieGroupCollection
-    {
-        $googleRecaptchaActive = $this->systemConfigService->getBool(
-            'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV2::CAPTCHA_NAME . '.isActive',
-            $salesChannelId
-        ) || $this->systemConfigService->getBool(
-            'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV3::CAPTCHA_NAME . '.isActive',
-            $salesChannelId
-        );
-
-        if ($googleRecaptchaActive) {
-            return $cookieGroups;
-        }
-
-        $filteredGroups = [];
-        foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup->snippetKeyName === 'cookie.groupRequired') {
-                $cookieGroup = $this->filterCookieGroup('_GRECAPTCHA', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
                 }

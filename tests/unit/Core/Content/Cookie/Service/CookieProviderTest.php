@@ -37,10 +37,14 @@ class CookieProviderTest extends TestCase
         $requiredGroup = $cookieGroups->get('cookie.groupRequired');
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(4, $requiredGroup->getEntries());
+        static::assertCount(3, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);
+
+        $cookiePreferenceCookie = $requiredGroup->getEntries()->get('cookie-preference');
+        static::assertNotNull($cookiePreferenceCookie);
+        static::assertTrue($cookiePreferenceCookie->hidden);
 
         $statisticalGroup = $cookieGroups->get('cookie.groupStatistical');
         static::assertInstanceOf(CookieGroup::class, $statisticalGroup);
@@ -87,10 +91,15 @@ class CookieProviderTest extends TestCase
 
         $requiredGroup = $cookieGroups->get('cookie.groupRequired');
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
+        static::assertTrue($requiredGroup->isRequired);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(4, $requiredGroup->getEntries());
+        static::assertCount(3, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);
+
+        $cookiePreferenceCookie = $requiredGroup->getEntries()->get('cookie-preference');
+        static::assertNotNull($cookiePreferenceCookie);
+        static::assertTrue($cookiePreferenceCookie->hidden);
     }
 }

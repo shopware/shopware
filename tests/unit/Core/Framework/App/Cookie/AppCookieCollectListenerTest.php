@@ -13,7 +13,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Cookie\CookieGroupCollectListener;
+use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -23,8 +23,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
  *
  * @phpstan-import-type Cookie from AppEntity
  */
-#[CoversClass(CookieGroupCollectListener::class)]
-class CookieGroupCollectListenerTest extends TestCase
+#[CoversClass(AppCookieCollectListener::class)]
+class AppCookieCollectListenerTest extends TestCase
 {
     public function testSingleCookie(): void
     {
@@ -243,13 +243,13 @@ class CookieGroupCollectListenerTest extends TestCase
         ]);
     }
 
-    private function createListener(AppEntity ...$appEntity): CookieGroupCollectListener
+    private function createListener(AppEntity ...$appEntity): AppCookieCollectListener
     {
         /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([
             new AppCollection([...$appEntity]),
         ]);
 
-        return new CookieGroupCollectListener($appRepo);
+        return new AppCookieCollectListener($appRepo);
     }
 }

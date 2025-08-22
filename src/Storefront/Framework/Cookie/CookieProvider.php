@@ -32,11 +32,6 @@ class CookieProvider implements CookieProviderInterface
                 'expiration' => '30',
                 'hidden' => true,
             ],
-            [
-                'snippet_name' => 'cookie.groupRequiredCaptcha',
-                'cookie' => '_GRECAPTCHA',
-                'value' => '1',
-            ],
         ],
     ];
 
@@ -88,6 +83,8 @@ class CookieProvider implements CookieProviderInterface
 
     /**
      * @internal
+     *
+     * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
         array $sessionOptions = [],

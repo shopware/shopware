@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Framework\App\Cookie\CookieGroupCollectListener;
+use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -25,11 +25,11 @@ class CookieGroupCollectListenerTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
-    private CookieGroupCollectListener $listener;
+    private AppCookieCollectListener $listener;
 
     protected function setUp(): void
     {
-        $this->listener = new CookieGroupCollectListener(static::getContainer()->get('app.repository'));
+        $this->listener = new AppCookieCollectListener(static::getContainer()->get('app.repository'));
     }
 
     public function testSingleCookie(): void

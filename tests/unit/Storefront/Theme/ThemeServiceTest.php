@@ -358,6 +358,13 @@ class ThemeServiceTest extends TestCase
             )
         );
 
+        // Mock the getPlainThemeConfiguration method to return an empty configuration structure.
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn([
+                'fields' => [],
+            ]);
+
         $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
@@ -393,6 +400,14 @@ class ThemeServiceTest extends TestCase
                                 'configValues' => [
                                     'test' => ['value' => ['no_test']],
                                 ],
+                                'baseConfig' => [
+                                    'fields' => [
+                                        'test' => [
+                                            'type' => 'string',
+                                            'value' => 'test',
+                                        ],
+                                    ],
+                                ],
                             ]
                         ),
                     ]
@@ -402,6 +417,18 @@ class ThemeServiceTest extends TestCase
                 $this->context
             )
         );
+
+        // Mock the getPlainThemeConfiguration method to return the expected configuration structure.
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn([
+                'fields' => [
+                    'test' => [
+                        'type' => 'string',
+                        'value' => 'test',
+                    ],
+                ],
+            ]);
 
         $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
@@ -447,6 +474,7 @@ class ThemeServiceTest extends TestCase
                                     'fields' => [
                                         'test' => [
                                             'type' => 'string',
+                                            'value' => 'test',
                                         ],
                                     ],
                                 ],
@@ -464,6 +492,18 @@ class ThemeServiceTest extends TestCase
             'test' => ['value' => ['test']],
             'removed' => ['value' => ['removed']],
         ];
+
+        // Mock the getPlainThemeConfiguration method to return the expected configuration structure.
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn([
+                'fields' => [
+                    'test' => [
+                        'type' => 'string',
+                        'value' => 'test',
+                    ],
+                ],
+            ]);
 
         $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
@@ -496,6 +536,13 @@ class ThemeServiceTest extends TestCase
                 $this->context
             )
         );
+
+        // Mock the getPlainThemeConfiguration method to return an empty configuration structure.
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn([
+                'fields' => [],
+            ]);
 
         $this->themeCompilerMock->expects($this->never())->method('compileTheme');
 

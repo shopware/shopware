@@ -151,11 +151,11 @@ class ThemeService implements ResetInterface
             $data['parentThemeId'] = $parentThemeId;
         }
 
-        $baseConfig = $theme->getBaseConfig();
+        $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
 
         $validFields = [];
-        if ($baseConfig && isset($baseConfig['fields'])) {
-            $validFields = array_keys($baseConfig['fields']);
+        if ($themeConfig && isset($themeConfig['fields'])) {
+            $validFields = array_keys($themeConfig['fields']);
         }
 
         // Cleanup the config values to only include the fields that are defined in the base config.

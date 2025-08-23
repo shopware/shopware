@@ -39,7 +39,7 @@ class MenuOffcanvasPageletLoaderTest extends TestCase
                     $categoryId2,
                     $salesChannelContext,
                     $categoryId2,
-                    1,
+                    $salesChannelContext->getSalesChannel()->getNavigationCategoryDepth(),
                     new Tree($category2, [new TreeItem($category1, []), new TreeItem($category2, [])]),
                 ],
             ]

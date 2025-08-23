@@ -38,7 +38,12 @@ class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
             throw RoutingException::missingRequestParameter('navigationId');
         }
 
-        $navigation = $this->navigationLoader->load($navigationId, $context, $navigationId, 1);
+        $navigation = $this->navigationLoader->load(
+            $navigationId,
+            $context,
+            $navigationId,
+            $context->getSalesChannel()->getNavigationCategoryDepth()
+        );
 
         $pagelet = new MenuOffcanvasPagelet($navigation);
 

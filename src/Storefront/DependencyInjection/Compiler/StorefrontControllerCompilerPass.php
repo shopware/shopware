@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\DependencyInjection\Compiler;
 
+use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -32,9 +33,11 @@ class StorefrontControllerCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            // Use is_subclass_of with autoload=false to prevent triggering file-level deprecations
-            // that Symfony places before class declarations (avoids loading unnecessary files)
-            if (!is_subclass_of($class, StorefrontController::class, false)) {
+            // Skip if class isn't a StorefrontController
+            // Note: This may trigger autoloading which can trigger deprecation warnings
+            // if the file itself has a deprecation trigger (Symfony likes to do that to deprecate classes).
+            // As this point only controller classes are checked which shouldn't have such a trigger.
+            if (!is_subclass_of($class, StorefrontController::class)) {
                 continue;
             }
 
@@ -59,7 +62,7 @@ class StorefrontControllerCompilerPass implements CompilerPassInterface
                 // PSR interface provides service locator, not full container
                 if (!$hasSetContainer && !$definition->isAutowired()) {
                     $definition->addMethodCall('setContainer', [
-                        new Reference('Psr\Container\ContainerInterface'),
+                        new Reference(ContainerInterface::class),
                     ]);
                 }
             }

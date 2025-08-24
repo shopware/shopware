@@ -33,9 +33,9 @@ class StorefrontControllerCompilerPassTest extends TestCase
         $definition->addTag('controller.service_arguments');
 
         $container->setDefinition('test.controller', $definition);
-        
+
         // Capture initial state
-        $methodCallsBefore = count($definition->getMethodCalls());
+        $methodCallsBefore = \count($definition->getMethodCalls());
 
         $this->compilerPass->process($container);
 
@@ -80,13 +80,13 @@ class StorefrontControllerCompilerPassTest extends TestCase
         // Verify the controller can access its dependencies
         // Without being prescriptive about the exact mechanism
         static::assertTrue($definition->hasTag('container.service_subscriber'));
-        
+
         // Verify some form of dependency injection is configured
-        $hasDependencyInjection = 
-            $definition->isAutowired() || 
-            count($definition->getMethodCalls()) > 0 || 
-            count($definition->getArguments()) > 0;
-        
+        $hasDependencyInjection =
+            $definition->isAutowired()
+            || \count($definition->getMethodCalls()) > 0
+            || \count($definition->getArguments()) > 0;
+
         static::assertTrue($hasDependencyInjection);
     }
 
@@ -102,18 +102,18 @@ class StorefrontControllerCompilerPassTest extends TestCase
         $definition->addMethodCall('setContainer', [new Reference('Psr\Container\ContainerInterface')]);
 
         $container->setDefinition('test.controller', $definition);
-        
+
         // Run the compiler pass twice
         $this->compilerPass->process($container);
         $stateAfterFirst = [
-            'methodCalls' => count($definition->getMethodCalls()),
-            'tags' => count($definition->getTags()),
+            'methodCalls' => \count($definition->getMethodCalls()),
+            'tags' => \count($definition->getTags()),
         ];
-        
+
         $this->compilerPass->process($container);
         $stateAfterSecond = [
-            'methodCalls' => count($definition->getMethodCalls()),
-            'tags' => count($definition->getTags()),
+            'methodCalls' => \count($definition->getMethodCalls()),
+            'tags' => \count($definition->getTags()),
         ];
 
         // Verify the compiler pass is idempotent (doesn't duplicate configuration)
@@ -176,12 +176,12 @@ class StorefrontControllerCompilerPassTest extends TestCase
         // Service without controller tag should be ignored
         $untaggedDefinition = new Definition(AccountOrderController::class);
         $untaggedDefinition->setPublic(false);
-        
+
         // Service with controller tag should be processed
         $taggedDefinition = new Definition(AccountOrderController::class);
         $taggedDefinition->setPublic(false);
         $taggedDefinition->addTag('controller.service_arguments');
-        
+
         $container->setDefinition('untagged.controller', $untaggedDefinition);
         $container->setDefinition('tagged.controller', $taggedDefinition);
 

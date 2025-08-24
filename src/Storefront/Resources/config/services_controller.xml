@@ -8,6 +8,16 @@
         <!-- Symfony detects controller interfaces and applies tags automatically -->
         <defaults public="true" autoconfigure="true" autowire="true" />
 
+        <!-- 
+            Alias for PSR ContainerInterface to support autowiring of setContainer().
+            For ServiceSubscriberInterface controllers, this gets replaced with a service locator
+            containing only the subscribed services during compilation.
+        -->
+        <service id="Psr\Container\ContainerInterface" class="Symfony\Component\DependencyInjection\ServiceLocator">
+            <argument type="collection" />
+            <tag name="container.service_locator" />
+        </service>
+
         <service id="Shopware\Storefront\Controller\Api\CaptchaController">
             <argument type="tagged_iterator" tag="shopware.storefront.captcha"/>
         </service>

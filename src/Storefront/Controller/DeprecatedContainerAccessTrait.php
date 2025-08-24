@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**

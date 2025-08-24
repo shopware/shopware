@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -12,15 +11,13 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @property ContainerInterface $container
  *
- * This trait provides backward compatibility for controllers that directly access
- * services from the container without declaring them in getSubscribedServices().
- * All usages should be migrated to proper service subscription.
+ * Bridge for legacy code accessing undeclared services.
  */
 #[Package('framework')]
 trait DeprecatedContainerAccessTrait
 {
     /**
-     * @deprecated tag:v6.8.0 - Use service subscription instead
+     * @deprecated tag:v6.8.0 - Declare services in getSubscribedServices()
      */
     protected function getServiceDeprecated(string $id): ?object
     {
@@ -41,13 +38,13 @@ trait DeprecatedContainerAccessTrait
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Use service subscription instead
+     * @deprecated tag:v6.8.0 - Use optional service subscription
      */
     protected function hasServiceDeprecated(string $id): bool
     {
         trigger_deprecation(
             'shopware/storefront',
-            '6.6.0',
+            '6.8.0',
             'Checking service availability via hasServiceDeprecated("%s") in %s is deprecated. '
             . 'Declare the service as optional in getSubscribedServices() method instead.',
             $id,

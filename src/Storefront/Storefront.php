@@ -4,6 +4,7 @@ namespace Shopware\Storefront;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\DependencyInjection\Compiler\StorefrontControllerCompilerPass;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
 use Shopware\Storefront\DependencyInjection\StorefrontMigrationReplacementCompilerPass;
 use Shopware\Storefront\Framework\ThemeInterface;
@@ -31,9 +32,16 @@ class Storefront extends Bundle implements ThemeInterface
         $loader->load('controller.xml');
         $loader->load('theme.xml');
 
+        // Autoconfigured controllers for gradual migration
+        $resourcesLoader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
+        if (is_file(__DIR__ . '/Resources/config/services_controller.xml')) {
+            $resourcesLoader->load('services_controller.xml');
+        }
+
         $container->setParameter('storefrontRoot', $this->getPath());
 
         $container->addCompilerPass(new DisableTemplateCachePass());
         $container->addCompilerPass(new StorefrontMigrationReplacementCompilerPass());
+        $container->addCompilerPass(new StorefrontControllerCompilerPass());
     }
 }

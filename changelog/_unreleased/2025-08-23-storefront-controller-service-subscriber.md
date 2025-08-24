@@ -7,12 +7,10 @@ author_github: @SpiGAndromeda
 ---
 # Storefront
 * Changed `Shopware\Storefront\Controller\StorefrontController` to implement `Symfony\Contracts\Service\ServiceSubscriberInterface`
-* Changed `getSubscribedServices()` method to declare all framework services with optional markers (`?` prefix)
-* Added service locator pattern for lazy-loading of services in controllers
-* Added `Shopware\Storefront\Controller\DeprecatedContainerAccessTrait` for backward compatibility
-* Changed all 30 controller service definitions in `controller.xml` to use service subscriber pattern
-* Added `controller.service_arguments` and `container.service_subscriber` tags to controller services
-* Changed container injection from `service_container` to `Psr\Container\ContainerInterface`
+* Added autoconfigure and autowire support for modern controller configuration in `services_controller.xml`
+* Added `Shopware\Storefront\DependencyInjection\Compiler\StorefrontControllerCompilerPass` for backward compatibility
+* Added `Shopware\Storefront\Controller\DeprecatedContainerAccessTrait` for gradual migration
+* Changed container injection from `service_container` to `Psr\Container\ContainerInterface` service locator
 * Deprecated direct container access via `$this->container->get()` without service subscription
 ___
 # Upgrade Information
@@ -59,20 +57,26 @@ class MyController extends StorefrontController implements ServiceSubscriberInte
 }
 ```
 
-### Service Configuration Update
+### Service Configuration Options
 
-Update your controller service definitions:
+#### Option 1: Modern Autoconfigure (Recommended)
+```xml
+<services>
+    <defaults public="true" autoconfigure="true" autowire="true" />
+    
+    <service id="MyPlugin\Controller\MyController">
+        <!-- Only specific dependencies needed -->
+        <argument type="service" id="my.specific.service"/>
+    </service>
+</services>
+```
 
+#### Option 2: Manual Configuration (Legacy)
 ```xml
 <service id="MyPlugin\Controller\MyController">
-    <!-- Constructor arguments for specific dependencies -->
     <argument type="service" id="my.specific.service"/>
-    
-    <!-- Add these tags for service subscription -->
     <tag name="controller.service_arguments"/>
     <tag name="container.service_subscriber"/>
-    
-    <!-- Use service locator instead of full container -->
     <call method="setContainer">
         <argument type="service" id="Psr\Container\ContainerInterface"/>
     </call>
@@ -96,5 +100,6 @@ The following services are already available in `StorefrontController`:
 
 ### Backward Compatibility
 
-- Direct container access continues to work with deprecation warnings
-- Use `DeprecatedContainerAccessTrait` for gradual migration
+- Existing controller configurations continue to work through the compiler pass
+- Direct container access works with deprecation warnings until 6.9.0
+- Both autoconfigure and manual configuration are supported

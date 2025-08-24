@@ -9,8 +9,10 @@
 
         <service id="Shopware\Storefront\Controller\Api\CaptchaController" public="true">
             <argument type="tagged_iterator" tag="shopware.storefront.captcha"/>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -30,8 +32,10 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -43,8 +47,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute"/>
             <argument type="service" id="logger"/>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -57,8 +63,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -71,8 +79,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute"/>
             <argument type="service" id="Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader"/>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -87,8 +97,10 @@
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -105,8 +117,10 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -114,8 +128,10 @@
             <argument type="service" id="Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -124,8 +140,10 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="sales_channel_analytics.repository"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -139,8 +157,10 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -149,8 +169,10 @@
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -159,8 +181,10 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router.default"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -169,8 +193,10 @@
             <argument type="service" id="Shopware\Storefront\Page\Maintenance\MaintenancePageLoader"/>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -179,8 +205,10 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -192,8 +220,10 @@
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -202,8 +232,10 @@
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -215,16 +247,20 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\LandingPageController">
             <argument type="service" id="Shopware\Storefront\Page\LandingPage\LandingPageLoader"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -241,8 +277,10 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -250,8 +288,10 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -260,8 +300,10 @@
             <argument type="service" id="Shopware\Storefront\Page\Suggest\SuggestPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -269,15 +311,19 @@
             <argument type="service" id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\CountryStateController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader"/>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -285,22 +331,28 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\DownloadController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\WellKnownController" public="true">
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -314,8 +366,10 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader"/>
             <argument type="service" id="event_dispatcher"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
@@ -323,23 +377,29 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Framework\Captcha\BasicCaptcha"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\VerificationHashController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\RobotsController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Robots\RobotsPageLoader"/>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
             </call>
         </service>
     </services>

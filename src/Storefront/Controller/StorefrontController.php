@@ -24,9 +24,12 @@ use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -34,28 +37,31 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[Package('framework')]
-abstract class StorefrontController extends AbstractController
+abstract class StorefrontController extends AbstractController implements ServiceSubscriberInterface
 {
     public const SUCCESS = 'success';
     public const DANGER = 'danger';
     public const INFO = 'info';
     public const WARNING = 'warning';
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedServices(): array
     {
-        $services = parent::getSubscribedServices();
-
-        $services['twig'] = Environment::class;
-        $services['event_dispatcher'] = EventDispatcherInterface::class;
-        $services[SystemConfigService::class] = SystemConfigService::class;
-        $services[TemplateFinder::class] = TemplateFinder::class;
-        $services[SeoUrlPlaceholderHandlerInterface::class] = SeoUrlPlaceholderHandlerInterface::class;
-        $services[MediaUrlPlaceholderHandlerInterface::class] = MediaUrlPlaceholderHandlerInterface::class;
-        $services[ScriptExecutor::class] = ScriptExecutor::class;
-        $services['translator'] = TranslatorInterface::class;
-        $services[RequestTransformerInterface::class] = RequestTransformerInterface::class;
-
-        return $services;
+        return array_merge(parent::getSubscribedServices(), [
+            'twig' => '?' . Environment::class,
+            'event_dispatcher' => '?' . EventDispatcherInterface::class,
+            SystemConfigService::class => '?' . SystemConfigService::class,
+            TemplateFinder::class => '?' . TemplateFinder::class,
+            SeoUrlPlaceholderHandlerInterface::class => '?' . SeoUrlPlaceholderHandlerInterface::class,
+            MediaUrlPlaceholderHandlerInterface::class => '?' . MediaUrlPlaceholderHandlerInterface::class,
+            ScriptExecutor::class => '?' . ScriptExecutor::class,
+            'translator' => '?' . TranslatorInterface::class,
+            RequestTransformerInterface::class => '?' . RequestTransformerInterface::class,
+            'request_stack' => '?' . RequestStack::class,
+            'router' => '?' . RouterInterface::class,
+        ]);
     }
 
     /**

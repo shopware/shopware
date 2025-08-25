@@ -17,9 +17,3 @@ The customer and order address tables have been updated to support longer first 
 
 ### Background
 Previously, customer registration would fail when first names exceeded 50 characters or last names exceeded 60 characters, even though the customer table supported up to 255 characters. This mismatch caused registration failures when customer data was copied to create address records.
-
-### Migration Required
-Run the database migration after deployment:
-```bash
-bin/console database:migrate --all
-```

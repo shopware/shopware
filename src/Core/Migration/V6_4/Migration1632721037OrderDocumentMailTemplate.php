@@ -189,10 +189,6 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
             ],
         ];
 
-        if (!\is_string($templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'])) {
-            throw MigrationException::migrationError(\sprintf('Could not MailTemplate data for %s with locale %s', $technicalName, $locale));
-        }
-
         return $templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'];
     }
 

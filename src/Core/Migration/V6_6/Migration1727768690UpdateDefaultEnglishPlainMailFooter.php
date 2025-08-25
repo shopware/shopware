@@ -28,7 +28,6 @@ class Migration1727768690UpdateDefaultEnglishPlainMailFooter extends MigrationSt
 
         $enPlainFooterFilePath = __DIR__ . '/../Fixtures/mails/defaultMailFooter/en-plain.twig';
         $enPlainFooter = $filesystem->readFile($enPlainFooterFilePath);
-        \assert($enPlainFooter !== false);
 
         $systemDefaultMailHeaderFooterId = $connection->fetchOne('SELECT `id` FROM `mail_header_footer` WHERE `system_default` = 1');
 

@@ -113,10 +113,6 @@ class Migration1672931011ReviewFormMailTemplate extends MigrationStep
             ],
         ];
 
-        if (!\is_string($templateContentMapping[$locale][$html ? 'html' : 'plain'])) {
-            throw MigrationException::migrationError(\sprintf('Could not find MailTemplate data with locale %s', $locale));
-        }
-
         return $templateContentMapping[$locale][$html ? 'html' : 'plain'];
     }
 

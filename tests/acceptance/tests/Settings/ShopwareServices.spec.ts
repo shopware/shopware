@@ -1,11 +1,15 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 test(
     'As a merchant, I want to see an advertisement banner for Shopware Services on the dashboard.', { tag: '@Settings' }, async ({
         ShopAdmin,
         AdminDashboard,
         AdminShopwareServices,
-}) => {
+        InstanceMeta,
+        }) => {
+        test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
+
         await ShopAdmin.goesTo(AdminDashboard.url());
         await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toBeVisible();
         await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toContainText('Introducing Shopware Services');
@@ -20,7 +24,10 @@ test(
         AdminDashboard,
         AdminSettingsListing,
         CheckVisibilityOfServicesBanner,
+        InstanceMeta,
         }) => {
+        test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
+
         await ShopAdmin.goesTo(AdminDashboard.url());
         await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toBeVisible();
         await AdminDashboard.shopwareServicesAdvertisementBannerCloseButton.click();
@@ -38,10 +45,13 @@ test(
 
 test(
     'As a merchant, I want to fully deactivate the Shopware Services feature.', { tag: '@Settings' }, async ({
-    ShopAdmin,
-    AdminShopwareServices,
-    DeactivateShopwareServices,
-    }) => {
+        ShopAdmin,
+        AdminShopwareServices,
+        DeactivateShopwareServices,
+        InstanceMeta,
+        }) => {
+        test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
+
         await ShopAdmin.goesTo(AdminShopwareServices.url());
         await ShopAdmin.expects(AdminShopwareServices.header).toHaveText('Future proof your store with Shopware Services');
         await ShopAdmin.attemptsTo(DeactivateShopwareServices());
@@ -57,7 +67,9 @@ test(
         ShopAdmin,
         TestDataService,
         CheckAccessToShopwareServices,
-}) => {
+        InstanceMeta,
+    }) => {
+        test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
 
         await test.step('Verify insufficient permissions prevent access to services.', async () => {
             // Create a role with insufficient permissions

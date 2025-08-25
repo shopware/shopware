@@ -27,3 +27,12 @@ export const login = () => {
 
     return dependencies;
 };
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export const ssoError = () => {
+    const context = import.meta.glob('./sw-sso-error/index!(*.spec).{j,t}s', {
+        eager: true,
+    });
+
+    return Object.values(context);
+};

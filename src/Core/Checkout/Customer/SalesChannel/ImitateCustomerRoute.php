@@ -88,8 +88,8 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
 
         $definition
             ->add(self::TOKEN, new NotBlank())
-            ->add(self::CUSTOMER_ID, new Uuid(), new EntityExists(['entity' => 'customer', 'context' => $context]))
-            ->add(self::USER_ID, new Uuid(), new EntityExists(['entity' => 'user', 'context' => $context]));
+            ->add(self::CUSTOMER_ID, new Uuid(), new EntityExists(entity: 'customer', context: $context))
+            ->add(self::USER_ID, new Uuid(), new EntityExists(entity: 'user', context: $context));
 
         $validationEvent = new BuildValidationEvent($definition, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

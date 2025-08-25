@@ -1022,6 +1022,11 @@
                 "private_local_path_prefix": {
                     "type": "string",
                     "description": "Path prefix to be prepended to the path when using a local download strategy"
+                },
+                "batch_write_size": {
+                    "type": "integer",
+                    "default": 250,
+                    "description": "Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter"
                 }
             },
             "title": "Filesystem"

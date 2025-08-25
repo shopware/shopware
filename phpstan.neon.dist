@@ -175,7 +175,6 @@ parameters:
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
             paths:
                 - tests/integration/Core/Content/**
-                - tests/unit/Core/**
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
@@ -203,3 +202,4 @@ parameters:
             message: '#Parameter \#1 \$package of attribute class Shopware\\Core\\Framework\\Log\\Package constructor#'
             identifier: argument.type
             path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
+

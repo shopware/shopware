@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\PriceSerializer;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\Log\Package;
@@ -394,9 +393,12 @@ class PriceSerializerTest extends TestCase
 
     /**
      * @param array<CurrencyCollection<CurrencyEntity>|array<string>> $results
+     *
+     * @return StaticEntityRepository<CurrencyCollection>
      */
-    private function getCurrencyRepository(array $results): EntityRepository
+    private function getCurrencyRepository(array $results): StaticEntityRepository
     {
+        /** @var StaticEntityRepository<CurrencyCollection> */
         return new StaticEntityRepository($results, new CurrencyDefinition());
     }
 }

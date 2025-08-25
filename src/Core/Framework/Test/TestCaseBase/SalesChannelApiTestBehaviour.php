@@ -171,6 +171,7 @@ trait SalesChannelApiTestBehaviour
         /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
+        $shippingMethod = $this->getAvailableShippingMethod();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('domains.url', 'http://localhost'));
@@ -190,7 +191,8 @@ trait SalesChannelApiTestBehaviour
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $paymentMethod->getId(),
             'paymentMethods' => [['id' => $paymentMethod->getId()]],
-            'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
+            'shippingMethodId' => $shippingMethod->getId(),
+            'shippingMethods' => [['id' => $shippingMethod->getId()]],
             'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(null),
             'currencies' => [['id' => Defaults::CURRENCY]],

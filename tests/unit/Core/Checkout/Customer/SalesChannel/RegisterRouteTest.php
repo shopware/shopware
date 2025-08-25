@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
@@ -47,6 +48,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -898,6 +901,18 @@ class RegisterRouteTest extends TestCase
         ];
 
         $dataValidator = $this->createMock(DataValidator::class);
+
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation(
+                'This value should be of type associative_array.',
+                'This value should be of type {{ type }}.',
+                ['{{ type }}' => 'associative_array'],
+                'billingAddress',
+                'billingAddress',
+                'Max Mustermanns Address'
+            ),
+        ]);
+
         $dataValidator
             ->expects($this->once())
             ->method('getViolations')
@@ -914,7 +929,8 @@ class RegisterRouteTest extends TestCase
                 static::assertSame('associative_array', $billingAddressConstraint->type);
 
                 return true;
-            }));
+            }))
+            ->willReturn($violations);
 
         $definitionFactory = $this->createMock(DataValidationFactoryInterface::class);
         $definitionFactory
@@ -940,6 +956,14 @@ class RegisterRouteTest extends TestCase
 
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+        try {
+            $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+            static::fail('Expected ConstraintViolationException to be thrown');
+        } catch (ConstraintViolationException $e) {
+            static::assertCount(1, $e->getViolations());
+            $violation = $e->getViolations()->get(0);
+            static::assertSame('billingAddress', $violation->getPropertyPath());
+            static::assertNotEmpty($violation->getMessage());
+        }
     }
 }

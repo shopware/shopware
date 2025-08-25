@@ -1295,6 +1295,8 @@ class RegisterRouteTest extends TestCase
                 json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($response['errors']);
@@ -1317,6 +1319,8 @@ class RegisterRouteTest extends TestCase
                 ['CONTENT_TYPE' => 'application/json'],
                 json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 

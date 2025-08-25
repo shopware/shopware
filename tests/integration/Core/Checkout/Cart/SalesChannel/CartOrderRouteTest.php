@@ -87,39 +87,6 @@ class CartOrderRouteTest extends TestCase
         $this->validSalutationId = $this->getValidSalutationId();
         $this->validCountryId = $this->getValidCountryId($this->ids->get('sales-channel'));
 
-        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-        $shippingMethodRepository->create([
-            [
-                'id' => $this->ids->get('shipping-method'),
-                'name' => 'test',
-                'technicalName' => 'test',
-                'active' => true,
-                'deliveryTimeId' => static::getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
-                'prices' => [
-                    [
-                        'currencyId' => Defaults::CURRENCY,
-                        'calculation' => 1,
-                        'quantityStart' => 1,
-                        'quantityEnd' => 100,
-                        'currencyPrice' => [
-                            [
-                                'gross' => 0,
-                                'net' => 0,
-                                'linked' => false,
-                                'currencyId' => Defaults::CURRENCY,
-                            ],
-                        ],
-                    ],
-                ],
-                'salesChannels' => [
-                    ['id' => $this->ids->get('sales-channel')],
-                ],
-                'salesChannelDefaultAssignments' => [
-                    ['id' => $this->ids->get('sales-channel')],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
         $this->createTestData();
     }
 

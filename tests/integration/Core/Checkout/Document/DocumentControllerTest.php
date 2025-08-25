@@ -132,13 +132,10 @@ class DocumentControllerTest extends TestCase
 
         $baseResource = '/api/';
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $baseResource . '_action/order/document/invoice/create',
-            [],
-            [],
-            [],
-            (string) json_encode([$document])
+            [$document]
         );
 
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -295,13 +292,10 @@ class DocumentControllerTest extends TestCase
         $documentIds = [];
 
         foreach ($requests as $type => $payload) {
-            $this->getBrowser()->request(
+            $this->getBrowser()->jsonRequest(
                 'POST',
                 \sprintf('/api/_action/order/document/%s/create', $type),
-                [],
-                [],
-                [],
-                (string) json_encode($payload)
+                $payload
             );
 
             $response = $this->getBrowser()->getResponse();
@@ -331,13 +325,10 @@ class DocumentControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/receipt/create',
-            [],
-            [],
-            [],
-            (string) json_encode($content)
+            $content
         );
 
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -360,13 +351,10 @@ class DocumentControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/storno/create',
-            [],
-            [],
-            [],
-            (string) json_encode($content)
+            $content
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -379,13 +367,10 @@ class DocumentControllerTest extends TestCase
 
     public function testDownloadWithoutDocuments(): void
     {
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-            [],
-            [],
-            [],
-            (string) json_encode([])
+            []
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
@@ -395,15 +380,12 @@ class DocumentControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-            [],
-            [],
-            [],
-            (string) json_encode([
+            [
                 'documentIds' => [Uuid::randomHex()],
-            ])
+            ]
         );
 
         static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
@@ -428,15 +410,12 @@ class DocumentControllerTest extends TestCase
 
         $documentId = $document->getId();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-            [],
-            [],
-            [],
-            (string) json_encode([
+            [
                 'documentIds' => [$documentId],
-            ])
+            ]
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -480,15 +459,12 @@ class DocumentControllerTest extends TestCase
         static::assertInstanceOf(DocumentIdStruct::class, $document);
         $documentId = $document->getId();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-            [],
-            [],
-            [],
-            (string) json_encode([
+            [
                 'documentIds' => [$documentId],
-            ])
+            ]
         );
 
         $response = $this->getBrowser()->getResponse();

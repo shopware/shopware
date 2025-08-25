@@ -1481,7 +1481,7 @@
       "warning": "You have insufficient permissions."
     },
     "error": {
-      "description": "You do not have the necessary permissions for this action, please ask your administrator for authorization. The required permissions are: "
+      "description": "You do not have the necessary permissions for this action, please ask your administrator for authorisation. The required permissions are: "
     }
   },
   "sw-custom-field-set-renderer": {

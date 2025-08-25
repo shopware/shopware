@@ -34,7 +34,7 @@ async function createWrapper(privileges = []) {
                     locale: 'en',
                     fallbackLocale: { value: 'en' },
                     messages: {
-                        value: { 'en': dictionary },
+                        value: { en: dictionary },
                     },
                 },
                 $route: {

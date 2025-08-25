@@ -3,8 +3,8 @@
  */
 import './page/index';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
+import de from './snippet/de.json';
+import en from './snippet/en.json';
 
 /**
  * @private
@@ -26,8 +26,8 @@ Module.register('sw-sso-error', {
     color: '#f1122c',
 
     snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB,
+        'de-DE': de,
+        'en-GB': en,
     },
 
     routes: {

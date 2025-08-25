@@ -51,11 +51,10 @@ class SnippetFinder implements SnippetFinderInterface
         $countryAgnosticSnippets = $this->parseFiles($countryAgnosticSnippetFiles);
         $countrySpecificSnippets = $this->parseFiles($countrySpecificSnippetFiles);
 
-        $languageSnippets = array_replace_recursive($countryAgnosticSnippets, $countrySpecificSnippets);
-
         return array_replace_recursive(
-            $languageSnippets,
-            $this->getAppAdministrationSnippets($locale, $languageSnippets),
+            $countryAgnosticSnippets,
+            $countrySpecificSnippets,
+            $this->getAppAdministrationSnippets($locale),
         );
     }
 

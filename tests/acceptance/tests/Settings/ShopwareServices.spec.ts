@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test(
-    'As a merchant I want to see a advertisement banner for services on the dashboard.', { tag: '@Settings' }, async ({
+    'As a merchant, I want to see an advertisement banner for Shopware Services on the dashboard.', { tag: '@Settings' }, async ({
         ShopAdmin,
         AdminDashboard,
         AdminShopwareServices,
@@ -11,11 +11,11 @@ test(
         await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toContainText('Introducing Shopware Services');
         await ShopAdmin.expects(AdminDashboard.shopwareServicesExploreNowButton).toBeVisible();
         await AdminDashboard.shopwareServicesExploreNowButton.click();
-        await ShopAdmin.expects(AdminShopwareServices.header).toBeVisible()
+        await ShopAdmin.expects(AdminShopwareServices.header).toBeVisible();
     });
 
 test(
-    'As a merchant I want to hide the advertisement banner for services on the dashboard.', { tag: '@Settings' }, async ({
+    'As a merchant, I want to hide the advertisement banner for Shopware Services on the dashboard.', { tag: '@Settings' }, async ({
         ShopAdmin,
         AdminDashboard,
         AdminSettingsListing,
@@ -26,7 +26,7 @@ test(
         await AdminDashboard.shopwareServicesAdvertisementBannerCloseButton.click();
         await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).not.toBeVisible();
         await ShopAdmin.goesTo(AdminSettingsListing.url());
-        await ShopAdmin.expects(AdminSettingsListing.shopwareServicesLink).toBeVisible()
+        await ShopAdmin.expects(AdminSettingsListing.shopwareServicesLink).toBeVisible();
         await ShopAdmin.goesTo(AdminDashboard.url());
         await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).not.toBeVisible();
 
@@ -37,11 +37,11 @@ test(
     });
 
 test(
-    'As a merchant I want to deactivate the shopware services feature at all.', { tag: '@Settings' }, async ({
+    'As a merchant, I want to fully deactivate the Shopware Services feature.', { tag: '@Settings' }, async ({
     ShopAdmin,
     AdminShopwareServices,
     DeactivateShopwareServices,
- }) => {
+    }) => {
         await ShopAdmin.goesTo(AdminShopwareServices.url());
         await ShopAdmin.expects(AdminShopwareServices.header).toHaveText('Future proof your store with Shopware Services');
         await ShopAdmin.attemptsTo(DeactivateShopwareServices());
@@ -53,7 +53,7 @@ test(
     });
 
 test(
-    'As a merchant I just can manage services with the corresponding administration permissions.', { tag: '@Settings' }, async ({
+    'As a merchant, I can manage Shopware Services only if the necessary permissions are granted.', { tag: '@Settings' }, async ({
         ShopAdmin,
         TestDataService,
         CheckAccessToShopwareServices,
@@ -62,13 +62,13 @@ test(
         await test.step('Verify insufficient permissions prevent access to services.', async () => {
             // Create a role with insufficient permissions
             const aclRole = await TestDataService.createAclRole();
-            const merchant = await TestDataService.createMerchant();
-            await TestDataService.assignAclRoleMerchant(aclRole.id, merchant.id);
+            const user = await TestDataService.createUser();
+            await TestDataService.assignAclRoleUser(aclRole.id, user.id);
 
-            await ShopAdmin.attemptsTo(CheckAccessToShopwareServices(merchant, aclRole));
+            await ShopAdmin.attemptsTo(CheckAccessToShopwareServices(user, aclRole));
         });
 
-        await test.step('Verify minimum permissions are enough to manage services.', async () => {
+        await test.step('Verify minimum permissions are enough to manage Shopware Services.', async () => {
 
             // Basic permissions to access the services
             const privileges = [
@@ -97,9 +97,9 @@ test(
                 'system_config:read',
                 'system_config:update'];
             const aclRole = await TestDataService.createAclRole({privileges: privileges});
-            const merchant = await TestDataService.createMerchant();
-            await TestDataService.assignAclRoleMerchant(aclRole.id, merchant.id);
+            const user = await TestDataService.createUser();
+            await TestDataService.assignAclRoleUser(aclRole.id, user.id);
 
-            await ShopAdmin.attemptsTo(CheckAccessToShopwareServices(merchant, aclRole));
+            await ShopAdmin.attemptsTo(CheckAccessToShopwareServices(user, aclRole));
         });
     });

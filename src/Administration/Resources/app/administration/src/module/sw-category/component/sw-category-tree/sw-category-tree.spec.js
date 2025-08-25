@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-async function createWrapper() {
+async function createWrapper(categories = null) {
     const routes = [
         {
             name: 'sw.category.detail',
@@ -46,7 +46,18 @@ async function createWrapper() {
                                 },
                             ]),
                         delete: () => Promise.resolve(),
-                        get: () => Promise.resolve(),
+                        get: (id) => {
+                            if (!categories) {
+                                return Promise.resolve();
+                            }
+
+                            const children = Object.values(categories).filter((category) => category.parentId === id);
+
+                            return Promise.resolve({
+                                ...categories[id],
+                                children,
+                            });
+                        },
                         saveAll: () => Promise.resolve(),
                         syncDeleted: () => Promise.resolve(),
                     }),
@@ -433,5 +444,108 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         expect(wrapper.vm.loadedCategories[3].afterCategoryId).toBe('1');
         expect(wrapper.vm.loadedCategories[6].afterCategoryId).toBe('3');
+    });
+
+    it('should open the tree for active category on category change', async () => {
+        const loadedCategories = {
+            1: {
+                id: '1',
+                parentId: '1',
+                navigationSalesChannels: null,
+                afterCategoryId: null,
+            },
+            2: {
+                id: '2',
+                parentId: '1',
+                navigationSalesChannels: null,
+                afterCategoryId: '1',
+            },
+            3: {
+                id: '3',
+                parentId: '1',
+                navigationSalesChannels: null,
+                afterCategoryId: '2',
+            },
+            4: {
+                id: '4',
+                parentId: '1',
+                navigationSalesChannels: null,
+                afterCategoryId: '3',
+            },
+            5: {
+                id: '5',
+                parentId: '1',
+                navigationSalesChannels: null,
+                afterCategoryId: '4',
+            },
+            6: {
+                id: '6',
+                parentId: '1',
+                navigationSalesChannels: null,
+                afterCategoryId: '5',
+            },
+        };
+        const toLoadCategories = {
+            7: {
+                id: '7',
+                parentId: '2',
+                navigationSalesChannels: null,
+                afterCategoryId: '2',
+                path: '|1|2|',
+            },
+            8: {
+                id: '8',
+                parentId: '2',
+                navigationSalesChannels: null,
+                afterCategoryId: '7',
+                path: '|1|2|',
+            },
+            9: {
+                id: '9',
+                parentId: '8',
+                navigationSalesChannels: null,
+                afterCategoryId: '8',
+                path: '|1|2|8|',
+            },
+            10: {
+                id: '10',
+                parentId: '8',
+                navigationSalesChannels: null,
+                afterCategoryId: '9',
+                path: '|1|2|8|',
+            },
+            11: {
+                id: '11',
+                parentId: '8',
+                navigationSalesChannels: null,
+                afterCategoryId: '10',
+                path: '|1|2|8|',
+            },
+        };
+        const categories = {
+            ...loadedCategories,
+            ...toLoadCategories,
+        };
+
+        const wrapper = await createWrapper(categories);
+
+        await wrapper.setData({
+            loadedCategories: loadedCategories,
+        });
+
+        const initialLoadedCategoryCount = Object.values(wrapper.vm.loadedCategories).length;
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.$refs.categoryTree.openTreeById = jest.fn();
+
+        Shopware.Store.get('swCategoryDetail').category = toLoadCategories[10];
+
+        await flushPromises();
+
+        expect(Object.values(wrapper.vm.loadedCategories)).toHaveLength(
+            initialLoadedCategoryCount + Object.keys(toLoadCategories).length,
+        );
+        expect(wrapper.vm.$refs.categoryTree.openTreeById).toHaveBeenCalled();
     });
 });

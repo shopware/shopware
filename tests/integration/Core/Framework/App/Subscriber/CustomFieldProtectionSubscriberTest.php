@@ -70,12 +70,9 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $this->authorizeBrowserWithIntegrationForApp($client, $appId);
 
         $data = ['id' => $id, 'active' => false];
-        $json = \json_encode($data, \JSON_THROW_ON_ERROR);
-        static::assertNotFalse($json);
-
-        $client->request('PATCH', '/api/custom-field-set/' . $id, [], [], [
+        $client->jsonRequest('PATCH', '/api/custom-field-set/' . $id, $data, [
             'HTTP_ACCEPT' => 'application/json',
-        ], $json);
+        ]);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
@@ -93,7 +90,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
         $data = ['id' => $id, 'active' => false];
 
-        $client->request('PATCH', '/api/custom-field-set/' . $id, $data, [], [
+        $client->jsonRequest('PATCH', '/api/custom-field-set/' . $id, $data, [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
@@ -125,12 +122,9 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $client = $this->createClient();
 
         $data = ['id' => $id, 'active' => false];
-        $json = \json_encode($data, \JSON_THROW_ON_ERROR);
-        static::assertNotFalse($json);
-
-        $client->request('PATCH', '/api/custom-field-set/' . $id, [], [], [
+        $client->jsonRequest('PATCH', '/api/custom-field-set/' . $id, $data, [
             'HTTP_ACCEPT' => 'application/json',
-        ], $json);
+        ]);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
@@ -158,7 +152,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
             'client_secret' => $secretAccessKey,
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/oauth/token', $authPayload, $authPayload);
         static::assertNotFalse($browser->getResponse()->getContent());
 
         $data = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

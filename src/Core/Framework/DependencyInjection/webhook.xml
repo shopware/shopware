@@ -38,6 +38,7 @@
         <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory" lazy="true">
             <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\WriteResultMerger"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Hookable\WriteResultMerger">
@@ -65,6 +66,7 @@
         <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector">
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="tagged_iterator" tag="shopware.entity.hookable"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">

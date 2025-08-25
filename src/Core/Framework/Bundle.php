@@ -99,6 +99,14 @@ abstract class Bundle extends SymfonyBundle
     }
 
     /**
+     * Used to configure the BaseUrl for the Admin Extension API
+     */
+    public function getAdminBaseUrl(): ?string
+    {
+        return null;
+    }
+
+    /**
      * Returns a list of all action event class references of this bundle. The events will be registered inside the `\Shopware\Core\Framework\Event\BusinessEventRegistry`.
      *
      * @return array<class-string>

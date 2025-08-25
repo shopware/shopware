@@ -29,6 +29,7 @@ class SetOrderCustomFieldActionTest extends TestCase
 {
     private Connection&MockObject $connection;
 
+    /** @var MockObject&EntityRepository<OrderCollection> */
     private MockObject&EntityRepository $repository;
 
     private SetOrderCustomFieldAction $action;

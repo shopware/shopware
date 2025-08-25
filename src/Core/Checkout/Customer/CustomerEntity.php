@@ -300,7 +300,7 @@ class CustomerEntity extends Entity implements \Stringable
     /**
      * @internal
      */
-    public function setPassword(?string $password): void
+    public function setPassword(#[\SensitiveParameter] ?string $password): void
     {
         $this->password = $password;
     }
@@ -524,7 +524,7 @@ class CustomerEntity extends Entity implements \Stringable
     /**
      * @internal
      */
-    public function setLegacyPassword(?string $legacyPassword): void
+    public function setLegacyPassword(#[\SensitiveParameter] ?string $legacyPassword): void
     {
         $this->legacyPassword = $legacyPassword;
     }

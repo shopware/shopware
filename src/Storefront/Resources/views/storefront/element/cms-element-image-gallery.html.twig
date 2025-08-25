@@ -307,7 +307,7 @@
                                                                                     {% endif %}
                                                                                 {% endif %}
 
-                                                                                {% if loop.first %}
+                                                                                {% if loop.first and sliderConfig.useFetchPriorityOnFirstItem.value is true %}
                                                                                     {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
                                                                                 {% endif %}
 

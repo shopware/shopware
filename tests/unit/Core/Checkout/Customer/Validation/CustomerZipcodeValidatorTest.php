@@ -30,7 +30,7 @@ class CustomerZipcodeValidatorTest extends TestCase
     private CustomerZipCode $constraint;
 
     /**
-     * @var EntityRepository&MockObject
+     * @var EntityRepository<CountryCollection>&MockObject
      */
     private EntityRepository $countryRepository;
 

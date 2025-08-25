@@ -171,7 +171,13 @@ export default {
                 this.categoryRepository.search(criteria).then((categories) => {
                     this.addCategories(categories);
                 });
+
+                return;
             }
+
+            this.loadActiveCategory().then(() => {
+                this.$refs.categoryTree.openTreeById();
+            });
         },
 
         currentLanguageId() {
@@ -207,25 +213,33 @@ export default {
                     return Promise.resolve();
                 }
 
-                const parentIds = this.category.path.split('|').filter((id) => !!id);
-                const parentPromises = [];
-
-                parentIds.forEach((id) => {
-                    const promise = this.categoryRepository
-                        .get(id, Shopware.Context.api, this.criteriaWithChildren)
-                        .then((result) => {
-                            this.addCategories([
-                                result,
-                                ...result.children,
-                            ]);
-                        });
-                    parentPromises.push(promise);
-                });
-
-                return Promise.all(parentPromises).then(() => {
+                return this.loadActiveCategory().then(() => {
                     this.isLoadingInitialData = false;
                 });
             });
+        },
+
+        loadActiveCategory() {
+            if (!this.category || this.category.path === null || this.category.id in this.loadedCategories) {
+                return Promise.resolve();
+            }
+
+            const parentIds = this.category.path.split('|').filter((id) => !!id);
+            const parentPromises = [];
+
+            parentIds.forEach((id) => {
+                const promise = this.categoryRepository
+                    .get(id, Shopware.Context.api, this.criteriaWithChildren)
+                    .then((result) => {
+                        this.addCategories([
+                            result,
+                            ...result.children,
+                        ]);
+                    });
+                parentPromises.push(promise);
+            });
+
+            return Promise.all(parentPromises);
         },
 
         onUpdatePositions: Shopware.Utils.debounce(function onUpdatePositions({ draggedItem, oldParentId, newParentId }) {

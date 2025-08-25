@@ -118,6 +118,7 @@ class InvoiceRendererTest extends TestCase
             'displayPageCount' => true,
             'displayLineItems' => true,
             'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
             'companyName' => 'Example Company',
             'documentDate' => '2023-11-24T12:00:00+00:00',
         ]);

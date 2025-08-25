@@ -136,7 +136,7 @@ class MailService extends AbstractMailService
         $definition = new DataValidationDefinition('mail_service.send');
 
         $definition->add('recipients', new NotBlank(), new Type('array'));
-        $definition->add('salesChannelId', new EntityExists(['entity' => SalesChannelDefinition::ENTITY_NAME, 'context' => $context]));
+        $definition->add('salesChannelId', new EntityExists(entity: SalesChannelDefinition::ENTITY_NAME, context: $context));
         $definition->add('contentHtml', new NotBlank(), new Type('string'));
         $definition->add('contentPlain', new NotBlank(), new Type('string'));
         $definition->add('subject', new NotBlank(), new Type('string'));

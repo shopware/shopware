@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 
 #[Package('checkout')]
@@ -28,17 +29,36 @@ class CustomerEmailUnique extends Constraint
     protected SalesChannelContext $salesChannelContext;
 
     /**
-     * @param array{salesChannelContext: SalesChannelContext} $options
+     * @param array{salesChannelContext?: SalesChannelContext}|null $options
+     *
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext will be required and natively typed as constructor property promotion
      *
      * @internal
      */
-    public function __construct(array $options)
+    #[HasNamedArguments]
+    public function __construct(?array $options = null, ?SalesChannelContext $salesChannelContext = null)
     {
-        if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
-            throw CustomerException::missingOption('salesChannelContext', self::class);
+        if ($options !== null || $salesChannelContext === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use $salesChannelContext argument instead of providing it in $options array')
+            );
         }
 
-        if (!Feature::isActive('v6.8.0.0')) {
+        if ($options === null || Feature::isActive('v6.8.0.0')) {
+            parent::__construct();
+
+            if ($salesChannelContext === null) {
+                throw CustomerException::missingOption('salesChannelContext', self::class);
+            }
+
+            $this->salesChannelContext = $salesChannelContext;
+        } else {
+            if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
+                throw CustomerException::missingOption('salesChannelContext', self::class);
+            }
+
             if (!isset($options['context'])) {
                 $options['context'] = $options['salesChannelContext']->getContext();
             }
@@ -46,22 +66,22 @@ class CustomerEmailUnique extends Constraint
             if (!($options['context'] ?? null) instanceof Context) {
                 throw CustomerException::missingOption('context', self::class);
             }
-        }
 
-        parent::__construct($options);
+            parent::__construct($options);
+        }
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use `getSalesChannelContext()->getContext()` instead
+     * @deprecated tag:v6.8.0 - Will be removed, use getSalesChannelContext instead
      */
     public function getContext(): Context
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getSalesChannelContext')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getSalesChannelContext->getContext()')
         );
 
-        return $this->context;
+        return $this->salesChannelContext->getContext();
     }
 
     public function getSalesChannelContext(): SalesChannelContext

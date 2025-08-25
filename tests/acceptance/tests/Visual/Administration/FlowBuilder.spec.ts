@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
-import { setViewport, replaceElements, hideElements } from '@shopware-ag/acceptance-test-suite';
+import { setViewport, replaceElements, hideElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -15,8 +15,7 @@ test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
             AdminFlowBuilderListing.testFlowNameCells,
             ]);
         await AdminFlowBuilderListing.flowTemplatesTab.hover();
-        await expect(AdminFlowBuilderListing.contentView).toHaveScreenshot('Flow-Builder-Listing.png', {
-        });
+        await assertScreenshot(AdminFlowBuilderListing.page, 'Flow-Builder-Listing-Hover.png');
     });
 
     await test.step('Create a screenshot of the flow templates listing.', async () => {
@@ -24,8 +23,7 @@ test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
         await setViewport(AdminFlowBuilderListing.page, {
             waitForSelector: AdminFlowBuilderListing.pagination,
         })
-        await expect(AdminFlowBuilderListing.contentView).toHaveScreenshot('Flow-Builder-Templates-Listing.png', {
-        });
+        await assertScreenshot(AdminFlowBuilderListing.page, 'Flow-Builder-Templates-Listing-Hover.png');
     });
 });
 
@@ -71,8 +69,7 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
         await hideElements(AdminFlowBuilderDetail.page, [
             AdminFlowBuilderDetail.nameField,
         ]);
-        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot('Flow-Builder-Detail-General-Tab.png', {
-        });
+        await assertScreenshot(AdminFlowBuilderDetail.page, 'Flow-Builder-Detail-General-Tab.png');
     });
 
     await test.step('Create a screenshot of the actual flow.', async () => {
@@ -85,7 +82,6 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
             AdminFlowBuilderDetail.header,
             AdminFlowBuilderDetail.actionContentTag,
         ]);
-        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot('Flow-Builder-Detail-Flow-Tab.png', {
-        });
+        await assertScreenshot(AdminFlowBuilderDetail.page, 'Flow-Builder-Detail-Flow-Tab.png');
     });
 });

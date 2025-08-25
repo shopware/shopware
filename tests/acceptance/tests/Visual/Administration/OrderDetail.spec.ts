@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport, hideElements, replaceElements } from '@shopware-ag/acceptance-test-suite';
+import { setViewport, hideElements, replaceElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Order Detail Page', { tag: '@Visual' }, async ({ 
     ShopAdmin,
@@ -25,7 +25,7 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
             '.smart-bar__header',
         ]);
 
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-General-Tab.png'); 
+        await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-General-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page Details tab.', async () => { 
@@ -47,7 +47,7 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
             'div.sw-field[label="Sales channel"] .sw-entity-single-select__selection-text',
         ]);
 
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-Details-Tab.png');  
+        await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-Details-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page Documents tab.', async () => { 
@@ -55,6 +55,6 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminOrderDetail.page, {
             requestURL: '/api/search/document',
         });
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-Documents-Tab.png');  
+        await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-Documents-Tab.png');
     });
 });

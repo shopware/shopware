@@ -64,6 +64,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionRedemptionLocker">
+            <argument type="service" id="lock.factory"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- CART CALCULATORS -->
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
 

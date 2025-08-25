@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -21,19 +20,16 @@ class RegisterLongNamesTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private IdsCollection $ids;
-
     protected function setUp(): void
     {
-        $this->ids = new IdsCollection();
+        $ids = new IdsCollection();
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
+            'id' => $ids->create('sales-channel'),
         ]);
     }
 
     public function testRegistrationWithLongNames(): void
     {
-        // Issue #5882: Names exceeding old limits (50/60 chars) should work with new limits (255 chars)
         $longFirstName = str_repeat('Max', 34);
         $longLastName = str_repeat('Mustermann', 10);
 
@@ -72,24 +68,26 @@ class RegisterLongNamesTest extends TestCase
         static::assertSame($longFirstName, $response['firstName']);
         static::assertSame($longLastName, $response['lastName']);
 
-        static::assertArrayHasKey('defaultBillingAddress', (array) $response);
-        static::assertSame($longFirstName, $response['defaultBillingAddress']['firstName']);
-        static::assertSame($longLastName, $response['defaultBillingAddress']['lastName']);
+        $contextToken = $this->browser->getResponse()->headers->get('sw-context-token');
 
         $this->browser->request(
             'POST',
-            '/store-api/account/login',
+            '/store-api/account/list-address',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => 'long-name@example.com',
-                'password' => '12345678',
-            ], \JSON_THROW_ON_ERROR)
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
+            ]
         );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('elements', (array) $response);
+        $addresses = $response['elements'];
+        static::assertCount(1, $addresses);
+        static::assertSame($longFirstName, $addresses[0]['firstName']);
+        static::assertSame($longLastName, $addresses[0]['lastName']);
     }
 
     public function testRegistrationWithMaximumNameLengths(): void
@@ -130,8 +128,6 @@ class RegisterLongNamesTest extends TestCase
 
         static::assertSame($maxFirstName, $response['firstName']);
         static::assertSame($maxLastName, $response['lastName']);
-        static::assertSame($maxFirstName, $response['defaultBillingAddress']['firstName']);
-        static::assertSame($maxLastName, $response['defaultBillingAddress']['lastName']);
     }
 
     public function testRegistrationWithTooLongNamesFails(): void

@@ -859,18 +859,16 @@ class CustomEntityTest extends TestCase
         $client = $this->getBrowser();
 
         // create
-        $client->request('POST', '/api/custom-entity-blog', [], [], [], json_encode(self::blog('blog-1', $ids), \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/custom-entity-blog', self::blog('blog-1', $ids));
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r((string) $response->getContent(), true));
 
         // update
-        $client->request(
+        $client->jsonRequest(
             'PATCH',
             '/api/custom-entity-blog/' . $ids->get('blog-1'),
-            [],
-            [],
+            ['id' => $ids->get('blog-1'), 'title' => 'update'],
             ['HTTP_ACCEPT' => 'application/json'],
-            \json_encode(['id' => $ids->get('blog-1'), 'title' => 'update'], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
@@ -913,13 +911,11 @@ class CustomEntityTest extends TestCase
         static::assertNull($body['data']['inheritedProducts']);
 
         // search
-        $client->request(
+        $client->jsonRequest(
             'POST',
             '/api/search/custom-entity-blog',
-            [],
-            [],
+            ['ids' => [$ids->get('blog-1')]],
             ['HTTP_ACCEPT' => 'application/json'],
-            \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
@@ -937,13 +933,11 @@ class CustomEntityTest extends TestCase
         static::assertNull($body['data'][0]['inheritedProducts']);
 
         // search-ids
-        $client->request(
+        $client->jsonRequest(
             'POST',
             '/api/search-ids/custom-entity-blog',
-            [],
-            [],
+            ['ids' => [$ids->get('blog-1')]],
             ['HTTP_ACCEPT' => 'application/json'],
-            \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
@@ -956,13 +950,11 @@ class CustomEntityTest extends TestCase
         static::assertSame(1, $body['total']);
         static::assertSame($ids->get('blog-1'), $body['data'][0]);
 
-        $client->request(
+        $client->jsonRequest(
             'DELETE',
             '/api/custom-entity-blog/' . $ids->get('blog-1'),
-            [],
-            [],
+            ['ids' => [$ids->get('blog-1')]],
             ['HTTP_ACCEPT' => 'application/json'],
-            \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));

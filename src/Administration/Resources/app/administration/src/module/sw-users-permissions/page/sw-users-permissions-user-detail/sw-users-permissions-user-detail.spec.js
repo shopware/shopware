@@ -564,4 +564,16 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
         expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
     });
+
+    it('should not update the auth token if user a different user then the currently logged in user is changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        wrapper.vm.user.password = 'newPassword';
+        wrapper.vm.user.id = 'randomId';
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
+    });
 });

@@ -21,57 +21,74 @@
     </mt-banner>
     {% endblock %}
 
-    {% block sw_login_login_user_field %}
+    <div v-if="loginConfigLoaded">
+        <template v-if="loginConfig.useDefault">
+            {% block sw_login_login_user_field %}
+            <mt-text-field
+                v-model="username"
+                v-autofocus
+                name="sw-field--username"
+                :label="$tc('sw-login.index.labelUsername')"
+                :placeholder="$tc('sw-login.index.placeholderUsername')"
+                :disabled="showLoginAlert"
+                required
+            />
+            {% endblock %}
 
-    <mt-text-field
-        v-model="username"
-        v-autofocus
-        name="sw-field--username"
-        :label="$tc('sw-login.index.labelUsername')"
-        :placeholder="$tc('sw-login.index.placeholderUsername')"
-        :disabled="showLoginAlert"
-        required
-    />
-    {% endblock %}
+            {% block sw_login_login_password_field %}
+            <mt-password-field
+                v-model="password"
+                name="sw-field--password"
+                :label="$tc('sw-login.index.labelPassword')"
+                :placeholder="$tc('sw-login.index.placeholderPassword')"
+                :disabled="showLoginAlert"
+                required
+            />
+            {% endblock %}
 
-    {% block sw_login_login_password_field %}
-    <mt-password-field
-        v-model="password"
-        name="sw-field--password"
-        :label="$tc('sw-login.index.labelPassword')"
-        :placeholder="$tc('sw-login.index.placeholderPassword')"
-        :disabled="showLoginAlert"
-        required
-    />
-    {% endblock %}
+            <mt-checkbox
+                v-model:checked="rememberMe"
+                :label="$tc('sw-login.index.labelKeepLoggedIn')"
+            />
 
-    <mt-checkbox
-        v-model:checked="rememberMe"
-        :label="$tc('sw-login.index.labelKeepLoggedIn')"
-    />
+            {% block sw_login_login_submit %}
+            <div class="sw-login__submit">
+                {% block sw_login_login_forgot_password %}
+                <router-link
+                    :to="{ name: 'sw.login.index.recovery' }"
+                    class="sw-login__forgot-password-action"
+                >
+                    {{ $tc('sw-login.index.forgottenPasswordLink') }}
+                </router-link>
+                {% endblock %}
 
-    {% block sw_login_login_submit %}
-    <div class="sw-login__submit">
-        {% block sw_login_login_forgot_password %}
-        <router-link
-            :to="{ name: 'sw.login.index.recovery' }"
-            class="sw-login__forgot-password-action"
-        >
-            {{ $tc('sw-login.index.forgottenPasswordLink') }}
-        </router-link>
-        {% endblock %}
+                {% block sw_login_login_submit_button %}
+                <mt-button
+                    :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
+                    class="sw-login__login-action"
+                    variant="primary"
+                    type="submit"
+                >
+                    {{ $tc('sw-login.index.buttonLogin') }}
+                </mt-button>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </template>
 
-        {% block sw_login_login_submit_button %}
-        <mt-button
-            :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
-            class="sw-login__login-action"
-            variant="primary"
-            type="submit"
-        >
-            {{ $tc('sw-login.index.buttonLogin') }}
-        </mt-button>
-        {% endblock %}
+        <div v-if="!loginConfig.useDefault && loginConfig.url">
+            <a
+                class="sw-button sw-button--primary sw-button--small"
+                :disabled="!loginConfigLoaded"
+                :href="loginConfig.url"
+            >
+                {{ $tc('sw-login.index.buttonSsoLogin') }}
+                <mt-icon name="regular-shopware" />
+            </a>
+        </div>
     </div>
-    {% endblock %}
+    <div v-else>
+        <sw-loader />
+    </div>
 </form>
 {% endblock %}

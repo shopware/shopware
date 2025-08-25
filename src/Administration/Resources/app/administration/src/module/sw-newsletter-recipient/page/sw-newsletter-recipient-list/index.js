@@ -27,7 +27,6 @@ export default {
             isLoading: false,
             items: null,
             total: 0,
-            repository: null,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             filterSidebarIsOpen: false,
@@ -213,7 +212,6 @@ export default {
                 },
                 {
                     property: 'firstName',
-                    dataIndex: 'firstName,lastName',
                     inlineEdit: 'string',
                     label: 'sw-newsletter-recipient.list.name',
                     allowResize: true,

@@ -269,6 +269,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="filesystem"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">
@@ -285,6 +287,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="shopware.filesystem.private"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
@@ -643,6 +647,8 @@ frame-ancestors 'none';
             <argument>%shopware.html_sanitizer.sets%</argument>
             <argument>%shopware.html_sanitizer.fields%</argument>
             <argument>%shopware.html_sanitizer.enabled%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
@@ -712,9 +718,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%session.storage.options%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
-            <argument type="service" id="http_kernel.cache.inner"/>
             <argument>%shopware.http_cache.soft_purge%</argument>
-            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="messenger.bus.default"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">

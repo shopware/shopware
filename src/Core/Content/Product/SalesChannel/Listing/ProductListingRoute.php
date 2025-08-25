@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
@@ -28,6 +29,8 @@ class ProductListingRoute extends AbstractProductListingRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
@@ -63,8 +66,8 @@ class ProductListingRoute extends AbstractProductListingRoute
         $categoryCriteria->addFields(['productAssignmentType', 'productStreamId']);
         $categoryCriteria->setLimit(1);
 
-        /** @var PartialEntity|null $category */
-        $category = $this->categoryRepository->search($categoryCriteria, $context->getContext())->first();
+        /** @var ?PartialEntity */
+        $category = $this->categoryRepository->search($categoryCriteria, $context->getContext())->getEntities()->first();
         if (!$category) {
             throw ProductException::categoryNotFound($categoryId);
         }

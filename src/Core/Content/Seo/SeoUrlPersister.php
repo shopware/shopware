@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,8 @@ class SeoUrlPersister
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      */
     public function __construct(
         private readonly Connection $connection,

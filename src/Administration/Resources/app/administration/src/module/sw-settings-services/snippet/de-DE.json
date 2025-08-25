@@ -40,7 +40,8 @@
       "deactivate-modal": {
         "warning": "Bist Du sicher, dass Du „{serviceName}“ deaktivieren möchtest?",
         "consequences": "Dadurch verlierst Du sofort den Zugriff auf den Service und alle zugehörigen Prozesse."
-      }
+      },
+      "permissions": "Berechtigungen anzeigen"
     },
     "grant-permissions": {
       "title": "Schalte das volle Potenzial von Shopware Services frei",

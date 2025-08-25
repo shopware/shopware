@@ -235,9 +235,10 @@ export default class MagnifierPlugin extends Plugin {
     _setZoomImageSize(imageSize) {
         const factor = imageSize.y / imageSize.x;
         const zoomImageSize = this._getZoomImageSize();
-        const height = this.options.keepAspectRatioOnZoom
-            ? this.options.scaleZoomImage ? zoomImageSize.x * factor : zoomImageSize.y
-            : zoomImageSize.x;
+        const maxHeight = window.innerHeight / 2;
+        const height = Math.min((this.options.keepAspectRatioOnZoom
+            ? (this.options.scaleZoomImage ? zoomImageSize.x * factor : zoomImageSize.y)
+            : zoomImageSize.x), maxHeight);
         this._zoomImage.style.height = `${height}px`;
         this._zoomImage.style.minHeight = `${height}px`;
     }

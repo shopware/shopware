@@ -124,21 +124,21 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
 
-        foreach ($this->routes as $key => $route) {
+        foreach ($this->routes as $route) {
             $path = $route->getPath();
+            $subPath = \substr($path, \strlen('/api'));
             if (!$this->isAdminApi($path)) {
                 continue;
             }
-            $path = \substr($path, \strlen('/api'));
-            if (\array_key_exists($path, $schemaRoutes)) {
-                $this->checkExperimentalState($route, $schemaRoutes[$path]);
-                unset($schemaRoutes[$path]);
+            if (\array_key_exists($subPath, $schemaRoutes)) {
+                $this->checkExperimentalState($route, $schemaRoutes[$subPath]);
+                unset($schemaRoutes[$subPath]);
 
                 continue;
             }
             if ($this->isRepositoryCrudRoute($route)) {
-                $listPath = str_replace('{path}', '', $path);
-                $crudPath = str_replace('{path}', '{id}', $path);
+                $listPath = str_replace('{path}', '', $subPath);
+                $crudPath = str_replace('{path}', '{id}', $subPath);
                 unset($schemaRoutes[$listPath]);
                 unset($schemaRoutes[$crudPath]);
 
@@ -150,14 +150,14 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 continue;
             }
 
-            $missingRoutes[] = $path;
+            $missingRoutes[] = $subPath;
         }
         sort($missingRoutes);
 
         static::assertSame([], array_keys($schemaRoutes), 'The schema contains routes that do not exist');
         // Add missing routes under:
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths
-        $this->assertSnapshot(
+        $this->assertJsonSnapshot(
             'routes_without_schema',
             $missingRoutes,
             'Routes are missing in the schema'

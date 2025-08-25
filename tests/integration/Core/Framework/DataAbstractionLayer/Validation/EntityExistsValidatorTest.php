@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -119,11 +120,15 @@ class EntityExistsValidatorTest extends TestCase
         static::assertCount(1, $violations);
     }
 
+    /**
+     * @return EntityRepository<LocaleCollection>
+     */
     protected function createRepository(): EntityRepository
     {
         $definition = static::getContainer()->get(LocaleDefinition::class);
         static::assertInstanceOf(LocaleDefinition::class, $definition);
 
+        /** @var EntityRepository<LocaleCollection> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

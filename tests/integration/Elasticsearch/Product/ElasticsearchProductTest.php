@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -85,6 +86,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAgg
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Shopware\Tests\Integration\Elasticsearch\Product\Fixture\ProductsFixture;
@@ -146,6 +148,8 @@ class ElasticsearchProductTest extends TestCase
         $this->client = static::getContainer()->get(Client::class);
         $this->productDefinition = static::getContainer()->get(ProductDefinition::class);
         $this->languageRepository = static::getContainer()->get('language.repository');
+
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
 
         static::getContainer()->get(SalesChannelLanguageLoader::class)->reset();
         $this->connection = static::getContainer()->get(Connection::class);
@@ -277,6 +281,7 @@ class ElasticsearchProductTest extends TestCase
             $this->productRepository->upsert([
                 (new ProductBuilder($this->ids, 'u7', 300))
                     ->price(100)
+                    ->visibility()
                     ->build(),
             ], $context);
 

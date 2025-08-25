@@ -191,7 +191,7 @@ class ImportEntityCommand extends Command
 
         $byName = [];
         foreach ($result as $profile) {
-            $byName[$profile->getLabel()] = $profile;
+            $byName[$profile->getTechnicalName()] = $profile;
         }
 
         $answer = $io->choice('Please choose a profile', array_keys($byName));

@@ -65,4 +65,17 @@ class AdminSearchIndexingMessageTest extends TestCase
             false,
         ];
     }
+
+    public function testGetToRemoveIds(): void
+    {
+        $message = new AdminSearchIndexingMessage(
+            'product',
+            'product-listing',
+            ['sw-admin-product-listing' => 'sw-admin-product-listing_12345'],
+            ['c1a28776116d4431a2208eb2960ec340'],
+            ['deadbeefdeadbeefdeadbeefdeadbeef']
+        );
+
+        static::assertSame(['deadbeefdeadbeefdeadbeefdeadbeef'], $message->getToRemoveIds());
+    }
 }

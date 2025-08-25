@@ -26,6 +26,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -70,7 +72,10 @@ class EntityRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->categoryRepository = $this->createRepository(CategoryDefinition::class);
+        /** @var EntityRepository<CategoryCollection> */
+        $categoryRepository = $this->createRepository(CategoryDefinition::class);
+
+        $this->categoryRepository = $categoryRepository;
     }
 
     protected function tearDown(): void
@@ -1648,6 +1653,8 @@ class EntityRepositoryTest extends TestCase
 
     /**
      * @param class-string<EntityDefinition> $definitionClass
+     *
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
      */
     private function createRepository(
         string $definitionClass,
@@ -1656,6 +1663,7 @@ class EntityRepositoryTest extends TestCase
         $definition = static::getContainer()->get($definitionClass);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
+        /** @var EntityRepository<covariant EntityCollection<covariant Entity>> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

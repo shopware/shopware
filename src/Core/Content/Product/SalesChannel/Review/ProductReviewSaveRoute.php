@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
@@ -37,6 +38,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductReviewCollection> $repository
      */
     public function __construct(
         private readonly EntityRepository $repository,
@@ -124,8 +127,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $definition = new DataValidationDefinition('product.create_rating');
 
         $definition->add('name', new NotBlank());
-        $definition->add('title', new NotBlank(), new Length(['min' => 5]));
-        $definition->add('content', new NotBlank(), new Length(['min' => 40]));
+        $definition->add('title', new NotBlank(), new Length(min: 5));
+        $definition->add('content', new NotBlank(), new Length(min: 40));
 
         $definition->add('points', new GreaterThanOrEqual(1), new LessThanOrEqual(5));
 

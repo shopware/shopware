@@ -54,7 +54,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @throw InvalidSyncOperationException
+     * @throws InvalidSyncOperationException
      */
     public function sync(array $operations, WriteContext $context): WriteResult
     {

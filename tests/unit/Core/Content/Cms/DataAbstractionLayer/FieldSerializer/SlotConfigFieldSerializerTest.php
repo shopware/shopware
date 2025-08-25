@@ -31,10 +31,8 @@ class SlotConfigFieldSerializerTest extends TestCase
     {
         $id = Uuid::randomHex();
         $expected = new All(
-            constraints: new Collection([
-                'allowExtraFields' => false,
-                'allowMissingFields' => false,
-                'fields' => [
+            constraints: new Collection(
+                fields: [
                     'source' => [
                         new Choice(
                             choices: [
@@ -48,7 +46,9 @@ class SlotConfigFieldSerializerTest extends TestCase
                     ],
                     'value' => [],
                 ],
-            ]),
+                allowExtraFields: false,
+                allowMissingFields: false,
+            ),
         );
 
         $serializer = $this->getSerializer($id, $expected);

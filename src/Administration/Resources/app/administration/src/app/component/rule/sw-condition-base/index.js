@@ -13,7 +13,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-base :condition="condition"></sw-condition-base>
  */
-Component.register('sw-condition-base', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -118,4 +118,4 @@ Component.register('sw-condition-base', {
             }
         },
     },
-});
+};

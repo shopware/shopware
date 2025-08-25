@@ -21,6 +21,7 @@ describe('use-context', () => {
                     version: null,
                     versionRevision: null,
                     inAppPurchases: {},
+                    shopId: null,
                 },
                 environment: null,
                 fallbackLocale: null,
@@ -57,6 +58,8 @@ describe('use-context', () => {
                 systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 currencyId: null,
                 versionId: null,
+                measurementLengthUnit: null,
+                measurementWeightUnit: null,
             }),
         );
     });

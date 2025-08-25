@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
-import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
+import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon';
 
 Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 

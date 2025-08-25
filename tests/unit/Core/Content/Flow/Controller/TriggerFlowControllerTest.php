@@ -63,6 +63,7 @@ class TriggerFlowControllerTest extends TestCase
         $request = new Request();
         $request->setMethod('POST');
         $context = Context::createDefaultContext();
+        /** @var StaticEntityRepository<AppFlowEventCollection> */
         $appFlowEventRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'app_flow_event',
@@ -86,6 +87,7 @@ class TriggerFlowControllerTest extends TestCase
         $request = new Request();
         $request->setMethod('POST');
         $context = Context::createDefaultContext();
+        /** @var StaticEntityRepository<AppFlowEventCollection> */
         $appFlowEventRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'app_flow_event',
@@ -108,9 +110,9 @@ class TriggerFlowControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         $response = $this->triggerFlowController->trigger('custom.checkout.event', $request, $context);
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($response->getContent());
-        static::assertEquals('The trigger `custom.checkout.event`successfully dispatched!', json_decode($response->getContent(), true)['message']);
+        static::assertSame('The trigger `custom.checkout.event`successfully dispatched!', json_decode($response->getContent(), true)['message']);
     }
 
     public function testTriggerWithValidAware(): void
@@ -119,8 +121,8 @@ class TriggerFlowControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         $response = $this->triggerFlowController->trigger('custom.checkout.event', $request, $context);
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($response->getContent());
-        static::assertEquals('The trigger `custom.checkout.event`successfully dispatched!', json_decode($response->getContent(), true)['message']);
+        static::assertSame('The trigger `custom.checkout.event`successfully dispatched!', json_decode($response->getContent(), true)['message']);
     }
 }

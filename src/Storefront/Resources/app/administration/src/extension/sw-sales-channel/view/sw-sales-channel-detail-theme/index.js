@@ -48,13 +48,7 @@ Component.register('sw-sales-channel-detail-theme', {
         'salesChannel.extensions.themes': {
             deep: true,
             handler() {
-                if (!this.salesChannel || !this.salesChannel.extensions || this.salesChannel.extensions.themes.length < 1) {
-                    return;
-                }
-
-                this.theme = this.salesChannel.extensions.themes[0];
-
-                this.getTheme(this.theme.id);
+                this.getTheme(this.salesChannel?.extensions?.themes[0]?.id);
             }
         }
     },
@@ -65,9 +59,7 @@ Component.register('sw-sales-channel-detail-theme', {
 
     methods: {
         createdComponent() {
-            if (!this.salesChannel ||
-                !this.salesChannel.extensions ||
-                this.salesChannel.extensions.themes.length < 1) {
+            if (!this.salesChannel?.extensions?.themes[0]) {
                 return;
             }
 

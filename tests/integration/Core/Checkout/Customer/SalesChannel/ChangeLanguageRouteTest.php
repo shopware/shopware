@@ -92,7 +92,7 @@ class ChangeLanguageRouteTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $customer = $connection->fetchAllAssociative('SELECT * FROM customer WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
-        static::assertEquals($languageId, Uuid::fromBytesToHex($customer[0]['language_id']));
+        static::assertSame($languageId, Uuid::fromBytesToHex($customer[0]['language_id']));
     }
 
     public function testInvalidLanguage(): void
@@ -113,12 +113,12 @@ class ChangeLanguageRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('The "language" entity with id "' . $languageId . '" does not exist.', $response['errors'][0]['detail']);
+        static::assertSame('The "language" entity with id "' . $languageId . '" does not exist.', $response['errors'][0]['detail']);
 
         /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
         $customer = $connection->fetchAllAssociative('SELECT * FROM customer WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
-        static::assertEquals(Defaults::LANGUAGE_SYSTEM, Uuid::fromBytesToHex($customer[0]['language_id']));
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, Uuid::fromBytesToHex($customer[0]['language_id']));
     }
 }

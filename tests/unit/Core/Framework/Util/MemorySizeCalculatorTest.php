@@ -22,7 +22,7 @@ class MemorySizeCalculatorTest extends TestCase
     #[DataProvider('memorySizeDataProvider')]
     public function testBytesConversion(string $limit, int $bytes): void
     {
-        static::assertEquals($bytes, MemorySizeCalculator::convertToBytes($limit));
+        static::assertSame($bytes, MemorySizeCalculator::convertToBytes($limit));
     }
 
     /**
@@ -57,7 +57,7 @@ class MemorySizeCalculatorTest extends TestCase
     #[DataProvider('bytesProvider')]
     public function testFormatBytes(int $bytes, string $formatted): void
     {
-        static::assertEquals($formatted, MemorySizeCalculator::formatToBytes($bytes));
+        static::assertSame($formatted, MemorySizeCalculator::formatToBytes($bytes));
     }
 
     /**
@@ -91,7 +91,7 @@ class MemorySizeCalculatorTest extends TestCase
 
         $maxUploadSize = MemorySizeCalculator::getMaxUploadSize($maxSize);
 
-        static::assertEquals($expected, $maxUploadSize);
+        static::assertSame($expected, $maxUploadSize);
 
         IniMock::withIniMock([]);
     }

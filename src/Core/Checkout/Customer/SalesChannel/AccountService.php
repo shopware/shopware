@@ -26,11 +26,14 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\PasswordHasher\Hasher\CheckPasswordLengthTrait;
 use Symfony\Component\Validator\ConstraintViolation;
 
 #[Package('checkout')]
 class AccountService
 {
+    use CheckPasswordLengthTrait;
+
     /**
      * @internal
      *
@@ -91,7 +94,7 @@ class AccountService
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
-    public function loginByCredentials(string $email, string $password, SalesChannelContext $context): string
+    public function loginByCredentials(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): string
     {
         if ($email === '' || $password === '') {
             throw CustomerException::badCredentials();
@@ -110,8 +113,12 @@ class AccountService
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
-    public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
+    public function getCustomerByLogin(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): CustomerEntity
     {
+        if ($this->isPasswordTooLong($password)) {
+            throw CustomerException::badCredentials();
+        }
+
         $customer = $this->getCustomerByEmail($email, $context);
 
         if ($customer->hasLegacyPassword()) {
@@ -132,6 +139,22 @@ class AccountService
         if (!$this->isCustomerConfirmed($customer)) {
             // Make sure to only throw this exception after it has been verified it was a valid login
             throw CustomerException::customerOptinNotCompleted($customer->getId());
+        }
+
+        return $customer;
+    }
+
+    /**
+     * @throws CustomerNotFoundException
+     */
+    public function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('email', $email));
+
+        $customer = $this->fetchCustomer($criteria, $context);
+        if ($customer === null) {
+            throw CustomerException::customerNotFound($email);
         }
 
         return $customer;
@@ -158,22 +181,6 @@ class AccountService
         $this->eventDispatcher->dispatch($event);
 
         return $newToken;
-    }
-
-    /**
-     * @throws CustomerNotFoundException
-     */
-    private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
-    {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('email', $email));
-
-        $customer = $this->fetchCustomer($criteria, $context);
-        if ($customer === null) {
-            throw CustomerException::customerNotFound($email);
-        }
-
-        return $customer;
     }
 
     /**
@@ -222,7 +229,7 @@ class AccountService
         return $result->first();
     }
 
-    private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void
+    private function updatePasswordHash(#[\SensitiveParameter] string $password, CustomerEntity $customer, Context $context): void
     {
         try {
             $this->customerRepository->update([

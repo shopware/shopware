@@ -56,7 +56,7 @@ class OrderStateChangeEventListenerTest extends TestCase
                 new Transition(
                     OrderTransactionDefinition::ENTITY_NAME,
                     $ids->get('transaction'),
-                    StateMachineTransitionActions::ACTION_DO_PAY,
+                    StateMachineTransitionActions::ACTION_PROCESS,
                     'stateId'
                 ),
                 Context::createDefaultContext()

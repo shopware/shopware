@@ -1,0 +1,154 @@
+{% block sw_media_preview_v2 %}
+<div
+    v-tooltip.bottom="{ message: mediaName, disabled: hideTooltip }"
+    class="sw-media-preview-v2"
+    :class="mediaPreviewClasses"
+>
+    {% block sw_media_preview_v2_no_media %}
+    <template v-if="!source">
+        {% block sw_media_preview_v2_no_media_icon %}
+        <mt-icon
+            name="regular-image"
+            size="var(--scale-size-16)"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_media_preview_v2_file_types %}
+    <template v-else>
+        {% block sw_media_preview_v2_file_type_check %}
+        <template v-if="mimeTypeGroup === 'image'">
+            {% block sw_media_preview_v2_file_type_image %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+            <img
+                v-if="!imagePreviewFailed"
+                class="sw-media-preview-v2__item"
+                :class="transparencyClass"
+                :src="previewUrl"
+                :alt="alt"
+                :srcset="sourceSet"
+                :sizes="`${width}px`"
+                :draggable="false"
+                @click="$emit('click')"
+                @error="showEvent"
+            >
+            <img
+                v-else
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :src="assetFilter(placeholderIconPath)"
+                :alt="mimeType"
+            >
+            <mt-icon
+                v-if="mediaIsPrivate && lockIsVisible"
+                class="sw-media-preview-v2__locked-icon"
+                name="regular-lock"
+            />
+            {% endblock %}
+        </template>
+
+        <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
+            {% block sw_media_preview_v2_file_type_video %}
+            <img
+                v-if="mediaIsPrivate"
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :src="assetFilter(placeholderIconPath)"
+                :alt="mimeType"
+            >
+            <video
+                :controls="showControls"
+                :autoplay="autoplay"
+                controlsList="nodownload"
+                class="sw-media-preview-v2__item"
+            >
+                <source
+                    :src="previewUrl"
+                    :type="mimeType"
+                >
+                {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
+            </video>
+            <button
+                v-if="!showControls && !mediaIsPrivate"
+                class="sw-media-preview-v2__play-button"
+                @click="onPlayClick"
+            >
+                <mt-icon
+                    class="sw-media-preview-v2__play-icon"
+                    name="regular-play"
+                />
+            </button>
+            <mt-icon
+                v-if="mediaIsPrivate && lockIsVisible"
+                class="sw-media-preview-v2__locked-icon"
+                name="regular-lock"
+            />
+            {% endblock %}
+        </template>
+
+        <template v-else-if="isPlayable && mimeTypeGroup === 'audio'">
+            {% block sw_media_preview_v2_file_type_audio %}
+            <img
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :src="assetFilter(placeholderIconPath)"
+                :alt="mimeType"
+            >
+            <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
+            <audio
+                :controls="showControls"
+                :autoplay="autoplay"
+                controlsList="nodownload"
+                class="sw-media-preview-v2__item sw-media-preview-v2__item--audio"
+            >
+                <source
+                    :src="previewUrl"
+                    :type="mimeType"
+                >
+                {{ $tc('global.sw-media-preview-v2.fallbackAudioTagSupport') }}
+            </audio>
+            <button
+                v-if="!showControls"
+                class="sw-media-preview-v2__play-button"
+                @click="onPlayClick"
+            >
+                <mt-icon
+                    class="sw-media-preview-v2__play-icon"
+                    name="regular-play"
+                />
+            </button>
+            <mt-icon
+                v-if="mediaIsPrivate && lockIsVisible"
+                class="sw-media-preview-v2__locked-icon"
+                name="regular-lock"
+            />
+            {% endblock %}
+        </template>
+
+        <template v-else-if="(isUrl || isRelativePath) && !urlPreviewFailed">
+            <img
+                :src="previewUrl"
+                class="sw-media-preview-v2__item"
+                :draggable="false"
+                :alt="mimeType"
+                @error="removeUrlPreview"
+            >
+        </template>
+
+        <template v-else>
+            {% block sw_media_preview_v2_file_type_placeholder %}
+            <img
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :src="assetFilter(placeholderIconPath)"
+                :alt="mimeType"
+            >
+            {% endblock %}
+            <mt-icon
+                v-if="mediaIsPrivate && lockIsVisible"
+                class="sw-media-preview-v2__locked-icon"
+                name="regular-lock"
+            />
+        </template>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</div>
+{% endblock %}

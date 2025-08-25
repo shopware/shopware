@@ -1,9 +1,5 @@
 .sw-order-saveable-field {
-    .sw-container {
-        align-items: center;
-    }
-
-    .sw-field {
+    .mt-field {
         margin-bottom: 0;
 
         input {
@@ -11,7 +7,9 @@
         }
     }
 
-    .mt-icon {
-        padding: 4px;
+    // Reset display to ".mt-button__content"'s value
+    // .mt-button--square -> display: inline
+    .mt-button--square .mt-button__content {
+        display: grid;
     }
 }

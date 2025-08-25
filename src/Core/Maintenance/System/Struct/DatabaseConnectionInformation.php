@@ -31,7 +31,7 @@ class DatabaseConnectionInformation extends Struct
 
     protected ?bool $sslDontVerifyServerCert = null;
 
-    public function assign(array $options): DatabaseConnectionInformation
+    public function assign(#[\SensitiveParameter] array $options): DatabaseConnectionInformation
     {
         // We pass request values directly to the assign method,
         // so we need to cast them to the correct type first

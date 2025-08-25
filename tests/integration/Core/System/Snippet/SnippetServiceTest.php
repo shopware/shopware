@@ -19,7 +19,6 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
-use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Tests\Integration\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -82,7 +81,7 @@ class SnippetServiceTest extends TestCase
 
         $snippets = $service->getStorefrontSnippets($this->getCatalog([], $locale), $snippetSetId);
 
-        static::assertEquals([
+        static::assertSame([
             'foo.baz' => 'foo_baz_override0',
             'foo.bas' => 'foo_bas_override_db',
             'bar' => 'bar_default2',
@@ -122,7 +121,7 @@ class SnippetServiceTest extends TestCase
 
         $snippets = $service->getStorefrontSnippets($this->getCatalog([], $locale), $snippetSetId);
 
-        static::assertEquals([
+        static::assertSame([
             'foo.bar' => 'foo_bar_override',
             'foo.bas' => 'foo_bas_default1',
             'baz.bar' => 'baz_bar_default2',
@@ -181,7 +180,7 @@ json
         $service = $this->getSnippetService($snippetFile);
         $result = $service->getRegionFilterItems(Context::createDefaultContext());
 
-        static::assertEquals([
+        static::assertSame([
             'bar',
             'foo',
             'test',
@@ -1118,11 +1117,10 @@ json
             static::getContainer()->get('snippet.repository'),
             static::getContainer()->get('snippet_set.repository'),
             static::getContainer()->get(SnippetFilterFactory::class),
-            static::getContainer(),
             static::getContainer()->get(ExtensionDispatcher::class),
-            static::getContainer()->has(DatabaseSalesChannelThemeLoader::class) ? static::getContainer()->get(
-                DatabaseSalesChannelThemeLoader::class
-            ) : null
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('shopware.filesystem.private'),
+            static::getContainer()->get('filesystem'),
         );
     }
 

@@ -170,7 +170,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
             static::assertNotSame($product, $productBoxStruct->getProduct());
 
             $serializedProduct = json_encode($product);
-            static::assertNotEquals(\JSON_ERROR_RECURSION, json_last_error());
+            static::assertNotSame(\JSON_ERROR_RECURSION, json_last_error());
             static::assertNotFalse($serializedProduct);
         }
     }

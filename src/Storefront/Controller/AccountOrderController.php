@@ -13,10 +13,11 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -26,6 +27,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\HandlePaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\SetPaymentOrderRouteRequestEvent;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedHook;
@@ -43,12 +45,14 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class AccountOrderController extends StorefrontController
 {
     /**
      * @internal
+     *
+     * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
      */
     public function __construct(
         private readonly AccountOrderPageLoader $orderPageLoader,
@@ -145,6 +149,9 @@ class AccountOrderController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     #[Route(
         path: '/widgets/account/order/detail/{id}',
         name: 'widgets.account.order.detail',
@@ -154,6 +161,11 @@ class AccountOrderController extends StorefrontController
     )]
     public function ajaxOrderDetail(Request $request, SalesChannelContext $context): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Route "widgets.account.order.detail" is deprecated and will be removed in v6.8.0.0 without replacement.',
+        );
+
         $page = $this->orderDetailPageLoader->load($request, $context);
 
         $this->hook(new AccountOrderDetailPageLoadedHook($page, $context));
@@ -183,12 +195,8 @@ class AccountOrderController extends StorefrontController
     )]
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
-        $criteria = new Criteria([$orderId]);
-        $deliveriesCriteria = $criteria->getAssociation('deliveries');
-        $deliveriesCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
-
         try {
-            $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
+            $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
         } catch (InvalidUuidException) {
             $order = null;
         }
@@ -208,7 +216,11 @@ class AccountOrderController extends StorefrontController
             return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
         }
 
-        $mostCurrentDelivery = $order->getDeliveries()?->last();
+        $mostCurrentDelivery = $order->getPrimaryOrderDelivery();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $mostCurrentDelivery = $order->getDeliveries()?->last();
+        }
 
         if ($mostCurrentDelivery !== null && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()) {
             $this->contextSwitchRoute->switchContext(

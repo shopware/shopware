@@ -37,7 +37,7 @@ class LandingPageControllerTest extends TestCase
     {
         $response = $this->request('GET', '/myUrl', []);
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 

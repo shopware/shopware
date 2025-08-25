@@ -5,12 +5,10 @@
 import template from './sw-sidebar-collapse.html.twig';
 import './sw-sidebar-collapse.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.extend('sw-sidebar-collapse', 'sw-collapse', {
+export default {
     template,
 
     emits: ['change-expanded'],
@@ -50,4 +48,4 @@ Component.extend('sw-sidebar-collapse', 'sw-collapse', {
             this.$emit('change-expanded', { isExpanded: this.expanded });
         },
     },
-});
+};

@@ -14,6 +14,7 @@
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
       "buttonLogin": "Log in",
+      "buttonSsoLogin": "Login with Shopware SSO",
       "messageUnsupportedGrantType": "Authorization grant type not supported by authorization server.",
       "messageInvalidRequest": "Invalid request.",
       "messageInvalidClient": "Client authentication failed.",
@@ -57,6 +58,9 @@
   "global": {
     "sw-admin-menu": {
       "textShopwareAdmin": "Shopware Administration"
+    },
+    "default": {
+      "error": "Error"
     }
   }
 }

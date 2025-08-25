@@ -6,9 +6,11 @@ import template from './sw-password-field.html.twig';
  * @private
  * @status ready
  * @description Wrapper component for sw-password-field and mt-password-field. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-password-field instead.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-password-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -28,6 +30,12 @@ Shopware.Component.register('sw-password-field', {
             type: String,
             required: false,
             default: '',
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

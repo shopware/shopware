@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,6 +35,9 @@ class StoreControllerTest extends TestCase
 
     private Context $defaultContext;
 
+    /**
+     * @var EntityRepository<UserCollection>
+     */
     private EntityRepository $userRepository;
 
     protected function setUp(): void
@@ -147,7 +151,7 @@ class StoreControllerTest extends TestCase
         static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($response['userInfo'], [
+        static::assertSame($response['userInfo'], [
             'name' => 'John Doe',
             'email' => 'john.doe@shopware.com',
         ]);
@@ -182,7 +186,7 @@ class StoreControllerTest extends TestCase
         static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($response['userInfo'], [
+        static::assertSame($response['userInfo'], [
             'name' => 'John Doe',
             'email' => 'john.doe@shopware.com',
         ]);

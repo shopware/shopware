@@ -3,7 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
-import { MtTextEditor } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-text', { sync: true }), {
@@ -12,7 +11,7 @@ async function createWrapper() {
                 cmsService: Shopware.Service('cmsService'),
             },
             stubs: {
-                'mt-text-editor': MtTextEditor,
+                'sw-text-editor': await wrapTestComponent('sw-text-editor'),
                 'sw-text-editor-toolbar': true,
                 'sw-text-editor-table-toolbar': true,
                 'sw-code-editor': true,
@@ -92,5 +91,22 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         wrapper.vm.emitChanges('product.name');
         expect(wrapper.emitted()['element-update']).toBeUndefined();
+    });
+
+    it('sets demoValue correctly when source is mapped', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            element: {
+                config: {
+                    content: {
+                        source: 'mapped',
+                        value: 'product.name',
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.demoValue).toContain('<strong>product.name</strong>');
     });
 });

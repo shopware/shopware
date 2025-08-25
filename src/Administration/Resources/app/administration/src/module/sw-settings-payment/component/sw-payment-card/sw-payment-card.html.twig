@@ -35,10 +35,10 @@
 
         <mt-switch
             v-tooltip="{ message: $tc('sw-settings-payment.overview.missingEditorPermission'), disabled: acl.can('payment.editor') }"
-            :checked="paymentMethod.active"
+            :model-value="paymentMethod.active"
             :disabled="!acl.can('payment.editor') || undefined"
             :label="$tc('sw-settings-payment.overview.activeToggle')"
-            @change="setPaymentMethodActive"
+            @update:model-value="setPaymentMethodActive"
         />
         {% endblock %}
 

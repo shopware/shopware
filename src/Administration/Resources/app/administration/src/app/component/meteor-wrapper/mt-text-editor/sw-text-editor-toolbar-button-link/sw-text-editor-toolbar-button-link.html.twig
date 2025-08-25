@@ -89,10 +89,10 @@
                 <mt-switch
                     v-if="showOpenInNewTabToggle"
                     :label="$t('sw-text-editor-toolbar-button-link.openInNewTab')"
-                    :checked="linkTarget === '_blank'"
+                    :model-value="linkTarget === '_blank'"
                     :aria-label="$t('sw-text-editor-toolbar-button-link.openInNewTab')"
                     class="sw-text-editor-toolbar-button-link__open-in-new-tab-switch"
-                    @change="
+                    @update:model-value="
                         (checked) => {
                             linkTarget = checked ? '_blank' : null;
                         }
@@ -100,10 +100,9 @@
                 />
 
                 <mt-switch
-                    :checked="displayAsButton"
+                    v-model="displayAsButton"
                     :label="$tc('sw-text-editor-toolbar-button-link.displayAsButton')"
                     class="sw-text-editor-toolbar-button-link__display-as-button-switch"
-                    @change="displayAsButton = !displayAsButton"
                 />
 
                 <mt-select

@@ -128,7 +128,9 @@ async function createWrapper() {
                 'sw-admin-menu': true,
                 'router-view': true,
                 'sw-app-app-url-changed-modal': true,
+                'sw-sidebar-renderer': true,
                 'sw-error-boundary': true,
+                'sw-settings-services-grant-permissions-modal': true,
             },
             provide: {
                 appUrlChangeService: {
@@ -154,12 +156,6 @@ describe('src/app/component/structure/sw-desktop', () => {
         Shopware.Store.get('session').setCurrentUser({
             id: 'id',
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be update userConfig when at index route', async () => {

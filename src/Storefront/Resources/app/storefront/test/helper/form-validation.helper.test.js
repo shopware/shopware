@@ -379,4 +379,35 @@ describe('form-validation', () => {
 
         expect(invalidFields.length).toBe(0);
     });
+
+    test('should respect data-form-validation-error-message override', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                      type="text"
+                      id="username"
+                      data-validation="required"
+                      data-form-validation-error-message="Username cannot be blank!"
+                      aria-describedby="username-feedback"
+                    >
+                    <div id="username-feedback" class="form-field-feedback"></div>
+                </div>
+            </form>
+        `;
+
+        const field = document.getElementById('username');
+        const feedback = document.getElementById('username-feedback');
+
+        // Mock visibility so it actually runs our override logic
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        // Trigger validation
+        formValidation.validateField(field);
+
+        // Should use the override, not the default "Input should not be empty."
+        expect(feedback.textContent).toBe('Username cannot be blank!');
+        expect(field.classList).toContain(formValidation.config.invalidClass);
+    });
 });

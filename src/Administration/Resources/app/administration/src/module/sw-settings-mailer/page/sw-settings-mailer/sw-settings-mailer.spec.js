@@ -156,6 +156,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
                 'core.mailerSettings.encryption': 'ssl',
                 'core.mailerSettings.senderAddress': 'test@example.com',
                 'core.mailerSettings.deliveryAddress': 'info@test.de',
+                'core.mailerSettings.sendMailOptions': '-t -i',
             },
         });
 
@@ -173,6 +174,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.senderAddress': null,
             'core.mailerSettings.deliveryAddress': null,
             'core.mailerSettings.disableDelivery': false,
+            'core.mailerSettings.sendMailOptions': '-t -i',
         });
     });
 
@@ -201,6 +203,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.senderAddress': null,
             'core.mailerSettings.deliveryAddress': null,
             'core.mailerSettings.disableDelivery': true,
+            'core.mailerSettings.sendMailOptions': '-bs',
         });
     });
 

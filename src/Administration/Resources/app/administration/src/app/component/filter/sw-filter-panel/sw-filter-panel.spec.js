@@ -87,18 +87,18 @@ async function createWrapper() {
         },
         global: {
             stubs: {
-                'sw-boolean-filter': await Shopware.Component.build('sw-boolean-filter'),
+                'sw-boolean-filter': await wrapTestComponent('sw-boolean-filter', { sync: true }),
                 'sw-select-field': await wrapTestComponent('sw-select-field', {
                     sync: true,
                 }),
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
                 'sw-field-error': {
                     template: '<div></div>',
                 },
-                'sw-existence-filter': await Shopware.Component.build('sw-existence-filter'),
+                'sw-existence-filter': await wrapTestComponent('sw-existence-filter', { sync: true }),
                 'sw-multi-select-filter': true,
                 'sw-string-filter': true,
                 'sw-number-filter': true,
@@ -230,5 +230,41 @@ describe('components/sw-filter-panel', () => {
         await wrapper.vm.$nextTick();
 
         expect(Object.keys(wrapper.vm.activeFilters)).toHaveLength(1);
+    });
+
+    it('should return breadcrumb path when item has breadcrumb array', async () => {
+        const wrapper = await createWrapper();
+
+        const itemWithBreadcrumb = {
+            breadcrumb: [
+                'Category 1',
+                'Category 2',
+                'Category 3',
+            ],
+            name: 'Product Name',
+            translated: {
+                name: 'Translated Product Name',
+            },
+        };
+
+        const result = wrapper.vm.getBreadcrumb(itemWithBreadcrumb);
+
+        expect(result).toBe('Category 1 / Category 2 / Category 3');
+    });
+
+    it('should return name when item has no breadcrumb', async () => {
+        const wrapper = await createWrapper();
+
+        const itemWithoutBreadcrumb = {
+            breadcrumb: [],
+            name: 'Product Name',
+            translated: {
+                name: 'Translated Product Name',
+            },
+        };
+
+        const result = wrapper.vm.getBreadcrumb(itemWithoutBreadcrumb);
+
+        expect(result).toBe('Translated Product Name');
     });
 });

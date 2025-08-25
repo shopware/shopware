@@ -37,7 +37,7 @@ class DbStateTest extends TestCase
 
         $dbState->rememberCurrentDbState();
 
-        static::assertEquals(['table1' => 10, 'table2' => 20], $dbState->tableCounts);
+        static::assertSame(['table1' => 10, 'table2' => 20], $dbState->tableCounts);
     }
 
     public function testGetDiff(): void
@@ -58,6 +58,6 @@ class DbStateTest extends TestCase
 
         $diff = $dbState->getDiff();
 
-        static::assertEquals(['added' => ['table3'], 'deleted' => ['table2'], 'changed' => ['table1' => 5]], $diff);
+        static::assertSame(['added' => ['table3'], 'deleted' => ['table2'], 'changed' => ['table1' => 5]], $diff);
     }
 }

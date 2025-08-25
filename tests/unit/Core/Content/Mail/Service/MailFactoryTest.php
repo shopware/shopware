@@ -65,7 +65,7 @@ class MailFactoryTest extends TestCase
 
         static::assertCount(1, $mail->getAttachments());
 
-        static::assertEquals($attachments, $mail->getAttachmentUrls());
+        static::assertSame($attachments, $mail->getAttachmentUrls());
 
         static::assertSame('ccMailRecipient@example.com', $mail->getCc()[0]->getAddress());
 

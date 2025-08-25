@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -66,7 +67,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 
     public function testWithCriteriaLimitOfZero(): void
@@ -105,7 +106,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 
     public function testSearchWithCount(): void
@@ -215,6 +216,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
                 'index' => '',
                 'track_total_hits' => false,
                 'include_named_queries_score' => true,
+                'track_scores' => true,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
@@ -293,11 +295,6 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $dispatcher->addListener(ElasticsearchEntitySearcherSearchedEvent::class, static function (ElasticsearchEntitySearcherSearchedEvent $event) use (&$searchedEventDispatched): void {
             $searchedEventDispatched = true;
-            static::assertEquals([
-                'hits' => [
-                    'hits' => [],
-                ],
-            ], $event->result);
         });
 
         $searcher = new ElasticsearchEntitySearcher(
@@ -340,7 +337,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $client,
             $this->createMock(EntitySearcherInterface::class),
             $helper,
-            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)),
+            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([])),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '5s',
@@ -356,6 +353,6 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 }

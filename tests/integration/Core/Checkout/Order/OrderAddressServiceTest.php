@@ -5,8 +5,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Order;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -99,35 +97,36 @@ class OrderAddressServiceTest extends TestCase
         $order = $this->fetchOrder($orderId, $defaultContext);
 
         // Check that the billing address has been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
         static::assertNotNull($billingAddress);
-        static::assertEquals($countryId, $billingAddress->getCountryId());
-        static::assertEquals($salutationId, $billingAddress->getSalutationId());
-        static::assertEquals('Max', $billingAddress->getFirstName());
-        static::assertEquals('Mustermann', $billingAddress->getLastName());
-        static::assertEquals('12345', $billingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $billingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $billingAddress->getStreet());
+        static::assertSame($countryId, $billingAddress->getCountryId());
+        static::assertSame($salutationId, $billingAddress->getSalutationId());
+        static::assertSame('Max', $billingAddress->getFirstName());
+        static::assertSame('Mustermann', $billingAddress->getLastName());
+        static::assertSame('12345', $billingAddress->getZipcode());
+        static::assertSame('Musterstadt', $billingAddress->getCity());
+        static::assertSame('Musterstraße 1', $billingAddress->getStreet());
 
         // Check that the shipping address has not been updated
-        /** @var OrderDeliveryEntity $orderDelivery */
         $orderDelivery = $order->getDeliveries()?->first();
+        static::assertNotNull($orderDelivery);
 
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
 
         static::assertNotNull($shippingAddress);
-        static::assertEquals($orderData[0]['deliveries'][0]['shippingOrderAddress']['country']['id'], $shippingAddress->getCountryId());
-        static::assertEquals($orderData[0]['deliveries'][0]['shippingOrderAddress']['salutationId'], $shippingAddress->getSalutationId());
-        static::assertEquals($orderData[0]['deliveries'][0]['shippingOrderAddress']['firstName'], $shippingAddress->getFirstName());
-        static::assertEquals($orderData[0]['deliveries'][0]['shippingOrderAddress']['lastName'], $shippingAddress->getLastName());
-        static::assertEquals($orderData[0]['deliveries'][0]['shippingOrderAddress']['zipcode'], $shippingAddress->getZipcode());
-        static::assertEquals($orderData[0]['deliveries'][0]['shippingOrderAddress']['city'], $shippingAddress->getCity());
-        static::assertEquals($orderData[0]['deliveries'][0]['shippingOrderAddress']['street'], $shippingAddress->getStreet());
+        static::assertSame($orderData[0]['deliveries'][0]['shippingOrderAddress']['country']['id'], $shippingAddress->getCountryId());
+        static::assertSame($orderData[0]['deliveries'][0]['shippingOrderAddress']['salutationId'], $shippingAddress->getSalutationId());
+        static::assertSame($orderData[0]['deliveries'][0]['shippingOrderAddress']['firstName'], $shippingAddress->getFirstName());
+        static::assertSame($orderData[0]['deliveries'][0]['shippingOrderAddress']['lastName'], $shippingAddress->getLastName());
+        static::assertSame($orderData[0]['deliveries'][0]['shippingOrderAddress']['zipcode'], $shippingAddress->getZipcode());
+        static::assertSame($orderData[0]['deliveries'][0]['shippingOrderAddress']['city'], $shippingAddress->getCity());
+        static::assertSame($orderData[0]['deliveries'][0]['shippingOrderAddress']['street'], $shippingAddress->getStreet());
 
         // Check that we have 2 addresses
-        static::assertEquals(2, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(2, $addresses);
     }
 
     public function testHandleShippingAddress(): void
@@ -173,34 +172,36 @@ class OrderAddressServiceTest extends TestCase
         $order = $this->fetchOrder($orderId, $defaultContext);
 
         // Check that the shipping address has been updated
-        /** @var OrderDeliveryEntity $orderDelivery */
         $orderDelivery = $order->getDeliveries()?->first();
+        static::assertNotNull($orderDelivery);
 
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
 
         static::assertNotNull($shippingAddress);
-        static::assertEquals($countryId, $shippingAddress->getCountryId());
-        static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-        static::assertEquals('Max', $shippingAddress->getFirstName());
-        static::assertEquals('Mustermann', $shippingAddress->getLastName());
-        static::assertEquals('12345', $shippingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $shippingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+        static::assertSame($countryId, $shippingAddress->getCountryId());
+        static::assertSame($salutationId, $shippingAddress->getSalutationId());
+        static::assertSame('Max', $shippingAddress->getFirstName());
+        static::assertSame('Mustermann', $shippingAddress->getLastName());
+        static::assertSame('12345', $shippingAddress->getZipcode());
+        static::assertSame('Musterstadt', $shippingAddress->getCity());
+        static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
 
         // Check that the billing address has not been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
-        static::assertEquals($orderData[0]['addresses'][0]['countryId'], $billingAddress->getCountryId());
-        static::assertEquals($orderData[0]['addresses'][0]['salutationId'], $billingAddress->getSalutationId());
-        static::assertEquals($orderData[0]['addresses'][0]['firstName'], $billingAddress->getFirstName());
-        static::assertEquals($orderData[0]['addresses'][0]['lastName'], $billingAddress->getLastName());
-        static::assertEquals($orderData[0]['addresses'][0]['zipcode'], $billingAddress->getZipcode());
-        static::assertEquals($orderData[0]['addresses'][0]['city'], $billingAddress->getCity());
-        static::assertEquals($orderData[0]['addresses'][0]['street'], $billingAddress->getStreet());
+        static::assertNotNull($billingAddress);
+        static::assertSame($orderData[0]['addresses'][0]['countryId'], $billingAddress->getCountryId());
+        static::assertSame($orderData[0]['addresses'][0]['salutationId'], $billingAddress->getSalutationId());
+        static::assertSame($orderData[0]['addresses'][0]['firstName'], $billingAddress->getFirstName());
+        static::assertSame($orderData[0]['addresses'][0]['lastName'], $billingAddress->getLastName());
+        static::assertSame($orderData[0]['addresses'][0]['zipcode'], $billingAddress->getZipcode());
+        static::assertSame($orderData[0]['addresses'][0]['city'], $billingAddress->getCity());
+        static::assertSame($orderData[0]['addresses'][0]['street'], $billingAddress->getStreet());
 
         // Check that we have 2 addresses
-        static::assertEquals(2, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(2, $addresses);
     }
 
     public function testHandleBoth(): void
@@ -250,35 +251,36 @@ class OrderAddressServiceTest extends TestCase
         $order = $this->fetchOrder($orderId, $defaultContext);
 
         // Check that the shipping address has been updated
-        /** @var OrderDeliveryEntity $orderDelivery */
         $orderDelivery = $order->getDeliveries()?->first();
+        static::assertNotNull($orderDelivery);
 
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
 
         static::assertNotNull($shippingAddress);
-        static::assertEquals($countryId, $shippingAddress->getCountryId());
-        static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-        static::assertEquals('Max', $shippingAddress->getFirstName());
-        static::assertEquals('Mustermann', $shippingAddress->getLastName());
-        static::assertEquals('12345', $shippingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $shippingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+        static::assertSame($countryId, $shippingAddress->getCountryId());
+        static::assertSame($salutationId, $shippingAddress->getSalutationId());
+        static::assertSame('Max', $shippingAddress->getFirstName());
+        static::assertSame('Mustermann', $shippingAddress->getLastName());
+        static::assertSame('12345', $shippingAddress->getZipcode());
+        static::assertSame('Musterstadt', $shippingAddress->getCity());
+        static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
 
         // Check that the billing address has been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
         static::assertNotNull($billingAddress);
-        static::assertEquals($countryId, $billingAddress->getCountryId());
-        static::assertEquals($salutationId, $billingAddress->getSalutationId());
-        static::assertEquals('Max', $billingAddress->getFirstName());
-        static::assertEquals('Mustermann', $billingAddress->getLastName());
-        static::assertEquals('12345', $billingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $billingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $billingAddress->getStreet());
+        static::assertSame($countryId, $billingAddress->getCountryId());
+        static::assertSame($salutationId, $billingAddress->getSalutationId());
+        static::assertSame('Max', $billingAddress->getFirstName());
+        static::assertSame('Mustermann', $billingAddress->getLastName());
+        static::assertSame('12345', $billingAddress->getZipcode());
+        static::assertSame('Musterstadt', $billingAddress->getCity());
+        static::assertSame('Musterstraße 1', $billingAddress->getStreet());
 
         // Check that we have 2 addresses
-        static::assertEquals(2, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(2, $addresses);
     }
 
     public function testWhenSameIsUsedAndBillingIsUpdated(): void
@@ -299,10 +301,11 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
         static::assertNotNull($order);
-        static::assertEquals(1, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(1, $addresses);
 
         // Create a new customer address
         $customerAddressId = Uuid::randomHex();
@@ -338,41 +341,40 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
-
         static::assertNotNull($order);
 
         // Check that the billing address has been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
         static::assertNotNull($billingAddress);
-        static::assertEquals($countryId, $billingAddress->getCountryId());
-        static::assertEquals($salutationId, $billingAddress->getSalutationId());
-        static::assertEquals('Max', $billingAddress->getFirstName());
-        static::assertEquals('Mustermann', $billingAddress->getLastName());
-        static::assertEquals('12345', $billingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $billingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $billingAddress->getStreet());
+        static::assertSame($countryId, $billingAddress->getCountryId());
+        static::assertSame($salutationId, $billingAddress->getSalutationId());
+        static::assertSame('Max', $billingAddress->getFirstName());
+        static::assertSame('Mustermann', $billingAddress->getLastName());
+        static::assertSame('12345', $billingAddress->getZipcode());
+        static::assertSame('Musterstadt', $billingAddress->getCity());
+        static::assertSame('Musterstraße 1', $billingAddress->getStreet());
 
         // Check that the shipping address has not been updated
-        /** @var OrderDeliveryEntity $orderDelivery */
         $orderDelivery = $order->getDeliveries()?->first();
+        static::assertNotNull($orderDelivery);
 
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
 
         static::assertNotNull($shippingAddress);
-        static::assertEquals($orderData[0]['addresses'][0]['countryId'], $shippingAddress->getCountryId());
-        static::assertEquals($orderData[0]['addresses'][0]['salutationId'], $shippingAddress->getSalutationId());
-        static::assertEquals($orderData[0]['addresses'][0]['firstName'], $shippingAddress->getFirstName());
-        static::assertEquals($orderData[0]['addresses'][0]['lastName'], $shippingAddress->getLastName());
-        static::assertEquals($orderData[0]['addresses'][0]['zipcode'], $shippingAddress->getZipcode());
-        static::assertEquals($orderData[0]['addresses'][0]['city'], $shippingAddress->getCity());
-        static::assertEquals($orderData[0]['addresses'][0]['street'], $shippingAddress->getStreet());
+        static::assertSame($orderData[0]['addresses'][0]['countryId'], $shippingAddress->getCountryId());
+        static::assertSame($orderData[0]['addresses'][0]['salutationId'], $shippingAddress->getSalutationId());
+        static::assertSame($orderData[0]['addresses'][0]['firstName'], $shippingAddress->getFirstName());
+        static::assertSame($orderData[0]['addresses'][0]['lastName'], $shippingAddress->getLastName());
+        static::assertSame($orderData[0]['addresses'][0]['zipcode'], $shippingAddress->getZipcode());
+        static::assertSame($orderData[0]['addresses'][0]['city'], $shippingAddress->getCity());
+        static::assertSame($orderData[0]['addresses'][0]['street'], $shippingAddress->getStreet());
 
         // Check that we have 2 addresses
-        static::assertEquals(2, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(2, $addresses);
     }
 
     public function testWhenSameIsUsedAndShippingIsUpdated(): void
@@ -393,10 +395,11 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
         static::assertNotNull($order);
-        static::assertEquals(1, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(1, $addresses);
 
         // Create a new customer address
         $customerAddressId = Uuid::randomHex();
@@ -433,40 +436,41 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
 
         static::assertNotNull($order);
 
         // Check that the shipping address has been updated
-        /** @var OrderDeliveryEntity $orderDelivery */
         $orderDelivery = $order->getDeliveries()?->first();
+        static::assertNotNull($orderDelivery);
 
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
 
         static::assertNotNull($shippingAddress);
-        static::assertEquals($countryId, $shippingAddress->getCountryId());
-        static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-        static::assertEquals('Max', $shippingAddress->getFirstName());
-        static::assertEquals('Mustermann', $shippingAddress->getLastName());
-        static::assertEquals('12345', $shippingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $shippingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+        static::assertSame($countryId, $shippingAddress->getCountryId());
+        static::assertSame($salutationId, $shippingAddress->getSalutationId());
+        static::assertSame('Max', $shippingAddress->getFirstName());
+        static::assertSame('Mustermann', $shippingAddress->getLastName());
+        static::assertSame('12345', $shippingAddress->getZipcode());
+        static::assertSame('Musterstadt', $shippingAddress->getCity());
+        static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
 
         // Check that the billing address has not been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
-        static::assertEquals($orderData[0]['addresses'][0]['countryId'], $billingAddress->getCountryId());
-        static::assertEquals($orderData[0]['addresses'][0]['salutationId'], $billingAddress->getSalutationId());
-        static::assertEquals($orderData[0]['addresses'][0]['firstName'], $billingAddress->getFirstName());
-        static::assertEquals($orderData[0]['addresses'][0]['lastName'], $billingAddress->getLastName());
-        static::assertEquals($orderData[0]['addresses'][0]['zipcode'], $billingAddress->getZipcode());
-        static::assertEquals($orderData[0]['addresses'][0]['city'], $billingAddress->getCity());
-        static::assertEquals($orderData[0]['addresses'][0]['street'], $billingAddress->getStreet());
+        static::assertNotNull($billingAddress);
+        static::assertSame($orderData[0]['addresses'][0]['countryId'], $billingAddress->getCountryId());
+        static::assertSame($orderData[0]['addresses'][0]['salutationId'], $billingAddress->getSalutationId());
+        static::assertSame($orderData[0]['addresses'][0]['firstName'], $billingAddress->getFirstName());
+        static::assertSame($orderData[0]['addresses'][0]['lastName'], $billingAddress->getLastName());
+        static::assertSame($orderData[0]['addresses'][0]['zipcode'], $billingAddress->getZipcode());
+        static::assertSame($orderData[0]['addresses'][0]['city'], $billingAddress->getCity());
+        static::assertSame($orderData[0]['addresses'][0]['street'], $billingAddress->getStreet());
 
         // Check that we have 2 addresses
-        static::assertEquals(2, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(2, $addresses);
     }
 
     public function testWhenSameIsUsedAndBothUpdated(): void
@@ -486,10 +490,11 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
         static::assertNotNull($order);
-        static::assertEquals(1, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(1, $addresses);
 
         // Create a new customer address
         $customerAddressId = Uuid::randomHex();
@@ -529,40 +534,41 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
 
         static::assertNotNull($order);
 
         // Check that the shipping address has been updated
-        /** @var OrderDeliveryEntity $orderDelivery */
         $orderDelivery = $order->getDeliveries()?->first();
+        static::assertNotNull($orderDelivery);
 
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
 
         static::assertNotNull($shippingAddress);
-        static::assertEquals($countryId, $shippingAddress->getCountryId());
-        static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-        static::assertEquals('Max', $shippingAddress->getFirstName());
-        static::assertEquals('Mustermann', $shippingAddress->getLastName());
-        static::assertEquals('12345', $shippingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $shippingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+        static::assertSame($countryId, $shippingAddress->getCountryId());
+        static::assertSame($salutationId, $shippingAddress->getSalutationId());
+        static::assertSame('Max', $shippingAddress->getFirstName());
+        static::assertSame('Mustermann', $shippingAddress->getLastName());
+        static::assertSame('12345', $shippingAddress->getZipcode());
+        static::assertSame('Musterstadt', $shippingAddress->getCity());
+        static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
 
         // Check that the billing address has been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
-        static::assertEquals($countryId, $billingAddress->getCountryId());
-        static::assertEquals($salutationId, $billingAddress->getSalutationId());
-        static::assertEquals('Max', $billingAddress->getFirstName());
-        static::assertEquals('Mustermann', $billingAddress->getLastName());
-        static::assertEquals('12345', $billingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $billingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $billingAddress->getStreet());
+        static::assertNotNull($billingAddress);
+        static::assertSame($countryId, $billingAddress->getCountryId());
+        static::assertSame($salutationId, $billingAddress->getSalutationId());
+        static::assertSame('Max', $billingAddress->getFirstName());
+        static::assertSame('Mustermann', $billingAddress->getLastName());
+        static::assertSame('12345', $billingAddress->getZipcode());
+        static::assertSame('Musterstadt', $billingAddress->getCity());
+        static::assertSame('Musterstraße 1', $billingAddress->getStreet());
 
         // Check that we have 2 addresses
-        static::assertEquals(2, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(2, $addresses);
     }
 
     public function testMultipleDeliveries(): void
@@ -580,10 +586,11 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
         static::assertNotNull($order);
-        static::assertEquals(3, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(3, $addresses);
 
         // Create a new customer address
         $customerAddressId = Uuid::randomHex();
@@ -628,7 +635,6 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
 
         static::assertNotNull($order);
@@ -641,29 +647,31 @@ class OrderAddressServiceTest extends TestCase
         foreach ($orderDeliveries as $orderDelivery) {
             $shippingAddress = $orderDelivery->getShippingOrderAddress();
             static::assertNotNull($shippingAddress);
-            static::assertEquals($countryId, $shippingAddress->getCountryId());
-            static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-            static::assertEquals('Max', $shippingAddress->getFirstName());
-            static::assertEquals('Mustermann', $shippingAddress->getLastName());
-            static::assertEquals('12345', $shippingAddress->getZipcode());
-            static::assertEquals('Musterstadt', $shippingAddress->getCity());
-            static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+            static::assertSame($countryId, $shippingAddress->getCountryId());
+            static::assertSame($salutationId, $shippingAddress->getSalutationId());
+            static::assertSame('Max', $shippingAddress->getFirstName());
+            static::assertSame('Mustermann', $shippingAddress->getLastName());
+            static::assertSame('12345', $shippingAddress->getZipcode());
+            static::assertSame('Musterstadt', $shippingAddress->getCity());
+            static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
         }
 
         // Check that the billing address has been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
-        static::assertEquals($countryId, $billingAddress->getCountryId());
-        static::assertEquals($salutationId, $billingAddress->getSalutationId());
-        static::assertEquals('Max', $billingAddress->getFirstName());
-        static::assertEquals('Mustermann', $billingAddress->getLastName());
-        static::assertEquals('12345', $billingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $billingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $billingAddress->getStreet());
+        static::assertNotNull($billingAddress);
+        static::assertSame($countryId, $billingAddress->getCountryId());
+        static::assertSame($salutationId, $billingAddress->getSalutationId());
+        static::assertSame('Max', $billingAddress->getFirstName());
+        static::assertSame('Mustermann', $billingAddress->getLastName());
+        static::assertSame('12345', $billingAddress->getZipcode());
+        static::assertSame('Musterstadt', $billingAddress->getCity());
+        static::assertSame('Musterstraße 1', $billingAddress->getStreet());
 
         // Check that we have 3 addresses
-        static::assertEquals(3, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(3, $addresses);
     }
 
     public function testMultipleDeliveriesSameAddressForAll(): void
@@ -688,10 +696,11 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
         static::assertNotNull($order);
-        static::assertEquals(1, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(1, $addresses);
 
         // Create a new customer address
         $customerAddressId = Uuid::randomHex();
@@ -736,7 +745,6 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
 
         static::assertNotNull($order);
@@ -749,29 +757,31 @@ class OrderAddressServiceTest extends TestCase
         foreach ($orderDeliveries as $orderDelivery) {
             $shippingAddress = $orderDelivery->getShippingOrderAddress();
             static::assertNotNull($shippingAddress);
-            static::assertEquals($countryId, $shippingAddress->getCountryId());
-            static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-            static::assertEquals('Max', $shippingAddress->getFirstName());
-            static::assertEquals('Mustermann', $shippingAddress->getLastName());
-            static::assertEquals('12345', $shippingAddress->getZipcode());
-            static::assertEquals('Musterstadt', $shippingAddress->getCity());
-            static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+            static::assertSame($countryId, $shippingAddress->getCountryId());
+            static::assertSame($salutationId, $shippingAddress->getSalutationId());
+            static::assertSame('Max', $shippingAddress->getFirstName());
+            static::assertSame('Mustermann', $shippingAddress->getLastName());
+            static::assertSame('12345', $shippingAddress->getZipcode());
+            static::assertSame('Musterstadt', $shippingAddress->getCity());
+            static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
         }
 
         // Check that the billing address has been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
-        static::assertEquals($countryId, $billingAddress->getCountryId());
-        static::assertEquals($salutationId, $billingAddress->getSalutationId());
-        static::assertEquals('Max', $billingAddress->getFirstName());
-        static::assertEquals('Mustermann', $billingAddress->getLastName());
-        static::assertEquals('12345', $billingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $billingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $billingAddress->getStreet());
+        static::assertNotNull($billingAddress);
+        static::assertSame($countryId, $billingAddress->getCountryId());
+        static::assertSame($salutationId, $billingAddress->getSalutationId());
+        static::assertSame('Max', $billingAddress->getFirstName());
+        static::assertSame('Mustermann', $billingAddress->getLastName());
+        static::assertSame('12345', $billingAddress->getZipcode());
+        static::assertSame('Musterstadt', $billingAddress->getCity());
+        static::assertSame('Musterstraße 1', $billingAddress->getStreet());
 
         // Check that we have 2 addresses
-        static::assertEquals(3, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(3, $addresses);
     }
 
     public function testMultipleDeliveriesSameAddressForDeliveries(): void
@@ -795,10 +805,11 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
         static::assertNotNull($order);
-        static::assertEquals(2, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(2, $addresses);
 
         // Create a new customer address
         $customerAddressId = Uuid::randomHex();
@@ -861,7 +872,6 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
 
         static::assertNotNull($order);
@@ -875,40 +885,42 @@ class OrderAddressServiceTest extends TestCase
 
         $shippingAddress = $orderDelivery1?->getShippingOrderAddress();
         static::assertNotNull($shippingAddress);
-        static::assertEquals($countryId, $shippingAddress->getCountryId());
-        static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-        static::assertEquals('Max', $shippingAddress->getFirstName());
-        static::assertEquals('Mustermann', $shippingAddress->getLastName());
-        static::assertEquals('12345', $shippingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $shippingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+        static::assertSame($countryId, $shippingAddress->getCountryId());
+        static::assertSame($salutationId, $shippingAddress->getSalutationId());
+        static::assertSame('Max', $shippingAddress->getFirstName());
+        static::assertSame('Mustermann', $shippingAddress->getLastName());
+        static::assertSame('12345', $shippingAddress->getZipcode());
+        static::assertSame('Musterstadt', $shippingAddress->getCity());
+        static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
 
         $orderDelivery2 = $orderDeliveries->get($orderData[0]['deliveries'][1]['id']);
 
         $shippingAddress = $orderDelivery2?->getShippingOrderAddress();
         static::assertNotNull($shippingAddress);
-        static::assertEquals($countryId2, $shippingAddress->getCountryId());
-        static::assertEquals($salutationId2, $shippingAddress->getSalutationId());
-        static::assertEquals('Tom', $shippingAddress->getFirstName());
-        static::assertEquals('Smith', $shippingAddress->getLastName());
-        static::assertEquals('45678', $shippingAddress->getZipcode());
-        static::assertEquals('Berlin', $shippingAddress->getCity());
-        static::assertEquals('Berlinstraße 1', $shippingAddress->getStreet());
+        static::assertSame($countryId2, $shippingAddress->getCountryId());
+        static::assertSame($salutationId2, $shippingAddress->getSalutationId());
+        static::assertSame('Tom', $shippingAddress->getFirstName());
+        static::assertSame('Smith', $shippingAddress->getLastName());
+        static::assertSame('45678', $shippingAddress->getZipcode());
+        static::assertSame('Berlin', $shippingAddress->getCity());
+        static::assertSame('Berlinstraße 1', $shippingAddress->getStreet());
 
         // Check that the billing address has been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
-        static::assertEquals($countryId, $billingAddress->getCountryId());
-        static::assertEquals($salutationId, $billingAddress->getSalutationId());
-        static::assertEquals('Max', $billingAddress->getFirstName());
-        static::assertEquals('Mustermann', $billingAddress->getLastName());
-        static::assertEquals('12345', $billingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $billingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $billingAddress->getStreet());
+        static::assertNotNull($billingAddress);
+        static::assertSame($countryId, $billingAddress->getCountryId());
+        static::assertSame($salutationId, $billingAddress->getSalutationId());
+        static::assertSame('Max', $billingAddress->getFirstName());
+        static::assertSame('Mustermann', $billingAddress->getLastName());
+        static::assertSame('12345', $billingAddress->getZipcode());
+        static::assertSame('Musterstadt', $billingAddress->getCity());
+        static::assertSame('Musterstraße 1', $billingAddress->getStreet());
 
         // Check that we have 3 addresses
-        static::assertEquals(3, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(3, $addresses);
     }
 
     public function testMultipleDeliveriesNoBillingAddressUpdate(): void
@@ -926,10 +938,11 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
         static::assertNotNull($order);
-        static::assertEquals(3, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(3, $addresses);
 
         // Create a new customer address
         $customerAddressId = Uuid::randomHex();
@@ -971,7 +984,6 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
 
         static::assertNotNull($order);
@@ -984,29 +996,31 @@ class OrderAddressServiceTest extends TestCase
         foreach ($orderDeliveries as $orderDelivery) {
             $shippingAddress = $orderDelivery->getShippingOrderAddress();
             static::assertNotNull($shippingAddress);
-            static::assertEquals($countryId, $shippingAddress->getCountryId());
-            static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-            static::assertEquals('Max', $shippingAddress->getFirstName());
-            static::assertEquals('Mustermann', $shippingAddress->getLastName());
-            static::assertEquals('12345', $shippingAddress->getZipcode());
-            static::assertEquals('Musterstadt', $shippingAddress->getCity());
-            static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+            static::assertSame($countryId, $shippingAddress->getCountryId());
+            static::assertSame($salutationId, $shippingAddress->getSalutationId());
+            static::assertSame('Max', $shippingAddress->getFirstName());
+            static::assertSame('Mustermann', $shippingAddress->getLastName());
+            static::assertSame('12345', $shippingAddress->getZipcode());
+            static::assertSame('Musterstadt', $shippingAddress->getCity());
+            static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
         }
 
         // Check that the billing address has not been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
-        static::assertEquals($orderData[0]['addresses'][0]['countryId'], $billingAddress->getCountryId());
-        static::assertEquals($orderData[0]['addresses'][0]['salutationId'], $billingAddress->getSalutationId());
-        static::assertEquals($orderData[0]['addresses'][0]['firstName'], $billingAddress->getFirstName());
-        static::assertEquals($orderData[0]['addresses'][0]['lastName'], $billingAddress->getLastName());
-        static::assertEquals($orderData[0]['addresses'][0]['zipcode'], $billingAddress->getZipcode());
-        static::assertEquals($orderData[0]['addresses'][0]['city'], $billingAddress->getCity());
-        static::assertEquals($orderData[0]['addresses'][0]['street'], $billingAddress->getStreet());
+        static::assertNotNull($billingAddress);
+        static::assertSame($orderData[0]['addresses'][0]['countryId'], $billingAddress->getCountryId());
+        static::assertSame($orderData[0]['addresses'][0]['salutationId'], $billingAddress->getSalutationId());
+        static::assertSame($orderData[0]['addresses'][0]['firstName'], $billingAddress->getFirstName());
+        static::assertSame($orderData[0]['addresses'][0]['lastName'], $billingAddress->getLastName());
+        static::assertSame($orderData[0]['addresses'][0]['zipcode'], $billingAddress->getZipcode());
+        static::assertSame($orderData[0]['addresses'][0]['city'], $billingAddress->getCity());
+        static::assertSame($orderData[0]['addresses'][0]['street'], $billingAddress->getStreet());
 
         // Check that we have 3 addresses
-        static::assertEquals(3, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(3, $addresses);
     }
 
     public function testMultipleDeliveriesPartialUpdate(): void
@@ -1024,10 +1038,11 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
         static::assertNotNull($order);
-        static::assertEquals(3, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(3, $addresses);
 
         // Create a new customer address
         $customerAddressId = Uuid::randomHex();
@@ -1064,55 +1079,55 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->first();
-
         static::assertNotNull($order);
 
         // Check that the first shipping address has been updated
-        /** @var OrderDeliveryEntity $orderDelivery */
         $orderDelivery = $order->getDeliveries()?->get($orderData[0]['deliveries'][0]['id']);
+        static::assertNotNull($orderDelivery);
 
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
 
         static::assertNotNull($shippingAddress);
-        static::assertEquals($countryId, $shippingAddress->getCountryId());
-        static::assertEquals($salutationId, $shippingAddress->getSalutationId());
-        static::assertEquals('Max', $shippingAddress->getFirstName());
-        static::assertEquals('Mustermann', $shippingAddress->getLastName());
-        static::assertEquals('12345', $shippingAddress->getZipcode());
-        static::assertEquals('Musterstadt', $shippingAddress->getCity());
-        static::assertEquals('Musterstraße 1', $shippingAddress->getStreet());
+        static::assertSame($countryId, $shippingAddress->getCountryId());
+        static::assertSame($salutationId, $shippingAddress->getSalutationId());
+        static::assertSame('Max', $shippingAddress->getFirstName());
+        static::assertSame('Mustermann', $shippingAddress->getLastName());
+        static::assertSame('12345', $shippingAddress->getZipcode());
+        static::assertSame('Musterstadt', $shippingAddress->getCity());
+        static::assertSame('Musterstraße 1', $shippingAddress->getStreet());
 
         // Check that the second shipping address has not been updated
-        /** @var OrderDeliveryEntity $orderDelivery */
         $orderDelivery = $order->getDeliveries()?->get($orderData[0]['deliveries'][1]['id']);
+        static::assertNotNull($orderDelivery);
 
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
 
         static::assertNotNull($shippingAddress);
-        static::assertEquals($orderData[0]['deliveries'][1]['shippingOrderAddress']['country']['id'], $shippingAddress->getCountryId());
-        static::assertEquals($orderData[0]['deliveries'][1]['shippingOrderAddress']['salutationId'], $shippingAddress->getSalutationId());
-        static::assertEquals($orderData[0]['deliveries'][1]['shippingOrderAddress']['firstName'], $shippingAddress->getFirstName());
-        static::assertEquals($orderData[0]['deliveries'][1]['shippingOrderAddress']['lastName'], $shippingAddress->getLastName());
-        static::assertEquals($orderData[0]['deliveries'][1]['shippingOrderAddress']['zipcode'], $shippingAddress->getZipcode());
-        static::assertEquals($orderData[0]['deliveries'][1]['shippingOrderAddress']['city'], $shippingAddress->getCity());
-        static::assertEquals($orderData[0]['deliveries'][1]['shippingOrderAddress']['street'], $shippingAddress->getStreet());
+        static::assertSame($orderData[0]['deliveries'][1]['shippingOrderAddress']['country']['id'], $shippingAddress->getCountryId());
+        static::assertSame($orderData[0]['deliveries'][1]['shippingOrderAddress']['salutationId'], $shippingAddress->getSalutationId());
+        static::assertSame($orderData[0]['deliveries'][1]['shippingOrderAddress']['firstName'], $shippingAddress->getFirstName());
+        static::assertSame($orderData[0]['deliveries'][1]['shippingOrderAddress']['lastName'], $shippingAddress->getLastName());
+        static::assertSame($orderData[0]['deliveries'][1]['shippingOrderAddress']['zipcode'], $shippingAddress->getZipcode());
+        static::assertSame($orderData[0]['deliveries'][1]['shippingOrderAddress']['city'], $shippingAddress->getCity());
+        static::assertSame($orderData[0]['deliveries'][1]['shippingOrderAddress']['street'], $shippingAddress->getStreet());
 
         // Check that the billing address has not been updated
-        /** @var OrderAddressEntity $billingAddress */
         $billingAddress = $order->getBillingAddress();
 
-        static::assertEquals($orderData[0]['addresses'][0]['countryId'], $billingAddress->getCountryId());
-        static::assertEquals($orderData[0]['addresses'][0]['salutationId'], $billingAddress->getSalutationId());
-        static::assertEquals($orderData[0]['addresses'][0]['firstName'], $billingAddress->getFirstName());
-        static::assertEquals($orderData[0]['addresses'][0]['lastName'], $billingAddress->getLastName());
-        static::assertEquals($orderData[0]['addresses'][0]['zipcode'], $billingAddress->getZipcode());
-        static::assertEquals($orderData[0]['addresses'][0]['city'], $billingAddress->getCity());
-        static::assertEquals($orderData[0]['addresses'][0]['street'], $billingAddress->getStreet());
+        static::assertNotNull($billingAddress);
+        static::assertSame($orderData[0]['addresses'][0]['countryId'], $billingAddress->getCountryId());
+        static::assertSame($orderData[0]['addresses'][0]['salutationId'], $billingAddress->getSalutationId());
+        static::assertSame($orderData[0]['addresses'][0]['firstName'], $billingAddress->getFirstName());
+        static::assertSame($orderData[0]['addresses'][0]['lastName'], $billingAddress->getLastName());
+        static::assertSame($orderData[0]['addresses'][0]['zipcode'], $billingAddress->getZipcode());
+        static::assertSame($orderData[0]['addresses'][0]['city'], $billingAddress->getCity());
+        static::assertSame($orderData[0]['addresses'][0]['street'], $billingAddress->getStreet());
 
         // Check that we have 3 addresses
-        static::assertEquals(3, $order->getAddresses()?->count());
+        $addresses = $order->getAddresses();
+        static::assertNotNull($addresses);
+        static::assertCount(3, $addresses);
     }
 
     private function fetchOrder(string $orderId, Context $context): OrderEntity
@@ -1122,7 +1137,6 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context)->first();
 
         static::assertNotNull($order);

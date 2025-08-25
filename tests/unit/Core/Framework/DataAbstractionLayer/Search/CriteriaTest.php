@@ -134,11 +134,11 @@ class CriteriaTest extends TestCase
     public function testValidIdFormats(array $ids): void
     {
         $criteria = new Criteria($ids);
-        static::assertEquals($ids, $criteria->getIds());
+        static::assertSame($ids, $criteria->getIds());
 
         $criteria = new Criteria();
         $criteria->setIds($ids);
-        static::assertEquals($ids, $criteria->getIds());
+        static::assertSame($ids, $criteria->getIds());
     }
 
     /**

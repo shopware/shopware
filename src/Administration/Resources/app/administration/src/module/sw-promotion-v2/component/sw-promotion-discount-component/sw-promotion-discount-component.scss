@@ -1,35 +1,7 @@
-@import "~scss/variables";
-
-.sw-promotion-discount-component {
-    .sw-promotion-discount-component__context-button {
-        float: right;
-    }
-
-    p {
-        margin-bottom: 30px;
-    }
-
-    .sw-promotion-discount-component__select-discount-rules {
-        margin-bottom: 20px;
-    }
-
-    .sw-card__quick-link.advanced-prices {
-        cursor: pointer;
-    }
-
-    .sw-field .sw-field__help-text {
-        position: relative;
-        top: 40px;
-        right: 65px;
-    }
-}
-
 .sw-promotion-discount-form__advanced-prices-modal.sw-modal .sw-modal__body {
     padding: 0;
 
-    .sw-data-grid .sw-data-grid__header .sw-data-grid__cell-label {
-        white-space: normal;
-        overflow: visible;
-        text-overflow: initial;
+    .mt-block-field__block {
+        min-height: unset;
     }
 }

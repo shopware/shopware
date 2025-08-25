@@ -144,11 +144,6 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain tab items content, sorting and filter', async () => {
         const wrapper = await createWrapper();
 
@@ -331,7 +326,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const showPropertySearchField = wrapper.find(
             'sw-simple-search-field-stub.sw-cms-element-product-listing-config-filter-property-search',
         );
-        const showPropertyStatusGrid = wrapper.find('.sw-cms-el-config-product-listing-property-grid');
+        const showPropertyStatusGrid = wrapper.find('.sw-cms-el-config-product-listing__property-grid');
 
         expect(showUseFilterByPropertiesSwitchField.exists()).toBeTruthy();
         expect(showPropertySearchField.exists()).toBeTruthy();

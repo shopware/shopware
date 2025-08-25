@@ -34,6 +34,6 @@ class CustomerBeforeLoginEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('email', $flow->data());
-        static::assertEquals('my-email', $flow->data()['email']);
+        static::assertSame('my-email', $flow->data()['email']);
     }
 }

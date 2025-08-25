@@ -45,7 +45,6 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $salesChannelContext2 = $this->createSalesChannelContext($salesChannelParameters);
 
         $constraint = new CustomerEmailUnique([
-            'context' => $salesChannelContext2->getContext(),
             'salesChannelContext' => $salesChannelContext2,
         ]);
 
@@ -64,7 +63,6 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannelId(), $email);
 
         $constraint = new CustomerEmailUnique([
-            'context' => $salesChannelContext1->getContext(),
             'salesChannelContext' => $salesChannelContext1,
         ]);
 
@@ -86,7 +84,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             $violation = $violations->get(1);
 
             static::assertNotEmpty($violation);
-            static::assertEquals($constraint->message, $violation->getMessageTemplate());
+            static::assertSame($constraint->message, $violation->getMessageTemplate());
         }
     }
 
@@ -98,7 +96,6 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannelId(), $email);
 
         $constraint = new CustomerEmailUnique([
-            'context' => $salesChannelContext1->getContext(),
             'salesChannelContext' => $salesChannelContext1,
         ]);
 
@@ -120,7 +117,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             $violation = $violations->get(1);
 
             static::assertNotEmpty($violation);
-            static::assertEquals($constraint->message, $violation->getMessageTemplate());
+            static::assertSame($constraint->message, $violation->getMessageTemplate());
         }
     }
 

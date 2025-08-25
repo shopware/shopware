@@ -39,10 +39,6 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should dispatch a notification on createNotification', () => {
         wrapper.vm.createNotification({
             message: 'The unique message',

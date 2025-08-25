@@ -29,13 +29,13 @@ class ReviewStructTest extends TestCase
 
         $rating = ReviewStruct::fromRequest(1, $request);
 
-        static::assertEquals(1, $rating->getExtensionId());
-        static::assertEquals('Author', $rating->getAuthorName());
-        static::assertEquals('Headline', $rating->getHeadline());
-        static::assertEquals('Text', $rating->getText());
+        static::assertSame(1, $rating->getExtensionId());
+        static::assertSame('Author', $rating->getAuthorName());
+        static::assertSame('Headline', $rating->getHeadline());
+        static::assertSame('Text', $rating->getText());
         static::assertTrue($rating->isAcceptGuidelines());
-        static::assertEquals(3, $rating->getRating());
-        static::assertEquals('1.1.0', $rating->getVersion());
+        static::assertSame(3, $rating->getRating());
+        static::assertSame('1.1.0', $rating->getVersion());
     }
 
     public function testFromRequestThrowsIfAuthorNameIsInvalid(): void

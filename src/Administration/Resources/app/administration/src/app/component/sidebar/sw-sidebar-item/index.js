@@ -1,8 +1,6 @@
 import template from './sw-sidebar-item.html.twig';
 import './sw-sidebar-item.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -19,7 +17,7 @@ const { Component } = Shopware;
  * </sw-sidebar-item>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sidebar-item', {
+export default {
     template,
 
     inject: {
@@ -177,4 +175,4 @@ Component.register('sw-sidebar-item', {
             }
         },
     },
-});
+};

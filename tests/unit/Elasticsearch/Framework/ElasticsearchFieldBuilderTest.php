@@ -210,9 +210,9 @@ class ElasticsearchFieldBuilderTest extends TestCase
             ],
         ]]);
 
-        static::assertEquals([
+        static::assertSame([
             'type' => 'date',
-            'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+            'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
             'ignore_malformed' => true,
             'properties' => [
                 'foo' => [
@@ -226,7 +226,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
     {
         $nestedFields = ElasticsearchFieldBuilder::nested(['name' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD]);
 
-        static::assertEquals([
+        static::assertSame([
             'type' => 'nested',
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,

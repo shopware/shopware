@@ -11,7 +11,7 @@ describe('src/app/component/utils/sw-error-boundary', () => {
     let swErrorBoundary;
 
     beforeAll(async () => {
-        swErrorBoundary = await Shopware.Component.build('sw-error-boundary');
+        swErrorBoundary = await wrapTestComponent('sw-error-boundary');
     });
 
     beforeEach(async () => {
@@ -23,12 +23,6 @@ describe('src/app/component/utils/sw-error-boundary', () => {
         global.repositoryFactoryMock.clientMock.resetHistory();
         if (wrapper) await wrapper.unmount();
         if (console.error.mockReset) console.error.mockReset();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = shallowMount(swErrorBoundary);
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should catch the error from siblings', async () => {

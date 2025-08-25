@@ -1,10 +1,22 @@
 @import "~scss/variables";
 
 .sw-notification-center__context-button {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius-button);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
 
-    &.is--active {
-        color: $color-shopware-brand-500;
+    &.is--active,
+    &:hover {
+        background: var(--color-interaction-secondary-hover);
+    }
+
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline-offset: var(--scale-size-2);
     }
 }
 
@@ -16,8 +28,8 @@
     border-radius: 50%;
     background-color: $color-crimson-500;
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 6px;
+    right: 6px;
 }
 
 .sw-notification-center__context-container {
@@ -28,15 +40,17 @@
 
     .sw-notification-center__content {
         .sw-notification-center__header {
-            border-bottom: 1px solid $color-gray-300;
-            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--color-border-primary-default);
+            padding: var(--scale-size-20) var(--scale-size-24) var(--scale-size-16);
             display: flex;
             justify-content: space-between;
         }
 
         .sw-notification-center__title {
             margin: 0;
-            font-size: $font-size-m;
+            font-size: var(--font-size-m);
+            line-height: var(--font-line-height-m);
+            color: var(--color-text-primary-default);
         }
 
         .sw-notification-center__notification-container {

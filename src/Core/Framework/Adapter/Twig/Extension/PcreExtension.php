@@ -33,7 +33,7 @@ class PcreExtension extends AbstractExtension
      */
     public function pregReplace(string $subject, string $pattern, string $replacement): string|array
     {
-        $value = preg_replace($pattern, $replacement, $subject);
+        $value = @preg_replace($pattern, $replacement, $subject);
 
         if ($value === null) {
             throw AdapterException::pcreFunctionError('preg_replace', preg_last_error_msg());
@@ -44,7 +44,7 @@ class PcreExtension extends AbstractExtension
 
     public function pregMatch(string $subject, string $pattern): bool
     {
-        $result = preg_match($pattern, $subject);
+        $result = @preg_match($pattern, $subject);
 
         if ($result === false) {
             throw AdapterException::pcreFunctionError('preg_match', preg_last_error_msg());

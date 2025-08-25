@@ -21,11 +21,18 @@ echo \json_encode([
             ['testsuite' => 'core-framework-batch3'],
             ['path' => 'Storefront'],
             ['path' => '{Administration,Elasticsearch}'],
-            ['path' => '{Core/Installer,Core/Maintenance,Core/System}'],
+            ['path' => '{Core/Installer,Core/Maintenance,Core/Service,Core/System}'],
             ['testsuite' => 'migration'],
             ['testsuite' => 'devops']
         ],
         'php' => $php,
         'db' => $db,
+        'include' => [
+            [
+                'test' => ['testsuite' => 'migration'],
+                'php' => '8.2',
+                'db' => 'mariadb:11'
+            ],
+        ]
     ]
 ], \JSON_THROW_ON_ERROR);

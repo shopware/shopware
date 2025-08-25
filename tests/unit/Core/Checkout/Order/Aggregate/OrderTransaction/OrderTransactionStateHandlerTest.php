@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -48,7 +49,7 @@ class OrderTransactionStateHandlerTest extends TestCase
 
     public function testProcess(): void
     {
-        $this->stateMachineRegistry(StateMachineTransitionActions::ACTION_DO_PAY);
+        $this->stateMachineRegistry(StateMachineTransitionActions::ACTION_PROCESS);
         $this->stateHandler->process($this->transactionId, Context::createDefaultContext());
     }
 
@@ -66,8 +67,16 @@ class OrderTransactionStateHandlerTest extends TestCase
 
     public function testPayPartially(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->stateMachineRegistry(StateMachineTransitionActions::ACTION_PAID_PARTIALLY);
         $this->stateHandler->payPartially($this->transactionId, Context::createDefaultContext());
+    }
+
+    public function testPaidPartially(): void
+    {
+        $this->stateMachineRegistry(StateMachineTransitionActions::ACTION_PAID_PARTIALLY);
+        $this->stateHandler->paidPartially($this->transactionId, Context::createDefaultContext());
     }
 
     public function testRefund(): void

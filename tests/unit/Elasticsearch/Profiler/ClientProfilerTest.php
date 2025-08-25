@@ -41,7 +41,7 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame($expectedUrl, $requests[0]['url']);
-        static::assertEquals($request, $requests[0]['request']);
+        static::assertSame($request, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());
@@ -71,7 +71,7 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame($expectedUrl, $requests[0]['url']);
-        static::assertEquals($request, $requests[0]['request']);
+        static::assertSame($request, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());
@@ -98,7 +98,7 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame('http://localhost:9200/_bulk', $requests[0]['url']);
-        static::assertEquals($request, $requests[0]['request']);
+        static::assertSame($request, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());
@@ -124,7 +124,7 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame('http://localhost:9200/_scripts/numeric_translated_field_sorting', $requests[0]['url']);
-        static::assertEquals($params, $requests[0]['request']);
+        static::assertSame($params, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());

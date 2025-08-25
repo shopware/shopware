@@ -17,6 +17,7 @@ export default {
         'loginService',
         'acl',
         'appAclService',
+        'ssoSettingsService',
     ],
 
     mixins: [
@@ -70,7 +71,7 @@ export default {
         },
 
         roleId() {
-            return this.$route.params.id;
+            return this.$route.params.id?.toLowerCase();
         },
     },
 
@@ -140,7 +141,17 @@ export default {
         },
 
         onSave() {
-            this.confirmPasswordModal = true;
+            this.isLoading = true;
+            this.ssoSettingsService.isSso().then((response) => {
+                if (response.isSso) {
+                    this.isLoading = false;
+                    this.saveRole({ ...Shopware.Context.api });
+
+                    return;
+                }
+
+                this.confirmPasswordModal = true;
+            });
         },
 
         saveRole(context) {

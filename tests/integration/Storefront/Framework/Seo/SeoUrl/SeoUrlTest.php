@@ -78,7 +78,7 @@ class SeoUrlTest extends TestCase
 
         $seoUrl = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
-        static::assertEquals('coolUrl', $seoUrl->getSeoPathInfo());
+        static::assertSame('coolUrl', $seoUrl->getSeoPathInfo());
     }
 
     public function testLandingPageUpdate(): void
@@ -118,8 +118,8 @@ class SeoUrlTest extends TestCase
         static::assertNull($seoUrl->getIsCanonical());
         static::assertFalse($seoUrl->getIsDeleted());
 
-        static::assertEquals('/landingPage/' . $id, $seoUrl->getPathInfo());
-        static::assertEquals($id, $seoUrl->getForeignKey());
+        static::assertSame('/landingPage/' . $id, $seoUrl->getPathInfo());
+        static::assertSame($id, $seoUrl->getForeignKey());
 
         /** @var SeoUrlCollection $urls */
         $urls = $first->getSeoUrls();
@@ -131,8 +131,8 @@ class SeoUrlTest extends TestCase
         static::assertTrue($seoUrl->getIsCanonical());
         static::assertFalse($seoUrl->getIsDeleted());
 
-        static::assertEquals('/landingPage/' . $id, $seoUrl->getPathInfo());
-        static::assertEquals($id, $seoUrl->getForeignKey());
+        static::assertSame('/landingPage/' . $id, $seoUrl->getPathInfo());
+        static::assertSame($id, $seoUrl->getForeignKey());
     }
 
     public function testSearchProduct(): void
@@ -154,7 +154,7 @@ class SeoUrlTest extends TestCase
         $seoUrls = $product->getSeoUrls();
         $seoUrl = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
-        static::assertEquals('foo-bar/P1234', $seoUrl->getSeoPathInfo());
+        static::assertSame('foo-bar/P1234', $seoUrl->getSeoPathInfo());
     }
 
     public function testSearchProductForHeadlessSalesChannelHasCorrectUrl(): void
@@ -526,7 +526,7 @@ class SeoUrlTest extends TestCase
         static::assertTrue($seoUrl->getIsCanonical());
         static::assertFalse($seoUrl->getIsDeleted());
 
-        static::assertEquals('awesome v2', $seoUrl->getSeoPathInfo());
+        static::assertSame('awesome v2', $seoUrl->getSeoPathInfo());
     }
 
     public function testUpdate(): void
@@ -566,8 +566,8 @@ class SeoUrlTest extends TestCase
         static::assertTrue($seoUrl->getIsCanonical());
         static::assertFalse($seoUrl->getIsDeleted());
 
-        static::assertEquals('/detail/' . $id, $seoUrl->getPathInfo());
-        static::assertEquals($id, $seoUrl->getForeignKey());
+        static::assertSame('/detail/' . $id, $seoUrl->getPathInfo());
+        static::assertSame($id, $seoUrl->getForeignKey());
     }
 
     /**
@@ -582,7 +582,7 @@ class SeoUrlTest extends TestCase
 
             /** @var CategoryEntity $category */
             $category = $categoryRepository->search($criteria, $context)->first();
-            static::assertEquals($case['categoryId'], $category->getId());
+            static::assertSame($case['categoryId'], $category->getId());
 
             /** @var SeoUrlCollection $seoUrls */
             $seoUrls = $category->getSeoUrls();
@@ -610,7 +610,7 @@ class SeoUrlTest extends TestCase
                 ->filterByProperty('salesChannelId', $salesChannelId)
                 ->first();
             static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
-            static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
+            static::assertSame($case['expected'], $canonicalUrl->getSeoPathInfo());
         }
     }
 

@@ -27,21 +27,21 @@ class AnnotationTagTesterTest extends TestCase
     {
         $version = AnnotationTagTester::getPlatformVersionFromGitTag('v6.4.0.0');
 
-        static::assertEquals('6.4.0.0', $version);
+        static::assertSame('6.4.0.0', $version);
     }
 
     public function testGetVersionFromGitTagReturnsCorrectVersionFromOldVersioning(): void
     {
         $version = AnnotationTagTester::getPlatformVersionFromGitTag('v6.1.0');
 
-        static::assertEquals('6.1.0', $version);
+        static::assertSame('6.1.0', $version);
     }
 
     public function testGetVersionFromGitTagAllowsHighVersions(): void
     {
         $version = AnnotationTagTester::getPlatformVersionFromGitTag('v200.123.1.36');
 
-        static::assertEquals('200.123.1.36', $version);
+        static::assertSame('200.123.1.36', $version);
     }
 
     public function testGetVersionFromGitTagsValidatesThatVersionIsStartingWithV(): void
@@ -90,7 +90,7 @@ class AnnotationTagTesterTest extends TestCase
     {
         $version = AnnotationTagTester::getVersionFromManifestFileName('manifest-1.0.xsd');
 
-        static::assertEquals('1.0', $version);
+        static::assertSame('1.0', $version);
     }
 
     public function testGetVersionFromManifestFileNameReturnsNullIfFileNameIsInWrongSchema(): void

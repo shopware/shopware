@@ -49,6 +49,7 @@ class LineItemCollection extends Collection
             }
 
             $exists->setQuantity($newQuantity);
+            $exists->markModified();
 
             return;
         }
@@ -203,7 +204,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<string|null>
+     * @return array<string>
      */
     public function getReferenceIds(): array
     {

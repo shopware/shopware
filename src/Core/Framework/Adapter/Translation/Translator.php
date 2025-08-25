@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -23,7 +23,6 @@ use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
@@ -73,14 +72,14 @@ class Translator extends AbstractTranslator
         private readonly Connection $connection,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly SnippetService $snippetService,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
     public static function buildName(string $id): string
     {
-        if (\strpbrk($id, (string) ItemInterface::RESERVED_CHARACTERS) !== false) {
-            $id = \str_replace(\str_split((string) ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
+        if (\strpbrk($id, ItemInterface::RESERVED_CHARACTERS) !== false) {
+            $id = \str_replace(\str_split(ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
         }
 
         return 'translator.' . $id;
@@ -125,7 +124,7 @@ class Translator extends AbstractTranslator
             $catalog->addFallbackCatalogue($this->translator->getCatalogue($localization));
         } else {
             // fallback locale and current locale has the same localization -> reset fallback
-            // or locale is symfony style locale so we shouldn't add shopware fallbacks as it may lead to circular references
+            // or locale is symfony style locale, so we shouldn't add shopware fallbacks as it may lead to circular references
             $fallbackLocale = null;
         }
 
@@ -153,7 +152,7 @@ class Translator extends AbstractTranslator
 
         $catalogue = $this->getCatalogue($locale);
 
-        $this->dispatcher->dispatch(new AddCacheTagEvent(self::tag($this->snippetSetId)));
+        $this->cacheTagCollector->addTag(self::tag($this->snippetSetId));
 
         // the formatter expects 2 char locale or underscore locales, `Locale::getFallback()` transforms the codes
         // We use the locale from the catalogue here as that may be the fallback locale,

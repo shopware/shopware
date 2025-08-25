@@ -78,6 +78,9 @@ export default {
             const criteria = new Criteria(1, 1)
                 .addAssociation('discounts.promotionDiscountPrices')
                 .addAssociation('discounts.discountRules')
+                .addAssociation('personaRules')
+                .addAssociation('orderRules')
+                .addAssociation('cartRules')
                 .addAssociation('salesChannels');
 
             criteria.getAssociation('discounts').addSorting(Criteria.sort('createdAt', 'ASC'));
@@ -127,6 +130,10 @@ export default {
         this.createdComponent();
     },
 
+    beforeRouteLeave() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     methods: {
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
@@ -147,6 +154,10 @@ export default {
 
                 return;
             }
+
+            Shopware.Store.get('shopwareApps').selectedIds = [
+                this.promotionId,
+            ];
 
             this.loadEntityData();
         },

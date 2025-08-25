@@ -69,7 +69,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             EntityDeleteEvent::class => 'handleEntityDeleteEvent',
         ], EntityDeleteSubscriber::getSubscribedEvents());
     }
@@ -94,12 +94,12 @@ class EntityDeleteSubscriberTest extends TestCase
             ->withAnyParameters()
             ->willReturnCallback(function ($key, $value) use ($productId): void {
                 if ($key === ':entity_name') {
-                    static::assertEquals(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
+                    static::assertSame(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
                     $this->requiredParameter[':entity_name'] = true;
                 }
 
                 if ($key === ':entity_ids') {
-                    static::assertEquals(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
+                    static::assertSame(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
                     $this->requiredParameter[':entity_ids'] = true;
                 }
             });
@@ -179,12 +179,12 @@ class EntityDeleteSubscriberTest extends TestCase
             ->withAnyParameters()
             ->willReturnCallback(function ($key, $value) use ($productId): void {
                 if ($key === ':entity_name') {
-                    static::assertEquals(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
+                    static::assertSame(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
                     $this->requiredParameter[':entity_name'] = true;
                 }
 
                 if ($key === ':entity_ids') {
-                    static::assertEquals(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
+                    static::assertSame(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
                     $this->requiredParameter[':entity_ids'] = true;
                 }
             });
@@ -540,7 +540,7 @@ class NonStorageAwareField extends Field
 {
     protected function getSerializerClass(): string
     {
-        /** @phpstan-ignore-next-line Should be a class-string but we will never use this value */
+        /** @phpstan-ignore return.type (for test purpose) */
         return '';
     }
 }

@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryC
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\Context;
@@ -34,8 +33,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SendPasswordRecoveryMailRoute::class)]
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
+    /** @var EntityRepository<CustomerCollection>&MockObject */
     protected EntityRepository&MockObject $customerRepository;
 
+    /** @var EntityRepository<CustomerRecoveryCollection>&MockObject */
     protected EntityRepository&MockObject $customerRecoveryRepository;
 
     protected EventDispatcherInterface&MockObject $eventDispatcher;
@@ -158,7 +159,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     public function testNoCustomerFound(): void
     {
-        $MailRoute = new SendPasswordRecoveryMailRoute(
+        $mailRoute = new SendPasswordRecoveryMailRoute(
             $this->customerRepository,
             $this->customerRecoveryRepository,
             $this->eventDispatcher,
@@ -171,9 +172,9 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $data = new RequestDataBag();
         $data->set('email', 'foo@foo');
 
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('No matching customer for the email "foo@foo" was found.');
+        $response = $mailRoute->sendRecoveryMail($data, $this->context)->getObject()->getVars();
 
-        $MailRoute->sendRecoveryMail($data, $this->context);
+        static::assertArrayHasKey('success', $response);
+        static::assertTrue($response['success']);
     }
 }

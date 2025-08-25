@@ -5,7 +5,8 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
-use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -17,7 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
@@ -31,6 +34,9 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaDefaultFolderCollection> $defaultFolderRepository
+     * @param EntityRepository<MediaFolderCollection> $folderRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,
@@ -73,6 +79,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                         'mediaFolderId' => $isDownloadFile ? $downloadFolderId : $mediaFolderId,
                         'private' => $isDownloadFile,
                         'tags' => $this->getTags($tags),
+                        'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
                     ],
                 ],
                 $writeContext
@@ -83,7 +90,8 @@ class MediaGenerator implements DemodataGeneratorInterface
                     $file,
                     (string) mime_content_type($file),
                     pathinfo($file, \PATHINFO_EXTENSION),
-                    (int) filesize($file)
+                    (int) filesize($file),
+                    Hasher::hashFile($file, 'md5')
                 ),
                 $this->fileNameProvider->provide(
                     pathinfo($file, \PATHINFO_FILENAME),
@@ -192,8 +200,10 @@ class MediaGenerator implements DemodataGeneratorInterface
             return $mediaFolderId;
         }
 
-        /** @var MediaDefaultFolderEntity $defaultFolder */
-        $defaultFolder = $defaultFolders->first();
+        $defaultFolder = $defaultFolders->getEntities()->first();
+        if (!$defaultFolder) {
+            return $mediaFolderId;
+        }
 
         if ($defaultFolder->getFolder()) {
             return $defaultFolder->getFolder()->getId();

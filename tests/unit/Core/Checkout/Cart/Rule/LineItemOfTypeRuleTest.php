@@ -31,7 +31,7 @@ class LineItemOfTypeRuleTest extends TestCase
     {
         $rule = new LineItemOfTypeRule(Rule::OPERATOR_EQ, 'test');
 
-        static::assertEquals('cartLineItemOfType', $rule->getName());
+        static::assertSame('cartLineItemOfType', $rule->getName());
     }
 
     public function testGetConstraints(): void

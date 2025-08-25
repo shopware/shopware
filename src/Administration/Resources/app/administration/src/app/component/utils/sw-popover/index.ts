@@ -1,7 +1,5 @@
 import template from './sw-popover.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,7 +7,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-popover and mt-floating-ui. Autoswitches between the two components.
  */
-Component.register('sw-popover', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

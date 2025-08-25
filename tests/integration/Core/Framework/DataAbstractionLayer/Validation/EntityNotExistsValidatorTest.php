@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -64,7 +65,7 @@ class EntityNotExistsValidatorTest extends TestCase
         static::expectException(FrameworkException::class);
 
         $context = Context::createDefaultContext();
-        /* @phpstan-ignore-next-line wrong type for testing */
+        /* @phpstan-ignore argument.type  (for test purpose) */
         $constraint = new EntityNotExists(['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME, 'primaryProperty' => 1]);
 
         $validator = $this->getValidator();
@@ -146,11 +147,15 @@ class EntityNotExistsValidatorTest extends TestCase
         static::assertCount(2, $violations);
     }
 
+    /**
+     * @return EntityRepository<LocaleCollection>
+     */
     protected function createRepository(): EntityRepository
     {
         $definition = static::getContainer()->get(LocaleDefinition::class);
         static::assertInstanceOf(LocaleDefinition::class, $definition);
 
+        /** @var EntityRepository<LocaleCollection> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

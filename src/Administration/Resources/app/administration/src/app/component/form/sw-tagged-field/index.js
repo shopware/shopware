@@ -1,8 +1,6 @@
 import template from './sw-tagged-field.html.twig';
 import './sw-tagged-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,7 +11,7 @@ const { Component } = Shopware;
  * <sw-tagged-field label="Label" :addOnKey="['enter', ',']">
  * </sw-tagged-field>
  */
-Component.register('sw-tagged-field', {
+export default {
     template,
 
     inject: ['feature'],
@@ -120,4 +118,4 @@ Component.register('sw-tagged-field', {
             return false;
         },
     },
-});
+};

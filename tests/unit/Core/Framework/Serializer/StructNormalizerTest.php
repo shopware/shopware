@@ -44,7 +44,7 @@ class StructNormalizerTest extends TestCase
             'foo' => 'bar',
         ];
 
-        static::assertEquals(
+        static::assertSame(
             $expected,
             $this->normalizer->normalize($struct)
         );
@@ -61,7 +61,7 @@ class StructNormalizerTest extends TestCase
             ['extensions' => [], 'foo' => 'bar'],
         ];
 
-        static::assertEquals(
+        static::assertSame(
             $expected,
             $this->normalizer->normalize($collection)
         );
@@ -112,7 +112,7 @@ class StructNormalizerTest extends TestCase
     #[DataProvider('denormalizeShouldReturnNonArraysProvider')]
     public function testDenormalizeShouldReturnNonArrays(mixed $input): void
     {
-        static::assertEquals($input, $this->normalizer->denormalize($input));
+        static::assertSame($input, $this->normalizer->denormalize($input));
     }
 
     public function testDenormalizeShouldThrowIfNonStructGiven(): void

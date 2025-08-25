@@ -4,9 +4,11 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Consent;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigEntity;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
@@ -32,9 +34,12 @@ class ConsentServiceTest extends TestCase
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
         ]);
 
+        /** @var StaticEntityRepository<SystemConfigCollection> */
+        $repository = new StaticEntityRepository([]);
+
         $consentService = new ConsentService(
             $systemConfig,
-            new StaticEntityRepository([]),
+            $repository,
             new CollectingEventDispatcher(),
             new MockClock(),
         );
@@ -48,9 +53,12 @@ class ConsentServiceTest extends TestCase
 
     public function testIsApprovalGivenIsFalseIfConfigValueIsNotSet(): void
     {
+        /** @var StaticEntityRepository<SystemConfigCollection> */
+        $repository = new StaticEntityRepository([]);
+
         $consentService = new ConsentService(
             new StaticSystemConfigService(),
-            new StaticEntityRepository([]),
+            $repository,
             new CollectingEventDispatcher(),
             new MockClock(),
         );
@@ -263,11 +271,12 @@ class ConsentServiceTest extends TestCase
 
         $updatedAt = new \DateTimeImmutable('2021-01-01 00:00:00');
         $systemConfigEntity = new SystemConfigEntity();
+        $systemConfigEntity->setId('test-id');
         $systemConfigEntity->setUpdatedAt($updatedAt);
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->method('first')
-            ->willReturn($systemConfigEntity);
+        $entitySearchResult->method('getEntities')
+            ->willReturn(new SystemConfigCollection([$systemConfigEntity]));
 
         $systemConfigRepository = $this->createMock(EntityRepository::class);
         $systemConfigRepository->method('search')
@@ -280,7 +289,10 @@ class ConsentServiceTest extends TestCase
             new MockClock(),
         );
 
-        static::assertEquals($updatedAt, $consentService->getLastConsentIsAcceptedDate());
+        static::assertSame(
+            $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $consentService->getLastConsentIsAcceptedDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
     }
 
     private function assertConsentEventFired(CollectingEventDispatcher $dispatcher, ConsentState $state): void
@@ -290,6 +302,6 @@ class ConsentServiceTest extends TestCase
 
         $consentChangedEvent = $events[0];
         static::assertInstanceOf(ConsentStateChangedEvent::class, $consentChangedEvent);
-        static::assertEquals($state, $consentChangedEvent->getState());
+        static::assertSame($state, $consentChangedEvent->getState());
     }
 }

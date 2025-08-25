@@ -196,9 +196,9 @@ class MergeWishlistProductRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
-        static::assertEquals('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
-        static::assertEquals('Forbidden', $errors['title']);
-        static::assertEquals('Wishlist is not activated!', $errors['detail']);
+        static::assertSame('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
+        static::assertSame('Forbidden', $errors['title']);
+        static::assertSame('Wishlist is not activated!', $errors['detail']);
 
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNull($wishlistProduct->getEntities()->first());

@@ -419,8 +419,8 @@ EOF;
         static::assertArrayHasKey('child', $decoded);
         static::assertArrayHasKey('childDateTime', $decoded['child']);
 
-        static::assertEquals($insertTime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $decoded['child']['childDateTime']);
-        static::assertEquals($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $decoded['child']['childDate']);
+        static::assertSame($insertTime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $decoded['child']['childDateTime']);
+        static::assertSame($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $decoded['child']['childDate']);
     }
 
     public function testNestedJsonFilter(): void

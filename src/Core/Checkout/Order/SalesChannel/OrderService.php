@@ -180,7 +180,12 @@ class OrderService
 
     public function isPaymentChangeableByTransactionState(OrderEntity $order): bool
     {
-        $state = $order->getTransactions()?->last()?->getStateMachineState()?->getTechnicalName();
+        $state = $order->getPrimaryOrderTransaction()?->getStateMachineState()?->getTechnicalName();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $state = $order->getTransactions()?->last()?->getStateMachineState()?->getTechnicalName();
+        }
+
         if (!$state) {
             return true;
         }

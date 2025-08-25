@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -58,6 +59,7 @@ class PluginLifecycleServiceTest extends TestCase
 {
     private PluginLifecycleService $pluginLifecycleService;
 
+    /** @var MockObject&EntityRepository<PluginCollection> */
     private MockObject&EntityRepository $pluginRepoMock;
 
     private MockObject&KernelPluginCollection $kernelPluginCollectionMock;
@@ -117,14 +119,11 @@ class PluginLifecycleServiceTest extends TestCase
         );
     }
 
-    // +++++ InstallPlugin method ++++
-
     public function testInstallPlugin(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
         $context = Context::createDefaultContext();
 
-        /** postInstall is called */
         $this->pluginMock->expects($this->once())->method('postInstall');
 
         $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
@@ -542,10 +541,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
     }
 
-    // ------ ActivatePlugin -----
-
-    // +++++ DeactivatePlugin method ++++
-
     public function testDeactivatePlugin(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -654,15 +649,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
     }
 
-    // ------ DeactivatePlugin -----
-
-    // ++++++ privates +++++++
-
     public function testPluginBaseClassNotSet(): void
     {
         $pluginEntityMock = new PluginEntity();
-        // @phpstan-ignore-next-line -> phpstan enforces correct base class strings
-        $pluginEntityMock->setBaseClass('MockPlugin');
+        $pluginEntityMock->setBaseClass(Plugin::class);
         $context = Context::createDefaultContext();
 
         $this->kernelPluginCollectionMock->method('get')->willReturn(null);

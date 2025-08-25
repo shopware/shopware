@@ -8,21 +8,21 @@
 
     {% block sw_import_export_edit_profile_import_settings_create_switch %}
     <mt-switch
-        :checked="profile.config.createEntities"
+        :model-value="profile.config.createEntities"
         class="sw-import-export-edit-profile-import-settings__create-switch"
         :label="$tc('sw-import-export.profile.createEntitiesLabel')"
         :disabled="profile.systemDefault"
-        @change="onChange($event, 'createEntities')"
+        @update:model-value="onChange($event, 'createEntities')"
     />
     {% endblock %}
 
     {% block sw_import_export_edit_profile_import_settings_update_switch %}
     <mt-switch
-        :checked="profile.config.updateEntities"
+        :model-value="profile.config.updateEntities"
         class="sw-import-export-edit-profile-import-settings__update-switch"
         :label="$tc('sw-import-export.profile.updateEntitiesLabel')"
         :disabled="profile.systemDefault"
-        @change="onChange($event, 'updateEntities')"
+        @update:model-value="onChange($event, 'updateEntities')"
     />
     {% endblock %}
 </div>

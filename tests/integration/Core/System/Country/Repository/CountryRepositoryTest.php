@@ -49,7 +49,7 @@ class CountryRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
         $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match');
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext());
         $queries = $builder->buildScoreQueries(
             $pattern,
             $this->repository->getDefinition(),
@@ -62,7 +62,7 @@ class CountryRepositoryTest extends TestCase
 
         static::assertCount(2, $result->getIds());
 
-        static::assertEquals(
+        static::assertSame(
             [$recordA, $recordB],
             $result->getIds()
         );

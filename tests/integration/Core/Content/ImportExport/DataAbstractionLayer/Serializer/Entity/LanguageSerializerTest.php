@@ -44,6 +44,7 @@ class LanguageSerializerTest extends TestCase
 
         $config = new Config([], [], []);
         $language = [
+            'active' => true,
             'locale' => [
                 'code' => 'xx-XX',
                 'id' => $localeId,
@@ -83,6 +84,7 @@ class LanguageSerializerTest extends TestCase
             [
                 'id' => $this->languageId,
                 'name' => 'test name',
+                'active' => true,
                 'locale' => [
                     'id' => $localeId,
                     'code' => 'xx-XX',

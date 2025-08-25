@@ -44,7 +44,7 @@ class OrderLineItemCollectionTest extends TestCase
 
         $filtered = $collection->filterGoodsFlat();
 
-        static::assertEquals([$lineItemA, $lineItemC, $lineItemE], $filtered);
+        static::assertSame([$lineItemA, $lineItemC, $lineItemE], $filtered);
     }
 
     public function testGetPayloadsProperty(): void
@@ -57,14 +57,14 @@ class OrderLineItemCollectionTest extends TestCase
 
         $collection = new OrderLineItemCollection([$lineItemA, $lineItemB]);
 
-        static::assertEquals([], $collection->getPayloadsProperty('foobar'));
+        static::assertSame([], $collection->getPayloadsProperty('foobar'));
 
         $lineItemA->setPayload(['foobar' => 'foo']);
 
-        static::assertEquals([$lineItemA->getId() => 'foo'], $collection->getPayloadsProperty('foobar'));
+        static::assertSame([$lineItemA->getId() => 'foo'], $collection->getPayloadsProperty('foobar'));
 
         $lineItemB->setPayload(['foobar' => 'bar']);
 
-        static::assertEquals([$lineItemA->getId() => 'foo', $lineItemB->getId() => 'bar'], $collection->getPayloadsProperty('foobar'));
+        static::assertSame([$lineItemA->getId() => 'foo', $lineItemB->getId() => 'bar'], $collection->getPayloadsProperty('foobar'));
     }
 }

@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -27,12 +29,20 @@ class StoreApiResponseListenerTest extends TestCase
 {
     private StructEncoder&MockObject $encoder;
 
+    private MediaUrlPlaceholderHandlerInterface&MockObject $mediaUrlPlaceholderHandler;
+
+    private SeoUrlPlaceholderHandlerInterface&MockObject $seoUrlPlaceholderHandler;
+
     private StoreApiResponseListener $listener;
 
     protected function setUp(): void
     {
         $this->encoder = $this->createMock(StructEncoder::class);
-        $this->listener = new StoreApiResponseListener($this->encoder, new EventDispatcher());
+        $this->mediaUrlPlaceholderHandler = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
+        $this->mediaUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
+        $this->seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
+        $this->listener = new StoreApiResponseListener($this->encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
     }
 
     public function testEncodeEvent(): void
@@ -48,7 +58,9 @@ class StoreApiResponseListenerTest extends TestCase
 
         $instance = new StoreApiResponseListener(
             $this->createMock(StructEncoder::class),
-            $dispatcher
+            $dispatcher,
+            $this->seoUrlPlaceholderHandler,
+            $this->mediaUrlPlaceholderHandler
         );
 
         $instance->encodeResponse(new ResponseEvent(
@@ -94,7 +106,7 @@ class StoreApiResponseListenerTest extends TestCase
         static::assertIsString($content, 'Response content is not a string.');
         $decoded = json_decode($content, true);
         static::assertIsArray($decoded, 'Decoded JSON is not an array.');
-        static::assertEquals(['encoded' => 'data'], $decoded);
+        static::assertSame(['encoded' => 'data'], $decoded);
     }
 
     public function testEncodeResponseWithDifferentStatusCode(): void
@@ -133,7 +145,7 @@ class StoreApiResponseListenerTest extends TestCase
         static::assertIsString($content, 'Response content is not a string.');
         $decoded = json_decode($content, true);
         static::assertIsArray($decoded, 'Decoded JSON is not an array.');
-        static::assertEquals(['encoded' => 'data'], $decoded);
+        static::assertSame(['encoded' => 'data'], $decoded);
     }
 
     public function testEncodeResponsePreservesHeaders(): void
@@ -173,6 +185,6 @@ class StoreApiResponseListenerTest extends TestCase
         static::assertIsString($content, 'Response content is not a string.');
         $decoded = json_decode($content, true);
         static::assertIsArray($decoded, 'Decoded JSON is not an array.');
-        static::assertEquals(['encoded' => 'data'], $decoded);
+        static::assertSame(['encoded' => 'data'], $decoded);
     }
 }

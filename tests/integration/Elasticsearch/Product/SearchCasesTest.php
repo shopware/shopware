@@ -58,7 +58,7 @@ class SearchCasesTest extends TestCase
             $scores[self::$ids->getKey((string) $item['id'])] = $item['_score'];
         }
 
-        static::assertEquals(
+        static::assertSame(
             $best,
             self::$ids->getKey((string) $result->firstId()),
             print_r($scores, true)

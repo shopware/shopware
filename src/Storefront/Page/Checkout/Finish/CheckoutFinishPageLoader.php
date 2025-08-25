@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +37,8 @@ class CheckoutFinishPageLoader
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -60,6 +63,8 @@ class CheckoutFinishPageLoader
         $page->setChangedPayment((bool) $request->get('changedPayment', false));
 
         $page->setPaymentFailed((bool) $request->get('paymentFailed', false));
+
+        $page->setLogoutCustomer($salesChannelContext->getCustomer()?->getGuest() && $this->systemConfigService->get('core.cart.logoutGuestAfterCheckout', $salesChannelContext->getSalesChannelId()));
 
         $this->eventDispatcher->dispatch(
             new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request)
@@ -104,17 +109,26 @@ class CheckoutFinishPageLoader
 
         $criteria = (new Criteria([$orderId]))
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
+            ->addAssociation('primaryOrderDelivery.shippingMethod')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')
+            ->addAssociation('primaryOrderTransaction.paymentMethod')
             ->addAssociation('lineItems.cover')
-            ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
-            ->addAssociation('billingAddress.countryState')
-            ->addAssociation('deliveries.shippingOrderAddress.salutation')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+            ->addAssociation('billingAddress.countryState');
 
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria
+                ->addAssociation('transactions.paymentMethod')
+                ->addAssociation('deliveries.shippingMethod')
+                ->addAssociation('deliveries.shippingOrderAddress.salutation')
+                ->addAssociation('deliveries.shippingOrderAddress.country')
+                ->addAssociation('deliveries.shippingOrderAddress.countryState');
+
+            $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        }
 
         $this->eventDispatcher->dispatch(
             new CheckoutFinishPageOrderCriteriaEvent($criteria, $salesChannelContext)

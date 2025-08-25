@@ -29,6 +29,7 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <service id="Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -134,6 +135,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
             <tag name="kernel.reset" method="reset"/>

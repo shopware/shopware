@@ -32,6 +32,7 @@ abstract class AbstractResponse extends Struct
      */
     public static function create(array $data): static
     {
+        /** @phpstan-ignore new.staticInAbstractClassStaticMethod (the usage of "new static" is explicitly wanted) */
         $response = new static();
         $response->assign($data);
 

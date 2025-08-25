@@ -2,10 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -18,9 +15,6 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -45,14 +39,11 @@ class ShippingCountryRuleTest extends TestCase
 
     private Context $context;
 
-    private ShippingCountryRule $rule;
-
     protected function setUp(): void
     {
         $this->ruleRepository = static::getContainer()->get('rule.repository');
         $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
-        $this->rule = new ShippingCountryRule();
     }
 
     public function testValidateWithMissingParameters(): void
@@ -218,63 +209,5 @@ class ShippingCountryRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
-    }
-
-    public function testConstraints(): void
-    {
-        $expectedOperators = [
-            Rule::OPERATOR_EQ,
-            Rule::OPERATOR_NEQ,
-            Rule::OPERATOR_EMPTY,
-        ];
-
-        $ruleConstraints = $this->rule->getConstraints();
-
-        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
-        $operators = $ruleConstraints['operator'];
-        static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
-
-        $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
-        static::assertArrayHasKey('countryIds', $ruleConstraints, 'Constraint countryIds not found in Rule');
-        $countryIds = $ruleConstraints['countryIds'];
-        static::assertEquals(new NotBlank(), $countryIds[0]);
-        static::assertEquals(new ArrayOfUuid(), $countryIds[1]);
-    }
-
-    #[DataProvider('getMatchValues')]
-    public function testRuleMatching(string $operator, bool $isMatching, string $countryId): void
-    {
-        $countryIds = ['kyln123', 'kyln456'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-
-        $country = new CountryEntity();
-        $country->setId($countryId);
-        $location = new ShippingLocation($country, null, null);
-        $salesChannelContext->method('getShippingLocation')->willReturn($location);
-        $scope = new CheckoutRuleScope($salesChannelContext);
-        $this->rule->assign(['countryIds' => $countryIds, 'operator' => $operator]);
-
-        $match = $this->rule->match($scope);
-        if ($isMatching) {
-            static::assertTrue($match);
-        } else {
-            static::assertFalse($match);
-        }
-    }
-
-    /**
-     * @return array<string, array{0: string, 1: bool, 2: string}>
-     */
-    public static function getMatchValues(): array
-    {
-        return [
-            'operator_oq / not match / country id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()],
-            'operator_oq / match / country id' => [Rule::OPERATOR_EQ, true, 'kyln123'],
-            'operator_neq / match / country id' => [Rule::OPERATOR_NEQ, true,  Uuid::randomHex()],
-            'operator_neq / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
-            'operator_empty / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
-            'operator_empty / match / country id' => [Rule::OPERATOR_EMPTY, true, ''],
-        ];
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
@@ -19,8 +20,10 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly IncrementGatewayRegistry $gatewayRegistry)
-    {
+    public function __construct(
+        private readonly IncrementGatewayRegistry $gatewayRegistry,
+        private readonly StatsService $statsService
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -45,6 +48,7 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
     public function onMessageHandled(WorkerMessageHandledEvent $event): void
     {
         $this->handle($event->getEnvelope(), false);
+        $this->statsService->registerMessage($event->getEnvelope());
     }
 
     public function onMessageSent(SendMessageToTransportsEvent $event): void

@@ -5,13 +5,12 @@
 import template from './sw-shortcut-overview.html.twig';
 import './sw-shortcut-overview.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-shortcut-overview', {
+export default {
     template,
 
     emits: [
@@ -225,4 +224,4 @@ Component.register('sw-shortcut-overview', {
             this.$emit('shortcut-close');
         },
     },
-});
+};

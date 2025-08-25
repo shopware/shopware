@@ -1,0 +1,39 @@
+<mt-banner
+    v-if="!isHidden"
+    class="sw-settings-services-dashboard-banner__content"
+    closable
+    hide-icon
+    @close="hideBanner"
+>
+    <h3>{{  $t('sw-settings-services.dashboard-banner.title') }}</h3>
+    <div class="sw-settings-services-dashboard-banner__content">
+        <div>
+            <p>{{  $t('sw-settings-services.dashboard-banner.description') }}</p>
+
+            <mt-button
+                variant="primary"
+                @click="$router.push({ name: 'sw.settings.services.index' })"
+            >
+                {{  $t('sw-settings-services.dashboard-banner.label-button-explore') }}
+
+                <template #iconBack>
+                    <mt-icon
+                        name="solid-long-arrow-right"
+                        size="var(--scale-size-12)"
+                    />
+                </template>
+            </mt-button>
+        </div>
+
+        <img
+            class="sw-settings-services-dashboard-banner__graphic sw-settings-services-dashboard-banner__graphic--light"
+            :src="servicesGraphicLight"
+            alt=""
+        >
+        <img
+            class="sw-settings-services-dashboard-banner__graphic sw-settings-services-dashboard-banner__graphic--dark"
+            :src="servicesGraphicDark"
+            alt=""
+        >
+    </div>
+</mt-banner>

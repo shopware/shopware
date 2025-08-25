@@ -3,23 +3,25 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
 class CategoryRoute extends AbstractCategoryRoute
 {
@@ -27,12 +29,14 @@ class CategoryRoute extends AbstractCategoryRoute
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $categoryRepository,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         private readonly CategoryDefinition $categoryDefinition,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -49,11 +53,12 @@ class CategoryRoute extends AbstractCategoryRoute
     #[Route(path: '/store-api/category/{navigationId}', name: 'store-api.category.detail', methods: ['GET', 'POST'])]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
-        $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($navigationId)));
+        $this->cacheTagCollector->addTag(self::buildName($navigationId));
 
         if ($navigationId === self::HOME) {
             $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
             $request->attributes->set('navigationId', $navigationId);
+
             $routeParams = $request->attributes->get('_route_params', []);
             $routeParams['navigationId'] = $navigationId;
             $request->attributes->set('_route_params', $routeParams);
@@ -63,6 +68,10 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $categoryHasContentlessPageType = \in_array($category->getType(), [CategoryDefinition::TYPE_FOLDER, CategoryDefinition::TYPE_LINK], true);
         if ($categoryHasContentlessPageType && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId) {
+            if ($category->getType() === CategoryDefinition::TYPE_LINK) {
+                return new CategoryRouteResponse($category);
+            }
+
             throw CategoryException::categoryNotFound($navigationId);
         }
 
@@ -109,10 +118,7 @@ class CategoryRoute extends AbstractCategoryRoute
         $criteria->addAssociation('media');
         $criteria->addAssociation('translations');
 
-        $category = $this->categoryRepository
-            ->search($criteria, $context)
-            ->get($categoryId);
-
+        $category = $this->categoryRepository->search($criteria, $context)->getEntities()->get($categoryId);
         if (!$category instanceof CategoryEntity) {
             throw CategoryException::categoryNotFound($categoryId);
         }

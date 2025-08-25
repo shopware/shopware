@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -49,6 +50,10 @@ class UninstallAppCommand extends Command
         }
 
         $context = Context::createCLIContext();
+        if ($input->getOption('skip-theme-compile')) {
+            $context->addState(ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION);
+        }
+
         $app = $this->getAppByName($name, $context);
 
         if (!$app) {
@@ -77,7 +82,18 @@ class UninstallAppCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'The name of the app');
-        $this->addOption('keep-user-data', null, InputOption::VALUE_NONE, 'Keep user data of the app');
+        $this->addOption(
+            'keep-user-data',
+            null,
+            InputOption::VALUE_NONE,
+            'Keep user data of the app'
+        );
+        $this->addOption(
+            'skip-theme-compile',
+            null,
+            InputOption::VALUE_NONE,
+            'Use this option to skip recompiling of all themes'
+        );
     }
 
     private function getAppByName(string $name, Context $context): ?AppEntity

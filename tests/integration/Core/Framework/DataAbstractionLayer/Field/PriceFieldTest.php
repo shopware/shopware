@@ -108,7 +108,7 @@ EOF;
         static::assertInstanceOf(Price::class, $price);
 
         static::assertInstanceOf(Price::class, $price->getListPrice());
-        static::assertEquals(2, $price->getListPrice()->getNet());
+        static::assertSame(2.0, $price->getListPrice()->getNet());
     }
 
     public function testListPriceInCriteriaParts(): void
@@ -183,7 +183,7 @@ EOF;
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $ids->get('was-2'),
                 $ids->get('was'),
@@ -269,8 +269,6 @@ EOF;
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
-        $ids = new IdsCollection();
-
         static::getContainer()
             ->get(EntityWriter::class)
             ->insert($definition, $records, WriteContext::createFromContext(Context::createDefaultContext()));
@@ -295,7 +293,7 @@ EOF;
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, $context);
 
-        static::assertEquals($expected, array_values($result->getIds()));
+        static::assertSame($expected, array_values($result->getIds()));
 
         // test descending sorting
         $criteria = new Criteria();
@@ -305,7 +303,7 @@ EOF;
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, $context);
 
-        static::assertEquals(array_reverse($expected), array_values($result->getIds()));
+        static::assertSame(array_reverse($expected), array_values($result->getIds()));
     }
 
     /**
@@ -503,8 +501,6 @@ EOF;
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
-        $ids = new IdsCollection();
-
         static::getContainer()
             ->get(EntityWriter::class)
             ->insert($definition, $records, WriteContext::createFromContext(Context::createDefaultContext()));
@@ -530,7 +526,7 @@ EOF;
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, $context);
 
-        static::assertEquals(\count($expected), $result->getTotal(), print_r($result->getData(), true));
+        static::assertSame(\count($expected), $result->getTotal(), print_r($result->getData(), true));
         foreach ($expected as $id) {
             static::assertTrue($result->has($id));
         }

@@ -22,7 +22,11 @@
         "replace": "Replace",
         "settings": "Settings",
         "ar": "Activate AR view",
-        "arHelpText": "AR function enabled when presented in the storefront. You can change the default in <a href=\"{settingsLink}\">the 3D settings</a>."
+        "arHelpText": "AR function enabled when presented in the storefront. You can change the default in <a href=\"{settingsLink}\">the 3D settings</a>.",
+        "arPlacement": "AR placement",
+        "arPlacementHelpText": "Select whether the object is placed on a horizontal surface, like the floor, or on a vertical surface, like a wall.",
+        "horizontal": "Horizontal",
+        "vertical": "Vertical"
       },
       "sections": {
         "actions": "Actions",

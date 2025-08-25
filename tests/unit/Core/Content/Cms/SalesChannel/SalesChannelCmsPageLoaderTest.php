@@ -15,6 +15,7 @@ use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -39,7 +40,8 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $loader = new SalesChannelCmsPageLoader(
             $cmsPageRepository,
             $this->createMock(CmsSlotsDataResolver::class),
-            $this->createMock(EventDispatcher::class)
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(CacheTagCollector::class),
         );
 
         $result = $loader->load(new Request(), new Criteria(), Generator::generateSalesChannelContext());
@@ -64,13 +66,20 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $loader = new SalesChannelCmsPageLoader(
             $cmsPageRepository,
             $this->createMock(CmsSlotsDataResolver::class),
-            $this->createMock(EventDispatcher::class)
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(CacheTagCollector::class),
         );
 
         $config = [
             'page-1' => [
                 'slot-1' => [
-                    'translated' => 'expected-config',
+                    'key' => [
+                        'value' => [
+                            'value-4',
+                        ],
+                    ],
+                    'key-2' => ['overridden value'],
+                    'additional-key' => 'additional value',
                 ],
             ],
         ];
@@ -96,7 +105,17 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         $config = $slot->getConfig();
         static::assertIsArray($config);
-        static::assertSame('expected-config', $config['translated']);
+        static::assertSame([
+            'translated' => 'original value',
+            'key' => [
+                'value' => [
+                    'value-4',
+                ],
+                'source' => 'static',
+            ],
+            'key-2' => ['overridden value'],
+            'additional-key' => 'additional value',
+        ], $config);
     }
 
     private function assertCmsPage1(CmsPageEntity $cmsPage): void
@@ -187,7 +206,18 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                     'id' => 'slot-1',
                                     'slot' => 'content',
                                     'type' => 'foo',
-                                    'config' => ['translated' => '0'],
+                                    'config' => [
+                                        'translated' => 'original value',
+                                        'key' => [
+                                            'value' => [
+                                                'value-1',
+                                                'value-2',
+                                                'value-3',
+                                            ],
+                                            'source' => 'static',
+                                        ],
+                                        'key-2' => [],
+                                    ],
                                 ]),
                             ]),
                         ]),

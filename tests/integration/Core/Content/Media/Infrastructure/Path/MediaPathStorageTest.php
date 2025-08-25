@@ -46,7 +46,7 @@ class MediaPathStorageTest extends TestCase
             ->get(Connection::class)
             ->fetchOne('SELECT path FROM media WHERE id = :id', ['id' => $ids->getBytes('media')]);
 
-        static::assertEquals('test.jpg', $path);
+        static::assertSame('test.jpg', $path);
     }
 
     public function testStoreThumbnailPath(): void
@@ -62,11 +62,19 @@ class MediaPathStorageTest extends TestCase
             'created_at' => '2022-01-01',
         ]);
 
+        $inserts->addInsert('media_thumbnail_size', [
+            'id' => $ids->getBytes('thumbnail-size-1'),
+            'width' => 100,
+            'height' => 100,
+            'created_at' => '2022-01-01',
+        ]);
+
         $inserts->addInsert('media_thumbnail', [
             'id' => $ids->getBytes('media_thumbnail'),
             'media_id' => $ids->getBytes('media'),
             'width' => 100,
             'height' => 100,
+            'media_thumbnail_size_id' => $ids->getBytes('thumbnail-size-1'),
             'created_at' => '2022-01-01',
         ]);
 
@@ -82,7 +90,7 @@ class MediaPathStorageTest extends TestCase
             ->get(Connection::class)
             ->fetchOne('SELECT path FROM media_thumbnail WHERE id = :id', ['id' => $ids->getBytes('media_thumbnail')]);
 
-        static::assertEquals('test.jpg', $path);
+        static::assertSame('test.jpg', $path);
     }
 
     public function testEmptyParametersDoesNotTriggerDatabaseQueries(): void

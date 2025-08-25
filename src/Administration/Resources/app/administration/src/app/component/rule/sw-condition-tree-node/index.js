@@ -1,13 +1,11 @@
 import template from './sw-condition-tree-node.html.twig';
 import './sw-condition-tree-node.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-tree-node', {
+export default {
     template,
 
     inject: [
@@ -98,4 +96,4 @@ Component.register('sw-condition-tree-node', {
             );
         },
     },
-});
+};

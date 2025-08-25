@@ -330,7 +330,7 @@
                     v-if="showLayoutSetAsDefaultModal"
                     class="sw-cms-detail__confirm-set-as-default-modal"
                     :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-                    :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', page.type === 'product_detail')"
+                    :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', {}, page.type === 'product_detail')"
                     @confirm="onConfirmLayoutSetAsDefault"
                     @cancel="onCloseLayoutSetAsDefault"
                     @close="onCloseLayoutSetAsDefault"

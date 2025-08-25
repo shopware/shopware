@@ -4,12 +4,10 @@
 import template from './sw-block-field.html.twig';
 import './sw-block-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-block-field', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -63,4 +61,4 @@ Component.register('sw-block-field', {
             this.hasFocus = false;
         },
     },
-});
+};

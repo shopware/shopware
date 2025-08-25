@@ -42,7 +42,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
 
         $this->packageMock = $this->createMock(UrlPackage::class);
         $this->packageMock->method('getUrl')
-            ->willReturn('https:://shopware.com/bundles/administration/');
+            ->willReturn('https:://shopware.com');
 
         $this->decorator = new ViteFileAccessorDecorator(
             $this->configs,
@@ -58,18 +58,35 @@ class ViteFileAccessorDecoratorTest extends TestCase
         static::assertSame($fileExists, $this->decorator->hasFile($configName, $fileType));
     }
 
+    /**
+     * @param list<string|int> $assetKeys
+     */
     #[DataProvider('getDataProvider')]
-    public function testGetData(bool $pullFromCache): void
+    public function testGetData(bool $pullFromCache, string $configName, array $assetKeys, string $expectedAssetUrl): void
     {
         if ($pullFromCache) {
-            $this->decorator->getData('_default', ViteFileAccessorDecorator::ENTRYPOINTS);
+            $this->decorator->getData($configName, ViteFileAccessorDecorator::ENTRYPOINTS);
         }
 
-        $result = $this->decorator->getData('_default', ViteFileAccessorDecorator::ENTRYPOINTS);
-        static::assertArrayHasKey('entryPoints', $result);
-        static::assertArrayHasKey('administration', $result['entryPoints']);
-        static::assertArrayHasKey('app', $result['entryPoints']['administration']);
-        static::assertSame('https:://shopware.com/bundles/administration/app.js', $result['entryPoints']['administration']['app'][0]);
+        $result = $this->decorator->getData($configName, ViteFileAccessorDecorator::ENTRYPOINTS);
+
+        // Dynamically check the keys
+        $previousValue = null;
+        foreach ($assetKeys as $key) {
+            // First iteration get value from service result
+            if ($previousValue === null) {
+                static::assertArrayHasKey($key, $result);
+                $previousValue = $result[$key];
+                continue;
+            }
+
+            // Use previous collected value to check the next key
+            static::assertArrayHasKey($key, $previousValue);
+            $previousValue = $previousValue[$key];
+        }
+
+        // Check that the last key value is the expected asset URL
+        static::assertSame($expectedAssetUrl, $previousValue);
     }
 
     /**
@@ -91,7 +108,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
             [
                 'TestBundle',
                 ViteFileAccessorDecorator::ENTRYPOINTS,
-                false,
+                true,
             ],
             [
                 'TestBundle',
@@ -117,16 +134,54 @@ class ViteFileAccessorDecoratorTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, bool>>
+     * @return list<list<bool|string|list<string|int>>>
      */
     public static function getDataProvider(): array
     {
         return [
             [
                 false,
+                '_default',
+                [
+                    'entryPoints',
+                    'administration',
+                    'js',
+                    0,
+                ],
+                'https:://shopware.com/bundles/administration/administration/assets/app.js',
             ],
             [
                 true,
+                '_default',
+                [
+                    'entryPoints',
+                    'administration',
+                    'js',
+                    0,
+                ],
+                'https:://shopware.com/bundles/administration/administration/assets/app.js',
+            ],
+            [
+                false,
+                'TestBundle',
+                [
+                    'entryPoints',
+                    'test-bundle',
+                    'js',
+                    0,
+                ],
+                'https:://shopware.com/bundles/test/administration/assets/app.js',
+            ],
+            [
+                true,
+                'TestBundle',
+                [
+                    'entryPoints',
+                    'test-bundle',
+                    'js',
+                    0,
+                ],
+                'https:://shopware.com/bundles/test/administration/assets/app.js',
             ],
         ];
     }

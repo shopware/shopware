@@ -2,10 +2,9 @@
  * @sw-package framework
  */
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-Component.register('dummy-component', {
+export default {
     data() {
         return {};
     },
@@ -25,4 +24,4 @@ Component.register('dummy-component', {
             console.log(camelCaseSample);
         },
     },
-});
+};

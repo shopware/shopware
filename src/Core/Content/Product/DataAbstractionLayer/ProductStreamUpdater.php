@@ -39,7 +39,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         private readonly ProductDefinition $productDefinition,
         private readonly EntityRepository $repository,
         private readonly MessageBusInterface $messageBus,
-        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly bool $indexingEnabled,
     ) {
     }
 
@@ -133,6 +134,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
+        if (!$this->indexingEnabled) {
+            return null;
+        }
+
         $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
 
         if (empty($ids)) {
@@ -153,6 +158,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
      */
     public function updateProducts(array $ids, Context $context): void
     {
+        if (!$this->indexingEnabled) {
+            return;
+        }
+
         $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
 
         $insert = new MultiInsertQueryQueue($this->connection);

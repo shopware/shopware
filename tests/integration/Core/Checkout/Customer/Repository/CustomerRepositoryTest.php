@@ -60,9 +60,9 @@ class CustomerRepositoryTest extends TestCase
         static::getContainer()->get('customer.repository')
             ->update([$update], Context::createDefaultContext());
 
-        $count = $this->connection->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $count = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
-        static::assertEquals(3, $count);
+        static::assertSame(3, $count);
     }
 
     public function testSearchRanking(): void
@@ -143,7 +143,7 @@ class CustomerRepositoryTest extends TestCase
 
         $definition = static::getContainer()->get(CustomerDefinition::class);
         $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm);
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm, $context);
         $queries = $builder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
         $criteria->addQuery(...$queries);
 

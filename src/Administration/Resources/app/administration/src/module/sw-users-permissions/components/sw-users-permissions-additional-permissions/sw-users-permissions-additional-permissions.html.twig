@@ -35,10 +35,10 @@
                 <mt-switch
                     :disabled="disabled"
                     :class="'sw_users_permissions_additional_permissions_' + privilege.key + '_' + roleName"
-                    :checked="isPrivilegeSelected(privilege.key + '.' + roleName)"
+                    :model-value="isPrivilegeSelected(privilege.key + '.' + roleName)"
                     :label="$tc('sw-privileges.additional_permissions.' + privilege.key + '.' + roleName)"
                     :bordered="true"
-                    @change="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
+                    @update:model-value="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
                 />
                 {% endblock %}
             </template>
@@ -80,10 +80,10 @@
                     v-if="roleName === 'all'"
                     :disabled="disabled"
                     class="sw_users_permissions_additional_permissions_app_all"
-                    :checked="isPrivilegeSelected('app.' + roleName)"
+                    :model-value="isPrivilegeSelected('app.' + roleName)"
                     :label="$tc('sw-privileges.additional_permissions.app.all')"
                     :bordered="true"
-                    @change="changeAllAppPermissionsForKey('app.' + roleName, $event)"
+                    @update:model-value="changeAllAppPermissionsForKey('app.' + roleName, $event)"
                 />
 
                 <mt-switch
@@ -95,10 +95,10 @@
                     }"
                     :disabled="isPrivilegeSelected('app.all') || disabled"
                     :class="'sw_users_permissions_additional_permissions_app_' + roleName"
-                    :checked="isPrivilegeSelected('app.' + roleName)"
+                    :model-value="isPrivilegeSelected('app.' + roleName)"
                     :label="roleName"
                     :bordered="true"
-                    @change="onSelectPrivilege('app.' + roleName, $event)"
+                    @update:model-value="onSelectPrivilege('app.' + roleName, $event)"
                 />
                 {% endblock %}
             </template>

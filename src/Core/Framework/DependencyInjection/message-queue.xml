@@ -15,6 +15,7 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber">
             <argument type="service" id="shopware.increment.gateway.registry"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -57,6 +58,20 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware">
             <argument>%shopware.messenger.routing_overwrite%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.messenger.stats.time_span%</argument>
+        </service>
+
+
+        <service id="Shopware\Core\Framework\MessageQueue\Stats\StatsService">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository"/>
+            <argument>%shopware.messenger.stats.enabled%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware">
         </service>
     </services>
 </container>

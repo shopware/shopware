@@ -14,7 +14,7 @@ async function createWrapper() {
     delete config.global.mocks.$router;
     delete config.global.$route;
 
-    return mount(await Shopware.Component.build('sw-login-recovery'), {
+    return mount(await wrapTestComponent('sw-login-recovery', { sync: true }), {
         global: {
             mocks: {
                 $tc: (...args) => JSON.stringify([...args]),
@@ -74,10 +74,6 @@ describe('module/sw-login/recovery.spec.js', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should redirect on submit', async () => {

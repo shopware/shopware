@@ -151,15 +151,13 @@ class MediaUploadControllerTest extends TestCase
             $this->mediaId
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $url . '?extension=png',
-            [],
-            [],
+            ['url' => $baseUrl],
             [
                 'HTTP_CONTENT-TYPE' => 'application/json',
             ],
-            json_encode(['url' => $baseUrl], \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -197,22 +195,20 @@ class MediaUploadControllerTest extends TestCase
             $media->getId()
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $url,
-            [],
             [],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode([], \JSON_THROW_ON_ERROR)
         );
 
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(400, $response->getStatusCode());
-        static::assertEquals('CONTENT__MEDIA_EMPTY_FILE_NAME', $responseData['errors'][0]['code']);
+        static::assertSame(400, $response->getStatusCode());
+        static::assertSame('CONTENT__MEDIA_EMPTY_FILE_NAME', $responseData['errors'][0]['code']);
 
         static::assertNull($this->thrownMediaEvent);
     }
@@ -242,24 +238,22 @@ class MediaUploadControllerTest extends TestCase
             $media->getId()
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $url,
-            [],
-            [],
+            ['fileName' => 'new_file_name'],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['fileName' => 'new_file_name'], \JSON_THROW_ON_ERROR)
         );
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(204, $response->getStatusCode());
+        static::assertSame(204, $response->getStatusCode());
 
         $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $updated);
-        static::assertNotEquals($media->getFileName(), $updated->getFileName());
+        static::assertNotSame($media->getFileName(), $updated->getFileName());
 
         static::assertTrue($this->getPublicFilesystem()->has($updated->getPath()));
         static::assertFalse($this->getPublicFilesystem()->has($media->getPath()));
@@ -276,16 +270,16 @@ class MediaUploadControllerTest extends TestCase
             $media->getFileName()
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'GET',
             $url
         );
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($media->getFileName() . '_(1)', $result['fileName']);
+        static::assertSame($media->getFileName() . '_(1)', $result['fileName']);
     }
 
     public function testProvideNameProvidesOwnName(): void
@@ -300,16 +294,16 @@ class MediaUploadControllerTest extends TestCase
             $media->getId()
         );
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'GET',
             $url
         );
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($media->getFileName(), $result['fileName']);
+        static::assertSame($media->getFileName(), $result['fileName']);
     }
 
     private function getMediaEntity(): MediaEntity
@@ -331,7 +325,7 @@ class MediaUploadControllerTest extends TestCase
 
     private function assertMediaApiResponse(): void
     {
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'GET',
             '/api/media/' . $this->mediaId
         );
@@ -374,6 +368,6 @@ class MediaUploadControllerTest extends TestCase
     private function assertMediaEventThrown(): void
     {
         static::assertNotNull($this->thrownMediaEvent);
-        static::assertEquals($this->mediaId, $this->thrownMediaEvent->getMediaId());
+        static::assertSame($this->mediaId, $this->thrownMediaEvent->getMediaId());
     }
 }

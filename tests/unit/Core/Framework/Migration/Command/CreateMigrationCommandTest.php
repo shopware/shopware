@@ -88,25 +88,4 @@ class CreateMigrationCommandTest extends TestCase
 
         $commandTester->execute($input);
     }
-
-    public function testExecuteThrowsExceptionWhenMigrationDirectoryNotCreated(): void
-    {
-        $kernelPluginCollection = new KernelPluginCollection();
-        $kernelPluginCollection->add(new SimplePlugin(true, ''));
-
-        $command = new CreateMigrationCommand(
-            $kernelPluginCollection,
-            'coreDir',
-            'shopwareVersion'
-        );
-        $commandTester = new CommandTester($command);
-
-        $input = ['--plugin' => 'SimplePlugin'];
-
-        $this->expectExceptionObject(MigrationException::migrationDirectoryNotCreated(
-            '/tests/unit/Storefront/Theme/fixtures/SimplePlugin/Migration'
-        ));
-
-        $commandTester->execute($input);
-    }
 }

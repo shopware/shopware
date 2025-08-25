@@ -7,10 +7,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -482,13 +484,13 @@ class EntityWriterTest extends TestCase
 
         static::assertSame('ABC', $product['ean']);
 
-        static::assertNotEquals('0000-00-00 00:00:00', $product['updated_at']);
-        static::assertNotEquals('2011-01-01 15:03:01', $product['updated_at']);
+        static::assertNotSame('0000-00-00 00:00:00', $product['updated_at']);
+        static::assertNotSame('2011-01-01 15:03:01', $product['updated_at']);
 
-        static::assertNotEquals('0000-00-00 00:00:00', $product['created_at']);
-        static::assertNotEquals('2011-01-01 15:03:01', $product['created_at']);
-        static::assertNotEquals('0000-00-00 00:00:00', $newProduct['created_at']);
-        static::assertNotEquals('2011-01-01 15:03:01', $newProduct['created_at']);
+        static::assertNotSame('0000-00-00 00:00:00', $product['created_at']);
+        static::assertNotSame('2011-01-01 15:03:01', $product['created_at']);
+        static::assertNotSame('0000-00-00 00:00:00', $newProduct['created_at']);
+        static::assertNotSame('2011-01-01 15:03:01', $newProduct['created_at']);
     }
 
     public function testInsertIgnoresRuntimeFields(): void
@@ -579,6 +581,7 @@ class EntityWriterTest extends TestCase
                 'name' => 'language 2',
                 'localeId' => $localeId,
                 'localeVersionId' => Defaults::LIVE_VERSION,
+                'active' => true,
                 'translationCode' => [
                     'code' => 'x-tst_' . Uuid::randomHex(),
                     'name' => 'test name',
@@ -700,7 +703,7 @@ class EntityWriterTest extends TestCase
 
         static::assertNotNull($manufacturer);
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
-        static::assertEquals($mediaId, $manufacturer->getMediaId());
+        static::assertSame($mediaId, $manufacturer->getMediaId());
     }
 
     public function testWriteTranslatedEntityWithoutRequiredFieldsNotInSystemLanguage(): void
@@ -722,10 +725,7 @@ class EntityWriterTest extends TestCase
             ],
         ], $context);
 
-        static::assertEquals(
-            1,
-            $mediaRepo->search(new Criteria([$mediaId]), $context)->getEntities()->count()
-        );
+        static::assertCount(1, $mediaRepo->search(new Criteria([$mediaId]), $context)->getEntities());
     }
 
     public function testWriteWithEmptyDataIsValid(): void
@@ -821,26 +821,38 @@ class EntityWriterTest extends TestCase
         );
 
         // Test fetch
-        $fetchedEntityOne = $testEntityOneRepository->search(
+        $fetchOne = $testEntityOneRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
             $context,
         );
+        static::assertCount(1, $fetchOne->getEntities());
 
         // Test deletion
         $testEntityOneRepository->delete([['technicalName' => 'Some-Technical-Name']], $context);
         $testEntityTwoRepository->delete([['id' => $testEntityTwoId]], $context);
 
+        $fetchOneDeleted = $testEntityOneRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
+            $context,
+        );
+        $fetchTwoDeleted = $testEntityTwoRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('id', $testEntityTwoId)),
+            $context,
+        );
+        static::assertCount(0, $fetchOneDeleted->getEntities());
+        static::assertCount(0, $fetchTwoDeleted->getEntities());
+
         // Clean up
         $this->connection->executeStatement(
-            'DROP TABLE `test_entity_two`;
-            DROP TABLE `test_entity_one`;',
+            'DROP TABLE IF EXISTS `test_entity_two`;
+            DROP TABLE IF EXISTS `test_entity_one`;',
         );
         $this->connection->beginTransaction();
     }
 
     public function testCanUpdateEntitiesToAddCustomFields(): void
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
 
@@ -879,6 +891,7 @@ class EntityWriterTest extends TestCase
                     'id' => $ids->create('language'),
                     'name' => 'test-language',
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                    'active' => true,
                     'translationCode' => [
                         'code' => Uuid::randomHex(),
                         'name' => 'Test locale',
@@ -928,7 +941,7 @@ class EntityWriterTest extends TestCase
 
         static::assertIsArray($translations);
         static::assertNull($translations['name']);
-        static::assertEquals('update', $translations['description']);
+        static::assertSame('update', $translations['description']);
     }
 
     protected function createWriteContext(): WriteContext
@@ -966,6 +979,9 @@ class EntityWriterTest extends TestCase
         return static::getContainer()->get(EntityWriter::class);
     }
 
+    /**
+     * @return EntityRepository<MediaCollection>
+     */
     private function getMediaRepository(): EntityRepository
     {
         return static::getContainer()->get('media.repository');

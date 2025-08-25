@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class LineItemDownloadLoaderTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<ProductDownloadCollection> */
     private MockObject&EntityRepository $productDownloadRepository;
 
     private LineItemDownloadLoader $loader;
@@ -38,7 +40,7 @@ class LineItemDownloadLoaderTest extends TestCase
     {
         $payload = $this->loader->load([], Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testLineItemWithoutPayload(): void
@@ -51,7 +53,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testNoPayloadContinue(): void
@@ -77,7 +79,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testLoadDownloadsPayload(): void
@@ -108,7 +110,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([
+        static::assertSame([
             [
                 [
                     'position' => 0,

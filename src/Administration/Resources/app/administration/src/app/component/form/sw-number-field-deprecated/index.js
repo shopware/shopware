@@ -2,7 +2,6 @@ import { inject } from 'vue';
 import template from './sw-number-field.html.twig';
 import './sw-number-field.scss';
 
-const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
@@ -16,7 +15,7 @@ const { warn } = Shopware.Utils.debug;
  * <sw-number-field type="number" label="Name" v-model="model" numberType="int"
  * :max="20" :min="5" :step="5"></sw-number-field>
  */
-Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -279,4 +278,4 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             return floor;
         },
     },
-});
+};

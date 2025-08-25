@@ -2,7 +2,7 @@
 import template from './sw-file-input.html.twig';
 import './sw-file-input.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { fileSize } = Shopware.Utils.format;
 const utils = Shopware.Utils;
 
@@ -20,7 +20,7 @@ const utils = Shopware.Utils;
  *     :maxFileSize="8*1024*1024">
  * </sw-file-input>
  */
-Component.register('sw-file-input', {
+export default {
     template,
 
     inject: ['feature'],
@@ -215,4 +215,4 @@ Component.register('sw-file-input', {
             this.$refs.fileForm.reset();
         },
     },
-});
+};

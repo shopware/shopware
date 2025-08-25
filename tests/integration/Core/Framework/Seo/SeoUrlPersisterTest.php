@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -42,6 +43,9 @@ class SeoUrlPersisterTest extends TestCase
 
     private SeoUrlPersister $seoUrlPersister;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     private SeoUrlGenerator $seoUrlGenerator;
@@ -197,7 +201,7 @@ class SeoUrlPersisterTest extends TestCase
 
         $canonical = $canonicals->first();
         static::assertInstanceOf(SeoUrlEntity::class, $canonical);
-        static::assertEquals($fk1, $canonical->getForeignKey());
+        static::assertSame($fk1, $canonical->getForeignKey());
     }
 
     public function testSameSeoPathDifferentLanguage(): void
@@ -332,7 +336,7 @@ class SeoUrlPersisterTest extends TestCase
         static::assertNotNull($canon);
 
         static::assertTrue($canon->getIsModified());
-        static::assertNotEquals('no-effect', $canon->getSeoPathInfo());
+        static::assertNotSame('no-effect', $canon->getSeoPathInfo());
     }
 
     public function testUpdateSeoUrlsShouldMarkSeoUrlAsDeleted(): void
@@ -423,6 +427,57 @@ class SeoUrlPersisterTest extends TestCase
 
         static::assertNotNull($seoUrl);
         static::assertFalse($seoUrl->getIsDeleted());
+    }
+
+    public function testUpdateSeoUrlForDifferentSalesChannelsWithSameSeoPathInfo(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $salesChannels = [
+            ['id' => Uuid::randomHex(), 'name' => 'test a'],
+            ['id' => Uuid::randomHex(), 'name' => 'test b'],
+        ];
+        foreach ($salesChannels as $sc) {
+            $this->createStorefrontSalesChannelContext($sc['id'], $sc['name']);
+        }
+
+        $fk = Uuid::randomHex();
+        $seoPaths = ['fancy-path', 'fancy-path-2'];
+
+        foreach ($seoPaths as $seoPath) {
+            foreach ($salesChannels as $sc) {
+                $seoUrlUpdates = [[
+                    'foreignKey' => $fk,
+                    'salesChannelId' => $sc['id'],
+                    'pathInfo' => 'normal/path',
+                    'seoPathInfo' => $seoPath,
+                    'isCanonical' => true,
+                ]];
+                $fks = array_column($seoUrlUpdates, 'foreignKey');
+                $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
+            }
+        }
+
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
+        $result = $this->seoUrlRepository->search($criteria, $context)->getEntities();
+        static::assertInstanceOf(SeoUrlCollection::class, $result);
+        static::assertCount(4, $result);
+
+        $canonicalUrls = $result->filterByProperty('isCanonical', true);
+        static::assertCount(2, $canonicalUrls);
+
+        foreach ($canonicalUrls as $url) {
+            static::assertSame('fancy-path-2', $url->getSeoPathInfo());
+            static::assertContains($url->getSalesChannelId(), array_column($salesChannels, 'id'));
+        }
+
+        $notCanonicalUrls = $result->filterByProperty('isCanonical', null);
+        static::assertCount(2, $notCanonicalUrls);
+
+        foreach ($notCanonicalUrls as $url) {
+            static::assertSame('fancy-path', $url->getSeoPathInfo());
+            static::assertContains($url->getSalesChannelId(), array_column($salesChannels, 'id'));
+        }
     }
 
     private function createCategory(bool $active): CategoryEntity

@@ -31,7 +31,7 @@ class MaxUsageTest extends TestCase
             1
         );
 
-        static::assertEquals(-1, $items);
+        static::assertSame(-1, $items);
     }
 
     /**
@@ -49,7 +49,7 @@ class MaxUsageTest extends TestCase
             1
         );
 
-        static::assertEquals(2, $items);
+        static::assertSame(2, $items);
     }
 
     /**
@@ -68,7 +68,7 @@ class MaxUsageTest extends TestCase
             1
         );
 
-        static::assertEquals(1, $items);
+        static::assertSame(1, $items);
     }
 
     /**
@@ -87,7 +87,7 @@ class MaxUsageTest extends TestCase
             1
         );
 
-        static::assertEquals(1, $items);
+        static::assertSame(1, $items);
     }
 
     /**
@@ -106,6 +106,6 @@ class MaxUsageTest extends TestCase
             3
         );
 
-        static::assertEquals(-1, $items);
+        static::assertSame(-1, $items);
     }
 }

@@ -48,13 +48,17 @@
                                     <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value|trim|replace({' ':''}) }}"{% endif %}>
                                         {% set attributes = {
                                             'class': 'img-fluid image-slider-image',
-                                            'alt': element.config.isDecorative.value ? ' ' : (image.media.translated.alt ?: ''),
+                                            'alt': element.config.isDecorative.value ? '' : (image.media.translated.alt ?: ''),
                                             'title': element.config.isDecorative.value ? '' : (image.media.translated.title ?: ''),
                                             'tabindex': (image.url ? '-1' : '0')
                                         } %}
 
                                         {% if element.config.displayMode.value == 'cover' or element.config.displayMode.value == 'contain' %}
                                             {% set attributes = attributes|merge({ 'data-object-fit': element.config.displayMode.value }) %}
+                                        {% endif %}
+
+                                        {% if loop.first and sliderConfig.useFetchPriorityOnFirstItem.value is true %}
+                                            {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
                                         {% endif %}
 
                                         {% sw_thumbnails 'cms-image-slider-thumbnails' with {
@@ -67,6 +71,7 @@
                                     <div class="image-slider-item-container">
                                         {% if image.url %}
                                             <a href="{{ image.url }}"
+                                               {% if image.ariaLabel %}aria-label="{{ image.ariaLabel }}"{% endif %}
                                                class="image-slider-link"
                                                {% if image.newTab %}target="_blank" rel="noopener"{% endif %}
                                             >

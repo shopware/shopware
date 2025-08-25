@@ -54,8 +54,10 @@ class TaskRunnerTest extends TestCase
         $task->setId('task-id');
         $task->setScheduledTaskClass(TestTask::class);
 
-        // @phpstan-ignore-next-line
-        return new StaticEntityRepository([new ScheduledTaskCollection([$task])]);
+        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
+        $repository = new StaticEntityRepository([new ScheduledTaskCollection([$task])]);
+
+        return $repository;
     }
 }
 

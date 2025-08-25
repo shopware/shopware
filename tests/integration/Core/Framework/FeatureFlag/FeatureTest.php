@@ -125,13 +125,13 @@ class FeatureTest extends TestCase
         $currentConfig = array_keys(Feature::getAll(false));
         $featureFlags = array_keys(self::$features);
 
-        static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
+        static::assertSame(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 
         $this->setUpFixtures();
         $featureFlags = array_merge($featureFlags, $this->fixtureFlags);
 
         $configAfterRegistration = array_keys(Feature::getAll(false));
-        static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $configAfterRegistration));
+        static::assertSame(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $configAfterRegistration));
     }
 
     public function testTwigFeatureFlag(): void
@@ -208,13 +208,13 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($registeredFeatures);
 
         $actualFeatures = Feature::getRegisteredFeatures();
-        static::assertEquals($features['FEATURE_NEXT_101'], $actualFeatures['FEATURE_NEXT_101']);
+        static::assertSame($features['FEATURE_NEXT_101'], $actualFeatures['FEATURE_NEXT_101']);
 
         $expectedFeatureFlags = [
             'FEATURE_NEXT_101' => true,
             'FEATURE_NEXT_102' => false,
         ];
-        static::assertEquals($expectedFeatureFlags, Feature::getAll(false));
+        static::assertSame($expectedFeatureFlags, Feature::getAll(false));
     }
 
     /**

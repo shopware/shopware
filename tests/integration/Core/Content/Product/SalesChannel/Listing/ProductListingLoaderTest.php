@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -10,6 +11,8 @@ use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
+use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -101,12 +104,12 @@ class ProductListingLoaderTest extends TestCase
 
         $listing = $this->fetchListing();
 
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         $mainVariant = $listing->getEntities()->first();
         static::assertNotNull($mainVariant);
 
-        static::assertEquals($this->mainVariantId, $mainVariant->getId());
+        static::assertSame($this->mainVariantId, $mainVariant->getId());
         static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds() ?: []);
         static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds() ?: []);
         static::assertTrue($mainVariant->hasExtension('search'));
@@ -127,13 +130,13 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing();
 
         // another random variant of the product should be displayed
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         $firstVariant = $listing->getEntities()->first();
         static::assertNotNull($firstVariant);
         $variantId = $firstVariant->getId();
 
-        static::assertNotEquals($this->mainVariantId, $variantId);
+        static::assertNotSame($this->mainVariantId, $variantId);
         static::assertContains($variantId, $this->variantIds);
         static::assertTrue($firstVariant->hasExtension('search'));
     }
@@ -147,13 +150,13 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing();
 
         // another random variant of the product should be displayed
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         $firstVariant = $listing->getEntities()->first();
         static::assertNotNull($firstVariant);
         $variantId = $firstVariant->getId();
 
-        static::assertNotEquals($this->mainVariantId, $variantId);
+        static::assertNotSame($this->mainVariantId, $variantId);
         static::assertContains($variantId, $this->variantIds);
         static::assertTrue($firstVariant->hasExtension('search'));
     }
@@ -178,13 +181,13 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing();
 
         // another random variant of the product should be displayed
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         $firstVariant = $listing->getEntities()->first();
         static::assertNotNull($firstVariant);
         $variantId = $firstVariant->getId();
 
-        static::assertNotEquals($this->mainVariantId, $variantId);
+        static::assertNotSame($this->mainVariantId, $variantId);
         static::assertContains($variantId, $this->variantIds);
         static::assertTrue($firstVariant->hasExtension('search'));
     }
@@ -206,7 +209,7 @@ class ProductListingLoaderTest extends TestCase
 
         $listing = $this->fetchListing();
 
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         // only main variant should be returned
         $mainVariant = $listing->getEntities()->first();
@@ -214,7 +217,7 @@ class ProductListingLoaderTest extends TestCase
 
         $optionIds = $mainVariant->getOptionIds();
         static::assertNotNull($optionIds);
-        static::assertEquals($this->mainVariantId, $mainVariant->getId());
+        static::assertSame($this->mainVariantId, $mainVariant->getId());
         static::assertContains($this->optionIds['red'], $optionIds);
         static::assertContains($this->optionIds['l'], $optionIds);
         static::assertTrue($mainVariant->hasExtension('search'));
@@ -239,14 +242,14 @@ class ProductListingLoaderTest extends TestCase
 
         $listing = $this->fetchListing();
 
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         // only main product should be returned
         $mainProduct = $listing->getEntities()->first();
         static::assertNotNull($mainProduct);
 
-        static::assertEquals($this->productId, $mainProduct->getId());
-        static::assertEquals($this->mainVariantId, $mainProduct->getVariantListingConfig()?->getMainVariantId());
+        static::assertSame($this->productId, $mainProduct->getId());
+        static::assertSame($this->mainVariantId, $mainProduct->getVariantListingConfig()?->getMainVariantId());
         static::assertTrue($mainProduct->hasExtension('search'));
     }
 
@@ -273,7 +276,7 @@ class ProductListingLoaderTest extends TestCase
         $this->productRepository->update($variants, $this->salesChannelContext->getContext());
 
         $listing = $this->fetchListing();
-        static::assertEquals(0, $listing->getTotal());
+        static::assertSame(0, $listing->getTotal());
     }
 
     public function testMainProductIsHiddenIfAllVariantsDisabled(): void
@@ -292,7 +295,7 @@ class ProductListingLoaderTest extends TestCase
         $this->productRepository->update($variants, $this->salesChannelContext->getContext());
 
         $listing = $this->fetchListing();
-        static::assertEquals(0, $listing->getTotal());
+        static::assertSame(0, $listing->getTotal());
     }
 
     public function testNoListConfig(): void
@@ -330,7 +333,7 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing();
 
         // all variants should be returned
-        static::assertEquals(4, $listing->getTotal());
+        static::assertSame(4, $listing->getTotal());
 
         $variants = $listing->getIds();
 
@@ -353,13 +356,13 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing();
 
         // only the main variant should be returned
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         $firstVariant = $listing->getEntities()->first();
         static::assertNotNull($firstVariant);
         $variantId = $firstVariant->getId();
 
-        static::assertEquals($this->mainVariantId, $variantId);
+        static::assertSame($this->mainVariantId, $variantId);
         static::assertTrue($firstVariant->hasExtension('search'));
     }
 
@@ -373,13 +376,13 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing($criteria);
 
         // only the main variant should be returned
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         $firstVariant = $listing->getEntities()->first();
         static::assertNotNull($firstVariant);
         $variantId = $firstVariant->getId();
 
-        static::assertEquals($this->mainVariantId, $variantId);
+        static::assertSame($this->mainVariantId, $variantId);
         static::assertTrue($firstVariant->hasExtension('search'));
     }
 
@@ -393,7 +396,7 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing($criteria);
 
         // only one of the green variants should be returned
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         $firstVariant = $listing->getEntities()->first();
         static::assertNotNull($firstVariant);
@@ -404,6 +407,34 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($firstVariant->hasExtension('search'));
     }
 
+    public static function searchStatesProvider(): \Generator
+    {
+        yield [ResolvedCriteriaProductSearchRoute::STATE];
+        yield [ProductSuggestRoute::STATE];
+    }
+
+    #[DataProvider('searchStatesProvider')]
+    public function testVariantOnSearchResult(string $state): void
+    {
+        $this->createProduct([], true);
+
+        $criteria = new Criteria();
+        $criteria->addState($state);
+
+        $listing = $this->fetchListing($criteria, 'greenL');
+
+        // only the main variant should be returned
+        static::assertSame(1, $listing->getTotal());
+
+        $firstVariant = $listing->getEntities()->first();
+        static::assertNotNull($firstVariant);
+        $variantId = $firstVariant->getId();
+
+        static::assertNotSame($this->variantIds['greenL'], $this->mainVariantId);
+        static::assertSame($this->variantIds['greenL'], $variantId);
+        static::assertTrue($firstVariant->hasExtension('search'));
+    }
+
     public function testAllVariants(): void
     {
         $this->createProduct(['size', 'color'], false);
@@ -411,7 +442,7 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing();
 
         // all variants should be returned
-        static::assertEquals(4, $listing->getTotal());
+        static::assertSame(4, $listing->getTotal());
 
         $variants = $listing->getIds();
 
@@ -431,12 +462,12 @@ class ProductListingLoaderTest extends TestCase
 
         $listing = $this->fetchListing();
 
-        static::assertEquals(1, $listing->getTotal());
+        static::assertSame(1, $listing->getTotal());
 
         $mainVariant = $listing->getEntities()->first();
         static::assertNotNull($mainVariant);
 
-        static::assertEquals($this->mainVariantId, $mainVariant->getId());
+        static::assertSame($this->mainVariantId, $mainVariant->getId());
         static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds() ?: []);
         static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds() ?: []);
         static::assertTrue($mainVariant->hasExtension('search'));
@@ -449,14 +480,14 @@ class ProductListingLoaderTest extends TestCase
     /**
      * @return EntitySearchResult<ProductCollection>
      */
-    private function fetchListing(?Criteria $criteria = null): EntitySearchResult
+    private function fetchListing(?Criteria $criteria = null, string $term = 'example'): EntitySearchResult
     {
         if (!$criteria instanceof Criteria) {
             $criteria = new Criteria();
         }
 
         $criteria->addFilter(new EqualsFilter('product.parentId', $this->productId));
-        $criteria->setTerm('example');
+        $criteria->setTerm($term);
 
         return $this->productListingLoader->load($criteria, $this->salesChannelContext);
     }
@@ -565,6 +596,7 @@ class ProductListingLoaderTest extends TestCase
                 'id' => $this->variantIds['redXl'],
                 'productNumber' => 'a.1',
                 'stock' => 10,
+                'name' => 'example redXl',
                 'active' => true,
                 'parentId' => $this->productId,
                 'options' => [
@@ -576,6 +608,7 @@ class ProductListingLoaderTest extends TestCase
                 'id' => $this->variantIds['greenXl'],
                 'productNumber' => 'a.3',
                 'stock' => 10,
+                'name' => 'example greenXl',
                 'active' => true,
                 'parentId' => $this->productId,
                 'options' => [
@@ -587,6 +620,7 @@ class ProductListingLoaderTest extends TestCase
                 'id' => $this->variantIds['redL'],
                 'productNumber' => 'a.5',
                 'stock' => 10,
+                'name' => 'example redL',
                 'active' => true,
                 'parentId' => $this->productId,
                 'options' => [
@@ -598,6 +632,7 @@ class ProductListingLoaderTest extends TestCase
                 'id' => $this->variantIds['greenL'],
                 'productNumber' => 'a.7',
                 'stock' => 10,
+                'name' => 'example greenL',
                 'active' => true,
                 'parentId' => $this->productId,
                 'options' => [

@@ -19,7 +19,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
         $commandTester = new CommandTester(static::getContainer()->get(DataAbstractionLayerValidateCommand::class));
         $commandTester->execute([]);
 
-        static::assertEquals(
+        static::assertSame(
             0,
             $commandTester->getStatusCode(),
             "\"bin/console dal:validate\" returned errors:\n" . $commandTester->getDisplay()

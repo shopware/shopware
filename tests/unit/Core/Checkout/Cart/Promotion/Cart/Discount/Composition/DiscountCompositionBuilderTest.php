@@ -33,19 +33,16 @@ class DiscountCompositionBuilderTest extends TestCase
             new DiscountCompositionItem('B', 6, 12),
         ];
 
-        $builder = new DiscountCompositionBuilder();
-
-        /** @var DiscountCompositionItem[] $aggregated */
-        $aggregated = $builder->aggregateCompositionItems($items);
+        $aggregated = (new DiscountCompositionBuilder())->aggregateCompositionItems($items);
 
         static::assertCount(2, $aggregated, 'Merging from 3 into 2 items did not work');
 
-        static::assertEquals('A', $aggregated[0]->getId());
-        static::assertEquals(4, $aggregated[0]->getQuantity());
-        static::assertEquals(47.5, $aggregated[0]->getDiscountValue());
+        static::assertSame('A', $aggregated[0]->getId());
+        static::assertSame(4, $aggregated[0]->getQuantity());
+        static::assertSame(47.5, $aggregated[0]->getDiscountValue());
 
-        static::assertEquals('B', $aggregated[1]->getId());
-        static::assertEquals(6, $aggregated[1]->getQuantity());
-        static::assertEquals(12, $aggregated[1]->getDiscountValue());
+        static::assertSame('B', $aggregated[1]->getId());
+        static::assertSame(6, $aggregated[1]->getQuantity());
+        static::assertSame(12.0, $aggregated[1]->getDiscountValue());
     }
 }

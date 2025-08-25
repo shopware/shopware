@@ -105,6 +105,7 @@ async function createWrapper(
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': true,
+                    'sw-time-ago': true,
                 },
                 mocks: {
                     $route: { query: '' },
@@ -135,6 +136,9 @@ async function createWrapper(
                         },
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
+                        },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
                         },
                     },
                     systemConfigApiService: {
@@ -203,13 +207,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 return msg.includes('Did not persist user config, as permissions are missing');
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the right list of pageTypes for the filters', async () => {

@@ -6,6 +6,9 @@
 
 {% block base_navigation %}{% endblock %}
 
+{% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+{% set showSubtotal = config('core.cart.showSubtotal') %}
+
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_header %}
@@ -139,7 +142,8 @@
                         <ul class="card-body list-unstyled">
                             {% block page_checkout_confirm_table_header %}
                                 {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-                                    showTaxPrice: true
+                                    showTaxPrice: showTaxPrice,
+                                    showSubtotal: showSubtotal
                                 } %}
                             {% endblock %}
 
@@ -148,7 +152,8 @@
                                     {% block page_checkout_confirm_table_item %}
                                         {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
                                             redirectTo: 'frontend.checkout.confirm.page',
-                                            showTaxPrice: true
+                                            showTaxPrice: showTaxPrice,
+                                            showSubtotal: showSubtotal
                                         } %}
                                     {% endblock %}
                                 {% endfor %}

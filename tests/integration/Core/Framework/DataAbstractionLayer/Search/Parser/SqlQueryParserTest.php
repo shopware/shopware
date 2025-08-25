@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -31,8 +33,14 @@ class SqlQueryParserTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $repository;
 
+    /**
+     * @var EntityRepository<ProductManufacturerCollection>
+     */
     private EntityRepository $manufacturerRepository;
 
     private Context $context;
@@ -70,7 +78,7 @@ class SqlQueryParserTest extends TestCase
             $this->ids->get('product2-without-category'),
         ];
 
-        static::assertEquals($productsWithoutCategory, $result->getIds());
+        static::assertSame($productsWithoutCategory, $result->getIds());
     }
 
     public function testFindProductsWithCategory(): void
@@ -84,7 +92,7 @@ class SqlQueryParserTest extends TestCase
             $this->ids->get('product1-with-category'),
         ];
 
-        static::assertEquals($productsWithoutCategory, $result->getIds());
+        static::assertSame($productsWithoutCategory, $result->getIds());
     }
 
     #[DataProvider('whenToUseNullSafeOperatorProvider')]
@@ -101,7 +109,7 @@ class SqlQueryParserTest extends TestCase
             $has = $has || str_contains((string) $where, '<=>');
         }
 
-        static::assertEquals($expected, $has);
+        static::assertSame($expected, $has);
     }
 
     /**

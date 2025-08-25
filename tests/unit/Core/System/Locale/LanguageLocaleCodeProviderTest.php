@@ -37,9 +37,9 @@ class LanguageLocaleCodeProviderTest extends TestCase
     {
         $this->languageLoader->expects($this->once())->method('loadLanguages')->willReturn($this->createData());
 
-        static::assertEquals('en-GB', $this->languageLocaleProvider->getLocaleForLanguageId($this->ids->get('language-en')));
-        static::assertEquals('de-DE', $this->languageLocaleProvider->getLocaleForLanguageId($this->ids->get('language-de')));
-        static::assertEquals('parent-locale', $this->languageLocaleProvider->getLocaleForLanguageId($this->ids->get('language-child')));
+        static::assertSame('en-GB', $this->languageLocaleProvider->getLocaleForLanguageId($this->ids->get('language-en')));
+        static::assertSame('de-DE', $this->languageLocaleProvider->getLocaleForLanguageId($this->ids->get('language-de')));
+        static::assertSame('parent-locale', $this->languageLocaleProvider->getLocaleForLanguageId($this->ids->get('language-child')));
     }
 
     public function testGetLocaleForLanguageIdThrowsWhenLanguageIsNotFound(): void

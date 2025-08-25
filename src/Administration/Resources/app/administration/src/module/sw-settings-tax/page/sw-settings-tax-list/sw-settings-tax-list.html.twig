@@ -20,7 +20,7 @@
             {{ $tc('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="16px"
+                size="12px"
             /> {{ $tc('sw-settings-tax.list.textHeadline') }}
             {% endblock %}
 
@@ -291,8 +291,8 @@
                                     <mt-switch
                                         :label="$tc('sw-settings-tax.list.taxProvider.labelActive')"
                                         :disabled="!acl.can('tax.editor') || undefined"
-                                        :checked="taxProvider.active"
-                                        @change="onChangeTaxProviderActive(taxProvider)"
+                                        :model-value="taxProvider.active"
+                                        @update:model-value="onChangeTaxProviderActive(taxProvider)"
                                     />
                                 </div>
                             </template>

@@ -1,0 +1,32 @@
+{% block sw_help_center %}
+<div class="sw-help-center">
+    <button
+        class="sw-help-center__button"
+        :class="{ 'is--active': showHelpSidebar }"
+        :aria-label="$tc('help-center.sidebar.ariaLabelButtonOpen')"
+        @click="openHelpSidebar"
+    >
+        <mt-icon
+            name="regular-question-circle"
+            size="20px"
+        />
+
+        <div class="sw-help-center__badge">
+            <sw-extension-component-section
+                position-identifier="sw-help-center__badge"
+            />
+        </div>
+    </button>
+
+    <sw-help-sidebar
+        v-if="showHelpSidebar"
+        ref="helpSidebar"
+    />
+
+    <sw-shortcut-overview
+        ref="shortcutModal"
+        @shortcut-open="openShortcutModal"
+        @shortcut-close="closeShortcutModal"
+    />
+</div>
+{% endblock %}

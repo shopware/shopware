@@ -38,7 +38,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             SalesChannelEvents::SALES_CHANNEL_DELETED => 'onSalesChannelDeleted',
         ], $this->salesChannelUserConfigSubscriber->getSubscribedEvents());
     }

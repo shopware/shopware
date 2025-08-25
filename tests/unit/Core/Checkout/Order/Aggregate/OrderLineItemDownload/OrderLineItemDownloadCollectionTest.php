@@ -30,10 +30,10 @@ class OrderLineItemDownloadCollectionTest extends TestCase
 
         $collection = new OrderLineItemDownloadCollection([$downloadA, $downloadB]);
 
-        static::assertEquals(0, $collection->filterByOrderLineItemId($filterId)->count());
+        static::assertCount(0, $collection->filterByOrderLineItemId($filterId));
 
         $downloadA->setOrderLineItemId($filterId);
 
-        static::assertEquals(1, $collection->filterByOrderLineItemId($filterId)->count());
+        static::assertCount(1, $collection->filterByOrderLineItemId($filterId));
     }
 }

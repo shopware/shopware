@@ -15,14 +15,14 @@ class UuidTest extends TestCase
 {
     public function testRandomHex(): void
     {
-        static::assertNotEquals(Uuid::randomHex(), Uuid::randomHex());
+        static::assertNotSame(Uuid::randomHex(), Uuid::randomHex());
         static::assertTrue(Uuid::isValid(Uuid::randomHex()));
         static::assertStringNotContainsString('-', Uuid::randomHex());
     }
 
     public function testRandomBytes(): void
     {
-        static::assertNotEquals(Uuid::randomBytes(), Uuid::randomBytes());
+        static::assertNotSame(Uuid::randomBytes(), Uuid::randomBytes());
         static::assertSame(16, mb_strlen(Uuid::randomBytes(), '8bit'));
     }
 

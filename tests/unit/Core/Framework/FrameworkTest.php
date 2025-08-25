@@ -20,7 +20,7 @@ class FrameworkTest extends TestCase
     {
         $framework = new Framework();
 
-        static::assertEquals(-1, $framework->getTemplatePriority());
+        static::assertSame(-1, $framework->getTemplatePriority());
     }
 
     public function testFeatureFlagRegisteredOnBoot(): void

@@ -172,8 +172,10 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
-            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
+            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator" on-invalid="null"/>
             <argument type="service" id="filesystem"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -283,6 +285,8 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="Shopware\Administration\Login\UserService\UserService"/>
+            <argument type="service" id="Shopware\Administration\Login\TokenService\ExternalTokenService"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
@@ -301,6 +305,7 @@
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="user_access_key.repository"/>
             <argument type="service" id="Shopware\Core\System\User\UserDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -5,7 +5,7 @@
 type ServiceObject = {
     get: <SN extends keyof ServiceContainer>(serviceName: SN) => ServiceContainer[SN];
     list: () => (keyof ServiceContainer)[];
-    register: <SN extends keyof ServiceContainer>(serviceName: SN, service: ServiceContainer[SN]) => void;
+    register: typeof Shopware.Application.addServiceProvider;
     registerMiddleware: typeof Shopware.Application.addServiceProviderMiddleware;
     registerDecorator: typeof Shopware.Application.addServiceProviderDecorator;
 };

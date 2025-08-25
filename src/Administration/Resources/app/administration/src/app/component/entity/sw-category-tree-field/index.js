@@ -5,14 +5,13 @@
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-category-tree-field', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -64,6 +63,11 @@ Component.register('sw-category-tree-field', {
             type: Boolean,
             required: false,
             default: false,
+        },
+
+        allowedTypes: {
+            type: Array,
+            default: null,
         },
     },
 
@@ -175,6 +179,7 @@ Component.register('sw-category-tree-field', {
                 utils.debounce(() => {
                     const newElement = this.findTreeItemVNodeById(newValue.id).$el;
 
+                    if (!newElement) return;
                     let offsetValue = 0;
                     let foundTreeRoot = false;
                     let actualElement = newElement;
@@ -231,6 +236,8 @@ Component.register('sw-category-tree-field', {
 
             // search for categories
             return this.globalCategoryRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+                this.disableCategories(searchResult);
+
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;
@@ -253,6 +260,18 @@ Component.register('sw-category-tree-field', {
                 });
 
                 return Promise.resolve();
+            });
+        },
+
+        disableCategories(categories) {
+            if (!this.allowedTypes) {
+                return;
+            }
+
+            categories.forEach((category) => {
+                if (!this.allowedTypes.includes(category.type)) {
+                    category.disabled = true;
+                }
             });
         },
 
@@ -333,7 +352,7 @@ Component.register('sw-category-tree-field', {
         },
 
         getBreadcrumb(item) {
-            if (item.breadcrumb) {
+            if (item.breadcrumb && item.breadcrumb.length > 1) {
                 return item.breadcrumb.join(' / ');
             }
             return item.translated?.name || item.name;
@@ -668,11 +687,13 @@ Component.register('sw-category-tree-field', {
             let foundInChildren = false;
 
             // recursion to find vnode
-            for (let i = 0; i < children.length; i += 1) {
-                foundInChildren = this.findTreeItemVNodeById(itemId, children[i].$children);
-                // stop when found in children
-                if (foundInChildren) {
-                    break;
+            if (children) {
+                for (let i = 0; i < children.length; i += 1) {
+                    foundInChildren = this.findTreeItemVNodeById(itemId, children[i].$children);
+                    // stop when found in children
+                    if (foundInChildren) {
+                        break;
+                    }
                 }
             }
 
@@ -693,4 +714,4 @@ Component.register('sw-category-tree-field', {
             });
         },
     },
-});
+};

@@ -35,7 +35,7 @@ class PromotionCodeServiceTest extends TestCase
     {
         $code = $this->codesService->getFixedCode();
 
-        static::assertEquals(8, \strlen($code));
+        static::assertSame(8, \strlen($code));
         static::assertMatchesRegularExpression('/([A-Z]\d){4}/', $code);
     }
 
@@ -90,7 +90,7 @@ class PromotionCodeServiceTest extends TestCase
         static::assertCount($requestedAmount, $codeList);
         static::assertCount($requestedAmount, array_unique($codeList));
         static::assertCount(1, array_unique($codeLengthList));
-        static::assertEquals($expectedCodeLength, $codeLengthList[0]);
+        static::assertSame($expectedCodeLength, $codeLengthList[0]);
     }
 
     /**

@@ -131,7 +131,7 @@ test(
                 await ShopCustomer.expects(StorefrontAccountAddresses.useDefaultShippingAddressButton).toBeDisabled();
                 await ShopCustomer.expects(StorefrontAccountAddresses.deliveryNotPossibleAlert).toBeVisible();
             } else {
-                await StorefrontAccountAddresses.addressDropdownButton.click();
+                await StorefrontAccountAddresses.addressDropdownButtons.last().click();
                 await ShopCustomer.expects(StorefrontAccountAddresses.availableAddressesUseAsBillingAddress).toBeEnabled();
                 await ShopCustomer.expects(StorefrontAccountAddresses.availableAddressesUseAsShippingAddress).toBeDisabled();
             }

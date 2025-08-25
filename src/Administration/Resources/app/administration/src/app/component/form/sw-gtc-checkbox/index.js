@@ -7,7 +7,7 @@ import template from './sw-gtc-checkbox.html.twig';
 /**
  * @private
  */
-Shopware.Component.register('sw-gtc-checkbox', {
+export default {
     template,
 
     inject: ['feature'],
@@ -26,4 +26,4 @@ Shopware.Component.register('sw-gtc-checkbox', {
             this.$emit('update:value', value);
         },
     },
-});
+};

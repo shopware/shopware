@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\ProductFeatureSet;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationCollection;
@@ -20,22 +19,26 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    #[DataProvider('definitionMethodProvider')]
-    public function testEntityDefinitionIsComplete(string $method, string $returnValue): void
-    {
-        $definition = static::getContainer()->get(ProductFeatureSetTranslationDefinition::class);
+    private ProductFeatureSetTranslationDefinition $definition;
 
-        static::assertTrue(method_exists($definition, $method));
-        static::assertEquals($returnValue, $definition->$method()); /* @phpstan-ignore-line */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->definition = static::getContainer()->get(ProductFeatureSetTranslationDefinition::class);
+    }
+
+    public function testEntityDefinitionIsComplete(): void
+    {
+        static::assertSame(ProductFeatureSetTranslationDefinition::ENTITY_NAME, $this->definition->getEntityName());
+        static::assertSame(ProductFeatureSetTranslationCollection::class, $this->definition->getCollectionClass());
+        static::assertSame(ProductFeatureSetTranslationEntity::class, $this->definition->getEntityClass());
     }
 
     #[TestWith(['name'])]
     #[TestWith(['description'])]
     public function testDefinitionFieldsAreComplete(string $field): void
     {
-        $definition = static::getContainer()->get(ProductFeatureSetTranslationDefinition::class);
-
-        static::assertTrue($definition->getFields()->has($field));
+        static::assertTrue($this->definition->getFields()->has($field));
     }
 
     #[TestWith(['getProductFeatureSetId'])]
@@ -50,26 +53,5 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
     public function testRepositoryIsWorking(): void
     {
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('product_feature_set_translation.repository'));
-    }
-
-    /**
-     * @return list<array<string>>
-     */
-    public static function definitionMethodProvider(): array
-    {
-        return [
-            [
-                'getEntityName',
-                'product_feature_set_translation',
-            ],
-            [
-                'getCollectionClass',
-                ProductFeatureSetTranslationCollection::class,
-            ],
-            [
-                'getEntityClass',
-                ProductFeatureSetTranslationEntity::class,
-            ],
-        ];
     }
 }

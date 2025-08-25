@@ -17,6 +17,14 @@ Component.register('sw-theme-modal', {
         Mixin.getByName('listing')
     ],
 
+    props: {
+        selectedThemeId: {
+            type: String,
+            default: null,
+            required: false,
+        },
+    },
+
     data() {
         return {
             selected: null,
@@ -35,7 +43,15 @@ Component.register('sw-theme-modal', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.selected = this.selectedThemeId;
+        },
+
         getList() {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);

@@ -36,6 +36,6 @@ class CustomerLoginEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('contextToken', $flow->data());
-        static::assertEquals('context-token', $flow->data()['contextToken']);
+        static::assertSame('context-token', $flow->data()['contextToken']);
     }
 }

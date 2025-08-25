@@ -248,7 +248,7 @@ export default {
 
         bulkDeleteWarningMessage(selectionCount) {
             return `${this.$tc('sw-flow.list.warningDeleteText')}
-            ${this.$tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount })}`;
+            ${this.$tc('global.entity-components.deleteMessage', { count: selectionCount }, selectionCount)}`;
         },
     },
 };

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
@@ -42,6 +43,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -78,13 +80,10 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
                 $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
 
-                $order = $this->getOrder($operation, $invoice['orderVersionId'], $context, $rendererConfig);
+                $order = $this->getOrder($operation, $context, $rendererConfig);
 
                 $orders->add($order);
                 $operation->setReferencedDocumentId($invoice['id']);
-                if ($order->getVersionId()) {
-                    $operation->setOrderVersionId($order->getVersionId());
-                }
             } catch (\Throwable $exception) {
                 $result->addError($operation->getOrderId(), $exception);
             }
@@ -138,8 +137,11 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
                         $config->jsonSerialize(),
                         $order,
-                    ),
+                    ) && $this->isValidVat($order, $this->validator),
                 ]);
+
+                // create version of order to ensure the document stays the same even if the order changes
+                $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
 
                 if ($operation->isStatic()) {
                     $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
@@ -187,18 +189,16 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         throw new DecorationPatternException(self::class);
     }
 
-    private function getOrder(DocumentGenerateOperation $operation, string $versionId, Context $context, DocumentRendererConfig $rendererConfig): OrderEntity
+    private function getOrder(DocumentGenerateOperation $operation, Context $context, DocumentRendererConfig $rendererConfig): OrderEntity
     {
-        ['language_id' => $languageId] = $this->getOrdersLanguageId([$operation->getOrderId()], $versionId, $this->connection)[0];
+        ['language_id' => $languageId] = $this->getOrdersLanguageId([$operation->getOrderId()], Defaults::LIVE_VERSION, $this->connection)[0];
         $languageIdChain = array_values(
             array_unique(
                 array_filter([$languageId, ...$context->getLanguageIdChain()])
             )
         );
 
-        // First try to load the order with the version from the reference invoice
-        $order = $this->loadOrder($operation, $versionId, $context, $languageIdChain, $rendererConfig)
-            ?? $this->loadOrder($operation, Defaults::LIVE_VERSION, $context, $languageIdChain, $rendererConfig);
+        $order = $this->loadOrder($operation, $context, $languageIdChain, $rendererConfig);
 
         if ($order === null) {
             throw DocumentException::orderNotFound($operation->getOrderId());
@@ -212,12 +212,11 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
      */
     private function loadOrder(
         DocumentGenerateOperation $operation,
-        string $versionId,
         Context $context,
         array $languageIdChain,
         DocumentRendererConfig $rendererConfig,
     ): ?OrderEntity {
-        $versionContext = $context->createWithVersionId($versionId)->assign([
+        $localizedContext = $context->assign([
             'languageIdChain' => $languageIdChain,
         ]);
 
@@ -234,7 +233,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             self::TYPE
         ));
 
-        return $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
+        return $this->orderRepository->search($criteria, $localizedContext)->getEntities()->first();
     }
 
     private function getNumber(Context $context, OrderEntity $order, DocumentGenerateOperation $operation): string

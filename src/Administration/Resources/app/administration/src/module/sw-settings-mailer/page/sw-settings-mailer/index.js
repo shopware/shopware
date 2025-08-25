@@ -14,6 +14,7 @@ const defaultMailerSettings = {
     'core.mailerSettings.senderAddress': null,
     'core.mailerSettings.deliveryAddress': null,
     'core.mailerSettings.disableDelivery': false,
+    'core.mailerSettings.sendMailOptions': null,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -120,11 +121,6 @@ export default {
         async saveMailerSettings() {
             this.isLoading = true;
 
-            // Inputs cannot return null
-            if (this.mailerSettings['core.mailerSettings.emailAgent'] === '') {
-                this.mailerSettings['core.mailerSettings.emailAgent'] = null;
-            }
-
             // Validate smtp configuration
             if (this.isSmtpMode) {
                 this.validateSmtpConfiguration();
@@ -148,6 +144,7 @@ export default {
                     ...defaultMailerSettings,
                     'core.mailerSettings.emailAgent': 'local',
                     'core.mailerSettings.disableDelivery': this.mailerSettings['core.mailerSettings.disableDelivery'],
+                    'core.mailerSettings.sendMailOptions': this.mailerSettings['core.mailerSettings.sendMailOptions'],
                 };
             }
 

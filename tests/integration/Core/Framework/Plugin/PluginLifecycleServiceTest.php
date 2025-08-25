@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -63,6 +64,9 @@ class PluginLifecycleServiceTest extends TestCase
 
     private ContainerInterface $container;
 
+    /**
+     * @var EntityRepository<PluginCollection>
+     */
     private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;
@@ -284,7 +288,7 @@ class PluginLifecycleServiceTest extends TestCase
         $assetService = $this->createMock(AssetService::class);
         $assetService
             ->expects($this->once())
-            ->method('copyAssetsFromBundle');
+            ->method('copyAssets');
 
         $service = new PluginLifecycleService(
             $this->pluginRepo,
@@ -402,14 +406,14 @@ class PluginLifecycleServiceTest extends TestCase
             $dependants = $params['dependants'];
             $dependantNames = $params['dependantNames'];
 
-            static::assertEquals(self::PLUGIN_NAME, $dependencyName);
+            static::assertSame(self::PLUGIN_NAME, $dependencyName);
             static::assertCount(1, $dependants);
-            static::assertEquals(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
+            static::assertSame(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
 
             $dependant = array_pop($dependants);
 
             static::assertInstanceOf(PluginEntity::class, $dependant);
-            static::assertEquals(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
+            static::assertSame(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
 
             throw $exception;
         }
@@ -760,6 +764,7 @@ class PluginLifecycleServiceTest extends TestCase
                     'id' => $id,
                     'name' => $iso,
                     'localeId' => $localeId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => $localeId,
                         'code' => $iso,

@@ -12,7 +12,7 @@ import './sw-iframe-renderer.scss';
  * @component-example
  * <sw-iframe-renderer src="https://www.my-source.com" locationId="my-special-location" />
  */
-Shopware.Component.register('sw-iframe-renderer', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['extensionSdkService'],

@@ -26,7 +26,7 @@ class ScriptFileReaderTest extends TestCase
         $scripts = $scriptReader->getScriptPathsForApp($app);
         \sort($scripts);
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'app-activated/activate-script.twig',
                 'app-deactivated/deactivate-script.twig',

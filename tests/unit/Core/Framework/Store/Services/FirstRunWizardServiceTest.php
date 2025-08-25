@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -479,12 +480,12 @@ class FirstRunWizardServiceTest extends TestCase
 
         $currentLicenseDomain = $licenseDomains->first();
         static::assertInstanceOf(LicenseDomainStruct::class, $currentLicenseDomain);
-        static::assertEquals('täst.de', $currentLicenseDomain->getDomain());
+        static::assertSame('täst.de', $currentLicenseDomain->getDomain());
         static::assertTrue($currentLicenseDomain->isActive());
 
         $otherLicenseDomain = $licenseDomains->last();
         static::assertInstanceOf(LicenseDomainStruct::class, $otherLicenseDomain);
-        static::assertEquals('shopware.swag', $otherLicenseDomain->getDomain());
+        static::assertSame('shopware.swag', $otherLicenseDomain->getDomain());
         static::assertFalse($otherLicenseDomain->isActive());
     }
 
@@ -893,6 +894,9 @@ class FirstRunWizardServiceTest extends TestCase
         static::assertCount(1, $demodataPlugins);
     }
 
+    /**
+     * @param ?EntityRepository<UserConfigCollection> $userConfigRepository
+     */
     private function createFirstRunWizardService(
         ?StoreService $storeService = null,
         ?SystemConfigService $systemConfigService = null,

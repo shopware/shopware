@@ -2,7 +2,9 @@
   "dockerComposeFile": "compose.yml",
   "service": "editor",
   "overrideCommand": false,
-  "forwardPorts": [8000, 8080, 8025],
+  "forwardPorts": [8000],
+  "remoteUser": "www-data",
+  "containerUser": "www-data",
   "containerEnv": {
     "COMPOSER_ROOT_VERSION": "6.7.9999999-dev",
     "SYMFONY_TRUSTED_PROXIES": "REMOTE_ADDR",

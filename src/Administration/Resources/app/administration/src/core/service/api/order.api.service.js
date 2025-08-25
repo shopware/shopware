@@ -102,10 +102,14 @@ class OrderApiService extends ApiService {
         const route = `_action/order/${orderId}/applyAutomaticPromotions`;
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
-        return this.httpClient.post(route, {}, {
-            additionalParams,
-            headers,
-        });
+        return this.httpClient.post(
+            route,
+            {},
+            {
+                additionalParams,
+                headers,
+            },
+        );
     }
 
     changeOrderAddress(orderAddressId, customerAddressId, additionalParams, additionalHeaders) {

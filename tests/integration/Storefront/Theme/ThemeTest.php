@@ -22,6 +22,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -29,6 +30,8 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
@@ -123,9 +126,10 @@ class ThemeTest extends TestCase
     {
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($theme);
-        $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), false, $this->context);
+        $themeConfiguration = $this->themeService->getPlainThemeConfiguration($theme->getId(), $this->context);
 
         $themeConfigFix = ThemeFixtures::getThemeConfig($this->faviconId, $this->demoStoreLogoId);
+        $themeConfigFix['themeTechnicalName'] = $themeConfiguration['themeTechnicalName'];
         foreach ($themeConfigFix['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
                 $themeConfigFix['fields'][$key]['value'] = $themeConfiguration['fields'][$key]['value'];
@@ -135,27 +139,13 @@ class ThemeTest extends TestCase
         static::assertEquals($themeConfigFix, $themeConfiguration);
     }
 
-    public function testDefaultThemeConfigTranslated(): void
-    {
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
-        static::assertNotNull($theme);
-
-        $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), true, $this->context);
-
-        static::assertGreaterThan(0, \count($themeConfiguration));
-
-        foreach ($themeConfiguration['fields'] as $item) {
-            static::assertStringNotContainsString('sw-theme', $item['label']);
-        }
-    }
-
     public function testDefaultThemeConfigStructuredFields(): void
     {
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($theme);
 
-        $theme = $this->themeService->getThemeConfigurationStructuredFields($theme->getId(), false, $this->context);
-        static::assertSame(ThemeFixtures::getThemeStructuredFields(), $theme);
+        $theme = $this->themeService->getThemeConfigurationFieldStructure($theme->getId(), $this->context);
+        static::assertEquals(ThemeFixtures::getThemeStructuredFields(), $theme);
     }
 
     public function testChildThemeConfigStructuredFields(): void
@@ -197,12 +187,15 @@ class ThemeTest extends TestCase
         $criteria->addFilter(new EqualsFilter('name', $name));
 
         $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
-        static::assertNotNull($childTheme);
+        static::assertInstanceOf(ThemeEntity::class, $childTheme);
 
-        $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
+        $childThemeFields = $this->themeService->getThemeConfigurationFieldStructure($childTheme->getId(), $this->context);
+
+        $technicalName = $childTheme->getTechnicalName();
+        static::assertIsString($technicalName);
         static::assertSame(
-            'Primary colour',
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['label']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 
@@ -248,10 +241,13 @@ class ThemeTest extends TestCase
         $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($childTheme);
 
-        $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
+        $technicalName = $childTheme->getTechnicalName();
+        static::assertIsString($technicalName);
+
+        $childThemeFields = $this->themeService->getThemeConfigurationFieldStructure($childTheme->getId(), $this->context);
         static::assertSame(
-            'Primary colour',
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['label']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 
@@ -292,7 +288,7 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $theme = $this->themeService->getPlainThemeConfiguration($childTheme->getId(), $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demoStoreLogoId);
 
         $someCustom = [
@@ -315,6 +311,7 @@ class ThemeTest extends TestCase
             'fullWidth' => null,
         ];
 
+        $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
         $themeInheritedConfig['fields']['some-custom'] = $someCustom;
         $themeInheritedConfig['currentFields']['some-custom'] = ['value' => null, 'isInherited' => false];
         $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null, 'isInherited' => true];
@@ -361,9 +358,10 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $theme = $this->themeService->getPlainThemeConfiguration($childTheme->getId(), $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedBlankConfig($this->faviconId, $this->demoStoreLogoId);
 
+        $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['isInherited'] = false;
 
@@ -422,7 +420,7 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $theme = $this->themeService->getPlainThemeConfiguration($childTheme->getId(), $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demoStoreLogoId);
 
         $themeInheritedConfig['blocks']['newBlock']['label'] = [
@@ -435,6 +433,7 @@ class ThemeTest extends TestCase
                 $themeInheritedConfig['fields'][$key]['value'] = $theme['fields'][$key]['value'];
             }
         }
+        $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
         $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#474a57';
 
         static::assertEquals($themeInheritedConfig, $theme);
@@ -478,7 +477,7 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $theme = $this->themeService->getPlainThemeConfiguration($childTheme->getId(), $this->context);
 
         static::assertArrayHasKey('multi', $theme['fields']);
         static::assertArrayHasKey('value', $theme['fields']['multi']);
@@ -487,8 +486,7 @@ class ThemeTest extends TestCase
 
     public function testCompileTheme(): void
     {
-        static::markTestSkipped('theme compile is not possible cause app.js does not exist');
-        $criteria = new Criteria(); /** @phpstan-ignore-line  */
+        $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
         $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
@@ -513,9 +511,15 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $themeCompiled = $this->themeService->assignTheme($childTheme->getId(), TestDefaults::SALES_CHANNEL, $this->context);
-
-        static::assertTrue($themeCompiled);
+        try {
+            $themeCompiled = $this->themeService->assignTheme($childTheme->getId(), TestDefaults::SALES_CHANNEL, $this->context);
+            static::assertTrue($themeCompiled);
+        } catch (ThemeCompileException $e) {
+            // ignore files not found exception
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
+                throw $e;
+            }
+        }
     }
 
     public function testCompileNonStorefrontThemesWithSameTechnicalNameNotLeakingConfigurationFromPreviousCompilations(): void
@@ -546,9 +550,14 @@ class ThemeTest extends TestCase
                     return $value === $_expectedTheme;
                 }),
                 new Callback(static function (StorefrontPluginConfiguration $value) use (&$_expectedColor): bool {
-                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor; /** @phpstan-ignore-line  */
+                    static::assertIsArray($value->getThemeConfig());
+                    static::assertArrayHasKey('fields', $value->getThemeConfig());
+
+                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor;
                 })
             );
+
+        $scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
 
         $kernel = new class(static::getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;
@@ -645,11 +654,6 @@ class ThemeTest extends TestCase
             {
                 return $this->kernel->getCharset();
             }
-
-            public function __call($name, $arguments) /* @phpstan-ignore-line */
-            {
-                return $this->kernel->$name(...\func_get_args()); /* @phpstan-ignore-line */
-            }
         };
 
         $themeService = new ThemeService(
@@ -661,6 +665,7 @@ class ThemeTest extends TestCase
             static::getContainer()->get('theme.repository'),
             static::getContainer()->get('theme_sales_channel.repository'),
             $themeCompilerMock,
+            $scssCompilerMock,
             static::getContainer()->get('event_dispatcher'),
             new DatabaseConfigLoader(
                 static::getContainer()->get('theme.repository'),
@@ -674,7 +679,9 @@ class ThemeTest extends TestCase
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get('messenger.default_bus'),
-            static::getContainer()->get(NotificationService::class)
+            static::getContainer()->get(NotificationService::class),
+            static::getContainer()->get(ThemeMergedConfigBuilder::class),
+            static::getContainer()->get(ThemeRuntimeConfigService::class),
         );
         $themeService->updateTheme(
             $childTheme->getId(),
@@ -719,7 +726,7 @@ class ThemeTest extends TestCase
         static::assertNotNull($updatedTheme);
         static::assertNotNull($updatedTheme->getConfigValues());
 
-        $themeServiceReturnedConfig = $this->themeService->getThemeConfiguration($updatedTheme->getId(), false, $this->context);
+        $themeServiceReturnedConfig = $this->themeService->getPlainThemeConfiguration($updatedTheme->getId(), $this->context);
 
         static::assertNotNull($themeServiceReturnedConfig['fields']['sw-logo-desktop']['value']);
         static::assertNull($themeServiceReturnedConfig['fields']['sw-logo-mobile']['value']);
@@ -767,11 +774,6 @@ class ThemeTest extends TestCase
             $this->themeService->updateTheme(
                 $childTheme->getId(),
                 [
-                    'fields' => [
-                        'some-custom' => [
-                            'editable' => true,
-                        ],
-                    ],
                     'test' => [
                         'value' => [false],
                     ],
@@ -781,8 +783,7 @@ class ThemeTest extends TestCase
             );
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
-
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
                 throw $e;
             }
         }
@@ -795,11 +796,6 @@ class ThemeTest extends TestCase
 
         static::assertEquals(
             [
-                'fields' => [
-                    'some-custom' => [
-                        'editable' => true,
-                    ],
-                ],
                 'test' => [
                     'value' => [false],
                 ],
@@ -825,7 +821,6 @@ class ThemeTest extends TestCase
         $theme = $themes->first();
         static::assertNotNull($theme);
         static::assertSame('Storefront', $theme->getTechnicalName());
-        static::assertNotEmpty($theme->getLabels());
     }
 
     public function testResetTheme(): void

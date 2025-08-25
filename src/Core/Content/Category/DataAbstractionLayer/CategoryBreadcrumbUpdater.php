@@ -13,15 +13,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Language\LanguageCollection;
 
 #[Package('discovery')]
 class CategoryBreadcrumbUpdater
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -60,10 +64,11 @@ class CategoryBreadcrumbUpdater
         }
 
         $all = array_filter(array_keys(array_flip($all)));
+        $languageCriteria = new Criteria();
+        $languageCriteria->addFilter(new EqualsFilter('active', true));
 
-        $languages = $this->languageRepository->search(new Criteria(), $context);
+        $languages = $this->languageRepository->search($languageCriteria, $context)->getEntities();
 
-        /** @var LanguageEntity $language */
         foreach ($languages as $language) {
             $context = new Context(
                 new SystemSource(),
@@ -86,7 +91,6 @@ class CategoryBreadcrumbUpdater
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $languageId = Uuid::fromHexToBytes($context->getLanguageId());
 
-        /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository
             ->search(new Criteria($all), $context)
             ->getEntities();

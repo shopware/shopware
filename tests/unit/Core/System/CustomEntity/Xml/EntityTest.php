@@ -39,9 +39,9 @@ class EntityTest extends TestCase
         static::assertCount(2, $fields);
 
         static::assertInstanceOf(StringField::class, $fields[0]);
-        static::assertEquals('id', $fields[0]->getName());
+        static::assertSame('id', $fields[0]->getName());
         static::assertInstanceOf(StringField::class, $fields[1]);
-        static::assertEquals('name', $fields[1]->getName());
+        static::assertSame('name', $fields[1]->getName());
         static::assertTrue($fields[1]->isTranslatable());
     }
 
@@ -88,7 +88,7 @@ class EntityTest extends TestCase
         $field = $entity->getField('name');
 
         static::assertInstanceOf(StringField::class, $field);
-        static::assertEquals('name', $field->getName());
+        static::assertSame('name', $field->getName());
 
         static::assertNull($entity->getField('label'));
     }

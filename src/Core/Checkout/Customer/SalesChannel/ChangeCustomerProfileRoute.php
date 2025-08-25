@@ -15,24 +15,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID], '_contextTokenRequired' => true])]
 #[Package('checkout')]
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
@@ -57,7 +58,12 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-profile', name: 'store-api.account.change-profile', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
+    #[Route(
+        path: '/store-api/account/change-profile',
+        name: 'store-api.account.change-profile',
+        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['POST']
+    )]
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $validation = $this->customerProfileValidationFactory->update($context);
@@ -77,9 +83,8 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->set('vatIds', null);
         }
 
-        /** @var ?RequestDataBag $vatIds */
         $vatIds = $data->get('vatIds');
-        if ($vatIds) {
+        if ($vatIds instanceof RequestDataBag) {
             $vatIds = \array_filter($vatIds->all());
             $data->set('vatIds', empty($vatIds) ? null : $vatIds);
         }
@@ -113,6 +118,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                 CustomerDefinition::ENTITY_NAME,
                 $data->get('customFields')
             );
+            if ($customerData['customFields'] === []) {
+                unset($customerData['customFields']);
+            }
         }
 
         $mappingEvent = new DataMappingEvent($data, $customerData, $context->getContext());
@@ -135,7 +143,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
     private function addVatIdsValidation(DataValidationDefinition $validation, CustomerAddressEntity $address): void
     {
-        /** @var Constraint[] $constraints */
         $constraints = [
             new Type('array'),
             new CustomerVatIdentification(
@@ -173,9 +180,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             ->setLimit(1)
             ->addFilter(new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED));
 
-        /** @var array<string> $ids */
-        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
-
-        return $ids[0] ?? null;
+        return $this->salutationRepository->searchIds($criteria, $context->getContext())->firstId();
     }
 }

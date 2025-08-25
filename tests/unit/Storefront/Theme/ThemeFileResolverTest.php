@@ -167,7 +167,7 @@ class ThemeFileResolverTest extends TestCase
         $actual = $scriptFiles->getFilepaths();
         $expected = array_unique($scriptFiles->getFilepaths());
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testParentThemeIncludesPlugins(): void

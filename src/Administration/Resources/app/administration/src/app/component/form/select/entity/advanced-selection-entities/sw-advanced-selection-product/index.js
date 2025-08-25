@@ -4,7 +4,6 @@
 
 import template from './sw-advanced-selection-product.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -14,7 +13,7 @@ const { Criteria } = Shopware.Data;
  * to `sw-entity-...-select` components.
  * @status prototype
  */
-Component.register('sw-advanced-selection-product', {
+export default {
     template,
 
     inject: [
@@ -269,4 +268,4 @@ Component.register('sw-advanced-selection-product', {
             return item.translated.name || item.name;
         },
     },
-});
+};

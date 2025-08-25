@@ -77,20 +77,7 @@ export default {
         },
 
         productCriteria() {
-            return new Criteria(1, 10)
-                .addAssociation('options.group')
-                .addAssociation('manufacturer')
-                .addFilter(
-                    Criteria.multi('OR', [
-                        Criteria.equals('parentId', null),
-                        Criteria.multi('AND', [
-                            Criteria.not('AND', [
-                                Criteria.equals('parentId', null),
-                            ]),
-                            Criteria.equals('categories.id', this.category.id),
-                        ]),
-                    ]),
-                );
+            return new Criteria(1, 10).addAssociation('options.group').addAssociation('manufacturer');
         },
 
         productStreamInvalidError() {

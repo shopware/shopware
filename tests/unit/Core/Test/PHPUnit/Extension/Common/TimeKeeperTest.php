@@ -24,7 +24,7 @@ class TimeKeeperTest extends TestCase
 
         $duration = $timeKeeper->stop($testIdentifier, $stoppedTime);
 
-        static::assertEquals(1, $duration->seconds());
+        static::assertSame(1, $duration->seconds());
     }
 
     public function testStopWithoutStartShouldReturnZeroDuration(): void
@@ -35,6 +35,6 @@ class TimeKeeperTest extends TestCase
 
         $duration = $timeKeeper->stop($testIdentifier, $stoppedTime);
 
-        static::assertEquals(0, $duration->seconds());
+        static::assertSame(0, $duration->seconds());
     }
 }

@@ -121,10 +121,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         Shopware.Store.get('session').languageId = '';
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should create a new user', async () => {
         expect(wrapper.vm.user).toStrictEqual({
             admin: false,

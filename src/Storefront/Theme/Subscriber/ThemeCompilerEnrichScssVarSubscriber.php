@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Doctrine\DBAL\Exception as DBALException;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -57,7 +58,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
                 );
             }
         } catch (DBALException $e) {
-            if (\defined('\STDERR')) {
+            if (\defined('\STDERR') && !EnvironmentHelper::getVariable('TESTS_RUNNING')) {
                 fwrite(
                     \STDERR,
                     'Warning: Failed to load plugin css configuration. Ignoring plugin css customizations. Message: '

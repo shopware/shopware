@@ -48,7 +48,6 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlug
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
@@ -90,8 +89,8 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus(),
-            0,
+            [],
+            false
         );
     }
 
@@ -159,6 +158,21 @@ class ThemeCompilerTest extends TestCase
                     'type' => 'switch',
                     'value' => true,
                 ],
+                'sw-text-field' => [
+                    'name' => 'sw-text-field',
+                    'type' => 'text',
+                    'value' => '2px solid #000',
+                ],
+                'sw-textarea-field' => [
+                    'name' => 'sw-text-field',
+                    'type' => 'textarea',
+                    'value' => 'Lorem ipsum dolor',
+                ],
+                'sw-url-field' => [
+                    'name' => 'sw-url-field',
+                    'type' => 'url',
+                    'value' => 'https://www.example.com',
+                ],
                 'sw-multi-test' => [
                     'name' => 'sw-multi-test',
                     'type' => 'text',
@@ -200,6 +214,9 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-footer: 1;
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
+\$sw-text-field: 2px solid #000;
+\$sw-textarea-field: 'Lorem ipsum dolor';
+\$sw-url-field: 'https://www.example.com';
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL;
@@ -407,7 +424,7 @@ PHP_EOL;
         $projectDir = static::getContainer()->getParameter('kernel.project_dir');
         $testFolder = $projectDir . '/bla';
 
-        if (!file_exists($testFolder)) {
+        if (!\is_dir($testFolder)) {
             mkdir($testFolder);
         }
 
@@ -433,8 +450,8 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus(),
-            0,
+            [],
+            false
         );
 
         try {
@@ -480,18 +497,6 @@ PHP_EOL;
          * The behaviour of the ThemeCompiler will still ad variables with a null value,
          * but SCSS omits property definitions if they reference a variable with null value.
          */
-        $expectedCssOutput = <<<PHP_EOL
-.test-selector-plugin {
-\tbackground: #fff;
-\tcolor: #eee;
-}
-
-.test-selector-app {
-\tbackground: #aaa;
-\tcolor: #eee;
-}
-PHP_EOL;
-
         $expectedCssOutputNoAutoPrefix = <<<PHP_EOL
 .test-selector-plugin {
   background: #fff;

@@ -18,12 +18,11 @@ class DiscountPackage
     /**
      * @var array<string, LineItem>|null
      */
-    private ?array $hashMap;
+    private ?array $hashMap = null;
 
     public function __construct(private LineItemQuantityCollection $metaItems)
     {
         $this->cartItems = new LineItemFlatCollection();
-        $this->hashMap = null;
     }
 
     public function getMetaData(): LineItemQuantityCollection
@@ -55,6 +54,7 @@ class DiscountPackage
     public function setCartItems(LineItemFlatCollection $items): void
     {
         $this->cartItems = $items;
+        $this->hashMap = null;
     }
 
     /**

@@ -61,6 +61,13 @@
         "title": "Remind payment",
         "text": "Do you want to remind the customer to pay this order with \"{paymentMethodName}\"?",
         "primaryAction": "Remind"
+      },
+      "saveError": {
+        "noCustomer": "No customer selected.",
+        "noCart": "No shopping cart available.",
+        "noLineItems": "No items added.",
+        "invalidPromotionCodes": "Invalid promotion code found.",
+        "noTransactionReturned": "No payment method created."
       }
     },
     "createBase": {
@@ -203,6 +210,7 @@
       "columnTotalPriceGross": "Subtotal",
       "columnTax": "VAT",
       "columnProductNumber": "Product number",
+      "columnType": "Type",
       "contextMenuShowProduct": "Show product",
       "contextMenuDelete": "Remove from order",
       "summaryLabelAmount": "Subtotal",
@@ -266,6 +274,14 @@
       "helpTextCustomerComment": "Customers can submit this comment, and any changes will be visible to them.",
       "helpTextInternalComment": "This comment is for internal use only and will not be presented to customers."
     },
+    "lineItemType": {
+      "credit": "Credit",
+      "product": "Product",
+      "custom": "Custom",
+      "promotion": "Promotion",
+      "discount": "Discount",
+      "container": "Container"
+    },
     "nestedLineItemsModal": {
       "titlePrefix": "Item: {lineItemLabel} - {price}",
       "headerLabel": "Name",
@@ -326,7 +342,9 @@
       "labelErrorStateChange": "An error occured while updating the status:",
       "labelErrorNoAction": "Status unchanged.",
       "labelNoTransactionState": "No transactions yet",
-      "labelNoDeliveryState": "No deliveries yet"
+      "labelNoDeliveryState": "No deliveries yet",
+      "labelLastEditedByIntegration": "Last edited by {integrationName} (Integration)",
+      "labelIntegration": "Integration"
     },
     "assignMailTemplateCard": {
       "cardTitle": "Assign email template",
@@ -445,6 +463,7 @@
     "stateHistoryModal": {
       "modalTitle": "Status history",
       "labelSystemUser": "System",
+      "labelIntegration": "Integration",
       "column": {
         "createdAt": "Date",
         "entity": "Changed",

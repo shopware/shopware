@@ -88,8 +88,8 @@ class LoadWishlistRouteTest extends TestCase
         $products = $response['products'];
 
         static::assertNotEmpty($response);
-        static::assertEquals($customerWishlistId, $wishlist['id']);
-        static::assertEquals(1, $products['total']);
+        static::assertSame($customerWishlistId, $wishlist['id']);
+        static::assertSame(1, $products['total']);
         static::assertNotNull($products['elements']);
     }
 
@@ -105,9 +105,9 @@ class LoadWishlistRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
-        static::assertEquals('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
-        static::assertEquals('Forbidden', $errors['title']);
-        static::assertEquals('Wishlist is not activated!', $errors['detail']);
+        static::assertSame('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
+        static::assertSame('Forbidden', $errors['title']);
+        static::assertSame('Wishlist is not activated!', $errors['detail']);
     }
 
     public function testLoadShouldThrowCustomerNotLoggedInException(): void
@@ -137,9 +137,9 @@ class LoadWishlistRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
-        static::assertEquals('CHECKOUT__WISHLIST_NOT_FOUND', $errors['code']);
-        static::assertEquals('Not Found', $errors['title']);
-        static::assertEquals('Wishlist for this customer was not found.', $errors['detail']);
+        static::assertSame('CHECKOUT__WISHLIST_NOT_FOUND', $errors['code']);
+        static::assertSame('Not Found', $errors['title']);
+        static::assertSame('Wishlist for this customer was not found.', $errors['detail']);
     }
 
     public function testLoadWithHideCloseoutProductsWhenOutOfStockEnabled(): void
@@ -159,7 +159,7 @@ class LoadWishlistRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $products = $response['products'];
 
-        static::assertEquals(0, $products['total']);
+        static::assertSame(0, $products['total']);
     }
 
     public function testLoadWithHideCloseoutProductsWhenOutOfStockDisabled(): void
@@ -179,7 +179,7 @@ class LoadWishlistRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $products = $response['products'];
 
-        static::assertEquals(1, $products['total']);
+        static::assertSame(1, $products['total']);
         static::assertNotNull($products['elements']);
     }
 

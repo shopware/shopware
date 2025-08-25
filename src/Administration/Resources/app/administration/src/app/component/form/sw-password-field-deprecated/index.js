@@ -11,7 +11,7 @@ import './sw-password-field.scss';
  * @component-example
  * <sw-password-field type="password" label="Name" placeholder="placeholder goes here..."></sw-password-field>
  */
-Shopware.Component.extend('sw-password-field-deprecated', 'sw-text-field-deprecated', {
+export default {
     template,
 
     emits: [
@@ -67,4 +67,4 @@ Shopware.Component.extend('sw-password-field-deprecated', 'sw-text-field-depreca
             this.showPassword = !this.showPassword;
         },
     },
-});
+};

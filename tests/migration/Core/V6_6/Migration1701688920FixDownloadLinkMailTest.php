@@ -54,8 +54,8 @@ class Migration1701688920FixDownloadLinkMailTest extends TestCase
             $deLangId
         );
 
-        static::assertEquals($mailTemplateTranslationDe['htmlDe'], $mailTemplateTranslationDe['content_html']);
-        static::assertEquals($mailTemplateTranslationDe['plainDe'], $mailTemplateTranslationDe['content_plain']);
+        static::assertSame($mailTemplateTranslationDe['htmlDe'], $mailTemplateTranslationDe['content_html']);
+        static::assertSame($mailTemplateTranslationDe['plainDe'], $mailTemplateTranslationDe['content_plain']);
 
         $mailTemplateTranslationEn = $this->getMailTemplateTranslation(
             $connection,
@@ -63,8 +63,8 @@ class Migration1701688920FixDownloadLinkMailTest extends TestCase
             $enLangId
         );
 
-        static::assertEquals($mailTemplateTranslationEn['htmlEn'], $mailTemplateTranslationEn['content_html']);
-        static::assertEquals($mailTemplateTranslationEn['plainEn'], $mailTemplateTranslationEn['content_plain']);
+        static::assertSame($mailTemplateTranslationEn['htmlEn'], $mailTemplateTranslationEn['content_html']);
+        static::assertSame($mailTemplateTranslationEn['plainEn'], $mailTemplateTranslationEn['content_plain']);
     }
 
     /**

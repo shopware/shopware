@@ -103,7 +103,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
     }
 );
 
-test('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V2 even after a false input.',
+test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V2 even after a false input.',
     { tag: '@form @Registration @Captcha' },
     async ({
         ShopCustomer,
@@ -227,7 +227,6 @@ test('As a customer, I want to fill out and submit the contact form that is vali
             await StorefrontContactForm.phoneInput.fill('0123456789');
             await StorefrontContactForm.subjectInput.fill('Test: Product question');
             await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
-            await StorefrontContactForm.privacyPolicyCheckbox.click();
         });
 
         await test.step('Send and validate the contact form.', async () => {

@@ -1,7 +1,7 @@
 {% block sw_bulk_edit_save_modal_confirm %}
 <div class="sw-bulk-edit-save-modal-confirm">
     <p class="sw-bulk-edit-save-modal__help-text">
-        {{ $tc('sw-bulk-edit.modal.confirm.description', itemTotal, {itemCount: itemTotal}) }}
+        {{ $tc('sw-bulk-edit.modal.confirm.description', { itemCount: itemTotal }, itemTotal) }}
     </p>
 
     {% block sw_bulk_edit_save_modal_confirm_trigger_flows %}

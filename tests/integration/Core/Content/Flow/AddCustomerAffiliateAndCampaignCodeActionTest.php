@@ -77,8 +77,8 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 
-        static::assertEquals($customer->getAffiliateCode(), $expectData['affiliateCode']);
-        static::assertEquals($customer->getCampaignCode(), $expectData['campaignCode']);
+        static::assertSame($customer->getAffiliateCode(), $expectData['affiliateCode']);
+        static::assertSame($customer->getCampaignCode(), $expectData['campaignCode']);
     }
 
     /**

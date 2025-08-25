@@ -389,7 +389,7 @@ export default {
 
                     return {
                         id: group.id,
-                        name: group.name,
+                        name: group.translated.name || group.name,
                         childCount: children.length,
                         parentId: null,
                         afterId: index > 0 ? this.selectedGroups[index - 1].id : null,
@@ -417,7 +417,7 @@ export default {
 
                         return {
                             id: option.id,
-                            name: option.name,
+                            name: option.translated.name || option.name,
                             childCount: 0,
                             parentId: option.groupId,
                             afterId,
@@ -595,18 +595,19 @@ export default {
             }
 
             variant.forceMediaInheritanceRemove = true;
-            this.product.media.forEach(({ id, mediaId, position }) => {
-                const media = this.productMediaRepository.create(Context.api);
-                Object.assign(media, {
+            this.product.media.forEach(({ id, mediaId, position, media }) => {
+                const productMedia = this.productMediaRepository.create(Context.api);
+                Object.assign(productMedia, {
                     mediaId,
                     position,
                     productId: this.product.id,
+                    media,
                 });
                 if (this.product.coverId === id) {
-                    variant.coverId = media.id;
+                    variant.coverId = productMedia.id;
                 }
 
-                variant.media.push(media);
+                variant.media.push(productMedia);
             });
         },
 

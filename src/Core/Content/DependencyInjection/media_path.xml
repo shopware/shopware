@@ -18,6 +18,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument>%shopware.media.remote_thumbnails.pattern%</argument>
 
             <tag name="kernel.reset" method="reset"/>

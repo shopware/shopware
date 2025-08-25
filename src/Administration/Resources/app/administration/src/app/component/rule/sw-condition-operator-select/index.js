@@ -1,15 +1,13 @@
 import template from './sw-condition-operator-select.html.twig';
 import './sw-condition-operator-select.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-operator-select', {
+export default {
     template: template,
-
+    emits: ['change'],
     props: {
         operators: {
             type: Array,
@@ -68,7 +66,16 @@ Component.register('sw-condition-operator-select', {
 
     methods: {
         changeOperator(event) {
-            this.operator = event;
+            this.condition.value = {
+                ...(this.condition.value ?? {}),
+                operator: event,
+            };
+
+            if (event === 'empty') {
+                this.condition.value = { operator: 'empty' };
+            }
+
+            this.$emit('change', this.condition);
         },
     },
-});
+};

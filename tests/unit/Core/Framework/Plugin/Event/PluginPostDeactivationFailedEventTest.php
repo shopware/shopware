@@ -23,7 +23,7 @@ class PluginPostDeactivationFailedEventTest extends TestCase
             $activateContext,
             $exception
         );
-        static::assertEquals($activateContext, $event->getContext());
-        static::assertEquals($exception, $event->getException());
+        static::assertSame($activateContext, $event->getContext());
+        static::assertSame($exception, $event->getException());
     }
 }

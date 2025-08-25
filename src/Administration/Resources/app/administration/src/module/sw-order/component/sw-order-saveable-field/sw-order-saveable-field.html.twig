@@ -1,8 +1,9 @@
 {% block sw_order_saveable_field %}
 <sw-container
     v-if="isEditing"
-    columns="1fr 20px 25px"
+    columns="1fr 20px 20px"
     gap="0px 10px"
+    align="center"
     class="sw-order-saveable-field"
 >
     {% block sw_order_saveable_field_input %}
@@ -19,14 +20,13 @@
     {% block sw_order_saveable_field_cancel_button %}
     <mt-button
         size="x-small"
-        square
-        aria-label="global.default.cancel"
         variant="secondary"
+        aria-label="global.default.cancel"
+        square
         @click="onCancelButtonClicked"
     >
         <mt-icon
-            name="regular-times-xs"
-            size="16px"
+            name="regular-times-xxs"
         />
     </mt-button>
     {%  endblock %}
@@ -40,10 +40,9 @@
     >
         <mt-icon
             name="regular-checkmark-xxs"
-            size="16px"
         />
     </mt-button>
-    {%  endblock %}
+    {% endblock %}
     {% endblock %}
 </sw-container>
 <div

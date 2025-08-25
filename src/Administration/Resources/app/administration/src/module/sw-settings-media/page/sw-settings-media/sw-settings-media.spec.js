@@ -37,12 +37,13 @@ async function createWrapper() {
                     'sw-error-summary': true,
                     'mt-slider': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-notification-center': true,
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-app-actions': true,
                     'sw-sales-channel-switch': true,
-
+                    'sw-context-menu-item': true,
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-ai-copilot-badge': true,
@@ -88,11 +89,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-media/page/sw-settings-media', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should handle error on creation', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

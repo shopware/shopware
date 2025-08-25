@@ -9,6 +9,8 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\InstallerController
  */
 #[Package('framework')]
 class InstallerLocaleListener implements EventSubscriberInterface
@@ -16,16 +18,27 @@ class InstallerLocaleListener implements EventSubscriberInterface
     final public const FALLBACK_LOCALE = 'en';
 
     /**
-     * @var list<string>
+     * @var array<string, string>
      */
     private readonly array $installerLanguages;
 
     /**
-     * @param array<string, string> $installerLanguages
+     * @param SupportedLanguages $installerLanguages
      */
     public function __construct(array $installerLanguages)
     {
-        $this->installerLanguages = array_keys($installerLanguages);
+        /* Map languages to lowercase keys for easier comparison against Symfony's request language detection.
+         * Ensure that the fallback language is the first language, as Symfony's `getPreferredLanguage()` returns the
+         * first array value if no accepted language matches any in the array */
+        /** @var array<string, string> $mappedLanguages */
+        $mappedLanguages = [
+            self::FALLBACK_LOCALE => self::FALLBACK_LOCALE,
+        ];
+        foreach ($installerLanguages as $language => $installerLanguage) {
+            $mappedLanguages[mb_strtolower($language)] = $language;
+            $mappedLanguages[mb_strtolower($installerLanguage['id'])] = $language;
+        }
+        $this->installerLanguages = $mappedLanguages;
     }
 
     public static function getSubscribedEvents(): array
@@ -60,15 +73,16 @@ class InstallerLocaleListener implements EventSubscriberInterface
             return (string) $session->get('language');
         }
 
-        // get initial language from browser header
-        if ($request->headers->has('HTTP_ACCEPT_LANGUAGE')) {
-            $browserLanguage = explode(',', $request->headers->get('HTTP_ACCEPT_LANGUAGE', ''));
-            $browserLanguage = mb_strtolower(mb_substr($browserLanguage[0], 0, 2));
+        // get initial language from the browser header
+        if ($request->headers->has('Accept-Language')) {
+            $browserLanguage = $request->getPreferredLanguage(array_keys($this->installerLanguages));
+            $detectedLanguage = mb_strtolower(str_replace('_', '-', $browserLanguage ?? ''));
 
-            if (\in_array($browserLanguage, $this->installerLanguages, true)) {
-                $session->set('language', $browserLanguage);
+            if (\array_key_exists($detectedLanguage, $this->installerLanguages)) {
+                $supportedLanguage = $this->installerLanguages[$detectedLanguage];
+                $session->set('language', $supportedLanguage);
 
-                return $browserLanguage;
+                return $supportedLanguage;
             }
         }
 

@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 import { type CmsElementConfig } from '../../service/cms.service';
@@ -158,6 +157,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onCloseSettingsModal() {
+            if (!this.showElementSettings) return;
+
             const childComponent = this.$refs.elementComponentRef as {
                 handleUpdateContent: () => void;
             };
@@ -192,6 +193,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         onToggleElementFavorite(elementName: string) {
             this.cmsElementFavorites.update(!this.cmsElementFavorites.isFavorite(elementName), elementName);
+        },
+
+        toggleHoverElement(element: CmsElementConfig, targetState: boolean) {
+            element.hover = targetState;
+        },
+
+        getFavoriteIconToggleState(element: CmsElementConfig): boolean {
+            return (
+                (this.cmsElementFavorites.isFavorite(element.name) && !element?.hover) ||
+                (!this.cmsElementFavorites.isFavorite(element.name) && !!element?.hover)
+            );
         },
 
         elementInElementGroup(element: CmsElementConfig, elementGroup: string) {

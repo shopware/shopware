@@ -114,7 +114,7 @@ describe('core/helper/sanitizer.helper.js', () => {
         const unsanitized = '<x oncut=alert()>x';
         const sanitized = '<x oncut="alert()">x</x>';
 
-        const wrapper = mount(await Shopware.Component.build('sw-empty-state'), {
+        const wrapper = mount(await wrapTestComponent('sw-empty-state', { sync: true }), {
             global: {
                 plugins: [SanitizePlugin],
                 mocks: {

@@ -139,8 +139,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('test-entity', $entitySyncMessage->entityName);
-        static::assertEquals([
+        static::assertSame('test-entity', $entitySyncMessage->entityName);
+        static::assertSame([
             ['id' => 'first-id'],
             ['id' => 'second-id'],
         ], $entitySyncMessage->primaryKeys);

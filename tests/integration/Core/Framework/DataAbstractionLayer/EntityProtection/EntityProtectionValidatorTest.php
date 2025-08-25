@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 use Shopware\Core\Test\TestDefaults;
@@ -41,7 +42,7 @@ class EntityProtectionValidatorTest extends TestCase
     public function testItBlocksApiAccess(string $method, string $url): void
     {
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 $method,
                 '/api/' . $url
             );
@@ -49,7 +50,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertSame(403, $response->getStatusCode(), $response->getContent());
     }
 
     /**
@@ -75,7 +76,7 @@ class EntityProtectionValidatorTest extends TestCase
     public function testItAllowsReadsOnEntitiesWithWriteProtectionOnly(): void
     {
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 'GET',
                 '/api/system-config'
             );
@@ -83,10 +84,10 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertNotSame(403, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 'GET',
                 '/api/system-config/' . Uuid::randomHex()
             );
@@ -94,10 +95,10 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertNotSame(403, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 'POST',
                 '/api/system-config'
             );
@@ -105,13 +106,13 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertSame(403, $response->getStatusCode(), $response->getContent());
     }
 
     public function testItBlocksReadsOnForbiddenAssociations(): void
     {
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 'POST',
                 '/api/search/user',
                 [
@@ -124,10 +125,10 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertSame(403, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 'POST',
                 '/api/search/user',
                 [
@@ -140,13 +141,13 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertNotSame(403, $response->getStatusCode(), $response->getContent());
     }
 
     public function testItBlocksReadsOnForbiddenNestedAssociations(): void
     {
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 'POST',
                 '/api/search/media',
                 [
@@ -163,10 +164,10 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertSame(403, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 'POST',
                 '/api/search/media',
                 [
@@ -183,18 +184,18 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertNotSame(403, $response->getStatusCode(), $response->getContent());
     }
 
     public function testItDoesNotValidateCascadeDeletes(): void
     {
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $countBefore = $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal();
 
         // system_config has a cascade delete on sales_channel
         $this->getBrowser()
-            ->request(
+            ->jsonRequest(
                 'DELETE',
                 '/api/sales-channel/' . TestDefaults::SALES_CHANNEL
             );
@@ -202,9 +203,9 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+        static::assertSame(204, $response->getStatusCode(), $response->getContent());
 
-        static::assertEquals(
+        static::assertSame(
             $countBefore - 1,
             $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal()
         );

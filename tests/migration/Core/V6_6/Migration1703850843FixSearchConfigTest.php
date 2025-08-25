@@ -72,7 +72,7 @@ class Migration1703850843FixSearchConfigTest extends TestCase
                 continue;
             }
 
-            static::assertEquals($item, json_decode($result[$id], true));
+            static::assertSame($item, json_decode($result[$id], true));
         }
     }
 

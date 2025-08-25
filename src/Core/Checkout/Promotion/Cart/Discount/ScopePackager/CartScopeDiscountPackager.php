@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,7 +39,7 @@ class CartScopeDiscountPackager extends DiscountPackager
             $allItems = $allItems->filter(fn (LineItem $lineItem) => $priceDefinition->getFilter()->match(new LineItemScope($lineItem, $context)));
         }
 
-        $discountPackage = $this->getDiscountPackage($allItems);
+        $discountPackage = $this->getDiscountPackage($allItems, $discount->isProductRestricted());
         if ($discountPackage === null) {
             return new DiscountPackageCollection([]);
         }
@@ -46,16 +47,25 @@ class CartScopeDiscountPackager extends DiscountPackager
         return new DiscountPackageCollection([$discountPackage]);
     }
 
-    private function getDiscountPackage(LineItemCollection $cartItems): ?DiscountPackage
+    private function getDiscountPackage(LineItemCollection $cartItems, bool $isAdvanceRuled): ?DiscountPackage
     {
-        $discountItems = [];
-        foreach ($cartItems as $cartLineItem) {
-            for ($i = 1; $i <= $cartLineItem->getQuantity(); ++$i) {
-                $item = new LineItemQuantity(
-                    $cartLineItem->getId(),
-                    1
-                );
+        if (!Feature::isActive('PERFORMANCE_TWEAKS')) {
+            $isAdvanceRuled = true;
+        }
 
+        $discountItems = [];
+
+        foreach ($cartItems as $cartLineItem) {
+            $item = new LineItemQuantity(
+                $cartLineItem->getId(),
+                $isAdvanceRuled ? 1 : $cartLineItem->getQuantity()
+            );
+
+            if ($isAdvanceRuled) {
+                for ($i = 1; $i <= $cartLineItem->getQuantity(); ++$i) {
+                    $discountItems[] = clone $item;
+                }
+            } else {
                 $discountItems[] = $item;
             }
         }
@@ -64,8 +74,10 @@ class CartScopeDiscountPackager extends DiscountPackager
             return null;
         }
 
-        return new DiscountPackage(
-            new LineItemQuantityCollection($discountItems)
-        );
+        // assign instead of add for performance reasons
+        $collection = new LineItemQuantityCollection();
+        $collection->assign(['elements' => $discountItems]);
+
+        return new DiscountPackage($collection);
     }
 }

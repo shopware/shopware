@@ -2,8 +2,6 @@
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -26,7 +24,7 @@ const { Component } = Shopware;
  *     </template>
  * </sw-meteor-card>
  */
-Component.register('sw-meteor-card', {
+export default {
     template,
 
     props: {
@@ -114,4 +112,4 @@ Component.register('sw-meteor-card', {
             this.activeTab = name;
         },
     },
-});
+};

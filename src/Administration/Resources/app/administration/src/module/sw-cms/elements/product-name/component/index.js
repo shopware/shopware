@@ -25,6 +25,7 @@ export default {
                 this.element.config.content.source = 'mapped';
                 this.element.config.content.value = 'product.name';
             }
+            this.updateDemoValue();
         },
 
         updateDemoValue() {

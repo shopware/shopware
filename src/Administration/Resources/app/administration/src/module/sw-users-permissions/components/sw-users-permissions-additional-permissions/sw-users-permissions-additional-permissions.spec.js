@@ -115,10 +115,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display all keys from the category additional_permissions', async () => {
         const systemPermissions = wrapper.find('.sw-users-permissions-additional-permissions_system');
         const ordersPermissions = wrapper.find('.sw-users-permissions-additional-permissions_orders');
@@ -168,13 +164,13 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         const clearCacheField = wrapper.findAllComponents('.mt-switch').find((field) => {
             return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
         });
-        expect(clearCacheField.props().checked).toBeTruthy();
+        expect(clearCacheField.props().modelValue).toBeTruthy();
     });
 
     it('should contain the a false value in a field when the privilege is not in roles', async () => {
         const clearCacheField = wrapper.findComponent('.sw_users_permissions_additional_permissions_system_clear_cache');
 
-        expect(clearCacheField.props().value).toBeFalsy();
+        expect(clearCacheField.props().modelValue).toBeFalsy();
     });
 
     it('should add the checked value to the role privileges', async () => {
@@ -182,13 +178,13 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
             return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
         });
 
-        expect(clearCacheField.props().value).toBeFalsy();
+        expect(clearCacheField.props().modelValue).toBeFalsy();
 
         await clearCacheField.find('input').setChecked(true);
         await flushPromises();
 
         expect(wrapper.vm.role.privileges).toContain('system.clear_cache');
-        expect(clearCacheField.props().checked).toBeTruthy();
+        expect(clearCacheField.props().modelValue).toBeTruthy();
     });
 
     it('should remove the value when it get unchecked', async () => {
@@ -202,7 +198,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
             return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
         });
 
-        expect(clearCacheField.props().checked).toBeTruthy();
+        expect(clearCacheField.props().modelValue).toBeTruthy();
 
         await clearCacheField.find('input').setChecked(false);
         await flushPromises();
@@ -210,7 +206,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         await wrapper.vm.$forceUpdate();
 
         expect(wrapper.vm.role.privileges).not.toContain('system.clear_cache');
-        expect(clearCacheField.props().checked).toBeFalsy();
+        expect(clearCacheField.props().modelValue).toBeFalsy();
     });
 
     it('should disable all checkboxes', async () => {
@@ -232,14 +228,14 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
             return field.classes().includes('sw_users_permissions_additional_permissions_app_all');
         });
 
-        expect(allField.props().value).toBeFalsy();
+        expect(allField.props().modelValue).toBeFalsy();
 
         await allField.find('input').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.role.privileges).toContain('app.all');
         expect(wrapper.vm.role.privileges).toContain('app.appExample');
-        expect(allField.props().checked).toBeTruthy();
+        expect(allField.props().modelValue).toBeTruthy();
     });
 
     it('should unchecked all app privileges when the all option unchecked', async () => {

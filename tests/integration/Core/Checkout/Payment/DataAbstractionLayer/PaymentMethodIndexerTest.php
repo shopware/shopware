@@ -135,26 +135,26 @@ class PaymentMethodIndexerTest extends TestCase
 
         $creditCardPayment = $payments->get($creditCardPaymentId);
         static::assertNotNull($creditCardPayment);
-        static::assertEquals('Credit card', $creditCardPayment->getDistinguishableName());
+        static::assertSame('Credit card', $creditCardPayment->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByShopwarePlugin */
         $invoicePaymentByShopwarePlugin = $payments->get($invoicePaymentByShopwarePluginId);
-        static::assertEquals('Invoice | Shopware (English)', $invoicePaymentByShopwarePlugin->getDistinguishableName());
+        static::assertSame('Invoice | Shopware (English)', $invoicePaymentByShopwarePlugin->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByPlugin */
         $invoicePaymentByPlugin = $payments->get($invoicePaymentByPluginId);
-        static::assertEquals('Invoice | Plugin (English)', $invoicePaymentByPlugin->getDistinguishableName());
+        static::assertSame('Invoice | Plugin (English)', $invoicePaymentByPlugin->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByApp */
         $invoicePaymentByApp = $payments->get($invoicePaymentByAppId);
-        static::assertEquals('Invoice | App', $invoicePaymentByApp->getDistinguishableName());
+        static::assertSame('Invoice | App', $invoicePaymentByApp->getDistinguishableName());
 
         /** @var PaymentMethodEntity $paidInAdvance */
         $paidInAdvance = $payments
             ->filterByProperty('name', 'Paid in advance')
             ->first();
 
-        static::assertEquals($paidInAdvance->getTranslation('name'), $paidInAdvance->getTranslation('distinguishableName'));
+        static::assertSame($paidInAdvance->getTranslation('name'), $paidInAdvance->getTranslation('distinguishableName'));
 
         $germanContext = new Context(
             new SystemSource(),
@@ -170,19 +170,19 @@ class PaymentMethodIndexerTest extends TestCase
 
         $creditCardPayment = $payments->get($creditCardPaymentId);
         static::assertNotNull($creditCardPayment);
-        static::assertEquals('Kreditkarte', $creditCardPayment->getDistinguishableName());
+        static::assertSame('Kreditkarte', $creditCardPayment->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByShopwarePlugin */
         $invoicePaymentByShopwarePlugin = $payments->get($invoicePaymentByShopwarePluginId);
-        static::assertEquals('Rechnungskauf | Shopware (Deutsch)', $invoicePaymentByShopwarePlugin->getDistinguishableName());
+        static::assertSame('Rechnungskauf | Shopware (Deutsch)', $invoicePaymentByShopwarePlugin->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByPlugin */
         $invoicePaymentByPlugin = $payments->get($invoicePaymentByPluginId);
-        static::assertEquals('Rechnung | Plugin (Deutsch)', $invoicePaymentByPlugin->getDistinguishableName());
+        static::assertSame('Rechnung | Plugin (Deutsch)', $invoicePaymentByPlugin->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByApp */
         $invoicePaymentByApp = $payments->get($invoicePaymentByAppId);
-        static::assertEquals('Rechnung | App', $invoicePaymentByApp->getDistinguishableName());
+        static::assertSame('Rechnung | App', $invoicePaymentByApp->getDistinguishableName());
     }
 
     public function testPaymentMethodIndexerNotLooping(): void

@@ -67,7 +67,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
 
         static::assertNotEmpty($result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
-        static::assertEquals($token, $result['token']);
+        static::assertSame($token, $result['token']);
     }
 
     public function testLoadNotExisting(): void
@@ -117,7 +117,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertNotEmpty($result);
 
         static::assertEquals($expected, $result);
-        static::assertEquals($token, $result['token']);
+        static::assertSame($token, $result['token']);
     }
 
     public function testSaveMergesWithExisting(): void
@@ -230,12 +230,12 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $contextPayload1 = $this->contextPersister->load(Uuid::randomHex(), $salesChannel1['id'], $customerId);
         static::assertNotEmpty($contextPayload1);
-        static::assertEquals($token1, $contextPayload1['token']);
+        static::assertSame($token1, $contextPayload1['token']);
 
         $contextPayload2 = $this->contextPersister->load(Uuid::randomHex(), $salesChannel2['id'], $customerId);
 
         static::assertNotEmpty($contextPayload2);
-        static::assertEquals($token2, $contextPayload2['token']);
+        static::assertSame($token2, $contextPayload2['token']);
     }
 
     public function testReplaceWithoutExistingContext(): void
@@ -344,7 +344,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertArrayNotHasKey(SalesChannelContextService::CUSTOMER_ID, $result);
     }
 
-    #[DataProvider('testRevokeTokensDataProvider')]
+    #[DataProvider('revokeTokensTestDataProvider')]
     public function testRevokeTokens(string $token, ?string $preserveToken): void
     {
         $customerId = $this->createCustomer();
@@ -352,7 +352,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         // check token is valid here
         static::assertNotEmpty($result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
-        static::assertEquals($token, $result['token']);
+        static::assertSame($token, $result['token']);
 
         if ($preserveToken) {
             $this->contextPersister->revokeAllCustomerTokens($customerId, $preserveToken);
@@ -367,7 +367,7 @@ class SalesChannelContextPersisterTest extends TestCase
         }
     }
 
-    public static function testRevokeTokensDataProvider(): \Generator
+    public static function revokeTokensTestDataProvider(): \Generator
     {
         yield [Uuid::randomHex(), ''];
         yield [$token = Uuid::randomHex(), $token];

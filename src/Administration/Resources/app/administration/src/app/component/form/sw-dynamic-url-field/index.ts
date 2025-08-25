@@ -3,7 +3,6 @@ import type RepositoryType from 'src/core/data/repository.data';
 import template from './sw-dynamic-url-field.html.twig';
 import './sw-dynamic-url-field.scss';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
@@ -13,7 +12,7 @@ type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'ph
  *
  * @private
  */
-Component.register('sw-dynamic-url-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [

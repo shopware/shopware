@@ -14,6 +14,7 @@
         <!-- Entity definitions -->
         <service id="Shopware\Core\Content\Media\MediaDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.hookable"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition">
@@ -180,6 +181,10 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Api\MediaUploadV2Controller" public="true">
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaUploadService"/>
+        </service>
+
         <!-- Metadata -->
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\ImageMetadataLoader">
             <tag name="shopware.metadata.loader"/>
@@ -254,6 +259,14 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Upload\MediaUploadService">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="http_client"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface" class="Shopware\Core\Content\Media\MediaUrlPlaceholderHandler" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
@@ -293,6 +306,7 @@
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer">

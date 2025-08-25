@@ -239,11 +239,10 @@ export default Component.wrapComponentConfig({
         },
 
         cancelCart(): Promise<void> {
-            return Store.get('swOrder')
-                .cancelCart({
-                    salesChannelId: this.salesChannelId,
-                    contextToken: this.cart.token,
-                });
+            return Store.get('swOrder').cancelCart({
+                salesChannelId: this.salesChannelId,
+                contextToken: this.cart.token,
+            });
         },
     },
 });

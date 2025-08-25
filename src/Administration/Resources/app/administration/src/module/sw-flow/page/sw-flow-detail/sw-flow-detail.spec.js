@@ -598,36 +598,37 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         global.activeAclRoles = ['flow.editor'];
 
         let resolveEvents;
-        const eventsPromise = new Promise(resolve => {
+        const eventsPromise = new Promise((resolve) => {
             resolveEvents = () => resolve(mockBusinessEvents);
         });
 
         let resolveFlowData;
-        const flowDataPromise = new Promise(resolve => {
-            resolveFlowData = () => resolve({
-                id: ID_FLOW,
-                name: 'Flow 1',
-                eventName: 'checkout.customer',
-                sequences: getSequencesCollection([])
-            });
+        const flowDataPromise = new Promise((resolve) => {
+            resolveFlowData = () =>
+                resolve({
+                    id: ID_FLOW,
+                    name: 'Flow 1',
+                    eventName: 'checkout.customer',
+                    sequences: getSequencesCollection([]),
+                });
         });
 
         const customBusinessEventServiceMock = {
-            getBusinessEvents: jest.fn().mockReturnValue(eventsPromise)
+            getBusinessEvents: jest.fn().mockReturnValue(eventsPromise),
         };
 
         const customRepositoryFactoryMock = {
             create: (entity) => {
                 if (entity === 'flow') {
                     return {
-                        get: () => flowDataPromise
+                        get: () => flowDataPromise,
                     };
                 }
                 return {
                     create: () => ({}),
-                    search: () => Promise.resolve([])
+                    search: () => Promise.resolve([]),
                 };
-            }
+            },
         };
 
         const wrapper = await createWrapper(
@@ -638,8 +639,8 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             {},
             {
                 businessEventService: customBusinessEventServiceMock,
-                repositoryFactory: customRepositoryFactoryMock
-            }
+                repositoryFactory: customRepositoryFactoryMock,
+            },
         );
 
         await flushPromises();

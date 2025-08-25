@@ -1,6 +1,8 @@
 $sw-media-modal-v2-non-grid-margin: 0 24px;
 
 .sw-modal.sw-media-modal-v2.sw-modal--full {
+    z-index: 1100;
+
     .sw-modal__dialog {
         height: 100%;
         display: grid;

@@ -28,7 +28,7 @@ class PromotionCodeTupleTest extends TestCase
 
         $tuple = new PromotionCodeTuple('codeA', $promotion1);
 
-        static::assertEquals('codeA', $tuple->getCode());
+        static::assertSame('codeA', $tuple->getCode());
     }
 
     /**

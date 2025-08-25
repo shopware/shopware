@@ -16,11 +16,15 @@ async function createWrapper(privileges = []) {
                 'sw-extension-component-section': true,
                 'sw-search-bar': true,
                 'sw-app-topbar-button': true,
+                'sw-app-topbar-sidebar': true,
                 'sw-notification-center': true,
                 'sw-help-center-v2': true,
                 'router-link': true,
                 'sw-app-actions': true,
                 'sw-error-summary': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-settings-services-dashboard-banner': true,
             },
             mocks: {
                 $tc: jest.fn().mockImplementation((snippetPath, placeholders) => {

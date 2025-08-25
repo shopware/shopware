@@ -3,21 +3,21 @@
 .sw-help-text {
     width: 16px;
     height: 16px;
-    background-color: $color-shopware-brand-500;
-    color: $color-white;
+    color: var(--color-icon-brand-default);
     border-radius: 50%;
     line-height: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     pointer-events: auto;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--color-icon-brand-hover);
+    }
 
     .mt-icon {
         width: 16px;
         height: 16px;
-        padding-top: 4px;
-        padding-right: 5px;
-        padding-bottom: 3px;
-        padding-left: 5px;
     }
 }

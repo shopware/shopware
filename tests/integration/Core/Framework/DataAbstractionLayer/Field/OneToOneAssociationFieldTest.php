@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
@@ -40,8 +41,14 @@ class OneToOneAssociationFieldTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $repository;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $subRepository;
 
     protected function setUp(): void
@@ -336,7 +343,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
         static::assertInstanceOf(SumResult::class, $sum);
 
-        static::assertEquals(11, $sum->getSum());
+        static::assertSame(11.0, $sum->getSum());
     }
 
     public function testCreateVersioning(): void

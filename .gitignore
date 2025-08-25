@@ -159,3 +159,6 @@ devenv.local.nix
 
 # danger.php
 danger.phar
+
+# Vite deps
+**/.tmp/vite/*

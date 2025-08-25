@@ -40,7 +40,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.Store.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         documentTypes() {

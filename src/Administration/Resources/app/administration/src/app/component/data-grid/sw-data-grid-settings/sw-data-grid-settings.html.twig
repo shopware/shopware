@@ -35,10 +35,10 @@
         {% block sw_data_grid_settings_compact_switch %}
 
         <mt-switch
-            :checked="currentCompact"
+            :model-value="currentCompact"
             remove-top-margin
             :label="$tc('global.sw-data-grid.labelSettingsCompactMode')"
-            @change="onChangeCompactMode(currentCompact)"
+            @update:model-value="onChangeCompactMode"
         />
         {% endblock %}
 
@@ -46,10 +46,10 @@
 
         <mt-switch
             v-if="enablePreviews"
-            :checked="currentPreviews"
+            :model-value="currentPreviews"
             remove-top-margin
             :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')"
-            @change="onChangePreviews(currentPreviews)"
+            @update:model-value="onChangePreviews"
         />
         {% endblock %}
 

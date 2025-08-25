@@ -75,7 +75,7 @@ class UninstallAppsStrategyTest extends TestCase
 
         $uninstallAppsResolver->resolve($this->context);
 
-        static::assertNotEquals($shopId, $this->shopIdProvider->getShopId());
+        static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
 
         static::assertNull($this->getInstalledApp($this->context));
     }

@@ -60,7 +60,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $expect = $data[$id];
         static::assertNotEmpty($record);
-        static::assertEquals($id, $record['id']);
+        static::assertSame($id, $record['id']);
         static::assertSame($expect['activity'], $record['activity']);
         static::assertSame($expect['state'], $record['state']);
         static::assertSame($expect['userId'], Uuid::fromBytesToHex($record['user_id']));
@@ -159,7 +159,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
             $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
 
-            static::assertEquals($missingPropertyPaths, $foundViolations);
+            static::assertSame($missingPropertyPaths, $foundViolations);
         }
     }
 

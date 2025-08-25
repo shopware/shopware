@@ -38,7 +38,7 @@ class AppCookieProviderTest extends TestCase
 
         $result = $this->appCookieProvider->getCookieGroups();
 
-        static::assertEquals(['test'], $result);
+        static::assertSame(['test'], $result);
     }
 
     public function testItAddsSingleCookieFromApp(): void
@@ -103,7 +103,7 @@ class AppCookieProviderTest extends TestCase
 
         $result = $this->appCookieProvider->getCookieGroups();
         static::assertCount(1, $result);
-        static::assertEquals('cookie.groupRequired', $result[0]['snippet_name']);
+        static::assertSame('cookie.groupRequired', $result[0]['snippet_name']);
         static::assertCount(3, $result[0]['entries']);
         usort($result[0]['entries'], fn (array $a, array $b): int => $a['snippet_name'] <=> $b['snippet_name']);
 
@@ -133,7 +133,7 @@ class AppCookieProviderTest extends TestCase
 
         $result = $this->appCookieProvider->getCookieGroups();
         static::assertCount(1, $result);
-        static::assertEquals('App Cookies', $result[0]['snippet_name']);
+        static::assertSame('App Cookies', $result[0]['snippet_name']);
         static::assertCount(3, $result[0]['entries']);
         usort($result[0]['entries'], fn (array $a, array $b): int => $a['snippet_name'] <=> $b['snippet_name']);
 

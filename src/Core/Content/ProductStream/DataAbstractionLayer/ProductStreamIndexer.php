@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Event\ProductStreamIndexerEvent;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -28,6 +29,8 @@ class ProductStreamIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductStreamCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -36,7 +39,6 @@ class ProductStreamIndexer extends EntityIndexer
         private readonly SerializerInterface $serializer,
         private readonly ProductDefinition $productDefinition,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly bool $indexingEnabled,
     ) {
     }
 
@@ -50,10 +52,6 @@ class ProductStreamIndexer extends EntityIndexer
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if (!$this->indexingEnabled) {
-            return null;
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
@@ -67,10 +65,6 @@ class ProductStreamIndexer extends EntityIndexer
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        if (!$this->indexingEnabled) {
-            return null;
-        }
-
         $updates = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
 
         if (!$updates) {

@@ -40,17 +40,17 @@ class AppInfoTest extends TestCase
     {
         $appInfo = AppInfo::fromNameAndArray('TestApp', ['app-version' => '1.0.0', 'app-hash' => 'a453f', 'app-revision' => '1.0.0-a453f', 'app-zip-url' => 'https://website.com/zip']);
 
-        static::assertEquals('1.0.0', $appInfo->version);
-        static::assertEquals('a453f', $appInfo->hash);
-        static::assertEquals('1.0.0-a453f', $appInfo->revision);
-        static::assertEquals('https://website.com/zip', $appInfo->zipUrl);
+        static::assertSame('1.0.0', $appInfo->version);
+        static::assertSame('a453f', $appInfo->hash);
+        static::assertSame('1.0.0-a453f', $appInfo->revision);
+        static::assertSame('https://website.com/zip', $appInfo->zipUrl);
     }
 
     public function testToArray(): void
     {
         $appInfo = new AppInfo('TestApp', '1.0.0', 'a453f', '1.0.0-a453f', 'https://website.com/zip');
 
-        static::assertEquals(
+        static::assertSame(
             ['version' => '1.0.0', 'hash' => 'a453f', 'revision' => '1.0.0-a453f', 'zip-url' => 'https://website.com/zip'],
             $appInfo->toArray()
         );

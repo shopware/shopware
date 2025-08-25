@@ -16,6 +16,6 @@ class StockLoadRequestTest extends TestCase
     {
         $stockRequest = new StockLoadRequest(['product-1', 'product-2']);
 
-        static::assertEquals(['product-1', 'product-2'], $stockRequest->productIds);
+        static::assertSame(['product-1', 'product-2'], $stockRequest->productIds);
     }
 }

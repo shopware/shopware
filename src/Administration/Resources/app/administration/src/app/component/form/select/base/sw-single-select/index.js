@@ -5,13 +5,13 @@
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-single-select', {
+export default {
     template,
 
     inject: ['feature'],
@@ -251,4 +251,4 @@ Component.register('sw-single-select', {
             this.setValue(null);
         },
     },
-});
+};

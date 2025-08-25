@@ -5,12 +5,10 @@
 import template from './sw-app-app-url-changed-modal.html.twig';
 import './sw-app-app-url-changed-modal.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-app-app-url-changed-modal', {
+export default {
     template,
 
     inject: ['appUrlChangeService'],
@@ -72,24 +70,25 @@ Component.register('sw-app-app-url-changed-modal', {
 
         getActiveStyle({ name }) {
             return {
-                'sw-app-app-url-changed-modal__content-migration-strategy--active': name === this.selectedStrategy.name,
+                'sw-app-app-url-changed-modal__button-strategy--active': name === this.selectedStrategy.name,
             };
         },
 
-        confirm() {
-            this.appUrlChangeService
-                .resolveUrlChange(this.selectedStrategy)
-                .then(() => {
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.success'),
-                    });
-                })
-                .then(this.closeModal)
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.error'),
-                    });
+        async confirm() {
+            try {
+                await this.appUrlChangeService.resolveUrlChange(this.selectedStrategy);
+
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.success'),
                 });
+
+                // shop url could have changed
+                window.location.reload();
+            } catch {
+                this.createNotificationError({
+                    message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.error'),
+                });
+            }
         },
     },
-});
+};

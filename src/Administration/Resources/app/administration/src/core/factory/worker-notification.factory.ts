@@ -11,8 +11,8 @@ import type { NotificationType } from '../../app/store/notification.store';
 
 /** @private */
 export type NotificationService = {
-    create: (config: NotificationType) => Promise<string>;
-    update: (config: NotificationType) => Promise<void>;
+    create: (config: NotificationType) => string;
+    update: (config: NotificationType) => void;
 };
 
 /**

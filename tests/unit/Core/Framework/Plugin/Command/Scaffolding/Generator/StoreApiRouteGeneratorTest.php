@@ -43,7 +43,7 @@ class StoreApiRouteGeneratorTest extends TestCase
         (new StoreApiRouteGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(StoreApiRouteGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(StoreApiRouteGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator

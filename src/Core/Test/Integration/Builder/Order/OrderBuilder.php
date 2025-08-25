@@ -30,9 +30,9 @@ class OrderBuilder
 
     protected string $orderNumber;
 
-    protected string $currencyId;
+    protected string $currencyId = Defaults::CURRENCY;
 
-    protected float $currencyFactor;
+    protected float $currencyFactor = 1.0;
 
     protected string $billingAddressId;
 
@@ -59,6 +59,11 @@ class OrderBuilder
 
     protected string $stateId;
 
+    /**
+     * @var array{id: string, orderId: string, customerId: string, versionId: string, orderVersionId: string, firstName: string, lastName: string, email: string}|null
+     */
+    protected ?array $orderCustomer = null;
+
     public function __construct(
         IdsCollection $ids,
         string $orderNumber,
@@ -67,11 +72,9 @@ class OrderBuilder
         $this->ids = $ids;
         $this->id = $ids->get($orderNumber);
         $this->billingAddressId = $ids->get('billing_address');
-        $this->currencyId = Defaults::CURRENCY;
         $this->stateId = $this->getStateMachineState();
         $this->orderNumber = $orderNumber;
         $this->orderDateTime = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $this->currencyFactor = 1.0;
 
         $this->price(420.69);
         $this->shippingCosts(0);
@@ -160,6 +163,22 @@ class OrderBuilder
         ], $customParams);
 
         $this->addresses[$key] = $address;
+
+        return $this;
+    }
+
+    public function orderCustomer(string $firstName, string $customerNumber): self
+    {
+        $this->orderCustomer = [
+            'id' => $this->ids->get('orderCustomer'),
+            'orderId' => $this->id,
+            'customerId' => $this->ids->get($customerNumber),
+            'versionId' => Defaults::LIVE_VERSION,
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'firstName' => $firstName,
+            'lastName' => 'Mustermann',
+            'email' => 'some@mail.de',
+        ];
 
         return $this;
     }

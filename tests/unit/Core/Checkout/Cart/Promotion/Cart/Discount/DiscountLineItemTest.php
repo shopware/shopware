@@ -44,7 +44,7 @@ class DiscountLineItemTest extends TestCase
     #[Group('promotions')]
     public function testLabel(): void
     {
-        static::assertEquals('Black Friday', $this->discount->getLabel());
+        static::assertSame('Black Friday', $this->discount->getLabel());
     }
 
     /**
@@ -54,7 +54,7 @@ class DiscountLineItemTest extends TestCase
     #[Group('promotions')]
     public function testScope(): void
     {
-        static::assertEquals('cart', $this->discount->getScope());
+        static::assertSame('cart', $this->discount->getScope());
     }
 
     /**
@@ -64,7 +64,7 @@ class DiscountLineItemTest extends TestCase
     #[Group('promotions')]
     public function testType(): void
     {
-        static::assertEquals('absolute', $this->discount->getType());
+        static::assertSame('absolute', $this->discount->getType());
     }
 
     /**
@@ -74,7 +74,7 @@ class DiscountLineItemTest extends TestCase
     #[Group('promotions')]
     public function testCode(): void
     {
-        static::assertEquals('bf', $this->discount->getCode());
+        static::assertSame('bf', $this->discount->getCode());
     }
 
     /**
@@ -94,7 +94,7 @@ class DiscountLineItemTest extends TestCase
     #[Group('promotions')]
     public function testSorterApplierKey(): void
     {
-        static::assertEquals('PRICE_ASC', $this->discount->getFilterSorterKey());
+        static::assertSame('PRICE_ASC', $this->discount->getFilterSorterKey());
     }
 
     /**
@@ -104,7 +104,7 @@ class DiscountLineItemTest extends TestCase
     #[Group('promotions')]
     public function testFilterApplierKey(): void
     {
-        static::assertEquals('ALL', $this->discount->getFilterApplierKey());
+        static::assertSame('ALL', $this->discount->getFilterApplierKey());
     }
 
     /**
@@ -114,7 +114,7 @@ class DiscountLineItemTest extends TestCase
     #[Group('promotions')]
     public function testUsageApplierKey(): void
     {
-        static::assertEquals('UNLIMITED', $this->discount->getFilterUsageKey());
+        static::assertSame('UNLIMITED', $this->discount->getFilterUsageKey());
     }
 
     /**
@@ -134,6 +134,6 @@ class DiscountLineItemTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $this->discount->getPayload());
+        static::assertSame($expected, $this->discount->getPayload());
     }
 }

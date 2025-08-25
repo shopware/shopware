@@ -82,7 +82,7 @@ export default {
         },
 
         labelValue() {
-            return this.$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelValue', !this.isPercentageType);
+            return this.$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelValue', {}, !this.isPercentageType);
         },
 
         showAdvancedPricesLink() {

@@ -35,10 +35,6 @@ describe('sw-bulk-edit-save-modal-process', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should create documents when component created', async () => {
         wrapper.vm.createDocuments = jest.fn();
 
@@ -51,7 +47,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
     it('should not be able to create documents', async () => {
         wrapper.vm.createDocument = jest.fn();
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        Shopware.Store.get('swBulkEdit').selectedIds = [];
 
         await wrapper.vm.createDocuments();
 
@@ -61,7 +57,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
     it('should be able to create invoice document', async () => {
         wrapper.vm.createDocument = jest.fn();
-        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'invoice',
             isChanged: true,
@@ -87,7 +83,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
     it('should be able to create storno document', async () => {
         wrapper.vm.createDocument = jest.fn();
-        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'storno',
             isChanged: true,
@@ -113,7 +109,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
     it('should be able to create delivery note document', async () => {
         wrapper.vm.createDocument = jest.fn();
-        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'delivery_note',
             isChanged: true,
@@ -139,7 +135,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
     it('should be able to create credit note document', async () => {
         wrapper.vm.createDocument = jest.fn();
-        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'credit_note',
             isChanged: true,
@@ -185,7 +181,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     it('should break down the request to generate the document', async () => {
         wrapper.vm.orderDocumentApiService.generate = jest.fn(() => Promise.resolve());
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
+        Shopware.Store.get('swBulkEdit').selectedIds = [
             'orderId',
             'orderId2',
             'orderId3',

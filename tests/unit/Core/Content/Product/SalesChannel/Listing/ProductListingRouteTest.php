@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -31,6 +33,7 @@ class ProductListingRouteTest extends TestCase
     public function testFiltersAreSetForCategories(): void
     {
         $categoryId = 'categoryId';
+        /** @var StaticEntityRepository<CategoryCollection> */
         $categoryRepository = new StaticEntityRepository([
             new EntityCollection([
                 new PartialEntity([
@@ -45,7 +48,7 @@ class ProductListingRouteTest extends TestCase
             $this->createMock(ProductListingLoader::class),
             $categoryRepository,
             $this->createMock(ProductStreamBuilderInterface::class),
-            $eventDispatcher,
+            $this->createMock(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
@@ -64,6 +67,7 @@ class ProductListingRouteTest extends TestCase
     {
         $categoryId = 'categoryId';
         $streamId = 'streamId';
+        /** @var StaticEntityRepository<CategoryCollection> */
         $categoryRepository = new StaticEntityRepository([new EntityCollection([
             new PartialEntity(
                 [
@@ -82,7 +86,7 @@ class ProductListingRouteTest extends TestCase
             $this->createMock(ProductListingLoader::class),
             $categoryRepository,
             $productStreamBuilder,
-            $eventDispatcher,
+            $this->createMock(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
@@ -111,7 +115,7 @@ class ProductListingRouteTest extends TestCase
             $this->createMock(ProductListingLoader::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(ProductStreamBuilderInterface::class),
-            $eventDispatcher,
+            $this->createMock(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 
@@ -123,6 +127,7 @@ class ProductListingRouteTest extends TestCase
     public function testExtension(): void
     {
         $categoryId = 'categoryId';
+        /** @var StaticEntityRepository<CategoryCollection> */
         $categoryRepository = new StaticEntityRepository([
             new EntityCollection([
                 new PartialEntity([
@@ -143,7 +148,7 @@ class ProductListingRouteTest extends TestCase
             $this->createMock(ProductListingLoader::class),
             $categoryRepository,
             $this->createMock(ProductStreamBuilderInterface::class),
-            $eventDispatcher,
+            $this->createMock(CacheTagCollector::class),
             new ExtensionDispatcher($eventDispatcher),
         );
 

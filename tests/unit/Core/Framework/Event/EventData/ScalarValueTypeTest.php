@@ -18,7 +18,7 @@ class ScalarValueTypeTest extends TestCase
             'type' => 'float',
         ];
 
-        static::assertEquals($expected, (new ScalarValueType(ScalarValueType::TYPE_FLOAT))->toArray());
+        static::assertSame($expected, (new ScalarValueType(ScalarValueType::TYPE_FLOAT))->toArray());
     }
 
     public function testThrowExceptionOnInvalidType(): void

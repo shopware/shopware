@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -42,7 +42,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     /**
      * @internal
      *
-     * @param SalesChannelRepository<ProductCollection> $productRepository
+     * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
@@ -182,8 +182,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $content = $this->seoUrlPlaceholderHandler->replace($content, $domain->getUrl(), $context);
 
+        $encodedContent = mb_convert_encoding($content, $productExport->getEncoding());
+        \assert(\is_string($encodedContent));
         $encodingEvent = $this->eventDispatcher->dispatch(
-            new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))
+            new ProductExportChangeEncodingEvent($productExport, $content, $encodedContent)
         );
 
         $this->translator->resetInjection();

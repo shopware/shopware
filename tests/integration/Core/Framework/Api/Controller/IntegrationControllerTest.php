@@ -38,7 +38,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -56,7 +56,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => true,
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -81,16 +81,10 @@ class IntegrationControllerTest extends TestCase
 
         $client = $this->getBrowser();
 
-        $json = \json_encode(['admin' => true], \JSON_THROW_ON_ERROR);
-        static::assertIsString($json);
-
-        $client->request(
+        $client->jsonRequest(
             'PATCH',
             '/api/integration/' . $ids->get('integration'),
-            [],
-            [],
-            [],
-            $json
+            ['admin' => true]
         );
 
         $response = $client->getResponse();
@@ -102,7 +96,7 @@ class IntegrationControllerTest extends TestCase
             ->search(new Criteria([$ids->get('integration')]), $context);
 
         static::assertNotNull($assigned);
-        static::assertEquals(1, $assigned->count());
+        static::assertCount(1, $assigned);
         static::assertNotNull($assigned->first());
         static::assertTrue($assigned->first()->getAdmin());
     }
@@ -118,7 +112,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -136,7 +130,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -155,7 +149,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => true,
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/integration', $data);
 
         $response = $client->getResponse();
 
@@ -181,24 +175,15 @@ class IntegrationControllerTest extends TestCase
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:update']);
         $client = $this->getBrowser();
 
-        $json = \json_encode(
+        $client->jsonRequest(
+            'PATCH',
+            '/api/integration/' . $ids->get('integration'),
             [
                 'aclRoles' => [
                     ['id' => $ids->get('role-1'), 'name' => 'role-1'],
                     ['id' => $ids->get('role-2'), 'name' => 'role-2'],
                 ],
-            ],
-            \JSON_THROW_ON_ERROR
-        );
-        static::assertIsString($json);
-
-        $client->request(
-            'PATCH',
-            '/api/integration/' . $ids->get('integration'),
-            [],
-            [],
-            [],
-            $json
+            ]
         );
 
         $response = $client->getResponse();
@@ -219,7 +204,7 @@ class IntegrationControllerTest extends TestCase
         $expectedIds = $ids->getList(['role-1', 'role-2']);
         sort($expectedIds);
 
-        static::assertEquals($expectedIds, $aclRoleIds);
+        static::assertSame($expectedIds, $aclRoleIds);
     }
 
     public function testPreventUpdateIntegrationWithAdministratorRoleAsNonAdmin(): void
@@ -241,16 +226,10 @@ class IntegrationControllerTest extends TestCase
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:create']);
         $client = $this->getBrowser();
 
-        $json = \json_encode(['admin' => true], \JSON_THROW_ON_ERROR);
-        static::assertIsString($json);
-
-        $client->request(
+        $client->jsonRequest(
             'PATCH',
             '/api/integration/' . $ids->get('integration'),
-            [],
-            [],
-            [],
-            $json
+            ['admin' => true]
         );
 
         $response = $client->getResponse();
@@ -261,7 +240,7 @@ class IntegrationControllerTest extends TestCase
         $assigned = static::getContainer()->get('integration.repository')
             ->search(new Criteria([$ids->get('integration')]), $context);
 
-        static::assertEquals(1, $assigned->count());
+        static::assertCount(1, $assigned);
         static::assertNotNull($assigned->first());
         static::assertFalse($assigned->first()->getAdmin());
     }

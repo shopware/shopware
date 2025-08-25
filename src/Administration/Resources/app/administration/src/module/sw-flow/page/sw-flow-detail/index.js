@@ -323,7 +323,7 @@ export default {
                 flowStore.setFlow(data);
                 flowStore.setOriginFlow(cloneDeep(data));
                 await this.getDataForActionDescription();
-            } catch  {
+            } catch {
                 this.createNotificationError({
                     message: this.$tc('sw-flow.flowNotification.messageError'),
                 });

@@ -52,7 +52,7 @@ class ProductFeatureSetCrudTest extends TestCase
                 ['id' => Uuid::fromHexToBytes($ids->get('feature-set'))]
             );
 
-        static::assertEquals($exists, Uuid::fromHexToBytes($ids->get('feature-set')));
+        static::assertSame($exists, Uuid::fromHexToBytes($ids->get('feature-set')));
 
         $delete = ['id' => $ids->get('feature-set')];
 

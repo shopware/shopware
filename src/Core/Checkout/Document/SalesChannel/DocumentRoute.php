@@ -2,16 +2,18 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('after-sales')]
 final class DocumentRoute extends AbstractDocumentRoute
 {
@@ -39,7 +41,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'document'])]
+    #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_entity' => 'document'])]
     public function download(
         string $documentId,
         Request $request,
@@ -47,13 +49,10 @@ final class DocumentRoute extends AbstractDocumentRoute
         string $deepLinkCode = '',
         string $fileType = PdfRenderer::FILE_EXTENSION
     ): Response {
-        if (!$context->getCustomer()) {
-            $this->checkGuestAuth($documentId, $request, $context->getContext());
-        }
+        $this->checkAuth($documentId, $request, $context);
 
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
-        if ($customer->getGuest() && $deepLinkCode === '') {
+        $isGuest = $context->getCustomer() === null || $context->getCustomer()->getGuest();
+        if ($isGuest && $deepLinkCode === '') {
             throw DocumentException::customerNotLoggedIn();
         }
 
@@ -90,19 +89,19 @@ final class DocumentRoute extends AbstractDocumentRoute
         return $response;
     }
 
-    private function checkGuestAuth(string $documentId, Request $request, Context $context): void
+    private function checkAuth(string $documentId, Request $request, SalesChannelContext $context): void
     {
         $criteria = (new Criteria([$documentId]))
             ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
 
-        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        $document = $this->documentRepository->search($criteria, $context->getContext())->getEntities()->first();
         if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
         $order = $document->getOrder();
         if (!$order) {
-            throw DocumentException::guestNotAuthenticated();
+            throw DocumentException::orderNotFound($document->getOrderId());
         }
 
         $orderCustomer = $order->getOrderCustomer();
@@ -110,9 +109,21 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        $guest = $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
-        // Throw exception when customer is not guest
-        if (!$guest) {
+        if ($orderCustomer->getCustomerId() === $context->getCustomer()?->getId()) {
+            return;
+        }
+
+        $this->checkGuestAuth($order, $orderCustomer, $request);
+    }
+
+    private function checkGuestAuth(
+        OrderEntity $order,
+        OrderCustomerEntity $orderCustomer,
+        Request $request
+    ): void {
+        $isOrderByGuest = $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
+
+        if (!$isOrderByGuest) {
             throw DocumentException::customerNotLoggedIn();
         }
 

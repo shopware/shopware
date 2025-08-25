@@ -1,12 +1,140 @@
 # Get involved
 
-Shopware is available under MIT license. If you want to contribute code (features or bug fixes), you have to create a pull request and include valid license information. Contribute your code under MIT license.
+Shopware is available under the MIT license. If you want to contribute code (features or bug fixes), you have to create a pull request and include valid license information. Contribute your code under the MIT license.
 
 If you want more details about available licensing or the contribution agreements we offer, you can contact us at <contact@shopware.com>.
 
 ## Contributing to the Shopware code base
 If you want to learn how to contribute code to Shopware, please refer to [Contributing Code](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html).
 Also, make sure that you add a changelog file that describes your changes in a meaningful way. For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/adr/2020-08-03-implement-new-changelog.md).
+
+## Devcontainer
+
+If you're editor supports Devcontainer, you can open the repository directly in a Container. This environment is preconfigured with all the necessary tools and dependencies to install Shopware. You can find more about Devcontainers [here](https://code.visualstudio.com/docs/devcontainers/containers).
+
+After you opened the repository in a Devcontainer, you can run `composer setup` to install all dependencies. This will download all the necessary dependencies and set up the environment for development. After the setup is complete, you can access the application at [http://localhost:8000](http://localhost:8000).
+
+You can start all the Watcher processes with `composer [tool]` ([see below for a listing](#command-overview)).
+
+## Local Docker Setup
+
+The repository contains a Docker setup to run the application locally. You can start the containers with `docker compose up -d` and build the project with `docker compose exec web composer setup`.
+This will download the necessary dependencies and set up the environment for development. After the setup is complete, you can access the application at [http://localhost:8000](http://localhost:8000).
+
+The Administration can be accessed at [http://localhost:8000/admin](http://localhost:8000/admin) and the Username is `admin` with the Password `shopware`.
+
+To run the Administration Watcher you can use:
+
+```bash
+docker compose exec web composer watch:admin
+```
+
+and the Watcher is available at [http://localhost:5773](http://localhost:5773).
+
+To run the Storefront Watcher you can use:
+
+```bash
+docker compose exec web composer watch:storefront
+```
+
+and the Watcher is available at [http://localhost:9998](http://localhost:9998).
+
+To access the database you can go to [http://localhost:9080](http://localhost:9080) and use the following credentials:
+
+- Username: `root`
+- Password: `root`
+- Database: `database`
+
+### Configuring PHPStorm to Run in Docker
+
+In PHPStorm you need to create a new PHP Interpreter from Docker Compose and select the `web` service.
+Make sure you set the Lifecycle to **Connect to existing container** to speed up test execution.
+
+### Running tools
+
+You will need to prepend to all commands `docker compose exec web` to run the commands in the container. For example:
+
+```bash
+docker compose exec web composer setup
+```
+
+For all commands see [Command Overview](#command-overview).
+
+
+### Enable Profiler/Debugging for PHP
+
+To enable XDebug, you will need to create a `compose.override.yaml`
+
+```yaml
+services:
+    web:
+        environment:
+            - XDEBUG_MODE=debug
+            - XDEBUG_CONFIG=client_host=host.docker.internal
+            - PHP_PROFILER=xdebug
+```
+
+and then run `docker compose up -d` to apply the changes.
+
+It also supports `blackfire`, `tideways` and `pcov`. For `tideways` and `blackfire` you will need a separate container like:
+
+```yaml
+services:
+    web:
+        environment:
+            - PHP_PROFILER=blackfire
+    blackfire:
+        image: blackfire/blackfire:2
+        environment:
+            BLACKFIRE_SERVER_ID: XXXX
+            BLACKFIRE_SERVER_TOKEN: XXXX
+```
+
+### Using OrbStack Routing
+
+Instead of using regular ports, you can also use the OrbStack URL generation feature. OrbStack generates for each running container a URL like `https://web.orb.local` and allows for easier access to your services without needing to manage port mappings.
+This allows running multiple Shopware instances at the same time without port conflicts.
+
+Create a `compose.override.yaml` with:
+
+```yaml
+services:
+    web:
+        ports: !override []
+        environment:
+            APP_URL: https://web.sw-trunk.orb.local
+    database:
+        ports: !override []
+    adminer:
+        ports: !override []
+    valkey:
+        ports: !override []
+    mailer:
+        ports: !override []
+    opensearch:
+        ports: !override []
+```
+
+The APP_URL environment variable always starts with `web.<project-name>.orb.local` and the rest of the URL is generated by the project name. The project name is the folder name of the project. So if you have a project called `shopware`, the URL will be `https://web.shopware.orb.local`. If you have a project called `shopware-6`, the URL will be `https://web.shopware-6.orb.local`.
+
+You can also open `https://orb.local` in your browser and see all running containers and their URLs.
+
+To run the Storefront Watcher you will need to set an additional `PROXY_URL` environment variable. This is needed to make the watcher work with the OrbStack routing.
+
+```bash
+docker compose run --rm -p 9998:9998 -p 9999:9999 -e PROXY_URL=http://localhost web composer watch:storefront
+```
+
+## Command Overview
+
+- `composer phpstan` to run PHPStan
+- `composer ecs-fix` to run PHP CS
+- `composer storefront:unit` to run Jest for the Storefront
+- `composer admin:unit` to run Jest for the Administration
+- `composer stylelint:storefront:fix` to run Stylelint for the Storefront
+- `composer stylelint:admin:fix` to run Stylelint for the Administration
+- `composer eslint:storefront` to run ESLint for the Storefront
+- `composer eslint:admin` to run ESLint for the Administration
 
 ## Documentation
 

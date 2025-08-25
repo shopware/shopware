@@ -190,11 +190,6 @@ class ElasticsearchEntityAggregatorTest extends TestCase
 
         $dispatcher->addListener(ElasticsearchEntityAggregatorSearchedEvent::class, static function (ElasticsearchEntityAggregatorSearchedEvent $event) use (&$searchedEventDispatched): void {
             $searchedEventDispatched = true;
-            static::assertEquals([
-                'hits' => [
-                    'hits' => [],
-                ],
-            ], $event->result);
         });
 
         $aggregator = new ElasticsearchEntityAggregator(

@@ -38,6 +38,7 @@ async function createWrapper(customPropsData = {}) {
                     'sw-select-result': true,
                     'sw-select-result-list': true,
                     'sw-pagination': true,
+                    'sw-product-variant-info': true,
                 },
                 provide: {
                     repositoryFactory: {},
@@ -48,12 +49,6 @@ async function createWrapper(customPropsData = {}) {
 }
 
 describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled sw-select-base', async () => {
         const wrapper = await createWrapper();
 

@@ -72,7 +72,7 @@ class StructEncoderTest extends TestCase
 
         static::assertArrayNotHasKey('cheapestPrice', $encoded);
         static::assertArrayHasKey('name', $encoded);
-        static::assertEquals('test', $encoded['name']);
+        static::assertSame('test', $encoded['name']);
     }
 
     public function testNoneMappedFieldsAreNotExposed(): void
@@ -88,7 +88,7 @@ class StructEncoderTest extends TestCase
 
         static::assertArrayNotHasKey('notExposed', $encoded);
         static::assertArrayHasKey('name', $encoded);
-        static::assertEquals('test', $encoded['name']);
+        static::assertSame('test', $encoded['name']);
     }
 
     public function testExtensionAreSupported(): void
@@ -125,7 +125,7 @@ class StructEncoderTest extends TestCase
 
         $item = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE, 'test');
 
-        $item->setPayload(['foo' => 'bar', 'bar' => 'foo'], ['foo' => false, 'bar' => true]);
+        $item->setPayload(['not_protected' => 'test', 'protected' => 'test'], ['not_protected' => false, 'protected' => true]);
 
         $cart->add($item);
 
@@ -137,8 +137,8 @@ class StructEncoderTest extends TestCase
         static::assertArrayHasKey(0, $encoded['lineItems']);
         static::assertArrayHasKey('payload', $encoded['lineItems'][0]);
         static::assertIsArray($encoded['lineItems'][0]['payload']);
-        static::assertArrayHasKey('foo', $encoded['lineItems'][0]['payload']);
-        static::assertArrayNotHasKey('bar', $encoded['lineItems'][0]['payload']);
+        static::assertArrayHasKey('not_protected', $encoded['lineItems'][0]['payload']);
+        static::assertArrayNotHasKey('protected', $encoded['lineItems'][0]['payload']);
     }
 
     public function testCustomFieldsAreExposed(): void
@@ -147,19 +147,19 @@ class StructEncoderTest extends TestCase
         $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $product->setName('test');
-        $product->setCustomFields(['foo' => 'bar', 'bar' => 'foo']);
+        $product->setCustomFields(['visible_1' => 'test', 'visible_2' => 'test']);
 
         $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
 
         $encoded = $structEncoder->encode($product, new ResponseFields(null));
 
         $expectedCustomFields = [
-            'foo' => 'bar',
-            'bar' => 'foo',
+            'visible_1' => 'test',
+            'visible_2' => 'test',
         ];
 
         static::assertArrayHasKey('customFields', $encoded);
-        static::assertEquals($expectedCustomFields, $encoded['customFields']);
+        static::assertSame($expectedCustomFields, $encoded['customFields']);
     }
 
     public function testCustomFieldsFieldIsBlocked(): void
@@ -168,7 +168,7 @@ class StructEncoderTest extends TestCase
         $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $product->setName('test');
-        $product->setCustomFields(['foo' => 'bar', 'bar' => 'foo']);
+        $product->setCustomFields(['visible' => 'test', 'blocked' => 'test']);
 
         $connection = $this->createMock(Connection::class);
 
@@ -177,7 +177,7 @@ class StructEncoderTest extends TestCase
             ->willReturn([
                 [
                     'entity_name' => 'product',
-                    'name' => 'bar',
+                    'name' => 'blocked',
                 ],
             ]);
 
@@ -186,11 +186,44 @@ class StructEncoderTest extends TestCase
         $encoded = $structEncoder->encode($product, new ResponseFields(null));
 
         $expectedCustomFields = [
-            'foo' => 'bar',
+            'visible' => 'test',
+        ];
+
+        static::assertArrayHasKey('customFields', $encoded);
+        static::assertSame($expectedCustomFields, $encoded['customFields']);
+    }
+
+    public function testCustomFieldsFieldIsBlockedInNestedArray(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setName('test');
+        $product->setCustomFields(['visible' => 'test', 'blocked' => 'test']);
+        $product->setTranslated(['customFields' => ['visible' => 'test', 'blocked' => 'test']]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'entity_name' => 'product',
+                    'name' => 'blocked',
+                ],
+            ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+
+        $expectedCustomFields = [
+            'visible' => 'test',
         ];
 
         static::assertArrayHasKey('customFields', $encoded);
         static::assertEquals($expectedCustomFields, $encoded['customFields']);
+        static::assertEquals($expectedCustomFields, $encoded['translated']['customFields']);
     }
 
     /**

@@ -5,7 +5,7 @@ namespace Shopware\Administration\Framework\Twig;
 use Pentatrion\ViteBundle\Service\FileAccessor;
 use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Asset\Package as AssetPackage;
+use Symfony\Component\Asset\PackageInterface as AssetPackage;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[Package('framework')]
 class ViteFileAccessorDecorator extends FileAccessor
 {
-    private string $assetPath;
+    private readonly string $assetPath;
 
     /**
      * @var array<string, array<string, array<string, mixed>>>
@@ -121,6 +121,10 @@ class ViteFileAccessorDecorator extends FileAccessor
 
                 // Prepend the asset path to the every entry point
                 foreach ($entrypoint as $index => $entry) {
+                    // There is an edge case where symfony removes the "bundle" suffix from the bundle name
+                    // @see \Shopware\Core\Framework\Plugin\Util\AssetService::getTargetDirectory
+                    $entry = str_replace('bundle/administration', '/administration', $entry);
+
                     $content['entryPoints'][$technicalBundleName][$key][$index] = \sprintf('%s%s', $this->assetPath, $entry);
                 }
             }

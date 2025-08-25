@@ -12,7 +12,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-is-always-valid :condition="condition"></sw-condition-is-always-valid>
  */
-Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -41,4 +42,4 @@ Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
             return this.conditionValueIsNewError;
         },
     },
-});
+};

@@ -133,10 +133,27 @@
             <label lang="de-DE">Adresszusatzzeile 2 ist Pflichtfeld</label>
         </input-field>
 
-        <input-field type="bool">
-            <name>showZipcodeInFrontOfCity</name>
-            <label>Show ZIP code before city</label>
-            <label lang="de-DE">Zeige PLZ vor Stadt</label>
+        <input-field type="single-select">
+            <name>addressInputFieldArrangement</name>
+            <label>Arrangement of address fields City, ZIP and State</label>
+            <label lang="de-DE">Anordnung der Adressfelder Stadt, PLZ und Bundesland</label>
+            <options>
+                <option>
+                    <id>city-zip-state</id>
+                    <name>City - ZIP - State</name>
+                    <name lang="de-DE">Stadt - PLZ - Bundesland</name>
+                </option>
+                <option>
+                    <id>zip-city-state</id>
+                    <name>ZIP - City - State</name>
+                    <name lang="de-DE">PLZ - Stadt - Bundesland</name>
+                </option>
+                <option>
+                    <id>city-state-zip</id>
+                    <name>City - State - ZIP</name>
+                    <name lang="de-DE">Stadt - Bundesland - PLZ</name>
+                </option>
+            </options>
         </input-field>
 
         <input-field type="bool">

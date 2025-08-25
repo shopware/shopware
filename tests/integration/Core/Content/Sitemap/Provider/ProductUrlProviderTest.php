@@ -191,7 +191,7 @@ class ProductUrlProviderTest extends TestCase
 
         $host = $this->getHost($this->salesChannelContext);
         $urlGenerate = $this->getComparisonUrl($canonicalProductId);
-        static::assertEquals($urlGenerate, $host . '/' . $urls[0]->getLoc());
+        static::assertSame($urlGenerate, $host . '/' . $urls[0]->getLoc());
     }
 
     public function testContainsOutOfStockCloseoutProducts(): void

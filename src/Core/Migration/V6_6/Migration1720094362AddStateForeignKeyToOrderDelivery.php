@@ -20,7 +20,7 @@ class Migration1720094362AddStateForeignKeyToOrderDelivery extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement(<<<SQL
+        $connection->executeStatement(<<<'SQL'
             UPDATE `order_delivery`
             SET `state_id` = (SELECT `initial_state_id` FROM `state_machine` WHERE `technical_name` = 'order_delivery.state')
             WHERE `state_id` NOT IN (SELECT `id` FROM `state_machine_state` WHERE `state_machine_id` = (SELECT `id` FROM `state_machine` WHERE `technical_name` = 'order_delivery.state'));
@@ -29,11 +29,11 @@ class Migration1720094362AddStateForeignKeyToOrderDelivery extends MigrationStep
         $manager = $connection->createSchemaManager();
         $columns = $manager->listTableForeignKeys('order_delivery');
 
-        if (\array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getForeignTableName() === 'state_machine_state' && $column->getLocalColumns() === ['state_id'] && $column->getForeignColumns() === ['id'])) {
+        if (\array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getReferencedTableName()->toString() === 'state_machine_state' && $column->getReferencingColumnNames()[0]->toString() === 'state_id' && $column->getReferencedColumnNames()[0]->toString() === 'id')) {
             return;
         }
 
-        $connection->executeStatement(<<<SQL
+        $connection->executeStatement(<<<'SQL'
             ALTER TABLE `order_delivery`
             ADD CONSTRAINT `fk.order_delivery.state_id` FOREIGN KEY (`state_id`)
             REFERENCES `state_machine_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE

@@ -2,11 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
-use Composer\InstalledVersions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
+use Shopware\Core\Framework\Adapter\Composer\ComposerPackage;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
@@ -17,42 +18,23 @@ use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
 #[CoversClass(AppLoader::class)]
 class AppLoaderTest extends TestCase
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $packages;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->packages = InstalledVersions::getAllRawData()[0];
-    }
-
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        // @phpstan-ignore-next-line
-        InstalledVersions::reload($this->packages);
+        ComposerInfoProvider::reset();
     }
 
     public function testLoadAppByComposer(): void
     {
-        $packages = InstalledVersions::getAllRawData();
-
-        $modified = $packages[0];
-        static::assertIsArray($modified);
-        $modified['versions'] = [
-            // Points to path that does not exist
-            'swag/app' => [
-                'dev_requirement' => false,
-                'type' => AppLoader::COMPOSER_TYPE,
-                'install_path' => __DIR__ . '/../_fixtures/',
-            ],
-        ];
-
-        InstalledVersions::reload($modified);
+        ComposerInfoProvider::fake([
+            new ComposerPackage(
+                name: 'swag/app',
+                version: '1.0.0',
+                prettyVersion: '1.0.0.0',
+                path: __DIR__ . '/../_fixtures/',
+            ),
+        ]);
 
         $appLoader = $this->getAppLoader();
 
@@ -64,8 +46,8 @@ class AppLoaderTest extends TestCase
 
         static::assertTrue($app->isManagedByComposer());
 
-        static::assertEquals('test', $app->getMetadata()->getName());
-        static::assertEquals('1.0.0', $app->getMetadata()->getVersion());
+        static::assertSame('test', $app->getMetadata()->getName());
+        static::assertSame('1.0.0', $app->getMetadata()->getVersion());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is managed by Composer and cannot be deleted');
@@ -74,19 +56,14 @@ class AppLoaderTest extends TestCase
 
     public function testLoadAppByComposerWithInvalidAppManifest(): void
     {
-        $packages = InstalledVersions::getAllRawData();
-        $modified = $packages[0];
-        static::assertIsArray($modified);
-
-        $modified['versions'] = [
-            'swag/invalidManifestApp' => [
-                'dev_requirement' => false,
-                'type' => AppLoader::COMPOSER_TYPE,
-                'install_path' => __DIR__ . '/_fixtures/invalidManifestApp',
-            ],
-        ];
-
-        InstalledVersions::reload($modified);
+        ComposerInfoProvider::fake([
+            new ComposerPackage(
+                name: 'swag/invalidManifestApp',
+                version: '1.0.0',
+                prettyVersion: '1.0.0.0',
+                path: __DIR__ . '/_fixtures/invalidManifestApp',
+            ),
+        ]);
 
         $loggerMock = $this->createMock(LoggerInterface::class);
         $loggerMock->expects($this->once())->method('error');

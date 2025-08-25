@@ -21,9 +21,9 @@ class CompileThemeMessageTest extends TestCase
         $context = Context::createDefaultContext();
         $message = new CompileThemeMessage(TestDefaults::SALES_CHANNEL, $themeId, true, $context);
 
-        static::assertEquals($themeId, $message->getThemeId());
-        static::assertEquals(TestDefaults::SALES_CHANNEL, $message->getSalesChannelId());
+        static::assertSame($themeId, $message->getThemeId());
+        static::assertSame(TestDefaults::SALES_CHANNEL, $message->getSalesChannelId());
         static::assertTrue($message->isWithAssets());
-        static::assertEquals($context, $message->getContext());
+        static::assertSame($context, $message->getContext());
     }
 }

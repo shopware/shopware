@@ -5,13 +5,11 @@
 import template from './sw-app-topbar-button.html.twig';
 import './sw-app-topbar-button.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description Apply for upselling service only, no public usage
  */
-Component.register('sw-app-topbar-button', {
+export default {
     template,
 
     computed: {
@@ -29,4 +27,4 @@ Component.register('sw-app-topbar-button', {
             button.callback();
         },
     },
-});
+};

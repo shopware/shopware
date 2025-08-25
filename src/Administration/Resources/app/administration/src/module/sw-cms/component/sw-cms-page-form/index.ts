@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 import CMS from '../../constant/sw-cms.constant';

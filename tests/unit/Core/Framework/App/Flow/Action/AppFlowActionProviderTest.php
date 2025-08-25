@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
@@ -54,8 +55,8 @@ class AppFlowActionProviderTest extends TestCase
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->expects($this->once())
-            ->method('get')
-            ->willReturn($order);
+            ->method('getEntities')
+            ->willReturn(new OrderCollection([$order]));
 
         $orderRepo = $this->createMock(EntityRepository::class);
         $orderRepo->expects($this->once())
@@ -91,7 +92,7 @@ class AppFlowActionProviderTest extends TestCase
 
         $webhookData = $appFlowActionProvider->getWebhookPayloadAndHeaders($flow, $ids->get('appFlowActionId'));
 
-        static::assertEquals(['param1' => 'Text 1', 'param2' => 'Text 2 and Text 3'], $webhookData['payload']);
-        static::assertEquals(['content-type' => 'application/json'], $webhookData['headers']);
+        static::assertSame(['param1' => 'Text 1', 'param2' => 'Text 2 and Text 3'], $webhookData['payload']);
+        static::assertSame(['content-type' => 'application/json'], $webhookData['headers']);
     }
 }

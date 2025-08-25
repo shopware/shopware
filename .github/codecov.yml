@@ -7,7 +7,6 @@ flag_management:
         - src/**
       ignore:
         - src/Core/Framework/Test # ignore fixtures consumed by tests
-        - src/WebInstaller/Tests  # ignore unit tests files from WebInstaller
     - name: jest-admin
       paths:
         - src/Administration/Resources/app/administration/src

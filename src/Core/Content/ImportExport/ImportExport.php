@@ -23,6 +23,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -53,6 +54,9 @@ class ImportExport
      */
     private array $failedWriteCommands = [];
 
+    /**
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
+     */
     public function __construct(
         private readonly ImportExportService $importExportService,
         private ImportExportLogEntity $logEntity,

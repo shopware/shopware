@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -135,6 +136,27 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(0, $result);
     }
 
+    public function testSkipFirstRunWizardOption(): void
+    {
+        $command = $this->prepareCommandInstance([
+            'database:migrate',
+            'database:migrate-destructive',
+            'system:configure-shop',
+            'dal:refresh:index',
+            'scheduled-task:register',
+            'plugin:refresh',
+            'theme:refresh',
+            'theme:compile',
+            'assets:install',
+            'system:config:set',
+            'cache:clear',
+        ]);
+
+        $result = $command->run(new ArrayInput(['--skip-first-run-wizard' => true]), new BufferedOutput());
+
+        static::assertSame(0, $result);
+    }
+
     /**
      * Test that sub commands of the system:install fire the correct lifecycle events, instead of testing
      * them all, we just test one: database:migrate. If it works for one it most likely works for all.
@@ -162,7 +184,12 @@ class SystemInstallCommandTest extends TestCase
         $application = new Application();
         $application->setAutoExit(false);
         $application->add(
-            new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory)
+            new SystemInstallCommand(
+                __DIR__,
+                $setupDatabaseAdapterMock,
+                $connectionFactory,
+                $this->createMock(CacheClearer::class)
+            )
         );
         $application->setDispatcher($dispatcher);
 
@@ -184,7 +211,12 @@ class SystemInstallCommandTest extends TestCase
         $connectionFactory->method('getConnection')->willReturn($connection);
 
         $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
-        $systemInstallCmd = new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory);
+        $systemInstallCmd = new SystemInstallCommand(
+            __DIR__,
+            $setupDatabaseAdapterMock,
+            $connectionFactory,
+            $this->createMock(CacheClearer::class)
+        );
 
         $application = $this->createMock(Application::class);
         $application->method('has')

@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -31,6 +33,9 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $entityRepository;
 
     protected function setUp(): void
@@ -115,7 +120,7 @@ EOF;
         static::assertNotNull($entity->get('createdAt'));
         static::assertInstanceOf(\DateTimeInterface::class, $entity->get('createdAt'));
 
-        static::assertEquals(
+        static::assertSame(
             $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             $entity->get('createdAt')->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
@@ -235,7 +240,7 @@ EOF;
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertInstanceOf(\DateTimeInterface::class, $entity->get('updatedAt'));
 
-        static::assertNotEquals(
+        static::assertNotSame(
             $date->format('Y-m-d'),
             $entity->get('updatedAt')->format('Y-m-d')
         );

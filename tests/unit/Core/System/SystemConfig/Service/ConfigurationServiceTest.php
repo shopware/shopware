@@ -106,7 +106,7 @@ class ConfigurationServiceTest extends TestCase
 
         $expectedConfigWithoutValues = $this->getConfigWithoutValues();
 
-        static::assertEquals($expectedConfigWithoutValues, $actualConfig);
+        static::assertSame($expectedConfigWithoutValues, $actualConfig);
         static::assertSame($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
         static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
     }
@@ -280,13 +280,16 @@ class ConfigurationServiceTest extends TestCase
         $configReader = $this->createMock(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new AppCollection()]);
+
         $service = new ConfigurationService(
             [
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
             $this->createMock(AppConfigReader::class),
-            new StaticEntityRepository([new AppCollection()]),
+            $repository,
             new StaticSystemConfigService(['SwagExampleTest.email' => 'foo'])
         );
 

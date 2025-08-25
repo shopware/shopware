@@ -71,8 +71,8 @@ class ContactFormRouteTest extends TestCase
         $mock = $this->createMock(DataValidator::class);
         $mock->method('validate')->willReturnCallback(function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
             foreach ($properties as $propertyName => $value) {
-                static::assertEquals($value, $data[$propertyName] ?? null);
-                static::assertEquals($definition->getProperties()[$propertyName] ?? null, $constraints);
+                static::assertSame($value, $data[$propertyName] ?? null);
+                static::assertSame($definition->getProperties()[$propertyName] ?? null, $constraints);
             }
         });
 
@@ -106,10 +106,7 @@ class ContactFormRouteTest extends TestCase
             ['firstName' => 'Y http://localhost', 'lastName' => 'Tran http://localhost'],
             [
                 new NotBlank(),
-                new Regex([
-                    'pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX,
-                    'match' => false,
-                ]),
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
             ],
         ];
 
@@ -124,10 +121,7 @@ class ContactFormRouteTest extends TestCase
             ['firstName' => 'Y', 'lastName' => 'Tran'],
             [
                 new NotBlank(),
-                new Regex([
-                    'pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX,
-                    'match' => false,
-                ]),
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
             ],
         ];
     }

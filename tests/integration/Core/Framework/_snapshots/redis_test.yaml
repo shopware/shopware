@@ -9,7 +9,6 @@ shopware:
     # delayed cache invalidation
     cache:
         invalidation:
-            delay: 1
             delay_options:
                 storage: 'redis'
                 # dsn: 'redis://localhost:6379/1'

@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Controller\CmsController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,7 +61,10 @@ class CmsControllerTest extends TestCase
             $this->createMock(ProductDetailRoute::class),
             $this->createMock(ProductReviewLoader::class),
             $this->createMock(FindProductVariantRoute::class),
-            $eventDispatcherMock
+            $eventDispatcherMock,
+            new StaticSystemConfigService([
+                'core.listing.showReview' => true,
+            ]),
         );
     }
 
@@ -81,7 +85,7 @@ class CmsControllerTest extends TestCase
 
         $this->controller->page($ids->get('page'), new Request(), $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['cmsPage']);
+        static::assertSame($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['cmsPage']);
     }
 
     public function testPageFullReturn(): void
@@ -93,7 +97,7 @@ class CmsControllerTest extends TestCase
 
         $this->controller->pageFull($ids->get('page'), new Request(), $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['page']['cmsPage']);
+        static::assertSame($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['page']['cmsPage']);
     }
 
     public function testCategoryNoId(): void
@@ -115,7 +119,7 @@ class CmsControllerTest extends TestCase
 
         $this->controller->category($ids->get('category'), new Request(), $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals($categoryRouteResponse->getCategory()->getCmsPage(), $this->controller->renderStorefrontParameters['cmsPage']);
+        static::assertSame($categoryRouteResponse->getCategory()->getCmsPage(), $this->controller->renderStorefrontParameters['cmsPage']);
     }
 
     public function testCategoryPageNotFound(): void
@@ -153,7 +157,7 @@ class CmsControllerTest extends TestCase
 
         $response = $this->controller->filter($ids->get('navigation'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals(
+        static::assertSame(
             json_encode($testAggregations, \JSON_THROW_ON_ERROR),
             json_encode(json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR), \JSON_THROW_ON_ERROR)
         );
@@ -180,7 +184,7 @@ class CmsControllerTest extends TestCase
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $this->controller->renderStorefrontParameters['product']);
 
-        static::assertEquals(
+        static::assertSame(
             $this->controller->renderStorefrontParameters,
             [
                 'product' => $this->controller->renderStorefrontParameters['product'],

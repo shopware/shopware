@@ -31,6 +31,7 @@ class MailAttachmentsBuilderTest extends TestCase
 {
     private MockObject&MediaService $mediaService;
 
+    /** @var MockObject&EntityRepository<MediaCollection> */
     private MockObject&EntityRepository $mediaRepository;
 
     private MockObject&DocumentGenerator $documentGenerator;
@@ -91,7 +92,7 @@ class MailAttachmentsBuilderTest extends TestCase
 
         $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], Uuid::randomHex());
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     'content' => 'foo',

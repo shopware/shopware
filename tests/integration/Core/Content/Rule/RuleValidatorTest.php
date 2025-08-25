@@ -68,7 +68,7 @@ class RuleValidatorTest extends TestCase
 
         /** @var RuleConditionCollection $ruleConditions */
         $ruleConditions = $rule->getConditions();
-        static::assertEquals(1, $ruleConditions->count());
+        static::assertCount(1, $ruleConditions);
         static::assertNotNull($ruleConditions->get($conditionId));
     }
 
@@ -101,7 +101,7 @@ class RuleValidatorTest extends TestCase
             $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(1, $violations);
-            static::assertEquals('/0/conditions/1/type', $violations[0]['source']['pointer']);
+            static::assertSame('/0/conditions/1/type', $violations[0]['source']['pointer']);
         }
     }
 
@@ -137,7 +137,7 @@ class RuleValidatorTest extends TestCase
             $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(1, $violations);
-            static::assertEquals('/0/conditions/0/children/0/type', $violations[0]['source']['pointer']);
+            static::assertSame('/0/conditions/0/children/0/type', $violations[0]['source']['pointer']);
         }
     }
 
@@ -165,7 +165,7 @@ class RuleValidatorTest extends TestCase
             $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(1, $violations);
-            static::assertEquals('/0/conditions/0/type', $violations[0]['source']['pointer']);
+            static::assertSame('/0/conditions/0/type', $violations[0]['source']['pointer']);
         }
     }
 
@@ -189,8 +189,8 @@ class RuleValidatorTest extends TestCase
             $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(2, $violations);
-            static::assertEquals('/0/conditions/0/value/count', $violations[0]['source']['pointer']);
-            static::assertEquals('/0/conditions/0/value/operator', $violations[1]['source']['pointer']);
+            static::assertSame('/0/conditions/0/value/count', $violations[0]['source']['pointer']);
+            static::assertSame('/0/conditions/0/value/operator', $violations[1]['source']['pointer']);
         }
     }
 
@@ -219,7 +219,7 @@ class RuleValidatorTest extends TestCase
             $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(1, $violations);
-            static::assertEquals('/0/conditions/0/value/thisFieldIsNotValid', $violations[0]['source']['pointer']);
+            static::assertSame('/0/conditions/0/value/thisFieldIsNotValid', $violations[0]['source']['pointer']);
         }
     }
 
@@ -245,8 +245,8 @@ class RuleValidatorTest extends TestCase
         ], $this->context);
 
         $newValue = [
-            'operator' => '=',
             'count' => 12,
+            'operator' => '=',
         ];
 
         $this->ruleConditionRepository->update([
@@ -260,8 +260,8 @@ class RuleValidatorTest extends TestCase
         $updatedCondition = $this->ruleConditionRepository->search(new Criteria([$customerOderCountId]), $this->context)
             ->getEntities()->get($customerOderCountId);
 
-        static::assertEquals('customerOrderCount', $updatedCondition->getType());
-        static::assertEquals($newValue, $updatedCondition->getValue());
+        static::assertSame('customerOrderCount', $updatedCondition->getType());
+        static::assertSame($newValue, $updatedCondition->getValue());
     }
 
     public function testItThrowsIfNewTypeMismatchesValue(): void

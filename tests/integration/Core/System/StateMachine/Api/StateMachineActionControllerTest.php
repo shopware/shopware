@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -29,6 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -45,10 +48,19 @@ class StateMachineActionControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
+    /**
+     * @var EntityRepository<StateMachineHistoryCollection>
+     */
     private EntityRepository $stateMachineHistoryRepository;
 
     protected function setUp(): void
@@ -68,7 +80,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertIsString($response);
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
     }
 
@@ -80,13 +92,13 @@ class StateMachineActionControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', '/api/_action/state-machine/order/' . $orderId . '/state');
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         $response = $this->getBrowser()->getResponse()->getContent();
         static::assertIsString($response);
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(2, $response['transitions']);
-        static::assertEquals('cancel', $response['transitions'][0]['actionName']);
+        static::assertSame('cancel', $response['transitions'][0]['actionName']);
         static::assertStringEndsWith('/_action/state-machine/order/' . $orderId . '/state/cancel', $response['transitions'][0]['url']);
     }
 
@@ -111,7 +123,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertIsString($responseString);
         $response = json_decode($responseString, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_OK,
             $this->getBrowser()->getResponse()->getStatusCode(),
             $responseString
@@ -121,7 +133,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertTrue(Uuid::isValid($stateId));
 
         $destinationStateTechnicalName = $response['data']['attributes']['technicalName'];
-        static::assertEquals($transitionTechnicalName, $destinationStateTechnicalName);
+        static::assertSame($transitionTechnicalName, $destinationStateTechnicalName);
 
         // test whether the state history was written
         $criteria = new Criteria();
@@ -136,12 +148,12 @@ class StateMachineActionControllerTest extends TestCase
 
         $toStateMachineState = $historyEntry->getToStateMachineState();
         static::assertInstanceOf(StateMachineStateEntity::class, $toStateMachineState);
-        static::assertEquals($destinationStateTechnicalName, $toStateMachineState->getTechnicalName());
+        static::assertSame($destinationStateTechnicalName, $toStateMachineState->getTechnicalName());
 
-        static::assertEquals(static::getContainer()->get(OrderDefinition::class)->getEntityName(), $historyEntry->getEntityName());
+        static::assertSame(static::getContainer()->get(OrderDefinition::class)->getEntityName(), $historyEntry->getEntityName());
 
-        static::assertEquals($orderId, $historyEntry->getReferencedId());
-        static::assertEquals(Defaults::LIVE_VERSION, $historyEntry->getReferencedVersionId());
+        static::assertSame($orderId, $historyEntry->getReferencedId());
+        static::assertSame(Defaults::LIVE_VERSION, $historyEntry->getReferencedVersionId());
     }
 
     public function testTransitionToNotAllowedState(): void
@@ -156,7 +168,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertIsString($response);
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
     }
 
@@ -215,13 +227,13 @@ class StateMachineActionControllerTest extends TestCase
 
         $orderId = $cartService->order($cart, $salesChannelContext, new RequestDataBag());
 
-        /** @var EntityRepository $orderRepository */
+        /** @var EntityRepository<OrderCollection> $orderRepository */
         $orderRepository = static::getContainer()->get('order.repository');
 
         /** @var OrderEntity $order */
         $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->first();
 
-        static::assertEquals($order->getLanguageId(), $this->getDeDeLanguageId());
+        static::assertSame($order->getLanguageId(), $this->getDeDeLanguageId());
     }
 
     public function testOrderCartEn(): void
@@ -279,13 +291,13 @@ class StateMachineActionControllerTest extends TestCase
 
         $orderId = $cartService->order($cart, $salesChannelContext, new RequestDataBag());
 
-        /** @var EntityRepository $orderRepository */
+        /** @var EntityRepository<OrderCollection> $orderRepository */
         $orderRepository = static::getContainer()->get('order.repository');
 
         /** @var OrderEntity $order */
         $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->first();
 
-        static::assertEquals($order->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
+        static::assertSame($order->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
     }
 
     private function createShippingMethod(): string

@@ -85,7 +85,7 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             let propType = modelValueTypes.includes(type) ? 'modelValue' : 'value';
 
             if (type === 'boolean') {
-                propType = 'checked';
+                propType = 'modelValue';
                 mockData.value = true;
                 mockData.placeholder = undefined;
             }

@@ -239,5 +239,12 @@ class ImportExportExceptionTest extends TestCase
             'errorCode' => 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE',
             'message' => 'Expected "foo" to be an instance of "bar".',
         ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::serializerNotFound('test'),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__SERIALIZER_NOT_FOUND',
+            'message' => 'Serializer for "test" not found.',
+        ];
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,6 +24,9 @@ class RangeAggregationTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $repository;
 
     private Context $context;
@@ -50,7 +54,7 @@ class RangeAggregationTest extends TestCase
 
         $aggregation = new RangeAggregation('test', 'test', []);
 
-        static::assertEquals($expectedKey, $method->invoke($aggregation, $from, $to));
+        static::assertSame($expectedKey, $method->invoke($aggregation, $from, $to));
     }
 
     /**
@@ -129,7 +133,7 @@ class RangeAggregationTest extends TestCase
         static::assertCount(\count($rangesDefinition), $rangesResult);
         foreach ($rangesResult as $key => $count) {
             static::assertArrayHasKey($key, $rangesExpectedResult);
-            static::assertEquals($rangesExpectedResult[$key], $count);
+            static::assertSame($rangesExpectedResult[$key], $count);
         }
     }
 }

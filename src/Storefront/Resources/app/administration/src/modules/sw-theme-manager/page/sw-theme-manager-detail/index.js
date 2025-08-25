@@ -19,19 +19,11 @@ Component.register('sw-theme-manager-detail', {
         Mixin.getByName('notification')
     ],
 
-    filters: {
-        cssValue: function (value) {
-            // Be careful what to filter here because many characters are allowed
-            if (!value) return ''
-            value = value.toString()
-            return value.replace(/`|´/g, '');
-        }
-    },
-
     data() {
         return {
             theme: null,
             parentTheme: false,
+            inheritedSnippetPrefixes: [],
             defaultMediaFolderId: null,
             structuredThemeFields: {},
             themeConfig: {},
@@ -53,7 +45,10 @@ Component.register('sw-theme-manager-detail', {
             salesChannelsWithTheme: null,
             newAssignedSalesChannels: [],
             overwrittenSalesChannelAssignments: [],
-            removedSalesChannels: []
+            removedSalesChannels: [],
+            showMediaModal: false,
+            activeMediaField: null,
+            themeConfigErrors: {},
         };
     },
 
@@ -164,6 +159,13 @@ Component.register('sw-theme-manager-detail', {
             this.setPageContext();
         },
 
+        cssValue(value) {
+            // Be careful what to filter here because many characters are allowed
+            if (!value) return ''
+            value = value.toString()
+            return value.replace(/`|´/g, '');
+        },
+
         getTheme() {
             if (!this.themeId) {
                 return;
@@ -210,6 +212,13 @@ Component.register('sw-theme-manager-detail', {
 
             this.themeService.getStructuredFields(this.themeId).then((fields) => {
                 this.structuredThemeFields = fields;
+
+                const configInheritance = fields.configInheritance || [];
+                this.inheritedSnippetPrefixes = configInheritance.reverse().reduce((accumulator, name) => {
+                    accumulator.push(name.replace('@', ''));
+
+                    return accumulator;
+                }, [fields.themeTechnicalName]);
             });
 
             this.themeService.getConfiguration(this.themeId).then((config) => {
@@ -245,6 +254,9 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - This method will be removed.
+         */
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         },
@@ -401,13 +413,13 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).finally(() => {
+            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
                 this.getTheme();
+                this.themeConfigErrors = {};
             }).catch((error) => {
-                this.isLoading = false;
 
                 const errorObject = error.response.data.errors[0];
-                if (errorObject.code === 'THEME__COMPILING_ERROR' || errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                if (errorObject.code === 'THEME__COMPILING_ERROR') {
                     this.createNotificationError({
                         title: this.$t('sw-theme-manager.detail.error.themeCompile.title'),
                         message: this.$t('sw-theme-manager.detail.error.themeCompile.message'),
@@ -423,10 +435,35 @@ Component.register('sw-theme-manager-detail', {
                     return;
                 }
 
+                if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                    this.createNotificationError({
+                        title: this.$t('sw-theme-manager.detail.error.invalidConfiguration.title'),
+                        message: this.$t('sw-theme-manager.detail.error.invalidConfiguration.message'),
+                        autoClose: true,
+                    });
+
+                    error.response.data.errors.forEach((error) => {
+                        const fieldName = error.meta.parameters.name;
+
+                        error.detail = this.$t('global.error-codes.THEME__INVALID_SCSS_VAR', {
+                            value: error.meta.parameters.value,
+                            type: error.meta.parameters.type,
+                        });
+
+                        if (fieldName) {
+                            this.themeConfigErrors[fieldName] = error;
+                        }
+                    });
+
+                    return;
+                }
+
                 this.createNotificationError({
                     message: errorObject.detail ?? error.toString(),
                     autoClose: true,
                 });
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
@@ -544,9 +581,7 @@ Component.register('sw-theme-manager-detail', {
             this.removeInheritedFromChangeset(allValues);
 
             // Theme has to be reset, because inherited fields needs to be removed from the set
-            return this.themeService.resetTheme(this.themeId).then(() => {
-                return this.themeService.updateTheme(this.themeId, { config: allValues });
-            });
+            return this.themeService.updateTheme(this.themeId, { config: allValues }, { reset: true, validate: true });
         },
 
         saveFinish() {
@@ -634,11 +669,9 @@ Component.register('sw-theme-manager-detail', {
         getBind(field) {
             const config = Object.assign({}, field);
 
-            if (config?.type !== 'switch' &&
-                config?.type !== 'checkbox' &&
-                config.custom?.componentName !== 'sw-switch-field' &&
-                config.custom?.componentName !== 'sw-checkbox-field'
-            ) {
+            const isCheckboxType = ['switch', 'checkbox'].includes(config?.type);
+            const isCheckboxField = ['sw-switch-field', 'sw-checkbox-field'].includes(config.custom?.componentName);
+            if (!isCheckboxType && !isCheckboxField) {
                 config.label = '';
             }
 
@@ -646,11 +679,92 @@ Component.register('sw-theme-manager-detail', {
 
             Object.assign(config, config.custom);
 
+            if (['sw-single-select', 'sw-multi-select'].includes(config.custom?.componentName)) {
+                config.custom.options.forEach((option) => {
+                    /** @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead */
+                    option.label = this.getSnippet(option.labelSnippetKey, option.label);
+                });
+            }
+
             if (config.custom?.componentName !== 'sw-switch-field' && config.custom?.componentName !== 'sw-checkbox-field') {
                 delete config.custom;
             }
 
-            return { type: field.type, config: config };
+            return { type: field.type, config };
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - `fallback` will be removed and method will return `null` instead, since theme config labels & helpTexts will be removed entirely.
+         *
+         * @param {string} key - The key of the snippet to retrieve.
+         * @param {string} [fallback=''] - DEPRECATED: The fallback value to return if the snippet is not found.
+         * @returns {string}
+         */
+        getSnippet(key, fallback = '') {
+            for (let themeName of this.inheritedSnippetPrefixes) {
+                const snippetKey = `sw-theme.${themeName}.${key}`;
+                const snippet = this.$t(snippetKey);
+
+                if (snippet !== snippetKey) {
+                    return snippet;
+                }
+            }
+
+            console.warn(`[DEPRECATED] v6.8.0 - Theme config labels & helpTexts will be removed entirely, use snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`);
+
+            return fallback;
+        },
+
+        /**
+         * Retrieves the field label with the config key appended in parentheses if a label is set.
+         *
+         * @param {object} field - The field object containing labelSnippetKey
+         * @param {string} fieldName - The technical name of the field
+         * @returns {string}
+         */
+        getFieldLabel(field, fieldName) {
+            const label = this.getSnippet(field.labelSnippetKey, field.label) || '';
+
+            if (label.length < 1 || label === fieldName) {
+                return fieldName;
+            }
+
+            return `${label} (${fieldName})`;
+        },
+
+        /**
+         * Retrieves the help text for a field or returns `null` if no help text is set.
+         *
+         * @param {object} field - The field object containing helpTextSnippetKey
+         * @returns {string|null}
+         */
+        getHelpText(field) {
+            const helpText = this.getSnippet(field.helpTextSnippetKey, field.helpText);
+
+            if (typeof helpText === 'string' && helpText.length > 0) {
+                return helpText;
+            }
+
+            const locale = Shopware.Store.get('session').currentLocale;
+
+            /** @deprecated tag:v6.8.0 - Theme config helpTexts will be removed, so this case will be obsolete */
+            if (typeof helpText === 'object' && helpText?.[locale]) {
+                return helpText[locale];
+            }
+
+            return null;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
+         */
+        getTabLabel(key, fallback = '') {
+            const snippet = this.getSnippet(key, fallback);
+            if (snippet.length >= 1) {
+                return snippet;
+            }
+
+            return this.$t('sw-theme-manager.general.defaultTab');
         },
 
         selectionDisablingMethod(selection) {
@@ -664,5 +778,23 @@ Component.register('sw-theme-manager-detail', {
         isThemeCompatible(item) {
             return this.themeCompatibleSalesChannels.includes(item.id);
         },
+
+        onOpenMediaModal(fieldName) {
+            this.showMediaModal = true;
+            this.activeMediaField = fieldName;
+        },
+
+        onCloseMediaModal() {
+            this.showMediaModal = false;
+            this.activeMediaField = null;
+        },
+
+        onMediaChange(items) {
+            if (!items || !items.length) {
+                return;
+            }
+
+            this.onAddMediaToTheme(items[0], this.currentThemeConfig[this.activeMediaField]);
+        }
     }
 });

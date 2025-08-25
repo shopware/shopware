@@ -45,6 +45,9 @@ async function createWrapper() {
                 'sw-category-tree-field': true,
                 'mt-select': true,
                 'sw-custom-field-set-renderer': true,
+                'mt-banner': true,
+                'sw-sales-channel-measurement': true,
+                'sw-time-ago': true,
             },
             provide: {
                 salesChannelService: {},
@@ -65,6 +68,10 @@ async function createWrapper() {
                         },
                     }),
                 },
+            },
+            mocks: {
+                $t: jest.fn().mockImplementation((snippet) => snippet),
+                $router: { resolve: () => ({ href: '/sw/settings/payment/overview' }) },
             },
         },
         props: {
@@ -1000,7 +1007,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 
     it('"changeInterval" also updates cronjob config', async () => {
@@ -1045,5 +1055,262 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         expect(wrapper.vm.cliCommand).toBe('php bin/console product-export:generate sc-id export-id');
+    });
+
+    it('should build unserved languages alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            {
+                name: 'English',
+            },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                list: 'English',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build unserved languages alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            {
+                name: 'English',
+            },
+            {
+                name: 'German',
+            },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                list: 'English, German',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build payment alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'PayPal|Invoice' } },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                separatedList: '<span>PayPal&vert;Invoice</span>',
+                paymentSettingsLink: '/sw/settings/payment/overview',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build payment alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'PayPal|Invoice' } },
+            { translated: { name: 'Cash on delivery' } },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
+                paymentSettingsLink: '/sw/settings/payment/overview',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build shipping alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'Standard' } },
+        ];
+        collection.first = () => collection[0];
+        collection.last = () => collection[0];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                name: 'Standard',
+                addition: 'Standard',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build shipping alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'Standard' } },
+            { translated: { name: 'Express' } },
+        ];
+        collection.first = () => collection[0];
+        collection.last = () => collection[1];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                name: 'Standard',
+                addition: 'Express',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should return disabledCountryVariant "attention" if the sales channel country is in the disabled countries list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                countryId: 'DE',
+                countries: [{ id: 'DE', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledCountryVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledCountryVariant "info" if the sales channel country is NOT in the disabled countries list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                countryId: 'DE',
+                countries: [{ id: 'DE', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledCountryVariant).toBe('info');
+    });
+
+    it('should return disabledPaymentMethodVariant "attention" if the sales channel payment method is in the disabled payment methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                paymentMethodId: 'pm-1',
+                paymentMethods: [{ id: 'pm-1', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledPaymentMethodVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledPaymentMethodVariant "info" if the sales channel payment method is NOT in the disabled payment methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                paymentMethodId: 'pm-1',
+                paymentMethods: [{ id: 'pm-1', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledPaymentMethodVariant).toBe('info');
+    });
+
+    it('should return disabledShippingMethodVariant "attention" if the sales channel shipping method is in the disabled shipping methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                shippingMethodId: 'sm-1',
+                shippingMethods: [{ id: 'sm-1', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledShippingMethodVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledShippingMethodVariant "info" if the sales channel shipping method is NOT in the disabled shipping methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                shippingMethodId: 'sm-1',
+                shippingMethods: [{ id: 'sm-1', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledShippingMethodVariant).toBe('info');
+    });
+
+    it('should return unservedLanguageVariant "attention" if the sales channel language is NOT served by any domain', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                languageId: 'language-1',
+                languages: [{ id: 'language-1' }],
+                domains: [], // no domain serves the language
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguageVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return unservedLanguageVariant "info" if the sales channel language IS served by a domain', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                languageId: 'language-1',
+                languages: [{ id: 'language-1' }],
+                domains: [{ languageId: 'language-1' }],
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguageVariant).toBe('info');
     });
 });

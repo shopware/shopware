@@ -14,6 +14,7 @@ describe('src/app/component/meteor-wrapper/mt-text-editor/mt-text-editor-toolbar
             name: 'cms-data-mapping',
             position: 14000,
             label: 'sw-text-editor-toolbar-button-cms-data-mapping.label',
+            disabled: expect.any(Function) as () => boolean,
             children: [
                 {
                     name: 'dataMapping1',

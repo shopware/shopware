@@ -1,8 +1,8 @@
 # general
-/adr/                             @shopware/product-ct-core @shopware/product-ct-admin @shopware/product-ct-storefront
+/adr/                             @shopware/product-ct-core @shopware/product-ct-admin @shopware/ct-storefront
 
 # this file
-/.github/CODEOWNERS     @shopware/product-ct-core @shopware/product-ct-admin @shopware/product-ct-storefront
+/.github/CODEOWNERS     @shopware/product-ct-core @shopware/product-ct-admin @shopware/ct-storefront
 
 
 # ops
@@ -17,8 +17,8 @@
 
 
 # storefront
-/src/Storefront/ @shopware/product-ct-storefront
-/.github/workflows/storefront* @shopware/product-ct-storefront @shopware/product-operations
+/src/Storefront/ @shopware/ct-storefront
+/.github/workflows/storefront* @shopware/ct-storefront @shopware/product-operations
 
 
 # ctrl-alt-elite

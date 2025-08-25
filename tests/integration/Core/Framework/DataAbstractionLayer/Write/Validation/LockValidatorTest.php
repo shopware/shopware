@@ -114,7 +114,7 @@ EOF;
 
         $description = $this->connection->fetchOne('SELECT `description` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
-        static::assertEquals('bar', $description);
+        static::assertSame('bar', $description);
     }
 
     public function testUpdateTranslationOnUnlockedShouldPass(): void
@@ -130,8 +130,8 @@ EOF;
         $description = $this->connection->fetchOne('SELECT `description` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
         $name = $this->connection->fetchOne('SELECT `name` FROM `_test_lock_translation` WHERE `_test_lock_id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
-        static::assertEquals('bar', $description);
-        static::assertEquals('ware', $name);
+        static::assertSame('bar', $description);
+        static::assertSame('ware', $name);
     }
 
     public function testUpdateOnLockedShouldBePrevented(): void
@@ -207,6 +207,6 @@ EOF;
         $violation = $violationException->getViolations()->findByCodes(LockValidator::VIOLATION_LOCKED);
 
         static::assertNotNull($violation);
-        static::assertEquals(LockValidator::VIOLATION_LOCKED, $violation->get(0)->getCode());
+        static::assertSame(LockValidator::VIOLATION_LOCKED, $violation->get(0)->getCode());
     }
 }

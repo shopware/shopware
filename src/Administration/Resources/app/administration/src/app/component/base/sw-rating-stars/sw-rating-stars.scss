@@ -20,7 +20,7 @@
         font-size: 0;
 
         .sw-rating-stars__star {
-            color: $color-module-yellow-700;
+            color: var(--color-yellow-500);
         }
     }
 
@@ -31,7 +31,7 @@
         font-size: 0;
 
         .sw-rating-stars__star {
-            color: $color-gray-300;
+            color: var(--color-icon-primary-disabled);
         }
     }
 }

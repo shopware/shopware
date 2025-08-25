@@ -30,6 +30,7 @@ class MailContentTest extends TestCase
     ];
 
     private Connection $connection;
+
     private Filesystem $filesystem;
 
     protected function setUp(): void
@@ -50,7 +51,7 @@ class MailContentTest extends TestCase
                 $templatesByLanguage[$data['code']] = $data;
             }
 
-            foreach (self::DEFAULT_LANGUAGE_CODES as $localeCode){
+            foreach (self::DEFAULT_LANGUAGE_CODES as $localeCode) {
                 $this->compareContentByLanguage($technicalName, $localeCode, $templatesByLanguage[$localeCode]);
             }
         }
@@ -61,14 +62,14 @@ class MailContentTest extends TestCase
      */
     private function getTechnicalNameFromDirectory(): array
     {
-        self::assertTrue($this->filesystem->exists(self::FIXTURE_FOLDER));
+        static::assertTrue($this->filesystem->exists(self::FIXTURE_FOLDER));
 
         $finder = new Finder();
         $finder->in(self::FIXTURE_FOLDER)->depth('== 0')->directories();
 
         $directories = [];
-        foreach( $finder as $directory) {
-            if (in_array($directory->getFilename(), self::EXCLUDED_DIRECTORIES, true)) {
+        foreach ($finder as $directory) {
+            if (\in_array($directory->getFilename(), self::EXCLUDED_DIRECTORIES, true)) {
                 continue;
             }
             $directories[] = $directory->getFilename();
@@ -82,7 +83,7 @@ class MailContentTest extends TestCase
      */
     private function getMailTemplateDataFromDatabase(string $technicalName): array
     {
-        $countLanguageCodes = count(self::DEFAULT_LANGUAGE_CODES);
+        $countLanguageCodes = \count(self::DEFAULT_LANGUAGE_CODES);
 
         $sql = '
             SELECT
@@ -105,15 +106,15 @@ class MailContentTest extends TestCase
             $sql,
             [
                 'technicalName' => $technicalName,
-                'defaultLanguages' => self::DEFAULT_LANGUAGE_CODES
+                'defaultLanguages' => self::DEFAULT_LANGUAGE_CODES,
             ],
             ['defaultLanguages' => ArrayParameterType::STRING]
         );
 
-        self::assertCount(
+        static::assertCount(
             $countLanguageCodes,
             $data,
-            sprintf(
+            \sprintf(
                 'There should be %s languages for template data with the technical name %s',
                 $countLanguageCodes,
                 $technicalName
@@ -143,13 +144,13 @@ class MailContentTest extends TestCase
         static::assertSame(
             $plainFixtureContent,
             $templateData['content_plain'],
-            sprintf('Plain content does not match for template %s and language %s', $technicalName, $localeCode),
+            \sprintf('Plain content does not match for template %s and language %s', $technicalName, $localeCode),
         );
 
         static::assertSame(
             $htmlFixtureContent,
             $templateData['content_html'],
-            sprintf('HTML content does not match for template %s and language %s', $technicalName, $localeCode),
+            \sprintf('HTML content does not match for template %s and language %s', $technicalName, $localeCode),
         );
     }
 }

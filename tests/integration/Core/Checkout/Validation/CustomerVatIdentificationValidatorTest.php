@@ -30,20 +30,16 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         $constraint = new CustomerVatIdentification(countryId: $this->getValidCountryId());
 
         $validation = new DataValidationDefinition('customer.create');
-
-        $validation
-            ->add('vatIds', $constraint);
+        $validation->add('vatIds', $constraint);
 
         $validator = static::getContainer()->get(DataValidator::class);
-
-        $errors = [];
+        $violations = [];
         try {
             $validator->validate(['vatIds' => $vatIds], $validation);
-        } catch (\Throwable $exception) {
-            $errors[] = $exception->getMessage();
+        } catch (ConstraintViolationException $exception) {
+            $violations[] = $exception->getViolations();
         }
-
-        static::assertCount(0, $errors, print_r($errors, true));
+        static::assertCount(0, $violations, 'No violations are expected');
     }
 
     public function testValidateVatIdsInvalid(): void

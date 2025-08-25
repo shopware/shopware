@@ -68,7 +68,7 @@ class ChangeLanguageRoute extends AbstractChangeLanguageRoute
         $languageCriteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
         $validation->add('languageId', new Uuid())
-            ->add('languageId', new EntityExists(['entity' => 'language', 'context' => $context->getContext(), 'criteria' => $languageCriteria]));
+            ->add('languageId', new EntityExists(entity: 'language', context: $context->getContext(), criteria: $languageCriteria));
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
 

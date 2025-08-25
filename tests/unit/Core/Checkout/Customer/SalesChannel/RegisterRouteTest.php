@@ -38,7 +38,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -879,19 +881,8 @@ class RegisterRouteTest extends TestCase
         $country->setId($countryId);
         $country->setVatIdRequired(true);
 
-        $countryRepository = $this->createMock(SalesChannelRepository::class);
-        $countryRepository
-            ->method('search')
-            ->willReturn(
-                new EntitySearchResult(
-                    CountryDefinition::ENTITY_NAME,
-                    1,
-                    new CountryCollection([$country]),
-                    null,
-                    new Criteria(),
-                    Context::createDefaultContext()
-                )
-            );
+        /** @var StaticSalesChannelRepository<CountryCollection> $countryRepository */
+        $countryRepository = new StaticSalesChannelRepository([new CountryCollection([$country])]);
 
         $salutationId = Uuid::randomHex();
 
@@ -920,7 +911,7 @@ class RegisterRouteTest extends TestCase
 
                 $billingAddressConstraint = $billingAddressConstraints[0];
                 static::assertInstanceOf(Type::class, $billingAddressConstraint);
-                static::assertEquals('associative_array', $billingAddressConstraint->type);
+                static::assertSame('associative_array', $billingAddressConstraint->type);
 
                 return true;
             }));
@@ -947,8 +938,7 @@ class RegisterRouteTest extends TestCase
             $definitionFactory,
         );
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
     }

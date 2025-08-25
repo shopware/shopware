@@ -31,8 +31,4 @@ class Migration1756068709FixCustomerAddressNameFieldLengths extends MigrationSte
             MODIFY COLUMN `last_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL
         ');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

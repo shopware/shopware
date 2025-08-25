@@ -49,14 +49,4 @@ class Migration1756068709FixCustomerAddressNameFieldLengthsTest extends TestCase
         static::assertStringContainsString('varchar(255)', $orderAddressColumns['last_name']['Type']);
         static::assertSame('NO', $orderAddressColumns['last_name']['Null']);
     }
-
-    public function testUpdateDestructiveIsEmpty(): void
-    {
-        static::expectNotToPerformAssertions();
-
-        $migration = new Migration1756068709FixCustomerAddressNameFieldLengths();
-
-        // Non-destructive migrations should have empty updateDestructive
-        $migration->updateDestructive($this->connection);
-    }
 }

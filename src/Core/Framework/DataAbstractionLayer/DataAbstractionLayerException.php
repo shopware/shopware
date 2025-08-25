@@ -877,7 +877,7 @@ class DataAbstractionLayerException extends HttpException
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DBAL_ENTITY_NOT_VERSIONABLE,
+            self::ENTITY_NOT_VERSIONABLE,
             'Entity {{ entityName }} is not versionable',
             ['entityName' => $entityName]
         );

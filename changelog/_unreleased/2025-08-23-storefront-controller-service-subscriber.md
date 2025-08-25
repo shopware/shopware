@@ -1,6 +1,6 @@
 ---
 title: Implement Service Subscriber pattern for Storefront controllers
-issue: NEXT-3462
+issue: 3462
 author: Martin Bens
 author_email: m.bens@shopware.com
 author_github: @SpiGAndromeda

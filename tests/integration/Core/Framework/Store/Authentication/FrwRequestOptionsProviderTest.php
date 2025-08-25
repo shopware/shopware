@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 
 /**
  * @internal
@@ -26,6 +27,9 @@ class FrwRequestOptionsProviderTest extends TestCase
 
     private FrwRequestOptionsProvider $optionsProvider;
 
+    /**
+     * @var EntityRepository<UserConfigCollection>
+     */
     private EntityRepository $userConfigRepository;
 
     protected function setUp(): void

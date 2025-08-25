@@ -7,10 +7,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -850,7 +852,7 @@ class EntityWriterTest extends TestCase
 
     public function testCanUpdateEntitiesToAddCustomFields(): void
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
 
@@ -977,6 +979,9 @@ class EntityWriterTest extends TestCase
         return static::getContainer()->get(EntityWriter::class);
     }
 
+    /**
+     * @return EntityRepository<MediaCollection>
+     */
     private function getMediaRepository(): EntityRepository
     {
         return static::getContainer()->get('media.repository');

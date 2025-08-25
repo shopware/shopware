@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -34,6 +36,9 @@ class SetNullOnDeleteTest extends TestCase
 
     private EntityWriter $writer;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;

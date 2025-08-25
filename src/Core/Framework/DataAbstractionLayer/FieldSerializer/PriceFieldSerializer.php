@@ -174,8 +174,6 @@ class PriceFieldSerializer extends AbstractFieldSerializer
     {
         $constraints = [
             new Collection(
-                allowExtraFields: true,
-                allowMissingFields: false,
                 fields: [
                     'currencyId' => [new NotBlank(), new Uuid()],
                     'gross' => [new NotBlank(), new Type(type: 'numeric')],
@@ -184,30 +182,32 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                     'listPrice' => [
                         new Optional(
                             new Collection(
-                                allowExtraFields: true,
-                                allowMissingFields: false,
                                 fields: [
                                     'gross' => [new NotBlank(), new Type(type: 'numeric')],
                                     'net' => [new NotBlank(), new Type('numeric')],
                                     'linked' => [new Type(type: 'boolean')],
-                                ]
+                                ],
+                                allowExtraFields: true,
+                                allowMissingFields: false
                             )
                         ),
                     ],
                     'regulationPrice' => [
                         new Optional(
                             new Collection(
-                                allowExtraFields: true,
-                                allowMissingFields: false,
                                 fields: [
                                     'gross' => [new NotBlank(), new Type(type: 'numeric')],
                                     'net' => [new NotBlank(), new Type('numeric')],
                                     'linked' => [new Type(type: 'boolean')],
-                                ]
+                                ],
+                                allowExtraFields: true,
+                                allowMissingFields: false
                             )
                         ),
                     ],
-                ]
+                ],
+                allowExtraFields: true,
+                allowMissingFields: false
             ),
         ];
 

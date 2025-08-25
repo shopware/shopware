@@ -34,7 +34,7 @@ class CustomerPasswordMatches extends Constraint
      * @param ?array{salesChannelContext: SalesChannelContext} $options
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed, use $salesChannelContext instead
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext parameter will be required and natively typed as class protected property
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext parameter will be required and natively typed as constructor property promotion
      *
      * @internal
      */

@@ -27,16 +27,19 @@ class EntityExists extends Constraint
 
     protected Criteria $criteria;
 
+    protected string $primaryProperty = 'id';
+
     /**
      * @param array{entity: string, context: Context, criteria?: Criteria, primaryProperty?: string}|null $options
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $entity and $context parameter will be required and natively typed as class protected properties
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $entity and $context parameter will be required
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $entity, $context and $primaryProperty property will be natively typed as constructor property promotion
      *
      * @internal
      */
     #[HasNamedArguments]
-    public function __construct(?array $options = null, ?string $entity = null, ?Context $context = null, protected string $primaryProperty = 'id', ?Criteria $criteria = null)
+    public function __construct(?array $options = null, ?string $entity = null, ?Context $context = null, string $primaryProperty = 'id', ?Criteria $criteria = null)
     {
         if ($options !== null || $entity === null || $context === null) {
             Feature::triggerDeprecationOrThrow(
@@ -59,6 +62,7 @@ class EntityExists extends Constraint
             $this->entity = $entity;
             $this->context = $context;
             $this->criteria = $criteria ?? new Criteria();
+            $this->primaryProperty = $primaryProperty;
         } else {
             $options = array_merge(
                 ['criteria' => new Criteria()],

@@ -63,7 +63,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testInValidZipcodeIsRequired(): void
     {
-        $countryId = $this->constraint->countryId;
+        $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
         $result = $this->createMock(EntitySearchResult::class);
@@ -125,7 +125,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testValidZipcodeIsRequired(): void
     {
-        $countryId = $this->constraint->countryId;
+        $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
         $result = $this->createMock(EntitySearchResult::class);
@@ -151,7 +151,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testValidZipcodeWithAdvancedValidationPattern(): void
     {
-        $countryId = $this->constraint->countryId;
+        $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
         $result = $this->createMock(EntitySearchResult::class);
@@ -179,7 +179,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testInvalidZipcodeWithAdvancedValidationPattern(): void
     {
-        $countryId = $this->constraint->countryId;
+        $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
         $result = $this->createMock(EntitySearchResult::class);
@@ -223,7 +223,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testValidZipcodeWithDefaultPattern(): void
     {
-        $countryId = $this->constraint->countryId;
+        $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
         $result = $this->createMock(EntitySearchResult::class);
@@ -251,7 +251,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testInValidZipcodeWithDefaultPattern(): void
     {
-        $countryId = $this->constraint->countryId;
+        $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
         $result = $this->createMock(EntitySearchResult::class);

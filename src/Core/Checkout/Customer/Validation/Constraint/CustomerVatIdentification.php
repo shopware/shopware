@@ -21,16 +21,19 @@ class CustomerVatIdentification extends Constraint
 
     protected string $countryId;
 
+    protected bool $shouldCheck = false;
+
     /**
      * @param ?array{countryId: string, shouldCheck?: bool} $options
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $countryId parameter will be required and natively typed as class public property
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $countryId parameter will be required and natively typed as constructor property promotion
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $shouldCheck will be natively typed as constructor property promotion
      *
      * @internal
      */
     #[HasNamedArguments]
-    public function __construct(?array $options = null, ?string $countryId = null, protected bool $shouldCheck = false)
+    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false)
     {
         if ($options !== null || $countryId === null) {
             Feature::triggerDeprecationOrThrow(
@@ -47,6 +50,7 @@ class CustomerVatIdentification extends Constraint
             parent::__construct();
 
             $this->countryId = $countryId;
+            $this->shouldCheck = $shouldCheck;
         } else {
             if ($countryId === null) {
                 if (!\is_string($options['countryId'] ?? null)) {

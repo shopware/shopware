@@ -32,7 +32,7 @@ class CustomerEmailUnique extends Constraint
      * @param array{salesChannelContext?: SalesChannelContext}|null $options
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext will be required and natively typed as class protected property
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext will be required and natively typed as constructor property promotion
      *
      * @internal
      */

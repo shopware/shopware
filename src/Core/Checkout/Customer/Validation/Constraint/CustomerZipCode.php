@@ -19,6 +19,10 @@ class CustomerZipCode extends Constraint
         self::ZIP_CODE_INVALID => 'ZIP_CODE_INVALID',
     ];
 
+    public bool $caseSensitiveCheck = true;
+
+    public ?string $countryId;
+
     private string $message = 'This value is not a valid ZIP code for country {{ iso }}';
 
     private string $messageRequired = 'Postal code is required for that country';
@@ -27,9 +31,11 @@ class CustomerZipCode extends Constraint
      * @param ?array{countryId?: ?string, caseSensitiveCheck?: bool} $options
      *
      * @deprecated tag:v6.8.0 - Parameter $options will be removed
+     * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck and $countryId access modifier will be changed to protected, please use getters instead
+     * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck and $countryId will be natively typed as constructor property promotion
      */
     #[HasNamedArguments]
-    public function __construct($options = null, public bool $caseSensitiveCheck = true, public ?string $countryId = null)
+    public function __construct($options = null, bool $caseSensitiveCheck = true, ?string $countryId = null)
     {
         if ($options !== null) {
             Feature::triggerDeprecationOrThrow(
@@ -40,6 +46,9 @@ class CustomerZipCode extends Constraint
 
         if ($options === null || Feature::isActive('v6.8.0.0')) {
             parent::__construct();
+
+            $this->caseSensitiveCheck = $caseSensitiveCheck;
+            $this->countryId = $countryId;
         } else {
             if (!\is_array($options)) {
                 $options = [

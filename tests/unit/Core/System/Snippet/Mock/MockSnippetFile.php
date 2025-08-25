@@ -18,7 +18,7 @@ class MockSnippetFile extends AbstractSnippetFile
         ?string $iso = null,
         private readonly string $content = '{}',
         private readonly bool $isBase = true,
-        private readonly string $technicalName = 'mock'
+        private readonly string $technicalName = 'mock',
     ) {
         $this->iso = $iso ?? $name;
     }

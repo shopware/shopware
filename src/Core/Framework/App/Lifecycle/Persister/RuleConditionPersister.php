@@ -188,7 +188,7 @@ class RuleConditionPersister
             }
 
             if ($field instanceof MultiSelectField) {
-                $constraints[$field->getName()][] = new All([new Choice(array_keys($field->getOptions()))]);
+                $constraints[$field->getName()][] = new All(constraints: new Choice(array_keys($field->getOptions())));
 
                 continue;
             }

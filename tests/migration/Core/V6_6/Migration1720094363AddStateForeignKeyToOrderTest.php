@@ -98,7 +98,7 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
                 shipping_costs = '{}',
                 created_at = NOW();
     SQL, [
-            'orderId' => $orderId = Uuid::randomBytes(),
+            'orderId' => Uuid::randomBytes(),
             'defaultVersion' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'defaultCurrency' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'defaultLanguage' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),

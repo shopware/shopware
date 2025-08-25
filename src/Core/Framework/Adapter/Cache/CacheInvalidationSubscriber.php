@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
@@ -242,9 +243,44 @@ class CacheInvalidationSubscriber
     public function invalidateNavigationRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the navigation route when a category changed or the entry point configuration of an sales channel changed
-        $logs = [...$this->getChangedCategories($event), ...$this->getChangedEntryPoints($event)];
+        $changedSalesChannelSettings = $event->getPrimaryKeysWithPropertyChange(
+            SalesChannelDefinition::ENTITY_NAME,
+            ['navigationCategoryId', 'navigationCategoryDepth', 'serviceCategoryId', 'footerCategoryId']
+        );
+        if (!empty($changedSalesChannelSettings)) {
+            // if the sales channel settings changed, we invalidate the complete navigation route
+            $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
 
-        $this->cacheInvalidator->invalidate($logs);
+            return;
+        }
+
+        $changedCategoryData = $event->getPrimaryKeysWithPropertyChange(
+            CategoryDefinition::ENTITY_NAME,
+            ['parentId', 'afterCategoryId', 'visible', 'active']
+        );
+        if (!empty($changedCategoryData)) {
+            // if category data that has impact on navigation changes, we invalidate the complete navigation route
+            $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+
+            return;
+        }
+
+        $deletedCategories = $event->getDeletedPrimaryKeys(CategoryDefinition::ENTITY_NAME);
+        if (!empty($deletedCategories)) {
+            // if the category is deleted, we invalidate the complete navigation route
+            $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+
+            return;
+        }
+
+        $changedCategoryTranslationData = $event->getPrimaryKeysWithPropertyChange(
+            CategoryTranslationDefinition::ENTITY_NAME,
+            ['name']
+        );
+        if (!empty($changedCategoryTranslationData)) {
+            // if translated category data that has impact on navigation changes, we invalidate the complete navigation route
+            $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+        }
     }
 
     public function invalidatePaymentMethodRoute(EntityWrittenContainerEvent $event): void
@@ -556,37 +592,6 @@ class CacheInvalidationSubscriber
         $ids = array_column($ids, 'salesChannelId');
 
         return array_map(PaymentMethodRoute::buildName(...), $ids);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getChangedCategories(EntityWrittenContainerEvent $event): array
-    {
-        $ids = $event->getPrimaryKeysWithPayload(CategoryDefinition::ENTITY_NAME);
-
-        if (empty($ids)) {
-            return [];
-        }
-
-        return array_map(NavigationRoute::buildName(...), $ids);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getChangedEntryPoints(EntityWrittenContainerEvent $event): array
-    {
-        $ids = $event->getPrimaryKeysWithPropertyChange(
-            SalesChannelDefinition::ENTITY_NAME,
-            ['navigationCategoryId', 'navigationCategoryDepth', 'serviceCategoryId', 'footerCategoryId']
-        );
-
-        if (empty($ids)) {
-            return [];
-        }
-
-        return [NavigationRoute::ALL_TAG];
     }
 
     /**

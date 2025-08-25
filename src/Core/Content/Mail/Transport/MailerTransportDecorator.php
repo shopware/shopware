@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Transport;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToRetrieveMetadata;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
@@ -21,6 +22,9 @@ use Symfony\Component\Mime\RawMessage;
 #[Package('after-sales')]
 class MailerTransportDecorator implements TransportInterface
 {
+    /**
+     * @param EntityRepository<DocumentCollection> $documentRepository
+     */
     public function __construct(
         private readonly TransportInterface $decorated,
         private readonly MailAttachmentsBuilder $attachmentsBuilder,

@@ -31,6 +31,8 @@ class GenerateMediaTypesCommand extends Command
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly TypeDetector $typeDetector,
@@ -99,7 +101,6 @@ class GenerateMediaTypesCommand extends Command
         do {
             $result = $this->mediaRepository->search($criteria, $context);
 
-            /** @var MediaCollection $medias */
             $medias = $result->getEntities();
             foreach ($medias as $media) {
                 $this->detectMediaType($context, $media);

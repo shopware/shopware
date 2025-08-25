@@ -85,7 +85,7 @@ class Executor
     /**
      * @param array<mixed> $payload
      */
-    private function executeHttpRequest(AppAction $action, Context $context, array $payload, string $appSecret): string
+    private function executeHttpRequest(AppAction $action, Context $context, array $payload, #[\SensitiveParameter] string $appSecret): string
     {
         try {
             $response = $this->guzzleClient->post(

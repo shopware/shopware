@@ -86,6 +86,9 @@ async function createWrapper() {
         search: () => {
             return Promise.resolve({ total: 0 });
         },
+        searchIds: () => {
+            return Promise.resolve({ total: 0 });
+        },
     };
 
     return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {

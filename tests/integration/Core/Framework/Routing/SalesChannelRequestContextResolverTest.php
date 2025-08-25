@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -42,6 +43,9 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CurrencyCollection>
+     */
     private EntityRepository $currencyRepository;
 
     private SalesChannelContextServiceInterface $contextService;

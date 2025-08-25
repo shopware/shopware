@@ -38,6 +38,11 @@ class UserRepository implements UserRepositoryInterface
             return null;
         }
 
+        if ($password === '' || (string) $user['password'] === '') {
+            // never allow login with empty password or empty hash
+            return null;
+        }
+
         if (!password_verify($password, (string) $user['password'])) {
             return null;
         }

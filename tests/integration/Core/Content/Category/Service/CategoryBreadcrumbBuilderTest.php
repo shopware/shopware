@@ -278,7 +278,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ]);
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $productId, [
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $productId, [
             'categories' => [
                 ['id' => $this->ids->get('navigation-a-2')],
                 ['id' => $this->ids->get('navigation-test-a-2')],
@@ -290,7 +290,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         $this->updateProductStream($productId, $this->ids->create('stream_id_1'));
 
-        $this->browser->request('POST', '/store-api/product/' . $productId);
+        $this->browser->jsonRequest('POST', '/store-api/product/' . $productId);
         $response = $this->browser->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(200, $response->getStatusCode());

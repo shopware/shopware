@@ -11,6 +11,7 @@ return [
         '**/src/Core/Profiling/Doctrine/BacktraceDebugDataHolder.php', // dev dependency
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
+        '**/src/Core/Framework/App/AppException.php', // intended to be internal
     ],
     'errors' => [
         // Don't complain about doctrine library changes

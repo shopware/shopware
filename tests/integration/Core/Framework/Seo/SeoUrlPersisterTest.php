@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -42,6 +43,9 @@ class SeoUrlPersisterTest extends TestCase
 
     private SeoUrlPersister $seoUrlPersister;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     private SeoUrlGenerator $seoUrlGenerator;

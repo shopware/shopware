@@ -16,6 +16,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -53,12 +54,12 @@ class SendMailActionTest extends TestCase
     private AbstractMailService $mailService;
 
     /**
-     * @var EntityRepository&MockObject
+     * @var EntityRepository<MailTemplateCollection>&MockObject
      */
     private EntityRepository $mailTemplateRepository;
 
     /**
-     * @var EntityRepository&MockObject
+     * @var EntityRepository<MailTemplateTypeCollection>&MockObject
      */
     private EntityRepository $mailTemplateTypeRepository;
 
@@ -194,8 +195,8 @@ class SendMailActionTest extends TestCase
         $flow->setConfig($config);
 
         $this->entitySearchResult->expects($this->once())
-            ->method('first')
-            ->willReturn($this->mailTemplate);
+            ->method('getEntities')
+            ->willReturn(new MailTemplateCollection([$this->mailTemplate]));
 
         $this->mailTemplateRepository->expects($this->once())
             ->method('search')
@@ -325,8 +326,8 @@ class SendMailActionTest extends TestCase
         $flow->setConfig($config);
 
         $this->entitySearchResult->expects($this->once())
-            ->method('first')
-            ->willReturn($this->mailTemplate);
+            ->method('getEntities')
+            ->willReturn(new MailTemplateCollection([$this->mailTemplate]));
 
         $this->mailTemplateRepository->expects($this->once())
             ->method('search')
@@ -501,8 +502,8 @@ class SendMailActionTest extends TestCase
         $flow->setConfig($config);
 
         $this->entitySearchResult->expects($this->once())
-            ->method('first')
-            ->willReturn($this->mailTemplate);
+            ->method('getEntities')
+            ->willReturn(new MailTemplateCollection([$this->mailTemplate]));
 
         $this->mailTemplateRepository->expects($this->once())
             ->method('search')

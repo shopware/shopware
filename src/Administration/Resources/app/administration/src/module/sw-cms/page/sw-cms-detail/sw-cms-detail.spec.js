@@ -206,6 +206,9 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                         isBlockAllowedInPageType: () => {
                             return true;
                         },
+                        getCmsBlockConfigByName(name) {
+                            return this.getCmsBlockRegistry()[name] ?? null;
+                        },
                     },
                     appCmsService: {},
                     cmsDataResolverService: {

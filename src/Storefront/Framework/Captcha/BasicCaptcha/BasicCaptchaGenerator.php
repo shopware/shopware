@@ -41,7 +41,6 @@ class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
         ob_start();
         imagepng($img, null, 9);
         $image = (string) ob_get_clean();
-        imagedestroy($img);
         $image = base64_encode($image);
 
         return new BasicCaptchaImage($code, $image);

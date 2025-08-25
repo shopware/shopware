@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
@@ -29,6 +30,14 @@ abstract class AbstractAdminIndexer
     }
 
     abstract public function getIterator(): IterableQuery;
+
+    /**
+     * @return array<string>
+     */
+    public function getUpdatedIds(EntityWrittenContainerEvent $event): array
+    {
+        return $event->getPrimaryKeys($this->getEntity());
+    }
 
     /**
      * @param array<string> $ids

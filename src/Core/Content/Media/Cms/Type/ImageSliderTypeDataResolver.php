@@ -110,7 +110,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
     }
 
     /**
-     * @param array{url?: string, newTab?: bool, mediaId: string} $config
+     * @param array{url?: string, ariaLabel?: string, newTab?: bool, mediaId: string} $config
      */
     private function addMedia(CmsSlotEntity $slot, ImageSliderStruct $imageSlider, ElementDataCollection $result, array $config): void
     {
@@ -118,6 +118,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 
         if (!empty($config['url'])) {
             $imageSliderItem->setUrl($config['url']);
+            $imageSliderItem->setAriaLabel($config['ariaLabel'] ?? null);
             $imageSliderItem->setNewTab($config['newTab'] ?? false);
         }
 

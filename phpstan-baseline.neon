@@ -969,12 +969,6 @@ parameters:
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Framework/Api/Controller/AuthController.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
 			count: 3
 			path: src/Core/Framework/Api/Controller/IndexingController.php
 
@@ -1453,18 +1447,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\ListFieldSerializer\:\:decode\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\ListFieldSerializer\:\:validateTypes\(\) has parameter \$values with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
-
-		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
 			count: 1
@@ -1899,12 +1881,6 @@ parameters:
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Framework/Routing/ApiRequestContextResolver.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
 			count: 3
 			path: src/Core/Framework/Routing/RouteScopeListener.php
 
@@ -2249,30 +2225,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/Framework/Validation/DataValidator.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getBusinessEventNamesWithPrivileges\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getEventNamesWithPrivileges\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getHookableEventNames\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getHookableEventNamesWithPrivileges\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'

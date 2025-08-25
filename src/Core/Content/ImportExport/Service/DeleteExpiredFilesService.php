@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -14,6 +16,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesService
 {
+    /**
+     * @param EntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository
+     */
     public function __construct(private readonly EntityRepository $fileRepository)
     {
     }

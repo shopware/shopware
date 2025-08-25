@@ -179,4 +179,36 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
         expect(clientMock.history.post).toHaveLength(1);
         expect(clientMock.history.post[0].url).toBe(`services/${action}`);
     });
+
+    it('returns categorized permissions', async () => {
+        const client = createHTTPClient();
+        const clientMock = new MockAdapter(client);
+        const loginService = createLoginService(client, Shopware.Context.api);
+        const systemConfigService = new SystemConfigApiService(client, loginService);
+        const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
+
+        clientMock.onGet(`services/categorized-permissions/MyCoolService`).reply(200, {
+            permissions: {
+                user: [
+                    {
+                        entity: 'admin_user',
+                        operation: 'read',
+                    },
+                ],
+            },
+        });
+
+        const categorizedPermissions = await shopwareServicesService.getCategorizedPermissions('MyCoolService');
+
+        expect(categorizedPermissions).toEqual({
+            permissions: {
+                user: [
+                    {
+                        entity: 'admin_user',
+                        operation: 'read',
+                    },
+                ],
+            },
+        });
+    });
 });

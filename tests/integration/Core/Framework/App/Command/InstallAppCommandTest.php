@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -21,6 +22,9 @@ class InstallAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     protected function setUp(): void

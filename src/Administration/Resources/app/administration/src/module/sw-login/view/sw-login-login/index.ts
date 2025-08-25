@@ -4,8 +4,18 @@
 
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 import template from './sw-login-login.html.twig';
+import type { LoginConfig } from '../../../../core/service/login.service';
 
 const { Component, Mixin } = Shopware;
+
+interface LoginData {
+    username: string;
+    password: string;
+    rememberMe: boolean;
+    loginAlertMessage: string;
+    loginConfig: null | LoginConfig;
+    loginConfigLoaded: boolean;
+}
 
 /**
  * @private
@@ -30,12 +40,14 @@ export default Component.wrapComponentConfig({
         Mixin.getByName('notification'),
     ],
 
-    data() {
+    data(): LoginData {
         return {
             username: '',
             password: '',
             rememberMe: false,
             loginAlertMessage: '',
+            loginConfig: null,
+            loginConfigLoaded: false,
         };
     },
 
@@ -45,13 +57,25 @@ export default Component.wrapComponentConfig({
         },
     },
 
-    created() {
-        if (!localStorage.getItem('sw-admin-locale')) {
-            void Shopware.Store.get('session').setAdminLocale(navigator.language);
-        }
+    created(): void {
+        void this.createdComponent();
     },
 
     methods: {
+        async createdComponent() {
+            if (!localStorage.getItem('sw-admin-locale')) {
+                await Shopware.Store.get('session').setAdminLocale(navigator.language);
+            }
+
+            this.loginConfig = await this.loginService.getLoginTemplateConfig();
+            this.loginConfigLoaded = true;
+
+            if (!this.loginConfig.useDefault) {
+                window.sessionStorage.setItem('redirectFromLogin', 'true');
+                window.location.href = this.loginConfig.url;
+            }
+        },
+
         loginUserWithPassword() {
             this.$emit('is-loading');
 

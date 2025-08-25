@@ -40,17 +40,11 @@ class AppUrlChangeControllerTest extends TestCase
     public function testResolveWithExistingStrategy(): void
     {
         $url = '/api/app-system/app-url-change/resolve';
-        $json = \json_encode(['strategy' => UninstallAppsStrategy::STRATEGY_NAME]);
-        static::assertNotFalse($json);
-        static::assertJson($json);
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $url,
-            [],
-            [],
-            [],
-            $json
+            ['strategy' => UninstallAppsStrategy::STRATEGY_NAME]
         );
 
         $response = $this->getBrowser()->getResponse()->getContent();
@@ -62,17 +56,11 @@ class AppUrlChangeControllerTest extends TestCase
     public function testResolveWithNotFoundStrategy(): void
     {
         $url = '/api/app-system/app-url-change/resolve';
-        $json = \json_encode(['strategy' => 'test']);
-        static::assertNotFalse($json);
-        static::assertJson($json);
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $url,
-            [],
-            [],
-            [],
-            $json
+            ['strategy' => 'test']
         );
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());

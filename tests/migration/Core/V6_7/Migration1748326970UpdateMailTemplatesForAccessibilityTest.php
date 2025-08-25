@@ -29,12 +29,18 @@ class Migration1748326970UpdateMailTemplatesForAccessibilityTest extends TestCas
     public function testMigrationOfUnmodifiedTranslation(): void
     {
         $migration = new Migration1748326970UpdateMailTemplatesForAccessibility();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
 
+        $error = [];
+        try {
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+        } catch (\Throwable $e) {
+            $error[] = $e->getMessage();
+        }
         // at least check that the migrations run without exceptions
 
         // there isn't much purpose in comparing the fixture contents with the DB,
         // because future migrations might change them again, so let's skip all that boilerplate here
+        static::assertCount(0, $error, print_r($error, true));
     }
 }

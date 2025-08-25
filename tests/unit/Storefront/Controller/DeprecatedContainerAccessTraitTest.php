@@ -49,24 +49,12 @@ class DeprecatedContainerAccessTraitTest extends TestCase
             ->with('test.service')
             ->willReturn($mockService);
 
-        // Capture deprecation warning
-        $deprecations = [];
-        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
-            if ($errno === \E_USER_DEPRECATED) {
-                $deprecations[] = $errstr;
-            }
-
-            return true;
-        }, \E_USER_DEPRECATED);
+        $this->expectUserDeprecationMessageMatches('/Since shopware\/storefront 6\.8\.0: Direct container access via \$this->container->get\("test\.service"\)/');
 
         $result = $this->controller->getTestService('test.service');
 
-        restore_error_handler();
-
         static::assertSame($mockService, $result);
         static::assertEquals('value', $result->test);
-        static::assertCount(1, $deprecations);
-        static::assertStringContainsString('Direct container access via $this->container->get("test.service")', $deprecations[0]);
     }
 
     public function testGetServiceDeprecatedReturnsNullWhenServiceNotExists(): void
@@ -81,23 +69,11 @@ class DeprecatedContainerAccessTraitTest extends TestCase
             ->expects($this->never())
             ->method('get');
 
-        // Capture deprecation warning
-        $deprecations = [];
-        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
-            if ($errno === \E_USER_DEPRECATED) {
-                $deprecations[] = $errstr;
-            }
-
-            return true;
-        }, \E_USER_DEPRECATED);
+        $this->expectUserDeprecationMessageMatches('/Since shopware\/storefront 6\.8\.0: Direct container access via \$this->container->get\("non\.existent\.service"\)/');
 
         $result = $this->controller->getTestService('non.existent.service');
 
-        restore_error_handler();
-
         static::assertNull($result);
-        static::assertCount(1, $deprecations);
-        static::assertStringContainsString('Direct container access via $this->container->get("non.existent.service")', $deprecations[0]);
     }
 
     public function testHasServiceDeprecatedReturnsTrueWhenServiceExists(): void
@@ -108,23 +84,11 @@ class DeprecatedContainerAccessTraitTest extends TestCase
             ->with('existing.service')
             ->willReturn(true);
 
-        // Capture deprecation warning
-        $deprecations = [];
-        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
-            if ($errno === \E_USER_DEPRECATED) {
-                $deprecations[] = $errstr;
-            }
-
-            return true;
-        }, \E_USER_DEPRECATED);
+        $this->expectUserDeprecationMessageMatches('/Since shopware\/storefront 6\.8\.0: Checking service availability via hasServiceDeprecated\("existing\.service"\)/');
 
         $result = $this->controller->hasTestService('existing.service');
 
-        restore_error_handler();
-
         static::assertTrue($result);
-        static::assertCount(1, $deprecations);
-        static::assertStringContainsString('Checking service availability via hasServiceDeprecated("existing.service")', $deprecations[0]);
     }
 
     public function testHasServiceDeprecatedReturnsFalseWhenServiceNotExists(): void
@@ -135,23 +99,11 @@ class DeprecatedContainerAccessTraitTest extends TestCase
             ->with('non.existent.service')
             ->willReturn(false);
 
-        // Capture deprecation warning
-        $deprecations = [];
-        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
-            if ($errno === \E_USER_DEPRECATED) {
-                $deprecations[] = $errstr;
-            }
-
-            return true;
-        }, \E_USER_DEPRECATED);
+        $this->expectUserDeprecationMessageMatches('/Since shopware\/storefront 6\.8\.0: Checking service availability via hasServiceDeprecated\("non\.existent\.service"\)/');
 
         $result = $this->controller->hasTestService('non.existent.service');
 
-        restore_error_handler();
-
         static::assertFalse($result);
-        static::assertCount(1, $deprecations);
-        static::assertStringContainsString('Checking service availability via hasServiceDeprecated("non.existent.service")', $deprecations[0]);
     }
 
     public function testDeprecationMessageIncludesClassName(): void
@@ -168,23 +120,9 @@ class DeprecatedContainerAccessTraitTest extends TestCase
             ->with('test.service')
             ->willReturn(new \stdClass());
 
-        // Capture deprecation warning
-        $deprecations = [];
-        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
-            if ($errno === \E_USER_DEPRECATED) {
-                $deprecations[] = $errstr;
-            }
-
-            return true;
-        }, \E_USER_DEPRECATED);
+        $this->expectUserDeprecationMessageMatches('/Since shopware\/storefront 6\.8\.0:.*' . preg_quote(TestControllerWithDeprecatedTrait::class, '/') . '.*Declare the service in getSubscribedServices\(\) method instead/');
 
         $this->controller->getTestService('test.service');
-
-        restore_error_handler();
-
-        static::assertCount(1, $deprecations);
-        static::assertStringContainsString(TestControllerWithDeprecatedTrait::class, $deprecations[0]);
-        static::assertStringContainsString('Declare the service in getSubscribedServices() method instead', $deprecations[0]);
     }
 
     public function testDeprecationVersionNumbers(): void
@@ -201,23 +139,9 @@ class DeprecatedContainerAccessTraitTest extends TestCase
             ->with('test.service')
             ->willReturn(new \stdClass());
 
-        // Use error handler to capture deprecation details
-        $deprecations = [];
-        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
-            if ($errno === \E_USER_DEPRECATED) {
-                $deprecations[] = $errstr;
-            }
-
-            return true;
-        });
+        $this->expectUserDeprecationMessageMatches('/Since shopware\/storefront 6\.8\.0:/');
 
         $this->controller->getTestService('test.service');
-
-        restore_error_handler();
-
-        static::assertCount(1, $deprecations);
-        static::assertStringContainsString('6.8.0', $deprecations[0]);
-        static::assertStringContainsString('shopware/storefront', $deprecations[0]);
     }
 }
 

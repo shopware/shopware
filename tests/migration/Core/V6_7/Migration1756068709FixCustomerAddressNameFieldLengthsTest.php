@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_8;
+namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_8\Migration1756068709FixCustomerAddressNameFieldLengths;
+use Shopware\Core\Migration\V6_7\Migration1756068709FixCustomerAddressNameFieldLengths;
 
 /**
  * @internal
@@ -31,6 +31,7 @@ class Migration1756068709FixCustomerAddressNameFieldLengthsTest extends TestCase
         static::assertSame(1756068709, $migration->getCreationTimestamp());
 
         $migration->update($this->connection);
+        $migration->update($this->connection);
 
         $customerAddressColumns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `customer_address`');
 
@@ -51,11 +52,11 @@ class Migration1756068709FixCustomerAddressNameFieldLengthsTest extends TestCase
 
     public function testUpdateDestructiveIsEmpty(): void
     {
+        static::expectNotToPerformAssertions();
+
         $migration = new Migration1756068709FixCustomerAddressNameFieldLengths();
 
         // Non-destructive migrations should have empty updateDestructive
         $migration->updateDestructive($this->connection);
-
-        static::assertTrue(true);
     }
 }

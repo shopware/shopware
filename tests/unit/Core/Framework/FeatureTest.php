@@ -211,24 +211,22 @@ class FeatureTest extends TestCase
 
     #[DisabledFeatures(['v6.5.0.0'])]
     #[DataProvider('callSilentIfInactiveProvider')]
-    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void
+    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, bool $shouldTriggerDeprecation): void
     {
-        // deprecation warning wouldn't be rendered otherwise
+        // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
-        $errorMessage = null;
-        set_error_handler(static function (int $errno, string $error) use (&$errorMessage): bool {
-            $errorMessage = $error;
+        if ($shouldTriggerDeprecation) {
+            $this->expectUserDeprecationMessageMatches('/deprecated message/');
+        }
 
-            return true;
-        });
+        if (!$shouldTriggerDeprecation) {
+            $this->expectNotToPerformAssertions();
+        }
 
         Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion): void {
             Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage);
         });
-        $assertion($deprecatedMessage, $errorMessage);
-
-        restore_error_handler();
     }
 
     #[DataProvider('deprecatedMethodMessageProvider')]
@@ -290,16 +288,12 @@ class FeatureTest extends TestCase
     public static function callSilentIfInactiveProvider(): \Generator
     {
         yield 'Execute a callable with inactivated feature flag in silent' => [
-            'v6.5.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
-                static::assertNull($errorMessage);
-            },
+            'v6.5.0.0', 'deprecated message', false,
         ];
 
         yield 'Execute a callable with inactivated feature flag and throw a deprecated message' => [
             // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
-            'v6.4.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
-                static::assertFalse(strpos($deprecatedMessage, (string) $errorMessage));
-            },
+            'v6.4.0.0', 'deprecated message', true,
         ];
     }
 }

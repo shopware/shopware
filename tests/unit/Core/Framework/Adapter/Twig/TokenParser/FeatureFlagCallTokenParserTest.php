@@ -22,29 +22,22 @@ class FeatureFlagCallTokenParserTest extends TestCase
     #[DataProvider('providerCode')]
     public function testCodeRun(string $twigCode, bool $shouldThrow): void
     {
-        // deprecation warning wouldn't be rendered otherwise
+        // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
 
-        $deprecationMessage = null;
-        set_error_handler(function ($errno, $errstr) use (&$deprecationMessage) {
-            $deprecationMessage = $errstr;
+        if ($shouldThrow) {
+            $this->expectUserDeprecationMessageMatches('/Since shopware\/core.*Foooo/');
+        }
 
-            return true;
-        });
+        if (!$shouldThrow) {
+            $this->expectNotToPerformAssertions();
+        }
 
         $twig = new Environment(new ArrayLoader(['test.twig' => $twigCode]));
         $twig->addTokenParser(new FeatureFlagCallTokenParser());
         $twig->render('test.twig', [
             'foo' => new TestService(),
         ]);
-
-        restore_error_handler();
-
-        if ($shouldThrow) {
-            static::assertNotNull($deprecationMessage);
-        } else {
-            static::assertNull($deprecationMessage);
-        }
     }
 
     /**

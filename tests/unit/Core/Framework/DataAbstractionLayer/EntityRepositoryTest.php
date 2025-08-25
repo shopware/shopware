@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -494,8 +495,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionObject(DataAbstractionLayerException::entityNotVersionable(''));
 
         $repo->createVersion('test', Context::createDefaultContext());
     }
@@ -532,8 +532,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionObject(DataAbstractionLayerException::entityNotVersionable(''));
 
         $repo->merge('test', Context::createDefaultContext());
     }
@@ -570,7 +569,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectException(InvalidUuidException::class);
+        static::expectExceptionObject(DataAbstractionLayerException::invalidUuid('test'));
 
         $repo->clone('test', Context::createDefaultContext(), 'test');
     }

@@ -813,7 +813,7 @@ class RequestCriteriaBuilderTest extends TestCase
     #[DataProvider('searchInfoHeaderProvider')]
     public function testIncludeSearchInfoHeader(array $data, bool $expectedState): void
     {
-        $request = new Request([], [], [], [], []);
+        $request = new Request();
         $request->setMethod(Request::METHOD_POST);
 
         if (isset($data['headerValue'])) {

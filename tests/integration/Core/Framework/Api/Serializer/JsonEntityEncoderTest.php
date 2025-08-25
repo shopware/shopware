@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
@@ -33,7 +34,6 @@ use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestCollec
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestInternalFieldsAreFiltered;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
@@ -240,7 +240,6 @@ class JsonEntityEncoderTest extends TestCase
         $definition = new CustomFieldTestDefinition();
         $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
-        // Test case 1: extensions with foreignKeys and other data
         $struct1 = new class extends Entity {
             use EntityCustomFieldsTrait;
         };
@@ -256,8 +255,15 @@ class JsonEntityEncoderTest extends TestCase
         static::assertArrayHasKey('extensions', $actual);
         static::assertArrayNotHasKey('foreignKeys', $actual['extensions']);
         static::assertArrayHasKey('otherExtension', $actual['extensions']);
+    }
 
-        // Test case 2: extensions with only foreignKeys (should remove entire extensions)
+    public function testExtensionsRemovedCompletely(): void
+    {
+        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+
+        $definition = new CustomFieldTestDefinition();
+        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+
         $struct2 = new class extends Entity {
             use EntityCustomFieldsTrait;
         };

@@ -90,7 +90,6 @@ class JsonEntityEncoder
             unset($decoded['extensions']);
         }
 
-
         return $this->removeNotAllowedFields($decoded, $definition, $baseUrl);
     }
 

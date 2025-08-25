@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -37,15 +38,31 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         $validator = static::getContainer()->get(DataValidator::class);
 
+        $errors = [];
         try {
             $validator->validate(['vatIds' => $vatIds], $validation);
         } catch (\Throwable $exception) {
-            static::assertInstanceOf(ConstraintViolationException::class, $exception);
-            $violations = $exception->getViolations();
-            $violation = $violations->get(1);
-
-            static::assertNotEmpty($violation);
-            static::assertSame($constraint->message, $violation->getMessageTemplate());
+            $errors[] = $exception->getMessage();
         }
+
+        static::assertCount(0, $errors, print_r($errors, true));
+    }
+
+    public function testValidateVatIdsInvalid(): void
+    {
+        $this->expectExceptionObject(new ConstraintViolationException(ConstraintViolationList::createFromMessage('This value should be of type array.'), []));
+
+        $constraint = new CustomerVatIdentification([
+            'countryId' => $this->getValidCountryId(),
+        ]);
+
+        $validation = new DataValidationDefinition('customer.create');
+
+        $validation
+            ->add('vatIds', $constraint);
+
+        $validator = static::getContainer()->get(DataValidator::class);
+
+        $validator->validate(['vatIds' => false], $validation);
     }
 }

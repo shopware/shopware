@@ -491,7 +491,7 @@ class SeoUrlPersisterTest extends TestCase
     // right now its just checking that its not crashing in the multilingual case.
     public function testMultilingualIsolationCase(): void
     {
-        /** @var EntityRepository<ProductCollection> $languageRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = static::getContainer()->get('language.repository');

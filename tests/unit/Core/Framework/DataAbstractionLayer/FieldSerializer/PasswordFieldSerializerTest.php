@@ -128,7 +128,7 @@ class PasswordFieldSerializerTest extends TestCase
         $minLengthConstraints = [
             new NotBlank(),
             new Type('string'),
-            new Length(['min' => $minPasswordLength]),
+            new Length(min: $minPasswordLength),
         ];
 
         yield 'with null value without min length required' => [

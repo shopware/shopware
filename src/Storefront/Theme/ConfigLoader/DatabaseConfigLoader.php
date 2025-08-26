@@ -74,7 +74,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $config[$name] = $clone;
         }
 
-        return json_decode((string) json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode(json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -251,7 +251,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         $ids = [];
 
         // Collect all ids
-        foreach ($config['fields'] as $_ => $data) {
+        foreach ($config['fields'] as $data) {
             if (!isset($data['value'])
                 || $data['value'] === ''
                 || !\is_string($data['value'])

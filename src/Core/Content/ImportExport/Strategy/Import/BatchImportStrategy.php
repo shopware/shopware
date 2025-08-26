@@ -8,6 +8,8 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -26,6 +28,9 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
      */
     protected array $toImport = [];
 
+    /**
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         EntityRepository $repository,
@@ -85,7 +90,7 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
             $this->reset();
 
             return new ImportResult([$result], []);
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             // If we have an error, we will try to import one by one
             $results = [];
             $failedRecords = [];

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
@@ -32,24 +33,26 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 #[AsMessageHandler]
 #[Package('inventory')]
-final class ProductExportPartialGenerationHandler
+final readonly class ProductExportPartialGenerationHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductExportCollection> $productExportRepository
      */
     public function __construct(
-        private readonly ProductExportGeneratorInterface $productExportGenerator,
-        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private readonly EntityRepository $productExportRepository,
-        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
-        private readonly MessageBusInterface $messageBus,
-        private readonly ProductExportRendererInterface $productExportRender,
-        private readonly AbstractTranslator $translator,
-        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
-        private readonly SalesChannelContextPersister $contextPersister,
-        private readonly Connection $connection,
-        private readonly int $readBufferSize,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+        private ProductExportGeneratorInterface $productExportGenerator,
+        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private EntityRepository $productExportRepository,
+        private ProductExportFileHandlerInterface $productExportFileHandler,
+        private MessageBusInterface $messageBus,
+        private ProductExportRendererInterface $productExportRender,
+        private AbstractTranslator $translator,
+        private SalesChannelContextServiceInterface $salesChannelContextService,
+        private SalesChannelContextPersister $contextPersister,
+        private Connection $connection,
+        private int $readBufferSize,
+        private LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
     }
 
@@ -119,12 +122,7 @@ final class ProductExportPartialGenerationHandler
             ->addAssociation('productStream.filters.queries')
             ->setLimit(1);
 
-        /** @var ProductExportEntity|null $productExport */
-        $productExport = $this->productExportRepository
-            ->search($criteria, $context)
-            ->first();
-
-        return $productExport;
+        return $this->productExportRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function runExport(

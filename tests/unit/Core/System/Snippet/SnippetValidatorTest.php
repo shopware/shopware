@@ -22,8 +22,8 @@ class SnippetValidatorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $firstPath = 'irrelevant.de-DE.json';
-        $secondPath = 'irrelevant.en-GB.json';
+        $firstPath = 'storefront.de-DE.json';
+        $secondPath = 'storefront.en-GB.json';
         $snippetFileHandler->method('findAdministrationSnippetFiles')
             ->willReturn([$firstPath]);
         $snippetFileHandler->method('findStorefrontSnippetFiles')
@@ -39,16 +39,20 @@ class SnippetValidatorTest extends TestCase
             });
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
-        $missingSnippets = $snippetValidator->validate();
-
+        $invalidData = $snippetValidator->getValidation();
+        $missingSnippets = $invalidData->missingSnippets->getElements();
         static::assertCount(2, $missingSnippets);
-        static::assertArrayHasKey('german', $missingSnippets['en-GB']);
-        static::assertSame('german', $missingSnippets['en-GB']['german']['keyPath']);
-        static::assertSame('exampleGerman', $missingSnippets['en-GB']['german']['availableValue']);
 
-        static::assertArrayHasKey('english', $missingSnippets['de-DE']);
-        static::assertSame('english', $missingSnippets['de-DE']['english']['keyPath']);
-        static::assertSame('exampleEnglish', $missingSnippets['de-DE']['english']['availableValue']);
+        $missingSnippetEnGB = $missingSnippets[0];
+        static::assertSame('german', $missingSnippetEnGB->getKeyPath());
+        static::assertSame('exampleGerman', $missingSnippetEnGB->getAvailableTranslation());
+
+        $missingSnippetdeDE = $missingSnippets[1];
+        static::assertSame('english', $missingSnippetdeDE->getKeyPath());
+        static::assertSame('exampleEnglish', $missingSnippetdeDE->getAvailableTranslation());
+
+        $invalidPluralization = $invalidData->invalidPluralization;
+        static::assertCount(0, $invalidPluralization);
     }
 
     public function testValidateShouldNotFindAnyMissingSnippets(): void
@@ -57,8 +61,8 @@ class SnippetValidatorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $firstPath = 'irrelevant.de-DE.json';
-        $secondPath = 'irrelevant.en-GB.json';
+        $firstPath = 'storefront.de-DE.json';
+        $secondPath = 'storefront.en-GB.json';
         $snippetFileHandler->method('findAdministrationSnippetFiles')
             ->willReturn([$firstPath]);
         $snippetFileHandler->method('findStorefrontSnippetFiles')
@@ -68,8 +72,54 @@ class SnippetValidatorTest extends TestCase
             ->willReturnCallback(fn () => ['foo' => 'bar']);
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
-        $missingSnippets = $snippetValidator->validate();
+        $invalidData = $snippetValidator->getValidation();
 
-        static::assertCount(0, $missingSnippets);
+        static::assertCount(0, $invalidData->missingSnippets);
+    }
+
+    public function testValidateShouldFindInvalidPluralization(): void
+    {
+        $snippetFileHandler = $this->getMockBuilder(SnippetFileHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $path = 'storefront.en-GB.json';
+        $snippetFileHandler->method('findStorefrontSnippetFiles')
+            ->willReturn([$path]);
+
+        $expectedInvalidSnippets = [
+            'noIndexes' => 'Singular | Plural',
+            'noFallbackRange' => '{1}Singular | Plural',
+            'noOneIndex' => '{0} Singular | [0,Inf[ Plural',
+            'wrongPluralRangeSnippetFixable' => '{1} Singular |]1,Inf[ Plural',
+            'wrongPluralRangeSnippetDupeFixable' => '{1} Singular DUPE |]1,Inf[ Plural DUPE',
+        ];
+
+        $actualSnippets = [
+            'noPluralization' => 'Something',
+            'somethingValid' => '{1} Singular |[0,Inf[ Plural',
+            'somethingValidWith0' => '{0} Zero case | {1} Singular |[0,Inf[ Plural',
+            ...$expectedInvalidSnippets,
+        ];
+
+        $snippetFileHandler->method('openJsonFile')
+            ->willReturnCallback(fn () => $actualSnippets);
+
+        $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
+        $invalidData = $snippetValidator->getValidation();
+        $invalidPluralization = $invalidData->invalidPluralization;
+
+        static::assertCount(5, $invalidPluralization);
+        static::assertFalse($invalidPluralization->has('somethingValid'));
+        static::assertFalse($invalidPluralization->has('somethingValidWith0'));
+
+        foreach ($expectedInvalidSnippets as $expectedKey => $expectedValue) {
+            static::assertTrue($invalidPluralization->has($expectedKey), "Missing expected key: $expectedKey");
+
+            $invalidSnippet = $invalidPluralization->get($expectedKey);
+            static::assertSame($expectedValue, $invalidSnippet->snippetValue, "Invalid pluralization for key: $expectedKey");
+            static::assertSame($path, $invalidSnippet->path, "Invalid path for key: $expectedKey");
+            static::assertSame(\str_contains($expectedKey, 'Fixable'), $invalidSnippet->isFixable);
+        }
     }
 }

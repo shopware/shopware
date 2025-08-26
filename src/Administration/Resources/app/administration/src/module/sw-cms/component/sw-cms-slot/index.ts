@@ -195,6 +195,17 @@ export default Shopware.Component.wrapComponentConfig({
             this.cmsElementFavorites.update(!this.cmsElementFavorites.isFavorite(elementName), elementName);
         },
 
+        toggleHoverElement(element: CmsElementConfig, targetState: boolean) {
+            element.hover = targetState;
+        },
+
+        getFavoriteIconToggleState(element: CmsElementConfig): boolean {
+            return (
+                (this.cmsElementFavorites.isFavorite(element.name) && !element?.hover) ||
+                (!this.cmsElementFavorites.isFavorite(element.name) && !!element?.hover)
+            );
+        },
+
         elementInElementGroup(element: CmsElementConfig, elementGroup: string) {
             if (elementGroup === 'favorite') {
                 return this.cmsElementFavorites.isFavorite(element.name);

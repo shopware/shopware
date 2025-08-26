@@ -196,14 +196,18 @@
                                         tabindex="0"
                                         @click="onToggleElementFavorite(element.name)"
                                         @keydown.enter="onToggleElementFavorite(element.name)"
+                                        @mouseenter="toggleHoverElement(element, true)"
+                                        @mouseleave="toggleHoverElement(element, false)"
+                                        @focusin="toggleHoverElement(element, true)"
+                                        @focusout="toggleHoverElement(element, false)"
                                     >
                                         <mt-icon
-                                            v-if="cmsElementFavorites.isFavorite(element.name)"
+                                            v-show="getFavoriteIconToggleState(element)"
                                             name="solid-heart"
                                             size="28"
                                         />
                                         <mt-icon
-                                            v-else
+                                            v-show="!getFavoriteIconToggleState(element)"
                                             name="regular-heart"
                                             size="28"
                                         />

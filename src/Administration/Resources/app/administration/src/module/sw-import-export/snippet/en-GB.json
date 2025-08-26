@@ -180,8 +180,8 @@
                 "importLabel": "Import",
                 "exportLabel": "Export"
             },
-          "profileTypeDisabledText": "Clear 'object type' in order to be able to select any 'usage'.",
-          "objectTypeDisabledText": "Clear 'usage' in order to be able to select any 'object type'.",
+          "profileTypeDisabledText": "Clear the \"object type\" field to be able to choose between all possible \"usages\" again.",
+          "objectTypeDisabledText": "Clear the \"usage\" field to be able to choose between all possible \"object types\" again.",
           "csvUploadText": "Create mapping from an existing CSV file.",
           "skipCsvUpload": "Skip CSV upload"
         },

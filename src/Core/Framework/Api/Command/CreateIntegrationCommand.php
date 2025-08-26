@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,6 +23,8 @@ class CreateIntegrationCommand extends Command
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<IntegrationCollection> $integrationRepository
      */
     public function __construct(private readonly EntityRepository $integrationRepository)
     {

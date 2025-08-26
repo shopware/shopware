@@ -83,6 +83,7 @@ runs:
         echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
         echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
         echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
+        echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
 
     - name: Setup Shopware
       uses: shopware/setup-shopware@main
@@ -121,6 +122,16 @@ runs:
     - uses: actions/setup-node@v4
       with:
         node-version: 22
+
+    - name: Cache npm packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ inputs.directory }}/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-${{ inputs.directory }}-${{ hashFiles(format('{0}/package-lock.json', inputs.directory)) }}
+        restore-keys: |
+          ${{ runner.os }}-${{ inputs.directory }}
 
     - name: Install dependencies
       shell: bash

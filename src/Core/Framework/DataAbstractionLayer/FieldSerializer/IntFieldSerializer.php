@@ -54,7 +54,7 @@ class IntFieldSerializer extends AbstractFieldSerializer
         ];
 
         if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
-            $constraints[] = new Range(['min' => $field->getMinValue(), 'max' => $field->getMaxValue()]);
+            $constraints[] = new Range(min: $field->getMinValue(), max: $field->getMaxValue());
         }
 
         return $constraints;

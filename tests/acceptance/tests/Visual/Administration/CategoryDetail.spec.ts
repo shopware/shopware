@@ -1,0 +1,63 @@
+import { test, expect } from '@fixtures/AcceptanceTest';
+import { setViewport, replaceElements } from '@shopware-ag/acceptance-test-suite';
+
+test('Visual: Administration category page', { tag: '@Visual' }, async ({
+    ShopAdmin,
+    AdminCategories,
+}) => {
+
+    await test.step('Creates a screenshot of the category page on the general tab.', async () => {
+        await ShopAdmin.goesTo(AdminCategories.url());
+        await AdminCategories.categoryItems.first().click();
+        await setViewport(AdminCategories.page, {
+            waitForSelector: '.sw-category-detail-base__description',
+        });
+        await replaceElements(AdminCategories.page, [
+            AdminCategories.categoryItems,
+        ]);
+        await expect(AdminCategories.contentView).toHaveScreenshot('Category-General.png');
+    });
+
+    await test.step('Creates a screenshot of the "configure home page" modal.', async () => {
+        await AdminCategories.configureHomePageButton.click();
+        await setViewport(AdminCategories.page, {
+            waitForSelector: '.sw-category-entry-point-modal__seo-headline',
+        });
+        await expect(AdminCategories.page.locator('.sw-modal__dialog')).toHaveScreenshot('Category-Modal.png');
+        await AdminCategories.configureModalCancelButton.click();
+    });
+
+    await test.step('Creates a screenshot of the category page on the products tab.', async () => {
+        await AdminCategories.productsTab.click();
+        await setViewport(AdminCategories.page, {
+            width: 1440,
+            waitForSelector: '.sw-category-detail-products__product-assignment-type-select',
+        });
+        await replaceElements(AdminCategories.page, [
+            AdminCategories.categoryItems,
+        ]);
+        await expect(AdminCategories.contentView).toHaveScreenshot('Category-Products.png');
+    });
+
+    await test.step('Creates a screenshot of the category page on the layout tab.', async () => {
+        await AdminCategories.layoutTab.click();
+        await setViewport(AdminCategories.page, {
+            waitForSelector: '.sw-cms-el-config-product-listing__content-info',
+        });
+        await replaceElements(AdminCategories.page, [
+            AdminCategories.categoryItems,
+        ]);
+        await expect(AdminCategories.contentView).toHaveScreenshot('Category-Layout.png');
+    });
+
+    await test.step('Creates a screenshot of the category page on the SEO tab.', async () => {
+        await AdminCategories.seoTab.click();
+        await setViewport(AdminCategories.page, {
+            waitForSelector: '.sw-seo-url__card',
+        });
+        await replaceElements(AdminCategories.page, [
+            AdminCategories.categoryItems,
+        ]);
+        await expect(AdminCategories.contentView).toHaveScreenshot('Category-SEO.png');
+    });
+});

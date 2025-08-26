@@ -15,15 +15,18 @@ use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -31,12 +34,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('inventory')]
 class SeoActionController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
     public function __construct(
         private readonly SeoUrlGenerator $seoUrlGenerator,
@@ -76,7 +81,7 @@ class SeoActionController extends AbstractController
             $definition = $this->definitionInstanceRegistry->getByEntityName($seoUrlTemplate['entityName']);
 
             $previewCriteria = $this->requestCriteriaBuilder->handleRequest(
-                Request::create('', 'POST', $seoUrlTemplate['criteria']),
+                Request::create('', Request::METHOD_POST, $seoUrlTemplate['criteria']),
                 $previewCriteria,
                 $definition,
                 $context
@@ -149,8 +154,7 @@ class SeoActionController extends AbstractController
             throw SeoException::salesChannelIdParameterIsMissing();
         }
 
-        /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->first();
+        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->getEntities()->first();
 
         if ($salesChannel === null) {
             throw SeoException::salesChannelNotFound($salesChannelId);
@@ -206,7 +210,6 @@ class SeoActionController extends AbstractController
                 throw SeoException::salesChannelIdParameterIsMissing();
             }
 
-            /** @var SalesChannelEntity $salesChannelEntity */
             $salesChannelEntity = $salesChannels->get($salesChannelId);
 
             if ($salesChannelEntity === null) {
@@ -293,19 +296,18 @@ class SeoActionController extends AbstractController
         $template = $seoUrlTemplate['template'] ?? '';
 
         if (\is_string($salesChannelId)) {
-            /** @var SalesChannelEntity|null $salesChannel */
-            $salesChannel = $this->salesChannelRepository->search((new Criteria([$salesChannelId]))->setLimit(1), $context)->get($salesChannelId);
+            $salesChannel = $this->salesChannelRepository->search((new Criteria([$salesChannelId]))->setLimit(1), $context)->getEntities()->get($salesChannelId);
 
             if ($salesChannel === null) {
                 throw SeoException::invalidSalesChannelId($salesChannelId);
             }
         } else {
-            /** @var SalesChannelEntity|null $salesChannel */
             $salesChannel = $this->salesChannelRepository
                 ->search(
                     (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))->setLimit(1),
                     $context
                 )
+                ->getEntities()
                 ->first();
         }
 
@@ -321,6 +323,9 @@ class SeoActionController extends AbstractController
         return iterator_to_array($result);
     }
 
+    /**
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
+     */
     private function getRepository(SeoUrlRouteConfig $config): EntityRepository
     {
         return $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());

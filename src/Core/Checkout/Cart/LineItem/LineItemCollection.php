@@ -204,7 +204,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<string|null>
+     * @return array<string>
      */
     public function getReferenceIds(): array
     {

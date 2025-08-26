@@ -53,11 +53,18 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         // Retrieve context for current request
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        // Check for currency header first, fallback to domain currency attribute
+        $currencyId = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID);
+        if ($currencyId === null) {
+            $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
+        }
+
         $contextServiceParameters = new SalesChannelContextServiceParameters(
             (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID),
             $usedContextToken,
             $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
+            $currencyId,
             $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID),
             $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT),
             null,

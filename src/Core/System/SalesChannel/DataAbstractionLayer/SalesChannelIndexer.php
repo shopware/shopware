@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdat
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -21,6 +22,8 @@ class SalesChannelIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<SalesChannelCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

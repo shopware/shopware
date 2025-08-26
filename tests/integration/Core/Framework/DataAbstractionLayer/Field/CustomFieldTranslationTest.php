@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -568,12 +569,16 @@ class CustomFieldTranslationTest extends TestCase
                         'code' => 'x-' . $translationCodeId,
                         'territory' => $translationCodeId,
                     ],
+                    'active' => true,
                 ],
             ],
             Context::createDefaultContext()
         );
     }
 
+    /**
+     * @return EntityRepository<CustomFieldCollection>
+     */
     protected function getTestRepository(): EntityRepository
     {
         $definition = $this->registerDefinition(
@@ -581,6 +586,7 @@ class CustomFieldTranslationTest extends TestCase
             CustomFieldTestTranslationDefinition::class
         );
 
+        /** @var EntityRepository<CustomFieldCollection> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

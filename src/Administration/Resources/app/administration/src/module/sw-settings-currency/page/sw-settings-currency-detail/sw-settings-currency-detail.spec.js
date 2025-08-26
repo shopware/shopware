@@ -72,12 +72,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to save the currency', async () => {
         const wrapper = await createWrapper();
 

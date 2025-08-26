@@ -9,38 +9,8 @@ parameters:
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/CmsRoute.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\Cms\\SalesChannel\\Struct\\ImageSliderStruct\:\:getNavigation\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/Struct/ImageSliderStruct.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\Cms\\SalesChannel\\Struct\\ImageSliderStruct\:\:setNavigation\(\) has parameter \$navigation with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/Struct/ImageSliderStruct.php
-
-		-
-			message: '#^Property Shopware\\Core\\Content\\Cms\\SalesChannel\\Struct\\ImageSliderStruct\:\:\$navigation type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/Struct/ImageSliderStruct.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
 			count: 2
 			path: src/Core/Content/Cms/Subscriber/CmsPageDefaultChangeSubscriber.php
-
-		-
-			message: '#^Expected domain exception class Shopware\\Core\\Content\\Flow\\FlowException, got Shopware\\Core\\Framework\\DataAbstractionLayer\\DataAbstractionLayerException$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Content/Flow/DataAbstractionLayer/FieldSerializer/FlowTemplateConfigFieldSerializer.php
 
 		-
 			message: '#^Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowBuilder\:\:build\(\) has parameter \$flowSequences with no value type specified in iterable type array\.$#'
@@ -173,12 +143,6 @@ parameters:
 			identifier: shopware.domainException
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/AbstractEntitySerializer.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
@@ -589,12 +553,6 @@ parameters:
 			path: src/Core/Content/MailTemplate/Aggregate/MailTemplateType/MailTemplateTypeEntity.php
 
 		-
-			message: '#^Mixed variable in a `\$sliderItems\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 2
-			path: src/Core/Content/Media/Cms/Type/ImageSliderTypeDataResolver.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Media\\Event\\MediaFolderConfigurationIndexerEvent\:\:__construct\(\) has parameter \$ids with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -739,12 +697,6 @@ parameters:
 			path: src/Core/Content/Newsletter/Event/NewsletterSubscribeUrlEvent.php
 
 		-
-			message: '#^Method Shopware\\Core\\Content\\Product\\Exception\\VariantNotFoundException\:\:__construct\(\) has parameter \$options with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/Product/Exception/VariantNotFoundException.php
-
-		-
 			message: '#^Mixed variable in a `\$a\-\>get\(''group''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
 			identifier: typePerfect.noMixedMethodCaller
 			count: 3
@@ -793,28 +745,10 @@ parameters:
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRoute.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Product\\SalesChannel\\FindVariant\\FoundCombination\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/FindVariant/FoundCombination.php
-
-		-
-			message: '#^Expected domain exception class Shopware\\Core\\Content\\Product\\ProductException, got Shopware\\Core\\Framework\\Routing\\RoutingException$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Suggest/ResolvedCriteriaProductSuggestRoute.php
-
-		-
-			message: '#^Expected domain exception class Shopware\\Core\\Content\\Product\\ProductException, got Shopware\\Core\\Framework\\Routing\\RoutingException$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchBuilder.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
@@ -1029,12 +963,6 @@ parameters:
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Framework/Api/Controller/AuthController.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
 			count: 3
 			path: src/Core/Framework/Api/Controller/IndexingController.php
 
@@ -1077,12 +1005,6 @@ parameters:
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Framework/App/ActionButton/AppAction.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
 			count: 1
 			path: src/Core/Framework/App/Api/AppUrlChangeController.php
 
@@ -1120,19 +1042,7 @@ parameters:
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
 			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Administration/Admin.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomField/CustomFieldTypes/CustomFieldTypeFactory.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/XmlElement.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
@@ -1199,12 +1109,6 @@ parameters:
 			identifier: shopware.domainException
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/RepositoryIterator.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 12
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
@@ -1537,18 +1441,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\ListFieldSerializer\:\:decode\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\ListFieldSerializer\:\:validateTypes\(\) has parameter \$values with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
-
-		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
 			count: 1
@@ -1735,30 +1627,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/CloneBehavior.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Command\\ChangeSet\:\:__construct\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/ChangeSet.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Command\\ChangeSet\:\:__construct\(\) has parameter \$state with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/ChangeSet.php
-
-		-
-			message: '#^Property Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Command\\ChangeSet\:\:\$after type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/ChangeSet.php
-
-		-
-			message: '#^Property Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Command\\ChangeSet\:\:\$state type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/ChangeSet.php
-
-		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
 			count: 3
@@ -1825,18 +1693,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/PrimaryKeyBag.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\ConstraintBuilder\:\:isInArray\(\) has parameter \$values with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Validation/ConstraintBuilder.php
-
-		-
-			message: '#^Property Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\ConstraintBuilder\:\:\$constraints type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Validation/ConstraintBuilder.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\RestrictDeleteViolation\:\:getRestrictions\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1901,12 +1757,6 @@ parameters:
 			identifier: shopware.domainException
 			count: 1
 			path: src/Core/Framework/Event/EventData/ScalarValueType.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
@@ -2025,12 +1875,6 @@ parameters:
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Framework/Routing/ApiRequestContextResolver.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
 			count: 3
 			path: src/Core/Framework/Routing/RouteScopeListener.php
 
@@ -2045,12 +1889,6 @@ parameters:
 			identifier: shopware.domainException
 			count: 1
 			path: src/Core/Framework/Rule/Collector/RuleConditionRegistry.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Framework/Rule/DateRangeRule.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
@@ -2081,12 +1919,6 @@ parameters:
 			identifier: shopware.domainException
 			count: 1
 			path: src/Core/Framework/Store/Authentication/FrwRequestOptionsProvider.php
-
-		-
-			message: '#^Call to an undefined method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity\:\:getLocale\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Core/Framework/Store/Authentication/LocaleProvider.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
@@ -2275,18 +2107,6 @@ parameters:
 			path: src/Core/Framework/Struct/Struct.php
 
 		-
-			message: '#^Mixed variable in a `\$oldBag\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 3
-			path: src/Core/Framework/Test/TestSessionStorage.php
-
-		-
-			message: '#^Property Shopware\\Core\\Framework\\Test\\TestSessionStorage\:\:\$data type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Test/TestSessionStorage.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\Test\\Webhook\\_fixtures\\BusinessEvents\\BusinessEventEncoderTestInterface\:\:getEncodeValues\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2395,42 +2215,6 @@ parameters:
 			path: src/Core/Framework/Validation/DataValidator.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\Validation\\Exception\\ConstraintViolationException\:\:__construct\(\) has parameter \$inputData with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Validation\\Exception\\ConstraintViolationException\:\:getInputData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getBusinessEventNamesWithPrivileges\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getEventNamesWithPrivileges\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getHookableEventNames\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getHookableEventNamesWithPrivileges\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
-
-		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
 			count: 3
@@ -2533,12 +2317,6 @@ parameters:
 			path: src/Core/System/CustomEntity/Schema/DynamicMappingEntityDefinition.php
 
 		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/SchemaUpdater.php
-
-		-
 			message: '#^Expected domain exception class Shopware\\Core\\System\\CustomEntity\\CustomEntityException, got Shopware\\Core\\System\\CustomEntity\\Xml\\Config\\CustomEntityConfigurationException$#'
 			identifier: shopware.domainException
 			count: 2
@@ -2623,88 +2401,10 @@ parameters:
 			path: src/Core/System/SalesChannel/Event/SalesChannelIndexerEvent.php
 
 		-
-			message: '#^Expected domain exception class Shopware\\Core\\System\\SalesChannel\\SalesChannelException, got Shopware\\Core\\Checkout\\Cart\\CartException$#'
-			identifier: shopware.domainException
-			count: 2
-			path: src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
-
-		-
 			message: '#^Expected domain exception class Shopware\\Core\\System\\SalesChannel\\SalesChannelException, got Shopware\\Core\\Framework\\Routing\\RoutingException$#'
 			identifier: shopware.domainException
 			count: 1
 			path: src/Core/System/SalesChannel/SalesChannel/StoreApiInfoController.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\Command\\ValidateSnippetsCommand\:\:hydrateMissingSnippets\(\) has parameter \$missingSnippetsArray with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/Command/ValidateSnippetsCommand.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\SnippetFileHandler\:\:findAdministrationSnippetFiles\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\SnippetFileHandler\:\:findSnippetFilesByPath\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\SnippetFileHandler\:\:findStorefrontSnippetFiles\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\SnippetFileHandler\:\:openJsonFile\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\SnippetFileHandler\:\:writeJsonFile\(\) has parameter \$content with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\SnippetFixer\:\:addTranslationUsingSnippetKey\(\) has parameter \$json with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/SnippetFixer.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\SnippetFixer\:\:addTranslationUsingSnippetKey\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/SnippetFixer.php
-
-		-
-			message: '#^Parameter \#2 \$translation of method Shopware\\Core\\System\\Snippet\\SnippetFixer\:\:addTranslationUsingSnippetKey\(\) expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Core/System/Snippet/SnippetFixer.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Snippet\\SnippetValidatorInterface\:\:validate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidatorInterface.php
 
 		-
 			message: '#^Method Shopware\\Core\\System\\StateMachine\\Loader\\InitialStateIdLoader\:\:load\(\) return type has no value type specified in iterable type array\.$#'

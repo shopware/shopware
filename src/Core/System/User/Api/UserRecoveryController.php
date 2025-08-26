@@ -5,13 +5,15 @@ namespace Shopware\Core\System\User\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@framework')]
 class UserRecoveryController extends AbstractController
 {
@@ -52,7 +54,7 @@ class UserRecoveryController extends AbstractController
     }
 
     #[Route(path: '/api/_action/user/user-recovery/password', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.password', methods: ['PATCH'])]
-    public function updateUserPassword(Request $request, Context $context): Response
+    public function updateUserPassword(#[\SensitiveParameter] Request $request, Context $context): Response
     {
         $hash = (string) $request->request->get('hash');
         $password = (string) $request->request->get('password');

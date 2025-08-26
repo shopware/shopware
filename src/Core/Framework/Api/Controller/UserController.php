@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -10,31 +11,43 @@ use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@framework')]
 class UserController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<UserCollection> $userRepository
+     * @param EntityRepository<EntityCollection<Entity>> $userRoleRepository
+     * @param EntityRepository<AclRoleCollection> $roleRepository
+     * @param EntityRepository<UserAccessKeyCollection> $keyRepository
      */
     public function __construct(
         private readonly EntityRepository $userRepository,
         private readonly EntityRepository $userRoleRepository,
         private readonly EntityRepository $roleRepository,
         private readonly EntityRepository $keyRepository,
-        private readonly UserDefinition $userDefinition
+        private readonly UserDefinition $userDefinition,
+        private readonly SsoService $ssoService,
     ) {
     }
 
@@ -52,7 +65,7 @@ class UserController extends AbstractController
         $criteria = new Criteria([$userId]);
         $criteria->addAssociations(['aclRoles', 'avatarMedia']);
 
-        $user = $this->userRepository->search($criteria, $context)->first();
+        $user = $this->userRepository->search($criteria, $context)->getEntities()->first();
         if (!$user) {
             throw OAuthServerException::invalidCredentials();
         }
@@ -232,6 +245,10 @@ class UserController extends AbstractController
     {
         // only validate scope for administration clients
         if ($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID) !== 'administration') {
+            return;
+        }
+
+        if ($this->ssoService->isSso()) {
             return;
         }
 

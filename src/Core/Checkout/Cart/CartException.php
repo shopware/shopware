@@ -630,7 +630,7 @@ class CartException extends HttpException
         return new self(
             Response::HTTP_CONFLICT,
             self::CART_LOCKED,
-            'Cart with token {{ token }} is locked due to order creation. Please try again later.',
+            'Cart with token {{ token }} is locked due to concurrent write operation. Please try again later.',
             ['token' => $token]
         );
     }

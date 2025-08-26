@@ -47,9 +47,7 @@ class CacheClearer
 
     public function clear(bool $clearHttp = true): void
     {
-        foreach ($this->adapters as $adapter) {
-            $adapter->clear();
-        }
+        $this->clearObjectCache();
 
         if ($clearHttp && $this->reverseHttpCacheEnabled) {
             $this->reverseProxyCache?->banAll();
@@ -112,6 +110,13 @@ class CacheClearer
     {
         foreach ($this->adapters as $adapter) {
             $adapter->deleteItems($keys);
+        }
+    }
+
+    public function clearObjectCache(): void
+    {
+        foreach ($this->adapters as $adapter) {
+            $adapter->clear();
         }
     }
 

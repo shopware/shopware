@@ -55,7 +55,7 @@ class FixtureLoader
     private function replaceIds(IdsCollection $ids, string $content): string
     {
         return (string) \preg_replace_callback('/"{.*}"/mU', function (array $match) use ($ids) {
-            $key = \str_replace(['"{', '}"'], '', (string) $match[0]);
+            $key = \str_replace(['"{', '}"'], '', $match[0]);
 
             return '"' . $ids->create($key) . '"';
         }, $content);

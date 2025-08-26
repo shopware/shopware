@@ -86,6 +86,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                         isNew: () => true,
                                     };
                                 }
+
                                 return {};
                             },
                             search: searchFunction,
@@ -94,7 +95,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                     variation: [],
                                 });
                             },
-                            hasChanges: () => false,
+                            hasChanges: () => true,
                             save: () => Promise.resolve({}),
                         }),
                     },
@@ -114,6 +115,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                             return errors.length < 1;
                         },
+                    },
+                    userConfigService: {
+                        search: () => Promise.resolve({ data: {} }),
+                        upsert: () => Promise.resolve(),
                     },
                 },
                 stubs: {
@@ -179,10 +184,15 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+
+        Shopware.Store.get('swProductDetail').setLengthUnit = jest.fn();
+        Shopware.Store.get('swProductDetail').setWeightUnit = jest.fn();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.unmount();
+        }
     });
 
     it('should show advanced mode settings', async () => {
@@ -426,6 +436,89 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
     });
 
+    it('should initialize with default units when no preferences exist', async () => {
+        wrapper.vm.userConfigService.search = jest.fn(() =>
+            Promise.resolve({
+                data: {},
+            }),
+        );
+
+        await wrapper.vm.initProductMeasurementUnits();
+
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+        expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('mm');
+        expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('kg');
+    });
+
+    it('should initialize with preferred units when they exist', async () => {
+        const preferredUnits = {
+            length: 'cm',
+            weight: 'g',
+        };
+
+        wrapper.vm.userConfigService.search = jest.fn(() =>
+            Promise.resolve({
+                data: {
+                    'measurement.preferenceUnits': preferredUnits,
+                },
+            }),
+        );
+
+        await wrapper.vm.initProductMeasurementUnits();
+
+        expect(wrapper.vm.previousLengthUnit).toBe('cm');
+        expect(wrapper.vm.previousWeightUnit).toBe('g');
+        expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('cm');
+        expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('g');
+    });
+
+    it('should save preferences only when units have changed', async () => {
+        await wrapper.setData({
+            previousLengthUnit: 'cm',
+            previousWeightUnit: 'kg',
+        });
+
+        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.saveProduct();
+
+        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalled();
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
+    it('should not save preferences when units have not changed', async () => {
+        await wrapper.setData({
+            previousLengthUnit: 'mm',
+            previousWeightUnit: 'kg',
+        });
+
+        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.saveProduct();
+
+        expect(wrapper.vm.userConfigService.upsert).not.toHaveBeenCalled();
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
+    it('should handle errors when saving preferences', async () => {
+        await wrapper.setData({
+            previousLengthUnit: 'cm',
+            previousWeightUnit: 'kg',
+        });
+
+        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.reject(new Error('Save failed')));
+
+        await wrapper.vm.saveProduct();
+
+        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalled();
+        // Previous units should not be updated on error
+        expect(wrapper.vm.previousLengthUnit).toBe('cm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
     it('should set isSaveSuccessful to true when no SEO promises exist', () => {
         wrapper.vm.loadProduct = jest.fn();
 
@@ -498,7 +591,42 @@ describe('module/sw-product/page/sw-product-detail', () => {
             message: 'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
         });
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
-        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+        expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
+    });
+
+    it('should handle duplicate product number error when seo promises are empty', async () => {
+        wrapper.vm.updateSeoPromises = [];
+        wrapper.vm.isSaveSuccessful = false;
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const duplicateErrorResponse = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER',
+                            meta: {
+                                parameters: {
+                                    number: 'SW-123',
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.onSaveFinished(duplicateErrorResponse);
+
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
+        });
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
     it('should handle generic error with detail correctly', async () => {
@@ -526,7 +654,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             message: 'Custom error message',
         });
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
-        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+        expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
     it('should handle SEO promise rejection correctly', async () => {

@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
@@ -20,7 +19,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -322,19 +320,5 @@ class SetOrderStateActionTest extends TestCase
             ',
             ['id' => $orderId]
         );
-    }
-
-    private function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
-    {
-        /** @var EntityRepository $repository */
-        $repository = static::getContainer()->get('state_machine_state.repository');
-
-        $criteria = new Criteria();
-        $criteria
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('technicalName', $state))
-            ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
-
-        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId() ?: '';
     }
 }

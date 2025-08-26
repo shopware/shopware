@@ -38,18 +38,23 @@
                                 {% set hasChildren = treeItem.children|length > 0 %}
 
                                 {% block layout_navbar_menu_item %}
-                                    {% if category.type == 'folder' %}
-                                        <li class="nav-item nav-item-{{ id }}">
+                                    <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static{% endif %}">
+                                        {% block layout_navbar_menu_item_link %}
                                             <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2{% if hasChildren %} dropdown-toggle{% endif %}"
-                                               href="#"
+                                               href="{{ category.seoUrl ?: '#' }}"
                                                {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}
-                                               data-flyout-menu-trigger="{{ id }}"
+                                               {% if category.type != 'folder' and category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                itemprop="url"
-                                               title="{{ name }}">
-                                                <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
+                                               title="{{ name }}"
+                                            >
+                                                {% block layout_navbar_menu_item_link_content %}
+                                                    <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
+                                                {% endblock %}
                                             </a>
+                                        {% endblock %}
 
-                                            {% if hasChildren %}
+                                        {% if hasChildren %}
+                                            {% block layout_navbar_menu_item_children %}
                                                 <div class="dropdown-menu w-100 p-4">
                                                     {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
                                                         themeIconConfig: themeIconConfig,
@@ -58,30 +63,9 @@
                                                         page: page
                                                     } only %}
                                                 </div>
-                                            {% endif %}
-                                        </li>
-                                    {% else %}
-                                        <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static{% endif %}">
-                                            <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2{% if hasChildren %} dropdown-toggle{% endif %}"
-                                               href="{{ category.seoUrl }}"
-                                               {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}
-                                               {% if category.shouldOpenInNewTab %}target="_blank"{% endif %}
-                                               itemprop="url"
-                                               title="{{ name }}">
-                                                <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
-                                            </a>
-                                            {% if hasChildren %}
-                                                <div class="dropdown-menu w-100 p-4">
-                                                    {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
-                                                        themeIconConfig: themeIconConfig,
-                                                        navigationTree: treeItem,
-                                                        level: level+1,
-                                                        page: page
-                                                    } only %}
-                                                </div>
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
+                                            {% endblock %}
+                                        {% endif %}
+                                    </li>
                                 {% endblock %}
                             {% endfor %}
                         {% endblock %}

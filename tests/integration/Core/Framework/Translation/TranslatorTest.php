@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -41,6 +42,9 @@ class TranslatorTest extends TestCase
 
     private Translator $translator;
 
+    /**
+     * @var EntityRepository<SnippetCollection>
+     */
     private EntityRepository $snippetRepository;
 
     protected function setUp(): void

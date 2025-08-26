@@ -139,7 +139,6 @@ const componentNames = [
     'sw-entity-single-select',
     'sw-entity-multi-select',
     'sw-entity-multi-id-select',
-    'sw-entity-many-to-many-select',
     'sw-entity-advanced-selection-modal',
     'sw-advanced-selection-rule',
     'sw-advanced-selection-product',

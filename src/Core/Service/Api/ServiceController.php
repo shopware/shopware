@@ -8,11 +8,14 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
@@ -25,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal only for use by the service-system
  */
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class ServiceController
 {
@@ -136,6 +139,31 @@ class ServiceController
         return new Response();
     }
 
+    #[Route(path: '/api/services/categorized-permissions/{serviceName}', name: 'api.services.categorized_permissions', defaults: ['auth_required' => true, '_acl' => ['system.plugin_maintain']], methods: ['GET'])]
+    public function categorizedPermissions(string $serviceName, Context $context): Response
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(
+            new EqualsFilter('selfManaged', true),
+            new EqualsFilter('name', $serviceName),
+        )->addAssociation('app.acl_role');
+
+        /** @var AppEntity|null $service */
+        $service = $this->appRepository->search($criteria, $context)->first();
+
+        if ($service === null) {
+            throw ServiceException::notFound('name', $serviceName);
+        }
+
+        return new JsonResponse([
+            'permissions' => Utils::makeCategorizedPermissions(array_unique(array_merge(
+                $service->getRequestedPrivileges(),
+                $service->getAclRole()?->getPrivileges() ?? [],
+            ))),
+        ]);
+    }
+
     /**
      * @return array<array{id: string, name: string, active: bool}>
      */
@@ -157,6 +185,7 @@ class ServiceController
             'requested_privileges' => $app->getRequestedPrivileges(),
             'privileges' => $app->getAclRole()?->getPrivileges(),
             'state' => State::state($app),
+            'domains' => $app->getAllowedHosts(),
         ]));
     }
 

@@ -44,6 +44,7 @@
       "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Der Verkaufskanal \"{name}\" konnte nicht gespeichert werden. Bitte überprüfe Deine Eingaben.",
       "messageActivateWithoutThemeError": "Der Verkaufskanal \"{name}\" kann noch nicht aktiviert werden. Aktive Verkaufskanäle müssen ein Theme zugeordnet haben.",
+      "messageMeasurementUnitsSetError": "Die Systemkonfiguration für Produktmaße konnte nicht geladen werden.",
       "activateDisable": "Der Verkaufskanal muss gespeichert und anschließend muss ein Theme zugeordnet werden, bevor er aktiviert werden kann.",
       "buttonSave": "Speichern",
       "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
@@ -144,6 +145,7 @@
       "basicinformationLink": "Standard-Wartungsseiten-Layout ändern",
       "ipAddressAllowlist": "Allowlist für IP-Adressen",
       "columnDomainCurrency": "Währung",
+      "columnDomainUnitSystem": "Einheitensystem",
       "products": {
         "titleEmptyState": "Keine weiteren Produkte gefunden",
         "titleEmptyStateTable": "Keine passenden Produkte gefunden",
@@ -216,7 +218,7 @@
         "messageAccessKeyChanged": "Der Zugangsschlüssel und die geänderte Export-URL werden erst nach dem Speichern aktiv.",
         "templates": {
           "label": "Template",
-          "placeholderSelectTemplate": "Wähle eine Template aus ...",
+          "placeholderSelectTemplate": "Wähle ein Template aus ...",
           "template-label": {
             "billiger-de": "billiger.de (CSV)",
             "idealo": "idealo.de (CSV)",
@@ -292,6 +294,14 @@
           "titleNoProductStreamsMatching": "Keine passenden dynamischen Produktgruppen gefunden.",
           "titleNoProductStreamsAvailable": "Keine dynamische Produktgruppen verfügbar."
         }
+      },
+      "measurementSystem": {
+        "labelDefaultUnitSystem": "Standard-Einheitensystem",
+        "labelDefaultLengthUnit": "Standard-Längeneinheit",
+        "labelDefaultWeightUnit": "Standard-Gewichtseinheit",
+        "labelUnitSystem": "Einheitensystem",
+        "labelLengthUnit": "Längeneinheit",
+        "labelWeightUnit": "Gewichtseinheit"
       }
     },
     "sw-sales-channel-defaults-select": {

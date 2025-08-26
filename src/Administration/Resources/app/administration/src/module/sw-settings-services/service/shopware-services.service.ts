@@ -22,12 +22,18 @@ export type ServiceDescription = {
     version: string;
     requested_privileges: string[];
     privileges: string[];
+    domains: string[];
 };
 
 type ServiceConfigurationConfigValues = {
     'core.services.disabled'?: boolean;
     'core.services.permissionsConsent'?: string;
 };
+
+/**
+ * @private
+ */
+export type CategorizedPermissions = { [key: string]: Array<{ entity: string; operation: string }> };
 
 /**
  * API service for service handling
@@ -76,32 +82,24 @@ export default class ShopwareServicesService extends ApiService {
         };
     }
 
-    acceptRevision(revision: string): Promise<ServiceConfiguration> {
-        return this.httpClient
-            .post(
-                `services/permissions/grant/${revision}`,
-                {},
-                {
-                    headers: this.getBasicHeaders(),
-                },
-            )
-            .then(() => {
-                return this.getServicesContext();
-            });
+    acceptRevision(revision: string): Promise<void> {
+        return this.httpClient.post(
+            `services/permissions/grant/${revision}`,
+            {},
+            {
+                headers: this.getBasicHeaders(),
+            },
+        );
     }
 
-    revokePermissions(): Promise<ServiceConfiguration> {
-        return this.httpClient
-            .post(
-                `services/permissions/revoke`,
-                {},
-                {
-                    headers: this.getBasicHeaders(),
-                },
-            )
-            .then(() => {
-                return this.getServicesContext();
-            });
+    revokePermissions(): Promise<void> {
+        return this.httpClient.post(
+            `services/permissions/revoke`,
+            {},
+            {
+                headers: this.getBasicHeaders(),
+            },
+        );
     }
 
     enableAllServices(): Promise<ServiceConfiguration> {
@@ -118,17 +116,23 @@ export default class ShopwareServicesService extends ApiService {
             });
     }
 
-    disableAllServices(): Promise<ServiceConfiguration> {
+    disableAllServices(): Promise<void> {
+        return this.httpClient.post(
+            'services/disable',
+            {},
+            {
+                headers: this.getBasicHeaders(),
+            },
+        );
+    }
+
+    getCategorizedPermissions(serviceName: string): Promise<{ permissions: CategorizedPermissions }> {
         return this.httpClient
-            .post(
-                'services/disable',
-                {},
-                {
-                    headers: this.getBasicHeaders(),
-                },
-            )
-            .then(() => {
-                return this.getServicesContext();
+            .get(`services/categorized-permissions/${serviceName}`, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return (response.data as { permissions: CategorizedPermissions }) ?? {};
             });
     }
 }

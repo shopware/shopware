@@ -1,9 +1,8 @@
-import './acl';
-import defaultSearchConfiguration from './default-search-configuration';
-
 /**
  * @sw-package after-sales
  */
+import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 

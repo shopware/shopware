@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,8 @@ class SeoUrlPersister
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -109,7 +112,7 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos);
+        $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos, $salesChannelId);
 
         RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
@@ -196,15 +199,25 @@ class SeoUrlPersister
      *
      * @return array<array<string, mixed>>
      */
-    private function findInUseCanonicalSeoUrls(array $seoPathInfos): array
+    private function findInUseCanonicalSeoUrls(array $seoPathInfos, ?string $salesChannelId = null): array
     {
-        return $this->connection->fetchAllAssociative(
-            'SELECT id, language_id languageId, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
-            FROM seo_url
-            WHERE is_canonical = 1 AND seo_path_info IN (:seoPathInfos)',
-            ['seoPathInfos' => $seoPathInfos],
-            ['seoPathInfos' => ArrayParameterType::BINARY]
-        );
+        if (empty($seoPathInfos)) {
+            return [];
+        }
+
+        $query = 'SELECT id, language_id languageId, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
+        FROM seo_url
+        WHERE is_canonical = 1 AND seo_path_info IN (:seoPathInfos)';
+
+        $params = ['seoPathInfos' => $seoPathInfos];
+        $types = ['seoPathInfos' => ArrayParameterType::BINARY];
+
+        if ($salesChannelId !== null) {
+            $query .= ' AND sales_channel_id = :salesChannelId';
+            $params['salesChannelId'] = $salesChannelId;
+        }
+
+        return $this->connection->fetchAllAssociative($query, $params, $types);
     }
 
     /**

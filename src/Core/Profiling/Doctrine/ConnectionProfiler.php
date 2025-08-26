@@ -233,8 +233,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
 
                     try {
                         $param = $type->convertToDatabaseValue($param, $this->connection->getDatabasePlatform());
-                    } catch (\TypeError $e) {
-                    } catch (ConversionException $e) {
+                    } catch (\TypeError|ConversionException) {
                     }
                 }
             }

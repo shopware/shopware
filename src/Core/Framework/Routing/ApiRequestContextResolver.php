@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -159,7 +160,13 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         if ($keyOrigin === 'integration') {
             $integrationId = $this->getIntegrationIdByAccessKey($clientId);
 
-            return $this->getAdminApiSource(null, $integrationId);
+            $userId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID);
+
+            if ($userId !== null && !$this->userAppIntegrationHeaderPrivileged($userId, $integrationId)) {
+                $userId = null;
+            }
+
+            return $this->getAdminApiSource($userId, $integrationId);
         }
 
         if ($keyOrigin === 'sales-channel') {
@@ -253,6 +260,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         // Use the permissions associated to that app, if the request is made by an integration associated to an app
         $appPermissions = $this->fetchPermissionsIntegrationByApp($integrationId);
         if ($appPermissions !== null) {
+            // If both userId and integrationId are provided (HEADER_APP_USER_ID case), intersect user permissions with app permissions
+            if ($userId !== null) {
+                $appPermissions = array_intersect(
+                    $appPermissions,
+                    $this->fetchPermissions($userId)
+                );
+            }
+
             $source->setIsAdmin(false);
             $source->setPermissions($appPermissions);
 
@@ -322,7 +337,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ['id' => Uuid::fromHexToBytes($currencyId)]
         );
         if ($rounding === false) {
-            throw new \RuntimeException(\sprintf('No cash rounding for currency "%s" found', $currencyId));
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @phpstan-ignore-next-line
+                throw new \RuntimeException(\sprintf('No cash rounding for currency "%s" found', $currencyId));
+            }
+            throw RoutingException::currencyNotFound($currencyId);
         }
 
         $rounding = json_decode((string) $rounding['item_rounding'], true, 512, \JSON_THROW_ON_ERROR);
@@ -400,7 +419,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @throws MissingPrivilegeException
      * @throws RoutingException
      */
     private function userAppIntegrationHeaderPrivileged(string $userId, ?string $appIntegrationId): bool
@@ -424,7 +442,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $specificAppPrivileged = \in_array($appPrivilegeName, $permissions, true);
 
         if (!($specificAppPrivileged || $allAppsPrivileged)) {
-            throw new MissingPrivilegeException([$appPrivilegeName]);
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @phpstan-ignore-next-line
+                throw new MissingPrivilegeException([$appPrivilegeName]);
+            }
+            throw RoutingException::missingPrivileges([$appPrivilegeName]);
         }
 
         return true;

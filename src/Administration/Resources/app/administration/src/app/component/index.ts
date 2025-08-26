@@ -277,10 +277,6 @@ export default () => {
         () => import('src/app/component/form/select/entity/sw-entity-multi-id-select/index'),
     );
     Shopware.Component.register(
-        'sw-entity-many-to-many-select',
-        () => import('src/app/component/form/select/entity/sw-entity-many-to-many-select/index'),
-    );
-    Shopware.Component.register(
         'sw-entity-advanced-selection-modal',
         () => import('src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index'),
     );
@@ -445,6 +441,7 @@ export default () => {
         () => import('src/app/component/app/sw-app-wrong-app-url-modal/index'),
     );
     Shopware.Component.register('sw-app-topbar-button', () => import('src/app/component/app/sw-app-topbar-button/index'));
+    Shopware.Component.register('sw-app-topbar-sidebar', () => import('src/app/component/app/sw-app-topbar-sidebar/index'));
     Shopware.Component.register(
         'sw-app-app-url-changed-modal',
         () => import('src/app/component/app/sw-app-app-url-changed-modal/index'),

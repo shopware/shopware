@@ -79,6 +79,7 @@
                 :show-selection="acl.can('promotion.deleter') || undefined"
                 :allow-edit="acl.can('promotion.editor') || undefined"
                 :allow-view="acl.can('promotion.viewer') || undefined"
+                :allow-delete="allowBulkDelete"
                 allow-column-edit
                 full-page
                 @update-records="updateTotal"

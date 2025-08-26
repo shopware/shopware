@@ -13,7 +13,8 @@
     <source ignoreSuppressionOfDeprecations="true"
             ignoreIndirectDeprecations="true"
             restrictNotices="true"
-            restrictWarnings="true">
+            restrictWarnings="true"
+            baseline="phpunit-baseline.xml.dist">
         <deprecationTrigger>
             <function>trigger_deprecation</function>
             <method>Doctrine\Deprecations\Deprecation::trigger</method>

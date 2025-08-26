@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<files version="1">
+    <file path="src/Core/Framework/Feature.php">
+        <line number="255" hash="5f837bd370f406af769fffe28ba3ca5105d6f56a">
+            <issue><![CDATA[Since shopware/core : deprecated message]]></issue>
+            <issue><![CDATA[Since shopware/core : Foooo]]></issue>
+            <issue><![CDATA[Since shopware/core : Foooo]]></issue>
+        </line>
+    </file>
+</files>

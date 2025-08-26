@@ -13,7 +13,7 @@ class Md5 implements LegacyEncoderInterface
         return 'Md5';
     }
 
-    public function isPasswordValid(string $password, string $hash): bool
+    public function isPasswordValid(#[\SensitiveParameter] string $password, string $hash): bool
     {
         if (mb_strpos($hash, ':') === false) {
             return hash_equals($hash, Hasher::hash($password, 'md5'));

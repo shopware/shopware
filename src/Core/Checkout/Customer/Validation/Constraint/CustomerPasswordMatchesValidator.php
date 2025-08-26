@@ -24,7 +24,7 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
             return;
         }
 
-        $context = $constraint->getContext();
+        $context = $constraint->getSalesChannelContext();
 
         $customer = $context->getCustomer();
 
@@ -40,7 +40,7 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
             $this->accountService->getCustomerByLogin(
                 $customer->getEmail(),
                 (string) $password,
-                $constraint->getContext()
+                $context
             );
 
             return;

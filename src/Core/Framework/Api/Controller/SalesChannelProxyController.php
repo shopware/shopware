@@ -293,8 +293,8 @@ class SalesChannelProxyController extends AbstractController
         $definition = new DataValidationDefinition('impersonation.generate-token');
 
         $definition
-            ->add(self::SALES_CHANNEL_ID, new Uuid(), new EntityExists(['entity' => 'sales_channel', 'context' => $context]))
-            ->add(self::CUSTOMER_ID, new Uuid(), new EntityExists(['entity' => 'customer', 'context' => $context]));
+            ->add(self::SALES_CHANNEL_ID, new Uuid(), new EntityExists(entity: 'sales_channel', context: $context))
+            ->add(self::CUSTOMER_ID, new Uuid(), new EntityExists(entity: 'customer', context: $context));
 
         $validationEvent = new BuildValidationEvent($definition, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -375,7 +375,7 @@ class SalesChannelProxyController extends AbstractController
         $customerCriteria->addFilter(new EqualsFilter('customer.id', $parameters[self::CUSTOMER_ID]));
 
         $definition
-            ->add(self::CUSTOMER_ID, new EntityExists(['entity' => 'customer', 'context' => $context->getContext(), 'criteria' => $customerCriteria]))
+            ->add(self::CUSTOMER_ID, new EntityExists(entity: 'customer', context: $context->getContext(), criteria: $customerCriteria))
         ;
 
         $this->validator->validate($parameters, $definition);

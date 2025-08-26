@@ -120,10 +120,11 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:2' || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
       database:
@@ -146,6 +147,23 @@ jobs:
           mysql-version: "skip"
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+
+      - name: Wait for OpenSearch/Elasticsearch
+        if: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+        run: |
+            # Wait for OpenSearch/Elasticsearch to be alive
+            max_tries=30
+            tries=0
+            until curl -s http://localhost:9200/_cluster/health | grep -q '"status":"green"\|"status":"yellow"'; do
+                if [ $tries -ge $max_tries ]; then
+                    echo "Max tries waiting for OpenSearch/Elasticsearch to be ready exceeded."
+                    exit 1
+                fi
+
+                echo "Waiting for OpenSearch/Elasticsearch to be ready..."
+                sleep 2
+                tries=$((tries + 1))
+            done
 
       - name: Start Webserver
         run: symfony server:start -d
@@ -363,10 +381,11 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:1"
+        image: "opensearchproject/opensearch:2"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
 
@@ -420,10 +439,11 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:1"
+        image: "opensearchproject/opensearch:2"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
 
@@ -499,10 +519,11 @@ jobs:
 
       services:
           elasticsearch:
-              image: "opensearchproject/opensearch:1"
+              image: "opensearchproject/opensearch:2"
               env:
                   discovery.type: single-node
                   plugins.security.disabled: "true"
+                  OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
               ports:
                   - "9200:9200"
 

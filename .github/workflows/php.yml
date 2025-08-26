@@ -204,10 +204,11 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:2' || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
 
@@ -218,11 +219,6 @@ jobs:
           php-version: 8.4
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-
-      # do not remove
-      # This is required for the test `tests/unit/Core/Checkout/Cart/Error/ErrorTest.php` to work properly
-      - name: Dump composer autoloader
-        run: php vendor/bin/composer dump-autoload -o
 
       - name: Start Webserver
         run: symfony server:start -d

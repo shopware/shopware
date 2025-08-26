@@ -364,7 +364,7 @@ class RegisterRoute extends AbstractRegisterRoute
                 }
 
                 $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                    ['countryId' => $countryId]
+                    countryId: $countryId
                 ));
             }
         }
@@ -466,7 +466,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('company', new NotBlank());
         }
 
-        $validation->set('zipcode', new CustomerZipCode(['countryId' => $address->get('countryId')]));
+        $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
         $validation->add('zipcode', new Length(max: 50));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
@@ -482,18 +482,17 @@ class RegisterRoute extends AbstractRegisterRoute
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
-        $validation->add('requestedGroupId', new EntityExists([
-            'entity' => 'customer_group',
-            'context' => $context->getContext(),
-            'criteria' => $criteria,
-        ]));
+        $validation->add('requestedGroupId', new EntityExists(
+            entity: 'customer_group',
+            context: $context->getContext(),
+            criteria: $criteria,
+        ));
 
         if (!$isGuest) {
             $validation->merge(
                 $this->passwordValidationFactory->create($context)
             );
-            $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
-            $validation->add('email', new CustomerEmailUnique($options));
+            $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

@@ -20,7 +20,6 @@ jobs:
           mysql-version: skip
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-          install-admin: true
           install-storefront: true
 
       - name: Cache ESLint and Stylelint

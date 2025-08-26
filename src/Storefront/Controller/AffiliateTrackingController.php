@@ -5,13 +5,10 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
-use function in_array;
 
 /**
  * Controller for cache-compatible affiliate tracking functionality.
@@ -35,7 +32,7 @@ class AffiliateTrackingController extends StorefrontController
         $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         // Only process storefront routes
-        if (!in_array(StorefrontRouteScope::ID, $scopes, true)) {
+        if (!\in_array(StorefrontRouteScope::ID, $scopes, true)) {
             return new Response();
         }
 

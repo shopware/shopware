@@ -124,12 +124,12 @@ class ServiceException extends HttpException
         );
     }
 
-    public static function missingAppVersionInfo(): self
+    public static function missingAppVersionInfo(string $missingField): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_MISSING_APP_VERSION_INFO,
-            'Error downloading app. The version information was missing.'
+            \sprintf('Error downloading app. The version information was missing: %s', $missingField)
         );
     }
 

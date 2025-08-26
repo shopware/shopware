@@ -15,7 +15,9 @@ readonly class AppInfo
         public string $version,
         public string $hash,
         public string $revision,
-        public string $zipUrl
+        public string $zipUrl,
+        public string $hashAlgorithm,
+        public string $minShopSupportedVersion
     ) {
     }
 
@@ -24,8 +26,11 @@ readonly class AppInfo
      */
     public static function fromNameAndArray(string $appName, array $appInfo): self
     {
-        if (!isset($appInfo['app-version']) || !isset($appInfo['app-hash']) || !isset($appInfo['app-revision']) || !isset($appInfo['app-zip-url'])) {
-            throw ServiceException::missingAppVersionInfo();
+        $requiredKeys = ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'];
+        foreach ($requiredKeys as $key) {
+            if (!isset($appInfo[$key])) {
+                throw ServiceException::missingAppVersionInfo($key);
+            }
         }
 
         return new AppInfo(
@@ -34,6 +39,8 @@ readonly class AppInfo
             $appInfo['app-hash'],
             $appInfo['app-revision'],
             $appInfo['app-zip-url'],
+            $appInfo['app-hash-algorithm'],
+            $appInfo['app-min-shop-supported-version']
         );
     }
 
@@ -47,6 +54,8 @@ readonly class AppInfo
             'hash' => $this->hash,
             'revision' => $this->revision,
             'zip-url' => $this->zipUrl,
+            'hash-algorithm' => $this->hashAlgorithm,
+            'min-shop-supported-version' => $this->minShopSupportedVersion,
         ];
     }
 }

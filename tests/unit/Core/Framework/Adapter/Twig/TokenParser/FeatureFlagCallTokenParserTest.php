@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\TokenParser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\FeatureFlagCallTokenParser;
 use Shopware\Core\Framework\Feature;
@@ -19,6 +20,7 @@ class FeatureFlagCallTokenParserTest extends TestCase
 {
     use EnvTestBehaviour;
 
+    #[IgnoreDeprecations]
     #[DataProvider('providerCode')]
     public function testCodeRun(string $twigCode, bool $shouldThrow): void
     {

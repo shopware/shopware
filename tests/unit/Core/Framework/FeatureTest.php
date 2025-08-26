@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
@@ -209,6 +210,7 @@ class FeatureTest extends TestCase
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
 
+    #[IgnoreDeprecations]
     #[DisabledFeatures(['v6.5.0.0'])]
     #[DataProvider('callSilentIfInactiveProvider')]
     public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, bool $shouldTriggerDeprecation): void

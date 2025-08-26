@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -91,6 +92,8 @@ abstract class AbstractImportExportTestCase extends TestCase
 
     /**
      * @param array<string, bool> $configOverrides
+     *
+     * @return MockRepository<CustomerCollection>
      */
     protected function runCustomerImportWithConfigAndMockedRepository(array $configOverrides): MockRepository
     {
@@ -119,6 +122,7 @@ abstract class AbstractImportExportTestCase extends TestCase
         $readerFactory = static::getContainer()->get(CsvReaderFactory::class);
         $writerFactory = static::getContainer()->get(CsvFileWriterFactory::class);
 
+        /** @var MockRepository<CustomerCollection> */
         $mockRepository = new MockRepository(static::getContainer()->get(CustomerDefinition::class));
 
         $importExport = new ImportExport(

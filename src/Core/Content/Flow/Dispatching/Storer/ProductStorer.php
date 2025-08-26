@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,8 @@ class ProductStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $productRepository,
@@ -73,9 +76,6 @@ class ProductStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search($criteria, $context)->get($id);
-
-        return $product;
+        return $this->productRepository->search($criteria, $context)->getEntities()->get($id);
     }
 }

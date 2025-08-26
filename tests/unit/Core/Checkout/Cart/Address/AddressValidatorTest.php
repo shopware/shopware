@@ -16,6 +16,8 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -33,6 +35,7 @@ use Shopware\Core\Test\Generator;
 #[Package('checkout')]
 class AddressValidatorTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<EntityCollection<Entity>> */
     private MockObject&EntityRepository $repository;
 
     private AddressValidator $validator;

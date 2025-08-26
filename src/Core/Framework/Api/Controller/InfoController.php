@@ -295,10 +295,6 @@ class InfoController extends AbstractController
 
     private function getBaseUrl(Bundle $bundle): ?string
     {
-        if (!$bundle instanceof Plugin) {
-            return null;
-        }
-
         if ($bundle->getAdminBaseUrl()) {
             return $bundle->getAdminBaseUrl();
         }
@@ -312,7 +308,13 @@ class InfoController extends AbstractController
             return $this->router->generate(
                 'administration.plugin.index',
                 [
-                    'pluginName' => \mb_strtolower($bundle->getName()),
+                    /**
+                     * Adopted from symfony, as they also strip the bundle suffix:
+                     * https://github.com/symfony/symfony/blob/7.2/src/Symfony/Bundle/FrameworkBundle/Command/AssetsInstallCommand.php#L128
+                     *
+                     * @see Plugin\Util\AssetService::getTargetDirectory
+                     */
+                    'pluginName' => preg_replace('/bundle$/', '', mb_strtolower($bundle->getName())),
                 ],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
@@ -378,7 +380,7 @@ WHERE app.active = 1 AND app.base_app_url is not null');
         try {
             return $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException $e) {
-            return $e->getShopId();
+            return $e->getShopId()->id;
         }
     }
 }

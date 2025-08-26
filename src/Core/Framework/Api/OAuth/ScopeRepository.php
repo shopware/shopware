@@ -9,6 +9,7 @@ use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use Shopware\Administration\Login\ShopwareGrantType;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -97,7 +98,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopes = $this->removeScope($scopes, WriteScope::class);
         }
 
-        if ($hasWrite) {
+        if ($hasWrite || $grantType === ShopwareGrantType::TYPE) {
             $scopes[] = new WriteScope();
         }
 

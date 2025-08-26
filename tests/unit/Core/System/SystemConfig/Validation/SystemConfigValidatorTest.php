@@ -172,8 +172,8 @@ class SystemConfigValidatorTest extends TestCase
                 'maxLength' => 255,
             ],
             'expected' => [
-                new Assert\Length(['min' => 1]),
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(min: 1),
+                new Assert\Length(max: 255),
                 new Assert\Type('string'),
                 new Assert\NotBlank(),
             ],
@@ -188,8 +188,8 @@ class SystemConfigValidatorTest extends TestCase
                 'max' => 100,
             ],
             'expected' => [
-                new Assert\Range(['min' => 1]),
-                new Assert\Range(['max' => 100]),
+                new Assert\Range(min: 1),
+                new Assert\Range(max: 100),
                 new Assert\Type('int'),
                 new Assert\NotBlank(),
             ],
@@ -204,8 +204,8 @@ class SystemConfigValidatorTest extends TestCase
                 'maxLength' => 255,
             ],
             'expected' => [
-                new Assert\Length(['min' => 1]),
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(min: 1),
+                new Assert\Length(max: 255),
                 new Assert\Type('string'),
                 new Assert\NotBlank(null, null, true),
             ],

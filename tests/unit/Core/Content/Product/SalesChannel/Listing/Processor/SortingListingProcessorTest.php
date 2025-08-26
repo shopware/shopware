@@ -64,9 +64,9 @@ class SortingListingProcessorTest extends TestCase
         $productSorting = new ProductSortingEntity();
         $productSorting->setId(Uuid::randomHex());
         $productSorting->assign([
-            'key' => 'score',
+            'key' => 'name-asc',
             'fields' => [
-                ['field' => '_score', 'priority' => 1, 'order' => 'DESC'],
+                ['field' => 'name', 'priority' => 1, 'order' => 'ASC'],
             ],
         ]);
 
@@ -89,13 +89,16 @@ class SortingListingProcessorTest extends TestCase
             $repository
         );
 
+        $criteria = new Criteria();
+        $criteria->setTerm('test');
         $processor->prepare(
             $requested,
-            $criteria = new Criteria(),
+            $criteria = (new Criteria())->setTerm('test'),
             $this->createMock(SalesChannelContext::class)
         );
 
         static::assertEquals([
+            new FieldSorting('name', FieldSorting::ASCENDING),
             new FieldSorting('_score', FieldSorting::DESCENDING),
             new FieldSorting('id', FieldSorting::ASCENDING),
         ], $criteria->getSorting());

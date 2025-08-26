@@ -53,7 +53,7 @@ class SortingListingProcessor extends AbstractListingProcessor
 
         if ($currentSorting !== null) {
             $criteria->addSorting(
-                ...$currentSorting->createDalSorting()
+                ...$currentSorting->createDalSorting($this->hasQueriesOrTerm($criteria))
             );
         }
 
@@ -71,6 +71,11 @@ class SortingListingProcessor extends AbstractListingProcessor
         }
 
         $result->setAvailableSortings($sortings);
+    }
+
+    private function hasQueriesOrTerm(Criteria $criteria): bool
+    {
+        return !empty($criteria->getQueries()) || $criteria->getTerm();
     }
 
     private function getCurrentSorting(ProductSortingCollection $sortings, Request $request, string $salesChannelId): ?ProductSortingEntity

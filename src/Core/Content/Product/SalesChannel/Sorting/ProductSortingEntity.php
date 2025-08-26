@@ -30,10 +30,16 @@ class ProductSortingEntity extends Entity
     protected bool $locked;
 
     /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $defaultSortByScore will be added
+     *
      * @return array<FieldSorting>
      */
-    public function createDalSorting(): array
+    public function createDalSorting(/* bool $defaultSortByScore = false */): array
     {
+        if (\func_num_args() === 1) {
+            $defaultSortByScore = func_get_arg(0) ?? false;
+        }
+
         $sorting = [];
 
         $fields = $this->fields;
@@ -53,6 +59,10 @@ class ProductSortingEntity extends Entity
         }
 
         $flat = array_column($fields, 'field');
+
+        if ($defaultSortByScore && !\in_array('_score', $flat, true)) {
+            $sorting[] = new FieldSorting('_score', FieldSorting::DESCENDING);
+        }
 
         if (\in_array('id', $flat, true)) {
             return $sorting;

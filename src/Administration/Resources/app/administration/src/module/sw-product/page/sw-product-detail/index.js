@@ -676,17 +676,17 @@ export default {
                         product.purchasePrices = this.getDefaultPurchasePrices();
                     }
 
-                    if (product.propertyIds?.length > 0) {
-                        const propertyCriteria = new Criteria(1, null);
-                        propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
-                        propertyCriteria.setIds(product.propertyIds);
+                    // if (product.propertyIds?.length > 0) {
+                    //     const propertyCriteria = new Criteria(1, null);
+                    //     propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
+                    //     propertyCriteria.setIds(product.propertyIds);
 
-                        const result = await this.propertyRepository.search(propertyCriteria);
-                        result.source = product.properties.source;
+                    //     const result = await this.propertyRepository.search(propertyCriteria);
+                    //     result.source = product.properties.source;
 
-                        product._origin.properties = cloneDeep(result);
-                        product.properties = result;
-                    }
+                    //     product._origin.properties = cloneDeep(result);
+                    //     product.properties = result;
+                    // }
 
                     Shopware.Store.get('swProductDetail').product = product;
 
@@ -723,17 +723,17 @@ export default {
             return this.productRepository
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then(async (parent) => {
-                    if (parent.propertyIds?.length > 0) {
-                        const propertyCriteria = new Criteria(1, null);
-                        propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
-                        propertyCriteria.setIds(parent.propertyIds);
+                    // if (parent.propertyIds?.length > 0) {
+                    //     const propertyCriteria = new Criteria(1, null);
+                    //     propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
+                    //     propertyCriteria.setIds(parent.propertyIds);
 
-                        const result = await this.propertyRepository.search(propertyCriteria);
-                        result.source = parent.properties.source;
+                    //     const result = await this.propertyRepository.search(propertyCriteria);
+                    //     result.source = parent.properties.source;
 
-                        parent._origin.properties = cloneDeep(result);
-                        parent.properties = result;
-                    }
+                    //     parent._origin.properties = cloneDeep(result);
+                    //     parent.properties = result;
+                    // }
 
                     Shopware.Store.get('swProductDetail').parentProduct = parent;
                 })

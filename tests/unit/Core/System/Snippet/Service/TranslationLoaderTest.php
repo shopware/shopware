@@ -272,6 +272,25 @@ class TranslationLoaderTest extends TestCase
         static::assertTrue($loader->pluginTranslationExists($mappedNamePlugin));
     }
 
+    public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void
+    {
+        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('es-ES', $this->context, false); // activate = false
+
+        $createdLanguages = array_shift($this->languageRepository->creates);
+        static::assertIsArray($createdLanguages);
+        static::assertCount(1, $createdLanguages);
+
+        $language = array_shift($createdLanguages);
+        static::assertIsArray($language);
+        static::assertSame('Español', $language['name']);
+        static::assertSame($this->ids->get('locale'), $language['localeId']);
+        static::assertFalse($language['active']);
+    }
+
     private function getTranslationLoader(): TranslationLoader
     {
         return new TranslationLoader(
@@ -315,24 +334,5 @@ class TranslationLoaderTest extends TestCase
 
         $response = new Response(200, [], $body);
         $this->client->method('request')->willReturn($response);
-    }
-
-    public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void
-    {
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-
-        $loader = $this->getTranslationLoader();
-        $loader->load('es-ES', $this->context, false); // activate = false
-
-        $createdLanguages = array_shift($this->languageRepository->creates);
-        static::assertIsArray($createdLanguages);
-        static::assertCount(1, $createdLanguages);
-
-        $language = array_shift($createdLanguages);
-        static::assertIsArray($language);
-        static::assertSame('Español', $language['name']);
-        static::assertSame($this->ids->get('locale'), $language['localeId']);
-        static::assertFalse($language['active']);
     }
 }

@@ -129,7 +129,7 @@ runs:
         path: |
           ${{ inputs.directory }}/node_modules
           ~/.npm
-        key: ${{ runner.os }}-${{ inputs.directory }}-${{ hashFiles(format('{}/package-lock.json', inputs.directory)) }}
+        key: ${{ runner.os }}-${{ inputs.directory }}-${{ hashFiles(format('{0}/package-lock.json', inputs.directory)) }}
         restore-keys: |
           ${{ runner.os }}-${{ inputs.directory }}
 

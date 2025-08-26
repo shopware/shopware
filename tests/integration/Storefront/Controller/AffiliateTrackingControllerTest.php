@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 

@@ -1354,6 +1354,7 @@
     "order_line_item.versionId",
     "order_line_item.orderId",
     "order_line_item.orderVersionId",
+    "order_line_item.product",
     "order_line_item.productId",
     "order_line_item.productVersionId",
     "order_line_item.promotionId",

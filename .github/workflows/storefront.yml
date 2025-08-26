@@ -110,6 +110,13 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4
         with:
           node-version: 22
+      - name: Cache npm packages
+        uses: actions/cache@v4
+        with:
+          path: src/Storefront/Resources/app/storefront/node_modules
+          key: ${{ runner.os }}-storefront-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-storefront-
       - name: install packages
         working-directory: src/Storefront/Resources/app/storefront
         run: |

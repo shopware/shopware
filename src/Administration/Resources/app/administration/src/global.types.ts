@@ -99,6 +99,7 @@ import type { AdminMenuStore } from './app/store/admin-menu.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
 import type { BlockOverrideStore } from './app/store/block-override.store';
+import type ShopIdChangeService from './core/service/api/shop-id-change.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -241,6 +242,7 @@ declare global {
         configService: ConfigApiService;
         importExport: ImportExportService;
         fileValidationService: FileValidationService;
+        shopIdChangeService: ShopIdChangeService;
     }
 
     interface MixinContainer {

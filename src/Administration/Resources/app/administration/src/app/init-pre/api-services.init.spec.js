@@ -10,7 +10,6 @@ describe('src/app/init-pre/api-services.init.ts', () => {
      *         'appActionButtonService',
      *         'appCmsBlocks',
      *         'appModulesService',
-     *         'appUrlChangeService',
      *         'businessEventService',
      *         'cacheApiService',
      *         'calculate-price',
@@ -48,6 +47,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
      *         'searchService',
      *         'seoUrlTemplateService',
      *         'seoUrlService',
+     *         'shopIdChangeService'
      *         'snippetSetService',
      *         'snippetService',
      *         'stateMachineService',
@@ -71,7 +71,6 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('appActionButtonService')).toBeUndefined();
         expect(Shopware.Service('appCmsBlocks')).toBeUndefined();
         expect(Shopware.Service('appModulesService')).toBeUndefined();
-        expect(Shopware.Service('appUrlChangeService')).toBeUndefined();
         expect(Shopware.Service('businessEventService')).toBeUndefined();
         expect(Shopware.Service('cacheApiService')).toBeUndefined();
         expect(Shopware.Service('calculate-price')).toBeUndefined();
@@ -109,6 +108,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('searchService')).toBeUndefined();
         expect(Shopware.Service('seoUrlTemplateService')).toBeUndefined();
         expect(Shopware.Service('seoUrlService')).toBeUndefined();
+        expect(Shopware.Service('shopIdChangeService')).toBeUndefined();
         expect(Shopware.Service('snippetSetService')).toBeUndefined();
         expect(Shopware.Service('snippetService')).toBeUndefined();
         expect(Shopware.Service('stateMachineService')).toBeUndefined();
@@ -131,7 +131,6 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('appActionButtonService')).toBeDefined();
         expect(Shopware.Service('appCmsBlocks')).toBeDefined();
         expect(Shopware.Service('appModulesService')).toBeDefined();
-        expect(Shopware.Service('appUrlChangeService')).toBeDefined();
         expect(Shopware.Service('businessEventService')).toBeDefined();
         expect(Shopware.Service('cacheApiService')).toBeDefined();
         expect(Shopware.Service('calculate-price')).toBeDefined();
@@ -169,6 +168,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('searchService')).toBeDefined();
         expect(Shopware.Service('seoUrlTemplateService')).toBeDefined();
         expect(Shopware.Service('seoUrlService')).toBeDefined();
+        expect(Shopware.Service('shopIdChangeService')).toBeDefined();
         expect(Shopware.Service('snippetSetService')).toBeDefined();
         expect(Shopware.Service('snippetService')).toBeDefined();
         expect(Shopware.Service('stateMachineService')).toBeDefined();

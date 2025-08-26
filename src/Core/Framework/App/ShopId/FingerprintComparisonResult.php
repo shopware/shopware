@@ -28,4 +28,9 @@ class FingerprintComparisonResult
     {
         return $this->mismatchingFingerprints[$identifier] ?? null;
     }
+
+    public function isMatching(): bool
+    {
+        return $this->score < $this->threshold;
+    }
 }

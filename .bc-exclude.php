@@ -80,6 +80,8 @@ return [
         'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput',
 
         // Added runtime parameter to Field attribute
-        'ADDED: Parameter runtime was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Field'
+        'ADDED: Parameter runtime was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Field',
+
+        preg_quote('Shopware\Core\Framework\App\AppException', '/'),
     ],
 ];

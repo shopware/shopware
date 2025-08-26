@@ -127,12 +127,12 @@ async function createWrapper() {
             stubs: {
                 'sw-admin-menu': true,
                 'router-view': true,
-                'sw-app-app-url-changed-modal': true,
+                'sw-app-shop-id-change-modal': true,
                 'sw-error-boundary': true,
             },
             provide: {
-                appUrlChangeService: {
-                    getUrlDiff: jest.fn(() => Promise.resolve()),
+                shopIdChangeService: {
+                    checkShopId: jest.fn(() => Promise.resolve()),
                 },
                 userActivityApiService: {
                     increment: jest.fn(() => Promise.resolve()),

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -121,7 +121,7 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
             $client = $this->clientFactory->newAuthenticatedFor($serviceEntry, $app, $context);
 
             $client->syncLicense($licenseKey, $licenseHost);
-        } catch (ServiceException|AppUrlChangeDetectedException $e) {
+        } catch (ServiceException|ShopIdChangeSuggestedException $e) {
             $this->logger->warning('Could not sync license', ['exception' => $e->getMessage()]);
         }
     }

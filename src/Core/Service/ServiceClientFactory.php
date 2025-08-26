@@ -5,7 +5,7 @@ namespace Shopware\Core\Service;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
@@ -41,7 +41,7 @@ class ServiceClientFactory
     }
 
     /**
-     * @throws AppUrlChangeDetectedException
+     * @throws ShopIdChangeSuggestedException
      */
     public function newAuthenticatedFor(ServiceRegistryEntry $entry, AppEntity $app, Context $context): AuthenticatedServiceClient
     {

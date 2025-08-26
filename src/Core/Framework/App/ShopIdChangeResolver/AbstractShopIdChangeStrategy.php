@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
+namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -14,10 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  */
 #[Package('framework')]
-abstract class AbstractAppUrlChangeStrategy
+abstract class AbstractShopIdChangeStrategy
 {
     /**
      * @param EntityRepository<AppCollection> $appRepository
@@ -34,8 +34,6 @@ abstract class AbstractAppUrlChangeStrategy
     abstract public function getDescription(): string;
 
     abstract public function resolve(Context $context): void;
-
-    abstract public function getDecorated(): self;
 
     /**
      * @param callable(Manifest, AppEntity, Context): void $callback

@@ -26,7 +26,7 @@ interface Fingerprint
      * A score of 100 indicates a very high certainty that the shop has been permanently moved or cloned to a new environment.
      *
      * @see FingerprintGenerator::STATE_CHANGE_THRESHOLD
-     * @see \Shopware\Core\Framework\App\ShopId\FingerprintGenerator::compare()
+     * @see \Shopware\Core\Framework\App\ShopId\FingerprintGenerator::matchFingerprints()
      */
     public function getScore(): int;
 

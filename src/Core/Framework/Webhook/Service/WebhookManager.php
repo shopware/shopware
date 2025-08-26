@@ -12,7 +12,7 @@ use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -141,7 +141,7 @@ class WebhookManager implements ResetInterface
 
             try {
                 $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException) {
+            } catch (ShopIdChangeSuggestedException) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }
@@ -200,7 +200,7 @@ class WebhookManager implements ResetInterface
 
             try {
                 $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException) {
+            } catch (ShopIdChangeSuggestedException) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }

@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\ServerException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -43,7 +43,7 @@ class Executor
     {
         try {
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (ShopIdChangeSuggestedException $e) {
             throw AppException::actionButtonProcessException($action->getActionId(), $e->getMessage(), $e);
         }
 

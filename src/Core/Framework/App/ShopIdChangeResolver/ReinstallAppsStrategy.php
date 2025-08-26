@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
+namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
@@ -11,11 +11,10 @@ use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  *
  * Resolver used when apps should be reinstalled
  * and the shopId should be regenerated, meaning the old shops and old apps work like before
@@ -25,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * with the new appUrl and new shopId and throw installed events for every app
  */
 #[Package('framework')]
-class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
+class ReinstallAppsStrategy extends AbstractShopIdChangeStrategy
 {
     final public const STRATEGY_NAME = 'reinstall-apps';
 
@@ -39,11 +38,6 @@ class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
         parent::__construct($sourceResolver, $appRepository, $registrationService);
     }
 
-    public function getDecorated(): AbstractAppUrlChangeStrategy
-    {
-        throw new DecorationPatternException(self::class);
-    }
-
     public function getName(): string
     {
         return self::STRATEGY_NAME;
@@ -51,8 +45,7 @@ class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
 
     public function getDescription(): string
     {
-        return 'Reinstall all apps anew for the new URL, so app communication on the old URLs installation keeps
-        working like before. App-data from the old installation will not be available in this installation.';
+        return 'This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you want to use the apps in this copy. Shopware will re-install the apps and newly register at the app servers using the new shop identifier. Your shop will identify as a new shop.';
     }
 
     public function resolve(Context $context): void

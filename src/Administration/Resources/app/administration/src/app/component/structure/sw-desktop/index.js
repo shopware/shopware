@@ -16,14 +16,14 @@ Component.register('sw-desktop', {
 
     inject: [
         'feature',
-        'appUrlChangeService',
+        'shopIdChangeService',
         'userActivityApiService',
     ],
 
     data() {
         return {
             noNavigation: false,
-            urlDiff: null,
+            shopIdCheck: null,
         };
     },
 
@@ -68,7 +68,7 @@ Component.register('sw-desktop', {
     methods: {
         createdComponent() {
             this.checkRouteSettings();
-            this.updateShowUrlChangedModal();
+            this.updateShopIdChangeModal();
         },
 
         checkRouteSettings() {
@@ -79,19 +79,19 @@ Component.register('sw-desktop', {
             }
         },
 
-        updateShowUrlChangedModal() {
+        updateShopIdChangeModal() {
             if (!Shopware.State.get('context').app.config.settings.appsRequireAppUrl) {
-                this.urlDiff = null;
+                this.shopIdCheck = null;
                 return;
             }
 
-            this.appUrlChangeService.getUrlDiff().then((diff) => {
-                this.urlDiff = diff;
+            this.shopIdChangeService.checkShopId().then((shopIdCheck) => {
+                this.shopIdCheck = shopIdCheck;
             });
         },
 
         closeModal() {
-            this.urlDiff = null;
+            this.shopIdCheck = null;
         },
 
         onUpdateSearchFrequently() {

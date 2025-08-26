@@ -5,11 +5,11 @@ namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppUrlChangeResolver\MoveShopPermanentlyStrategy;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -123,7 +123,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         try {
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException) {
+        } catch (ShopIdChangeSuggestedException) {
             $wasThrown = true;
         }
         static::assertSame($expectsToThrow, $wasThrown);

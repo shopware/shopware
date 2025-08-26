@@ -57,7 +57,7 @@ class TranslationLoader
     ) {
     }
 
-    public function load(string $locale, Context $context, bool $activate = false): void
+    public function load(string $locale, Context $context, bool $activate = true): void
     {
         $language = $this->config->languages->get($locale);
 
@@ -172,7 +172,7 @@ class TranslationLoader
         }
     }
 
-    private function createLanguage(Language $language, Context $context, bool $activate = false): void
+    private function createLanguage(Language $language, Context $context, bool $activate = true): void
     {
         $criteria = new Criteria();
         $criteria

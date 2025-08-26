@@ -14,7 +14,11 @@ All blocks of this template are available in the template which renders this tem
         <div class="payment-shipping-container" tabindex="0">
             {% block document_payment_shipping_inner %}
                 {% block document_payment %}
-                    {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}<br>
+                    {% if feature('v6.8.0.0') %}
+                        {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.primaryOrderTransaction.paymentMethod.translated.name})|sw_sanitize }}<br>
+                    {% else %}
+                        {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}<br>
+                    {% endif %}
                 {% endblock %}
                 {% block document_shipping %}
                     {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': order.deliveries.first.shippingMethod.translated.name})|sw_sanitize }}<br><br>

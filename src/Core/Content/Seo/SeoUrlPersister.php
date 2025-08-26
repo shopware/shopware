@@ -236,7 +236,7 @@ class SeoUrlPersister
         $ids = [];
         foreach ($seoUrls as $seoUrl) {
             $id = $this->connection->fetchOne(
-                'SELECT HEX(id) AS id
+                'SELECT id
                  FROM seo_url
                  WHERE language_id = :languageId
                    AND foreign_key = :foreignKey
@@ -264,7 +264,7 @@ class SeoUrlPersister
 
         $this->connection->executeStatement(
             'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => $ids],
             ['ids' => ArrayParameterType::BINARY]
         );
     }

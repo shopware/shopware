@@ -26,9 +26,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             '123546',
         ];
 
-        $constraint = new CustomerVatIdentification([
-            'countryId' => $this->getValidCountryId(),
-        ]);
+        $constraint = new CustomerVatIdentification(countryId: $this->getValidCountryId());
 
         $validation = new DataValidationDefinition('customer.create');
 

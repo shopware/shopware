@@ -214,7 +214,7 @@ class SeoUrlPersister
 
         if ($salesChannelId !== null) {
             $query .= ' AND sales_channel_id = :salesChannelId';
-            $params['salesChannelId'] = $salesChannelId;
+            $params['salesChannelId'] = Uuid::fromHexToBytes($salesChannelId);
         }
 
         return $this->connection->fetchAllAssociative($query, $params, $types);

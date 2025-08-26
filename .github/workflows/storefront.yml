@@ -20,6 +20,8 @@ jobs:
           mysql-version: skip
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          install-admin: true
+          install-storefront: true
 
       - name: Cache ESLint and Stylelint
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
@@ -28,15 +30,6 @@ jobs:
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
             src/Storefront/Resources/app/storefront/node_modules/.stylelintcache
           key: storefront-lint-${{ runner.os }}-6.6
-
-      - name: Build Storefront
-        env:
-          PROJECT_ROOT: ${{ github.workspace }}
-        run: |
-          symfony console bundle:dump
-          symfony console feature:dump
-          npm --prefix src/Storefront/Resources/app/storefront ci
-          npm --prefix src/Storefront/Resources/app/storefront run production
 
       - name: Check Code
         working-directory: src/Storefront/Resources/app/storefront
@@ -93,12 +86,11 @@ jobs:
           mysql-version: skip
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          install-storefront: true
 
       - name: Run Jest Storefront
         working-directory: src/Storefront/Resources/app/storefront
-        run: |
-          npm ci
-          npm run unit -- --silent
+        run: npm run unit -- --silent
 
       - name: Upload coverage
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # 5

@@ -72,6 +72,11 @@ class StorefrontCartFacade
             $this->cartPersister->save($newCart, $updatedContext);
             $this->updateSalesChannelContext($updatedContext);
 
+            $originalContext->assign([
+                'shippingMethod' => $contextShippingMethod,
+                'paymentMethod' => $contextPaymentMethod,
+            ]);
+
             return $newCart;
         }
 

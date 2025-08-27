@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
@@ -58,6 +59,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext();
         $salesChannelContext
+            ->expects($this->exactly(2))
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
@@ -96,6 +98,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext();
         $salesChannelContext
+            ->expects($this->exactly(2))
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
@@ -135,6 +138,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext();
         $salesChannelContext
+            ->expects($this->exactly(2))
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
@@ -186,6 +190,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext();
         $salesChannelContext
+            ->expects($this->never())
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
@@ -221,6 +226,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext();
         $salesChannelContext
+            ->expects($this->never())
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
@@ -245,6 +251,35 @@ class StorefrontCartFacadeTest extends TestCase
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(false, true));
         static::assertEquals($controlCart, $returnedCart);
+    }
+
+    public function testGetBlockedPaymentAndShippingMethodWillUpdateOriginalContext(): void
+    {
+        $errorCollection = $this->getCartErrorCollection(true, true);
+
+        $cart = $this->getCart();
+        $cart->setErrors($errorCollection);
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('original-shipping-method-id');
+        $shippingMethod->setName('original-shipping-method-name');
+
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId('original-payment-method-id');
+        $paymentMethod->setName('original-payment-method-name');
+
+        $salesChannelContext = Generator::generateSalesChannelContext(paymentMethod: $paymentMethod, shippingMethod: $shippingMethod);
+
+        $cartFacade = $this->getStorefrontCartFacade(
+            $cart,
+            $this->callbackShippingMethodSwitcherReturnFallbackMethod(...),
+            $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...)
+        );
+
+        $cartFacade->get('', $salesChannelContext);
+
+        static::assertSame('fallback-payment-method-name', $salesChannelContext->getPaymentMethod()->getName());
+        static::assertSame('fallback-shipping-method-name', $salesChannelContext->getShippingMethod()->getName());
     }
 
     public function testGetUnswitchableCart(): void

@@ -1,20 +1,20 @@
 <sw-modal
     class="sw-app-shop-id-change-modal"
     variant="large"
-    :title="$tc('sw-app.component.sw-app-shop-id-change-modal.title')"
+    :title="$t('sw-app.component.sw-app-shop-id-change-modal.title')"
     :is-loading="isLoading"
     @modal-close="closeModal"
 >
     <template #default>
         <section class="sw-app-shop-id-change-modal__content-description">
-            <p>{{ $tc('sw-app.component.sw-app-shop-id-change-modal.description.explanation') }}</p>
+            <p>{{ $t('sw-app.component.sw-app-shop-id-change-modal.description.explanation') }}</p>
 
             <mt-banner
                 variant="neutral"
                 icon="regular-info-circle"
-                :title="$tc('sw-app.component.sw-app-shop-id-change-modal.description.shopId.title')"
+                :title="$t('sw-app.component.sw-app-shop-id-change-modal.description.shopId.title')"
             >
-                {{ $tc('sw-app.component.sw-app-shop-id-change-modal.description.shopId.explanation') }}
+                {{ $t('sw-app.component.sw-app-shop-id-change-modal.description.shopId.explanation') }}
             </mt-banner>
         </section>
 
@@ -22,13 +22,13 @@
             v-if="shopIdCheck.apps.length > 0"
             class="sw-app-shop-id-change-modal__content-apps"
         >
-            <h4>{{ $tc('sw-app.component.sw-app-shop-id-change-modal.affectedApps') }}</h4>
+            <h4>{{ $t('sw-app.component.sw-app-shop-id-change-modal.affectedApps') }}</h4>
 
             {{ shopIdCheck.apps.join(', ') }}
         </section>
 
         <section class="sw-app-shop-id-change-modal__content-fingerprints">
-            <h4>{{ $tc('sw-app.component.sw-app-shop-id-change-modal.detectedChanges') }}</h4>
+            <h4>{{ $t('sw-app.component.sw-app-shop-id-change-modal.detectedChanges') }}</h4>
 
             <div class="sw-app-shop-id-change-modal__content-fingerprint-items">
                 <div
@@ -45,14 +45,16 @@
                     </span>
 
                     <dl>
-                        <dt>{{ $tc('sw-app.component.sw-app-shop-id-change-modal.oldValue') }}</dt>
-                        <dd><mt-icon
-                            name="solid-minus-circle"
-                            color="var(--color-icon-critical-default)"
-                            size="14px"
-                        /> {{ fingerprint.storedStamp }}</dd>
+                        <dt>{{ $t('sw-app.component.sw-app-shop-id-change-modal.oldValue') }}</dt>
+                        <dd>
+                            <mt-icon
+                                name="solid-minus-circle"
+                                color="var(--color-icon-critical-default)"
+                                size="14px"
+                            /> {{ fingerprint.storedStamp }}
+                        </dd>
 
-                        <dt>{{ $tc('sw-app.component.sw-app-shop-id-change-modal.newValue') }}</dt>
+                        <dt>{{ $t('sw-app.component.sw-app-shop-id-change-modal.newValue') }}</dt>
                         <dd>
                             <mt-icon
                                 name="solid-plus-circle"
@@ -66,7 +68,7 @@
         </section>
 
         <section class="sw-app-shop-id-change-modal__content-choices">
-            <h4>{{ $tc('sw-app.component.sw-app-shop-id-change-modal.selectAnOption') }}</h4>
+            <h4>{{ $t('sw-app.component.sw-app-shop-id-change-modal.selectAnOption') }}</h4>
 
             <template
                 v-for="(strategy, index) in strategies"
@@ -115,14 +117,14 @@
             variant="secondary"
             @click="closeModal"
         >
-            {{ $tc('sw-app.component.sw-app-shop-id-change-modal.remindMeLater') }}
+            {{ $t('sw-app.component.sw-app-shop-id-change-modal.remindMeLater') }}
         </mt-button>
 
         <mt-button
             variant="primary"
             @click="confirm"
         >
-            {{ $tc('global.default.confirm') }}
+            {{ $t('global.default.confirm') }}
         </mt-button>
     </template>
 </sw-modal>

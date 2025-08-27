@@ -76,15 +76,13 @@ export default {
             }
         },
 
-        updateShopIdChangeModal() {
+        async updateShopIdChangeModal() {
             if (!Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl) {
                 this.shopIdCheck = null;
                 return;
             }
 
-            this.shopIdChangeService.checkShopId().then((shopIdCheck) => {
-                this.shopIdCheck = shopIdCheck;
-            });
+            this.shopIdCheck = await this.shopIdChangeService.checkShopId();
         },
 
         closeModal() {

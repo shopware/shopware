@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\App\Api;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
@@ -54,11 +53,7 @@ class ShopIdController extends AbstractController
             throw AppException::missingRequestParameter('strategy');
         }
 
-        try {
-            $this->shopIdChangeResolver->resolve($strategy, $context);
-        } catch (ShopIdChangeStrategyNotFoundException $e) {
-            throw AppException::shopIdChangeResolveStrategyNotFound($strategy);
-        }
+        $this->shopIdChangeResolver->resolve($strategy, $context);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

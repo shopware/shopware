@@ -72,7 +72,7 @@ class CheckShopIdCommand extends Command
     private function renderFingerprintsTable(ShopwareStyle $io, FingerprintComparisonResult $result): void
     {
         $fingerprintsTable = new Table($io);
-        $fingerprintsTable->setHeaders(['Fingerprint', 'Stored Stamp', 'Expected Stamp', 'Score', 'State']);
+        $fingerprintsTable->setHeaders(['Fingerprint', 'Old Value', 'New Value', 'Score', 'State']);
 
         foreach ($result->mismatchingFingerprints as $fingerprint) {
             $fingerprintsTable->addRow([$fingerprint->identifier, $fingerprint->storedStamp, $fingerprint->expectedStamp ?? 'NULL', $fingerprint->score, '<fg=red>✘ MISMATCH</>']);

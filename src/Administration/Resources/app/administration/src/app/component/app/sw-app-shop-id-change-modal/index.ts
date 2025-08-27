@@ -59,11 +59,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getStrategyLabel({ name }: Strategy) {
-            return this.$tc(`sw-app.component.sw-app-shop-id-change-modal.strategies.${name}.name`);
+            return this.$t(`sw-app.component.sw-app-shop-id-change-modal.strategies.${name}.name`);
         },
 
         getStrategyDescription({ name }: Strategy) {
-            return this.$tc(`sw-app.component.sw-app-shop-id-change-modal.strategies.${name}.description`);
+            return this.$t(`sw-app.component.sw-app-shop-id-change-modal.strategies.${name}.description`);
         },
 
         getActiveStyle({ name }: Strategy) {
@@ -75,7 +75,7 @@ export default Shopware.Component.wrapComponentConfig({
         async confirm() {
             if (!this.selectedStrategy) {
                 this.createNotificationError({
-                    message: this.$tc('sw-app.component.sw-app-shop-id-change-modal.error.no-strategy-selected'),
+                    message: this.$t('sw-app.component.sw-app-shop-id-change-modal.error.no-strategy-selected'),
                 });
 
                 return;
@@ -85,20 +85,20 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.shopIdChangeService.changeShopId(this.selectedStrategy);
 
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-app.component.sw-app-shop-id-change-modal.success.shop-id-change-succeeded'),
+                    message: this.$t('sw-app.component.sw-app-shop-id-change-modal.success.shop-id-change-succeeded'),
                 });
 
                 window.location.reload();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-app.component.sw-app-shop-id-change-modal.error.shop-id-change-failed'),
+                    message: this.$t('sw-app.component.sw-app-shop-id-change-modal.error.shop-id-change-failed'),
                 });
             }
         },
 
         getHumanReadableFingerprintName(identifier: string) {
             const k = `sw-app.component.sw-app-shop-id-change-modal.fingerprints.${identifier}.label`;
-            const t = this.$tc(k);
+            const t = this.$t(k);
 
             if (k === t) {
                 return identifier;
@@ -109,7 +109,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         getFingerprintDescription(identifier: string) {
             const k = `sw-app.component.sw-app-shop-id-change-modal.fingerprints.${identifier}.description`;
-            const t = this.$tc(k);
+            const t = this.$t(k);
 
             if (k === t) {
                 return null;

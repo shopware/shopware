@@ -44,7 +44,7 @@ export default class ShopIdChangeService extends ApiService {
         this.name = 'shopIdChangeService';
     }
 
-    async getChangeStrategies() {
+    getChangeStrategies() {
         return this.httpClient
             .get('app-system/shop-id/change-strategies', {
                 headers: this.getBasicHeaders(),
@@ -61,7 +61,7 @@ export default class ShopIdChangeService extends ApiService {
             });
     }
 
-    async changeShopId({ name }: Strategy) {
+    changeShopId({ name }: Strategy) {
         return this.httpClient.post(
             'app-system/shop-id/change',
             { strategy: name },
@@ -71,7 +71,7 @@ export default class ShopIdChangeService extends ApiService {
         );
     }
 
-    async checkShopId() {
+    checkShopId() {
         return this.httpClient
             .post(
                 'app-system/shop-id/check',

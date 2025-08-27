@@ -216,7 +216,7 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(getModuleMetadata.mock.results[0].value).toBe(false);
     });
 
-    it('should not call not shopIdChangeService when appUrlReachable is false', async () => {
+    it('should not call shopIdChangeService when appUrlReachable is false', async () => {
         Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = false;
 
         const wrapper = await createWrapper();

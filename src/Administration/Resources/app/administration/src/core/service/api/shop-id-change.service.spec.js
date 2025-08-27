@@ -16,14 +16,12 @@ function createShopIdChangeService() {
 
 describe('shopIdChangeService', () => {
     it('is registered correctly', async () => {
-        // Shopware.Service('appUrlChangeService')
         const { shopIdChangeService } = createShopIdChangeService();
 
         expect(shopIdChangeService).toBeInstanceOf(ShopIdChangeService);
     });
 
     it('fetches strategies correctly', async () => {
-        // Shopware.Service('appUrlChangeService')
         const { shopIdChangeService, clientMock } = createShopIdChangeService();
 
         clientMock.onGet('/app-system/shop-id/change-strategies').reply(200, {
@@ -51,7 +49,6 @@ describe('shopIdChangeService', () => {
     });
 
     it('sends name of selected strategy', async () => {
-        // Shopware.Service('appUrlChangeService')
         const { shopIdChangeService, clientMock } = createShopIdChangeService();
 
         clientMock
@@ -70,7 +67,6 @@ describe('shopIdChangeService', () => {
     });
 
     it('returns shop ID check', async () => {
-        // Shopware.Service('appUrlChangeService')
         const { shopIdChangeService, clientMock } = createShopIdChangeService();
 
         const response = {
@@ -108,7 +104,6 @@ describe('shopIdChangeService', () => {
     });
 
     it('returns null if shop id fingerprints have not changed', async () => {
-        // Shopware.Service('appUrlChangeService')
         const { shopIdChangeService, clientMock } = createShopIdChangeService();
 
         clientMock.onPost('app-system/shop-id/check').reply(204);

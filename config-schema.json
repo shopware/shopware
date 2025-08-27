@@ -696,6 +696,11 @@
                     "type": "boolean",
                     "description": "All carts, which stored in redis, are compressed via gzcompress. This option is only available if redis is used."
                 },
+                "serialization_max_mb_size": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "Limits the maximum size of the serialized cart (in MB). Helps prevent database errors (e.g. max_allowed_packet) by validating the payload size before persistence."
+                },
                 "compression_method": {
                     "type": "string",
                     "enum": [

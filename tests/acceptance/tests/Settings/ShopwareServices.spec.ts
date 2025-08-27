@@ -1,5 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
+import { expect } from '@playwright/test';
 
 test(
     'As a merchant, I want to see an advertisement banner for Shopware Services on the dashboard.', { tag: '@Settings' }, async ({
@@ -54,12 +55,25 @@ test(
 
         await ShopAdmin.goesTo(AdminShopwareServices.url());
         await ShopAdmin.expects(AdminShopwareServices.header).toHaveText('Future proof your store with Shopware Services');
-        await ShopAdmin.attemptsTo(DeactivateShopwareServices());
+        const disableResponsePromise = AdminShopwareServices.page.waitForResponse(`${ process.env['APP_URL'] }api/services/disable`);
+        await AdminShopwareServices.deactivateServicesButton.click();
+        await ShopAdmin.expects(AdminShopwareServices.deactivateServicesModal).toBeVisible();
+        await AdminShopwareServices.deactivateServicesConfirmButton.click();
+        await ShopAdmin.expects(AdminShopwareServices.deactivatedBanner).toBeVisible({ timeout: 15000 });
+
+        const disableResponse = await disableResponsePromise;
+        expect(disableResponse.ok()).toBeTruthy();
+
         await ShopAdmin.expects(AdminShopwareServices.activateServicesButton).toBeVisible();
         await ShopAdmin.expects(AdminShopwareServices.permissionBanner).not.toBeVisible();
         await ShopAdmin.expects(AdminShopwareServices.serviceCards).not.toBeVisible();
         // enable the services again for further tests
+        const enableResponsePromise = AdminShopwareServices.page.waitForResponse(`${ process.env['APP_URL'] }api/services/enable`);
         await AdminShopwareServices.activateServicesButton.click();
+        const enableResponse = await enableResponsePromise;
+        expect(enableResponse.ok()).toBeTruthy();
+        await AdminShopwareServices.page.reload();
+        await ShopAdmin.expects(AdminShopwareServices.deactivateServicesButton).toBeVisible({ timeout: 15000 });
     });
 
 test(

@@ -38,7 +38,6 @@ test(
         await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).not.toBeVisible();
 
         await test.step('Verify the visibility of the services banner for another admin user', async () => {
-
             await ShopAdmin.attemptsTo(CheckVisibilityOfServicesBanner());
         });
     });
@@ -52,7 +51,6 @@ test(
         }) => {
         test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
         test.skip(InstanceMeta.isSaaS, 'Shopware Services deactivation could run into race conditions on SaaS instances.');
-
 
         await ShopAdmin.goesTo(AdminShopwareServices.url());
         await ShopAdmin.expects(AdminShopwareServices.header).toHaveText('Future proof your store with Shopware Services');
@@ -83,7 +81,6 @@ test(
         });
 
         await test.step('Verify minimum permissions are enough to manage Shopware Services.', async () => {
-
             // Basic permissions to access the services
             const privileges = [
                 'cms_page:read',

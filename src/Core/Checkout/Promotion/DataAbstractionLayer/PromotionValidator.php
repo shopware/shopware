@@ -43,13 +43,13 @@ class PromotionValidator implements EventSubscriberInterface
             return;
         }
 
-        $pluginIds = $this->connection->fetchOne(
+        $promotionIds = $this->connection->fetchOne(
             'SELECT id FROM promotion WHERE id IN (:ids) AND order_count > 0',
             ['ids' => $ids],
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (!empty($pluginIds)) {
+        if (!empty($promotionIds)) {
             throw PromotionException::promotionUsedDeleteRestriction();
         }
     }

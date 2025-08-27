@@ -74,8 +74,7 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
             $definition->merge($additionalValidationDefinitions);
         }
 
-        $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
-        $definition->add('email', new CustomerEmailUnique($options));
+        $definition->add('email', new CustomerEmailUnique(salesChannelContext: $context));
 
         $validationEvent = new BuildValidationEvent($definition, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

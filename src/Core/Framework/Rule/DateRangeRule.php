@@ -40,7 +40,7 @@ class DateRangeRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if (\is_string($this->toDate) || \is_string($this->fromDate)) {
-            throw new \LogicException('fromDate or toDate cannot be a string at this point.');
+            throw RuleException::invalidDateRangeUsage('fromDate or toDate cannot be a string at this point');
         }
         $toDate = $this->toDate;
         $fromDate = $this->fromDate;
@@ -73,8 +73,8 @@ class DateRangeRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'fromDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
-            'toDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
+            'fromDate' => [new NotBlank(), new DateTimeConstraint(format: \DateTime::ATOM)],
+            'toDate' => [new NotBlank(), new DateTimeConstraint(format: \DateTime::ATOM)],
             'useTime' => [new NotNull(), new Type('bool')],
         ];
     }

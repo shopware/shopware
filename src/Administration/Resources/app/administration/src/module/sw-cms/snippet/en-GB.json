@@ -8,6 +8,7 @@
       "createNewLayout": "Create new layout",
       "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
+      "deleteDisabledLandingPageToolTip": "The layout you want to delete is still assigned to at least one landing page.",
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
       "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>."
     },

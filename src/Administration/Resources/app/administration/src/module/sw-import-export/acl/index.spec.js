@@ -39,7 +39,7 @@ describe('src/module/sw-import-export/acl/index.js', () => {
         });
     });
 
-    it('should privilege roles', () => {
+    it('should register privilege roles', () => {
         const roles = {
             import_export: {
                 privileges: [

@@ -337,6 +337,7 @@ shopware:
 
     cart:
         compress: false
+        serialization_max_mb_size:
         expire_days: 120
         storage:
             # supported types: mysql, redis

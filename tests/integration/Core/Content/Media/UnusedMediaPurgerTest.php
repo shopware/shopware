@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Media;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -30,14 +31,19 @@ class UnusedMediaPurgerTest extends TestCase
 
     private UnusedMediaPurger $unusedMediaPurger;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepo;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->mediaRepo = static::getContainer()->get('media.repository');
+        $mediaRepo = static::getContainer()->get('media.repository');
+        static::assertInstanceOf(EntityRepository::class, $mediaRepo);
 
+        $this->mediaRepo = $mediaRepo;
         $this->context = Context::createDefaultContext();
 
         $this->unusedMediaPurger = new UnusedMediaPurger(
@@ -88,5 +94,36 @@ class UnusedMediaPurgerTest extends TestCase
         static::assertFalse($this->getPublicFilesystem()->has($secondPath));
         static::assertTrue($this->getPublicFilesystem()->has($thirdPath));
         static::assertTrue($this->getPublicFilesystem()->has($fourthPath));
+    }
+
+    public function testDeleteNotUsedMediaDoesNotDeleteA11yDocumentMedia(): void
+    {
+        $this->setFixtureContext($this->context);
+
+        $usedByA11yDocument = $this->getMediaWithA11yDocument();
+        $unusedMedia = $this->getTxt();
+
+        $usedPath = $usedByA11yDocument->getPath();
+        $unusedPath = $unusedMedia->getPath();
+
+        $this->getPublicFilesystem()->writeStream($usedPath, \fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->writeStream($unusedPath, \fopen(self::FIXTURE_FILE, 'r'));
+
+        $this->unusedMediaPurger->deleteNotUsedMedia();
+        $this->runWorker();
+
+        $result = $this->mediaRepo->search(
+            new Criteria([
+                $usedByA11yDocument->getId(),
+                $unusedMedia->getId(),
+            ]),
+            $this->context
+        );
+
+        static::assertNotNull($result->get($usedByA11yDocument->getId()));
+        static::assertNull($result->get($unusedMedia->getId()));
+
+        static::assertTrue($this->getPublicFilesystem()->has($usedPath));
+        static::assertFalse($this->getPublicFilesystem()->has($unusedPath));
     }
 }

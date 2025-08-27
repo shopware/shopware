@@ -31,7 +31,9 @@ class UnusedMediaPurgerTest extends TestCase
 
     private UnusedMediaPurger $unusedMediaPurger;
 
-    /** @var EntityRepository<MediaCollection> */
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepo;
 
     private Context $context;

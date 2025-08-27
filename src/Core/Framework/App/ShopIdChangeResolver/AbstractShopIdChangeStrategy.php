@@ -46,7 +46,8 @@ abstract class AbstractShopIdChangeStrategy
 
         foreach ($apps as $app) {
             $fs = $this->sourceResolver->filesystemForApp($app);
-            $manifest = Manifest::createFromXmlFile($fs->path('manifest.xml'));
+            $path = $fs->hasFile('manifest.local.xml') ? 'manifest.local.xml' : 'manifest.xml';
+            $manifest = Manifest::createFromXmlFile($fs->path($path));
 
             if (!$manifest->getSetup()) {
                 continue;

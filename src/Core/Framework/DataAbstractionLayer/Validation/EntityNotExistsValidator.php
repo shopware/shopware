@@ -47,7 +47,7 @@ class EntityNotExistsValidator extends ConstraintValidator
             return;
         }
 
-        $this->context->buildViolation($constraint->message)
+        $this->context->buildViolation($constraint->getMessage())
             ->setParameter('{{ entity }}', $this->formatValue($constraint->getEntity()))
             ->setCode(EntityNotExists::ENTITY_EXISTS)
             ->addViolation();

@@ -47,7 +47,7 @@ class EntityExistsValidator extends ConstraintValidator
             return;
         }
 
-        $this->context->buildViolation($constraint->message)
+        $this->context->buildViolation($constraint->getMessage())
             ->setParameter('{{ primaryProperty }}', $constraint->getPrimaryProperty())
             ->setParameter('{{ id }}', $this->formatValue($value))
             ->setParameter('{{ entity }}', $this->formatValue($constraint->getEntity()))

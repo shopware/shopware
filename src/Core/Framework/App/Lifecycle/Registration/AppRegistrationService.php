@@ -38,7 +38,7 @@ class AppRegistrationService
     ) {
     }
 
-    public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void
+    public function registerApp(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): void
     {
         if (!$manifest->getSetup()) {
             return;
@@ -85,7 +85,7 @@ class AppRegistrationService
         return $this->parseResponse($manifest->getMetadata()->getName(), $handshake, $response);
     }
 
-    private function saveAppSecret(string $id, Context $context, string $secret): void
+    private function saveAppSecret(string $id, Context $context, #[\SensitiveParameter] string $secret): void
     {
         $update = ['id' => $id, 'appSecret' => $secret];
 
@@ -97,7 +97,9 @@ class AppRegistrationService
     private function confirmRegistration(
         string $id,
         Context $context,
+        #[\SensitiveParameter]
         string $secret,
+        #[\SensitiveParameter]
         string $secretAccessKey,
         string $confirmationUrl
     ): void {
@@ -149,7 +151,7 @@ class AppRegistrationService
     /**
      * @return array<string, string>
      */
-    private function getConfirmationPayload(string $id, string $secretAccessKey, Context $context): array
+    private function getConfirmationPayload(string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): array
     {
         $app = $this->getApp($id, $context);
 
@@ -179,7 +181,7 @@ class AppRegistrationService
     /**
      * @param array<string, string> $body
      */
-    private function signPayload(array $body, string $secret): string
+    private function signPayload(array $body, #[\SensitiveParameter] string $secret): string
     {
         return hash_hmac('sha256', json_encode($body, \JSON_THROW_ON_ERROR), $secret);
     }

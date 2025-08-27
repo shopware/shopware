@@ -22,6 +22,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function getUserEntityByUserCredentials(
         string $username,
+        #[\SensitiveParameter]
         string $password,
         string $grantType,
         ClientEntityInterface $clientEntity

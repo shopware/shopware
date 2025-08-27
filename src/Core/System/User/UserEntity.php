@@ -145,7 +145,7 @@ class UserEntity extends Entity
     /**
      * @internal
      */
-    public function setPassword(string $password): void
+    public function setPassword(#[\SensitiveParameter] string $password): void
     {
         $this->password = $password;
     }
@@ -263,7 +263,7 @@ class UserEntity extends Entity
     /**
      * @internal
      */
-    public function setStoreToken(?string $storeToken): void
+    public function setStoreToken(#[\SensitiveParameter] ?string $storeToken): void
     {
         $this->storeToken = $storeToken;
     }

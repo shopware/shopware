@@ -463,10 +463,41 @@ export default {
     },
 
     beforeRouteLeave() {
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        this.cleanupProductDetailData();
+    },
+
+    beforeDestroy() {
+        this.cleanupProductDetailData();
     },
 
     methods: {
+        /**
+         * Cleanup method to prevent memory leaks when leaving product detail page
+         * This method resets all stores and clears accumulated data
+         */
+        cleanupProductDetailData() {
+            // Clear selected IDs for shopware apps
+            Shopware.Store.get('shopwareApps').selectedIds = [];
+
+            // Reset the product detail store to prevent memory leaks
+            // This clears all product data, associations, and cached entities
+            Shopware.Store.get('swProductDetail').$reset();
+
+            // Reset CMS page state to clear any page-related data
+            this.cmsPageState.resetCmsPageState();
+
+            // Clear any API errors that might have accumulated
+            Shopware.Store.get('error').resetApiErrors();
+
+            // Clear SEO URL store if it exists to prevent URL data accumulation
+            if (Shopware.Store.list().includes('swSeoUrl')) {
+                Shopware.Store.get('swSeoUrl').$reset();
+            }
+
+            // Clear any pending update SEO promises
+            this.updateSeoPromises = [];
+        },
+
         async createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-product-detail__product',

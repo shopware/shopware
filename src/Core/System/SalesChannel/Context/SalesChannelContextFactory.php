@@ -243,7 +243,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         ]));
 
         $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
-        if (!$customer) {
+        if (!$customer || !$customer->getActive()) {
             return null;
         }
 

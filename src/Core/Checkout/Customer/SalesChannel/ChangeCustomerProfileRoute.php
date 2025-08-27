@@ -146,7 +146,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         $constraints = [
             new Type('array'),
             new CustomerVatIdentification(
-                ['countryId' => $address->getCountryId()]
+                countryId: $address->getCountryId()
             ),
         ];
         if ($address->getCountry() && $address->getCountry()->getVatIdRequired()) {

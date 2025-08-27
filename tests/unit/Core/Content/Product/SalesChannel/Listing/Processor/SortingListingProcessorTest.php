@@ -64,6 +64,49 @@ class SortingListingProcessorTest extends TestCase
         $productSorting = new ProductSortingEntity();
         $productSorting->setId(Uuid::randomHex());
         $productSorting->assign([
+            'key' => 'score',
+            'fields' => [
+                ['field' => '_score', 'priority' => 1, 'order' => 'DESC'],
+            ],
+        ]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn(
+            new EntitySearchResult(
+                ProductSortingDefinition::ENTITY_NAME,
+                1,
+                new ProductSortingCollection([$productSorting]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([
+                'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
+            ]),
+            $repository
+        );
+
+        $processor->prepare(
+            $requested,
+            $criteria = new Criteria(),
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertEquals([
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+            new FieldSorting('id', FieldSorting::ASCENDING),
+        ], $criteria->getSorting());
+    }
+
+    #[DataProvider('prepareDefaultSearchResultSortingProvider')]
+    public function testPrepareWithFallbackSorting(Request $requested): void
+    {
+        $productSorting = new ProductSortingEntity();
+        $productSorting->setId(Uuid::randomHex());
+        $productSorting->assign([
             'key' => 'name-asc',
             'fields' => [
                 ['field' => 'name', 'priority' => 1, 'order' => 'ASC'],
@@ -93,7 +136,7 @@ class SortingListingProcessorTest extends TestCase
         $criteria->setTerm('test');
         $processor->prepare(
             $requested,
-            $criteria = (new Criteria())->setTerm('test'),
+            $criteria,
             $this->createMock(SalesChannelContext::class)
         );
 

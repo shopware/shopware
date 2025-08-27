@@ -30,15 +30,13 @@ class ProductSortingEntity extends Entity
     protected bool $locked;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $defaultSortByScore will be added
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $fallbackSorting will be added
      *
      * @return array<FieldSorting>
      */
-    public function createDalSorting(/* bool $defaultSortByScore = false */): array
+    public function createDalSorting(/* ?FieldSorting $fallbackSorting = null */): array
     {
-        if (\func_num_args() === 1) {
-            $defaultSortByScore = func_get_arg(0) ?? false;
-        }
+        $fallbackSorting = \func_num_args() === 1 ? func_get_arg(0) : null;
 
         $sorting = [];
 
@@ -60,8 +58,8 @@ class ProductSortingEntity extends Entity
 
         $flat = array_column($fields, 'field');
 
-        if ($defaultSortByScore && !\in_array('_score', $flat, true)) {
-            $sorting[] = new FieldSorting('_score', FieldSorting::DESCENDING);
+        if ($fallbackSorting instanceof FieldSorting && !\in_array($fallbackSorting->getField(), $flat, true)) {
+            $sorting[] = $fallbackSorting;
         }
 
         if (\in_array('id', $flat, true)) {

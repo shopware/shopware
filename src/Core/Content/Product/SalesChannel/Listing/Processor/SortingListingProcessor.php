@@ -52,8 +52,13 @@ class SortingListingProcessor extends AbstractListingProcessor
         $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
         if ($currentSorting !== null) {
+            $fallbackSorting = null;
+            if ($this->hasQueriesOrTerm($criteria)) {
+                $fallbackSorting = new FieldSorting('_score', FieldSorting::DESCENDING);
+            }
+
             $criteria->addSorting(
-                ...$currentSorting->createDalSorting($this->hasQueriesOrTerm($criteria))
+                ...$currentSorting->createDalSorting($fallbackSorting)
             );
         }
 

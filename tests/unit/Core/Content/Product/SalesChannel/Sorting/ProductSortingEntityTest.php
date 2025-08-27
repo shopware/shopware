@@ -107,6 +107,7 @@ class ProductSortingEntityTest extends TestCase
                 new FieldSorting('_score', FieldSorting::DESCENDING),
                 new FieldSorting('id', FieldSorting::ASCENDING),
             ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
         ];
 
         yield 'Test one field' => [
@@ -118,6 +119,18 @@ class ProductSortingEntityTest extends TestCase
                 new FieldSorting('_score', FieldSorting::DESCENDING),
                 new FieldSorting('id', FieldSorting::ASCENDING),
             ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+        ];
+
+        yield 'Test without fallback sorting' => [
+            [
+                ['field' => 'name', 'order' => 'desc', 'priority' => 1],
+            ],
+            [
+                new FieldSorting('name', FieldSorting::DESCENDING),
+                new FieldSorting('id', FieldSorting::ASCENDING),
+            ],
+            null,
         ];
 
         yield 'Test multiple fields' => [
@@ -131,6 +144,7 @@ class ProductSortingEntityTest extends TestCase
                 new FieldSorting('_score', FieldSorting::DESCENDING),
                 new FieldSorting('id', FieldSorting::ASCENDING),
             ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
         ];
 
         yield 'Test skip default _score field' => [
@@ -143,6 +157,7 @@ class ProductSortingEntityTest extends TestCase
                 new FieldSorting('_score', FieldSorting::ASCENDING),
                 new FieldSorting('id', FieldSorting::ASCENDING),
             ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
         ];
 
         yield 'Sort by priority' => [
@@ -157,6 +172,7 @@ class ProductSortingEntityTest extends TestCase
                 new FieldSorting('name', FieldSorting::DESCENDING),
                 new FieldSorting('id', FieldSorting::ASCENDING),
             ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
         ];
     }
 
@@ -165,14 +181,14 @@ class ProductSortingEntityTest extends TestCase
      * @param array<FieldSorting> $expected
      */
     #[DataProvider('dalSortingDefaultSortBScoreProvider')]
-    public function testCreateDalSortingWithDefaultSortByScore(array $fields, $expected): void
+    public function testCreateDalSortingWithFallbackSorting(array $fields, array $expected, ?FieldSorting $fallbackSorting = null): void
     {
         $entity = new ProductSortingEntity();
         $entity->setFields($fields);
 
         static::assertEquals(
             $expected,
-            $entity->createDalSorting(true)
+            $entity->createDalSorting($fallbackSorting)
         );
     }
 }

@@ -297,6 +297,14 @@ jobs:
           env: dev
           path: new-shopware
 
+      - name: Cache Storefront npm packages
+        uses: actions/cache@v4
+        with:
+          path: new-shopware/src/Storefront/Resources/app/storefront/node_modules
+          key: ${{ runner.os }}-storefront-${{ hashFiles('new-shopware/src/Storefront/Resources/app/storefront/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-storefront-
+
       - name: Build new shopware
         working-directory: new-shopware
         run: |

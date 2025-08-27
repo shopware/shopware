@@ -68,7 +68,7 @@ export default {
         },
 
         allowBulkDelete() {
-            return !this.selectionArray.some(item => item.orderCount > 0);
+            return !this.selectionArray.some((item) => item.orderCount > 0);
         },
     },
 

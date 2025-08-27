@@ -50,7 +50,13 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $validation->add('email', $constraint);
 
         $validator = static::getContainer()->get(DataValidator::class);
-        $validator->validate(['email' => $email], $validation);
+        $violations = [];
+        try {
+            $validator->validate(['email' => $email], $validation);
+        } catch (ConstraintViolationException $exception) {
+            $violations = $exception->getViolations();
+        }
+        static::assertCount(0, $violations, 'No violations are expected');
     }
 
     public function testSameCustomerEmailOnSameSalesChannel(): void

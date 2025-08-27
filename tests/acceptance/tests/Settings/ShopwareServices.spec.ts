@@ -51,6 +51,8 @@ test(
         InstanceMeta,
         }) => {
         test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
+        test.skip(InstanceMeta.isSaaS, 'Shopware Services deactivation could run into race conditions on SaaS instances.');
+
 
         await ShopAdmin.goesTo(AdminShopwareServices.url());
         await ShopAdmin.expects(AdminShopwareServices.header).toHaveText('Future proof your store with Shopware Services');

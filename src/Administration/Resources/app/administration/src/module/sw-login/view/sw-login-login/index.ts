@@ -70,10 +70,18 @@ export default Component.wrapComponentConfig({
             this.loginConfig = await this.loginService.getLoginTemplateConfig();
             this.loginConfigLoaded = true;
 
-            if (!this.loginConfig.useDefault) {
-                window.sessionStorage.setItem('redirectFromLogin', 'true');
-                window.location.href = this.loginConfig.url;
+            if (!this.loginConfig.useDefault && this.loginConfig.url) {
+                this.doSsoForwarding();
             }
+        },
+
+        doSsoForwarding() {
+            if (!this.loginConfig) {
+                return;
+            }
+
+            window.sessionStorage.setItem('redirectFromLogin', 'true');
+            window.location.href = this.loginConfig.url;
         },
 
         loginUserWithPassword() {

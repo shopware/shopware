@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('framework')]
 class EntityExistsValidator extends ConstraintValidator
@@ -25,7 +25,7 @@ class EntityExistsValidator extends ConstraintValidator
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof EntityExists) {
-            throw new UnexpectedTypeException($constraint, EntityExists::class);
+            throw DataAbstractionLayerException::unexpectedConstraintType($constraint, EntityExists::class);
         }
 
         if ($value === null || $value === '') {

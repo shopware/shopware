@@ -42,8 +42,14 @@ class EntityExists extends Constraint
      * @internal
      */
     #[HasNamedArguments]
-    public function __construct(?array $options = null, ?string $entity = null, ?Context $context = null, string $primaryProperty = 'id', ?Criteria $criteria = null, string $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.')
-    {
+    public function __construct(
+        ?array $options = null,
+        ?string $entity = null,
+        ?Context $context = null,
+        string $primaryProperty = 'id',
+        ?Criteria $criteria = null,
+        string $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.'
+    ) {
         if ($options !== null || $entity === null || $context === null) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',

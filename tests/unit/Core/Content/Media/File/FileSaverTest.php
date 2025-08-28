@@ -282,7 +282,27 @@ class FileSaverTest extends TestCase
         $this->fileSaver->renameMedia($mediaId, 'foo.png', $context);
     }
 
-    public function testRenameMedia(): void
+    public function testRenameMediaWithSameFileName(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
+        
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setMimeType('image/png');
+        $media->setFileName('foo');
+        $media->setFileExtension('png');
+        $media->setPrivate(false);
+        $media->setPath('media/foo.png');
+        
+        $mediaCollection = new MediaCollection([$media]);
+        $this->mediaRepository->addSearch($mediaCollection);
+
+        $mediaPath = $this->fileSaver->renameMedia($mediaId, 'foo', $context);
+        static::assertSame('media/foo.png', $mediaPath);
+    }
+
+    public function testRenameMediaSuccessfully(): void
     {
         $mediaId = Uuid::randomHex();
         $thumbnailId = Uuid::randomHex();

@@ -42,11 +42,6 @@ class PromotionException extends HttpException
     public const CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE = 'CHECKOUT__UNKNOWN_PROMOTION_DISCOUNT_TYPE';
 
     public const PROMOTION_SET_GROUP_NOT_FOUND = 'CHECKOUT__PROMOTION_SETGROUP_NOT_FOUND';
-    public const MISSING_REQUEST_PARAMETER_CODE = 'CHECKOUT__MISSING_REQUEST_PARAMETER';
-    public const PRICE_NOT_FOUND_FOR_ITEM = 'CHECKOUT__PRICE_NOT_FOUND_FOR_ITEM';
-    public const FILTER_SORTER_NOT_FOUND = 'CHECKOUT__FILTER_SORTER_NOT_FOUND';
-    public const FILTER_PICKER_NOT_FOUND = 'CHECKOUT__FILTER_PICKER_NOT_FOUND';
-    public const PROMOTION_USAGE_LOCKED = 'CHECKOUT__PROMOTION_USAGE_LOCKED';
     public const PROMOTION_USED_DELETE_RESTRICTION = 'CHECKOUT__PROMOTION_USED_DELETE_RESTRICTION';
 
     public static function codeAlreadyRedeemed(string $code): self
@@ -226,68 +221,6 @@ class PromotionException extends HttpException
             self::PROMOTION_SET_GROUP_NOT_FOUND,
             'Promotion SetGroup "{{ id }}" has not been found!',
             ['id' => $groupId],
-        );
-    }
-
-    public static function missingRequestParameter(string $name): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::MISSING_REQUEST_PARAMETER_CODE,
-            'Parameter "{{ parameterName }}" is missing.',
-            ['parameterName' => $name]
-        );
-    }
-
-    public static function priceNotFound(LineItem $lineItem): self
-    {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new PriceNotFoundException($lineItem);
-        }
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::PRICE_NOT_FOUND_FOR_ITEM,
-            'No calculated price found for item {{ id }}',
-            ['id' => $lineItem->getId()]
-        );
-    }
-
-    public static function filterSorterNotFound(string $key): self
-    {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new FilterSorterNotFoundException($key);
-        }
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::FILTER_SORTER_NOT_FOUND,
-            'Sorter "{{ key }}" has not been found!',
-            ['key' => $key]
-        );
-    }
-
-    public static function filterPickerNotFoundException(string $key): self
-    {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new FilterPickerNotFoundException($key);
-        }
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::FILTER_PICKER_NOT_FOUND,
-            'Picker "{{ key }}" has not been found!',
-            ['key' => $key]
-        );
-    }
-
-    public static function promotionUsageLocked(string $promotionCodeOrId): self
-    {
-        return new self(
-            Response::HTTP_CONFLICT,
-            self::PROMOTION_USAGE_LOCKED,
-            'Promotion {{ promotion }} is locked due to concurrent write operation. Please try again later.',
-            ['promotion' => $promotionCodeOrId]
         );
     }
 

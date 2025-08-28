@@ -5,6 +5,7 @@
 import { spawn } from 'child_process';
 import { build } from 'vite';
 import concurrently from 'concurrently';
+import { exportViteServerMapping } from './build/vite-plugins/utils';
 
 async function runPluginsBuild(): Promise<void> {
     // Assuming ts-node is installed as a dependency
@@ -50,6 +51,8 @@ async function main() {
             process.exit(1);
         }
     } else if (mode === 'development') {
+        await exportViteServerMapping();
+
         // Run both processes concurrently in development mode
         const { result } = concurrently([
             {

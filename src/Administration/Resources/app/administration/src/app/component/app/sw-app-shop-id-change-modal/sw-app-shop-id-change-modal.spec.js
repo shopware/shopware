@@ -19,28 +19,57 @@ const strategies = [
     },
 ];
 
-describe('sw-app-app-url-changed-modal', () => {
+describe('sw-app-shop-id-change-modal', () => {
     let wrapper = null;
     let stubs;
 
     async function createWrapper() {
         return mount(
-            await wrapTestComponent('sw-app-app-url-changed-modal', {
+            await wrapTestComponent('sw-app-shop-id-change-modal', {
                 sync: true,
             }),
             {
                 props: {
-                    urlDiff: {
-                        oldUrl: 'https://old-url',
-                        newUrl: 'https://new-url',
+                    shopIdCheck: {
+                        fingerprints: {
+                            mismatchingFingerprints: {
+                                app_url: {
+                                    identifier: 'app_url',
+                                    storedStamp: 'old-app-url',
+                                    expectedStamp: 'new-app-url',
+                                    score: 100,
+                                },
+                                installation_path: {
+                                    identifier: 'installation_path',
+                                    storedStamp: 'old-installation-path',
+                                    expectedStamp: 'new-installation-path',
+                                    score: 100,
+                                },
+                                sales_channel_domain_urls: {
+                                    identifier: 'sales_channel_domain_urls',
+                                    storedStamp: 'old-sales-channel-domain-urls',
+                                    expectedStamp: 'new-sales-channel-domain-urls',
+                                    score: 25,
+                                },
+                            },
+                            matchingFingerprints: [],
+                            score: 225,
+                            threshold: 75,
+                        },
+                        apps: [
+                            'Test Foo App',
+                            'Test Bar App',
+                            'Test Baz App',
+                        ],
                     },
                 },
                 global: {
                     stubs,
                     provide: {
-                        appUrlChangeService: {
-                            fetchResolverStrategies: () => Promise.resolve(strategies),
-                            resolveUrlChange: jest.fn(() => Promise.resolve()),
+                        shopIdChangeService: {
+                            getChangeStrategies: () => Promise.resolve(strategies),
+                            checkShopId: jest.fn(() => Promise.resolve()),
+                            changeShopId: jest.fn(() => Promise.resolve()),
                         },
                         shortcutService: {
                             startEventListener() {},
@@ -69,6 +98,7 @@ describe('sw-app-app-url-changed-modal', () => {
             },
             'sw-loader': await wrapTestComponent('sw-loader'),
             'router-link': true,
+            'sw-help-text': true,
         };
     });
 
@@ -77,13 +107,13 @@ describe('sw-app-app-url-changed-modal', () => {
     });
 
     it('should select the first strategy by default', async () => {
-        const strategyButtons = wrapper.findAll('.sw-app-app-url-changed-modal__button-strategy');
+        const strategyButtons = wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy');
         expect(strategyButtons).toHaveLength(3);
 
-        expect(strategyButtons[0].classes('sw-app-app-url-changed-modal__button-strategy--active')).toBe(true);
+        expect(strategyButtons[0].classes('sw-app-shop-id-change-modal__button-strategy--active')).toBe(true);
     });
 
-    it('emmits modal-close if modal is closed', async () => {
+    it('emits modal-close if modal is closed', async () => {
         const modal = wrapper.findComponent(stubs['sw-modal']);
 
         modal.vm.$emit('modal-close');
@@ -92,7 +122,7 @@ describe('sw-app-app-url-changed-modal', () => {
     });
 
     it('selects clicked strategy', async () => {
-        const strategyButtons = wrapper.findAll('.sw-app-app-url-changed-modal__content-migration-strategy');
+        const strategyButtons = wrapper.findAll('.sw-app-shop-id-change-modal__content-migration-strategy');
 
         await strategyButtons.at(1).trigger('click');
 
@@ -112,16 +142,16 @@ describe('sw-app-app-url-changed-modal', () => {
             value: { reload: jest.fn() },
         });
 
-        const urlResolveMock = wrapper.vm.appUrlChangeService.resolveUrlChange;
+        const changeShopIdMock = wrapper.vm.shopIdChangeService.changeShopId;
 
-        const strategyButtons = wrapper.findAll('.sw-app-app-url-changed-modal__button-strategy');
+        const strategyButtons = wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy');
 
         expect(strategyButtons).toHaveLength(3);
         await strategyButtons.at(1).trigger('click');
 
         await wrapper.get('.mt-button--primary').trigger('click');
 
-        expect(urlResolveMock.mock.calls[0][0].name).toMatch(strategies[1].name);
+        expect(changeShopIdMock.mock.calls[0][0].name).toMatch(strategies[1].name);
         expect(window.location.reload).toHaveBeenCalled();
     });
 });

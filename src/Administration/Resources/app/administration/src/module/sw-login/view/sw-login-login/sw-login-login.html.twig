@@ -76,11 +76,12 @@
             {% endblock %}
         </template>
 
-        <div v-if="!loginConfig.useDefault && loginConfig.url">
+        <div v-if="loginConfig.url">
             <a
-                class="sw-button sw-button--primary sw-button--small"
+                class="sw-button sw-button--primary sw-button--small sw-login__sso-button"
                 :disabled="!loginConfigLoaded"
                 :href="loginConfig.url"
+                @click.prevent="doSsoForwarding"
             >
                 {{ $tc('sw-login.index.buttonSsoLogin') }}
                 <mt-icon name="regular-shopware" />

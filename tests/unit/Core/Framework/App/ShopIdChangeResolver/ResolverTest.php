@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\App\AppUrlChangeResolver;
+namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppUrlChangeResolver\AbstractAppUrlChangeStrategy;
-use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\AbstractShopIdChangeStrategy;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\Context;
 
 /**
@@ -16,19 +16,19 @@ use Shopware\Core\Framework\Context;
 #[CoversClass(Resolver::class)]
 class ResolverTest extends TestCase
 {
-    private MockObject&AbstractAppUrlChangeStrategy $firstStrategy;
+    private MockObject&AbstractShopIdChangeStrategy $firstStrategy;
 
-    private MockObject&AbstractAppUrlChangeStrategy $secondStrategy;
+    private MockObject&AbstractShopIdChangeStrategy $secondStrategy;
 
     private Resolver $appUrlChangedResolverStrategy;
 
     protected function setUp(): void
     {
-        $this->firstStrategy = $this->createMock(AbstractAppUrlChangeStrategy::class);
+        $this->firstStrategy = $this->createMock(AbstractShopIdChangeStrategy::class);
         $this->firstStrategy->method('getName')
             ->willReturn('FirstStrategy');
 
-        $this->secondStrategy = $this->createMock(AbstractAppUrlChangeStrategy::class);
+        $this->secondStrategy = $this->createMock(AbstractShopIdChangeStrategy::class);
         $this->secondStrategy->method('getName')
             ->willReturn('SecondStrategy');
 
@@ -57,8 +57,8 @@ class ResolverTest extends TestCase
         $this->secondStrategy->expects($this->never())
             ->method('resolve');
 
-        $this->expectException(AppUrlChangeStrategyNotFoundException::class);
-        $this->expectExceptionMessage('Unable to find AppUrlChangeResolver with name: "ThirdStrategy".');
+        $this->expectException(ShopIdChangeStrategyNotFoundException::class);
+        $this->expectExceptionMessage('Shop ID change resolver with name "ThirdStrategy" not found.');
         $this->appUrlChangedResolverStrategy->resolve('ThirdStrategy', Context::createDefaultContext());
     }
 

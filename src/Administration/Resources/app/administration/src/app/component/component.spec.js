@@ -220,7 +220,7 @@ const componentNames = [
     'sw-address',
     'sw-app-wrong-app-url-modal',
     'sw-app-topbar-button',
-    'sw-app-app-url-changed-modal',
+    'sw-app-shop-id-change-modal',
     'sw-app-actions',
     'sw-app-action-button',
     'sw-code-editor',

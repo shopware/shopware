@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
+namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -14,10 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  */
 #[Package('framework')]
-abstract class AbstractAppUrlChangeStrategy
+abstract class AbstractShopIdChangeStrategy
 {
     /**
      * @param EntityRepository<AppCollection> $appRepository
@@ -46,7 +46,8 @@ abstract class AbstractAppUrlChangeStrategy
 
         foreach ($apps as $app) {
             $fs = $this->sourceResolver->filesystemForApp($app);
-            $manifest = Manifest::createFromXmlFile($fs->path('manifest.xml'));
+            $path = $fs->hasFile('manifest.local.xml') ? 'manifest.local.xml' : 'manifest.xml';
+            $manifest = Manifest::createFromXmlFile($fs->path($path));
 
             if (!$manifest->getSetup()) {
                 continue;

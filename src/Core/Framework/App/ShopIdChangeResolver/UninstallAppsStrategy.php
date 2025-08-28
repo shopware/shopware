@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
+namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
@@ -13,14 +13,14 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  *
  * Resolver used when apps should be uninstalled
  * and the shopId should be regenerated, meaning the old shops and old apps work like before
  * apps in the current installation will be uninstalled without informing them about that (as they still run on the old installation)
  */
 #[Package('framework')]
-class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
+class UninstallAppsStrategy extends AbstractShopIdChangeStrategy
 {
     final public const STRATEGY_NAME = 'uninstall-apps';
 
@@ -34,7 +34,7 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
     ) {
     }
 
-    public function getDecorated(): AbstractAppUrlChangeStrategy
+    public function getDecorated(): AbstractShopIdChangeStrategy
     {
         throw new DecorationPatternException(self::class);
     }
@@ -46,8 +46,7 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 
     public function getDescription(): string
     {
-        return 'Uninstall all apps on this URL, so app communication on the old URLs installation keeps
-        working like before.';
+        return 'This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you don’t want to use the apps in this copy. Shopware will delete the apps without notifying the app servers. A new shop identifier will be generated and your shop will identify as a new shop.';
     }
 
     public function resolve(Context $context): void

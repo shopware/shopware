@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
+namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -12,34 +12,32 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  *
- * Resolver used when apps should be reinstalled
- * and the shopId should be regenerated, meaning the old shops and old apps work like before
- * apps in the current installation may lose historical data
+ * Resolver used when shop is moved from one URL to another
+ * and the shopId (and the data in the app backends associated with it) should be kept
  *
  * Will run through the registration process for all apps again
- * with the new appUrl and new shopId and throw installed events for every app
+ * with the new appUrl so the apps can save the new URL and generate new Secrets
+ * that way communication from the old shop to the app backend will be blocked in the future
  */
 #[Package('framework')]
-class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
+class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
 {
-    final public const STRATEGY_NAME = 'reinstall-apps';
+    final public const STRATEGY_NAME = 'move-shop-permanently';
 
     public function __construct(
         SourceResolver $sourceResolver,
         EntityRepository $appRepository,
         AppRegistrationService $registrationService,
-        private readonly ShopIdProvider $shopIdProvider,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly ShopIdProvider $shopIdProvider
     ) {
         parent::__construct($sourceResolver, $appRepository, $registrationService);
     }
 
-    public function getDecorated(): AbstractAppUrlChangeStrategy
+    public function getDecorated(): AbstractShopIdChangeStrategy
     {
         throw new DecorationPatternException(self::class);
     }
@@ -51,19 +49,22 @@ class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
 
     public function getDescription(): string
     {
-        return 'Reinstall all apps anew for the new URL, so app communication on the old URLs installation keeps
-        working like before. App-data from the old installation will not be available in this installation.';
+        return 'This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before.';
     }
 
     public function resolve(Context $context): void
     {
-        $this->shopIdProvider->deleteShopId();
+        try {
+            $this->shopIdProvider->getShopId();
+
+            // no resolution needed
+            return;
+        } catch (ShopIdChangeSuggestedException $e) {
+            $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
+        }
 
         $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {
             $this->reRegisterApp($manifest, $app, $context);
-            $this->eventDispatcher->dispatch(
-                new AppInstalledEvent($app, $manifest, $context)
-            );
         });
     }
 }

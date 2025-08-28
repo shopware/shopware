@@ -286,7 +286,7 @@ class FileSaverTest extends TestCase
     {
         $mediaId = Uuid::randomHex();
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
-        
+
         $media = new MediaEntity();
         $media->setId($mediaId);
         $media->setMimeType('image/png');
@@ -294,7 +294,7 @@ class FileSaverTest extends TestCase
         $media->setFileExtension('png');
         $media->setPrivate(false);
         $media->setPath('media/foo.png');
-        
+
         $mediaCollection = new MediaCollection([$media]);
         $this->mediaRepository->addSearch($mediaCollection);
 

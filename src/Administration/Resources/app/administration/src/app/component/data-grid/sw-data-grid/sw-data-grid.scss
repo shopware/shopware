@@ -375,9 +375,8 @@
         display: inline-block;
         position: relative;
         margin: 0;
-        line-height: var(--font-line-height-xs);
-        font-size: var(--font-size-xs);
-        padding: 0 var(--scale-size-12);
+        line-height: $line-height-xs;
+        padding: 4px 12px;
         text-decoration: none;
         color: $color-darkgray-200;
         cursor: pointer;

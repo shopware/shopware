@@ -443,8 +443,8 @@ export default () => {
     Shopware.Component.register('sw-app-topbar-button', () => import('src/app/component/app/sw-app-topbar-button/index'));
     Shopware.Component.register('sw-app-topbar-sidebar', () => import('src/app/component/app/sw-app-topbar-sidebar/index'));
     Shopware.Component.register(
-        'sw-app-app-url-changed-modal',
-        () => import('src/app/component/app/sw-app-app-url-changed-modal/index'),
+        'sw-app-shop-id-change-modal',
+        () => import('src/app/component/app/sw-app-shop-id-change-modal/index'),
     );
     Shopware.Component.register('sw-app-actions', () => import('src/app/component/app/sw-app-actions/index'));
     Shopware.Component.register('sw-app-action-button', () => import('src/app/component/app/sw-app-action-button/index'));

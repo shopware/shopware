@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\FingerprintGenerator;
@@ -33,16 +33,16 @@ class ShopIdProviderTest extends TestCase
     public function testGeneratesNewShopIdV2(?array $shopIdV1Config): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($matcher = $this->exactly(4))
+        $systemConfigService->expects($matcher = $this->exactly(6))
             ->method('get')
             ->willReturnCallback(function (...$parameters) use ($matcher, $shopIdV1Config) {
-                if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3) {
+                if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3 || $matcher->numberOfInvocations() === 5) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
 
                     return null;
                 }
 
-                if ($matcher->numberOfInvocations() === 2 || $matcher->numberOfInvocations() === 4) {
+                if ($matcher->numberOfInvocations() === 2 || $matcher->numberOfInvocations() === 4 || $matcher->numberOfInvocations() === 6) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, $parameters[0]);
 
                     return \is_array($shopIdV1Config) ? (array) ShopId::v1($shopIdV1Config['value'], $shopIdV1Config['app_url']) : null;
@@ -50,7 +50,7 @@ class ShopIdProviderTest extends TestCase
 
                 static::fail(\sprintf('SystemConfigService was not expected to be called more than %s times', $matcher->numberOfInvocations()));
             });
-        $systemConfigService->expects($this->once())
+        $systemConfigService->expects($this->exactly(2))
             ->method('set')
             ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(function (array $config): bool {
                 static::assertSame(2, $config['version'] ?? null);
@@ -68,7 +68,7 @@ class ShopIdProviderTest extends TestCase
 
         $shopId = $provider->getShopId();
 
-        static::assertCount(1, $eventDispatcher->getEvents());
+        static::assertCount(2, $eventDispatcher->getEvents());
 
         $shopIdChangedEvent = $eventDispatcher->getEvents()[0] ?? null;
         static::assertInstanceOf(ShopIdChangedEvent::class, $shopIdChangedEvent);
@@ -91,16 +91,16 @@ class ShopIdProviderTest extends TestCase
         ];
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($matcher = $this->exactly(4))
+        $systemConfigService->expects($matcher = $this->exactly(6))
             ->method('get')
             ->willReturnCallback(function (...$parameters) use ($matcher, $shopIdV1Config) {
-                if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3) {
+                if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3 || $matcher->numberOfInvocations() === 5) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
 
                     return null;
                 }
 
-                if ($matcher->numberOfInvocations() === 2 || $matcher->numberOfInvocations() === 4) {
+                if ($matcher->numberOfInvocations() === 2 || $matcher->numberOfInvocations() === 4 || $matcher->numberOfInvocations() === 6) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, $parameters[0]);
 
                     return $shopIdV1Config;
@@ -108,7 +108,7 @@ class ShopIdProviderTest extends TestCase
 
                 static::fail(\sprintf('SystemConfigService was not expected to be called more than %s times', $matcher->numberOfInvocations()));
             });
-        $systemConfigService->expects($this->once())
+        $systemConfigService->expects($this->exactly(2))
             ->method('set')
             ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(function (array $config) use ($shopIdV2Config): bool {
                 static::assertSame($shopIdV2Config, $config);
@@ -125,7 +125,7 @@ class ShopIdProviderTest extends TestCase
 
         $upgradedShopId = $provider->getShopId();
 
-        static::assertCount(1, $eventDispatcher->getEvents());
+        static::assertCount(2, $eventDispatcher->getEvents());
 
         $shopIdChangedEvent = $eventDispatcher->getEvents()[0] ?? null;
         static::assertInstanceOf(ShopIdChangedEvent::class, $shopIdChangedEvent);
@@ -134,7 +134,7 @@ class ShopIdProviderTest extends TestCase
         static::assertSame($shopIdV1Config['value'], $upgradedShopId);
     }
 
-    public function testThrowsIfAppUrlHasChangedAndHasAppsRegisteredAtAppServers(): void
+    public function testThrowsIfFingerprintsHaveChangedAndHasAppsRegisteredAtAppServers(): void
     {
         $shopId = ShopId::v2('1234567890');
 
@@ -150,7 +150,7 @@ class ShopIdProviderTest extends TestCase
             ->willReturn(1);
 
         $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
-        $fingerprintGenerator->method('compare')
+        $fingerprintGenerator->method('matchFingerprints')
             ->willReturn(new FingerprintComparisonResult(
                 [],
                 [
@@ -171,11 +171,11 @@ class ShopIdProviderTest extends TestCase
             $fingerprintGenerator,
         );
 
-        static::expectException(AppUrlChangeDetectedException::class);
+        static::expectException(ShopIdChangeSuggestedException::class);
         $provider->getShopId();
     }
 
-    public function testUpdatesShopIdIfAppUrlHasChangedButHasNoAppsRegisteredAtAppServers(): void
+    public function testUpdatesShopIdIfFingerprintsHaveChangedButHasNoAppsRegisteredAtAppServers(): void
     {
         $shopId = ShopId::v2('1234567890', [
             AppUrl::IDENTIFIER => 'https://old.url',
@@ -194,7 +194,7 @@ class ShopIdProviderTest extends TestCase
 
         $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
         $fingerprintGenerator->expects($this->once())
-            ->method('compare')
+            ->method('matchFingerprints')
             ->willReturn(new FingerprintComparisonResult(
                 [],
                 [

@@ -44,7 +44,7 @@ class HandshakeFactoryTest extends TestCase
         static::assertInstanceOf(PrivateHandshake::class, $handshake);
     }
 
-    public function testThrowsAppRegistrationExceptionIfAppUrlChangeWasDetected(): void
+    public function testThrowsAppRegistrationExceptionIfShopIdFingerprintsHaveChanged(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../../Manifest/_fixtures/minimal');
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../Manifest/_fixtures/minimal/manifest.xml');

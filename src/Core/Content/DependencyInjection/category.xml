@@ -32,6 +32,19 @@
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
             <argument type="service" id="Shopware\Core\Content\Category\Tree\CategoryTreePathResolver"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader">
+            <argument type="service" id="sales_channel.category.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\Service\CachedDefaultCategoryLevelLoader" decorates="Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader">
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CachedDefaultCategoryLevelLoader.inner"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Tree\CategoryTreePathResolver"/>

@@ -123,6 +123,16 @@ runs:
       with:
         node-version: 22
 
+    - name: Cache npm packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ inputs.directory }}/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-${{ inputs.directory }}-${{ hashFiles(format('{0}/package-lock.json', inputs.directory)) }}
+        restore-keys: |
+          ${{ runner.os }}-${{ inputs.directory }}
+
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.directory }}

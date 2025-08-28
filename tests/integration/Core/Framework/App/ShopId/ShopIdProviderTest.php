@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\ShopId;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -86,7 +86,7 @@ class ShopIdProviderTest extends TestCase
         static::assertSame($newAppUrl, $shopIdV2Config['fingerprints'][AppUrl::IDENTIFIER]);
     }
 
-    public function testThrowsIfAppUrlHasChangedAndHasAppsRegisteredAtAppServers(): void
+    public function testThrowsIfFingerprintComparisonDoesNotMatch(): void
     {
         $oldAppUrl = EnvironmentHelper::getVariable('APP_URL');
 
@@ -97,14 +97,14 @@ class ShopIdProviderTest extends TestCase
         try {
             $this->shopIdProvider->getShopId();
 
-            static::fail(\sprintf('Expected %s to be thrown', AppUrlChangeDetectedException::class));
-        } catch (AppUrlChangeDetectedException $e) {
-            static::assertSame($oldAppUrl, $e->getPreviousUrl());
-            static::assertSame($newAppUrl, $e->getCurrentUrl());
+            static::fail(\sprintf('Expected %s to be thrown', ShopIdChangeSuggestedException::class));
+        } catch (ShopIdChangeSuggestedException $e) {
+            static::assertSame($oldAppUrl, $e->comparisonResult->getMismatchingFingerprint(AppUrl::IDENTIFIER)?->storedStamp);
+            static::assertSame($newAppUrl, $e->comparisonResult->getMismatchingFingerprint(AppUrl::IDENTIFIER)?->expectedStamp);
         }
     }
 
-    public function testUpdatesShopIdIfAppUrlHasChangedButHasNoAppsRegisteredAtAppServers(): void
+    public function testUpdatesShopIdIfFingerprintsHaveChangedButHasNoAppsRegisteredAtAppServers(): void
     {
         /** @var string $appUrlBeforeUpdate */
         $appUrlBeforeUpdate = EnvironmentHelper::getVariable('APP_URL');

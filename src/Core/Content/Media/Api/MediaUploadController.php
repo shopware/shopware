@@ -69,6 +69,11 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
+    /**
+     * @deprecated Return JSON response instead of redirect
+     *
+     * @return JsonResponse
+     */
     #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', methods: ['POST'])]
     public function renameMediaFile(Request $request, string $mediaId, Context $context): JsonResponse
     {

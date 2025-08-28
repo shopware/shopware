@@ -107,6 +107,11 @@ class FileSaver
         $this->messageBus->dispatch($message);
     }
 
+    /**
+     * @deprecated Return string instead of void
+     *
+     * @return string
+     */
     public function renameMedia(string $mediaId, string $destination, Context $context): string
     {
         $destination = $this->validateFileName($destination);

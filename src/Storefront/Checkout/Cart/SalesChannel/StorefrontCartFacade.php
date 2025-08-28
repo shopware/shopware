@@ -70,12 +70,7 @@ class StorefrontCartFacade
         // Recalculated cart successfully unblocked
         if (!$this->cartContainsBlockedMethods($newCart->getErrors())) {
             $this->cartPersister->save($newCart, $updatedContext);
-            $this->updateSalesChannelContext($updatedContext);
-
-            $originalContext->assign([
-                'shippingMethod' => $contextShippingMethod,
-                'paymentMethod' => $contextPaymentMethod,
-            ]);
+            $this->updateSalesChannelContext($updatedContext, $originalContext);
 
             return $newCart;
         }
@@ -97,15 +92,20 @@ class StorefrontCartFacade
         return false;
     }
 
-    private function updateSalesChannelContext(SalesChannelContext $salesChannelContext): void
+    private function updateSalesChannelContext(SalesChannelContext $updatedContext, SalesChannelContext $originalContext): void
     {
         $this->contextSwitchRoute->switchContext(
             new RequestDataBag([
-                SalesChannelContextService::SHIPPING_METHOD_ID => $salesChannelContext->getShippingMethod()->getId(),
-                SalesChannelContextService::PAYMENT_METHOD_ID => $salesChannelContext->getPaymentMethod()->getId(),
+                SalesChannelContextService::SHIPPING_METHOD_ID => $updatedContext->getShippingMethod()->getId(),
+                SalesChannelContextService::PAYMENT_METHOD_ID => $updatedContext->getPaymentMethod()->getId(),
             ]),
-            $salesChannelContext
+            $updatedContext,
         );
+
+        $originalContext->assign([
+            'shippingMethod' => $updatedContext->getShippingMethod(),
+            'paymentMethod' => $updatedContext->getPaymentMethod(),
+        ]);
     }
 
     /**

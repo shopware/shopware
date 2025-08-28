@@ -78,6 +78,7 @@ class CartException extends HttpException
     public const INVALID_PRICE_FIELD_TYPE = 'FRAMEWORK__INVALID_PRICE_FIELD_TYPE';
     public const RULE_OPERATOR_NOT_SUPPORTED = 'CHECKOUT__RULE_OPERATOR_NOT_SUPPORTED';
     public const CART_LOCKED = 'CHECKOUT__CART_LOCKED';
+    public const CART_SERIALIZATION_TOO_LARGE = 'CHECKOUT__CART_SERIALIZATION_TOO_LARGE';
 
     public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self
     {
@@ -632,6 +633,15 @@ class CartException extends HttpException
             self::CART_LOCKED,
             'Cart with token {{ token }} is locked due to concurrent write operation. Please try again later.',
             ['token' => $token]
+        );
+    }
+
+    public static function serializedCartTooLarge(): self
+    {
+        return new self(
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+            self::CART_SERIALIZATION_TOO_LARGE,
+            'The serialized cart data exceeds the allowed payload size limit'
         );
     }
 }

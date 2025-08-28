@@ -35,7 +35,7 @@ class InstallTranslationCommand extends Command
     {
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Fetch all available translations');
         $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "de-DE,en-US"');
-        $this->addOption('skip-activation', null, InputOption::VALUE_NONE, 'Do not activate created languages');
+        $this->addOption('skip-activation', null, InputOption::VALUE_NONE, 'Skip activation of created languages');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

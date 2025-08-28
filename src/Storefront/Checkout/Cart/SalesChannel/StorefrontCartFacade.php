@@ -106,6 +106,10 @@ class StorefrontCartFacade
             'shippingMethod' => $updatedContext->getShippingMethod(),
             'paymentMethod' => $updatedContext->getPaymentMethod(),
         ]);
+
+        // inherit rule changes done by CartRuleLoader
+        $originalContext->setRuleIds($updatedContext->getRuleIds());
+        $originalContext->setAreaRuleIds($updatedContext->getAreaRuleIds());
     }
 
     /**

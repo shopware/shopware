@@ -62,10 +62,12 @@ class StorefrontCartFacadeTest extends TestCase
             ->expects($this->exactly(2))
             ->method('assign')
             ->willReturnCallback(
-                function ($newMethods): void {
+                function ($newMethods) use ($salesChannelContext): void {
                     $shippingMethod = $newMethods['shippingMethod'];
                     static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
                     static::assertSame('fallback-shipping-method-name', $shippingMethod->getName());
+
+                    $salesChannelContext->getShippingMethod()->setName($shippingMethod->getName());
                 }
             );
 
@@ -101,10 +103,12 @@ class StorefrontCartFacadeTest extends TestCase
             ->expects($this->exactly(2))
             ->method('assign')
             ->willReturnCallback(
-                function ($newMethods): void {
+                function ($newMethods) use ($salesChannelContext): void {
                     $paymentMethod = $newMethods['paymentMethod'];
                     static::assertInstanceOf(PaymentMethodEntity::class, $paymentMethod);
                     static::assertSame('fallback-payment-method-name', $paymentMethod->getName());
+
+                    $salesChannelContext->getPaymentMethod()->setName($paymentMethod->getName());
                 }
             );
 
@@ -141,13 +145,16 @@ class StorefrontCartFacadeTest extends TestCase
             ->expects($this->exactly(2))
             ->method('assign')
             ->willReturnCallback(
-                function ($newMethods): void {
+                function ($newMethods) use ($salesChannelContext): void {
                     $paymentMethod = $newMethods['paymentMethod'];
                     static::assertInstanceOf(PaymentMethodEntity::class, $paymentMethod);
                     static::assertSame('fallback-payment-method-name', $paymentMethod->getName());
                     $shippingMethod = $newMethods['shippingMethod'];
                     static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
                     static::assertSame('fallback-shipping-method-name', $shippingMethod->getName());
+
+                    $salesChannelContext->getPaymentMethod()->setName($paymentMethod->getName());
+                    $salesChannelContext->getShippingMethod()->setName($shippingMethod->getName());
                 }
             );
 

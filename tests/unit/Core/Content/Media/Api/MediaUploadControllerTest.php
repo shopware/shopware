@@ -96,7 +96,36 @@ class MediaUploadControllerTest extends TestCase
             new EventDispatcher()
         );
 
-        $mediaUploadController->renameMediaFile($request, $mediaId, $context, $this->responseFactory);
+        $mediaUploadController->renameMediaFile($request, $mediaId, $context);
+    }
+
+    public function testReturnMediaPathWhenRenameMediaFileSuccessfully(): void
+    {
+        $invalidFileName = 'file­name.png';
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $request = new Request([], ['fileName' => $invalidFileName]);
+
+        $this->fileSaver->expects($this->once())
+            ->method('renameMedia')
+            ->with($mediaId, 'filename.png', $context)
+            ->willReturn('media/8b/89/00/1756352959/test.png');
+
+        $mediaUploadController = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $response = $mediaUploadController->renameMediaFile($request, $mediaId, $context);
+
+        $content = $response->getContent();
+        static::assertNotFalse($content);
+        $responseData = json_decode($content, true);
+        static::assertSame('media/8b/89/00/1756352959/test.png', $responseData['mediaPath']);
     }
 
     public function testRemoveNonPrintingCharactersInFileNameBeforeProvideName(): void

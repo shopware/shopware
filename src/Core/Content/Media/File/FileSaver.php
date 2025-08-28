@@ -107,7 +107,7 @@ class FileSaver
         $this->messageBus->dispatch($message);
     }
 
-    public function renameMedia(string $mediaId, string $destination, Context $context): void
+    public function renameMedia(string $mediaId, string $destination, Context $context): string
     {
         $destination = $this->validateFileName($destination);
         $currentMedia = $this->findMediaById($mediaId, $context);
@@ -118,7 +118,7 @@ class FileSaver
         }
 
         if ($destination === $currentMedia->getFileName()) {
-            return;
+            return $currentMedia->getPath();
         }
 
         $this->ensureFileNameIsUnique(
@@ -128,10 +128,10 @@ class FileSaver
             $context
         );
 
-        $this->doRenameMedia($currentMedia, $destination, $context);
+        return $this->doRenameMedia($currentMedia, $destination, $context);
     }
 
-    private function doRenameMedia(MediaEntity $media, string $destination, Context $context): void
+    private function doRenameMedia(MediaEntity $media, string $destination, Context $context): string
     {
         $path = $this->getNewMediaPath($media, $destination);
 
@@ -200,6 +200,8 @@ class FileSaver
         } catch (\Exception) {
             $this->rollbackRenameAction($media, $renamedFiles);
         }
+
+        return $path;
     }
 
     /**

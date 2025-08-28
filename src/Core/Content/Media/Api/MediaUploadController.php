@@ -70,7 +70,7 @@ class MediaUploadController extends AbstractController
     }
 
     #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', methods: ['POST'])]
-    public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
+    public function renameMediaFile(Request $request, string $mediaId, Context $context): JsonResponse
     {
         $fileName = $request->request->getString('fileName');
         $destination = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
@@ -83,9 +83,9 @@ class MediaUploadController extends AbstractController
             throw MediaException::illegalFileName($fileName, 'Filename must be a string');
         }
 
-        $this->fileSaver->renameMedia($mediaId, $destination, $context);
+        $mediaPath = $this->fileSaver->renameMedia($mediaId, $destination, $context);
 
-        return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
+        return new JsonResponse(['mediaPath' => $mediaPath]);
     }
 
     #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', methods: ['GET'])]

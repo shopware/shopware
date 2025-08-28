@@ -335,7 +335,8 @@ class FileSaverTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
-        $this->fileSaver->renameMedia($mediaId, 'foobar', $context);
+        $path = $this->fileSaver->renameMedia($mediaId, 'foobar', $context);
+        static::assertSame('foo.png', $path);
 
         static::assertCount(1, $this->mediaRepository->updates);
         $update = $this->mediaRepository->updates[0];
@@ -453,7 +454,8 @@ class FileSaverTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
-        $fileSaver->renameMedia($mediaId, 'foobar', $context);
+        $path = $fileSaver->renameMedia($mediaId, 'foobar', $context);
+        static::assertSame('foo.png', $path);
 
         static::assertCount(1, $this->mediaRepository->updates);
         $update = $this->mediaRepository->updates[0];

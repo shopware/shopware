@@ -502,7 +502,8 @@ class FileSaverTest extends TestCase
 
         $this->getPublicFilesystem()->write('media/skip_with_same_name.png', 'test file content');
 
-        $this->fileSaver->renameMedia($ids->get('png'), 'skip_with_same_name', $context);
+        $mediaPath = $this->fileSaver->renameMedia($ids->get('png'), 'skip_with_same_name', $context);
+        static::assertSame('media/skip_with_same_name.png', $mediaPath);
 
         static::assertTrue($this->getPublicFilesystem()->has('media/skip_with_same_name.png'));
     }

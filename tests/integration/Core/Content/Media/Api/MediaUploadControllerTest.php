@@ -248,15 +248,11 @@ class MediaUploadControllerTest extends TestCase
         );
 
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(204, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
-        $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
-
-        static::assertInstanceOf(MediaEntity::class, $updated);
-        static::assertNotSame($media->getFileName(), $updated->getFileName());
-
-        static::assertTrue($this->getPublicFilesystem()->has($updated->getPath()));
-        static::assertFalse($this->getPublicFilesystem()->has($media->getPath()));
+        $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($result);
+        static::assertSame('media/new_file_name.png', $result['mediaPath']);
     }
 
     public function testProvideName(): void

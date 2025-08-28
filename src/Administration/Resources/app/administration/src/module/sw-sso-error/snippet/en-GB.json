@@ -1,7 +1,7 @@
 {
   "sw-sso-error": {
     "general": {
-      "title": "SSO Error",
+      "title": "SSO error",
       "description": "Shopware login error"
     },
     "error-card": {

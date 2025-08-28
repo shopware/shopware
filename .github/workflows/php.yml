@@ -136,6 +136,12 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
+      - name: Cache npm packages
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
+        with:
+          path: ${{ github.workspace }}/var/cache/npm
+          key: change-me-on-shopware-api-gen-update
+
       - name: Prepare schema lint
         env:
           NPM_CONFIG_PREFIX: ${{ github.workspace }}/var/cache/npm

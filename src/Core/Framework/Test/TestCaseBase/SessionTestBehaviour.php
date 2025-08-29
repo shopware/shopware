@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use PHPUnit\Framework\Attributes\After;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
-use Symfony\Component\HttpFoundation\Session\SessionFactory;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -25,7 +24,6 @@ trait SessionTestBehaviour
 
     public function getSession(): SessionInterface
     {
-        /** @var SessionFactory $factory */
         $factory = static::getContainer()->get('session.factory');
 
         return $factory->createSession();

@@ -198,3 +198,8 @@ parameters:
             identifier: argument.type
             path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
+        - # tests are allowed to add dummy classes in the same file
+            message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
+            paths:
+                - src/Core/**
+                - tests/**

@@ -176,6 +176,14 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 resetCmsPageState: () => {},
             },
         });
+
+        Shopware.Store.unregister('swProductDetail');
+        Shopware.Store.register({
+            id: 'swProductDetail',
+            actions: {
+                setProduct: () => {},
+            },
+        });
     });
 
     beforeEach(async () => {

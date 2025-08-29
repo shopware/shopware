@@ -1,0 +1,28 @@
+@import "~scss/variables";
+
+.sw-first-run-wizard-introduction {
+    width: 100%;
+    align-self: flex-start;
+    margin-top: 100px;
+
+    .center {
+        text-align: center;
+    }
+
+    .headline-welcome {
+        font-size: 32px;
+        font-weight: normal;
+        text-align: center;
+        letter-spacing: 0.2px;
+        line-height: 45px;
+    }
+
+    .text-welcome {
+        width: 675px;
+        font-size: $font-size-xs;
+        font-weight: normal;
+        text-align: center;
+        letter-spacing: 0.1px;
+        margin: 0 auto 30px;
+    }
+}

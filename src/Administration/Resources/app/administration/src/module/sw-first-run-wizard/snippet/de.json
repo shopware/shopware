@@ -28,6 +28,11 @@
             "tryAgainLater": "Bitte versuche es später erneut.",
             "noConnectionMessage": "Verbindungsprobleme, die gewünschte Sprache kann derzeit nicht installiert werden."
         },
+        "introduction": {
+          "modalTitle": "Willkommen",
+          "headlineWelcome": "Willkommen in der Shopware 6 Administration",
+          "messageWelcome": "Dieser Einrichtungs-Assistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration."
+        },
         "dataImport": {
             "modalTitle": "Dein Start in Shopware 6",
             "headlineDemoData": "Demodaten benutzen",

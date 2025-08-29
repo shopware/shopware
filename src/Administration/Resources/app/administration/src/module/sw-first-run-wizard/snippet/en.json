@@ -28,6 +28,11 @@
             "tryAgainLater": "Please try again later.",
             "noConnectionMessage": "There seem to be connection issues, the language could not be installed."
         },
+        "introduction": {
+          "modalTitle": "Welcome",
+          "headlineWelcome": "Welcome to the Shopware 6 Administration",
+          "messageWelcome":  "This wizard guides you through the setup and tries to be helpful with the most important settings."
+        },
         "dataImport": {
             "modalTitle": "Getting started with Shopware 6",
             "headlineDemoData": "Use demo data",

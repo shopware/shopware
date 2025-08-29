@@ -8,6 +8,9 @@ const { Criteria } = Shopware.Data;
  *
  * @private
  */
+/**
+ * @deprecated tag:v6.8.0 - will be removed, the component is replaced by `sw-first-run-wizard-introduction`
+ */
 export default {
     template,
 

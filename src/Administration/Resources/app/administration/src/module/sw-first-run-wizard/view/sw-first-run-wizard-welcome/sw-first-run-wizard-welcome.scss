@@ -1,5 +1,8 @@
 @import "~scss/variables";
 
+/**
+* @deprecated tag:v6.8.0 - Will be removed. The component will be replaced by sw-first-run-wizard-introduction
+*/
 .sw-first-run-wizard-welcome {
     width: 100%;
     align-self: flex-start;

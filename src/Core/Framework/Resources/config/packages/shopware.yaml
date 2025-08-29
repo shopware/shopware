@@ -134,6 +134,8 @@ shopware:
             - 'klar_source'
             - 'klar_cpid'
             - 'klar_adid'
+            - 'affiliateCode' # Shopware
+            - 'campaignCode' # Shopware
 
     profiler:
         integrations: []

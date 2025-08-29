@@ -31,14 +31,20 @@ class MailTemplateService
         $this->twigVariableParser = $this->twigVariableParserFactory->getParser($twig);
     }
 
-    public function validateTemplate(string $mailTemplate, EventDataCollection $availableVariables): void
+    public function validateTemplate(string $mailTemplate, EventDataCollection $availableVariables): array
     {
-        $usedVariables = $this->twigVariableParser->parse($mailTemplate);
-        $this->validateVariables($usedVariables, $availableVariables);
+        try {
+            $usedVariables = $this->twigVariableParser->parse($mailTemplate);
+        } catch (\Throwable $exception) {
+            return [$exception->getMessage()];
+        }
+        return $this->validateVariables($usedVariables, $availableVariables);
     }
 
-    public function validateVariables(array $usedVariables, EventDataCollection $availableVariables): void
+    public function validateVariables(array $usedVariables, EventDataCollection $availableVariables): array
     {
+        $errors = [];
+
         foreach ($usedVariables as $var) {
             if ($availableVariables->get($var)) {
                 continue;
@@ -47,7 +53,8 @@ class MailTemplateService
             $varParts = explode('.', $var);
 
             if (\count($varParts) < 2) {
-                dd('Unknown var: ' . $var);
+                $errors[] = 'Unknown var: ' . $var;
+                continue;
             }
 
             $nestedAvVars = $availableVariables;
@@ -56,7 +63,8 @@ class MailTemplateService
                 $nestedAvVars = $nestedAvVars->get($varParts[$i]);
 
                 if (!$nestedAvVars) {
-                    dd('Unknown var: ' . $var);
+                    $errors[] = 'Unknown var: ' . $var;
+                    break;
                 }
 
                 if ($i === \count($varParts) - 1) {
@@ -74,7 +82,8 @@ class MailTemplateService
                     $field = $this->validateEntityField($path, $prefix, $nestedAvVars->getDefinitionClass());
 
                     if (!$field) {
-                        dd('Unknown var: ' . $var);
+                        $errors[] = 'Unknown var: ' . $var;
+                        break;
                     }
 
                     break;
@@ -82,7 +91,8 @@ class MailTemplateService
 
                 if ($nestedAvVars instanceof ArrayType) {
                     if (!($varParts[$i + 1] !== 'first' || $varParts[$i + 1] !== 'last' || \is_numeric($varParts[$i + 1]))) {
-                        dd('Invalid access on array: ' . $var);
+                        $errors[] = 'Invalid access on array: ' . $var;
+                        break;
                     }
 
                     // Skipping the array access
@@ -92,6 +102,8 @@ class MailTemplateService
                 }
             }
         }
+
+        return $errors;
     }
 
     private function validateEntityField(string $fieldName, string $prefix, string $entityDefinition): ?Field

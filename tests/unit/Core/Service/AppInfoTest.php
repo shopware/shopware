@@ -73,12 +73,12 @@ class AppInfoTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::missingAppVersionInformation($expectedMissing));
 
-        AppInfo::fromNameAndArray('TestApp', $data);
+        AppInfo::fromRegistryResponse('TestApp', $data);
     }
 
     public function testFromArrayWithAllFields(): void
     {
-        $appInfo = AppInfo::fromNameAndArray('TestApp', [
+        $appInfo = AppInfo::fromRegistryResponse('TestApp', [
             'app-version' => '1.0.0',
             'app-hash' => 'a453f',
             'app-revision' => '1.0.0-a453f',

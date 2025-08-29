@@ -34,7 +34,7 @@ class ServiceClient
 
         $this->checkResponse($response);
 
-        return AppInfo::fromNameAndArray($this->entry->name, $response->toArray());
+        return AppInfo::fromRegistryResponse($this->entry->name, $response->toArray());
     }
 
     private function checkResponse(ResponseInterface $response): void

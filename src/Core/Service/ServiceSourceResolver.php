@@ -19,7 +19,8 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  *
- * @phpstan-type ServiceSourceConfig array{app-version: string, app-hash: string, app-revision: string, app-zip-url: string, app-hash-algorithm: string, app-min-shop-supported-version: string}
+ * @phpstan-type ServiceSourceConfig array{version: string, hash: string, revision: string, zip-url: string, hash-algorithm: ?string, min-shop-supported-version: ?string}
+ *
  */
 #[Package('framework')]
 class ServiceSourceResolver implements Source
@@ -64,7 +65,7 @@ class ServiceSourceResolver implements Source
 
         /** @var ServiceSourceConfig $sourceConfig */
         $sourceConfig = $app->getSourceConfig();
-        $appInfo = AppInfo::fromNameAndArray($name, $sourceConfig);
+        $appInfo = AppInfo::fromNameAndSourceConfig($name, $sourceConfig);
 
         return $this->filesystemForVersion($appInfo);
     }

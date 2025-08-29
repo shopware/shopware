@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ServiceSourceConfig from ServiceSourceResolver
  */
 #[Package('framework')]
 readonly class AppInfo
@@ -16,15 +18,15 @@ readonly class AppInfo
         public string $hash,
         public string $revision,
         public string $zipUrl,
-        public string $hashAlgorithm,
-        public string $minShopSupportedVersion
+        public ?string $hashAlgorithm = null,
+        public ?string $minShopSupportedVersion = null,
     ) {
     }
 
     /**
      * @param array<string, mixed> $appInfo
      */
-    public static function fromNameAndArray(string $appName, array $appInfo): self
+    public static function fromRegistryResponse(string $appName, array $appInfo): self
     {
         $requiredKeys = ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'];
         $missingKeys = [];
@@ -50,7 +52,23 @@ readonly class AppInfo
     }
 
     /**
-     * @return array{version: string, hash: string, revision: string, zip-url: string}
+     * @param ServiceSourceConfig $sourceConfig
+     */
+    public static function fromNameAndSourceConfig(string $appName, array $sourceConfig): self
+    {
+        return new AppInfo(
+            $appName,
+            $sourceConfig['version'],
+            $sourceConfig['hash'],
+            $sourceConfig['revision'],
+            $sourceConfig['zip-url'],
+            $sourceConfig['hash-algorithm'] ?? null,
+            $sourceConfig['min-shop-supported-version'] ?? null,
+        );
+    }
+
+    /**
+     * @return ServiceSourceConfig
      */
     public function toArray(): array
     {

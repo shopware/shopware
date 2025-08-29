@@ -36,6 +36,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Command\CheckAgnosticTranslationFilesCommand">
+            <argument type="service" id="shopware.filesystem.private"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\Command\InstallTranslationCommand">
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>

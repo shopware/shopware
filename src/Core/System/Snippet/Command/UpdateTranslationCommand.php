@@ -15,7 +15,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
-#[AsCommand(name: 'translation:update', description: 'Updates installed translations from the translations repository')]
+#[AsCommand(
+    name: 'translation:update',
+    description: 'Updates installed translations from the translations repository'
+)]
 #[Package('discovery')]
 class UpdateTranslationCommand extends Command
 {

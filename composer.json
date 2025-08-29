@@ -396,7 +396,7 @@
             "@lint:snippets"
         ],
         "lint:changelog": "@php bin/shopware changelog:check",
-        "lint:snippets": "@php bin/shopware snippets:validate",
+        "lint:snippets": "@php bin/shopware translation:validate",
         "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
         "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
         "make:coverage": [

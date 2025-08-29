@@ -99,8 +99,11 @@ class SnippetFileHandler
             ->files()
             ->in($path)
             ->ignoreUnreadableDirs();
+//            ->name(SnippetValidator::SNIPPET_FILE_PATTERN);
 
+        // Change to use constant
         $finder->name('/[a-z]{2}-[A-Z]{2}(?:\.base)?\.json$/');
+//        $finder->name(SnippetValidator::SNIPPET_FILE_PATTERN);
 
         $iterator = $finder->getIterator();
         $files = [];

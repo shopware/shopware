@@ -35,7 +35,12 @@ class SnippetValidator implements SnippetValidatorInterface
         '(?:[_-](?P<region>[A-Z]{2}|\d{3}))?' . // optional region (DE, US, 419)
         ')';
 
-    public const SNIPPET_FILE_PATTERN = '/^(?P<domain>.+?)\.' . self::LOCALE_PATTERN_BCP47_ISO639_1 . '(?P<isBase>\.base)?\.json$/';
+    public const CORE_SNIPPET_FILE_PATTERN =
+        '/^(?P<domain>.+?)\.' .                 // domain (e.g. messages, storefront, swag-cms-extensions etc.)
+        self::LOCALE_PATTERN_BCP47_ISO639_1 .   // locale (e.g. en-GB, de, zh-Hant-TW)
+        '(?:\.(?P<isBase>base))?\.json$/';      // optional "base" suffix and .json file extension
+
+    public const ADMIN_SNIPPET_FILE_PATTERN = '/^' . self::LOCALE_PATTERN_BCP47_ISO639_1 . '\.json$/';
 
     /**
      * @internal
@@ -170,7 +175,7 @@ class SnippetValidator implements SnippetValidatorInterface
 
     private function getLocaleFromFileName(string $fileName): string
     {
-        $return = preg_match(self::SNIPPET_FILE_PATTERN, $fileName, $matches);
+        $return = preg_match(self::CORE_SNIPPET_FILE_PATTERN, $fileName, $matches);
 
         // Snippet file name is not known, return 'en' per default
         if (!$return) {

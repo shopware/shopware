@@ -75,6 +75,7 @@ class CustomEntityRegistrar
     public static function createRepository(ContainerInterface $container, EntityDefinition $definition): EntityRepository
     {
         return EntityRepository::createLazyGhost(function (EntityRepository $instance) use ($definition, $container): void {
+            // @phpstan-ignore constructor.call
             $instance->__construct(
                 $definition,
                 $container->get(EntityReaderInterface::class),

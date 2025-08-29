@@ -81,6 +81,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $ruleCollection = new RuleCollection();
         $discount->setDiscountRules($ruleCollection);
+        $this->promotion->setMaxRedemptionsGlobal(1);
 
         $item = $builder->buildDiscountLineItem('my-Code-123', $this->promotion, $discount, 'C1', $currencyFactor);
 
@@ -105,6 +106,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
+            'limitedRedemptions' => true,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -159,6 +161,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'individual',
+            'limitedRedemptions' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -212,6 +215,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
+            'limitedRedemptions' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -315,6 +319,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'global',
+            'limitedRedemptions' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());

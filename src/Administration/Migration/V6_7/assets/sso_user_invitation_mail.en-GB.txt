@@ -1,0 +1,5 @@
+{{ nameOfInviter }} has invited you to collaborate on the Shopware store {{ storeName }}.
+
+After accepting the invitation please either log in or sign up using this email address {{ invitedEmailAddress }}.
+
+{{ signupUrl }}

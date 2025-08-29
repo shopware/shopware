@@ -8,6 +8,8 @@ use Doctrine\DBAL\Exception;
 use OpenSearch\Client;
 use OpenSearch\Common\Exceptions\OpenSearchException;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -75,9 +77,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     {
         $indexer = $this->getIndexer($message->getEntity());
 
-        $documents = $indexer->fetch($message->getIds());
-
-        $this->push($indexer, $message->getIndices(), $documents, $message->getIds());
+        $this->push($indexer, $message);
     }
 
     public static function getSubscribedEvents(): array
@@ -155,14 +155,25 @@ class AdminSearchRegistry implements EventSubscriberInterface
         }
 
         foreach ($this->indexer as $indexer) {
-            $ids = $event->getPrimaryKeys($indexer->getEntity());
+            $ids = $indexer->getUpdatedIds($event);
+            $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
+            $ids = array_diff($ids, $deletedIds);
 
-            if (empty($ids)) {
+            if (empty($ids) && empty($deletedIds)) {
                 continue;
             }
 
-            $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids);
-            $this->queue->dispatch($msg);
+            $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, $deletedIds);
+
+            // if the event is triggered from storefront or sales channel API, we dispatch the message to the queue to not slow down the request
+            if ($event->getContext()->getSource() instanceof SalesChannelApiSource) {
+                $this->queue->dispatch($msg);
+
+                return;
+            }
+
+            // otherwise we invoke the message handler directly
+            $this->__invoke($msg);
         }
     }
 
@@ -198,6 +209,11 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     private function isIndexedEntityWritten(EntityWrittenContainerEvent $event): bool
     {
+        // only index entities that are written in the live version
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return false;
+        }
+
         foreach ($this->indexer as $indexer) {
             $ids = $event->getPrimaryKeys($indexer->getEntity());
 
@@ -209,20 +225,20 @@ class AdminSearchRegistry implements EventSubscriberInterface
         return false;
     }
 
-    /**
-     * @param array<string, string> $indices
-     * @param array<string, array<string|int, string>> $data
-     * @param array<string> $ids
-     */
-    private function push(AbstractAdminIndexer $indexer, array $indices, array $data, array $ids): void
+    private function push(AbstractAdminIndexer $indexer, AdminSearchIndexingMessage $message): void
     {
+        $indices = $message->getIndices();
+
+        $ids = $message->getIds();
         $alias = $this->adminEsHelper->getIndex($indexer->getName());
 
         if (!isset($indices[$alias])) {
             return;
         }
 
+        $data = !empty($ids) ? $indexer->fetch($ids) : [];
         $toRemove = array_filter($ids, static fn (string $id): bool => !isset($data[$id]));
+        $toRemove = array_unique(array_merge($toRemove, $message->getToRemoveIds()));
 
         $documents = [];
         foreach ($data as $id => $document) {

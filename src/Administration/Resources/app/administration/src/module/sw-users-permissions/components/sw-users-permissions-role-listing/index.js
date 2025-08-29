@@ -14,6 +14,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'ssoSettingsService',
     ],
 
     emits: ['get-list'],
@@ -28,9 +29,9 @@ export default {
             roles: [],
             isLoading: false,
             itemToDelete: null,
-            confirmDelete: null,
             disableRouteParams: true,
-            confirmPasswordModal: false,
+            isConfirmDeleteModalOpen: false,
+            isConfirmingPasswordModalOpen: false,
         };
     },
 
@@ -117,28 +118,40 @@ export default {
 
         onDelete(role) {
             this.itemToDelete = role;
+            this.isConfirmDeleteModalOpen = true;
         },
 
         onCloseDeleteModal() {
-            this.itemToDelete = null;
+            this.isConfirmDeleteModalOpen = false;
         },
 
         onConfirmDelete() {
-            this.confirmDelete = this.itemToDelete;
-
+            this.isLoading = true;
             this.onCloseDeleteModal();
 
-            this.confirmPasswordModal = true;
+            this.ssoSettingsService.isSso().then((response) => {
+                this.isLoading = false;
+
+                if (response.isSso) {
+                    this.deleteRole({ ...Shopware.Context.api });
+
+                    return;
+                }
+
+                this.isConfirmingPasswordModalOpen = true;
+            });
         },
 
         deleteRole(context) {
-            this.confirmPasswordModal = false;
-            const role = this.confirmDelete;
-            this.confirmDelete = null;
+            this.isConfirmingPasswordModalOpen = false;
+            const role = this.itemToDelete;
+            this.itemToDelete = null;
+            this.isLoading = true;
 
             this.roleRepository
                 .delete(role.id, context)
                 .then(() => {
+                    this.isLoading = false;
                     this.createNotificationSuccess({
                         message: this.$tc(
                             'sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
@@ -152,6 +165,7 @@ export default {
                     this.$emit('get-list');
                 })
                 .catch(() => {
+                    this.isLoading = false;
                     this.createNotificationError({
                         message: this.$tc(
                             'sw-users-permissions.roles.role-grid.notification.deleteError.message',
@@ -165,7 +179,7 @@ export default {
         },
 
         onCloseConfirmPasswordModal() {
-            this.confirmPasswordModal = false;
+            this.isConfirmingPasswordModalOpen = false;
         },
     },
 };

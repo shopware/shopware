@@ -4,16 +4,18 @@ namespace Shopware\Tests\Unit\Core\Content\ProductExport\ScheduledTask;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
@@ -99,12 +101,15 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return $productExportEntity;
     }
 
-    private function getProductExportRepositoryMock(ProductExportEntity $productExportEntity): EntityRepository
+    /**
+     * @return EntityRepository<ProductExportCollection>&MockObject
+     */
+    private function getProductExportRepositoryMock(ProductExportEntity $productExportEntity): EntityRepository&MockObject
     {
         $productEntitySearchResult = new EntitySearchResult(
             'product',
             1,
-            new EntityCollection([$productExportEntity]),
+            new ProductExportCollection([$productExportEntity]),
             null,
             new Criteria(),
             Context::createDefaultContext()
@@ -116,8 +121,12 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return $productExportRepositoryMock;
     }
 
-    private function getSalesChannelRepositoryMock(): EntityRepository
+    /**
+     * @return StaticEntityRepository<SalesChannelCollection>
+     */
+    private function getSalesChannelRepositoryMock(): StaticEntityRepository
     {
+        /** @var StaticEntityRepository<SalesChannelCollection> */
         return new StaticEntityRepository([['8fdd4e21be6b4ad59656fb856d0375e7']]);
     }
 

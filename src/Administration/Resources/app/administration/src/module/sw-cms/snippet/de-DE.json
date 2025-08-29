@@ -8,6 +8,7 @@
       "createNewLayout": "Neues Layout anlegen",
       "deleteDisabledToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
+      "deleteDisabledLandingPageToolTip": "Das Layout ist noch mindestens einer Landingpage zugewiesen.",
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
       "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
     },
@@ -245,10 +246,14 @@
         "label": "Bild",
         "config": {
           "label": {
+            "ariaLabel": "Link-Beschreibung",
+            "ariaLabelHelpText": "Dieser Text wird beim Auslesen des Links von Screenreadern vorgelesen.",
             "minHeight": "Minimale Höhe",
             "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
             "isDecorative": "Bilder als ausschließlich dekorativ kennzeichen",
             "isDecorativeHelpText": "Wenn diese Option eingeschaltet wird, werden die Bildinformationen nicht von Screenreadern vorgelesen.",
+            "useFetchPriorityOnFirstItem": "Erstes Bild priorisiert laden",
+            "useFetchPriorityOnFirstItemHelpText": "Wenn diese Option eingeschaltet wird, wird das erste Bild mit einer höheren Priorität geladen. Dies kann die Geschwindigkeit des Aufbaus der Seite im Browser verbessern.",
             "linkNewTab": "Link in neuem Tab öffnen",
             "linkTo": "Linkziel"
           },

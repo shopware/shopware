@@ -696,6 +696,11 @@
                     "type": "boolean",
                     "description": "All carts, which stored in redis, are compressed via gzcompress. This option is only available if redis is used."
                 },
+                "serialization_max_mb_size": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "Limits the maximum size of the serialized cart (in MB). Helps prevent database errors (e.g. max_allowed_packet) by validating the payload size before persistence."
+                },
                 "compression_method": {
                     "type": "string",
                     "enum": [
@@ -1022,6 +1027,11 @@
                 "private_local_path_prefix": {
                     "type": "string",
                     "description": "Path prefix to be prepended to the path when using a local download strategy"
+                },
+                "batch_write_size": {
+                    "type": "integer",
+                    "default": 250,
+                    "description": "Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter"
                 }
             },
             "title": "Filesystem"

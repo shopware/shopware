@@ -1502,27 +1502,50 @@
         "iframeModalConfirmMessageDescription": "Bitte stellen Sie sicher, dass alle Prozesse abgeschlossen sind.",
         "dontAskMeAgain": "Mich nicht erneut fragen"
       },
-      "sw-app-app-url-changed-modal": {
-        "move-shop-permanently": {
-          "name": "Migriere Deine Apps zur neuen Domain",
-          "description": "Dies ist in der Regel die richtige Option, wenn du deinen Shop dauerhaft von einer alten zu einer neuen Domain umgezogen hast. Shopware benachrichtigt die App-Server über die neue Domain (d.h. sie registrieren sich neu bei den App-Servern) und die Apps bleiben installiert. Die Shop-ID bleibt unverändert."
+      "sw-app-shop-id-change-modal": {
+        "title": "Änderung der Shop-ID wird vorgeschlagen",
+        "description": {
+          "explanation": "In Deinem System bzw. der Umgebung wurden Änderungen festgestellt, die auf eine Änderung der Shop-ID hindeuten. Solange Du keine Option ausgewählt hast, findet keine Kommunikation mit Apps statt, um Probleme mit der Shop-Identifikation oder Datenkorruption zu vermeiden.",
+          "shopId": {
+            "title": "Was ist die Shop-ID?",
+            "explanation": "Die Shop-ID ist ein Bestandteil des App-Systems von Shopware. Apps, bei denen Dein Shop registriert ist, nutzen diese, um Deinen Shop eindeutig zu identifizieren. Daher ist es wichtig, dass Shop-IDs einzigartig bleiben und nicht zwischen verschiedenen Shops geteilt werden – auch nicht zwischen unterschiedlichen Umgebungen (z. B. einer Staging- oder Testkopie) desselben Shops."
+          }
         },
-        "reinstall-apps": {
-          "name": "Installiere Deine Apps neu",
-          "description": "Dies ist in der Regel die richtige Option, wenn du eine Kopie deines Shops erstellt hast (z. B. eine Staging- oder Testumgebung eines Produktionsshops) und du die Apps in dieser Kopie verwenden möchtest. Shopware installiert die Apps neu und registriert sich mit der neuen Domain bei den App-Servern. Es wird eine neue Shop-ID generiert."
+        "affectedApps": "Die folgenden Apps sind betroffen:",
+        "detectedChanges": "Die folgenden Änderungen wurden festgestellt:",
+        "success": "Shop-ID erfolgreich aktualisiert.",
+        "error": "Aktualisierung der Shop-ID fehlgeschlagen.",
+        "oldValue": "Alter Wert",
+        "newValue": "Neuer Wert",
+        "remindMeLater": "Später erinnern",
+        "selectAnOption": "Lies die verfügbaren Optionen sorgfältig durch und wähle diejenige, die am besten zu Deinem Szenario passt:",
+        "fingerprints": {
+          "app_url": {
+            "label": "APP_URL Umgebungsvariable",
+            "description": "Die APP_URL wird von Apps verwendet, um sich mit der Admin-API Deines Shops zu verbinden."
+          },
+          "installation_path": {
+            "label": "Installationspfad"
+          },
+          "sales_channel_domain_urls": {
+            "label": "Verkaufskanal-Domains",
+            "description": "Die Prüfsumme der Verkaufskanal-Domains ändert sich, wenn bestehende Domains geändert oder gelöscht werden oder neue Domains hinzugefügt werden."
+          }
         },
-        "uninstall-apps": {
-          "name": "Deinstalliere Deine Apps",
-          "description": "Dies ist normalerweise die richtige Option, wenn du eine Kopie deines Shops erstellt hast (z.B. eine Staging- oder Testumgebung eines Produktionsshops) und du die Apps in dieser Kopie nicht verwenden möchtest. Shopware löscht die Apps, ohne die App-Server zu benachrichtigen. Es wird eine neue Shop-ID generiert."
-        },
-        "title": "Domain-Änderung wurde festgestellt",
-        "oldLabel": "Alte Domain: ",
-        "newLabel": "Neue Domain: ",
-        "explanationHeader": "Deine Shop-Domain hat sich geändert.",
-        "explanation": "Die installierten Apps sind immer noch mit der alten Domain verbunden und funktionieren mit der neuen Domain noch nicht. Du hast drei Optionen um fortzufahren:",
-        "confirmation": "Bestätigen",
-        "success": "Domain Änderung erfolgreich durchgeführt.",
-        "error": "Keine Änderung durchgeführt."
+        "strategies": {
+          "move-shop-permanently": {
+            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor.",
+            "name": "Shop-ID beibehalten"
+          },
+          "reinstall-apps": {
+            "description": "Das ist in der Regel die richtige Option, wenn Du eine Kopie Deines Shops erstellt hast (z. B. eine Staging- oder Testumgebung eines Produktionsshops) und die Apps auch in dieser Kopie nutzen möchtest. Shopware installiert die Apps neu und registriert sich mit der neuen Shop-ID erneut bei den App-Servern. Dein Shop identifiziert sich als neuer Shop.",
+            "name": "Neue Shop-ID generieren"
+          },
+          "uninstall-apps": {
+            "name": "Apps deinstallieren",
+            "description": "Das ist in der Regel die richtige Option, wenn Du eine Kopie Deines Shops erstellt hast (z. B. eine Staging- oder Testumgebung eines Produktionsshops) und die Apps in dieser Kopie nicht nutzen möchtest. Shopware löscht die Apps, ohne die App-Server zu benachrichtigen. Eine neue Shop-ID wird generiert und Dein Shop identifiziert sich als neuer Shop."
+          }
+        }
       },
       "sw-app-wrong-app-url-modal": {
         "title": "Fehlerhaft konfigurierte APP_URL",

@@ -204,6 +204,7 @@ class DefinitionValidator
                 );
             }
 
+            // @phpstan-ignore variable.implicitArray
             $notices[$definitionClass] = array_merge_recursive(
                 $violations[$definitionClass],
                 $this->validateDataFieldNotPrefixedByEntityName($definition)

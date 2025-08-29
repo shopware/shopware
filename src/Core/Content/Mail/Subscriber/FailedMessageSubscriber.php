@@ -49,8 +49,10 @@ class FailedMessageSubscriber implements EventSubscriberInterface
 
             $this->connection->insert('log_entry', $entry);
         } catch (\Throwable) {
-            $entry['context'] = json_encode([]);
-            $entry['extra'] = json_encode([]);
+            $entry = [
+                'context' => json_encode([]),
+                'extra' => json_encode([]),
+            ];
 
             $this->connection->insert('log_entry', $entry);
         }

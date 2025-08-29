@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\App\ShopId;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -33,19 +31,16 @@ class ShopIdProvider
     }
 
     /**
-     * @throws AppUrlChangeDetectedException
+     * @throws ShopIdChangeSuggestedException
      */
     public function getShopId(): string
     {
         $shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
 
-        if ($this->hasAppUrlChanged($shopId)) {
+        $fingerprintsComparison = $this->fingerprintGenerator->matchFingerprints($shopId->fingerprints);
+        if (!$fingerprintsComparison->isMatching()) {
             if ($this->hasAppsRegisteredAtAppServers()) {
-                throw new AppUrlChangeDetectedException(
-                    $shopId->getFingerprint(AppUrl::IDENTIFIER) ?? '',
-                    $this->loadAppUrlFromEnvironment(),
-                    $shopId
-                );
+                throw AppException::shopIdChangeSuggested($shopId, $fingerprintsComparison);
             }
 
             // if the shop does not have any apps we can update the existing shop id value
@@ -95,13 +90,6 @@ class ShopIdProvider
         return (int) $this->connection->fetchOne('SELECT COUNT(id) FROM app WHERE app_secret IS NOT NULL') > 0;
     }
 
-    private function hasAppUrlChanged(ShopId $shopId): bool
-    {
-        return $this->fingerprintGenerator
-                ->compare($shopId->fingerprints)
-                ->getMismatchingFingerprint(AppUrl::IDENTIFIER) instanceof FingerprintMismatch;
-    }
-
     private function fetchShopIdFromSystemConfig(): ?ShopId
     {
         /** @var ShopIdV2Config|null $shopIdV2 */
@@ -119,16 +107,5 @@ class ShopIdProvider
         }
 
         return null;
-    }
-
-    private function loadAppUrlFromEnvironment(): string
-    {
-        $appUrl = EnvironmentHelper::getVariable('APP_URL');
-
-        if (!\is_string($appUrl)) {
-            throw AppException::appUrlNotConfigured();
-        }
-
-        return $appUrl;
     }
 }

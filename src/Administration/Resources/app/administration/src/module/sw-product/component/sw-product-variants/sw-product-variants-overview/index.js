@@ -51,7 +51,7 @@ export default {
     data() {
         return {
             sortBy: 'name',
-            sortDirection: 'DESC',
+            sortDirection: 'ASC',
             showDeleteModal: false,
             modalLoading: false,
             priceEdit: false,

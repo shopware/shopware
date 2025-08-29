@@ -69,7 +69,7 @@ services:
             - '8025:8025'
 
     opensearch:
-        image: opensearchproject/opensearch:latest
+        image: opensearchproject/opensearch:2
         environment:
             OPENSEARCH_INITIAL_ADMIN_PASSWORD: 'c3o_ZPHo!'
             discovery.type: single-node

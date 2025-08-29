@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport, replaceElements } from '@shopware-ag/acceptance-test-suite';
+import {setViewport, replaceElements, hideElements} from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -38,9 +38,11 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
             contentHeight: 600,
         });
         await replaceElements(AdminRuleDetail.page, [
-            AdminRuleDetail.adminMenuAvatar,
             AdminRuleDetail.header,
         ]);
+        await hideElements(AdminRuleDetail.page, [
+            AdminRuleDetail.adminMenuAvatar,
+        ])
         await expect(AdminRuleDetail.assignmentModal).toHaveScreenshot('Rule-Builder-Detail-Assignments-Modal.png');
     });
 });

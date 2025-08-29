@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -25,7 +26,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
-use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerGroupRegistrationPageLoader;
@@ -303,15 +303,15 @@ class RegisterController extends StorefrontController
 
     private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session): RequestDataBag
     {
-        $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
-        $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
+        $affiliateCode = $session->get(OrderService::AFFILIATE_CODE_KEY);
+        $campaignCode = $session->get(OrderService::CAMPAIGN_CODE_KEY);
 
         if ($affiliateCode !== null) {
-            $data->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
+            $data->set(OrderService::AFFILIATE_CODE_KEY, $affiliateCode);
         }
 
         if ($campaignCode !== null) {
-            $data->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
+            $data->set(OrderService::CAMPAIGN_CODE_KEY, $campaignCode);
         }
 
         return $data;

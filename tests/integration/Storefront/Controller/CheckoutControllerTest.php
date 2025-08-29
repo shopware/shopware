@@ -47,7 +47,6 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Controller\CheckoutController;
-use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
@@ -155,8 +154,8 @@ class CheckoutControllerTest extends TestCase
     public function testAffiliateAndCampaignTracking(): void
     {
         $request = $this->createRequest();
-        $request->getSession()->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
-        $request->getSession()->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
+        $request->getSession()->set(OrderService::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
+        $request->getSession()->set(OrderService::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
 
         $order = $this->performOrder('', true, $request);
 
@@ -167,7 +166,7 @@ class CheckoutControllerTest extends TestCase
     public function testAffiliateTracking(): void
     {
         $request = $this->createRequest();
-        $request->getSession()->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
+        $request->getSession()->set(OrderService::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
 
         $order = $this->performOrder('', true, $request);
 
@@ -178,7 +177,7 @@ class CheckoutControllerTest extends TestCase
     public function testCampaignOrderTracking(): void
     {
         $request = $this->createRequest();
-        $request->getSession()->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
+        $request->getSession()->set(OrderService::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
 
         $order = $this->performOrder('', true, $request);
 

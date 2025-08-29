@@ -192,10 +192,6 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>

@@ -24,7 +24,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
-use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
@@ -293,14 +292,14 @@ class CheckoutController extends StorefrontController
 
     private function addAffiliateTracking(RequestDataBag $dataBag, SessionInterface $session): void
     {
-        $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
-        $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
+        $affiliateCode = $session->get(OrderService::AFFILIATE_CODE_KEY);
+        $campaignCode = $session->get(OrderService::CAMPAIGN_CODE_KEY);
         if ($affiliateCode) {
-            $dataBag->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
+            $dataBag->set(OrderService::AFFILIATE_CODE_KEY, $affiliateCode);
         }
 
         if ($campaignCode) {
-            $dataBag->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
+            $dataBag->set(OrderService::CAMPAIGN_CODE_KEY, $campaignCode);
         }
     }
 

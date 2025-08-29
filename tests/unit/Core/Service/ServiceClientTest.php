@@ -22,46 +22,51 @@ class ServiceClientTest extends TestCase
 {
     public static function latestInfoProvider(): \Generator
     {
-        yield [
+        yield 'app-version + app-hash' => [
             [
-                'version' => '6.6.0.0',
-                'hash' => 'a5b32',
+                'app-version' => '6.6.0.0',
+                'app-hash' => 'a5b32',
             ],
+            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
-        yield [
+        yield 'only app-version' => [
             [
-                'version' => '6.6.0.0',
+                'app-version' => '6.6.0.0',
             ],
+            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
-        yield [
+        yield 'app-revision + app-hash' => [
             [
-                'revision' => '6.6.0.0',
-                'hash' => 'a5b32',
+                'app-revision' => '6.6.0.0',
+                'app-hash' => 'a5b32',
             ],
+            ['app-version', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
-        yield [
+        yield 'app-revision + app-version' => [
             [
-                'revision' => '6.6.0.0',
-                'version' => '6.6.0.0',
+                'app-revision' => '6.6.0.0',
+                'app-version' => '6.6.0.0',
             ],
+            ['app-hash', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
 
-        yield [
+        yield 'empty' => [
             [],
+            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
         ];
     }
 
     /**
      * @param array<string, string> $response
+     * @param non-empty-array<int, string> $missingFields
      */
     #[DataProvider('latestInfoProvider')]
-    public function testLatestInfoThrowsExceptionWithInvalidResponse(array $response): void
+    public function testLatestInfoThrowsExceptionWithInvalidResponse(array $response, array $missingFields): void
     {
-        static::expectException(ServiceException::class);
-        static::expectExceptionMessage('Error downloading app. The version information was missing:');
+        static::expectExceptionObject(ServiceException::missingAppVersionInformation($missingFields));
 
         $httpClient = new MockHttpClient([
             new JsonMockResponse($response),

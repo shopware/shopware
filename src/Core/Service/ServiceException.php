@@ -10,6 +10,9 @@ use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ */
 #[Package('framework')]
 class ServiceException extends HttpException
 {
@@ -124,12 +127,25 @@ class ServiceException extends HttpException
         );
     }
 
-    public static function missingAppVersionInfo(string $missingField): self
+    public static function missingAppVersionInfo(): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_MISSING_APP_VERSION_INFO,
-            \sprintf('Error downloading app. The version information was missing: %s', $missingField)
+            'Error downloading app. The version information was missing.'
+        );
+    }
+
+    /**
+     * @param non-empty-array<int, string> $missingFields
+     */
+    public static function missingAppVersionInformation(array $missingFields): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_MISSING_APP_VERSION_INFO,
+            'Error downloading app. The version information was missing: {{ missingFields }}',
+            ['missingFields' => implode(', ', $missingFields)]
         );
     }
 

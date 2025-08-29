@@ -27,10 +27,15 @@ readonly class AppInfo
     public static function fromNameAndArray(string $appName, array $appInfo): self
     {
         $requiredKeys = ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'];
+        $missingKeys = [];
         foreach ($requiredKeys as $key) {
             if (!isset($appInfo[$key])) {
-                throw ServiceException::missingAppVersionInfo($key);
+                $missingKeys[] = $key;
             }
+        }
+
+        if (!empty($missingKeys)) {
+            throw ServiceException::missingAppVersionInformation($missingKeys);
         }
 
         return new AppInfo(

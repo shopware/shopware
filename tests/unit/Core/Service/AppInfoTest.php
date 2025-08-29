@@ -16,29 +16,62 @@ class AppInfoTest extends TestCase
 {
     public static function appInfoProvider(): \Generator
     {
-        yield [[]];
+        yield 'empty' => [
+            [],
+            ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+        ];
 
-        yield [['version' => '1.0.0']];
+        yield 'only app-version' => [
+            ['app-version' => '1.0.0'],
+            ['app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+        ];
 
-        yield [['version' => '1.0.0', 'hash' => 'a453f']];
+        yield 'app-version + app-hash' => [
+            ['app-version' => '1.0.0', 'app-hash' => 'a453f'],
+            ['app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'],
+        ];
 
-        yield [['hash' => 'a453f']];
+        yield 'up to zip url' => [
+            [
+                'app-version' => '1.0.0',
+                'app-hash' => 'a453f',
+                'app-revision' => '1.0.0-a453f',
+                'app-zip-url' => 'https://example.com/zip',
+            ],
+            ['app-hash-algorithm', 'app-min-shop-supported-version'],
+        ];
 
-        yield [['app-version' => '1.0.0', 'app-hash' => 'a453f', 'app-revision' => '1.0.0-a453f', 'app-zip-url' => 'https://example.com/zip']];
+        yield 'missing min version' => [
+            [
+                'app-version' => '1.0.0',
+                'app-hash' => 'a453f',
+                'app-revision' => '1.0.0-a453f',
+                'app-zip-url' => 'https://example.com/zip',
+                'app-hash-algorithm' => 'sha256',
+            ],
+            ['app-min-shop-supported-version'],
+        ];
 
-        yield [['app-version' => '1.0.0', 'app-hash' => 'a453f', 'app-revision' => '1.0.0-a453f', 'app-zip-url' => 'https://example.com/zip', 'app-hash-algorithm' => 'sha256']];
-
-        yield [['app-version' => '1.0.0', 'app-hash' => 'a453f', 'app-revision' => '1.0.0-a453f', 'app-zip-url' => 'https://example.com/zip', 'app-min-shop-supported-version' => '6.6.0.0']];
+        yield 'missing hash algorithm' => [
+            [
+                'app-version' => '1.0.0',
+                'app-hash' => 'a453f',
+                'app-revision' => '1.0.0-a453f',
+                'app-zip-url' => 'https://example.com/zip',
+                'app-min-shop-supported-version' => '6.6.0.0',
+            ],
+            ['app-hash-algorithm'],
+        ];
     }
 
     /**
      * @param array<string, string> $data
+     * @param non-empty-array<int, string> $expectedMissing
      */
     #[DataProvider('appInfoProvider')]
-    public function testExceptionIsThrownWhenDataIsMissing(array $data): void
+    public function testExceptionIsThrownWhenDataIsMissing(array $data, array $expectedMissing): void
     {
-        static::expectException(ServiceException::class);
-        static::expectExceptionMessage('Error downloading app. The version information was missing:');
+        static::expectExceptionObject(ServiceException::missingAppVersionInformation($expectedMissing));
 
         AppInfo::fromNameAndArray('TestApp', $data);
     }

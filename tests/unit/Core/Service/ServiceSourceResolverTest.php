@@ -268,7 +268,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $client->expects($this->once())
             ->method('fetchServiceZipVersion')
-            ->willThrowException(ServiceException::missingAppVersionInfo('app-version'));
+            ->willThrowException(ServiceException::missingAppVersionInformation(['app-version']));
 
         $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
 

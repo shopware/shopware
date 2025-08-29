@@ -310,7 +310,7 @@ class ExecutorTest extends TestCase
         $this->executor->execute($action, Context::createDefaultContext());
     }
 
-    public function testThrowsExceptionIfAppUrlChangeIsDetected(): void
+    public function testThrowsExceptionIfShopIdFingerprintsHaveChanged(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
@@ -335,7 +335,7 @@ class ExecutorTest extends TestCase
         $this->signResponse($this->app->getAppSecret());
 
         static::expectException(AppException::class);
-        static::expectExceptionMessage('Detected APP_URL change');
+        static::expectExceptionMessage('Changes in your system were detected that suggest a change of the shop ID.');
         $this->executor->execute($action, Context::createDefaultContext());
     }
 

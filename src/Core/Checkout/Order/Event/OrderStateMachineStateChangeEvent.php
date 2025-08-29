@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Event;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -11,9 +12,13 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\EventData\ArrayType;
+use Shopware\Core\Framework\Event\EventData\AssociativeArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\EventData\ObjectType;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
@@ -41,7 +46,29 @@ class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('order', new EntityType(OrderDefinition::class));
+            ->add(self::ORDER_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(self::ORDER, new EntityType(OrderDefinition::class))
+            ->add(
+                self::MAIL_STRUCT,
+                (new ObjectType())
+                    ->add('bcc', (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable())
+                    ->add('cc', (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable())
+                    ->add('recipients', new AssociativeArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING), new ScalarValueType(ScalarValueType::TYPE_STRING)))
+            )
+            ->add(self::SALES_CHANNEL_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(self::TIMEZONE, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(self::CUSTOMER_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(self::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(self::A11Y_DOCUMENT_IDS, new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
+            ->add(
+                self::A11Y_DOCUMENTS,
+                new ArrayType(
+                    (new ObjectType())
+                        ->add('documentId', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                        ->add('deepLinkCode', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                        ->add('fileExtension', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                )
+            );
     }
 
     public function getMailStruct(): MailRecipientStruct

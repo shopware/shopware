@@ -15,6 +15,4 @@ interface ScalarValuesAware
      * @return array<string, scalar|array<mixed>|null>
      */
     public function getValues(): array;
-
-    public static function getScalarKeys(): array;
 }

@@ -8,15 +8,20 @@ use Shopware\Core\Framework\Log\Package;
 class EventDataCollection
 {
     /**
-     * @var array<string, array<string, mixed>>
+     * @var array<string, EventDataType>
      */
     private array $data = [];
 
     public function add(string $name, EventDataType $type): self
     {
-        $this->data[$name] = $type->toArray();
+        $this->data[$name] = $type;
 
         return $this;
+    }
+
+    public function get(string $name): ?EventDataType
+    {
+        return $this->data[$name] ?? null;
     }
 
     /**
@@ -24,6 +29,6 @@ class EventDataCollection
      */
     public function toArray(): array
     {
-        return $this->data;
+        return array_map(fn ($type) => $type->toArray(), $this->data);
     }
 }

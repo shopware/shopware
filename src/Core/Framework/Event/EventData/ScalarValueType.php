@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Event\EventData;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
-class ScalarValueType implements EventDataType
+class ScalarValueType extends EventDataType
 {
     final public const TYPE_STRING = 'string';
     final public const TYPE_INT = 'int';
@@ -30,9 +30,15 @@ class ScalarValueType implements EventDataType
         $this->type = $type;
     }
 
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
     public function toArray(): array
     {
         return [
+            ...parent::toArray(),
             'type' => $this->type,
         ];
     }

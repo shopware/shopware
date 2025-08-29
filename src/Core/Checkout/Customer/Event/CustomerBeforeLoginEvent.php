@@ -38,11 +38,6 @@ class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, Shopw
         ];
     }
 
-    public static function getScalarKeys(): array
-    {
-        // TODO: Implement getScalarKeys() method.
-    }
-
     public function getName(): string
     {
         return self::EVENT_NAME;

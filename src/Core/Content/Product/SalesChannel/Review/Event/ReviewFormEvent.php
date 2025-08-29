@@ -2,15 +2,19 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review\Event;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\EventData\ArrayType;
+use Shopware\Core\Framework\Event\EventData\AssociativeArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ProductAware;
@@ -43,8 +47,34 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add(FlowMailVariables::REVIEW_FORM_DATA, new ObjectType())
-            ->add(ProductAware::PRODUCT, new EntityType(ProductDefinition::class));
+            ->add(
+                MailAware::MAIL_STRUCT,
+                (new ObjectType())
+                    ->add('bcc', (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable())
+                    ->add('cc', (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable())
+                    ->add('recipients', new AssociativeArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING), new ScalarValueType(ScalarValueType::TYPE_STRING)))
+            )
+            ->add(MailAware::SALES_CHANNEL_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(MailAware::TIMEZONE, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(ProductAware::PRODUCT, new EntityType(ProductDefinition::class))
+            ->add(CustomerAware::CUSTOMER_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(
+                FlowMailVariables::REVIEW_FORM_DATA,
+                (new ObjectType())
+                    ->add('forwardTo', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('parentId', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('forwardParameters', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('id', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('points', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('title', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('content', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('name', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('lastName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('email', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('customerId', new ScalarValueType(ScalarValueType::TYPE_STRING))
+                    ->add('productId', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            );
     }
 
     /**
@@ -53,27 +83,6 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
     public function getValues(): array
     {
         return [FlowMailVariables::REVIEW_FORM_DATA => $this->reviewFormData];
-    }
-
-    /**
-     * @return array<string>
-     */
-    public static function getScalarKeys(): array
-    {
-        return [
-            FlowMailVariables::REVIEW_FORM_DATA . '.forwardTo' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.parentId' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.forwardParameters' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.id' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.points' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.title' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.content' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.name' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.lastName' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.email' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.customerId' => '',
-            FlowMailVariables::REVIEW_FORM_DATA . '.productId' => '',
-        ];
     }
 
     public function getName(): string

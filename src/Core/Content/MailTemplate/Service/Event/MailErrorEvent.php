@@ -42,11 +42,6 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
         return [FlowMailVariables::EVENT_NAME => self::NAME];
     }
 
-    public static function getScalarKeys(): array
-    {
-        // TODO: Implement getScalarKeys() method.
-    }
-
     public function getThrowable(): ?\Throwable
     {
         return $this->throwable;

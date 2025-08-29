@@ -5,10 +5,24 @@ namespace Shopware\Core\Framework\Event\EventData;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
-interface EventDataType
+abstract class EventDataType
 {
+    private bool $nullable = false;
+
     /**
      * @return array<string, mixed>
      */
-    public function toArray(): array;
+    public function toArray(): array
+    {
+        return [
+            'nullable' => $this->nullable,
+        ];
+    }
+
+    public function setNullable(): self
+    {
+        $this->nullable = true;
+
+        return $this;
+    }
 }

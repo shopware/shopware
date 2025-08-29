@@ -43,11 +43,6 @@ class MediaUploadedEvent extends Event implements ScalarValuesAware, FlowEventAw
         ];
     }
 
-    public static function getScalarKeys(): array
-    {
-        // TODO: Implement getScalarKeys() method.
-    }
-
     public function getMediaId(): string
     {
         return $this->mediaId;

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
-class EntityType implements EventDataType
+class EntityType extends EventDataType
 {
     final public const TYPE = 'entity';
 
@@ -35,9 +35,20 @@ class EntityType implements EventDataType
         $this->entityName = $entityDefinition->getEntityName();
     }
 
+    public function getDefinitionClass(): string
+    {
+        return $this->definitionClass;
+    }
+
+    public function getEntityName(): string
+    {
+        return $this->entityName;
+    }
+
     public function toArray(): array
     {
         return [
+            ...parent::toArray(),
             'type' => self::TYPE,
             'entityClass' => $this->definitionClass,
             'entityName' => $this->entityName,

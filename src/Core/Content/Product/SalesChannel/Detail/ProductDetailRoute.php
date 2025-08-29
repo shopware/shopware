@@ -110,12 +110,12 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
             );
 
-            $skipConfigurator = $request->query->getBoolean(self::SKIP_CONFIGURATOR);
-            $configurator = !$skipConfigurator ? $this->configuratorLoader->load($product, $context) : null;
+            $loadConfigurator = !$request->query->getBoolean(self::SKIP_CONFIGURATOR);
+            $configurator = $loadConfigurator ? $this->configuratorLoader->load($product, $context) : null;
 
-            $skipCmsPage = $request->query->getBoolean(self::SKIP_CMS_PAGE);
+            $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $pageId = $product->getCmsPageId();
-            if (!$skipCmsPage && $pageId) {
+            if ($loadCmsPage && $pageId) {
                 // clone product to prevent recursion encoding (see NEXT-17603)
                 $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, clone $product);
 

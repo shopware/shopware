@@ -90,3 +90,4 @@ phpstan.neon @shopware/product-ct-core
 .bc-exclude.php @shopware/product-ct-core
 deprecation.ignore @shopware/product-ct-core
 /src/Core/Framework/Resources/config/packages/shopware.yaml @shopware/product-ct-core
+/src/Core/Service @shopware/product-services-foundation

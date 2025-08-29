@@ -15,14 +15,14 @@ export default class AffiliateTrackingPlugin extends Plugin {
     init() {
         const params = this.getUrlParams();
 
-        // Check if at least one tracking parameter is present
-        const paramValues = Object.values(params);
-        for (const paramValue of paramValues) {
-            if (paramValue !== null) {
-                this.makeRequest(params);
-                break;
+        // Check if at least one tracking parameter is present and make the tracking request
+        const processTracking = async () => {
+            if (Object.keys(params).length > 0) {
+                await this.makeRequest(params);
             }
-        }
+        };
+        // Emit event after processing is done, either if the request was made or skipped
+        processTracking().finally(() => this.$emitter.publish('affiliateTrackingDone'));
     }
 
     /**
@@ -35,10 +35,14 @@ export default class AffiliateTrackingPlugin extends Plugin {
         const affiliateCode = params.get('affiliateCode');
         const campaignCode = params.get('campaignCode');
 
-        return {
-            affiliateCode,
-            campaignCode,
-        };
+        const extractedParams = {};
+        if (affiliateCode) {
+            extractedParams.affiliateCode = affiliateCode;
+        }
+        if (campaignCode) {
+            extractedParams.campaignCode = campaignCode;
+        }
+        return extractedParams;
     }
 
     /**
@@ -46,21 +50,21 @@ export default class AffiliateTrackingPlugin extends Plugin {
      *
      * @param {Object} data
      */
-    makeRequest(data) {
-        fetch(this.options.endpoint, {
+    async makeRequest(data) {
+        return fetch(this.options.endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
         })
-        .then(response => {
-            if (!response.ok) {
-                console.error('Affiliate capture failed:', response.statusText);
-            }
-        })
-        .catch(error => {
-            console.error('Error sending affiliate data:', error);
-        });
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Affiliate capture failed:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending affiliate data:', error);
+            });
     }
 }

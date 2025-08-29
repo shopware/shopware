@@ -4,9 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use PHPUnit\Framework\Attributes\After;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionFactory;
-use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**

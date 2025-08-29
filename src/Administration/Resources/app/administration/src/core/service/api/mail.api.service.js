@@ -96,11 +96,8 @@ class MailApiService extends ApiService {
     }
 
     validateMailTemplate(
-        subject,
-        senderName,
-        contentHtml,
-        contentPlain,
-        mailTemplateType
+        flowEventClass,
+        mailTemplateContent,
     ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/validate`;
 
@@ -108,11 +105,8 @@ class MailApiService extends ApiService {
             .post(
                 apiRoute,
                 {
-                    subject: subject,
-                    senderName: senderName,
-                    contentHtml: contentHtml,
-                    contentPlain: contentPlain,
-                    mailTemplateType: mailTemplateType,
+                    flowEventClass: flowEventClass,
+                    mailTemplateContent: mailTemplateContent,
                 },
                 { headers: this.getBasicHeaders() },
             ).then((response) => {

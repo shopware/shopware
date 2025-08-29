@@ -450,6 +450,30 @@
             </sw-sidebar-media-item>
             {% endblock %}
             {% endblock %}
+
+            <sw-sidebar-item
+                icon="regular-eye"
+                title="Validate Email Template"
+                class="sw-mail-template-detail__show-validation-sidebar"
+            >
+                <div>
+                    <mt-select
+                        valueProperty="name"
+                        label="Flow Event Trigger Context"
+                        :model-value="triggerEvent"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
+                    />
+                </div>
+                <mt-button
+                    class="sw-mail-template-detail__send-test-mail"
+                    variant="secondary"
+                    :disabled="!triggerEvent"
+                    @click="onClickValidateMailTemplate"
+                >
+                    Validate
+                </mt-button>
+            </sw-sidebar-item>
         </sw-sidebar>
     </template>
     {% endblock %}

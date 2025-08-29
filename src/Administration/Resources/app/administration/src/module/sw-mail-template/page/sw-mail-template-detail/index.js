@@ -2,9 +2,10 @@ import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Service } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
+const { camelCase } = Shopware.Utils.string;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -20,6 +21,7 @@ export default {
         'repositoryFactory',
         'acl',
         'feature',
+        'businessEventService',
     ],
 
     mixins: [
@@ -57,6 +59,8 @@ export default {
             availableVariables: {},
             entitySchema: Object.fromEntries(Shopware.EntityDefinition.getDefinitionRegistry()),
             showLanguageNotAssignedToSalesChannelWarning: false,
+            triggerEvent: null,
+            triggerEvents: [],
         };
     },
 
@@ -237,6 +241,24 @@ export default {
                 this.mailTemplateId = this.$route.params.id.toLowerCase();
                 this.loadEntityData();
             }
+            this.businessEventService.getBusinessEvents().then(events => {
+                this.triggerEvents = events.map(event => ({
+                    ...event,
+                    label: event.name.split('.').map(eventName => this.getEventNameTranslated(eventName)).join(' / '),
+                }));
+                console.log(this.triggerEvents);
+            });
+        },
+
+        getEventNameTranslated(eventName) {
+            const eventNameCamelCase = camelCase(eventName);
+            const translatedEventName = [
+                `sw-flow-app.triggers-app.${eventNameCamelCase}`,
+                `sw-flow-custom-event.event-tree.${eventNameCamelCase}`,
+                `sw-flow.triggers.${eventNameCamelCase}`,
+            ].find((key) => this.$te(key));
+
+            return translatedEventName ? this.$tc(translatedEventName) : eventName.replace(/_|-/g, ' ');
         },
 
         loadEntityData() {
@@ -309,20 +331,6 @@ export default {
         onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
-
-            console.log(this.mailTemplate);
-            this.mailService.validateMailTemplate(
-                this.mailTemplate.subject,
-                this.mailTemplate.senderName,
-                this.mailTemplate.contentHtml,
-                this.mailTemplate.contentPlain,
-                this.mailTemplateType.technicalName,
-            ).then((response) => {
-                console.log(response);
-            }).catch((error) => {
-                console.log(error);
-                this.isLoading = false;
-            });
 
             const updatePromises = [];
             const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
@@ -412,6 +420,30 @@ export default {
                     this.createNotificationError(notificationTestMailError);
                     warn(this._name, exception.message, exception.response);
                 });
+        },
+
+        onClickValidateMailTemplate() {
+            console.log(this.mailTemplate);
+            console.log(this.triggerEvent);
+            this.mailService.validateMailTemplate(
+                this.triggerEvent.class,
+                {
+                    subject: this.mailTemplate.subject,
+                    senderName: this.mailTemplate.senderName,
+                    contentHtml: this.mailTemplate.contentHtml,
+                    contentPlain: this.mailTemplate.contentPlain,
+                },
+            ).then((response) => {
+                console.log(response);
+            }).catch((error) => {
+                console.log(error);
+                this.isLoading = false;
+            });
+        },
+
+        onTriggerEventChange(eventName) {
+            console.log(eventName);
+            this.triggerEvent = this.triggerEvents.find(event => event.name === eventName);
         },
 
         onClickShowPreview() {

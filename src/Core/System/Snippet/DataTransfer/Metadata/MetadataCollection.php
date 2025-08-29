@@ -25,8 +25,8 @@ class MetadataCollection extends Collection
     }
 
     /**
-     * @description Adds the given MetadataEntry if there is no entry for the same locale
-     * or if the given entry is newer than the existing one.
+     * @description Adds the given MetadataEntry if no entry exists for the same locale,
+     * or if the given entry has a different timestamp than the existing one.
      */
     public function addIfRequired(MetadataEntry $remoteEntry): void
     {

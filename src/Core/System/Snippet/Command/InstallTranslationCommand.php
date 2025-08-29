@@ -44,11 +44,18 @@ class InstallTranslationCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locales = $this->getLocales($input);
-        $metadata = $this->metadataLoader->getUpdatedMetadata($locales);
+
+        try {
+            $metadata = $this->metadataLoader->getUpdatedMetadata($locales);
+        } catch (\Throwable $e) {
+            $output->writeln(\sprintf('<error>An error occurred while fetching metadata: "%s"</error>', $e->getMessage()));
+
+            return self::FAILURE;
+        }
 
         $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
         if ($localesRequiringUpdate === []) {
-            $output->writeln('All translations are up to date.');
+            $output->writeln('All translations are already up to date.');
 
             return self::SUCCESS;
         }
@@ -139,13 +146,13 @@ class InstallTranslationCommand extends Command
 
     private function saveMetadata(MetadataCollection $metadata, OutputInterface $output): void
     {
-        $output->writeln('Loading translation metadata...');
+        $output->writeln('Saving translation metadata...');
 
         try {
             $this->metadataLoader->save($metadata);
-            $output->writeln('Translation metadata loaded successfully.');
+            $output->writeln('Translation metadata saved successfully.');
         } catch (\Throwable $e) {
-            $output->writeln(\sprintf('<error>An error occurred while loading metadata: "%s"</error>', $e->getMessage()));
+            $output->writeln(\sprintf('<error>An error occurred while saving metadata: "%s"</error>', $e->getMessage()));
         }
     }
 }

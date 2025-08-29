@@ -128,7 +128,7 @@ class TranslationConfigLoader
         $url = $config[$type];
 
         if (!\is_string($url)) {
-            $exception = new \InvalidArgumentException(\sprintf('The %s in the translation config must be a string.', $type));
+            $exception = new \InvalidArgumentException(\sprintf('"%s" in the translation config must be a string.', $type));
 
             try {
                 $encodedUrl = json_encode($url, \JSON_THROW_ON_ERROR);
@@ -148,7 +148,7 @@ class TranslationConfigLoader
         if (\mb_strlen(\trim($urlString)) < 1) {
             throw SnippetException::invalidRepositoryUrl(
                 $urlString,
-                new \InvalidArgumentException(\sprintf('The %s in the translation config must not be empty.', $type))
+                new \InvalidArgumentException(\sprintf('"%s" in the translation config must not be empty.', $type))
             );
         }
 
@@ -161,7 +161,7 @@ class TranslationConfigLoader
         if (empty($url->getScheme()) || empty($url->getHost())) {
             throw SnippetException::invalidRepositoryUrl(
                 $urlString,
-                new MalformedUriException(\sprintf('The %s must contain a schema and a host.', $type))
+                new MalformedUriException(\sprintf('"%s" must contain a schema and a host.', $type))
             );
         }
 

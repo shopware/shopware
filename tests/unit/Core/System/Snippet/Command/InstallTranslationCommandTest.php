@@ -142,8 +142,8 @@ class InstallTranslationCommandTest extends TestCase
 
         $output = $tester->getDisplay();
         static::assertStringContainsString('The following locales are already up to date and will be skipped: en-GB, de-DE', $output);
-        static::assertStringContainsString('Loading translation metadata...', $output);
-        static::assertStringContainsString('Translation metadata loaded successfully.', $output);
+        static::assertStringContainsString('Saving translation metadata...', $output);
+        static::assertStringContainsString('Translation metadata saved successfully.', $output);
     }
 
     public function testCommandOutputsErrorIfMetadataCannotBeWritten(): void
@@ -169,8 +169,8 @@ class InstallTranslationCommandTest extends TestCase
         $tester->execute(['--locales' => 'es-ES']);
         $output = $tester->getDisplay();
 
-        static::assertStringContainsString('Loading translation metadata...', $output);
-        static::assertStringContainsString('An error occurred while loading metadata: "Something went wrong"', $output);
+        static::assertStringContainsString('Saving translation metadata...', $output);
+        static::assertStringContainsString('An error occurred while saving metadata: "Something went wrong"', $output);
     }
 
     public function testCommandSkipsLoadingIfEverythingIsUpToDate(): void
@@ -191,11 +191,22 @@ class InstallTranslationCommandTest extends TestCase
         $tester->execute(['--locales' => 'es-ES']);
         $output = $tester->getDisplay();
 
-        static::assertStringContainsString('All translations are up to date.', $output);
+        static::assertStringContainsString('All translations are already up to date.', $output);
     }
 
     public function testExecuteRunsSuccessfulWithSkipActivation(): void
     {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'en-GB',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+
+        $collection->get('en-GB')?->markForUpdate();
+        $this->initMetadataLoader($collection);
+
         $this->translationLoader
             ->expects($this->once())
             ->method('load')
@@ -209,6 +220,22 @@ class InstallTranslationCommandTest extends TestCase
 
         $tester->execute(['--locales' => 'en-GB', '--skip-activation' => true]);
         $tester->assertCommandIsSuccessful();
+    }
+
+    public function testCommandFailsIfMetadataCannotBeLoaded(): void
+    {
+        $this->metadataLoader->expects($this->once())
+            ->method('getUpdatedMetadata')
+            ->willThrowException(new \Exception('Unable to fetch metadata'));
+
+        $command = $this->getCommand();
+        $tester = new CommandTester($command);
+
+        $tester->execute(['--locales' => 'en-GB']);
+        $output = $tester->getDisplay();
+
+        static::assertStringContainsString('An error occurred while fetching metadata: "Unable to fetch metadata"', $output);
+        static::assertSame(InstallTranslationCommand::FAILURE, $tester->getStatusCode());
     }
 
     private function getCommand(): InstallTranslationCommand

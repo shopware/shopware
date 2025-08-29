@@ -51,23 +51,24 @@
             :full-page="false"
             :plain-appearance="true"
         >
+            {# @deprecated tag:v6.8.0 - Block will be removed. #}
+            {% block sw_import_export_view_profile_profiles_listing_column_label %}
+            {% endblock %}
 
-                {% block sw_import_export_view_profile_profiles_listing_column_label %}
-            <template #column-label="{ item }">
+            <template #column-technicalName="{ item }">
                 <a
                     href="#"
                     @click.prevent="onEditProfile(item.id)"
                 >
-                    {{ item.translated.label || item.label }}
+                    {{ item.technicalName }}
                 </a>
             </template>
-                {% endblock %}
 
-                {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
+            {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
             <template #column-systemDefault="{ item }">
                 {{ getTypeLabel(item.systemDefault) }}
             </template>
-                {% endblock %}
+            {% endblock %}
 
             <template #actions="{ item }">
                     {% block sw_import_export_view_profile_profiles_listing_edit %}

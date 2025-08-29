@@ -32,6 +32,7 @@
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" public="true">
@@ -230,6 +231,7 @@
             <argument type="service" id="Shopware\Core\System\Language\SalesChannelLanguageLoader" />
             <argument>%elasticsearch.product.exclude_source%</argument>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader" />
 
             <tag name="shopware.es.definition"/>
         </service>
@@ -253,6 +255,7 @@
         <service id="Shopware\Elasticsearch\TokenQueryBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
@@ -549,6 +552,18 @@
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="product_stream"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\ProductCriteriaParser" decorates="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
+            <argument type="service" id=".inner"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
+            <tag name="kernel.event_subscriber"/>
         </service>
 
     </services>

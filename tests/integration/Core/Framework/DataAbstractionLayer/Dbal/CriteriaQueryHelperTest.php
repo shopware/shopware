@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
@@ -26,7 +27,7 @@ class CriteriaQueryHelperTest extends TestCase
     public function testInvalidSortingDirection(): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepository $taxRepository */
+        /** @var EntityRepository<TaxCollection> $taxRepository */
         $taxRepository = static::getContainer()->get('tax.repository');
 
         $criteria = new Criteria();

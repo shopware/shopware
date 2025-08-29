@@ -150,7 +150,7 @@ class RegisterRouteTest extends TestCase
         $dispatcher->method('dispatch')->willReturnCallback(function (Event $event) use ($definition) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition->add('company', new NotBlank());
-                $definition->set('zipcode', new CustomerZipCode(['countryId' => null]));
+                $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
 
                 static::assertSame($event->getDefinition()->getProperties(), $definition->getProperties());
             }
@@ -225,8 +225,8 @@ class RegisterRouteTest extends TestCase
                 $definition = new DataValidationDefinition('address.create');
 
                 $definition->add('company', new NotBlank());
-                $definition->set('zipcode', new CustomerZipCode(['countryId' => null]));
-                $definition->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE]));
+                $definition->set('zipcode', new CustomerZipCode(countryId: null));
+                $definition->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE));
 
                 static::assertNull($event->getData()->get('shippingAddress'));
                 static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $event->getData()->get('accountType'));
@@ -299,8 +299,8 @@ class RegisterRouteTest extends TestCase
                 $definition = new DataValidationDefinition('address.create');
 
                 $definition->add('company', new NotBlank());
-                $definition->set('zipcode', new CustomerZipCode(['countryId' => '123']));
-                $definition->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE]));
+                $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
+                $definition->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE));
 
                 static::assertNull($event->getData()->get('shippingAddress'));
                 static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $event->getData()->get('accountType'));

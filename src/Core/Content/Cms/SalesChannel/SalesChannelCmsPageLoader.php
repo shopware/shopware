@@ -134,10 +134,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             }
 
             $defaultConfig = $slot->getConfig() ?? [];
-            $merged = array_replace_recursive(
-                $defaultConfig,
-                $config[$slot->getId()]
-            );
+            $merged = $this->overrideArray($defaultConfig, $config[$slot->getId()]);
 
             $slot->setConfig($merged);
             $slot->addTranslated('config', $merged);
@@ -203,5 +200,35 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $streamIds),
             ...array_map(EntityCacheKeyGenerator::buildCmsTag(...), $pages->getIds()),
         ];
+    }
+
+    /**
+     * Recursively overrides the original array with values from the override array.
+     * Merges recursively for associative arrays and replaces completely for index arrays.
+     *
+     * @param array<string, mixed> $original
+     * @param array<string, mixed> $override
+     *
+     * @return array<string, mixed>
+     */
+    private function overrideArray(array $original, array $override): array
+    {
+        foreach ($override as $key => $value) {
+            $originalValue = $original[$key] ?? null;
+            if (
+                \is_array($originalValue)
+                && \is_array($value)
+                && !array_is_list($originalValue)
+                && !array_is_list($value)
+            ) {
+                $original[$key] = $this->overrideArray($originalValue, $value);
+                continue;
+            }
+
+            // Simple value override
+            $original[$key] = $value;
+        }
+
+        return $original;
     }
 }

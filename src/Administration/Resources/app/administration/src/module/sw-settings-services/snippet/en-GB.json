@@ -40,7 +40,8 @@
       "deactivate-modal": {
         "warning": "Are you sure you want to deactivate “{serviceName}”?",
         "consequences": "This will result in an immediate loss of access to the Service and all associated processes."
-      }
+      },
+      "permissions": "Show permissions"
     },
     "grant-permissions": {
       "title": "Unlock the full potential of Shopware Services",

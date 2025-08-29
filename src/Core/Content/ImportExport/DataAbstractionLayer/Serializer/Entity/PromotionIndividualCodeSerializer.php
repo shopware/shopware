@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -27,6 +29,9 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionIndividualCodeCollection> $promoCodeRepository
+     * @param EntityRepository<PromotionCollection> $promoRepository
      */
     public function __construct(
         private readonly EntityRepository $promoCodeRepository,

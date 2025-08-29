@@ -561,12 +561,6 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($states);
 
-        $definition = new BusinessEventDefinition(
-            'enter.order.paid',
-            OrderStateMachineStateChangeEvent::class,
-            []
-        );
-
         $collector = $this->createMock(BusinessEventCollector::class);
         $collector
             ->expects($this->exactly(2))

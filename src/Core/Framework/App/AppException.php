@@ -9,13 +9,20 @@ use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class AppException extends HttpException
 {
@@ -55,6 +62,10 @@ class AppException extends HttpException
     final public const REQUIRES_ADMIN_API_SOURCE = 'FRAMEWORK__APP_ACTION_REQUIRES_ADMIN_API_SOURCE';
     final public const MISSING_USER_IN_CONTEXT_SOURCE = 'FRAMEWORK__APP_MISSING_USER_IN_CONTEXT_SOURCE';
     final public const INTEGRATION_MISSING = 'FRAMEWORK__APP_MISSING_INTEGRATION';
+    final public const SHOP_ID_CHANGE_SUGGESTED = 'FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED';
+    final public const APP_URL_NOT_CONFIGURED = 'FRAMEWORK__APP_URL_NOT_CONFIGURED';
+    final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
+    final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -506,5 +517,33 @@ class AppException extends HttpException
             self::INTEGRATION_MISSING,
             'Forbidden. Not a valid integration source.',
         );
+    }
+
+    public static function shopIdChangeSuggested(ShopId $shopId, FingerprintComparisonResult $comparisonResult): self
+    {
+        return new ShopIdChangeSuggestedException($shopId, $comparisonResult);
+    }
+
+    public static function appUrlNotConfigured(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_URL_NOT_CONFIGURED,
+            'The environment variable "APP_URL" is not set. Please set it to the URL to your Admin API.'
+        );
+    }
+
+    public static function invalidShopIdConfiguration(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_SHOP_ID_CONFIGURATION,
+            'The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.'
+        );
+    }
+
+    public static function shopIdChangeResolveStrategyNotFound(string $strategy): self
+    {
+        return new ShopIdChangeStrategyNotFoundException($strategy);
     }
 }

@@ -247,6 +247,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -257,6 +258,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -267,6 +269,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -309,6 +312,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -319,6 +323,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -329,6 +334,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -376,6 +382,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -438,6 +445,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                         sections: [],
                         categories: [],
                         products: [],
+                        landingPages: [],
                         translated: {
                             name: 'CMS Page 1',
                         },
@@ -464,6 +472,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -494,6 +503,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -515,6 +525,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -546,6 +557,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -587,6 +599,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -627,6 +640,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -667,6 +681,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -704,6 +719,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -736,6 +752,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -768,6 +785,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -800,6 +818,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -826,6 +845,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 sections: [],
                 categories: [],
                 products: [{ id: 'abc' }],
+                landingPages: [],
                 translated: {
                     name: 'CMS Page 1',
                 },
@@ -868,6 +888,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -929,11 +950,23 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             };
         });
 
+        const expectedLandingPages = [
+            'LandingPage 1',
+            'LandingPage 2',
+            'LandingPage 3',
+        ];
+        const landingPageObjects = expectedLandingPages.map((landingPage) => {
+            return {
+                name: landingPage,
+            };
+        });
+
         const mockPage = {
             id: '1',
             sections: [],
             categories: categoryObjects,
             products: [],
+            landingPages: [],
             translated: {
                 name: 'CMS Page 1',
             },
@@ -959,6 +992,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             message: 'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3',
             disabled: false,
         });
+
+        mockPage.landingPages = landingPageObjects;
+
+        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([
+            ...expectedCategories,
+            ...expectedProducts,
+            ...expectedLandingPages,
+        ]);
+        expect(wrapper.vm.getPagesTooltip(mockPage)).toStrictEqual({
+            width: 300,
+            message:
+                'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3, LandingPage 1, LandingPage 2, LandingPage 3',
+            disabled: false,
+        });
     });
 
     it('should indicate layouts already assigned to pages', async () => {
@@ -972,6 +1019,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -981,6 +1029,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -1124,6 +1173,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     name: 'CMS Page 1',
                     translated: {
                         name: 'CMS Page 1',

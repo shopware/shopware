@@ -18,14 +18,14 @@
     }
 
     button.sw-select-selection-list__load-more-button {
-        padding: 8px 12px;
-        margin: 0 6px 0 0;
-        color: $color-shopware-brand-500;
+        padding: var(--scale-size-8) var(--scale-size-12);
+        margin: 0 var(--scale-size-6) 0 0;
+        color: var(--color-text-brand-default);
         font-size: $font-size-xxs;
         line-height: 14px;
-        border-radius: 2px;
+        border-radius: var(--border-radius-xs);
         height: unset;
-        border-color: $color-gray-300;
+        border-color: var(--color-border-primary-default);
     }
 
     .sw-select-selection-list__input-wrapper {

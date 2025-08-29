@@ -23,6 +23,7 @@ export default {
         'searchPreferencesService',
         'searchRankingService',
         'userConfigService',
+        'ssoSettingsService',
     ],
 
     mixins: [
@@ -56,7 +57,13 @@ export default {
     },
 
     computed: {
-        searchPreferences: () => Shopware.Store.get('swProfile').searchPreferences,
+        minSearchTermLength() {
+            return Store.get('swProfile').minSearchTermLength;
+        },
+
+        searchPreferences() {
+            return Store.get('swProfile').searchPreferences;
+        },
 
         ...mapPropertyErrors('user', [
             'email',
@@ -236,20 +243,31 @@ export default {
 
         onSave() {
             if (this.$route.name === 'sw.profile.index.searchPreferences') {
-                this.saveUserSearchPreferences();
+                Promise.all([
+                    this.saveMinSearchTermLength(),
+                    this.saveUserSearchPreferences(),
+                ]);
 
                 return;
             }
 
-            if (this.checkEmail() === false) {
-                return;
-            }
+            this.ssoSettingsService.isSso().then((response) => {
+                if (response.isSso) {
+                    this.saveUser();
 
-            const passwordCheck = this.checkPassword();
+                    return;
+                }
 
-            if (passwordCheck === null || passwordCheck === true) {
-                this.confirmPasswordModal = true;
-            }
+                if (this.checkEmail() === false) {
+                    return;
+                }
+
+                const passwordCheck = this.checkPassword();
+
+                if (passwordCheck === null || passwordCheck === true) {
+                    this.confirmPasswordModal = true;
+                }
+            });
         },
 
         checkEmail() {
@@ -411,6 +429,10 @@ export default {
 
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderService.getDefaultFolderId('user');
+        },
+
+        saveMinSearchTermLength() {
+            return this.searchRankingService.saveMinSearchTermLength(this.minSearchTermLength);
         },
 
         saveUserSearchPreferences() {

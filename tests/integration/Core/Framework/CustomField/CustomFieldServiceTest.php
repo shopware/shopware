@@ -86,13 +86,15 @@ class CustomFieldServiceTest extends TestCase
         ]], Context::createDefaultContext());
 
         $actual = $this->attributeService->getCustomField('test_attr');
-        static::assertNull($actual);
+        static::assertInstanceOf(JsonField::class, $actual);
 
         $this->attributeRepository->upsert([[
             'id' => $id,
             'active' => true,
         ]], Context::createDefaultContext());
+        $this->attributeService->reset();
+
         $actual = $this->attributeService->getCustomField('test_attr');
-        static::assertNotNull($actual);
+        static::assertInstanceOf(LongTextField::class, $actual);
     }
 }

@@ -18,6 +18,9 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\Event\CustomAppEvent;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -43,6 +46,8 @@ use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
@@ -62,8 +67,11 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfig(): void
     {
+        $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
+
         $expected = [
-            'version' => '6.6.9999999.9999999-dev',
+            'version' => '6.7.9999999.9999999-dev',
+            'shopId' => $shopId,
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => true,
@@ -106,6 +114,7 @@ class InfoControllerTest extends TestCase
                     'wma',
                     'txt',
                     'doc',
+                    'docx',
                     'ico',
                     'glb',
                     'zip',
@@ -125,7 +134,7 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/config';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -133,13 +142,13 @@ class InfoControllerTest extends TestCase
 
         $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        // reset environment based miss match
+        // reset environment-based mismatch
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
 
-        static::assertEquals($expected, $decodedResponse);
+        static::assertSame($expected, $decodedResponse);
     }
 
     public function testGetConfigWithPermissions(): void
@@ -209,7 +218,7 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/config';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -217,7 +226,7 @@ class InfoControllerTest extends TestCase
 
         $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         foreach (array_keys($expected) as $key) {
             static::assertArrayHasKey($key, $decodedResponse);
@@ -238,12 +247,12 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/version';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
         static::assertNotEmpty($version);
@@ -258,12 +267,12 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/v1/_info/version';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
         static::assertNotEmpty($version);
@@ -274,7 +283,7 @@ class InfoControllerTest extends TestCase
     {
         $url = '/api/_info/events.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -282,13 +291,13 @@ class InfoControllerTest extends TestCase
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $expected = [
             [
+                'extensions' => [],
                 'name' => 'checkout.customer.login',
                 'class' => CustomerLoginEvent::class,
-                'extensions' => [],
                 'data' => [
                     'customer' => [
                         'type' => 'entity',
@@ -311,9 +320,9 @@ class InfoControllerTest extends TestCase
                 ],
             ],
             [
+                'extensions' => [],
                 'name' => 'checkout.order.placed',
                 'class' => CheckoutOrderPlacedEvent::class,
-                'extensions' => [],
                 'data' => [
                     'order' => [
                         'type' => 'entity',
@@ -335,9 +344,9 @@ class InfoControllerTest extends TestCase
                 ],
             ],
             [
+                'extensions' => [],
                 'name' => 'state_enter.order_delivery.state.shipped_partially',
                 'class' => OrderStateMachineStateChangeEvent::class,
-                'extensions' => [],
                 'data' => [
                     'order' => [
                         'type' => 'entity',
@@ -361,12 +370,12 @@ class InfoControllerTest extends TestCase
         ];
 
         foreach ($expected as $event) {
-            $actualEvents = array_values(array_filter($response, fn ($x) => $x['name'] === $event['name']));
+            $actualEvents = array_values(array_filter($response, static fn ($x) => $x['name'] === $event['name']));
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
             static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvents);
-            static::assertEquals($event, $actualEvents[0], $event['name']);
+            static::assertSame($event, $actualEvents[0], $event['name']);
         }
     }
 
@@ -588,7 +597,7 @@ class InfoControllerTest extends TestCase
     {
         $url = '/api/_info/flow-actions.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -596,24 +605,24 @@ class InfoControllerTest extends TestCase
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $expected = [
             [
+                'extensions' => [],
                 'name' => 'action.add.order.tag',
                 'requirements' => [
                     'orderAware',
                 ],
-                'extensions' => [],
                 'delayable' => true,
             ],
         ];
 
         foreach ($expected as $action) {
-            $actualActions = array_values(array_filter($response, fn ($x) => $x['name'] === $action['name']));
+            $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
             static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
-            static::assertEquals($action, $actualActions[0]);
+            static::assertSame($action, $actualActions[0]);
         }
     }
 
@@ -630,7 +639,7 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/flow-actions.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -640,20 +649,20 @@ class InfoControllerTest extends TestCase
 
         $expected = [
             [
+                'extensions' => [],
                 'name' => 'telegram.send.message',
                 'requirements' => [
                     'orderaware',
                 ],
-                'extensions' => [],
                 'delayable' => true,
             ],
         ];
 
         foreach ($expected as $action) {
-            $actualActions = array_values(array_filter($response, fn ($x) => $x['name'] === $action['name']));
+            $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
             static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
-            static::assertEquals($action, $actualActions[0]);
+            static::assertSame($action, $actualActions[0]);
         }
     }
 
@@ -661,25 +670,24 @@ class InfoControllerTest extends TestCase
     {
         $url = '/api/_info/events.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         foreach ($response as $event) {
-            if ($event['name'] === 'mail.after.create.message' || $event['name'] === 'mail.before.send' || $event['name'] === 'mail.sent') {
-                static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
+            if (\in_array($event['name'], ['mail.after.create.message', 'mail.before.send', 'mail.sent'], true)) {
+                static::assertNotContains(MailAware::class, $event['aware']);
 
                 continue;
             }
 
-            static::assertContains('Shopware\Core\Framework\Event\MailAware', $event['aware'], $event['name']);
-            static::assertNotContains('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], $event['name']);
+            static::assertContains(MailAware::class, $event['aware'], $event['name']);
         }
     }
 
@@ -696,53 +704,91 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/events.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $expected = [
             [
+                'extensions' => [],
                 'name' => 'customer.wishlist',
+                'class' => CustomAppEvent::class,
+                'data' => [],
                 'aware' => [
                     'mailAware',
                     'customerAware',
                 ],
-                'data' => [],
-                'class' => 'Shopware\Core\Framework\App\Event\CustomAppEvent',
-                'extensions' => [],
             ],
         ];
 
         foreach ($expected as $event) {
-            $actualEvent = array_values(array_filter($response, function ($x) use ($event) {
+            $actualEvent = array_values(array_filter($response, static function ($x) use ($event) {
                 return $x['name'] === $event['name'];
             }));
 
             static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvent);
-            static::assertEquals($event, $actualEvent[0]);
+            static::assertSame($event, $actualEvent[0]);
         }
     }
 
     public function testFetchApiRoutes(): void
     {
         $client = $this->getBrowser();
-        $client->request('GET', '/api/_info/routes');
+        $client->request(Request::METHOD_GET, '/api/_info/routes');
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $routes = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         foreach ($routes['endpoints'] as $route) {
             static::assertArrayHasKey('path', $route);
             static::assertArrayHasKey('methods', $route);
         }
+    }
+
+    public function testFetchMessageStats(): void
+    {
+        $statsService = $this->getContainer()->get(StatsService::class);
+        $statsService->registerMessage(new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 2))),
+        ]));
+        $statsService->registerMessage(new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 1))),
+        ]));
+
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/message-stats.json');
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+
+        static::assertJson($content);
+        $stats = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($stats);
+        static::assertArrayHasKey('enabled', $stats);
+        static::assertTrue($stats['enabled']);
+        static::assertArrayHasKey('stats', $stats);
+        static::assertIsArray($stats['stats']);
+        static::assertArrayHasKey('totalMessagesProcessed', $stats['stats']);
+        static::assertGreaterThanOrEqual(2, $stats['stats']['totalMessagesProcessed']);
+        static::assertArrayHasKey('processedSince', $stats['stats']);
+        static::assertInstanceOf(\DateTimeInterface::class, \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC3339_EXTENDED, $stats['stats']['processedSince']));
+        static::assertArrayHasKey('averageTimeInQueue', $stats['stats']);
+        static::assertIsFloat($stats['stats']['averageTimeInQueue']);
+        static::assertArrayHasKey('messageTypeStats', $stats['stats']);
+        static::assertIsArray($stats['stats']['messageTypeStats']);
+        static::assertArrayHasKey('type', $stats['stats']['messageTypeStats'][0]);
+        static::assertSame('stdClass', $stats['stats']['messageTypeStats'][0]['type']);
+        static::assertArrayHasKey('count', $stats['stats']['messageTypeStats'][0]);
     }
 
     private function createApp(string $appId, string $aclRoleId): void
@@ -770,7 +816,7 @@ class InfoControllerTest extends TestCase
             'badge' => 'Telegram',
             'url' => 'https://example.xyz',
             'delayable' => true,
-            'requirements' => json_encode(['orderaware']),
+            'requirements' => json_encode(['orderaware'], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -781,7 +827,7 @@ class InfoControllerTest extends TestCase
             'id' => Uuid::fromHexToBytes($flowAppId),
             'app_id' => Uuid::fromHexToBytes($appId),
             'name' => 'customer.wishlist',
-            'aware' => json_encode(['mailAware', 'customerAware']),
+            'aware' => json_encode(['mailAware', 'customerAware'], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -806,7 +852,7 @@ class InfoControllerTest extends TestCase
         $this->connection->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($aclRoleId),
             'name' => 'aclTest',
-            'privileges' => json_encode(['users_and_permissions.viewer']),
+            'privileges' => json_encode(['users_and_permissions.viewer'], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

@@ -29,30 +29,34 @@ class FailedMessageSubscriber implements EventSubscriberInterface
 
     public function logEvent(FailedMessageEvent $event): void
     {
+        $entry = [
+            'id' => Uuid::randomBytes(),
+            'message' => 'mail.message.failed',
+            'level' => Level::Error->value,
+            'channel' => 'mail',
+            'updated_at' => null,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
+
         try {
-            $entry = [
-                'id' => Uuid::randomBytes(),
-                'message' => 'mail.message.failed',
-                'level' => Level::Error->value,
-                'channel' => 'mail',
-                'context' => json_encode([
-                    'error' => $event->getError()->getMessage(),
-                    'rawMessage' => $event->getMessage()->toString(),
-                ], \JSON_THROW_ON_ERROR),
-                'extra' => json_encode([
-                    'exception' => $event->getError()->__toString(),
-                    'trace' => $event->getError()->getTraceAsString(),
-                ], \JSON_THROW_ON_ERROR),
-                'updated_at' => null,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ];
+            $entry['context'] = json_encode([
+                'error' => $event->getError()->getMessage(),
+                'rawMessage' => $event->getMessage()->toString(),
+            ], \JSON_THROW_ON_ERROR);
+
+            $entry['extra'] = json_encode([
+                'exception' => $event->getError()->__toString(),
+                'trace' => $event->getError()->getTraceAsString(),
+            ], \JSON_THROW_ON_ERROR);
 
             $this->connection->insert('log_entry', $entry);
         } catch (\Throwable) {
-            $entry = [
-                'context' => json_encode([]),
-                'extra' => json_encode([]),
-            ];
+            if (!isset($entry['context'])) {
+                $entry['context'] = json_encode([]);
+            }
+            if (!isset($entry['extra'])) {
+                $entry['extra'] = json_encode([]);
+            }
 
             $this->connection->insert('log_entry', $entry);
         }

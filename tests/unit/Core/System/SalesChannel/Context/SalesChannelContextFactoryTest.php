@@ -201,7 +201,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $shippingAddress->setCountry($country);
         $addresses = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
 
-        $baseContext = new BaseSalesChannelContext(
+        $baseContext = new BaseContext(
             Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
             $salesChannel,
             $currency,
@@ -212,15 +212,14 @@ class SalesChannelContextFactoryTest extends TestCase
             new ShippingLocation($country, null, null),
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
-            Generator::createLanguageInfo(),
-            MeasurementUnits::createDefaultUnits()
+            new LanguageInfo('English', 'en-GB'),
         );
 
         $options = [
             SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
         ];
 
-        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
+        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseContextFactory::class);
         $baseSalesChannelContextFactory
             ->expects($this->once())
             ->method('create')
@@ -306,7 +305,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $shippingAddress->setCountry($country);
         $addresses = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
 
-        $baseContext = new BaseSalesChannelContext(
+        $baseContext = new BaseContext(
             Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
             $salesChannel,
             $currency,
@@ -317,15 +316,14 @@ class SalesChannelContextFactoryTest extends TestCase
             new ShippingLocation($country, null, null),
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
-            Generator::createLanguageInfo(),
-            MeasurementUnits::createDefaultUnits()
+            new LanguageInfo('English', 'en-GB'),
         );
 
         $options = [
             SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
         ];
 
-        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
+        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseContextFactory::class);
         $baseSalesChannelContextFactory
             ->expects($this->once())
             ->method('create')

@@ -83,7 +83,7 @@ flowchart LR
     esAR-->es
     es-->enGB
 
-    enUS-->enGB
+    enUS-->en
     enGB-->en
 
     style de color:#6f6,stroke:#6f6

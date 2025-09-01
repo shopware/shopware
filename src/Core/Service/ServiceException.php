@@ -142,7 +142,7 @@ class ServiceException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_MISSING_APP_VERSION_INFO,
             'Error downloading app. The version information was missing: {{ missingFields }}',
-            ['missingFields' => implode(', ', $missingFields)]
+            ['missingFields' => implode(', ', $missingFields)],
         );
     }
 
@@ -156,13 +156,14 @@ class ServiceException extends HttpException
         );
     }
 
-    public static function cannotWriteAppToDestination(string $file): self
+    public static function cannotWriteAppToDestination(string $file, ?\Throwable $previous = null): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_CANNOT_WRITE_APP,
             'Error writing app zip to file "{{ file }}"',
             ['file' => $file],
+            $previous,
         );
     }
 

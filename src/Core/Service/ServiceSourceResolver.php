@@ -87,7 +87,7 @@ class ServiceSourceResolver implements Source
                 try {
                     $this->io->appendToFile($localZipLocation, $chunk->getContent());
                 } catch (\Exception $e) {
-                    throw ServiceException::cannotWriteAppToDestination($destination);
+                    throw ServiceException::cannotWriteAppToDestination($destination, $e);
                 }
             }
         } catch (ServiceException $e) {

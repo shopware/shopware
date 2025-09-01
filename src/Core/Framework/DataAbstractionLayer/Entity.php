@@ -41,6 +41,7 @@ class Entity extends Struct
             $this->checkIfPropertyAccessIsAllowed($name);
         }
 
+        // @phpstan-ignore property.dynamicName (We have to use dynamic properties here to allow access to all entity properties)
         return $this->$name;
     }
 
@@ -50,6 +51,7 @@ class Entity extends Struct
      */
     public function __set($name, $value): void
     {
+        // @phpstan-ignore property.dynamicName (We have to use dynamic properties here to allow access to all entity properties)
         $this->$name = $value;
     }
 
@@ -64,6 +66,7 @@ class Entity extends Struct
             }
         }
 
+        // @phpstan-ignore property.dynamicName
         return isset($this->$name);
     }
 
@@ -100,6 +103,7 @@ class Entity extends Struct
         }
 
         if ($this->has($property)) {
+            // @phpstan-ignore property.dynamicName
             return $this->$property;
         }
 

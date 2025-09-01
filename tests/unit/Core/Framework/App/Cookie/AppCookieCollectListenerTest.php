@@ -66,6 +66,9 @@ class AppCookieCollectListenerTest extends TestCase
                     [
                         'cookie' => 'swag-app-something',
                         'snippet_name' => 'first.cookie',
+                        'snippet_description' => 'first.cookie.description',
+                        'value' => 'test',
+                        'expiration' => '30',
                     ],
                     [
                         'cookie' => 'swag-app-lorem-ipsum',
@@ -94,6 +97,9 @@ class AppCookieCollectListenerTest extends TestCase
         static::assertNotNull($firstCookie);
         static::assertSame('swag-app-something', $firstCookie->cookie);
         static::assertSame('first.cookie', $firstCookie->snippetKeyName);
+        static::assertSame('first.cookie.description', $firstCookie->snippetKeyDescription);
+        static::assertSame('test', $firstCookie->value);
+        static::assertSame(30, $firstCookie->expiration);
 
         $secondCookie = $entries->get('swag-app-lorem-ipsum');
         static::assertNotNull($secondCookie);

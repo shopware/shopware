@@ -1,4 +1,83 @@
 # 6.8.0.0
+## Introduced in 6.7.2.0
+## Removal of `EntityDefinition` constructor
+
+The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:
+```diff
+ <?php declare(strict_types=1);
+
+ namespace MyCustomEntity\Content\Entity;
+
+ use Shopware\Core\Content\Media\MediaDefinition;
+ use Shopware\Core\Content\Product\ProductDefinition;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
+ class MyCustomEntity extends EntityDefinition
+ {
+     // snip
+ 
+     public function __construct(private readonly array $meta = [])
+     {
+-        parent::__construct();
+         // ...
+     }
+ 
+     // snip
+ }
+```
+## Updated By Field is cleared on API updates
+In the next major version, the `UpdatedBy` field will be cleared when an object is updated via the API. This change ensures that the `UpdatedBy` field reflects the user who last modified the object through the API, rather than retaining the previous value.
+## Remove FK delete exception handler
+All foreign key checks are now handled directly by the DAL, therefore the following exception handler did not any effect anymore and are removed:
+* `OrderExceptionHandler`
+* `NewsletterExceptionHandler`
+* `LanguageExceptionHandler`
+* `SalesChannelExceptionHandler`
+* `ThemeExceptionHandler`
+This also means that the following exceptions are not thrown anymore and were removed as well:
+* `LanguageOfOrderDeleteException`
+* `LanguageOfNewsletterDeleteException`
+* `LanguageForeignKeyDeleteException`
+* `ThemeException::themeMediaStillInUse`
+* `SalesChannelException::salesChannelDomainInUse`
+## Remove method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
+
+The method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was removed as it's no longer used because it only returns the first entity found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+A new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` was introduced which returns all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+If you use the method `get` in your code, you have to use the `getAll` method instead.
+
+Before
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+// Only a single entity is retrieved
+$entity = $data->get($definition, $url->getForeignKey());
+$seoUrls = $entity->getSeoUrls();
+$seoUrls->add($url);
+```
+
+After
+
+```php
+$url = 'https://example.com/cross-selling/product-123'; 
+$entities = $data->getAll($definition, $url->getForeignKey());
+
+// Now you have to loop through all entities to add the SEO URL
+foreach ($entities as $entity) {
+    $seoUrls = $entity->getSeoUrls();
+    $seoUrls->add($url);
+}
+```
+## Tax Calculation for percentage discounts / surcharges, e.g. promotions
+Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
+This prevents rounding errors when calculating taxes for percentage prices.
+## Removal of `CartBehavior::isRecalculation`
+`CartBehavior::isRecalculation` was removed.
+Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
+Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+## Removal of `NavigationRoute::buildName()`
+The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildName()` was removed, navigation routes are now only tagged with `NavigationRoute::ALL`.
+
 ## Introduced in 6.7.1.2
 ## Remove method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
 

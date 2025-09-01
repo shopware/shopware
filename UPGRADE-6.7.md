@@ -1,3 +1,197 @@
+# 6.7.2.0
+## New robots meta tag configuration
+
+The new configuration option "Robots Meta Tag" has been added to the administration under Settings > Basic information.
+This allows you to set the content of the robots meta tag rendered in the storefront (`<meta name="robots" ...>`).
+## Breadcrumb separator using Bootstrap default
+
+The breadcrumb separator is now using the bootstrap default, i.e. the CSS variable `--bs-breadcrumb-divider`, which is set on the corresponding breadcrumb `nav`-element: https://getbootstrap.com/docs/5.3/components/breadcrumb/#dividers
+
+Therefore the block `layout_breadcrumb_placeholder` has been deprecated and will be removed and the separator can be set using the twig variable `breadcrumbDivider`, i.e.
+```twig
+{% block layout_breadcrumb_container %}
+    {% with {breadcrumbDivider: 'url(data:image/svg+xml,' ~ source('@Storefront/assets/icon/my-custom-separator.svg')|url_encode ~ ')'} %}
+        {{ parent() }}
+    {% endwith %}
+{% endblock %}
+```
+With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
+This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.
+## ProductListing with Variants and sort by price
+Grouping with `GROUP BY product.display_group`, which is necessary to process product variants, only works without SQL Mode `only_full_group_by`. When this mode is disabled, it causes rows to be dropped - potentially the one with the cheapest price. This leads to inconsistent sorting of products with variants that differ in price.
+Due to sorting by the lowest price, the `cheapestPrice` accessor was removed from the min/max logic in the `CriteriaQueryBuilder`. To ensure that a product is listed based on its cheapest variant, the accessor was supplemented with the `MIN()` function.
+## Deprecation of `EntityDefinition` constructor
+
+The constructor of the `EntityDefinition` will be removed, therefore the call of child classes to it should be removed as well, i.e:
+```diff
+ <?php declare(strict_types=1);
+
+ namespace MyCustomEntity\Content\Entity;
+
+ use Shopware\Core\Content\Media\MediaDefinition;
+ use Shopware\Core\Content\Product\ProductDefinition;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
+ class MyCustomEntity extends EntityDefinition
+ {
+     // snip
+ 
+     public function __construct(private readonly array $meta = [])
+     {
+-        parent::__construct();
+         // ...
+     }
+ 
+     // snip
+ }
+```
+
+# Next Major Version Changes
+
+## Removal of `EntityDefinition` constructor
+
+The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:
+```diff
+ <?php declare(strict_types=1);
+
+ namespace MyCustomEntity\Content\Entity;
+
+ use Shopware\Core\Content\Media\MediaDefinition;
+ use Shopware\Core\Content\Product\ProductDefinition;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
+ class MyCustomEntity extends EntityDefinition
+ {
+     // snip
+ 
+     public function __construct(private readonly array $meta = [])
+     {
+-        parent::__construct();
+         // ...
+     }
+ 
+     // snip
+ }
+```
+## Better support for long-running runtimes
+
+If you are running Shopware in a long-running environment (e.g., FrankenPHP or RoadRunner),
+this change enables Symfony to properly reset services implementing `ResetInterface` between requests.
+No configuration changes are required.
+## Deprecate FK delete exception handler
+All foreign keys with restrict delete behavior are now handled directly by the DAL.
+This means that the following exceptions are not thrown anymore:
+* `LanguageOfOrderDeleteException`
+* `LanguageOfNewsletterDeleteException`
+* `LanguageForeignKeyDeleteException`
+* `ThemeException::themeMediaStillInUse`
+* `SalesChannelException::salesChannelDomainInUse`
+In the cases that previously those exceptions were thrown, now a `RestrictDeleteViolationException` is thrown as in all other cases.
+
+Additionally, the following exception handlers don't throw any exceptions anymore and are deprecated and will be removed in v6.8.0.0:
+* `OrderExceptionHandler`
+* `NewsletterExceptionHandler`
+* `LanguageExceptionHandler`
+* `SalesChannelExceptionHandler`
+* `ThemeExceptionHandler`
+## Symfony components update
+All Symfony components have been updated to version 7.3.
+This might lead to deprecation warnings in your extensions or customizations.
+Please check the [Symfony 7.3 upgrade guide](https://github.com/symfony/symfony/blob/v7.3.1/UPGRADE-7.3.md) for more information.
+## Deprecate method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
+
+In some occasions, the method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was used to retrieve a single item based on its entity and identifier. However, this method only returns the first item found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+Because of this, we have introduced a new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` that retrieves all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+
+Before
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+// Only a single entity is retrieved
+$entity = $data->get($definition, $url->getForeignKey());
+$seoUrls = $entity->getSeoUrls();
+$seoUrls->add($url);
+```
+
+After
+
+```php
+$url = 'https://example.com/cross-selling/product-123'; 
+$entities = $data->getAll($definition, $url->getForeignKey());
+
+// Now you have to loop through all entities to add the SEO URL
+foreach ($entities as $entity) {
+    $seoUrls = $entity->getSeoUrls();
+    $seoUrls->add($url);
+}
+```
+## App System: Unit and NewsletterRecipient support for custom field sets
+
+It is now possible to define custom field sets in your app's `manifest.xml` file for the `unit` and `newsletter_recipient` entities.
+## Allow custom route names for Storefront controllers
+
+It is now possible to add custom route names for Storefront controllers in the `storefront.yaml` configuration file.
+This allows the route to be identified as a Storefront route without the usage of the `frontend`, `widgets` or `payment` prefixes.
+Add the following configuration to your `storefront.yaml` file:
+
+```yaml
+storefront:
+    router:
+        allowed_routes:
+            - swag.test.foo-bar
+```
+## Deprecation of `CartBehavior::isRecalculation`
+`CartBehavior::isRecalculation` is deprecated.
+Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
+Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+## Skip cart persistence with `CheckoutPermissions::SKIP_CART_PERSISTENCE`
+Flag the sales channel context or cart behaviour with `CheckoutPermissions::SKIP_CART_PERSISTENCE` to skip persisting the cart. Useful to trigger a memory only cart calculation:
+```php
+$calculatedCart = $updatedContext->withPermissions(
+    [CheckoutPermissions::SKIP_CART_PERSISTENCE => true],
+    fn (SalesChannelContext $context): Cart => $this->cartService->recalculate($originalCart, $context),
+);
+```
+Please ensure you respect this permission when overwriting with `Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent::setShouldPersist`.
+## Load all category levels for current path in NavigationRoute
+
+The navigation route now loads all category levels in the path to the currently active category.
+Before it only loaded the configured levels as well as parents and children of the currently active category.
+However the "siblings" of all the parents were missing, which caused the navigation to be incomplete when you wanted to render the tree to the active path.
+As a result now the sidebar navigation in the CMS element now expands to the full path to the currently active category.
+## CMS block component name will be used
+When rendering CMS block components in the Administration, the `component` property of the block config will be used instead of `sw-cms-block-${block.type}`. If there is no component name defined, `sw-cms-block-${block.type}` will be used as a fallback. Make sure you have set the correct component name in your CMS block configs.
+## Return address in documents
+The option `Display company` address in the `Company settings` section of the document configuration is now split into `Display return address` and `Display company address`.  
+The former toggles the display of the return address above the customer address in the address block.  
+The latter toggles the display of the company address below the header on the right-hand side of the document.
+## New Elasticsearch enhancement for optimized storefront searching and sorting
+
+This change introduces a new Elasticsearch enhancement that optimizes storefront searching and sorting. It includes the following key features:
+
+- A new boolean property `useForSorting` in `TranslatedField` to indicate if a field can be used for sorting in Elasticsearch queries.
+- Avoid using nested query when searching against Elasticsearch because its performance is not optimal.
+
+These changes require a full re-index, you need to update your Elasticsearch index's mapping by running the following command:
+
+```bash
+bin/console es:index
+```
+
+And the new implementation will be switched and ready to use after the re-indexing is completed.
+## Deprecated `NavigationRoute::buildName()`
+The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildName()` is deprecated and will be removed in the next major version. It was used to build a dynamic tag name for navigation routes, but now all navigation routes are tagged with the same tag `NavigationRoute::ALL_TAG`.
+## Configuration
+You can now configure the batch size for S3 file writing operations in your `config/packages/shopware.yaml`:
+
+```yaml
+shopware:
+    filesystem:
+        batch_write_size: 100  # Default is 250
+```
+
+This controls how many files are processed in a single batch when using the AsyncAwsS3WriteBatchAdapter, which helps prevent "Too many open files" errors and allows for performance tuning based on your infrastructure.
+
 # 6.7.1.2
 With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
 This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.

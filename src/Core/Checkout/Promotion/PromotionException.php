@@ -42,6 +42,7 @@ class PromotionException extends HttpException
     public const CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE = 'CHECKOUT__UNKNOWN_PROMOTION_DISCOUNT_TYPE';
 
     public const PROMOTION_SET_GROUP_NOT_FOUND = 'CHECKOUT__PROMOTION_SETGROUP_NOT_FOUND';
+    public const PROMOTION_USED_DELETE_RESTRICTION = 'CHECKOUT__PROMOTION_USED_DELETE_RESTRICTION';
 
     public static function codeAlreadyRedeemed(string $code): self
     {
@@ -220,6 +221,16 @@ class PromotionException extends HttpException
             self::PROMOTION_SET_GROUP_NOT_FOUND,
             'Promotion SetGroup "{{ id }}" has not been found!',
             ['id' => $groupId],
+        );
+    }
+
+    public static function promotionUsedDeleteRestriction(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_USED_DELETE_RESTRICTION,
+            'Promotions cannot be deleted once they have been used in an order.',
+            [],
         );
     }
 }

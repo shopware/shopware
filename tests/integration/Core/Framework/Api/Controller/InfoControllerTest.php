@@ -67,11 +67,8 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfig(): void
     {
-        $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
-
         $expected = [
             'version' => '6.6.9999999.9999999-dev',
-            'shopId' => $shopId,
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => true,

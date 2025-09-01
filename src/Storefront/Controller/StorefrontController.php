@@ -235,13 +235,14 @@ abstract class StorefrontController extends AbstractController
                     );
                 }
 
-                $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
+                $translatedMessage = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
+                $error->setTranslatedMessage($translatedMessage);
 
-                if (\in_array($message, $flat, true)) {
+                if (\in_array($translatedMessage, $flat, true)) {
                     continue;
                 }
 
-                $this->addFlash($type, $message);
+                $this->addFlash($type, $translatedMessage);
             }
         }
     }

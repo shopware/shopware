@@ -261,7 +261,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $appPermissions = $this->fetchPermissionsIntegrationByApp($integrationId);
         if ($appPermissions !== null) {
             // If both userId and integrationId are provided (HEADER_APP_USER_ID case), intersect user permissions with app permissions
-            if ($userId !== null) {
+            if ($userId !== null && !$this->isAdmin($userId)) {
                 $appPermissions = array_intersect(
                     $appPermissions,
                     $this->fetchPermissions($userId)

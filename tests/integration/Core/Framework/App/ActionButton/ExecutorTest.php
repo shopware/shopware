@@ -318,6 +318,8 @@ class ExecutorTest extends TestCase
             AppUrl::IDENTIFIER => 'http://random-shop.url',
         ]));
 
+        static::getContainer()->get(ShopIdProvider::class)->reset();
+
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);
 

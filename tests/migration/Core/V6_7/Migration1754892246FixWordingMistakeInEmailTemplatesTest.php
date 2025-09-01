@@ -29,7 +29,15 @@ class Migration1754892246FixWordingMistakeInEmailTemplatesTest extends TestCase
     public function testMigrationOfUnmodifiedTranslation(): void
     {
         $migration = new Migration1754892246FixWordingMistakeInEmailTemplates();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+
+        $error = [];
+        try {
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+        } catch (\Throwable $e) {
+            $error[] = $e->getMessage();
+        }
+
+        static::assertCount(0, $error, print_r($error, true));
     }
 }

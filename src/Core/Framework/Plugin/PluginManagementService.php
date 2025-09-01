@@ -100,7 +100,7 @@ class PluginManagementService
     {
         // when `executeComposerCommands` is set to true `managedByComposer` will be true even for plugins installed via the admin
         // so we need to check the path as well and allow removal of plugins in `custom` folder
-        if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', 'custom')) {
+        if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', 'custom/plugins')) {
             throw PluginException::cannotDeleteManaged($plugin->getName());
         }
 

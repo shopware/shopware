@@ -389,6 +389,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -520,6 +521,7 @@
         <service id="Shopware\Core\Checkout\Cart\CartCompressor">
             <argument>%shopware.cart.compress%</argument>
             <argument>%shopware.cart.compression_method%</argument>
+            <argument>%shopware.cart.serialization_max_mb_size%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\RedisCartPersister">

@@ -41,6 +41,7 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
             contentHeight: 600,
         });
         await replaceElements(AdminRuleDetail.page, [
+            AdminRuleDetail.adminMenuAvatar,
             AdminRuleDetail.header,
         ]);
         await expect(AdminRuleDetail.assignmentModal).toHaveScreenshot('Rule-Builder-Detail-Assignments-Modal.png');

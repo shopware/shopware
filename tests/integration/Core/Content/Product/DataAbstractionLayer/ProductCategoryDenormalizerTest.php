@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -30,6 +31,9 @@ class ProductCategoryDenormalizerTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void

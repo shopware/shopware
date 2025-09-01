@@ -158,8 +158,8 @@ class EntityHydrator
 
             $encoded = $field->getSerializer()->encode($field, $existence, $kvPair, $params);
 
-            foreach ($encoded as $key => $value) {
-                $mapped[$key] = $value;
+            foreach ($encoded as $key => $encodedValue) {
+                $mapped[$key] = $encodedValue;
             }
         }
 

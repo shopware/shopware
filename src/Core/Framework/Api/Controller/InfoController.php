@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -379,8 +379,8 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     {
         try {
             return $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
-            return $e->getShopId()->id;
+        } catch (ShopIdChangeSuggestedException $e) {
+            return $e->shopId->id;
         }
     }
 }

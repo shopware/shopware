@@ -71,16 +71,14 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validation = new DataValidationDefinition('customer.email.update');
 
-        $options = ['salesChannelContext' => $context];
-
         $validation
             ->add(
                 'email',
                 new Email(),
                 new EqualTo(propertyPath: 'emailConfirmation'),
-                new CustomerEmailUnique($options)
+                new CustomerEmailUnique(salesChannelContext: $context)
             )
-            ->add('password', new CustomerPasswordMatches($options));
+            ->add('password', new CustomerPasswordMatches(salesChannelContext: $context));
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
 

@@ -104,9 +104,9 @@ class ThemePrepareIconsCommand extends Command
             $defs = $svg->getDocument()->getChild(0);
             if (!($defs instanceof SVGDefs)) {
                 $defs = new SVGDefs();
-                foreach ($this->getChildren($svg->getDocument()) as $child) {
-                    $svg->getDocument()->removeChild($child);
-                    $defs->addChild($child);
+                foreach ($this->getChildren($svg->getDocument()) as $documentChild) {
+                    $svg->getDocument()->removeChild($documentChild);
+                    $defs->addChild($documentChild);
                 }
                 $svg->getDocument()->addChild($defs);
             }
@@ -121,9 +121,9 @@ class ThemePrepareIconsCommand extends Command
             }
 
             $use = null;
-            foreach ($this->getChildren($svg->getDocument()) as $child) {
-                if ($child instanceof SVGUse) {
-                    $use = $child;
+            foreach ($this->getChildren($svg->getDocument()) as $documentChild) {
+                if ($documentChild instanceof SVGUse) {
+                    $use = $documentChild;
                 }
             }
 

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 
 #[Package('checkout')]
@@ -24,36 +25,48 @@ class CustomerPasswordMatches extends Constraint
      */
     protected SalesChannelContext $context;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be changed to natively typed in constructor injection
+     */
     protected SalesChannelContext $salesChannelContext;
 
     /**
      * @param ?array{salesChannelContext: SalesChannelContext} $options
      *
-     * @deprecated tag:v6.8.0 - Parameter $options will be required and natively typed as array
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed, use $salesChannelContext instead
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext parameter will be required and natively typed as constructor property promotion
      *
      * @internal
      */
-    public function __construct($options = null)
+    #[HasNamedArguments]
+    public function __construct(?array $options = null, ?SalesChannelContext $salesChannelContext = null)
     {
-        if ($options === null) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The parameter $options will be required and natively typed as array');
+        if ($options !== null || $salesChannelContext === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use $salesChannelContext argument instead of providing it in $options array')
+            );
         }
 
-        $options ??= [];
+        if ($options === null || Feature::isActive('v6.8.0.0')) {
+            if ($salesChannelContext === null) {
+                throw CustomerException::missingOption('salesChannelContext', self::class);
+            }
 
-        if (!Feature::isActive('v6.8.0.0') && isset($options['context'])) {
-            $options['salesChannelContext'] = $options['context'];
+            parent::__construct();
+
+            $this->salesChannelContext = $salesChannelContext;
+        } else {
+            if (isset($options['context'])) {
+                $options['salesChannelContext'] = $options['context'];
+            }
+
+            if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
+                throw CustomerException::missingOption('salesChannelContext', self::class);
+            }
+
+            parent::__construct($options);
         }
-
-        if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
-            throw CustomerException::missingOption('salesChannelContext', self::class);
-        }
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $options['context'] = $options['salesChannelContext'];
-        }
-
-        parent::__construct($options);
     }
 
     /**
@@ -66,7 +79,7 @@ class CustomerPasswordMatches extends Constraint
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getSalesChannelContext')
         );
 
-        return $this->context;
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

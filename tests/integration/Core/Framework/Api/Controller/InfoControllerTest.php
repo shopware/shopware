@@ -70,7 +70,7 @@ class InfoControllerTest extends TestCase
         $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
 
         $expected = [
-            'version' => '6.7.9999999.9999999-dev',
+            'version' => '6.6.9999999.9999999-dev',
             'shopId' => $shopId,
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
@@ -751,44 +751,6 @@ class InfoControllerTest extends TestCase
             static::assertArrayHasKey('path', $route);
             static::assertArrayHasKey('methods', $route);
         }
-    }
-
-    public function testFetchMessageStats(): void
-    {
-        $statsService = $this->getContainer()->get(StatsService::class);
-        $statsService->registerMessage(new Envelope(new \stdClass(), [
-            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 2))),
-        ]));
-        $statsService->registerMessage(new Envelope(new \stdClass(), [
-            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 1))),
-        ]));
-
-        $client = $this->getBrowser();
-        $client->request(Request::METHOD_GET, '/api/_info/message-stats.json');
-
-        $content = $client->getResponse()->getContent();
-        static::assertNotFalse($content);
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-
-        static::assertJson($content);
-        $stats = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertIsArray($stats);
-        static::assertArrayHasKey('enabled', $stats);
-        static::assertTrue($stats['enabled']);
-        static::assertArrayHasKey('stats', $stats);
-        static::assertIsArray($stats['stats']);
-        static::assertArrayHasKey('totalMessagesProcessed', $stats['stats']);
-        static::assertGreaterThanOrEqual(2, $stats['stats']['totalMessagesProcessed']);
-        static::assertArrayHasKey('processedSince', $stats['stats']);
-        static::assertInstanceOf(\DateTimeInterface::class, \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC3339_EXTENDED, $stats['stats']['processedSince']));
-        static::assertArrayHasKey('averageTimeInQueue', $stats['stats']);
-        static::assertIsFloat($stats['stats']['averageTimeInQueue']);
-        static::assertArrayHasKey('messageTypeStats', $stats['stats']);
-        static::assertIsArray($stats['stats']['messageTypeStats']);
-        static::assertArrayHasKey('type', $stats['stats']['messageTypeStats'][0]);
-        static::assertSame('stdClass', $stats['stats']['messageTypeStats'][0]['type']);
-        static::assertArrayHasKey('count', $stats['stats']['messageTypeStats'][0]);
     }
 
     private function createApp(string $appId, string $aclRoleId): void

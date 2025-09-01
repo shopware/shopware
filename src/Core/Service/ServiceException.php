@@ -156,13 +156,14 @@ class ServiceException extends HttpException
         );
     }
 
-    public static function cannotWriteAppToDestination(string $file): self
+    public static function cannotWriteAppToDestination(string $file, ?\Throwable $previous = null): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_CANNOT_WRITE_APP,
             'Error writing app zip to file "{{ file }}"',
-            ['file' => $file]
+            ['file' => $file],
+            $previous,
         );
     }
 

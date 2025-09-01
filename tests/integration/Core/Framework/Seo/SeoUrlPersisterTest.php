@@ -497,6 +497,7 @@ class SeoUrlPersisterTest extends TestCase
         $languageRepository = static::getContainer()->get('language.repository');
 
         $languageCriteria = (new Criteria())->setLimit(2);
+        /** @var string[] $languageIds */
         $languageIds = $languageRepository->searchIds($languageCriteria, Context::createDefaultContext())->getIds();
 
         if (\count($languageIds) !== 2) {
@@ -628,6 +629,9 @@ class SeoUrlPersisterTest extends TestCase
         );
     }
 
+    /**
+     * @return iterable<SeoUrlEntity>
+     */
     private function generateProductSeoUrls(string $productId, string $template = 'mytemplate', ?string $languageId = null): iterable
     {
         $languageId = $languageId ?? $this->getDeDeLanguageId();

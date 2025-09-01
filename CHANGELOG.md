@@ -7,7 +7,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [#10530 - Allow admininistration scripts being provided by bundles](./changelog/release-6-7-2-0/2025-06-13-allow-admin-scripts-provided-by-bundles.md) @JoshuaBehrens
 *  [#10556 - min search term is now configurable](./changelog/release-6-7-2-0/2025-07-21-min-search-term-is-now-configurable.md)
 *  [#10721 - Properly align logout link with icon](./changelog/release-6-7-2-0/2025-06-19-properly-align-logout-link-with-icon.md) @aragon999
-*  [#10751 - Add search sorting for live search](./changelog/release-6-7-2-0/2025-06-23-add-search-sorting-for-live-search.md) 
+*  [#10751 - Add search sorting for live search](./changelog/release-6-7-2-0/2025-06-23-add-search-sorting-for-live-search.md)
 *  [#10866 - Allow Storefront routes without prefix](./changelog/release-6-7-2-0/2025-08-04-allow-storefront-routes-without-prefix.md)
 *  [#10870 - Improve basic captcha accessibility](./changelog/release-6-7-2-0/2025-07-10-improve-basic-captcha-a11y.md)
 *  [#10878 - Fix order version for determining credit notes when creating credit notes](./changelog/release-6-7-2-0/2025-06-28-fix-credit-note-order-version.md) @jgeramb
@@ -15,7 +15,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [#11083 - Reduce event bus usage for AddCacheTagEvent](./changelog/release-6-7-2-0/2025-07-08-reduce-event-bus-usage-for-add-cache-tag-event.md) @gecolay
 *  [#11108 - AR Placement](./changelog/release-6-7-2-0/2025-07-10-ar-placement.md)
 *  [#11139 - refresh measurement units](./changelog/release-6-7-2-0/2025-07-11-refresh-measurement-units.md)
-*  [#11157 - Scope RenamePaidTransitionActions migration to order transaction state transitions](./changelog/release-6-7-2-0/2025-07-15-scope-renamepaidtransitionactions-migration-to-ordertransactions.md)
 *  [#11167 - category path does not display](./changelog/release-6-7-2-0/2025-07-14-category-path-does-not-display.md)
 *  [#11188 - Reset UpdatedByField for updates via API](./changelog/release-6-7-2-0/2025-07-18-write-updated-by-for-api-changes.md)
 *  [#11191 - Implement soft purge HTTP cache functionality](./changelog/release-6-7-2-0/2025-07-12-implement-soft-purge-http-cache.md)
@@ -29,21 +28,15 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [#11314 - config endpoints cached indefinitely](./changelog/release-6-7-2-0/2025-07-31-config-endpoints-cached-indefinitely.md)
 *  [#11327 - Add missing context config setting access optional chaining](./changelog/release-6-7-2-0/2025-07-17-add-missing-context-setting-optional-chaining.md) @gecolay
 *  [#11341 - Correctly delete bearerAuth cookie from base path in administration](./changelog/release-6-7-2-0/2025-07-17-correctly-delete-bearer-auth-cookie-from-base-path.md) @gecolay
-*  [#11371 - fix sorting order when search property values](./changelog/release-6-7-2-0/2025-07-24-fix-sorting-order-when-search-property-values.md)
 *  [#11373 - Fix sidebar SDK handlers in Meteor page](./changelog/release-6-7-2-0/2025-07-21-fix-sidebar-sdk-handlers-sw-meteor-page.md)
-*  [#11374 - Fix CMS element loading when reviews are not activated](./changelog/release-6-7-2-0/2025-07-21-fix-reviews-not-activated.md)
-*  [#11377 - Use sw-text-editor instead of mt-text-editor](./changelog/release-6-7-2-0/2025-07-25-use-sw-text-editor-instead-of-mt-text-editor.md)
 *  [#11391 - Add missing ApiAware flag to CmsBlock & CmsSection id's](./changelog/release-6-7-2-0/2025-07-22-add-missing-cms-block-and-section-id-api-aware.md) @gecolay
 *  [#11409 - Add missing timezone option for TimeRangeRule](./changelog/release-6-7-2-0/2025-07-22-add-missing-timezone-option-for-time-range-rule.md) @gecolay
 *  [#11410 - Allow child classes for getting extension of type](./changelog/release-6-7-2-0/2025-07-22-allow-child-classes-for-getting-extension-of-type.md)
 *  [#11417 - Fix media thumbnail sizes with mediaThumbnailSizeId](./changelog/release-6-7-2-0/2025-07-22-fix-media-thumbnail-sizes-with-media-thumbnail-size-id.md) @gecolay
-*  [#11443 - Don't check for canonical SEO Urls when no path info given during SEO URL creation](./changelog/release-6-7-2-0/2025-07-23-don-t-check-for-canonical-seo-urls-when-no-path-info-given.md) @M-arcus
 *  [#11466 - Allow for LineItemFactoryHandler decoration](./changelog/release-6-7-2-0/2025-07-24-allow-for-lineitemfactoryhandler-decoration.md)
 *  [#11485 - Skip persisting admin snippets for non-existing locales](./changelog/release-6-7-2-0/2025-07-24-skip-persisting-admin-snippets-for-non-existing-locales.md)
-*  [#11488 - Fix ThemeLifecycleService refreshThemes being executed without plugin configurations](./changelog/release-6-7-2-0/2025-07-24-fix-theme-lifecycle-service-refresh-themes-without-plugins.md) @gecolay
 *  [#11491 - Remove FK delete exception handler](./changelog/release-6-7-2-0/2025-07-28-remove-fk-delete-exception-handler.md)
 *  [#11492 - Fix ThemeCompiler side effects](./changelog/release-6-7-2-0/2025-07-24-fix-theme-compiler-side-effects.md) @gecolay
-*  [#11505 - Fix corruption of ThemeRuntimeConfig by theme:compile](./changelog/release-6-7-2-0/2025-07-25-fix-corruption-of-themeruntimeconfig-by-theme-compile.md)
 *  [#11510 - allow configuring the minimum search term length](./changelog/release-6-7-2-0/2025-08-15-allow-configuring-the-minimum-search-term-length.md)
 *  [#11515 - Fix reset active apps after app deactivation](./changelog/release-6-7-2-0/2025-07-29-reset-active-apps-after-service-update.md)
 *  [#11521 - fix: improve check for visibility parameter check, fixes #11521 (#11565)](https://github.com/shopware/shopware/issues/11521)
@@ -111,19 +104,16 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [#5418 - Add configuration for meta tag "robots"](./changelog/release-6-7-2-0/2024-11-08-add-configuration-for-meta-tag-robots.md) @dallyger
 *  [#9614 - Replace breadcrumb separator by the bootstrap default solution](./changelog/release-6-7-2-0/2025-05-20-replace-breadcrumb-separator-by-the-bootstrap-default-solution.md) @aragon999
 *  [#9635 - Add custom field entities (unit and newsletter_recipient) to apps](./changelog/release-6-7-2-0/2025-07-30-add-custom-field-entities-to-apps.md)
-*  [#10040 - Fix backward compatibility of MediaThumbnailEntity](./changelog/release-6-7-2-0/2025-07-29-fix-backward-compatibility-of-mediathumbnailentity.md)
 *  [#10707 - Fix Elasticsearch Datetime format](./changelog/release-6-7-2-0/2025-07-30-fix-elasticsearch-datetime-format.md)
 *  [#10720 - Update MatchAllLineItemsRule to support multiple item types](./changelog/release-6-7-2-0/2025-08-05-update-matchalllineitemsrule-to-support-multiple-item-types.md)
 *  [#11001 - Show relevant products without previews when searching](./changelog/release-6-7-2-0/2025-07-09-show-relevant-variant-without-previews-when-searching.md) @tinect
 *  [#11074 - Fix admin es search for document number does not return any result](./changelog/release-6-7-2-0/2025-08-20-fix-admin-es-search-for-document-number-does-not-return-any-result.md)
 *  [#11128 - Improve admin search on searching for numeric tokens](./changelog/release-6-7-2-0/2025-07-16-improve-admin-search-on-searching-for-numeric-tokens.md)
 *  [#11130 - Optimize storefront elasticsearch](./changelog/release-6-7-2-0/2025-08-12-optimize-storefront-elasticsearch.md)
-*  [#11131 - add env variables for Opensearch min_ngram and max_ngram](./changelog/release-6-7-2-0/2025-07-10-add-env-variables-for-opensearch-min_ngram-and-max_ngram.md)
 *  [#11204 - Change main category seo url of a variant leads to an empty for its parent](./changelog/release-6-7-2-0/2025-07-14-change-main-category-seo-url-of-a-variant-leads-to-an-empty-for-its-parent.md) @nguyenquocdaile
 *  [#11420 - Fix navigation cache invalidation](./changelog/release-6-7-2-0/2025-08-20-navigation-cache-invalidation.md)
 *  [#11528 - Show correct exception when updating an entity with a foreign key constraint fails](./changelog/release-6-7-2-0/2025-08-13-show-correct-exception-when-updating-an-entity-with-a-foreign-key-constraint-fails.md)
 *  [#11534 - Added document return address display option](./changelog/release-6-7-2-0/2025-08-12-added-return-address-display-option.md)
-*  [#11550 - Fix inconsistent seoUrls for cross-selling products](./changelog/release-6-7-2-0/2025-07-29-fix-inconsistent-seourls-for-cross-selling-products.md)
 *  [#11568 - Remove language switch from import/export](./changelog/release-6-7-2-0/2025-08-01-remove-language-switch-from-import-export.md)
 *  [#11619 - Fix SeoUrl generate database-error when the url changes](./changelog/release-6-7-2-0/2025-07-31-fix-seourl-generate-database-error-when-the-url-changes.md)
 *  [#11654 - Fixing document squished line item listing](./changelog/release-6-7-2-0/2025-08-01-document-styling.md)
@@ -133,18 +123,14 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [#12011 - Fix issue with theme config update if fields got removed](./changelog/release-6-7-2-0/2025-08-22-fix-theme-config-issue-with-removed-fields.md)
 *  [#5868 - fix product media import with whitespace in url](./changelog/release-6-7-2-0/2025-04-04-fix-product-media-import-with-whitespace-in-url.md)
 *  [#5913 - Disallow usage of file_exists](./changelog/release-6-7-2-0/2025-06-29-disallow-usage-of-file_exists.md) @tinect
-*  [#8018 - Move Search config loader class to Core bundle](./changelog/release-6-7-2-0/2025-07-28-move-search-config-loader-class-to-core-bundle.md)
-*  [#8018 - Use minimal search term length in config tables](./changelog/release-6-7-2-0/2025-07-07-use-minimal-search-term-length-in-config-tables.md)
-*  [#8584 - Error when trying to remove "Main category" for product](./changelog/release-6-7-2-0/2025-07-11-error-when-trying-to-remove-main-category-for-product.md) @Le Nguyen
+*  [#8584 - Error when trying to remove "Main category" for product](./changelog/release-6-7-2-0/2025-07-11-error-when-trying-to-remove-main-category-for-product.md)
 *  [#10897 - Include GET methods to store API schema where POST and GET supported](./changelog/release-6-7-2-0/2025-07-22-include-get-methods-to-store-api-schema-where-post-and-get-supported.md)
-*  [#11053 - Delete Admin snippet cache after app install](./changelog/release-6-7-2-0/2025-07-11-delete-admin-snippet-cache-after-app-install.md)
 *  [#11085 - Fix primary connection is not working when replica configured](./changelog/release-6-7-2-0/2025-07-29-fix-primary-connection-is-not-working-when-replica-configured.md)
 *  [#11106 - Fix Quote counts up the order number range](./changelog/release-6-7-2-0/2025-07-14-fix-quote-counts-up-the-order-number-range.md)
 *  [#11110 - Fix SystemConfigService::deleteExtensionConfiguration removes only global configuration](./changelog/release-6-7-2-0/2025-07-28-fix-systemconfigservice-deleteextensionconfiguration-removes-only-global-configuration.md)
 *  [#11194 - Add fetchpriority attribute to first image slider and image gallery item](./changelog/release-6-7-2-0/2025-08-03-add-fetchpriority-attribute-to-first-image-slider-item.md) @M-arcus
 *  [#11397 - Make sidebar expandable by dragging](./changelog/release-6-7-2-0/2025-07-21-make-sidebar-expandable-by-dragging.md)
 *  [#7881 - Add headers to vary Storefront API caches based on context vars](./changelog/release-6-7-2-0/2025-07-14-add-headers-to-vary-storefront-api-caches-based-on-context-vars.md)
-*  [#8724 - Added locking to cart mutating routes](./changelog/release-6-7-2-0/2025-07-15-added-locking-to-cart-mutating-routes.md)
 
 ## 6.7.1.2
 *  [#11371 - fix sorting order when search property values](./changelog/release-6-7-1-2/2025-07-24-fix-sorting-order-when-search-property-values.md)

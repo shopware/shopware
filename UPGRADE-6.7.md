@@ -15,8 +15,6 @@ Therefore the block `layout_breadcrumb_placeholder` has been deprecated and will
     {% endwith %}
 {% endblock %}
 ```
-With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
-This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.
 ## ProductListing with Variants and sort by price
 Grouping with `GROUP BY product.display_group`, which is necessary to process product variants, only works without SQL Mode `only_full_group_by`. When this mode is disabled, it causes rows to be dropped - potentially the one with the cheapest price. This leads to inconsistent sorting of products with variants that differ in price.
 Due to sorting by the lowest price, the `cheapestPrice` accessor was removed from the min/max logic in the `CriteriaQueryBuilder`. To ensure that a product is listed based on its cheapest variant, the accessor was supplemented with the `MIN()` function.
@@ -98,33 +96,6 @@ Additionally, the following exception handlers don't throw any exceptions anymor
 All Symfony components have been updated to version 7.3.
 This might lead to deprecation warnings in your extensions or customizations.
 Please check the [Symfony 7.3 upgrade guide](https://github.com/symfony/symfony/blob/v7.3.1/UPGRADE-7.3.md) for more information.
-## Deprecate method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
-
-In some occasions, the method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was used to retrieve a single item based on its entity and identifier. However, this method only returns the first item found, which can lead to inconsistencies when multiple items share the same entity and identifier.
-Because of this, we have introduced a new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` that retrieves all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
-
-Before
-
-```php
-$url = 'https://example.com/cross-selling/product-123';
-// Only a single entity is retrieved
-$entity = $data->get($definition, $url->getForeignKey());
-$seoUrls = $entity->getSeoUrls();
-$seoUrls->add($url);
-```
-
-After
-
-```php
-$url = 'https://example.com/cross-selling/product-123'; 
-$entities = $data->getAll($definition, $url->getForeignKey());
-
-// Now you have to loop through all entities to add the SEO URL
-foreach ($entities as $entity) {
-    $seoUrls = $entity->getSeoUrls();
-    $seoUrls->add($url);
-}
-```
 ## App System: Unit and NewsletterRecipient support for custom field sets
 
 It is now possible to define custom field sets in your app's `manifest.xml` file for the `unit` and `newsletter_recipient` entities.

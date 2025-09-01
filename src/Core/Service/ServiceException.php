@@ -136,10 +136,7 @@ class ServiceException extends HttpException
         );
     }
 
-    /**
-     * @param non-empty-array<int, string> $missingFields
-     */
-    public static function missingAppVersionInformation(array $missingFields): self
+    public static function missingAppVersionInformation(string ...$missingFields): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,

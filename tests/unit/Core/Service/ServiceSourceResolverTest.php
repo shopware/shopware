@@ -180,12 +180,12 @@ class ServiceSourceResolverTest extends TestCase
         $app->setName('TestService');
         $app->setSourceType('service');
         $app->setSourceConfig([
-            'app-version' => '1.0.0',
-            'app-hash' => 'abc123',
-            'app-revision' => '1.0.0-abc123',
-            'app-zip-url' => 'https://example.com/service.zip',
-            'app-hash-algorithm' => 'sha256',
-            'app-min-shop-supported-version' => '6.6.0.0',
+            'version' => '1.0.0',
+            'hash' => 'abc123',
+            'revision' => '1.0.0-abc123',
+            'zip-url' => 'https://example.com/service.zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
         ]);
 
         $result = $source->filesystem($app);
@@ -222,12 +222,12 @@ class ServiceSourceResolverTest extends TestCase
         $manifest->expects($this->once())
             ->method('getSourceConfig')
             ->willReturn([
-                'app-version' => '2.0.0',
-                'app-hash' => 'def456',
-                'app-revision' => '2.0.0-def456',
-                'app-zip-url' => 'https://example.com/manifest.zip',
-                'app-hash-algorithm' => 'sha512',
-                'app-min-shop-supported-version' => '6.7.0.0',
+                'version' => '2.0.0',
+                'hash' => 'def456',
+                'revision' => '2.0.0-def456',
+                'zip-url' => 'https://example.com/manifest.zip',
+                'hash-algorithm' => 'sha512',
+                'min-shop-supported-version' => '6.7.0.0',
             ]);
 
         $this->successfulDownloadVersionCommonExpectations(
@@ -268,7 +268,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $client->expects($this->once())
             ->method('fetchServiceZipVersion')
-            ->willThrowException(ServiceException::missingAppVersionInformation(['app-version']));
+            ->willThrowException(ServiceException::missingAppVersionInformation('version'));
 
         $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
 
@@ -277,12 +277,12 @@ class ServiceSourceResolverTest extends TestCase
         $app->setName('FailingService');
         $app->setSourceType('service');
         $app->setSourceConfig([
-            'app-version' => '1.0.0',
-            'app-hash' => 'abc123',
-            'app-revision' => '1.0.0-abc123',
-            'app-zip-url' => 'https://example.com/failing.zip',
-            'app-hash-algorithm' => 'sha256',
-            'app-min-shop-supported-version' => '6.6.0.0',
+            'version' => '1.0.0',
+            'hash' => 'abc123',
+            'revision' => '1.0.0-abc123',
+            'zip-url' => 'https://example.com/failing.zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
         ]);
 
         $this->expectException(AppException::class);
@@ -333,12 +333,12 @@ class ServiceSourceResolverTest extends TestCase
         $app->setName('FailingExtraction');
         $app->setSourceType('service');
         $app->setSourceConfig([
-            'app-version' => '1.0.0',
-            'app-hash' => 'abc123',
-            'app-revision' => '1.0.0-abc123',
-            'app-zip-url' => 'https://example.com/failing.zip',
-            'app-hash-algorithm' => 'sha256',
-            'app-min-shop-supported-version' => '6.6.0.0',
+            'version' => '1.0.0',
+            'hash' => 'abc123',
+            'revision' => '1.0.0-abc123',
+            'zip-url' => 'https://example.com/failing.zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
         ]);
 
         $this->expectException(AppException::class);
@@ -381,12 +381,12 @@ class ServiceSourceResolverTest extends TestCase
         $app->setName('WriteFailService');
         $app->setSourceType('service');
         $app->setSourceConfig([
-            'app-version' => '1.0.0',
-            'app-hash' => 'abc123',
-            'app-revision' => '1.0.0-abc123',
-            'app-zip-url' => 'https://example.com/failing.zip',
-            'app-hash-algorithm' => 'sha256',
-            'app-min-shop-supported-version' => '6.6.0.0',
+            'version' => '1.0.0',
+            'hash' => 'abc123',
+            'revision' => '1.0.0-abc123',
+            'zip-url' => 'https://example.com/failing.zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
         ]);
 
         $this->expectException(AppException::class);

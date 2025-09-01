@@ -71,7 +71,7 @@ class AppInfoTest extends TestCase
     #[DataProvider('appInfoProvider')]
     public function testExceptionIsThrownWhenDataIsMissing(array $data, array $expectedMissing): void
     {
-        static::expectExceptionObject(ServiceException::missingAppVersionInformation($expectedMissing));
+        static::expectExceptionObject(ServiceException::missingAppVersionInformation(...$expectedMissing));
 
         AppInfo::fromRegistryResponse('TestApp', $data);
     }

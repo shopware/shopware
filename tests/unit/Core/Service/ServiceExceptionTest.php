@@ -91,7 +91,7 @@ class ServiceExceptionTest extends TestCase
 
     public function testMissingAppVersionInfo(): void
     {
-        $e = ServiceException::missingAppVersionInformation(['app-version']);
+        $e = ServiceException::missingAppVersionInformation('app-version');
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(ServiceException::SERVICE_MISSING_APP_VERSION_INFO, $e->getErrorCode());

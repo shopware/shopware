@@ -87,7 +87,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testInstallDoesNotLogErrorIfAppCannotBeDownloaded(): void
     {
-        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation(['app-version']));
+        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
         $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
@@ -428,7 +428,7 @@ class ServiceLifecycleTest extends TestCase
         $app->setUniqueIdentifier(Uuid::randomHex());
         $app->assign(['name' => 'MyCoolService']);
 
-        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation(['app-version']));
+        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
         $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');

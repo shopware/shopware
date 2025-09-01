@@ -66,7 +66,7 @@ class ServiceClientTest extends TestCase
     #[DataProvider('latestInfoProvider')]
     public function testLatestInfoThrowsExceptionWithInvalidResponse(array $response, array $missingFields): void
     {
-        static::expectExceptionObject(ServiceException::missingAppVersionInformation($missingFields));
+        static::expectExceptionObject(ServiceException::missingAppVersionInformation(...$missingFields));
 
         $httpClient = new MockHttpClient([
             new JsonMockResponse($response),

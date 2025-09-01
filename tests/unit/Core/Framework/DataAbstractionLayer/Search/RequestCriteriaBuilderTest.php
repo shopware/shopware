@@ -805,4 +805,38 @@ class RequestCriteriaBuilderTest extends TestCase
             Context::createDefaultContext()
         );
     }
+
+    public function testExcludesArrayValidation(): void
+    {
+        $payload = [
+            'excludes' => ['product', 'category'],
+        ];
+
+        $request = new Request([], $payload, [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = new Criteria();
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        $payload['excludes'] = 'string_instead_of_array';
+
+        $request = new Request([], $payload, [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        $this->expectException(DataAbstractionLayerException::class);
+        $this->expectExceptionMessage('Expected data at excludes to be of the type array, string given');
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+    }
 }

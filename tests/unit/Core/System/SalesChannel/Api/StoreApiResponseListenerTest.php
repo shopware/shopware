@@ -109,6 +109,44 @@ class StoreApiResponseListenerTest extends TestCase
         static::assertSame(['encoded' => 'data'], $decoded);
     }
 
+    public function testEncodeResponseWithExcludesSpecialCharacters(): void
+    {
+        $this->encoder->expects($this->once())
+            ->method('encode')
+            ->willReturn(['encoded' => 'data']);
+
+        $responseObject = new class extends Struct {};
+
+        $response = $this->createMock(StoreApiResponse::class);
+        $response->method('getObject')
+            ->willReturn($responseObject);
+        $response->method('getStatusCode')
+            ->willReturn(200);
+        $response->headers = new ResponseHeaderBag();
+
+        $request = new Request();
+        $request->query->set('excludes', 'field1!@#$%^&*(),field2');
+
+        $kernel = $this->createMock(HttpKernelInterface::class);
+
+        $event = new ResponseEvent(
+            $kernel,
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        );
+
+        $this->listener->encodeResponse($event);
+
+        $response = $event->getResponse();
+        static::assertInstanceOf(JsonResponse::class, $response);
+        $content = $response->getContent();
+        static::assertIsString($content, 'Response content is not a string.');
+        $decoded = json_decode($content, true);
+        static::assertIsArray($decoded, 'Decoded JSON is not an array.');
+        static::assertSame(['encoded' => 'data'], $decoded);
+    }
+
     public function testEncodeResponseWithDifferentStatusCode(): void
     {
         $this->encoder->expects($this->once())
@@ -124,14 +162,11 @@ class StoreApiResponseListenerTest extends TestCase
             ->willReturn(404);
         $response->headers = new ResponseHeaderBag();
 
-        $request = new Request();
-        $request->query->set('includes', []);
-
         $kernel = $this->createMock(HttpKernelInterface::class);
 
         $event = new ResponseEvent(
             $kernel,
-            $request,
+            new Request(),
             HttpKernelInterface::MAIN_REQUEST,
             $response
         );
@@ -164,14 +199,11 @@ class StoreApiResponseListenerTest extends TestCase
         $response->headers = new ResponseHeaderBag();
         $response->headers->set('X-Custom-Header', 'value');
 
-        $request = new Request();
-        $request->query->set('includes', []);
-
         $kernel = $this->createMock(HttpKernelInterface::class);
 
         $event = new ResponseEvent(
             $kernel,
-            $request,
+            new Request(),
             HttpKernelInterface::MAIN_REQUEST,
             $response
         );

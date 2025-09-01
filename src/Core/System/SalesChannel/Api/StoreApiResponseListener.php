@@ -49,12 +49,14 @@ class StoreApiResponseListener implements EventSubscriberInterface
         $this->dispatch($event);
 
         $includes = $event->getRequest()->get('includes', []);
-
         if (!\is_array($includes)) {
             $includes = explode(',', $includes);
         }
-
-        $fields = new ResponseFields($includes);
+        $excludes = $event->getRequest()->get('excludes', []);
+        if (!\is_array($excludes)) {
+            $excludes = explode(',', $excludes);
+        }
+        $fields = new ResponseFields($includes, $excludes);
 
         $encoded = $this->encoder->encode($response->getObject(), $fields);
 

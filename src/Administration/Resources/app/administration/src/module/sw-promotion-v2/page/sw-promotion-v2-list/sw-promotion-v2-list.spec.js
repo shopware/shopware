@@ -295,7 +295,9 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
         wrapper.vm.updateSelection({ 0: promotionWithoutOrders, 1: promotionWithOrders });
         await flushPromises();
-        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBeFalsy();
+        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBe(
+            process.env.DISABLE_JEST_COMPAT_MODE ? 'false' : undefined,
+        );
 
         wrapper.vm.updateSelection({ 0: promotionWithoutOrders });
         await flushPromises();

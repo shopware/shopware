@@ -63,7 +63,7 @@ final class IdTokenParser
         $publicKey = $this->publicKeyLoader->loadPublicKey($kid, $bypassCacheLoading);
 
         $signatureConstraint = new SignedWith($this->algorithm, $publicKey);
-        $issuedByConstraint = new IssuedBy($loginConfig->baseUrl . '/');
+        $issuedByConstraint = new IssuedBy($loginConfig->baseUrl);
         $validAtConstraint = new LooseValidAt($this->clock);
 
         if (!$this->validator->validate($token, $signatureConstraint, $issuedByConstraint, $validAtConstraint)) {

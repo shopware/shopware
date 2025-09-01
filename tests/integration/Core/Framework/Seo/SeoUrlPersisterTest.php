@@ -503,7 +503,12 @@ class SeoUrlPersisterTest extends TestCase
             static::markTestSkipped('At least two languages are required');
         }
 
-        static::assertTrue(is_string($languageIds[0]));
+        // Ensure that string[] is type of $languageIds.
+        /** @var string[] */
+        $languageIds = array_map(function ($languageId) {
+            static::assertTrue(is_string($languageId));
+            return $languageId;
+        }, $languageIds);
 
         $product = (new ProductBuilder(new IdsCollection(), 'test'))
             ->name('test a')

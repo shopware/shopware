@@ -48,7 +48,7 @@ class Client implements ResetInterface
     /**
      * @return \Generator<ChunkInterface>
      */
-    public function fetchServiceZipVersion(string $zipUrl): \Generator
+    public function fetchServiceZip(string $zipUrl): \Generator
     {
         $response = $this->client->request('GET', $zipUrl, [
             'headers' => [
@@ -57,6 +57,11 @@ class Client implements ResetInterface
         ]);
 
         $this->checkResponse($response);
+        $contentType = $response->getHeaders()['content-type'] ?? [];
+        if (!\in_array('application/zip', $contentType, true)) {
+            throw ServiceException::requestFailed($response);
+        }
+
         foreach ($this->client->stream($response) as $chunk) {
             yield $chunk;
         }

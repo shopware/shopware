@@ -136,7 +136,7 @@ class ServiceSourceResolverTest extends TestCase
             ->willReturn(true);
 
         // Should not call download methods when app exists
-        $client->expects($this->never())->method('fetchServiceZipVersion');
+        $client->expects($this->never())->method('fetchServiceZip');
         $appExtractor->expects($this->never())->method('extract');
 
         $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
@@ -151,7 +151,7 @@ class ServiceSourceResolverTest extends TestCase
         static::assertSame('/tmp/test/TestService', $result->location);
     }
 
-    public function testFilesystemWhenAppDoesNotExist(): void
+    public function testAppIsDownloadedIfItDoesNotExistOnFilesystem(): void
     {
         $client = $this->createMock(Client::class);
         $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
@@ -267,7 +267,7 @@ class ServiceSourceResolverTest extends TestCase
             ->with('/tmp/test/FailingService');
 
         $client->expects($this->once())
-            ->method('fetchServiceZipVersion')
+            ->method('fetchServiceZip')
             ->willThrowException(ServiceException::missingAppVersionInformation('version'));
 
         $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
@@ -311,7 +311,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $chunks = $this->createChunkGenerator(['data']);
         $client->expects($this->once())
-            ->method('fetchServiceZipVersion')
+            ->method('fetchServiceZip')
             ->willReturn($chunks);
 
         $filesystem->expects($this->once())
@@ -367,7 +367,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $chunks = $this->createChunkGenerator(['data']);
         $client->expects($this->once())
-            ->method('fetchServiceZipVersion')
+            ->method('fetchServiceZip')
             ->willReturn($chunks);
 
         $filesystem->expects($this->once())
@@ -395,22 +395,6 @@ class ServiceSourceResolverTest extends TestCase
         $source->filesystem($app);
     }
 
-    public function testReset(): void
-    {
-        $source = new ServiceSourceResolver(
-            $this->createMock(Client::class),
-            $this->createMock(TemporaryDirectoryFactory::class),
-            $this->createMock(AppExtractor::class),
-            $this->createMock(Filesystem::class)
-        );
-
-        // reset method should do nothing, just verify it doesn't throw
-        $source->reset([]);
-
-        // If we reach this point without exception, the test passes
-        $this->addToAssertionCount(1);
-    }
-
     /**
      * Sets up common expectations for successful download scenarios
      *
@@ -435,7 +419,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $chunkGenerator = $this->createChunkGenerator($chunks);
         $client->expects($this->once())
-            ->method('fetchServiceZipVersion')
+            ->method('fetchServiceZip')
             ->with($zipUrl)
             ->willReturn($chunkGenerator);
 

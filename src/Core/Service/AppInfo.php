@@ -19,7 +19,7 @@ readonly class AppInfo
         public string $revision,
         public string $zipUrl,
         public ?string $hashAlgorithm = null,
-        public ?string $minShopSupportedVersion = null,
+        public ?string $minShopwareSupportedVersion = null,
     ) {
     }
 
@@ -78,7 +78,7 @@ readonly class AppInfo
             'revision' => $this->revision,
             'zip-url' => $this->zipUrl,
             'hash-algorithm' => $this->hashAlgorithm,
-            'min-shop-supported-version' => $this->minShopSupportedVersion,
+            'min-shop-supported-version' => $this->minShopwareSupportedVersion,
         ];
     }
 }

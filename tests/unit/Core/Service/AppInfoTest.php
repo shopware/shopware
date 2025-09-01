@@ -93,7 +93,7 @@ class AppInfoTest extends TestCase
         static::assertSame('1.0.0-a453f', $appInfo->revision);
         static::assertSame('https://example.com/zip', $appInfo->zipUrl);
         static::assertSame('sha256', $appInfo->hashAlgorithm);
-        static::assertSame('6.6.0.0', $appInfo->minShopSupportedVersion);
+        static::assertSame('6.6.0.0', $appInfo->minShopwareSupportedVersion);
     }
 
     public function testToArray(): void

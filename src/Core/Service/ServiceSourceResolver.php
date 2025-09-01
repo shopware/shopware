@@ -82,7 +82,7 @@ class ServiceSourceResolver implements Source
         $this->io->mkdir($destination);
 
         try {
-            $zipData = $this->client->fetchServiceZipVersion($zipUrl);
+            $zipData = $this->client->fetchServiceZip($zipUrl);
             foreach ($zipData as $chunk) {
                 try {
                     $this->io->appendToFile($localZipLocation, $chunk->getContent());

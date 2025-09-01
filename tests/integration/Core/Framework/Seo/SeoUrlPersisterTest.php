@@ -497,12 +497,13 @@ class SeoUrlPersisterTest extends TestCase
         $languageRepository = static::getContainer()->get('language.repository');
 
         $languageCriteria = (new Criteria())->setLimit(2);
-        /** @var string[] $languageIds */
         $languageIds = $languageRepository->searchIds($languageCriteria, Context::createDefaultContext())->getIds();
 
         if (\count($languageIds) !== 2) {
             static::markTestSkipped('At least two languages are required');
         }
+
+        static::assertTrue(is_string($languageIds[0]));
 
         $product = (new ProductBuilder(new IdsCollection(), 'test'))
             ->name('test a')

@@ -3,6 +3,27 @@ includes:
     - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 
+services:
+    # Register our custom rule as a service
+    -
+        # The class name of your rule
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DisallowedNamespaceInNamespaceRule
+
+        # The constructor arguments for your rule
+        arguments:
+            # 1. The namespace to enforce this rule in
+            sourceNamespace: 'Shopware\Core'
+
+            # 2. The list of namespaces that are forbidden
+            disallowedNamespaces:
+                - 'Shopware\Administration'
+                - 'Shopware\Storefront'
+                - 'Shopware\Elasticsearch'
+
+        # This tag is crucial - it tells PHPStan that this service is a rule
+        tags:
+            - phpstan.rules.rule
+
 parameters:
     tmpDir: var/cache/phpstan
     paths:

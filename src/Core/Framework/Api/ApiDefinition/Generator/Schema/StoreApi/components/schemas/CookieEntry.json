@@ -19,7 +19,13 @@
           "snippetKeyName": {
             "type": "string"
           },
+          "translatedName": {
+            "type": "string"
+          },
           "snippetKeyDescription": {
+            "type": "string"
+          },
+          "translatedDescription": {
             "type": "string"
           },
           "hidden": {

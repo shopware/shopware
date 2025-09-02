@@ -39,21 +39,21 @@ readonly class CookieService
     public function translateCookieGroups(CookieGroupCollection $cookieGroups): void
     {
         foreach ($cookieGroups as $group) {
-            $group->snippetKeyName = $this->translator->trans($group->snippetKeyName);
+            $group->translatedName = $this->translator->trans($group->snippetKeyName);
 
             if (isset($group->snippetKeyDescription)) {
-                $group->snippetKeyDescription = $this->translator->trans($group->snippetKeyDescription);
+                $group->translatedDescription = $this->translator->trans($group->snippetKeyDescription);
             }
 
             $entries = $group->getEntries();
             if ($entries !== null) {
                 foreach ($entries as $entry) {
                     if (isset($entry->snippetKeyName)) {
-                        $entry->snippetKeyName = $this->translator->trans($entry->snippetKeyName);
+                        $entry->translatedName = $this->translator->trans($entry->snippetKeyName);
                     }
 
                     if (isset($entry->snippetKeyDescription)) {
-                        $entry->snippetKeyDescription = $this->translator->trans($entry->snippetKeyDescription);
+                        $entry->translatedDescription = $this->translator->trans($entry->snippetKeyDescription);
                     }
                 }
             }

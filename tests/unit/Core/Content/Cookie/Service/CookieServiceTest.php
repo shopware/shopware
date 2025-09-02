@@ -75,15 +75,19 @@ class CookieServiceTest extends TestCase
         static::assertCount(1, $cookieGroupCollection);
         $group = $cookieGroupCollection->get('cookie.group.test');
         static::assertInstanceOf(CookieGroup::class, $group);
-        static::assertSame('Translated: cookie.group.test', $group->snippetKeyName);
-        static::assertSame('Translated: cookie.group.test.description', $group->snippetKeyDescription);
+        static::assertSame('cookie.group.test', $group->snippetKeyName);
+        static::assertSame('Translated: cookie.group.test', $group->translatedName);
+        static::assertSame('cookie.group.test.description', $group->snippetKeyDescription);
+        static::assertSame('Translated: cookie.group.test.description', $group->translatedDescription);
         $entries = $group->getEntries();
         static::assertNotNull($entries);
         static::assertCount(1, $entries);
         $entry = $entries->get('test-cookie');
         static::assertNotNull($entry);
-        static::assertSame('Translated: cookie.entry.test', $entry->snippetKeyName);
-        static::assertSame('Translated: cookie.entry.test.description', $entry->snippetKeyDescription);
+        static::assertSame('cookie.entry.test', $entry->snippetKeyName);
+        static::assertSame('Translated: cookie.entry.test', $entry->translatedName);
+        static::assertSame('cookie.entry.test.description', $entry->snippetKeyDescription);
+        static::assertSame('Translated: cookie.entry.test.description', $entry->translatedDescription);
         static::assertSame('test-cookie', $entry->cookie);
     }
 }

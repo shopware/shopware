@@ -23,7 +23,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -35,8 +34,6 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('checkout')]
 class StoreDownloadCommand extends Command
 {
-    private readonly string $relativePluginDir;
-
     /**
      * @param EntityRepository<PluginCollection> $pluginRepo
      * @param EntityRepository<UserCollection> $userRepository
@@ -47,12 +44,8 @@ class StoreDownloadCommand extends Command
         private readonly PluginManagementService $pluginManagementService,
         private readonly PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $userRepository,
-        string $pluginDir,
-        string $projectDir,
     ) {
         parent::__construct();
-
-        $this->relativePluginDir = (new Filesystem())->makePathRelative($pluginDir, $projectDir);
     }
 
     protected function configure(): void
@@ -121,7 +114,7 @@ class StoreDownloadCommand extends Command
             return;
         }
 
-        if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
+        if ($plugin->getManagedByComposer() && !$plugin->isLocatedInCustomPluginDirectory()) {
             throw StoreException::cannotDeleteManaged($pluginName);
         }
     }

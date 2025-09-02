@@ -81,7 +81,7 @@ class MetadataCollectionTest extends TestCase
         $this->assertTimestamp('2024-01-04T12:00:00+00:00', $fr->updatedAt);
     }
 
-    public function testConvertMetadataToJson(): void
+    public function testJsonSerialize(): void
     {
         $collection = new MetadataCollection([
             MetadataEntry::create([
@@ -96,24 +96,20 @@ class MetadataCollectionTest extends TestCase
             ]),
         ]);
 
-        $json = $collection->toJson();
+        $expected = [
+            'en-GB' => [
+                'locale' => 'en-GB',
+                'updatedAt' => '2024-01-01T12:00:00.000+00:00',
+                'progress' => 80,
+            ],
+            'de-DE' => [
+                'locale' => 'de-DE',
+                'updatedAt' => '2024-01-02T12:00:00.000+00:00',
+                'progress' => 90,
+            ],
+        ];
 
-        $expected = <<<'JSON'
-        {
-            "en-GB": {
-                "locale": "en-GB",
-                "updatedAt": "2024-01-01T12:00:00.000+00:00",
-                "progress": 80
-            },
-            "de-DE": {
-                "locale": "de-DE",
-                "updatedAt": "2024-01-02T12:00:00.000+00:00",
-                "progress": 90
-            }
-        }
-        JSON;
-
-        static::assertJsonStringEqualsJsonString($expected, $json);
+        static::assertSame($expected, $collection->jsonSerialize());
     }
 
     public function testGetLocalesRequiringUpdate(): void
@@ -158,6 +154,38 @@ class MetadataCollectionTest extends TestCase
         $keys = array_keys($collection->getElements());
         static::assertCount(2, $keys);
         static::assertSame(['en-GB', 'de-DE'], $keys);
+    }
+
+    public function testAddIndexesByLocale(): void
+    {
+        $collection = new MetadataCollection();
+
+        $entry = MetadataEntry::create([
+            'locale' => 'en-GB',
+            'updatedAt' => '2024-01-01T12:00:00+00:00',
+            'progress' => 80,
+        ]);
+
+        $collection->add($entry);
+        $keys = array_keys($collection->getElements());
+        static::assertCount(1, $keys);
+        static::assertSame(['en-GB'], $keys);
+    }
+
+    public function testSetIndexesByLocale(): void
+    {
+        $collection = new MetadataCollection();
+
+        $entry = MetadataEntry::create([
+            'locale' => 'en-GB',
+            'updatedAt' => '2024-01-01T12:00:00+00:00',
+            'progress' => 80,
+        ]);
+
+        $collection->set(null, $entry);
+        $keys = array_keys($collection->getElements());
+        static::assertCount(1, $keys);
+        static::assertSame(['en-GB'], $keys);
     }
 
     private function assertTimestamp(string $expected, \DateTime $actual): void

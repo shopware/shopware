@@ -13,14 +13,15 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('discovery')]
 class MetadataCollection extends Collection
 {
-    /**
-     * @param list<MetadataEntry> $elements
-     */
-    public function __construct(
-        array $elements = [],
-    ) {
-        $elements = $this->getIndexedList($elements);
-        parent::__construct($elements);
+    public function set($key, $element): void
+    {
+        parent::set($element->locale, $element);
+    }
+
+    public function add($element): void
+    {
+        $this->validateType($element);
+        parent::set($element->locale, $element);
     }
 
     /**
@@ -39,16 +40,14 @@ class MetadataCollection extends Collection
         $this->elements[$remoteEntry->locale] = $remoteEntry;
     }
 
-    public function toJson(): string
+    public function jsonSerialize(): array
     {
-        $data = array_map(function (MetadataEntry $entry) {
+        return array_map(function (MetadataEntry $entry) {
             $serialized = $entry->jsonSerialize();
             unset($serialized['isUpdateRequired']);
 
             return $serialized;
         }, $this->elements);
-
-        return json_encode($data, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT);
     }
 
     /**
@@ -69,20 +68,5 @@ class MetadataCollection extends Collection
     private function isUpToDate(MetadataEntry $localEntry, MetadataEntry $remoteEntry): bool
     {
         return $localEntry->updatedAt->getTimestamp() === $remoteEntry->updatedAt->getTimestamp();
-    }
-
-    /**
-     * @param list<MetadataEntry> $elements
-     *
-     * @return array<string, MetadataEntry>
-     */
-    private function getIndexedList(array $elements): array
-    {
-        $indexed = [];
-        foreach ($elements as $element) {
-            $indexed[$element->locale] = $element;
-        }
-
-        return $indexed;
     }
 }

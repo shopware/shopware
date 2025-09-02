@@ -60,7 +60,10 @@ class TranslationMetadataLoader
     {
         $path = $this->getPath();
 
-        $this->filesystem->write($path, $remoteMetadata->toJson());
+        $this->filesystem->write(
+            $path,
+            json_encode($remoteMetadata->jsonSerialize(), \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT),
+        );
     }
 
     protected function getPath(): string

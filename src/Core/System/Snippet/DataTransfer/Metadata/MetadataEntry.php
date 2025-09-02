@@ -14,9 +14,9 @@ class MetadataEntry
     use JsonSerializableTrait;
 
     private function __construct(
-        public string $locale,
-        public \DateTime $updatedAt,
-        public int $progress,
+        public readonly string $locale,
+        public readonly \DateTime $updatedAt,
+        public readonly int $progress,
         public bool $isUpdateRequired = false,
     ) {
     }

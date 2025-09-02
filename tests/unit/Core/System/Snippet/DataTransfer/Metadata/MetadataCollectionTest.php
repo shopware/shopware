@@ -139,6 +139,27 @@ class MetadataCollectionTest extends TestCase
         static::assertSame(['de-DE'], $locales);
     }
 
+    public function testConstructorIndexesByLocales(): void
+    {
+        $elements = [
+            MetadataEntry::create([
+                'locale' => 'en-GB',
+                'updatedAt' => '2024-01-01T12:00:00+00:00',
+                'progress' => 80,
+            ]),
+            MetadataEntry::create([
+                'locale' => 'de-DE',
+                'updatedAt' => '2024-01-02T12:00:00+00:00',
+                'progress' => 90,
+            ]),
+        ];
+
+        $collection = new MetadataCollection($elements);
+        $keys = array_keys($collection->getElements());
+        static::assertCount(2, $keys);
+        static::assertSame(['en-GB', 'de-DE'], $keys);
+    }
+
     private function assertTimestamp(string $expected, \DateTime $actual): void
     {
         static::assertSame(

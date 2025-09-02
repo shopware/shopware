@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Service;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
@@ -88,11 +89,12 @@ class TranslationMetadataLoader
 
     private function getLocalMetadata(string $path): MetadataCollection
     {
-        if (!$this->filesystem->fileExists($path)) {
+        try {
+            $localMetadata = $this->filesystem->read($path);
+        } catch (FilesystemException) {
             return new MetadataCollection();
         }
 
-        $localMetadata = $this->filesystem->read($path);
         $localMetadata = $this->decode($localMetadata);
 
         $elements = [];

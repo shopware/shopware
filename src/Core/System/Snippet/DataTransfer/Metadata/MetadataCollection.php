@@ -19,8 +19,7 @@ class MetadataCollection extends Collection
     public function __construct(
         array $elements = [],
     ) {
-        $elements = array_column($elements, null, 'locale');
-
+        $elements = $this->getIndexedList($elements);
         parent::__construct($elements);
     }
 
@@ -30,8 +29,6 @@ class MetadataCollection extends Collection
      */
     public function addIfRequired(MetadataEntry $remoteEntry): void
     {
-        $this->validateType($remoteEntry);
-
         $localEntry = $this->get($remoteEntry->locale);
 
         if ($localEntry && $this->isUpToDate($localEntry, $remoteEntry)) {
@@ -59,9 +56,9 @@ class MetadataCollection extends Collection
      */
     public function getLocalesRequiringUpdate(): array
     {
-        $elements = array_filter($this->elements, fn (MetadataEntry $entry) => $entry->isUpdateRequired);
+        $elements = $this->filter(fn (MetadataEntry $entry) => $entry->isUpdateRequired);
 
-        return array_keys($elements);
+        return array_keys($elements->getElements());
     }
 
     protected function getExpectedClass(): string
@@ -72,5 +69,20 @@ class MetadataCollection extends Collection
     private function isUpToDate(MetadataEntry $localEntry, MetadataEntry $remoteEntry): bool
     {
         return $localEntry->updatedAt->getTimestamp() === $remoteEntry->updatedAt->getTimestamp();
+    }
+
+    /**
+     * @param list<MetadataEntry> $elements
+     *
+     * @return array<string, MetadataEntry>
+     */
+    private function getIndexedList(array $elements): array
+    {
+        $indexed = [];
+        foreach ($elements as $element) {
+            $indexed[$element->locale] = $element;
+        }
+
+        return $indexed;
     }
 }

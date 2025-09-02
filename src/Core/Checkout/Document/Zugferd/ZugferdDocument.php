@@ -280,7 +280,7 @@ class ZugferdDocument
         }
 
         foreach ($price->getCalculatedTaxes() as $tax) {
-            $this->zugferdBuilder->addDocumentTax($this->getTaxCode($tax), 'VAT', $this->getPrice($tax, $price), $tax->getTax(), $tax->getTaxRate());
+            $this->zugferdBuilder->addDocumentTax($this->getTaxCode($tax), 'VAT', $this->getPrice($tax), $tax->getTax(), $tax->getTaxRate());
         }
 
         return $this;
@@ -326,8 +326,15 @@ class ZugferdDocument
         $this->allowanceAmount += $allowanceAmount;
     }
 
-    protected function getPrice(?CalculatedTax $tax, ?CalculatedPrice $fallbackPrice = null): float
-    {
+    /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $fallbackPrice parameter will be added
+     */
+    protected function getPrice(
+        ?CalculatedTax $tax,
+        /* ?CalculatedPrice $fallbackPrice = null, */
+    ): float {
+        $fallbackPrice = func_get_arg(1) ?? null;
+
         $tax = $tax ?? $fallbackPrice?->getCalculatedTaxes()?->first();
 
         if ($tax === null) {

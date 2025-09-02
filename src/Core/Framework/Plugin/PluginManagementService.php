@@ -99,8 +99,8 @@ class PluginManagementService
     public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
         // when `executeComposerCommands` is set to true `managedByComposer` will be true even for plugins installed via the admin
-        // so we need to check the path as well and allow removal of plugins in `custom` folder
-        if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', 'custom/plugins')) {
+        // so we need to check the path as well and allow removal of plugins in `custom/plugins` folder
+        if ($plugin->getManagedByComposer() && !$plugin->isLocatedInCustomPluginDirectory()) {
             throw PluginException::cannotDeleteManaged($plugin->getName());
         }
 

@@ -1,5 +1,5 @@
 ---
-title: Fix remove of composer plugins
+title: Fix removal of composer plugins
 issue: #11855
 ---
 # Core

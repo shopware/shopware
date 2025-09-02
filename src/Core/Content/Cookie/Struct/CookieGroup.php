@@ -2,19 +2,69 @@
 
 namespace Shopware\Core\Content\Cookie\Struct;
 
+use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * A group can be also be a standalone cookie.
+ * If a group is a cookie itself (the "cookie" property is set), it is not allowed to have "entries", and vice versa.
+ * It would lead to unexpected UI behavior otherwise.
+ *
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
-class CookieGroup extends CookieStruct
+class CookieGroup extends Struct
 {
+    public bool $isRequired = false;
+
+    public ?string $translatedName;
+
+    public ?string $snippetKeyDescription;
+
+    public ?string $translatedDescription;
+
+    public ?string $value;
+
+    public ?int $expiration;
+
+    protected ?string $cookie;
+
+    protected ?CookieEntryCollection $entries;
+
     public function __construct(
-        public bool $isRequired,
-        public CookieEntryCollection $entries = new CookieEntryCollection(),
+        public string $snippetKeyName,
     ) {
     }
 
     public function getApiAlias(): string
     {
         return 'cookie_group';
+    }
+
+    public function getCookie(): ?string
+    {
+        return $this->cookie ?? null;
+    }
+
+    public function setCookie(?string $cookie): void
+    {
+        if (isset($this->entries)) {
+            throw CookieException::notAllowedPropertyAssignment('cookie', 'entries');
+        }
+        $this->cookie = $cookie;
+    }
+
+    public function getEntries(): ?CookieEntryCollection
+    {
+        return $this->entries ?? null;
+    }
+
+    public function setEntries(?CookieEntryCollection $entries): void
+    {
+        if (isset($this->cookie)) {
+            throw CookieException::notAllowedPropertyAssignment('entries', 'cookie');
+        }
+        $this->entries = $entries;
     }
 }

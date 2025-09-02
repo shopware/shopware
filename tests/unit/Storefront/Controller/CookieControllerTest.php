@@ -23,9 +23,8 @@ class CookieControllerTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $cookieGroup = new CookieGroup(false);
-        $cookieGroup->snippetName = 'test.group';
-        $cookieGroup->snippetDescription = 'Test Group';
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->snippetKeyDescription = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -33,7 +32,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
             ->with(
-                static::callback(function (Request $req) {
+                static::callback(static function (Request $req) {
                     return $req->query->getBoolean('translate') === false;
                 }),
                 $salesChannelContext
@@ -55,9 +54,8 @@ class CookieControllerTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $cookieGroup = new CookieGroup(false);
-        $cookieGroup->snippetName = 'test.group';
-        $cookieGroup->snippetDescription = 'Test Group';
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->snippetKeyDescription = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -65,7 +63,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
             ->with(
-                static::callback(function (Request $req) {
+                static::callback(static function (Request $req) {
                     return $req->query->getBoolean('translate') === false;
                 }),
                 $salesChannelContext
@@ -91,7 +89,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
             ->with(
-                static::callback(function (Request $req) {
+                static::callback(static function (Request $req) {
                     return $req->query->getBoolean('translate') === false;
                 }),
                 $salesChannelContext
@@ -99,7 +97,7 @@ class CookieControllerTest extends TestCase
 
         $controller = new CookieControllerTestClass($cookieRoute);
 
-        $response = $controller->offcanvas($request, $salesChannelContext);
+        $controller->offcanvas($request, $salesChannelContext);
 
         static::assertSame('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', $controller->renderStorefrontView);
         static::assertArrayHasKey('cookieGroups', $controller->renderStorefrontParameters);
@@ -112,7 +110,7 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         // Create a cookie group without setting snippet values to test default handling
-        $cookieGroup = new CookieGroup(false);
+        $cookieGroup = new CookieGroup('test.group');
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieRoute = $this->createMock(AbstractCookieRoute::class);
@@ -128,11 +126,12 @@ class CookieControllerTest extends TestCase
         static::assertNotEmpty($transformedGroups);
 
         // Check that default values are set
-        $group = $transformedGroups->getElements()[0];
+        $group = $transformedGroups->first();
+        static::assertNotNull($group);
 
-        static::assertObjectHasProperty('snippetName', $group);
+        static::assertObjectHasProperty('snippetKeyName', $group);
         static::assertObjectNotHasProperty('snippet_name', $group);
-        static::assertObjectHasProperty('snippetDescription', $group);
+        static::assertObjectHasProperty('snippetKeyDescription', $group);
         static::assertObjectNotHasProperty('snippet_description', $group);
         static::assertObjectHasProperty('cookie', $group);
         static::assertObjectHasProperty('value', $group);

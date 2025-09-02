@@ -3,12 +3,30 @@
 namespace Shopware\Core\Content\Cookie\Struct;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
-class CookieEntry extends CookieStruct
+class CookieEntry extends Struct
 {
+    public ?string $value;
+
+    public ?int $expiration;
+
+    public ?string $snippetKeyName;
+
+    public ?string $translatedName;
+
+    public ?string $snippetKeyDescription;
+
+    public ?string $translatedDescription;
+
+    public bool $hidden = false;
+
     public function __construct(
-        public bool $hidden = false,
+        public string $cookie,
     ) {
     }
 

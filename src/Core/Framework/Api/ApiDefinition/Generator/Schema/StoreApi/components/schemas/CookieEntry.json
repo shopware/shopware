@@ -7,12 +7,6 @@
       "CookieEntry": {
         "type": "object",
         "properties": {
-          "snippetName": {
-            "type": "string"
-          },
-          "snippetDescription": {
-            "type": "string"
-          },
           "cookie": {
             "type": "string"
           },
@@ -20,6 +14,18 @@
             "type": "string"
           },
           "expiration": {
+            "type": "integer"
+          },
+          "snippetKeyName": {
+            "type": "string"
+          },
+          "translatedName": {
+            "type": "string"
+          },
+          "snippetKeyDescription": {
+            "type": "string"
+          },
+          "translatedDescription": {
             "type": "string"
           },
           "hidden": {
@@ -27,10 +33,16 @@
           },
           "apiAlias": {
             "type": "string",
-            "enum": ["cookie_entry"]
+            "enum": [
+              "cookie_entry"
+            ]
           }
         },
-        "required": ["hidden", "apiAlias"]
+        "required": [
+          "cookie",
+          "hidden",
+          "apiAlias"
+        ]
       }
     }
   }

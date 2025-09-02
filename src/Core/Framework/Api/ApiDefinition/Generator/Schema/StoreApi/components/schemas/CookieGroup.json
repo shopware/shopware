@@ -7,10 +7,19 @@
       "CookieGroup": {
         "type": "object",
         "properties": {
-          "snippetName": {
+          "isRequired": {
+            "type": "boolean"
+          },
+          "snippetKeyName": {
             "type": "string"
           },
-          "snippetDescription": {
+          "translatedName": {
+            "type": "string"
+          },
+          "snippetKeyDescription": {
+            "type": "string"
+          },
+          "translatedDescription": {
             "type": "string"
           },
           "cookie": {
@@ -20,23 +29,37 @@
             "type": "string"
           },
           "expiration": {
-            "type": "string"
-          },
-          "isRequired": {
-            "type": "boolean"
+            "type": "integer"
           },
           "entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CookieEntry"
-            }
+            "$ref": "#/components/schemas/CookieEntryCollection"
           },
           "apiAlias": {
             "type": "string",
-            "enum": ["cookie_group"]
+            "enum": [
+              "cookie_group"
+            ]
           }
         },
-        "required": ["isRequired", "entries", "apiAlias"]
+        "not": {
+          "allOf": [
+            {
+              "required": [
+                "cookie"
+              ]
+            },
+            {
+              "required": [
+                "entries"
+              ]
+            }
+          ]
+        },
+        "required": [
+          "snippetKeyName",
+          "isRequired",
+          "apiAlias"
+        ]
       }
     }
   }

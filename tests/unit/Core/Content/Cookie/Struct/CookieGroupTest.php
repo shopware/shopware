@@ -1,95 +1,62 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Content\Cookie\Struct;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('framework')]
 #[CoversClass(CookieGroup::class)]
 class CookieGroupTest extends TestCase
 {
-    public function testDefaults(): void
+    public function testNotInitializedPropertiesGetter(): void
     {
-        $group = new CookieGroup(isRequired: false);
-        static::assertFalse($group->isRequired); // Test public property
-        static::assertEmpty($group->entries); // Test public property
+        $cookieGroup = new CookieGroup('test.group');
+        static::assertNull($cookieGroup->getCookie());
+        static::assertNull($cookieGroup->getEntries());
     }
 
-    public function testConstructorWithRequiredTrue(): void
+    public function testSetEntriesWithoutCookie(): void
     {
-        $group = new CookieGroup(isRequired: true);
-        static::assertTrue($group->isRequired); // Test public property
+        $cookieEntryCollection = new CookieEntryCollection();
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->setEntries($cookieEntryCollection);
+
+        static::assertNull($cookieGroup->getCookie());
+        static::assertSame($cookieEntryCollection, $cookieGroup->getEntries());
     }
 
-    public function testConstructorWithRequiredFalse(): void
+    public function testSetEntriesIfCookiesAreSetThrowsException(): void
     {
-        $group = new CookieGroup(isRequired: false);
-        static::assertFalse($group->isRequired); // Test public property
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->setCookie('test-cookie');
+
+        $this->expectExceptionObject(CookieException::notAllowedPropertyAssignment('entries', 'cookie'));
+        $cookieGroup->setEntries(new CookieEntryCollection());
     }
 
-    public function testConstructorWithEntries(): void
+    public function testSetCookieWithoutEntries(): void
     {
-        $entry1 = new CookieEntry();
-        $entry2 = new CookieEntry();
-        $entries = new CookieEntryCollection([$entry1, $entry2]);
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->setCookie('test-cookie');
 
-        $group = new CookieGroup(isRequired: false, entries: $entries);
-        static::assertSame($entries, $group->entries); // Test public property
+        static::assertSame('test-cookie', $cookieGroup->getCookie());
+        static::assertNull($cookieGroup->getEntries());
     }
 
-    public function testPublicPropertyModification(): void
+    public function testSetCookieIfEntriesAreSetThrowsException(): void
     {
-        $group = new CookieGroup(isRequired: false);
-        static::assertFalse($group->isRequired);
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->setEntries(new CookieEntryCollection());
 
-        $group->isRequired = true;
-        static::assertTrue($group->isRequired);
-
-        $group->isRequired = false;
-        static::assertFalse($group->isRequired);
-    }
-
-    public function testSetEntries(): void
-    {
-        $group = new CookieGroup(isRequired: false);
-        static::assertEmpty($group->entries);
-
-        $entry1 = new CookieEntry();
-        $entry2 = new CookieEntry();
-        $entries = new CookieEntryCollection([$entry1, $entry2]);
-
-        // Set entries through the public property
-        $group->entries = $entries;
-        static::assertSame($entries, $group->entries); // Test public property
-
-        $group->entries = new CookieEntryCollection();
-        static::assertEmpty($group->entries); // Test public property
-    }
-
-    public function testGetEntries(): void
-    {
-        $entry1 = new CookieEntry();
-        $entry2 = new CookieEntry();
-        $entries = new CookieEntryCollection([$entry1, $entry2]);
-
-        $group = new CookieGroup(isRequired: false, entries: $entries);
-        static::assertSame($entries, $group->entries);
-
-        $group = new CookieGroup(isRequired: false);
-        static::assertEmpty($group->entries);
-    }
-
-    public function testGetApiAlias(): void
-    {
-        $group = new CookieGroup(isRequired: false);
-        static::assertSame('cookie_group', $group->getApiAlias());
+        $this->expectExceptionObject(CookieException::notAllowedPropertyAssignment('cookie', 'entries'));
+        $cookieGroup->setCookie('test-cookie');
     }
 }

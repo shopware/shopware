@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -28,6 +29,9 @@ class AvailableCombinationLoaderTest extends TestCase
 
     private AbstractAvailableCombinationLoader $loader;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private IdsCollection $ids;

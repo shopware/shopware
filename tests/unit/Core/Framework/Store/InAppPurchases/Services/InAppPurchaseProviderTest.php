@@ -209,8 +209,8 @@ class InAppPurchaseProviderTest extends TestCase
                 'quantity' => 1,
             ];
         }
-        foreach ($formattedActivePurchases as $extensionName => $purchases) {
-            $formattedActivePurchases[$extensionName] = $this->generateJwt($purchases);
+        foreach ($formattedActivePurchases as $extensionName => $formattedActivePurchase) {
+            $formattedActivePurchases[$extensionName] = $this->generateJwt($formattedActivePurchase);
         }
 
         return \json_encode($formattedActivePurchases) ?: '';

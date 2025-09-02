@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -30,6 +32,9 @@ class ProductExportControllerTest extends TestCase
     use AppSystemTestBehaviour;
     use SalesChannelFunctionalTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductExportCollection>
+     */
     private EntityRepository $repository;
 
     private Context $context;
@@ -276,7 +281,7 @@ class ProductExportControllerTest extends TestCase
 
     protected function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         /** @var SalesChannelDomainEntity $salesChannelDomain */

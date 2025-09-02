@@ -27,17 +27,21 @@ jobs:
           env:
             NEXT_MINOR: ${{ steps.versions.outputs.next-minor }}
             NEXT_PATCH: ${{ steps.versions.outputs.next-patch }}
+            NEXT_LTS_PATCH: ${{ steps.versions.outputs.lts-next-patch }}
           with:
             result-encoding: string
             script: |
                 const nextMinor = process.env.NEXT_MINOR.substring(1);
                 const nextPatch = process.env.NEXT_PATCH.substring(1);
+                const nextLtsPatch = process.env.NEXT_LTS_PATCH.substring(1);
 
                 const versionRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
 
                 // Use next minor if target is trunk or is an issue
                 if (context.payload.pull_request.base.ref == "trunk") {
                   return nextMinor;
+                else if (context.payload.pull_request.base.ref == "6.6.x") {
+                  return nextLtsPatch;
                 } else if (versionRegex.test(context.payload.pull_request.base.ref)) {
                     try {
                         await github.rest.repos.getReleaseByTag({

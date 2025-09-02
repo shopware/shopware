@@ -24,7 +24,7 @@ jobs:
           - "3306:3306"
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           fetch-depth: "0"
           fetch-tags: "true"
@@ -69,7 +69,7 @@ jobs:
       CHECK_STATUS: "success"
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           fetch-depth: 0
       - name: Check whether the nightly workflow of the recipe repository is successful
@@ -100,11 +100,11 @@ jobs:
       GIT_COMMITTER_NAME: "shopwareBot"
       DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # 4
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # 4
         with:
           name: context
 
-      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+      - uses: octo-sts/action@e480437973a6f6ac2e9caa40ecabedc870d76395 # 1.0.1
         id: sts-shopware-split
         with:
           scope: shopware
@@ -179,7 +179,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           fetch-depth: 0
       - name: Draft release
@@ -206,7 +206,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"

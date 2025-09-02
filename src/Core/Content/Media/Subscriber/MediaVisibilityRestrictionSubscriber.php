@@ -96,13 +96,12 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
 
     private function addRestrictionToFilterAggregation(FilterAggregation $aggregation, Filter $restrictionFilter): FilterAggregation
     {
-        $existingFilter = $aggregation->getFilter();
-        \array_unshift($existingFilter, $restrictionFilter);
+        $aggregation->addFilters([$restrictionFilter]);
 
         return new FilterAggregation(
             $aggregation->getName(),
             $aggregation->getAggregation(),
-            $existingFilter
+            $aggregation->getFilter()
         );
     }
 

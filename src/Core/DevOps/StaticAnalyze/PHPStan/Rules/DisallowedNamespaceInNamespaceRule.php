@@ -6,17 +6,25 @@ use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @implements Rule<Node\Name\FullyQualified>
+ *
+ * @internal
  */
+#[Package('framework')]
 class DisallowedNamespaceInNamespaceRule implements Rule
 {
     private string $sourceNamespace;
+
+    /**
+     * @var string[]
+     */
     private array $disallowedNamespaces;
 
     /**
-     * @param string   $sourceNamespace      The namespace where the rule should be enforced.
+     * @param string $sourceNamespace The namespace where the rule should be enforced.
      * @param string[] $disallowedNamespaces A list of namespaces that are forbidden to be used.
      */
     public function __construct(string $sourceNamespace, array $disallowedNamespaces)
@@ -40,7 +48,7 @@ class DisallowedNamespaceInNamespaceRule implements Rule
 
     /**
      * @param Node\Name\FullyQualified $node
-     * @param Scope $scope
+     *
      * @return array<string|\PHPStan\Rules\RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
@@ -63,7 +71,7 @@ class DisallowedNamespaceInNamespaceRule implements Rule
         // Now, check if the used class/interface/trait belongs to one of the disallowed namespaces.
         foreach ($this->disallowedNamespaces as $disallowedNamespace) {
             if (str_starts_with($usedClassName . '\\', $disallowedNamespace)) {
-                $errorMessage = sprintf(
+                $errorMessage = \sprintf(
                     'Usage of the namespace "%s" is forbidden in the "%s" namespace.',
                     rtrim($disallowedNamespace, '\\'),
                     rtrim($this->sourceNamespace, '\\')

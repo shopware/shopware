@@ -88,7 +88,7 @@ class ServiceSourceResolver implements Source
             }
         } catch (\Exception $e) {
             $this->io->remove($destination); // corrupted download, remove partially written data
-            throw AppException::cannotMountAppFilesystem(
+            throw AppException::cannotMountAppFilesystem( // @phpstan-ignore shopware.domainException
                 $serviceName,
                 ServiceException::cannotWriteAppToDestination($destination, $e)
             );

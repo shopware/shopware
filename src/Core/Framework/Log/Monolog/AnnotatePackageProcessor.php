@@ -18,7 +18,7 @@ class AnnotatePackageProcessor implements ProcessorInterface
      */
     public function __construct(
         private readonly PackageService $packageService
-    ){
+    ) {
     }
 
     /**

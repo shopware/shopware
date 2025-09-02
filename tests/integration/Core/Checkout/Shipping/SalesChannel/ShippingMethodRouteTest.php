@@ -38,37 +38,12 @@ class ShippingMethodRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
             'shippingMethodId' => $this->ids->get('shipping'),
+            'shippingMethods' => [
+                ['id' => $this->ids->get('shipping')],
+                ['id' => $this->ids->get('shipping2')],
+                ['id' => $this->ids->get('shipping3')],
+            ],
         ]);
-
-        $updateData = [
-            [
-                'id' => $this->ids->get('shipping'),
-                'salesChannels' => [
-                    [
-                        'id' => $this->ids->get('sales-channel'),
-                    ],
-                ],
-            ],
-            [
-                'id' => $this->ids->get('shipping2'),
-                'salesChannels' => [
-                    [
-                        'id' => $this->ids->get('sales-channel'),
-                    ],
-                ],
-            ],
-            [
-                'id' => $this->ids->get('shipping3'),
-                'salesChannels' => [
-                    [
-                        'id' => $this->ids->get('sales-channel'),
-                    ],
-                ],
-            ],
-        ];
-
-        static::getContainer()->get('shipping_method.repository')
-            ->update($updateData, Context::createDefaultContext());
     }
 
     public function testLoad(): void

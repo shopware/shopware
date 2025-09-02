@@ -103,6 +103,7 @@ class DefinitionValidator
         'one_time_tasks',
         'invalidation_tags',
         'subscription_cart',
+        'oauth_user',
         'theme_runtime_config',
     ];
 

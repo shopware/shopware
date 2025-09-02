@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEntityInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
@@ -47,6 +48,10 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
         $container
             ->registerForAutoconfiguration(EntityDefinition::class)
             ->addTag('shopware.entity.definition');
+
+        $container
+            ->registerForAutoconfiguration(HookableEntityInterface::class)
+            ->addTag('shopware.entity.hookable');
 
         $container
             ->registerForAutoconfiguration(SalesChannelDefinition::class)

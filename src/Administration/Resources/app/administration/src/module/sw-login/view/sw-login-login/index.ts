@@ -4,8 +4,18 @@
 
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 import template from './sw-login-login.html.twig';
+import type { LoginConfig } from '../../../../core/service/login.service';
 
 const { Component, Mixin } = Shopware;
+
+interface LoginData {
+    username: string;
+    password: string;
+    rememberMe: boolean;
+    loginAlertMessage: string;
+    loginConfig: null | LoginConfig;
+    loginConfigLoaded: boolean;
+}
 
 /**
  * @private
@@ -30,12 +40,14 @@ export default Component.wrapComponentConfig({
         Mixin.getByName('notification'),
     ],
 
-    data() {
+    data(): LoginData {
         return {
             username: '',
             password: '',
             rememberMe: false,
             loginAlertMessage: '',
+            loginConfig: null,
+            loginConfigLoaded: false,
         };
     },
 
@@ -45,13 +57,33 @@ export default Component.wrapComponentConfig({
         },
     },
 
-    created() {
-        if (!localStorage.getItem('sw-admin-locale')) {
-            void Shopware.Store.get('session').setAdminLocale(navigator.language);
-        }
+    created(): void {
+        void this.createdComponent();
     },
 
     methods: {
+        async createdComponent() {
+            if (!localStorage.getItem('sw-admin-locale')) {
+                await Shopware.Store.get('session').setAdminLocale(navigator.language);
+            }
+
+            this.loginConfig = await this.loginService.getLoginTemplateConfig();
+            this.loginConfigLoaded = true;
+
+            if (!this.loginConfig.useDefault && this.loginConfig.url) {
+                this.doSsoForwarding();
+            }
+        },
+
+        doSsoForwarding() {
+            if (!this.loginConfig) {
+                return;
+            }
+
+            window.sessionStorage.setItem('redirectFromLogin', 'true');
+            window.location.href = this.loginConfig.url;
+        },
+
         loginUserWithPassword() {
             this.$emit('is-loading');
 
@@ -85,10 +117,10 @@ export default Component.wrapComponentConfig({
                 this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
             }
 
-            return animationPromise.then(() => {
+            return animationPromise.then(async () => {
                 // @ts-expect-error
                 this.$parent.isLoginSuccess = false;
-                this.forwardLogin();
+                await this.forwardLogin();
 
                 const shouldReload = sessionStorage.getItem('sw-login-should-reload');
 
@@ -101,7 +133,7 @@ export default Component.wrapComponentConfig({
             });
         },
 
-        forwardLogin() {
+        async forwardLogin() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route') as string);
             sessionStorage.removeItem('sw-admin-previous-route');
@@ -115,18 +147,18 @@ export default Component.wrapComponentConfig({
                 !this.$router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard') &&
                 this.$router.hasRoute('sw.first.run.wizard.index')
             ) {
-                void this.$router.push({ name: 'sw.first.run.wizard.index' });
+                void (await this.$router.push({ name: 'sw.first.run.wizard.index' }));
                 return;
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (previousRoute?.fullPath) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                void this.$router.push(previousRoute.fullPath);
+                void (await this.$router.push(previousRoute.fullPath));
                 return;
             }
 
-            void this.$router.push({ name: 'core' });
+            void (await this.$router.push({ name: 'core' }));
         },
 
         handleLoginError(response: unknown) {

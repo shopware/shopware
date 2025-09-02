@@ -24,6 +24,8 @@ class ProductExporter implements ProductExporterInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductExportCollection> $productExportRepository
      */
     public function __construct(
         private readonly EntityRepository $productExportRepository,
@@ -54,7 +56,6 @@ class ProductExporter implements ProductExporterInterface
             $criteria->addFilter(new EqualsFilter('salesChannel.active', true));
         }
 
-        /** @var ProductExportCollection $productExports */
         $productExports = $this->productExportRepository->search($criteria, $context->getContext())->getEntities();
 
         if ($productExports->count() === 0) {

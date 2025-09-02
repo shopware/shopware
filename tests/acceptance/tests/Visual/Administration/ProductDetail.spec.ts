@@ -38,7 +38,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
     await test.step('Creates a screenshot of the product detail page Specifications tab.', async () => {
         await AdminProductDetail.specificationsTabLink.click();
         await setViewport(AdminProductDetail.page, {
-            requestURL: 'api/search/property-group-option',
+            requestURL: 'api/search-ids/property-group-option',
         });
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,

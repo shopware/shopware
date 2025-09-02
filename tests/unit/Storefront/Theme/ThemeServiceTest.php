@@ -265,14 +265,14 @@ class ThemeServiceTest extends TestCase
     public function testCompileThemeById(): void
     {
         $themeId = Uuid::randomHex();
-        $dependendThemeId = Uuid::randomHex();
+        $dependentThemeId = Uuid::randomHex();
 
         $this->connectionMock->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => $themeId,
                     'saleschannelId' => TestDefaults::SALES_CHANNEL,
-                    'dependentId' => $dependendThemeId,
+                    'dependentId' => $dependentThemeId,
                     'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
                 ],
             ]
@@ -296,7 +296,7 @@ class ThemeServiceTest extends TestCase
             ],
             [
                 TestDefaults::SALES_CHANNEL,
-                $dependendThemeId,
+                $dependentThemeId,
             ],
         ], $parameters);
     }
@@ -325,14 +325,14 @@ class ThemeServiceTest extends TestCase
     public function testUpdateTheme(): void
     {
         $themeId = Uuid::randomHex();
-        $dependendThemeId = Uuid::randomHex();
+        $dependentThemeId = Uuid::randomHex();
 
         $this->connectionMock->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => $themeId,
                     'saleschannelId' => TestDefaults::SALES_CHANNEL,
-                    'dependentId' => $dependendThemeId,
+                    'dependentId' => $dependentThemeId,
                     'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
                 ],
             ]
@@ -358,6 +358,13 @@ class ThemeServiceTest extends TestCase
             )
         );
 
+        // Mock the getPlainThemeConfiguration method to return an empty configuration structure.
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn([
+                'fields' => [],
+            ]);
+
         $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
@@ -367,14 +374,14 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
         $parentThemeId = Uuid::randomHex();
-        $dependendThemeId = Uuid::randomHex();
+        $dependentThemeId = Uuid::randomHex();
 
         $this->connectionMock->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => $themeId,
                     'saleschannelId' => TestDefaults::SALES_CHANNEL,
-                    'dependentId' => $dependendThemeId,
+                    'dependentId' => $dependentThemeId,
                     'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
                 ],
             ]
@@ -393,6 +400,14 @@ class ThemeServiceTest extends TestCase
                                 'configValues' => [
                                     'test' => ['value' => ['no_test']],
                                 ],
+                                'baseConfig' => [
+                                    'fields' => [
+                                        'test' => [
+                                            'type' => 'string',
+                                            'value' => 'test',
+                                        ],
+                                    ],
+                                ],
                             ]
                         ),
                     ]
@@ -403,6 +418,18 @@ class ThemeServiceTest extends TestCase
             )
         );
 
+        // Mock the getPlainThemeConfiguration method to return the expected configuration structure.
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn([
+                'fields' => [
+                    'test' => [
+                        'type' => 'string',
+                        'value' => 'test',
+                    ],
+                ],
+            ]);
+
         $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
         );
@@ -410,6 +437,81 @@ class ThemeServiceTest extends TestCase
         $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, ['test' => ['value' => ['test']]], $parentThemeId, $this->context);
+    }
+
+    public function testUpdateThemeWithConfigAndRemovedField(): void
+    {
+        $themeId = Uuid::randomHex();
+        $parentThemeId = Uuid::randomHex();
+        $dependentThemeId = Uuid::randomHex();
+
+        $this->connectionMock->method('fetchAllAssociative')->willReturn(
+            [
+                [
+                    'id' => $themeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
+                    'dependentId' => $dependentThemeId,
+                    'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+            ]
+        );
+
+        $this->themeRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'theme',
+                1,
+                new ThemeCollection(
+                    [
+                        (new ThemeEntity())->assign(
+                            [
+                                '_uniqueIdentifier' => $themeId,
+                                'salesChannels' => new SalesChannelCollection(),
+                                'configValues' => [
+                                    'test' => ['value' => ['no_test']],
+                                    'removed' => ['value' => ['still_here']],
+                                ],
+                                'baseConfig' => [
+                                    'fields' => [
+                                        'test' => [
+                                            'type' => 'string',
+                                            'value' => 'test',
+                                        ],
+                                    ],
+                                ],
+                            ]
+                        ),
+                    ]
+                ),
+                null,
+                new Criteria(),
+                $this->context
+            )
+        );
+
+        $config = [
+            'test' => ['value' => ['test']],
+            'removed' => ['value' => ['removed']],
+        ];
+
+        // Mock the getPlainThemeConfiguration method to return the expected configuration structure.
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn([
+                'fields' => [
+                    'test' => [
+                        'type' => 'string',
+                        'value' => 'test',
+                    ],
+                ],
+            ]);
+
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
+            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
+        );
+
+        $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
+
+        $this->themeService->updateTheme($themeId, $config, $parentThemeId, $this->context);
     }
 
     public function testUpdateThemeNoSalesChannelAssigned(): void
@@ -434,6 +536,13 @@ class ThemeServiceTest extends TestCase
                 $this->context
             )
         );
+
+        // Mock the getPlainThemeConfiguration method to return an empty configuration structure.
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn([
+                'fields' => [],
+            ]);
 
         $this->themeCompilerMock->expects($this->never())->method('compileTheme');
 

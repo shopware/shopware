@@ -47,7 +47,7 @@ class SnippetFinderTest extends TestCase
 
     public function testValidSnippetMergeWithOnlySameLanguageFiles(): void
     {
-        $actual = $this->getResultSnippetsByCase('caseSameLanguage', 'de-DE');
+        $actual = $this->getResultSnippetsByCase('caseSameLanguage', 'de');
 
         $expected = [
             'test' => [
@@ -73,7 +73,7 @@ class SnippetFinderTest extends TestCase
 
     public function testValidSnippetMergeWithDifferentLanguageFiles(): void
     {
-        $actual = $this->getResultSnippetsByCase('caseDifferentLanguages', 'de-DE');
+        $actual = $this->getResultSnippetsByCase('caseDifferentLanguages', 'de');
 
         $expected = [
             'test' => [
@@ -94,8 +94,8 @@ class SnippetFinderTest extends TestCase
 
     public function testValidSnippetMergeWithMultipleLanguageFiles(): void
     {
-        $actualDe = $this->getResultSnippetsByCase('caseMultipleSameAndDifferentLanguages', 'de-DE');
-        $actualEn = $this->getResultSnippetsByCase('caseMultipleSameAndDifferentLanguages', 'en-GB');
+        $actualDe = $this->getResultSnippetsByCase('caseMultipleSameAndDifferentLanguages', 'de');
+        $actualEn = $this->getResultSnippetsByCase('caseMultipleSameAndDifferentLanguages', 'en');
 
         $expectedDe = [
             'test' => [
@@ -161,9 +161,9 @@ class SnippetFinderTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getResultSnippetsByCase(string $folder, string $locale): array
+    private function getResultSnippetsByCase(string $folder, string $localeInFilename): array
     {
-        $files = $this->getSnippetFilePathsOfFixtures($folder, '/' . $locale . '.json/');
+        $files = $this->getSnippetFilePathsOfFixtures($folder, '/' . $localeInFilename . '.json/');
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('parseFiles');

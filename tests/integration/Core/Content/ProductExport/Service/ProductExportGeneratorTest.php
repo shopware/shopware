@@ -11,6 +11,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
@@ -31,9 +32,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
@@ -43,6 +46,9 @@ class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductExportCollection>
+     */
     private EntityRepository $repository;
 
     private Context $context;
@@ -289,7 +295,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = static::getContainer()->get('sales_channel.repository');
 
         $salesChannel = $repository->search(new Criteria(), $this->context)->first();
@@ -300,7 +306,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();

@@ -9,6 +9,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -31,7 +32,7 @@ class ProductCrossSellingSerializerTest extends TestCase
 
     public function testOnlySupportsProductCrossSelling(): void
     {
-        /** @var EntityRepository $assignedProductsRepository */
+        /** @var EntityRepository<ProductCrossSellingAssignedProductsCollection> $assignedProductsRepository */
         $assignedProductsRepository = static::getContainer()->get('product_cross_selling_assigned_products.repository');
 
         $serializer = new ProductCrossSellingSerializer($assignedProductsRepository);

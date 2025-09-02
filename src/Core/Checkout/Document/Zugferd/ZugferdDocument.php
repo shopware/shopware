@@ -408,11 +408,12 @@ class ZugferdDocument
             $netTotal += $this->getPrice($tax);
         }
 
+        if ($calculatedTaxes->count() === 0) {
+            foreach ($this->mappedPrices[$type] as $price) {
+                $netTotal += $this->getPrice(null, $price);
+            }
+        }
+
         return $netTotal;
-    }
-
-    private function isIntraCommunityTaxFree(): bool
-    {
-
     }
 }

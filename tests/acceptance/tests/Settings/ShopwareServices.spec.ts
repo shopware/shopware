@@ -86,8 +86,38 @@ test(
         test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
 
         await test.step('Verify insufficient permissions prevent access to services.', async () => {
+            let aclRole;
             // Create a role with insufficient permissions
-            const aclRole = await TestDataService.createAclRole();
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (InstanceMeta.isSaaS) {
+                const privileges = [
+                    'cms_page:read',
+                    'custom_field:read',
+                    'custom_field_set_relation:read',
+                    'language:read',
+                    'locale:read',
+                    'log_entry:create',
+                    'message_queue_stats:read',
+                    'product_sorting:create',
+                    'product_sorting:delete',
+                    'product_sorting:read',
+                    'product_sorting:update',
+                    'sales_channel:read',
+                    'seo_url_template:create',
+                    'seo_url_template:read',
+                    'seo_url_template:update',
+                    'system.system_config',
+                    'system_config:create',
+                    'system_config:delete',
+                    'system_config:read',
+                    'system_config:update',
+                    'sales_channel_domain:read',
+                    'swag_language_pack_language:read',
+                ];
+                aclRole = await TestDataService.createAclRole({ privileges: privileges });
+            } else {
+                aclRole = await TestDataService.createAclRole();
+            }
             const user = await TestDataService.createUser();
             await TestDataService.assignAclRoleUser(aclRole.id, user.id);
 
@@ -95,33 +125,68 @@ test(
         });
 
         await test.step('Verify minimum permissions are enough to manage Shopware Services.', async () => {
+            let aclRole;
             // Basic permissions to access the services
-            const privileges = [
-                'cms_page:read',
-                'custom_field:read',
-                'custom_field_set_relation:read',
-                'language:read',
-                'locale:read',
-                'log_entry:create',
-                'message_queue_stats:read',
-                'plugin:update',
-                'product_sorting:create',
-                'product_sorting:delete',
-                'product_sorting:read',
-                'product_sorting:update',
-                'sales_channel:read',
-                'seo_url_template:create',
-                'seo_url_template:read',
-                'seo_url_template:update',
-                'system.plugin_maintain',
-                'system.system_config',
-                'system:clear:cache',
-                'system:plugin:maintain',
-                'system_config:create',
-                'system_config:delete',
-                'system_config:read',
-                'system_config:update'];
-            const aclRole = await TestDataService.createAclRole({privileges: privileges});
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (InstanceMeta.isSaaS) {
+                const privileges = [
+                    'cms_page:read',
+                    'custom_field:read',
+                    'custom_field_set_relation:read',
+                    'language:read',
+                    'locale:read',
+                    'log_entry:create',
+                    'message_queue_stats:read',
+                    'plugin:update',
+                    'product_sorting:create',
+                    'product_sorting:delete',
+                    'product_sorting:read',
+                    'product_sorting:update',
+                    'sales_channel:read',
+                    'seo_url_template:create',
+                    'seo_url_template:read',
+                    'seo_url_template:update',
+                    'system.plugin_maintain',
+                    'system.system_config',
+                    'system:clear:cache',
+                    'system:plugin:maintain',
+                    'system_config:create',
+                    'system_config:delete',
+                    'system_config:read',
+                    'system_config:update',
+                    'sales_channel_domain:read',
+                    'swag_language_pack_language:read',
+                ];
+                aclRole = await TestDataService.createAclRole({ privileges: privileges });
+            } else {
+                const privileges = [
+                    'cms_page:read',
+                    'custom_field:read',
+                    'custom_field_set_relation:read',
+                    'language:read',
+                    'locale:read',
+                    'log_entry:create',
+                    'message_queue_stats:read',
+                    'plugin:update',
+                    'product_sorting:create',
+                    'product_sorting:delete',
+                    'product_sorting:read',
+                    'product_sorting:update',
+                    'sales_channel:read',
+                    'seo_url_template:create',
+                    'seo_url_template:read',
+                    'seo_url_template:update',
+                    'system.plugin_maintain',
+                    'system.system_config',
+                    'system:clear:cache',
+                    'system:plugin:maintain',
+                    'system_config:create',
+                    'system_config:delete',
+                    'system_config:read',
+                    'system_config:update',
+                ];
+                aclRole = await TestDataService.createAclRole({ privileges: privileges });
+            }
             const user = await TestDataService.createUser();
             await TestDataService.assignAclRoleUser(aclRole.id, user.id);
 

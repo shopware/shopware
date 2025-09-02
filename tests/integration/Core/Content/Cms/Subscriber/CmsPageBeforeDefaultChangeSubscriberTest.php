@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -27,6 +28,9 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CmsPageCollection>
+     */
     private EntityRepository $cmsPageRepository;
 
     private SystemConfigService $systemConfigService;

@@ -27,11 +27,6 @@ class CookieEntryCollection extends Collection
         parent::set($element->cookie, $element);
     }
 
-    public function merge(self $cookieEntryCollection): self
-    {
-        return $this->createNew(array_merge($this->elements, $cookieEntryCollection->getElements()));
-    }
-
     public function getApiAlias(): string
     {
         return 'cookie_entry_collection';

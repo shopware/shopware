@@ -21,8 +21,8 @@ class ResponseFields
 
     public function isAllowed(string $type, string $property): bool
     {
-        if (isset($this->excludes[$type])) {
-            return !\in_array($property, $this->excludes[$type], true);
+        if (isset($this->excludes[$type]) && \in_array($property, $this->excludes[$type], true)) {
+            return false;
         }
 
         if (isset($this->includes[$type])) {
@@ -57,29 +57,33 @@ class ResponseFields
     {
         if (isset($this->includes)) {
             foreach ($this->includes as $type => $fields) {
-                if (!\is_array($fields)) {
-                    throw SalesChannelException::invalidType(
-                        \sprintf(
-                            'The includes for type "%s" must be of the type array, %s given',
-                            $type,
-                            \gettype($fields)
-                        )
-                    );
+                if (\is_array($fields)) {
+                    continue;
                 }
+
+                throw SalesChannelException::invalidType(
+                    \sprintf(
+                        'The includes for type "%s" must be of the type array, %s given',
+                        $type,
+                        \gettype($fields)
+                    )
+                );
             }
         }
 
         if (isset($this->excludes)) {
             foreach ($this->excludes as $type => $fields) {
-                if (!\is_array($fields)) {
-                    throw SalesChannelException::invalidType(
-                        \sprintf(
-                            'The includes for type "%s" must be of the type array, %s given',
-                            $type,
-                            \gettype($fields)
-                        )
-                    );
+                if (\is_array($fields)) {
+                    continue;
                 }
+
+                throw SalesChannelException::invalidType(
+                    \sprintf(
+                        'The excludes for type "%s" must be of the type array, %s given',
+                        $type,
+                        \gettype($fields)
+                    )
+                );
             }
         }
     }

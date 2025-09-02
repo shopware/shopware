@@ -138,8 +138,8 @@ class JsonEntityEncoder
      */
     private function propertyAllowed(array $includes, array $excludes, string $alias, string $property): bool
     {
-        if (isset($excludes[$alias])) {
-            return !\in_array($property, $excludes[$alias], true);
+        if (isset($excludes[$alias]) && \in_array($property, $excludes[$alias], true)) {
+            return false;
         }
 
         if (isset($includes[$alias])) {

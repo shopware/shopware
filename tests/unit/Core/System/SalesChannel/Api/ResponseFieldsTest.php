@@ -15,7 +15,7 @@ class ResponseFieldsTest extends TestCase
 {
     public function testIsAllowedReturnsTrueWhenTypeNotSet(): void
     {
-        $responseFields = new ResponseFields(null);
+        $responseFields = new ResponseFields();
         static::assertTrue($responseFields->isAllowed('someType', 'someProperty'));
     }
 
@@ -25,6 +25,15 @@ class ResponseFieldsTest extends TestCase
         $this->expectExceptionMessage('The includes for type "someType" must be of the type array, string given');
         /** @phpstan-ignore argument.type (for test purpose) */
         $responseFields = new ResponseFields(['someType' => 'notArray']);
+        $responseFields->isAllowed('someType', 'someProperty');
+    }
+
+    public function testIsAllowedThrowsExceptionWhenExcludesTypeIsNotArray(): void
+    {
+        $this->expectException(SalesChannelException::class);
+        $this->expectExceptionMessage('The excludes for type "someType" must be of the type array, string given');
+        /** @phpstan-ignore argument.type (for test purpose) */
+        $responseFields = new ResponseFields(excludes: ['someType' => 'notArray']);
         $responseFields->isAllowed('someType', 'someProperty');
     }
 

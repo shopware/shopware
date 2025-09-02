@@ -48,15 +48,12 @@ class StoreApiResponseListener implements EventSubscriberInterface
 
         $this->dispatch($event);
 
-        $includes = $event->getRequest()->get('includes', []);
-        if (!\is_array($includes)) {
-            $includes = explode(',', $includes);
-        }
-        $excludes = $event->getRequest()->get('excludes', []);
-        if (!\is_array($excludes)) {
-            $excludes = explode(',', $excludes);
-        }
-        $fields = new ResponseFields($includes, $excludes);
+        $request = $event->getRequest();
+
+        $fields = new ResponseFields(
+            $request->get('includes', []),
+            $request->get('excludes', []),
+        );
 
         $encoded = $this->encoder->encode($response->getObject(), $fields);
 
@@ -66,7 +63,7 @@ class StoreApiResponseListener implements EventSubscriberInterface
 
         $content = $this->mediaUrlPlaceholderHandler->replace((string) $jsonResponse->getContent());
 
-        $salesChannelContext = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
         if ($salesChannelContext instanceof SalesChannelContext) {
             $content = $this->seoUrlPlaceholderHandler->replace($content, '', $salesChannelContext);
         }

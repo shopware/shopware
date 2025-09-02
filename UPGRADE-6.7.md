@@ -48,11 +48,9 @@ The constructor of the `EntityDefinition` will be removed, therefore the call of
  }
 ```
 
-# Next Major Version Changes
+## Deprecation of `EntityDefinition` constructor
 
-## Removal of `EntityDefinition` constructor
-
-The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:
+The constructor of the `EntityDefinition` will be removed, therefore the call of child classes to it should be removed as well, i.e:
 ```diff
  <?php declare(strict_types=1);
 
@@ -75,6 +73,7 @@ The constructor of the `EntityDefinition` has been removed, therefore the call o
      // snip
  }
 ```
+
 ## Better support for long-running runtimes
 
 If you are running Shopware in a long-running environment (e.g., FrankenPHP or RoadRunner),
@@ -303,8 +302,6 @@ Now, it provides the measurement system units info in the response of the `conte
 This allows the clients to render the product's measurement units in the configured measurement units of the sales channel domain instead of fixed units (kg/mm).
 
 _Note: The product's measurement units are still stored in the database in fixed units (kg/mm) and converted to the configured measurement units of the sales channel domain when reading or writing the product's measurement units._
-
-### After:
 
 ## New Admin API's request headers
 

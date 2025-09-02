@@ -48,32 +48,6 @@ The constructor of the `EntityDefinition` will be removed, therefore the call of
  }
 ```
 
-## Deprecation of `EntityDefinition` constructor
-
-The constructor of the `EntityDefinition` will be removed, therefore the call of child classes to it should be removed as well, i.e:
-```diff
- <?php declare(strict_types=1);
-
- namespace MyCustomEntity\Content\Entity;
-
- use Shopware\Core\Content\Media\MediaDefinition;
- use Shopware\Core\Content\Product\ProductDefinition;
- use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-
- class MyCustomEntity extends EntityDefinition
- {
-     // snip
- 
-     public function __construct(private readonly array $meta = [])
-     {
--        parent::__construct();
-         // ...
-     }
- 
-     // snip
- }
-```
-
 ## Better support for long-running runtimes
 
 If you are running Shopware in a long-running environment (e.g., FrankenPHP or RoadRunner),

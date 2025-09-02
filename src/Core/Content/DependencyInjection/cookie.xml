@@ -6,7 +6,6 @@
 
     <services>
         <service id="Shopware\Core\Content\Cookie\Service\CookieService">
-            <argument type="service" id="sales_channel_analytics.repository"/>
             <argument type="service" id="translator"/>
         </service>
 

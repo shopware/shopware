@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CookieRoute::class)]
 class CookieRouteTest extends TestCase
 {
-    public function testGetCookieGroupsCallsFilterAndTranslateMethod(): void
+    public function testGetCookieGroupsCallsRemoveAndTranslateMethod(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
@@ -34,9 +34,8 @@ class CookieRouteTest extends TestCase
         $cookieService = $this->createMock(CookieService::class);
 
         $cookieService->expects($this->once())
-            ->method('filterCookieGroups')
-            ->with($expectedCookieGroups, $salesChannelContext)
-            ->willReturnArgument(0);
+            ->method('removeCookieGroupsWithoutCookies')
+            ->with($expectedCookieGroups);
         $cookieService->expects($this->once())->method('translateCookieGroups');
 
         $response = (new CookieRoute($cookieProvider, $cookieService))
@@ -58,7 +57,7 @@ class CookieRouteTest extends TestCase
 
         $cookieService = $this->createMock(CookieService::class);
 
-        $cookieService->expects($this->once())->method('filterCookieGroups')->willReturnArgument(0);
+        $cookieService->expects($this->once())->method('removeCookieGroupsWithoutCookies');
         $cookieService->expects($this->once())->method('translateCookieGroups');
 
         $response = (new CookieRoute($cookieProvider, $cookieService))
@@ -80,7 +79,7 @@ class CookieRouteTest extends TestCase
 
         $cookieService = $this->createMock(CookieService::class);
 
-        $cookieService->expects($this->once())->method('filterCookieGroups')->willReturnArgument(0);
+        $cookieService->expects($this->once())->method('removeCookieGroupsWithoutCookies');
         $cookieService->expects($this->never())->method('translateCookieGroups');
 
         $response = (new CookieRoute($cookieProvider, $cookieService))

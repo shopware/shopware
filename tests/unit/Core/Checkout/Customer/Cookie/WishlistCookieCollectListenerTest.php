@@ -65,7 +65,7 @@ class WishlistCookieCollectListenerTest extends TestCase
 
         $this->listener->__invoke($event);
 
-        $captchaCookie = $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries()?->get('wishlist-enabled');
-        static::assertNotNull($captchaCookie);
+        $wishlistCookie = $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries()?->get('wishlist-enabled');
+        static::assertNotNull($wishlistCookie);
     }
 }

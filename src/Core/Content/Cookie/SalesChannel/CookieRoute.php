@@ -37,7 +37,7 @@ class CookieRoute extends AbstractCookieRoute
 
         $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext);
 
-        $cookieGroups = $this->cookieService->filterCookieGroups($cookieGroups, $salesChannelContext);
+        $this->cookieService->removeCookieGroupsWithoutCookies($cookieGroups);
 
         if ($translate) {
             $this->cookieService->translateCookieGroups($cookieGroups);

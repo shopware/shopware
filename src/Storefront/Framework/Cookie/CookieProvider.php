@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Cookie;
 
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
+use Shopware\Core\Content\Cookie\Service\CookieProvider as NewCookieProvider;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -15,7 +16,7 @@ class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [
         'isRequired' => true,
-        'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED,
+        'snippet_name' => NewCookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED,
         'snippet_description' => 'cookie.groupRequiredDescription',
         'entries' => [
             [
@@ -36,20 +37,13 @@ class CookieProvider implements CookieProviderInterface
     ];
 
     private const STATISTICAL_COOKIES = [
-        'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL,
+        'snippet_name' => NewCookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL,
         'snippet_description' => 'cookie.groupStatisticalDescription',
-        'entries' => [
-            [
-                'snippet_name' => 'cookie.groupStatisticalGoogleAnalytics',
-                'cookie' => 'google-analytics-enabled',
-                'expiration' => '30',
-                'value' => '1',
-            ],
-        ],
+        'entries' => [],
     ];
 
     private const COMFORT_FEATURES_COOKIES = [
-        'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES,
+        'snippet_name' => NewCookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES,
         'entries' => [
             [
                 'snippet_name' => 'cookie.groupComfortFeaturesYoutubeVideo',
@@ -61,16 +55,9 @@ class CookieProvider implements CookieProviderInterface
     ];
 
     private const MARKETING_COOKIES = [
-        'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING,
+        'snippet_name' => NewCookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING,
         'snippet_description' => 'cookie.groupMarketingDescription',
-        'entries' => [
-            [
-                'snippet_name' => 'cookie.groupMarketingAdConsent',
-                'cookie' => 'google-ads-enabled',
-                'expiration' => '30',
-                'value' => '1',
-            ],
-        ],
+        'entries' => [],
     ];
 
     private readonly string $sessionName;

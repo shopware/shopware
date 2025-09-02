@@ -4,15 +4,11 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Service\CookieService;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
-use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -21,38 +17,40 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[CoversClass(CookieService::class)]
 class CookieServiceTest extends TestCase
 {
-    public function testGetCookieGroupCollectionWithNoAnalytics(): void
+    public function testRemoveCookieGroupsWithoutCookies(): void
     {
-        $statisticalGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
-        $statisticalGroup->setEntries(new CookieEntryCollection([new CookieEntry('google-analytics-enabled')]));
-
-        $marketingGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
-        $marketingGroup->setEntries(new CookieEntryCollection([new CookieEntry('google-ads-enabled')]));
-
         $otherGroup = new CookieGroup('cookie.groupOther');
         $otherGroup->setEntries(new CookieEntryCollection([new CookieEntry('other-cookie')]));
 
-        $cookieGroups = new CookieGroupCollection([$statisticalGroup, $marketingGroup, $otherGroup]);
+        $groupWithoutEntries = new CookieGroup('cookie.groupWithoutEntries');
+        $groupWithoutEntries->setEntries(new CookieEntryCollection());
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+        $groupAsCookie = new CookieGroup('cookie.groupAsCookie');
+        $groupAsCookie->setCookie('group-as-cookie');
+
+        $cookieGroups = new CookieGroupCollection([$otherGroup, $groupWithoutEntries, $groupAsCookie]);
+
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')
             ->willReturnCallback(function ($key) {
                 return $key; // Return the key itself when no translation is found
             });
 
-        $result = (new CookieService($repository, $translator))->filterCookieGroups($cookieGroups, Generator::generateSalesChannelContext());
+        (new CookieService($translator))->removeCookieGroupsWithoutCookies($cookieGroups);
 
-        // Should remove Google Analytics cookies but keep other groups
-        static::assertCount(1, $result);
-        $group = $result->get('cookie.groupOther');
+        static::assertCount(2, $cookieGroups);
+        $group = $cookieGroups->get('cookie.groupOther');
         static::assertInstanceOf(CookieGroup::class, $group);
         static::assertSame('cookie.groupOther', $group->snippetKeyName);
         $entries = $group->getEntries();
         static::assertNotNull($entries);
         static::assertCount(1, $entries);
         static::assertSame('other-cookie', $entries->get('other-cookie')?->cookie);
+
+        $group = $cookieGroups->get('cookie.groupAsCookie');
+        static::assertInstanceOf(CookieGroup::class, $group);
+        static::assertSame('cookie.groupAsCookie', $group->snippetKeyName);
+        static::assertSame('group-as-cookie', $group->getCookie());
     }
 
     public function testGetCookieGroupCollectionWithTranslation(): void
@@ -65,8 +63,6 @@ class CookieServiceTest extends TestCase
         $cookieGroup->snippetKeyDescription = 'cookie.group.test.description';
         $cookieGroup->setEntries(new CookieEntryCollection([$cookieGroupEntry]));
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')
             ->willReturnCallback(function ($key) {
@@ -74,7 +70,7 @@ class CookieServiceTest extends TestCase
             });
 
         $cookieGroupCollection = new CookieGroupCollection([$cookieGroup]);
-        (new CookieService($repository, $translator))->translateCookieGroups($cookieGroupCollection);
+        (new CookieService($translator))->translateCookieGroups($cookieGroupCollection);
 
         static::assertCount(1, $cookieGroupCollection);
         $group = $cookieGroupCollection->get('cookie.group.test');

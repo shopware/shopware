@@ -101,22 +101,10 @@ class CookieProvider
     private function getCookieGroupStatistical(): CookieGroup
     {
         $cookieGroupStatistical = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
-        $cookieGroupStatistical->setEntries(new CookieEntryCollection([
-            $this->getGoogleAnalyticsEntry(),
-        ]));
+        $cookieGroupStatistical->setEntries(new CookieEntryCollection([]));
         $cookieGroupStatistical->snippetKeyDescription = 'cookie.groupStatisticalDescription';
 
         return $cookieGroupStatistical;
-    }
-
-    private function getGoogleAnalyticsEntry(): CookieEntry
-    {
-        $entryGoogleAnalytics = new CookieEntry('google-analytics-enabled');
-        $entryGoogleAnalytics->snippetKeyName = 'cookie.groupStatisticalGoogleAnalytics';
-        $entryGoogleAnalytics->value = '1';
-        $entryGoogleAnalytics->expiration = 30;
-
-        return $entryGoogleAnalytics;
     }
 
     private function getCookieGroupComfortFeatures(): CookieGroup
@@ -143,21 +131,9 @@ class CookieProvider
     {
         $cookieGroupMarketing = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
         $cookieGroupMarketing->snippetKeyDescription = 'cookie.groupMarketingDescription';
-        $cookieGroupMarketing->setEntries(new CookieEntryCollection([
-            $this->getGoogleAdsEntry(),
-        ]));
+        $cookieGroupMarketing->setEntries(new CookieEntryCollection([]));
 
         return $cookieGroupMarketing;
-    }
-
-    private function getGoogleAdsEntry(): CookieEntry
-    {
-        $entryGoogleAds = new CookieEntry('google-ads-enabled');
-        $entryGoogleAds->snippetKeyName = 'cookie.groupMarketingAdConsent';
-        $entryGoogleAds->value = '1';
-        $entryGoogleAds->expiration = 30;
-
-        return $entryGoogleAds;
     }
 
     /**

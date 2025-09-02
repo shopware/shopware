@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 
@@ -44,7 +43,7 @@ class ExtensionDownloader
         try {
             $data = $this->storeClient->getDownloadDataForPlugin($technicalName, $context);
         } catch (ClientException $e) {
-            throw new StoreApiException($e);
+            throw StoreException::storeError($e);
         }
 
         $this->pluginManagementService->downloadStorePlugin($data, $context);

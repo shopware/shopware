@@ -549,11 +549,10 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                if (Shopware.Feature.isActive('v6.8.0.0')) {
-                    return !order.primaryOrderDelivery;
-                } 
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
                     return !this.getDelivery(order);
-                
+                }
+                return !order.primaryOrderDelivery;
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 

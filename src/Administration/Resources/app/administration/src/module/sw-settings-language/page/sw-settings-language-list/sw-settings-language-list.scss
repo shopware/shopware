@@ -42,4 +42,20 @@
             }
         }
     }
+
+    .sw-settings-language-list__default-label {
+        display: inline-flex;
+        align-items: center;
+        vertical-align: middle;
+        margin-left: 8px;
+    }
+
+    .sw-settings-language-list__snippet-link-wrapper {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 8px;
+        max-width: 60rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }

@@ -13,6 +13,7 @@
       "columnIsoCode": "ISO-Code ",
       "columnInherit": "Erbt von",
       "columnDefault": "Standard",
+      "defaultLabel": "Standard",
       "buttonAddLanguage": "Sprache anlegen",
       "contextMenuEdit": "Bearbeiten",
       "messageDeleteSuccess": "Die Sprache \"{name}\" wurde erfolgreich gelöscht.",
@@ -20,7 +21,9 @@
       "titleSidebarFilter": "Filter",
       "titleSidebarQuickFilter": "Quick Filter",
       "textFilterRootLanguages": "Zeige nur \"Root\"-Sprachen",
-      "textFilterInheritedLanguages": "Zeige nur vererbte Sprachen"
+      "textFilterInheritedLanguages": "Zeige nur vererbte Sprachen",
+      "manageSnippets": "Snippets verwalten",
+      "cardTitle": "Sprachen"
     },
     "detail": {
       "textHeadline": "Neue Sprache",

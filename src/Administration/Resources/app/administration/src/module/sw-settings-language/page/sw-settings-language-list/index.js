@@ -76,20 +76,6 @@ export default {
                     allowResize: true,
                 },
                 {
-                    property: 'id',
-                    label: 'sw-settings-language.list.columnDefault',
-                    align: 'center',
-                    allowResize: true,
-                },
-                {
-                    property: 'active',
-                    dataIndex: 'active',
-                    label: 'sw-settings-language.list.columnActive',
-                    inlineEdit: 'boolean',
-                    allowResize: true,
-                    align: 'center',
-                },
-                {
                     property: 'locale',
                     dataIndex: 'locale.id',
                     label: 'sw-settings-language.list.columnLocaleName',
@@ -101,10 +87,12 @@ export default {
                     allowResize: true,
                 },
                 {
-                    property: 'parent',
-                    dataIndex: 'parent.id',
-                    label: 'sw-settings-language.list.columnInherit',
+                    property: 'active',
+                    dataIndex: 'active',
+                    label: 'sw-settings-language.list.columnActive',
+                    inlineEdit: 'boolean',
                     allowResize: true,
+                    align: 'center',
                 },
             ];
         },

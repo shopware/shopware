@@ -30,7 +30,7 @@
         },
         "introduction": {
           "modalTitle": "Welcome",
-          "headlineWelcome": "Welcome to the Shopware 6 Administration",
+          "headlineWelcome": "Welcome to the Shopware 6 administration",
           "messageWelcome":  "This wizard guides you through the setup and tries to be helpful with the most important settings."
         },
         "dataImport": {

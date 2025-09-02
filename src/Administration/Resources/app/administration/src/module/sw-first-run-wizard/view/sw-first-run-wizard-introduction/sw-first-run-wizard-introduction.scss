@@ -5,11 +5,11 @@
     align-self: flex-start;
     margin-top: 100px;
 
-    .center {
+    &__container {
         text-align: center;
     }
 
-    .headline-welcome {
+    &__welcome-headline {
         font-size: 32px;
         font-weight: normal;
         text-align: center;
@@ -17,8 +17,7 @@
         line-height: 45px;
     }
 
-    .text-welcome {
-        width: 675px;
+    &__welcome-text {
         font-size: $font-size-xs;
         font-weight: normal;
         text-align: center;

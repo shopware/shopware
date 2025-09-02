@@ -1,16 +1,16 @@
 {% block sw_first_run_wizard_introduction %}
 <div class="sw-first-run-wizard-introduction">
-    <div class="center">
+    <div class="sw-first-run-wizard-introduction__container">
         <img
             class="sw-first-run-wizard__introduction-image"
             :src="assetFilter('/administration/administration/static/img/first-run-wizard/welcome.svg')"
             alt=""
         >
-        <h4 class="headline-welcome">
+        <h4 class="sw-first-run-wizard-introduction__welcome-headline">
             {{ $t('sw-first-run-wizard.introduction.headlineWelcome') }}
         </h4>
         <p
-            class="text-welcome"
+            class="sw-first-run-wizard-introduction__welcome-text"
             v-html="$t('sw-first-run-wizard.introduction.messageWelcome')"
         ></p>
     </div>

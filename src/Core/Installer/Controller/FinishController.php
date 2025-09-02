@@ -27,6 +27,10 @@ class FinishController extends InstallerController
     #[Route(path: '/installer/finish', name: 'installer.finish', methods: ['GET'])]
     public function finish(Request $request): Response
     {
+        if ($request->query->get('show') === 'true') {
+            return $this->renderInstaller('@Installer/installer/finish.html.twig', []);
+        }
+
         $this->systemLocker->lock();
 
         $session = $request->getSession();

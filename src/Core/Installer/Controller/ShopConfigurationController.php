@@ -69,6 +69,22 @@ class ShopConfigurationController extends InstallerController
             /** @var list<string> $availableCurrencies */
             $availableCurrencies = $request->request->all('available_currencies');
 
+            /** @var list<string> $selectedLanguages */
+            $selectedLanguages = $request->request->all('selected_languages') ?: [];
+
+            // TODO: Replace with actual languages from crowdin json file
+            $selectedLanguages = array_map(function (string $iso) {
+                // already a full locale like xx-XX?
+                if (preg_match('/^[a-z]{2}-[A-Z]{2}$/', $iso)) {
+                    return $iso;
+                }
+                return $this->supportedLanguages[$iso]['id'] ?? $iso;
+            }, $selectedLanguages);
+
+            $selectedLanguages = array_unique($selectedLanguages);
+
+            $session->set('SELECTED_LANGUAGES', $selectedLanguages);
+
             $schema = 'http';
             // This is for supporting Apache 2.2
             if (\array_key_exists('HTTPS', $_SERVER) && mb_strtolower((string) $_SERVER['HTTPS']) === 'on') {
@@ -101,8 +117,16 @@ class ShopConfigurationController extends InstallerController
 
                 $session->remove(DatabaseConnectionInformation::class);
                 $session->set('ADMIN_USER', $adminUser);
+                $session->set('SELECTED_LANGUAGES', $selectedLanguages);
 
-                return $this->redirectToRoute('installer.finish');
+                // Check if user selected any languages
+                if (empty($selectedLanguages)) {
+                    // No languages selected, go directly to finish page
+                    return $this->redirectToRoute('installer.finish', ['show' => 'true']);
+                } else {
+                    // Languages selected, go to translation step
+                    return $this->redirectToRoute('installer.translation');
+                }
             } catch (\Exception $e) {
                 $error = $e->getMessage();
             }
@@ -127,6 +151,7 @@ class ShopConfigurationController extends InstallerController
                 'languageIsos' => $this->supportedLanguages,
                 'currencyIsos' => $this->supportedCurrencies,
                 'parameters' => $parameters,
+                'selectedLanguages' => $request->request->all('selected_languages') ?: [],
             ]
         );
     }

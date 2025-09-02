@@ -274,6 +274,11 @@
             <argument type="string">%kernel.project_dir%</argument>
         </service>
 
+        <service id="Shopware\Core\Installer\Controller\TranslationController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
         <service id="GuzzleHttp\Client"/>
     </services>
 </container>

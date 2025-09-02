@@ -1,0 +1,34 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.finish_header"|trans|default('Setup Complete') }}</h2>
+    </div>
+
+    <div class="card__body">
+        <div class="alert-hero success">
+            <div class="alert-hero-icon">
+                <i class="icon-checkmark"></i>
+            </div>
+            <div class="alert-hero-text">
+                {{ "shopware.installer.finish_title"|trans|default('The setup for your Shopware shop is done.') }}
+            </div>
+            <div class="alert-hero-text">
+                {{ "shopware.installer.finish_subtitle"|trans|default('Click "Continue to shop" to open your shop\'s administration and start building your dream shop.') }}
+            </div>
+        </div>
+    </div>
+
+    <div class="card__footer flex-container">
+        <a href="{{ url('installer.configuration') }}"
+           id="back"
+           class="btn btn-default flex-item">
+            {{ "shopware.installer.back"|trans }}
+        </a>
+        <a href="{{ url('installer.finish') }}"
+           id="next"
+           class="btn btn-primary flex-item flex-right">
+            {{ "shopware.installer.finish_continue"|trans|default('Continue to shop') }}
+        </a>
+    </div>
+{% endblock %}

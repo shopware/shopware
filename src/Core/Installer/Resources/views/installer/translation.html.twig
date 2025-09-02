@@ -1,0 +1,109 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.translations_header"|trans|default('Install languages') }}</h2>
+    </div>
+
+    <div class="card__body translations-import">
+        <div id="import-container" class="translations-import-container">
+            <p class="database-import-text">
+                {{ "shopware.installer.translations_info_text"|trans|default('We will download and install the selected translations.') }}
+            </p>
+            <div class="language-import-count">
+                {{ "shopware.installer.translations_import_install_label"|trans }}
+                {{ "shopware.installer.database_import_install_step_text"|trans }}
+                <span id="offset" class="installer-import-count-offset">0</span>
+                {{ "shopware.installer.database_import_install_from_text"|trans }}
+                <span id="total" class="database-import-count-total">{{ total }}</span>
+                <span id="current-locale" class="is--inline is--align-right" style="margin-left:8px;"></span>
+            </div>
+
+            <div id="progress" class="progress active">
+                <div id="progress-bar" class="progress-bar" style="width:0%"></div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="card__footer flex-container">
+        <a href="{{ url('installer.configuration') }}"
+           id="back"
+           class="btn btn-default flex-item">
+            {{ "shopware.installer.back"|trans }}
+        </a>
+        <a href="{{ url('installer.finish') }}"
+           id="next"
+           class="btn btn-primary flex-item flex-right disabled"
+           onclick="if (event.target.classList.contains('disabled')) event.preventDefault();">
+            {{ "shopware.installer.forward"|trans }}
+        </a>
+    </div>
+
+    <script>
+        window.addEventListener('beforeunload', preventPageLeave);
+        doRequest(0);
+
+        function importFinished() {
+            document.getElementById('next').classList.remove('disabled');
+            document.getElementById('progress').classList.remove('active');
+            window.removeEventListener('beforeunload', preventPageLeave);
+
+            const nextButton = document.getElementById('next');
+            nextButton.href = '{{ url('installer.finish') }}?show=true';
+        }
+
+        function preventPageLeave(event) {
+            event.preventDefault();
+            return event.returnValue = 'Installing translations…';
+        }
+
+        async function doRequest(offset) {
+            const response = await fetch('{{ url('installer.translation-run') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ offset })
+            });
+
+            const data = await response.json();
+
+            // update counters
+            document.getElementById('offset').innerText = Math.min(data.offset, data.total);
+            document.getElementById('total').innerText = data.total;
+            document.getElementById('current-locale').innerText = data.message ? `(${data.message})` : '';
+
+            const pct = data.total ? (data.offset / data.total) * 100 : 100;
+            document.getElementById('progress-bar').style.width = pct + '%';
+
+            if (data.isFinished) {
+                if (data.failures && data.failures.length > 0) {
+                    renderFailures(data.failures);
+                }
+                importFinished();
+            } else {
+                doRequest(data.offset);
+            }
+        }
+
+        function renderFailures(list) {
+            const container = document.getElementById('import-container');
+            let box = container.querySelector('.translation-failures');
+            if (!box) {
+                box = document.createElement('div');
+                box.className = 'translation-failures alert alert-warning';
+                box.style.marginTop = '20px';
+                box.style.display = 'block';
+                container.appendChild(box);
+            }
+            box.innerHTML = `<strong>Some translations failed:</strong><br>` +
+                list.map(i => `<code>${i.locale}</code>: ${escapeHtml(i.error)}`).join('<br>');
+
+            container.style.display = 'block';
+        }
+
+        function escapeHtml(s) {
+            return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+        }
+    </script>
+{% endblock %}

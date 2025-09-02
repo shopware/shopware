@@ -111,11 +111,11 @@ class MediaFolderService
 
         $payload[$folder->getId()]['useParentConfiguration'] = false;
 
-        foreach ($subFolders as $folder) {
+        foreach ($subFolders as $subFolder) {
             $configurationId = $config ? $this->cloneConfiguration($config->getId(), $context) : null;
 
-            $payload[$folder->getId()]['useParentConfiguration'] = false;
-            $payload[$folder->getId()]['configurationId'] = $configurationId;
+            $payload[$subFolder->getId()]['useParentConfiguration'] = false;
+            $payload[$subFolder->getId()]['configurationId'] = $configurationId;
         }
 
         return $payload;

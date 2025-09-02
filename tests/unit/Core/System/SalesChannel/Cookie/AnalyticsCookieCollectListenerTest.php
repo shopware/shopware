@@ -40,7 +40,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
 
     public function testSalesChannelHasNoAnalyticsId(): void
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mack is used here to ensure that the method is not called) */
+        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
         $salesChannel = $this->createMock(SalesChannelEntity::class);
         $salesChannel->expects($this->once())->method('getAnalyticsId')->willReturn(null);
         $salesChannel->expects($this->never())->method('getAnalytics');
@@ -59,7 +59,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
         $salesChannel->setAnalyticsId(Uuid::randomHex());
         $context = Generator::generateSalesChannelContext(salesChannel: $salesChannel);
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mack is used here to ensure that the method is not called) */
+        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
         $cookieCollection = $this->createMock(CookieGroupCollection::class);
         $cookieCollection->expects($this->never())->method('get');
         $event = new CookieGroupCollectEvent($cookieCollection, $context);

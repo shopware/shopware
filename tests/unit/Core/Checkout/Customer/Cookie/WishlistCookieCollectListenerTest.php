@@ -34,7 +34,7 @@ class WishlistCookieCollectListenerTest extends TestCase
     {
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mack is used here to ensure that the method is not called) */
+        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
         $cookieCollection = $this->createMock(CookieGroupCollection::class);
         $cookieCollection->expects($this->never())->method('get');
         $event = new CookieGroupCollectEvent($cookieCollection, Generator::generateSalesChannelContext());

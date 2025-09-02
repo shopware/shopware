@@ -46,10 +46,10 @@ class RedisIncrementer extends AbstractIncrementer
             return;
         }
 
-        $keys = $this->getKeys($cluster);
+        $clusterKeys = $this->getKeys($cluster);
 
-        foreach ($keys as $key) {
-            $this->redis->del($key);
+        foreach ($clusterKeys as $clusterKey) {
+            $this->redis->del($clusterKey);
         }
     }
 

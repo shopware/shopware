@@ -585,10 +585,10 @@ class EntitySearcherTest extends TestCase
         static::assertIsArray($result->getIds());
         static::assertNotEmpty($result->getIds());
 
-        foreach ($result->getIds() as $ids) {
-            static::assertIsArray($ids);
-            static::assertArrayHasKey('productId', $ids);
-            static::assertArrayHasKey('categoryId', $ids);
+        foreach ($result->getIds() as $resultIds) {
+            static::assertIsArray($resultIds);
+            static::assertArrayHasKey('productId', $resultIds);
+            static::assertArrayHasKey('categoryId', $resultIds);
         }
     }
 

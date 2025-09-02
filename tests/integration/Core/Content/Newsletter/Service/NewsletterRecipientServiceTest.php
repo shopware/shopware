@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Newsletter\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute;
@@ -140,12 +141,11 @@ class NewsletterRecipientServiceTest extends TestCase
             ->get(NewsletterSubscribeRoute::class)
             ->subscribe($dataBag, $context, false);
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<NewsletterRecipientCollection> */
         $repository = static::getContainer()->get('newsletter_recipient.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
 
-        /** @var NewsletterRecipientEntity $result */
         $result = $repository->search($criteria, $context->getContext())->getEntities()->first();
 
         static::assertInstanceOf(NewsletterRecipientEntity::class, $result);
@@ -198,13 +198,12 @@ class NewsletterRecipientServiceTest extends TestCase
             ->get(NewsletterConfirmRoute::class)
             ->confirm($dataBag, $context);
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<NewsletterRecipientCollection> */
         $repository = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
 
-        /** @var NewsletterRecipientEntity $result */
         $result = $repository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(NewsletterRecipientEntity::class, $result);
@@ -249,13 +248,12 @@ class NewsletterRecipientServiceTest extends TestCase
             ->get(NewsletterUnsubscribeRoute::class)
             ->unsubscribe($dataBag, $context);
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<NewsletterRecipientCollection> $repository */
         $repository = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
 
-        /** @var NewsletterRecipientEntity $result */
         $result = $repository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(NewsletterRecipientEntity::class, $result);

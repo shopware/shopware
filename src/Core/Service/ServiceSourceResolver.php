@@ -79,19 +79,19 @@ class ServiceSourceResolver implements Source
     ): string {
         $destination = Path::join($this->temporaryDirectoryFactory->path(), $serviceName);
         $localZipLocation = Path::join($destination, $serviceName . '.zip');
-        $this->io->mkdir($destination);
 
         try {
             $zipData = $this->client->fetchServiceZip($zipUrl);
+            $this->io->mkdir($destination);
             foreach ($zipData as $chunk) {
-                try {
-                    $this->io->appendToFile($localZipLocation, $chunk->getContent());
-                } catch (\Exception $e) {
-                    throw ServiceException::cannotWriteAppToDestination($destination, $e);
-                }
+                $this->io->appendToFile($localZipLocation, $chunk->getContent());
             }
-        } catch (ServiceException $e) {
-            throw AppException::cannotMountAppFilesystem($serviceName, $e); // @phpstan-ignore shopware.domainException
+        } catch (\Exception $e) {
+            $this->io->remove($destination); // corrupted download, remove partially written data
+            throw AppException::cannotMountAppFilesystem(
+                $serviceName,
+                ServiceException::cannotWriteAppToDestination($destination, $e)
+            );
         }
 
         try {

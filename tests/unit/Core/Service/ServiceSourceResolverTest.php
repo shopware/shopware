@@ -262,13 +262,17 @@ class ServiceSourceResolverTest extends TestCase
             ->method('exists')
             ->willReturn(false);
 
-        $filesystem->expects($this->once())
+        $filesystem->expects($this->never())
             ->method('mkdir')
             ->with('/tmp/test/FailingService');
 
         $client->expects($this->once())
             ->method('fetchServiceZip')
             ->willThrowException(ServiceException::missingAppVersionInformation('version'));
+
+        $filesystem->expects($this->once())
+            ->method('remove')
+            ->with('/tmp/test/FailingService');
 
         $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
 
@@ -370,9 +374,14 @@ class ServiceSourceResolverTest extends TestCase
             ->method('fetchServiceZip')
             ->willReturn($chunks);
 
+        $underlyingException = new \Exception('Write failed');
         $filesystem->expects($this->once())
             ->method('appendToFile')
-            ->willThrowException(new \Exception('Write failed'));
+            ->willThrowException($underlyingException);
+
+        $filesystem->expects($this->once())
+            ->method('remove')
+            ->with('/tmp/test/WriteFailService');
 
         $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
 
@@ -389,9 +398,7 @@ class ServiceSourceResolverTest extends TestCase
             'min-shop-supported-version' => '6.6.0.0',
         ]);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Cannot mount a filesystem for App "WriteFailService"');
-
+        static::expectExceptionObject(AppException::cannotMountAppFilesystem('WriteFailService', ServiceException::cannotWriteAppToDestination('/tmp/test/WriteFailService', $underlyingException)));
         $source->filesystem($app);
     }
 

@@ -45,7 +45,7 @@ class CookieProvider
         $cookieGroups = new CookieGroupCollection();
 
         if ($this->legacyCookieProvider && !Feature::isActive('v6.8.0.0')) {
-            /** @deprecated tag:v6.8.0 - Converting can be removed completely */
+            // @deprecated tag:v6.8.0 - Legacy cookie conversion can be removed completely
             $this->convertLegacyCookies($cookieGroups, $this->legacyCookieProvider->getCookieGroups());
         } else {
             $cookieGroups->add($this->getCookieGroupRequiredEntries());

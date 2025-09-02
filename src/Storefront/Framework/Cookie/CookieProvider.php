@@ -52,12 +52,6 @@ class CookieProvider implements CookieProviderInterface
         'snippet_name' => \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES,
         'entries' => [
             [
-                'snippet_name' => 'cookie.groupComfortFeaturesWishlist',
-                'cookie' => 'wishlist-enabled',
-                'expiration' => '30',
-                'value' => '1',
-            ],
-            [
                 'snippet_name' => 'cookie.groupComfortFeaturesYoutubeVideo',
                 'cookie' => 'youtube-video',
                 'expiration' => '30',

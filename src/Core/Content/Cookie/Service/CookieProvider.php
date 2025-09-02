@@ -123,21 +123,10 @@ class CookieProvider
     {
         $cookieGroupComfortFeatures = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         $cookieGroupComfortFeatures->setEntries(new CookieEntryCollection([
-            $this->getWishlistEntry(),
             $this->getYoutubeVideoEntry(),
         ]));
 
         return $cookieGroupComfortFeatures;
-    }
-
-    private function getWishlistEntry(): CookieEntry
-    {
-        $entryWishlist = new CookieEntry('wishlist-enabled');
-        $entryWishlist->snippetKeyName = 'cookie.groupComfortFeaturesWishlist';
-        $entryWishlist->value = '1';
-        $entryWishlist->expiration = 30;
-
-        return $entryWishlist;
     }
 
     private function getYoutubeVideoEntry(): CookieEntry

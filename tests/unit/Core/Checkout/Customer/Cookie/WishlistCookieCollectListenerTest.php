@@ -2,40 +2,37 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Framework\Captcha;
+namespace Shopware\Tests\Unit\Core\Checkout\Customer\Cookie;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Cookie\WishlistCookieCollectListener;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Shopware\Storefront\Framework\Captcha\CaptchaCookieCollectListener;
-use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 
 /**
  * @internal
  */
-#[CoversClass(CaptchaCookieCollectListener::class)]
-class CaptchaCookieCollectListenerTest extends TestCase
+#[CoversClass(WishlistCookieCollectListener::class)]
+class WishlistCookieCollectListenerTest extends TestCase
 {
-    private const CONFIG_KEY = 'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV2::CAPTCHA_NAME . '.isActive';
-
     private StaticSystemConfigService $systemConfigService;
 
-    private CaptchaCookieCollectListener $listener;
+    private WishlistCookieCollectListener $listener;
 
     protected function setUp(): void
     {
-        $this->systemConfigService = new StaticSystemConfigService([self::CONFIG_KEY => true]);
-        $this->listener = new CaptchaCookieCollectListener($this->systemConfigService);
+        $this->systemConfigService = new StaticSystemConfigService(['core.cart.wishlistEnabled' => true]);
+        $this->listener = new WishlistCookieCollectListener($this->systemConfigService);
     }
 
-    public function testCaptchaConfigNotActive(): void
+    public function testWishlistConfigNotActive(): void
     {
-        $this->systemConfigService->set(self::CONFIG_KEY, false);
+        $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
         /** @phpstan-ignore shopware.mockingSimpleObjects (A mack is used here to ensure that the method is not called) */
         $cookieCollection = $this->createMock(CookieGroupCollection::class);
@@ -45,7 +42,7 @@ class CaptchaCookieCollectListenerTest extends TestCase
         $this->listener->__invoke($event);
     }
 
-    public function testRequiredCookieGroupNotPresent(): void
+    public function testComfortFeaturesCookieGroupNotPresent(): void
     {
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([new CookieGroup('test')]),
@@ -57,10 +54,9 @@ class CaptchaCookieCollectListenerTest extends TestCase
         static::assertCount(1, $event->cookieGroupCollection);
     }
 
-    public function testCaptchaCookieIsAdded(): void
+    public function testWishlistCookieIsAdded(): void
     {
-        $cookieGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
-        $cookieGroup->isRequired = true;
+        $cookieGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([$cookieGroup]),
@@ -69,7 +65,7 @@ class CaptchaCookieCollectListenerTest extends TestCase
 
         $this->listener->__invoke($event);
 
-        $captchaCookie = $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED)?->getEntries()?->get('_GRECAPTCHA');
+        $captchaCookie = $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries()?->get('wishlist-enabled');
         static::assertNotNull($captchaCookie);
     }
 }

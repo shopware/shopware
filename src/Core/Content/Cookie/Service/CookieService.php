@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -23,7 +22,6 @@ readonly class CookieService
      * @param EntityRepository<SalesChannelAnalyticsCollection> $salesChannelAnalyticsRepository
      */
     public function __construct(
-        private SystemConfigService $systemConfigService,
         private EntityRepository $salesChannelAnalyticsRepository,
         private TranslatorInterface $translator
     ) {
@@ -31,9 +29,7 @@ readonly class CookieService
 
     public function filterCookieGroups(CookieGroupCollection $cookieGroups, SalesChannelContext $context): CookieGroupCollection
     {
-        $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
-
-        return $this->filterWishlistCookie($context->getSalesChannelId(), $cookieGroups);
+        return $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
     }
 
     /**
@@ -93,29 +89,6 @@ readonly class CookieService
 
             if ($cookieGroup->snippetKeyName === CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING) {
                 $cookieGroup = $this->filterCookieGroup('google-ads-enabled', $cookieGroup);
-                if ($cookieGroup !== null) {
-                    $filteredGroups[] = $cookieGroup;
-                }
-
-                continue;
-            }
-
-            $filteredGroups[] = $cookieGroup;
-        }
-
-        return new CookieGroupCollection($filteredGroups);
-    }
-
-    private function filterWishlistCookie(string $salesChannelId, CookieGroupCollection $cookieGroups): CookieGroupCollection
-    {
-        if ($this->systemConfigService->getBool('core.cart.wishlistEnabled', $salesChannelId)) {
-            return $cookieGroups;
-        }
-
-        $filteredGroups = [];
-        foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup->snippetKeyName === CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES) {
-                $cookieGroup = $this->filterCookieGroup('wishlist-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
                 }

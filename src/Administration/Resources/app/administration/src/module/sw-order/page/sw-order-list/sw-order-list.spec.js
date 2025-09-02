@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
@@ -46,6 +47,32 @@ const mockItem = {
         city: 'Random City',
     },
 };
+
+if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    mockItem.addresses = [
+        {
+            street: '123 Random street',
+        },
+    ];
+    mockItem.transactions = new EntityCollection(null, null, null, new Criteria(1, 25), [
+        {
+            stateMachineState: {
+                technicalName: 'open',
+                name: 'Open',
+                translated: { name: 'Open' },
+            },
+        },
+    ]);
+    mockItem.deliveries = [
+        {
+            stateMachineState: {
+                technicalName: 'open',
+                name: 'Open',
+                translated: { name: 'Open' },
+            },
+        },
+    ];
+}
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-list', { sync: true }), {
@@ -362,6 +389,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         const criteria = wrapper.vm.orderCriteria;
 
         expect(criteria.getAssociation('primaryOrderDelivery').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('primaryOrderDelivery').hasAssociation('shippingOrderAddress')).toBe(true);
         expect(criteria.getAssociation('primaryOrderTransaction').hasAssociation('stateMachineState')).toBe(true);
     });
 

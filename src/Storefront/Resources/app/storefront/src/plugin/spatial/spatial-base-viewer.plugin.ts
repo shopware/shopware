@@ -2,7 +2,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 // @ts-ignore
 import type NativeEventEmitter from 'src/helper/emitter.helper';
-import type { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { loadDIVE, QuickViewInstance } from './utils/spatial-dive-load-util';
 
 /**
@@ -16,17 +15,18 @@ export default class SpatialBaseViewerPlugin extends Plugin {
     protected rendering = false;
 
     public canvas: HTMLCanvasElement | undefined;
-    public camera: PerspectiveCamera | undefined;
-    public scene: Scene | undefined;
-    public renderer: WebGLRenderer | undefined;
-
-    public clock: Clock | undefined;
 
     public ready = false;
     $emitter: NativeEventEmitter;
 
+    public options!: {
+        modelUrl: string;
+        sliderPosition: number;
+        lightIntensity: number;
+    }
+
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    protected _dive: import('@shopware-ag/dive').DIVE | undefined;
+    protected dive: import('@shopware-ag/dive').QuickView | undefined;
 
     /**
      * initialize plugin
@@ -48,7 +48,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.canvas = this.el as HTMLCanvasElement;
         this.canvas.tabIndex = 0;
 
-        if (this._dive == undefined) {
+        if (this.dive == undefined) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
             this._dive = await window.DIVEClass.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.el as HTMLCanvasElement, displayFloor: true });
         }
@@ -68,10 +68,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         // start render loop
         this.rendering = true;
-        this._dive?.setCanvas(this.canvas as HTMLCanvasElement);
-        console.log('this._dive', this._dive);
-        console.log('this._dive?.canvas', this._dive?.canvas);
-        this._dive?.engine.start();
+        this.dive?.start();
 
         // Add classes to canvas parent
         this.canvas?.parentElement?.classList.add('spatial-canvas-rendering');
@@ -92,7 +89,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         // stop render loop
         this.rendering = false;
 
-        this._dive?.engine.stop();
+        // this._dive?.stop();
 
         // Remove classes from canvas parent
         this.canvas?.parentElement?.classList.remove('spatial-canvas-rendering');

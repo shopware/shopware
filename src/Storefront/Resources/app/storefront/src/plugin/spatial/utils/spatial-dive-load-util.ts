@@ -49,8 +49,8 @@ export async function loadDIVE(): Promise<void> {
     return window.loadDiveUtil.promise;
 }
 
-let instance: Promise<InstanceType<typeof import('@shopware-ag/dive').DIVE>> | null = null;
-export const QuickViewInstance = async (modelUrl: string, options: any): Promise<InstanceType<typeof import('@shopware-ag/dive').DIVE>> => {
+let instance: Promise<import('@shopware-ag/dive').QuickView> | null = null;
+export const QuickViewInstance = async (modelUrl: string, options: Partial<import('@shopware-ag/dive').QuickViewSettings>): Promise<import('@shopware-ag/dive').QuickView> => {
     if (instance) {
         return instance;
     }

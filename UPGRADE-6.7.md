@@ -1,8 +1,10 @@
 # 6.7.2.0
+
 ## New robots meta tag configuration
 
 The new configuration option "Robots Meta Tag" has been added to the administration under Settings > Basic information.
 This allows you to set the content of the robots meta tag rendered in the storefront (`<meta name="robots" ...>`).
+
 ## Breadcrumb separator using Bootstrap default
 
 The breadcrumb separator is now using the bootstrap default, i.e. the CSS variable `--bs-breadcrumb-divider`, which is set on the corresponding breadcrumb `nav`-element: https://getbootstrap.com/docs/5.3/components/breadcrumb/#dividers
@@ -16,8 +18,10 @@ Therefore the block `layout_breadcrumb_placeholder` has been deprecated and will
 {% endblock %}
 ```
 ## ProductListing with Variants and sort by price
+
 Grouping with `GROUP BY product.display_group`, which is necessary to process product variants, only works without SQL Mode `only_full_group_by`. When this mode is disabled, it causes rows to be dropped - potentially the one with the cheapest price. This leads to inconsistent sorting of products with variants that differ in price.
 Due to sorting by the lowest price, the `cheapestPrice` accessor was removed from the min/max logic in the `CriteriaQueryBuilder`. To ensure that a product is listed based on its cheapest variant, the accessor was supplemented with the `MIN()` function.
+
 ## Deprecation of `EntityDefinition` constructor
 
 The constructor of the `EntityDefinition` will be removed, therefore the call of child classes to it should be removed as well, i.e:
@@ -76,7 +80,9 @@ The constructor of the `EntityDefinition` has been removed, therefore the call o
 If you are running Shopware in a long-running environment (e.g., FrankenPHP or RoadRunner),
 this change enables Symfony to properly reset services implementing `ResetInterface` between requests.
 No configuration changes are required.
+
 ## Deprecate FK delete exception handler
+
 All foreign keys with restrict delete behavior are now handled directly by the DAL.
 This means that the following exceptions are not thrown anymore:
 * `LanguageOfOrderDeleteException`
@@ -92,13 +98,17 @@ Additionally, the following exception handlers don't throw any exceptions anymor
 * `LanguageExceptionHandler`
 * `SalesChannelExceptionHandler`
 * `ThemeExceptionHandler`
+
 ## Symfony components update
+
 All Symfony components have been updated to version 7.3.
 This might lead to deprecation warnings in your extensions or customizations.
 Please check the [Symfony 7.3 upgrade guide](https://github.com/symfony/symfony/blob/v7.3.1/UPGRADE-7.3.md) for more information.
+
 ## App System: Unit and NewsletterRecipient support for custom field sets
 
 It is now possible to define custom field sets in your app's `manifest.xml` file for the `unit` and `newsletter_recipient` entities.
+
 ## Allow custom route names for Storefront controllers
 
 It is now possible to add custom route names for Storefront controllers in the `storefront.yaml` configuration file.
@@ -111,11 +121,15 @@ storefront:
         allowed_routes:
             - swag.test.foo-bar
 ```
+
 ## Deprecation of `CartBehavior::isRecalculation`
+
 `CartBehavior::isRecalculation` is deprecated.
 Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
 Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+
 ## Skip cart persistence with `CheckoutPermissions::SKIP_CART_PERSISTENCE`
+
 Flag the sales channel context or cart behaviour with `CheckoutPermissions::SKIP_CART_PERSISTENCE` to skip persisting the cart. Useful to trigger a memory only cart calculation:
 ```php
 $calculatedCart = $updatedContext->withPermissions(
@@ -124,18 +138,24 @@ $calculatedCart = $updatedContext->withPermissions(
 );
 ```
 Please ensure you respect this permission when overwriting with `Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent::setShouldPersist`.
+
 ## Load all category levels for current path in NavigationRoute
 
 The navigation route now loads all category levels in the path to the currently active category.
 Before it only loaded the configured levels as well as parents and children of the currently active category.
 However the "siblings" of all the parents were missing, which caused the navigation to be incomplete when you wanted to render the tree to the active path.
 As a result now the sidebar navigation in the CMS element now expands to the full path to the currently active category.
+
 ## CMS block component name will be used
+
 When rendering CMS block components in the Administration, the `component` property of the block config will be used instead of `sw-cms-block-${block.type}`. If there is no component name defined, `sw-cms-block-${block.type}` will be used as a fallback. Make sure you have set the correct component name in your CMS block configs.
+
 ## Return address in documents
+
 The option `Display company` address in the `Company settings` section of the document configuration is now split into `Display return address` and `Display company address`.  
 The former toggles the display of the return address above the customer address in the address block.  
 The latter toggles the display of the company address below the header on the right-hand side of the document.
+
 ## New Elasticsearch enhancement for optimized storefront searching and sorting
 
 This change introduces a new Elasticsearch enhancement that optimizes storefront searching and sorting. It includes the following key features:
@@ -150,9 +170,13 @@ bin/console es:index
 ```
 
 And the new implementation will be switched and ready to use after the re-indexing is completed.
+
 ## Deprecated `NavigationRoute::buildName()`
+
 The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildName()` is deprecated and will be removed in the next major version. It was used to build a dynamic tag name for navigation routes, but now all navigation routes are tagged with the same tag `NavigationRoute::ALL_TAG`.
-## Configuration
+
+## Configuration of bath size for file writing operations
+
 You can now configure the batch size for S3 file writing operations in your `config/packages/shopware.yaml`:
 
 ```yaml
@@ -164,8 +188,10 @@ shopware:
 This controls how many files are processed in a single batch when using the AsyncAwsS3WriteBatchAdapter, which helps prevent "Too many open files" errors and allows for performance tuning based on your infrastructure.
 
 # 6.7.1.2
+
 With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
 This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.
+
 ## Deprecate method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
 
 In some occasions, the method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was used to retrieve a single item based on its entity and identifier. However, this method only returns the first item found, which can lead to inconsistencies when multiple items share the same entity and identifier.
@@ -197,6 +223,7 @@ foreach ($entities as $entity) {
 # 6.7.1.0
 
 ## Add primary delivery and primary transaction to order
+
 Currently, there are multiple order deliveries and multiple order transactions per order.
 But normally, there is only one active transaction and one delivery containing all products.
 Now, orders contain a `primaryOrderDelivery` and `primaryOrderTransaction`, which is the easiest and in 6.8 recommended way to access them.
@@ -206,9 +233,11 @@ All existing orders will be updated with a migration so that they also have the 
 * Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`
 
 ## Theme configuration changes
+
 * Theme configuration used during storefront rendering is now stored in a `theme_runtime_config` table and regenerated on the refresh stage of theme lifecycle.
 * The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` is now deprecated and will be removed in the next major version. Please update the code that directly uses it to use the `\Shopware\Storefront\Theme\ResolvedConfigLoader` instead.
 * The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` is now deprecated and will be removed in the next major version. Please use `\Shopware\Storefront\Theme\Exception\ThemeException::themeAssignmentException`.
+
 ## Translation labels and helpTexts for Themes
 
 A constructed snippet key was introduced in Shopware 6.7 and will be required starting 6.8.
@@ -234,6 +263,7 @@ Examples:
     * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.helpText`
 * Options: `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.<index>.label`
   * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.0.label`
+
 ## Breadcrumb template functions require the `SalesChannelContext`
 
 The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e. adjust the default Twig templates as follows
@@ -254,10 +284,13 @@ The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurati
 deprecated in favor of the new `ThemeConfigurationService::getPlainThemeConfiguration` and
 `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods. The new methods return the same data as the old ones, 
 excluding the deprecated fields.
+
 ## Vue i18n Translation Functions
+
 * The `$tc` function is deprecated and will be removed in v6.8.0
 * Use `$t` function instead for all translations
 * The `$tc` function now shows a deprecation warning when used with the feature flag `V6_8_0_0` enabled
+
 ## Measurement system units info are now provided in the store-api
 
 Previously, the store-api did not provide measurement system units info. The product's measurement units were always returned in fixed units (kg/mm).

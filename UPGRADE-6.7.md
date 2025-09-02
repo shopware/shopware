@@ -285,11 +285,14 @@ deprecated in favor of the new `ThemeConfigurationService::getPlainThemeConfigur
 `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods. The new methods return the same data as the old ones, 
 excluding the deprecated fields.
 
+
 ## Vue i18n Translation Functions
+
 
 * The `$tc` function is deprecated and will be removed in v6.8.0
 * Use `$t` function instead for all translations
 * The `$tc` function now shows a deprecation warning when used with the feature flag `V6_8_0_0` enabled
+
 
 ## Measurement system units info are now provided in the store-api
 

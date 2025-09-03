@@ -10,6 +10,8 @@ author_github: BrocksiNet, mitelg
 * Added `\Shopware\Core\Content\Cookie\SalesChannel\CookieRoute` as new service to retrieve all registered cookie groups and their cookie entries.
 * Added `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` as new extension point to provide additional cookie groups and/or cookie entries.
 
+___
+
 # Storefront
 
 * Deprecated `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface`. Use `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead.
@@ -24,6 +26,8 @@ ___
 
 * Added new Store-API endpoint `/store-api/cookie-groups` to retrieve all registered cookie groups and their cookie entries.
 
+___
+
 # Upgrade Information
 
 ## Refactor of providing cookies
@@ -36,6 +40,8 @@ They will be removed in the next major version.
 To register new cookie groups and cookie entries, the new `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` should be used instead.
 Additionally, the `snippet_name` and `snippet_description` properties on cookies in Twig templates have been deprecated.
 Use `snippetKeyName` and `snippetKeyDescription` instead.
+
+___
 
 # Next Major Version Changes
 

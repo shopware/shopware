@@ -20,9 +20,6 @@
               "type": "boolean",
               "default": true
             }
-          },
-          {
-            "x-parameter-group": "criteria"
           }
         ],
         "responses": {

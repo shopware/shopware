@@ -16,7 +16,7 @@ use Shopware\Core\Framework\FrameworkException;
 #[CoversClass(CookieGroupCollection::class)]
 class CookieGroupCollectionTest extends TestCase
 {
-    public function testConstructorAndSet(): void
+    public function testCookieGroupIsIndexedByItsSnippetNameWithConstructor(): void
     {
         $cookieGroup = new CookieGroup('test.group');
 
@@ -26,7 +26,7 @@ class CookieGroupCollectionTest extends TestCase
         static::assertSame($cookieGroup, $collection->get('test.group'));
     }
 
-    public function testAdd(): void
+    public function testCookieGroupIsIndexedByItsSnippetNameWithAdd(): void
     {
         $collection = new CookieGroupCollection();
 
@@ -38,7 +38,7 @@ class CookieGroupCollectionTest extends TestCase
         static::assertSame($cookieGroup, $collection->get('test.group'));
     }
 
-    public function testExpectedClass(): void
+    public function testAddThrowsExceptionWhenWrongObjectIsAdded(): void
     {
         $this->expectExceptionObject(FrameworkException::collectionElementInvalidType(CookieGroup::class, \stdClass::class));
         /** @phpstan-ignore argument.type (Pass wrong type on purpose to test validation) */

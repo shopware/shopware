@@ -49,17 +49,17 @@ class CookieProviderTest extends TestCase
         $statisticalGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
         static::assertInstanceOf(CookieGroup::class, $statisticalGroup);
         static::assertNotNull($statisticalGroup->getEntries());
-        static::assertCount(1, $statisticalGroup->getEntries());
+        static::assertCount(0, $statisticalGroup->getEntries());
 
         $comfortFeaturesGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         static::assertInstanceOf(CookieGroup::class, $comfortFeaturesGroup);
         static::assertNotNull($comfortFeaturesGroup->getEntries());
-        static::assertCount(2, $comfortFeaturesGroup->getEntries());
+        static::assertCount(1, $comfortFeaturesGroup->getEntries());
 
         $marketingGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
         static::assertInstanceOf(CookieGroup::class, $marketingGroup);
         static::assertNotNull($marketingGroup->getEntries());
-        static::assertCount(1, $marketingGroup->getEntries());
+        static::assertCount(0, $marketingGroup->getEntries());
     }
 
     public function testNewCookieAddedViaEvent(): void

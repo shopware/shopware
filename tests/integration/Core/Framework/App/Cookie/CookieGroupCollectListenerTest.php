@@ -6,6 +6,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Cookie;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
+use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
@@ -94,7 +95,7 @@ class CookieGroupCollectListenerTest extends TestCase
         $coreCookieEntry = new CookieEntry('core.something');
         $coreCookieEntry->snippetKeyName = 'cookie.core';
 
-        $coreCookieGroup = new CookieGroup(\Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $coreCookieGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         $coreCookieGroup->setEntries(new CookieEntryCollection([$coreCookieEntry]));
 
         $event = new CookieGroupCollectEvent(
@@ -109,7 +110,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
-        static::assertSame(\Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED, $firstGroup->snippetKeyName);
+        static::assertSame(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED, $firstGroup->snippetKeyName);
         $entries = $firstGroup->getEntries();
         static::assertNotNull($entries);
         static::assertCount(3, $entries);

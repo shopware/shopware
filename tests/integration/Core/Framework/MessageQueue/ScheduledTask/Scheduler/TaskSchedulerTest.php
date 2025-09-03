@@ -85,6 +85,49 @@ class TaskSchedulerTest extends TestCase
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
+    public function testScheduleTasksGetsRequeuedAfterItIsStuck(): void
+    {
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
+
+        $taskId = Uuid::randomHex();
+        $this->scheduledTaskRepo->create([
+            [
+                'id' => $taskId,
+                'name' => 'test',
+                'scheduledTaskClass' => TestTask::class,
+                'runInterval' => 300,
+                'defaultRunInterval' => 300,
+                'status' => ScheduledTaskDefinition::STATUS_RUNNING,
+                'nextExecutionTime' => (new \DateTime()),
+            ],
+        ], Context::createDefaultContext());
+
+        // Fake that the task was updated 12 hours ago, so it is stuck
+        $this->connection->executeStatement('
+            UPDATE scheduled_task
+            SET updated_at = :time
+            WHERE id = :id
+        ', [
+            'id' => Uuid::fromHexToBytes($taskId),
+            'time' => (new \DateTime())->modify('-12 hours')->modify('-1 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $this->messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(function (TestTask $task) use ($taskId) {
+                static::assertSame($taskId, $task->getTaskId());
+
+                return true;
+            }))
+            ->willReturn(new Envelope(new TestTask()));
+
+        $this->scheduler->queueScheduledTasks();
+
+        /** @var ScheduledTaskEntity $task */
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+    }
+
     public function testScheduleTasksDoesntScheduleFutureTask(): void
     {
         $this->connection->executeStatement('DELETE FROM scheduled_task');

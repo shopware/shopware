@@ -19,6 +19,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -34,6 +35,7 @@ class TaskSchedulerTest extends TestCase
      * @param AggregationResult[] $aggregationResult
      */
     #[DataProvider('providerGetNextExecutionTime')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetNextExecutionTime(array $aggregationResult, ?\DateTime $time): void
     {
         $scheduledTaskRepository = $this->createMock(EntityRepository::class);

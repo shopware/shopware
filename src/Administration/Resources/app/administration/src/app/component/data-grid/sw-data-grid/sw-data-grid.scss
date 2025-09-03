@@ -298,7 +298,7 @@
 
     .sw-data-grid__body .sw-data-grid__row {
         &:nth-child(even) .sw-data-grid__cell {
-            background-color: var(--color-background-primary-default);
+            background-color: var(--color-elevation-surface-sunken);
         }
 
         &:hover .sw-data-grid__cell {

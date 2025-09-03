@@ -113,16 +113,14 @@ export default {
                 .addAssociation('primaryOrderTransaction.stateMachineState')
                 .addAssociation('primaryOrderDelivery.shippingMethod')
                 .addAssociation('primaryOrderDelivery.stateMachineState')
-                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
 
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 criteria
                     .getAssociation('deliveries')
                     .addAssociation('stateMachineState')
                     .addAssociation('shippingOrderAddress')
-                    .addAssociation('shippingMethod')
-                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+                    .addAssociation('shippingMethod');
             }
 
             return criteria;

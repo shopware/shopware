@@ -55,9 +55,7 @@ class MetadataCollection extends Collection
      */
     public function getLocalesRequiringUpdate(): array
     {
-        $elements = $this->filter(fn (MetadataEntry $entry) => $entry->isUpdateRequired);
-
-        return array_keys($elements->getElements());
+        return $this->filter(fn (MetadataEntry $entry) => $entry->isUpdateRequired)->getKeys();
     }
 
     protected function getExpectedClass(): string

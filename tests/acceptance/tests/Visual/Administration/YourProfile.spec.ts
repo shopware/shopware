@@ -9,7 +9,7 @@ test('Visual: Administration your profile page', { tag: '@Visual' }, async ({
     await test.step('Creates a screenshot of the your profile page.', async () => {
         await ShopAdmin.goesTo(AdminYourProfile.url());
         await setViewport(AdminYourProfile.page, {
-        waitForSelector: AdminYourProfile.emailField,
+            waitForSelector: AdminYourProfile.emailField,
         });
         await replaceElements(AdminYourProfile.page, [
             AdminYourProfile.firstNameField,

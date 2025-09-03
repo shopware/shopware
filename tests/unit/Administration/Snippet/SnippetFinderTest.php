@@ -150,20 +150,32 @@ class SnippetFinderTest extends TestCase
 
     public function testDuplicateAppSnippets(): void
     {
+        $testSnippet = ['testSnippetKey' => 'testSnippet'];
         $appSnippets = [
-            'sw-category' => [],
-            'sw-cms' => [],
-            'sw-wizard' => [],
+            'sw-category' => $testSnippet,
+            'sw-cms' => $testSnippet,
+            'sw-wizard' => $testSnippet,
         ];
 
-        $snippetFinder = $this->getSnippetFinder(
+        $snippetFinderWithoutAppSnippets = $this->getSnippetFinder(
+            connection: $this->getConnectionMock('en-GB', [])
+        );
+        $snippetsWithoutAppSnippets = $snippetFinderWithoutAppSnippets->findSnippets('en-GB');
+
+        $snippetFinderWithAppSnippets = $this->getSnippetFinder(
             connection: $this->getConnectionMock('en-GB', $appSnippets)
         );
+        $snippetsWithAppSnippets = $snippetFinderWithAppSnippets->findSnippets('en-GB');
 
-        $snippets = $snippetFinder->findSnippets('en-GB');
-        static::assertContains($appSnippets['sw-category'], $snippets);
-        static::assertContains($appSnippets['sw-cms'], $snippets);
-        static::assertContains($appSnippets['sw-wizard'], $snippets);
+        foreach (array_keys($appSnippets) as $key) {
+            static::assertArrayHasKey($key, $snippetsWithoutAppSnippets);
+            static::assertArrayNotHasKey('testSnippetKey', $snippetsWithoutAppSnippets[$key]);
+            static::assertNotContains('testSnippet', $snippetsWithoutAppSnippets[$key]);
+
+            static::assertArrayHasKey($key, $snippetsWithAppSnippets);
+            static::assertArrayHasKey('testSnippetKey', $snippetsWithAppSnippets[$key]);
+            static::assertEquals('testSnippet', $snippetsWithAppSnippets[$key]['testSnippetKey']);
+        }
     }
 
     /**
@@ -314,6 +326,7 @@ class SnippetFinderTest extends TestCase
             [],
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
         );
         $loader = $this->getTranslationLoader($config);
 
@@ -337,6 +350,7 @@ class SnippetFinderTest extends TestCase
             ['activePlugin'],
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
         );
         $loader = $this->getTranslationLoader($config);
         $this->createSnippetFixtures($this->filesystem, $loader);
@@ -408,6 +422,7 @@ class SnippetFinderTest extends TestCase
             [],
             new LanguageDtoCollection([new LanguageDto('en-GB', 'English (UK')]),
             new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
         );
 
         $kernelMock = $kernel ?? $this->getKernelMock();

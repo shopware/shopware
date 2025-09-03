@@ -7,7 +7,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
@@ -57,8 +59,14 @@ class ProductListingRouteTest extends TestCase
      */
     private array $variantIds;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
@@ -66,11 +74,11 @@ class ProductListingRouteTest extends TestCase
         $this->ids = new IdsCollection();
         $this->createSalesChannelContext(['id' => $this->ids->create('sales-channel')]);
 
-        /** @var EntityRepository $categoryRepository */
+        /** @var EntityRepository<CategoryCollection> */
         $categoryRepository = static::getContainer()->get('category.repository');
         $this->categoryRepository = $categoryRepository;
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
     }

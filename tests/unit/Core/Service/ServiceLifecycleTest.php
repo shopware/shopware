@@ -70,8 +70,8 @@ class ServiceLifecycleTest extends TestCase
     protected function setUp(): void
     {
         $this->appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $this->entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
-        $this->appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0');
+        $this->entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app');
+        $this->appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://example.com/service/lifecycle/app-zip/6.6.0.0', 'sha256', '6.6.0.0');
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->serviceClient = $this->createMock(ServiceClient::class);
@@ -87,7 +87,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testInstallDoesNotLogErrorIfAppCannotBeDownloaded(): void
     {
-        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInfo());
+        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
         $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
@@ -187,12 +187,14 @@ class ServiceLifecycleTest extends TestCase
         $this->appLifecycle->expects($this->once())
             ->method('install')
             ->willReturnCallback(function (Manifest $manifest): void {
-                static::assertSame('https://mycoolservice.com', $manifest->getPath());
+                static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
                     'hash' => 'a1bcd',
                     'revision' => '6.6.0.0-a1bcd',
-                    'zip-url' => 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0',
+                    'zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
+                    'hash-algorithm' => 'sha256',
+                    'min-shop-supported-version' => '6.6.0.0',
                 ], $manifest->getSourceConfig());
                 static::assertTrue($manifest->getMetadata()->isSelfManaged());
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
@@ -280,12 +282,14 @@ class ServiceLifecycleTest extends TestCase
         $this->appLifecycle->expects($this->once())
             ->method('update')
             ->willReturnCallback(function (Manifest $manifest): void {
-                static::assertSame('https://mycoolservice.com', $manifest->getPath());
+                static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
                     'hash' => 'a1bcd',
                     'revision' => '6.6.0.0-a1bcd',
-                    'zip-url' => 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0',
+                    'zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
+                    'hash-algorithm' => 'sha256',
+                    'min-shop-supported-version' => '6.6.0.0',
                 ], $manifest->getSourceConfig());
                 static::assertTrue($manifest->getMetadata()->isSelfManaged());
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
@@ -328,7 +332,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testInstallDoesNotActivateIfRegistryEntrySpecifiesNotTo(): void
     {
-        $entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app', activateOnInstall: false);
+        $entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', activateOnInstall: false);
 
         $tempDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
         $tempDirectoryFactory->method('path')->willReturn('/tmp/path');
@@ -352,12 +356,14 @@ class ServiceLifecycleTest extends TestCase
             ->method('install')
             ->willReturnCallback(function (Manifest $manifest, AppInstallParameters $options): void {
                 static::assertFalse($options->activate);
-                static::assertSame('https://mycoolservice.com', $manifest->getPath());
+                static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
                     'hash' => 'a1bcd',
                     'revision' => '6.6.0.0-a1bcd',
-                    'zip-url' => 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0',
+                    'zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
+                    'hash-algorithm' => 'sha256',
+                    'min-shop-supported-version' => '6.6.0.0',
                 ], $manifest->getSourceConfig());
                 static::assertTrue($manifest->getMetadata()->isSelfManaged());
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
@@ -422,7 +428,7 @@ class ServiceLifecycleTest extends TestCase
         $app->setUniqueIdentifier(Uuid::randomHex());
         $app->assign(['name' => 'MyCoolService']);
 
-        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInfo());
+        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
         $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
@@ -432,7 +438,7 @@ class ServiceLifecycleTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('debug')
-            ->with('Cannot update service "MyCoolService" because of error: "Error downloading app. The version information was missing."');
+            ->with('Cannot update service "MyCoolService" because of error: "Error downloading app. The version information was missing: app-version"');
 
         $this->serviceRegistryClient->expects($this->once())->method('get')->with('MyCoolService')->willReturn($this->entry);
         $this->eventDispatcher->expects($this->never())->method('dispatch');
@@ -555,12 +561,14 @@ class ServiceLifecycleTest extends TestCase
         $this->appLifecycle->expects($this->once())
             ->method('update')
             ->willReturnCallback(function (Manifest $manifest): void {
-                static::assertSame('https://mycoolservice.com', $manifest->getPath());
+                static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
                     'hash' => 'a1bcd',
                     'revision' => '6.6.0.0-a1bcd',
-                    'zip-url' => 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0',
+                    'zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
+                    'hash-algorithm' => 'sha256',
+                    'min-shop-supported-version' => '6.6.0.0',
                 ], $manifest->getSourceConfig());
                 static::assertTrue($manifest->getMetadata()->isSelfManaged());
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());

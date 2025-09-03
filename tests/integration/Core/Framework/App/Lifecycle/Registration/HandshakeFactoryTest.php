@@ -56,6 +56,8 @@ class HandshakeFactoryTest extends TestCase
             AppUrl::IDENTIFIER => 'https://test.com',
         ]));
 
+        static::getContainer()->get(ShopIdProvider::class)->reset();
+
         $factory = new HandshakeFactory(
             $shopUrl,
             static::getContainer()->get(ShopIdProvider::class),

@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -28,6 +29,9 @@ final class FileLoaderTest extends TestCase
 
     private FileSaver $fileSaver;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
     protected function setUp(): void

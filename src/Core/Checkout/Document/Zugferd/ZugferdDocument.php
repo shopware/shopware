@@ -168,7 +168,7 @@ class ZugferdDocument
         $tax = $price?->getCalculatedTaxes()?->first();
         $product = $lineItem->getProduct();
 
-        if ($price === null || ($totalNet = $this->getPrice($tax, $price)) < 0) {
+        if ($price === null || ($totalNet = $this->getPriceWithFallback($tax, $price)) < 0) {
             throw DocumentException::generationError('Price can\'t be negative or null: ' . $lineItem->getLabel());
         }
 
@@ -209,7 +209,7 @@ class ZugferdDocument
         $this->addMappedPrice($type, $lineItem->getPrice());
 
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
-            $actualAmount = $this->getPrice($calculatedTax, $lineItem->getPrice());
+            $actualAmount = $this->getPriceWithFallback($calculatedTax, $lineItem->getPrice());
 
             if (!Feature::isActive('v6.8.0.0')) {
                 if ($isCharge) {
@@ -251,7 +251,7 @@ class ZugferdDocument
             $this->addMappedPrice(self::CHARGE_AMOUNT, $delivery->getShippingCosts());
 
             foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
-                $actualAmount = $this->getPrice($calculatedTax, $delivery->getShippingCosts());
+                $actualAmount = $this->getPriceWithFallback($calculatedTax, $delivery->getShippingCosts());
 
                 if (!Feature::isActive('v6.8.0.0')) {
                     $this->addChargeAmount($actualAmount);
@@ -280,7 +280,13 @@ class ZugferdDocument
         }
 
         foreach ($price->getCalculatedTaxes() as $tax) {
-            $this->zugferdBuilder->addDocumentTax($this->getTaxCode($tax), 'VAT', $this->getPrice($tax), $tax->getTax(), $tax->getTaxRate());
+            $this->zugferdBuilder->addDocumentTax(
+                $this->getTaxCode($tax),
+                'VAT',
+                $this->getPriceWithFallback($tax),
+                $tax->getTax(),
+                $tax->getTaxRate()
+            );
         }
 
         return $this;
@@ -327,14 +333,21 @@ class ZugferdDocument
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $fallbackPrice parameter will be added
+     * @deprecated tag:v6.8.0 - Use getPriceWithFallback instead
      */
-    protected function getPrice(
-        ?CalculatedTax $tax,
-        /* ?CalculatedPrice $fallbackPrice = null, */
-    ): float {
-        $fallbackPrice = func_num_args() > 1 ? func_get_arg(1) : null;
+    protected function getPrice(CalculatedTax $tax): float
+    {
+        $price = $tax->getPrice();
 
+        if ($this->isGross) {
+            $price -= $tax->getTax();
+        }
+
+        return $price;
+    }
+
+    protected function getPriceWithFallback(?CalculatedTax $tax, ?CalculatedPrice $fallbackPrice = null): float
+    {
         $tax = $tax ?? $fallbackPrice?->getCalculatedTaxes()?->first();
 
         if ($tax === null) {
@@ -405,12 +418,12 @@ class ZugferdDocument
 
         $netTotal = 0.0;
         foreach ($calculatedTaxes as $tax) {
-            $netTotal += $this->getPrice($tax);
+            $netTotal += $this->getPriceWithFallback($tax);
         }
 
         if ($calculatedTaxes->count() === 0) {
             foreach ($this->mappedPrices[$type] as $price) {
-                $netTotal += $this->getPrice(null, $price);
+                $netTotal += $this->getPriceWithFallback(null, $price);
             }
         }
 

@@ -449,8 +449,8 @@ class WriteCommandExtractor
         krsort($filtered, \SORT_NUMERIC);
 
         $sorted = [];
-        foreach ($filtered as $fields) {
-            foreach ($fields as $field) {
+        foreach ($filtered as $filteredFields) {
+            foreach ($filteredFields as $field) {
                 $sorted[] = $field;
             }
         }

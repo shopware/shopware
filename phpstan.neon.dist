@@ -171,11 +171,6 @@ parameters:
                 - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
                 - tests/integration/Core/Framework/Plugin/_fixtures/*
 
-        - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
-            message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
-            paths:
-                - tests/integration/Core/Content/**
-
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
             paths:

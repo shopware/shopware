@@ -111,8 +111,8 @@ class MemoryFilesystemAdapter implements FilesystemAdapter
         $prefix = $this->preparePath($path);
         $prefix = rtrim($prefix, '/') . '/';
 
-        foreach (array_keys($this->files) as $path) {
-            if (str_starts_with($path, $prefix)) {
+        foreach (array_keys($this->files) as $file) {
+            if (str_starts_with($file, $prefix)) {
                 return true;
             }
         }
@@ -187,9 +187,9 @@ class MemoryFilesystemAdapter implements FilesystemAdapter
         $prefixLength = \strlen($prefix);
         $listedDirectories = [];
 
-        foreach ($this->files as $path => $file) {
-            if (str_starts_with($path, $prefix)) {
-                $subPath = substr($path, $prefixLength);
+        foreach ($this->files as $filePath => $file) {
+            if (str_starts_with($filePath, $prefix)) {
+                $subPath = substr($filePath, $prefixLength);
                 $dirname = \dirname($subPath);
 
                 if ($dirname !== '.') {
@@ -211,12 +211,12 @@ class MemoryFilesystemAdapter implements FilesystemAdapter
                 }
 
                 $dummyFilename = self::DUMMY_FILE_FOR_FORCED_LISTING_IN_FLYSYSTEM_TEST;
-                if (str_ends_with($path, $dummyFilename)) {
+                if (str_ends_with($filePath, $dummyFilename)) {
                     continue;
                 }
 
                 if ($deep === true || !str_contains($subPath, '/')) {
-                    yield new FileAttributes(ltrim($path, '/'), $file->fileSize(), $file->visibility(), $file->lastModified(), $file->mimeType());
+                    yield new FileAttributes(ltrim($filePath, '/'), $file->fileSize(), $file->visibility(), $file->lastModified(), $file->mimeType());
                 }
             }
         }

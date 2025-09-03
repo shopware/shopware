@@ -23,7 +23,8 @@
       "textFilterRootLanguages": "Show only \"root\" languages",
       "textFilterInheritedLanguages": "Show only inherited languages",
       "manageSnippets": "Manage snippets",
-      "cardTitle": "Languages"
+      "cardTitle": "Languages",
+      "cardSubtitle": "Languages can be assigned to Sales Channel domains in order to display the appropriate translations. They also enable the translation of content in categories, products, CMS pages, etc."
     },
     "detail": {
       "textHeadline": "New language",

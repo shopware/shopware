@@ -27,13 +27,9 @@
             /> {{ $tc('sw-settings-language.list.textHeadline') }}
             {% endblock %}
 
+            {# @deprecated tag:v6.8.0 - Block will be removed. #}
             {% block sw_settings_language_list_smart_bar_header_amount %}
-            <span
-                v-if="!isLoading"
-                class="sw-page__smart-bar-amount"
-            >
-                ({{ total }})
-            </span>
+
             {% endblock %}
 
         </h2>
@@ -84,8 +80,18 @@
 
             <mt-card
                 position-identifier="sw-settings-language-list"
-                :title="$tc('sw-settings-language.list.cardTitle')"
             >
+                <template #title>
+                    <div class="sw-settings-language-list__card-title-wrapper">
+                        <div class="sw-settings-language-list__card-title">
+                            {{ $tc('sw-settings-language.list.cardTitle') }} ({{ total }})
+                        </div>
+                        <div class="sw-settings-language-list__card-subtitle">
+                            {{ $tc('sw-settings-language.list.cardSubtitle') }}
+                        </div>
+                    </div>
+                </template>
+
                 <template #grid>
                     <sw-entity-listing
                         key="language-listing"

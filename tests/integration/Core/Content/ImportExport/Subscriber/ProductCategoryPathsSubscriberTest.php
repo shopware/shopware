@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Subscriber;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCategoryPathsSubscriber;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -23,6 +24,9 @@ class ProductCategoryPathsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     protected function setUp(): void

@@ -4,11 +4,7 @@ const { Module } = Shopware;
 Shopware.Component.register('sw-first-run-wizard-modal', () => import('./component/sw-first-run-wizard-modal'));
 Shopware.Component.register('sw-plugin-card', () => import('./component/sw-plugin-card'));
 Shopware.Component.register('sw-first-run-wizard', () => import('./page/index'));
-/**
- * @deprecated tag:v6.8.0 - will be removed, the component is replaced by `sw-first-run-wizard-introduction`
- */
 Shopware.Component.register('sw-first-run-wizard-welcome', () => import('./view/sw-first-run-wizard-welcome'));
-Shopware.Component.register('sw-first-run-wizard-introduction', () => import('./view/sw-first-run-wizard-introduction'));
 Shopware.Component.register('sw-first-run-wizard-data-import', () => import('./view/sw-first-run-wizard-data-import'));
 Shopware.Component.register('sw-first-run-wizard-mailer-base', () => import('./view/sw-first-run-wizard-mailer-base'));
 Shopware.Component.register(
@@ -64,9 +60,7 @@ Module.register('sw-first-run-wizard', {
             },
             children: {
                 welcome: {
-                    component: Shopware.Feature.isActive('v6.8.0.0')
-                        ? 'sw-first-run-wizard-introduction'
-                        : 'sw-first-run-wizard-welcome',
+                    component: 'sw-first-run-wizard-welcome',
                     path: '',
                     meta: {
                         privilege: 'admin',

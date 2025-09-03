@@ -50,7 +50,23 @@ class ApiAware extends Flag
             return true;
         }
 
-        return isset($this->whitelist[$source]);
+        if (isset($this->whitelist[$source])) {
+            return true;
+        }
+
+        $parentSources = class_parents($source);
+
+        if (!$parentSources) {
+            return false;
+        }
+
+        foreach ($parentSources as $parentSource) {
+            if (isset($this->whitelist[$parentSource])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function parse(): \Generator

@@ -1497,8 +1497,8 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(3, $folder->getChildren());
 
         $secondIds = $folder->getChildren()->getIds();
-        foreach ($firstIds as $id) {
-            static::assertNotContains($id, $secondIds);
+        foreach ($firstIds as $childrenId) {
+            static::assertNotContains($childrenId, $secondIds);
         }
     }
 

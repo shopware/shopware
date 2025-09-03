@@ -57,7 +57,7 @@ class TranslationLoader
     ) {
     }
 
-    public function load(string $locale, Context $context): void
+    public function load(string $locale, Context $context, bool $activate = true): void
     {
         $language = $this->config->languages->get($locale);
 
@@ -68,7 +68,7 @@ class TranslationLoader
         $this->fetchPlatformSnippets($locale);
         $this->fetchPluginSnippets($locale);
 
-        $this->createLanguage($language, $context);
+        $this->createLanguage($language, $context, $activate);
         $this->createSnippetSet($language, $context);
     }
 
@@ -172,7 +172,7 @@ class TranslationLoader
         }
     }
 
-    private function createLanguage(Language $language, Context $context): void
+    private function createLanguage(Language $language, Context $context, bool $activate = true): void
     {
         $criteria = new Criteria();
         $criteria
@@ -198,6 +198,7 @@ class TranslationLoader
             'name' => $language->name,
             'localeId' => $localeId,
             'translationCodeId' => $localeId,
+            'active' => $activate,
         ]], $context);
     }
 

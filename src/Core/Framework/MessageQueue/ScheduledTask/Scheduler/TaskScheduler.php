@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -38,7 +39,8 @@ class TaskScheduler
     public function __construct(
         private readonly EntityRepository $scheduledTaskRepository,
         private readonly MessageBusInterface $bus,
-        private readonly ParameterBagInterface $parameterBag
+        private readonly ParameterBagInterface $parameterBag,
+        private readonly int $requeueTimeout,
     ) {
     }
 
@@ -130,7 +132,9 @@ class TaskScheduler
                             new RangeFilter(
                                 'updatedAt',
                                 [
-                                    RangeFilter::LT => (new \DateTime())->modify('-12 hours')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                                    RangeFilter::LT => (new \DateTime())
+                                        ->modify(\sprintf('-%d hours', $this->requeueTimeout))
+                                        ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                                 ]
                             ),
                             new EqualsAnyFilter('status', [
@@ -151,10 +155,7 @@ class TaskScheduler
         $taskClass = $taskEntity->getScheduledTaskClass();
 
         if (!\is_a($taskClass, ScheduledTask::class, true)) {
-            throw new \RuntimeException(\sprintf(
-                'Tried to schedule "%s", but class does not extend ScheduledTask',
-                $taskClass
-            ));
+            throw MessageQueueException::scheduledTaskDoesNotImplementInterface($taskClass);
         }
 
         if (!$taskClass::shouldRun($this->parameterBag)) {

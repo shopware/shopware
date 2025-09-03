@@ -47,7 +47,7 @@ class TaskSchedulerTest extends TestCase
         $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
         $this->messageBus = $this->createMock(MessageBusInterface::class);
 
-        $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus, new ParameterBag());
+        $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus, new ParameterBag(), 12);
 
         $this->connection = static::getContainer()->get(Connection::class);
     }
@@ -80,8 +80,8 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
@@ -123,8 +123,8 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
@@ -150,8 +150,8 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
@@ -178,8 +178,8 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame($status, $task->getStatus());
     }
 
@@ -241,8 +241,8 @@ class TaskSchedulerTest extends TestCase
         try {
             $this->scheduler->queueScheduledTasks();
         } catch (\Exception $exception) {
-            /** @var ScheduledTaskEntity $task2Entity */
             $task2Entity = $this->scheduledTaskRepo->search(new Criteria([$taskId2]), $context)->get($taskId2);
+            static::assertInstanceOf(ScheduledTaskEntity::class, $task2Entity);
             static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task2Entity->getStatus());
 
             throw $exception;

@@ -8,19 +8,19 @@ The system consists of several key components:
 
 ### Core Components
 
-- **ScheduledTask** (`ScheduledTask.php`) - Abstract base class for all scheduled tasks
-- **ScheduledTaskEntity** (`ScheduledTaskEntity.php`) - Entity representing task persistence in database
-- **ScheduledTaskDefinition** (`ScheduledTaskDefinition.php`) - Data definition with status constants
-- **ScheduledTaskHandler** (`ScheduledTaskHandler.php`) - Abstract handler for task execution
-- **TaskScheduler** (`Scheduler/TaskScheduler.php`) - Manages task queueing and scheduling logic
-- **TaskRunner** (`Scheduler/TaskRunner.php`) - Handles direct task execution
-- **TaskRegistry** (`Registry/TaskRegistry.php`) - Manages task registration and lifecycle
+- **[ScheduledTask](ScheduledTask.php)** - Abstract base class for all scheduled tasks
+- **[ScheduledTaskEntity](ScheduledTaskEntity.php)** - Entity representing task persistence in database
+- **[ScheduledTaskDefinition](ScheduledTaskDefinition.php)** - DAL definition with status constants
+- **[ScheduledTaskHandler](ScheduledTaskHandler.php)** - Abstract handler for task execution
+- **[TaskScheduler](Scheduler/TaskScheduler.php)** - Manages task queueing and scheduling logic
+- **[TaskRunner](Scheduler/TaskRunner.php)** - Handles direct task execution
+- **[TaskRegistry](Registry/TaskRegistry.php)** - Manages task registration and lifecycle
 
 ### Support Components
 
-- **RegisterScheduledTaskMessage** (`MessageQueue/RegisterScheduledTaskMessage.php`) - Message for task registration
-- **RegisterScheduledTaskHandler** (`MessageQueue/RegisterScheduledTaskHandler.php`) - Handles task registration
-- **ScheduleProvider** (`SymfonyBridge/ScheduleProvider.php`) - Symfony Scheduler integration (experimental)
+- **[RegisterScheduledTaskMessage](MessageQueue/RegisterScheduledTaskMessage.php)** - Message for task registration
+- **[RegisterScheduledTaskHandler](MessageQueue/RegisterScheduledTaskHandler.php)** - Handles task registration
+- **[ScheduleProvider](SymfonyBridge/ScheduleProvider.php)** - Symfony Scheduler integration (experimental)
 
 ## Task States and Lifecycle
 

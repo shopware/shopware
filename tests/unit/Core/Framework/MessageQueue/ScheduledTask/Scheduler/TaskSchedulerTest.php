@@ -44,7 +44,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
-            new ParameterBag()
+            new ParameterBag(),
+            12
         );
 
         static::assertEquals(
@@ -91,7 +92,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
-            new ParameterBag()
+            new ParameterBag(),
+            12
         );
 
         static::assertSame(
@@ -136,7 +138,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $bus,
-            new ParameterBag()
+            new ParameterBag(),
+            12
         );
 
         $scheduler->queueScheduledTasks();
@@ -177,7 +180,8 @@ class TaskSchedulerTest extends TestCase
             $bus,
             new ParameterBag([
                 'shopware.test.active' => false,
-            ])
+            ]),
+            12
         );
 
         $scheduler->queueScheduledTasks();
@@ -225,7 +229,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $bus,
-            new ParameterBag(['shopware.test.active' => $shouldSchedule])
+            new ParameterBag(['shopware.test.active' => $shouldSchedule]),
+            12
         );
 
         $scheduler->queueScheduledTasks();
@@ -257,7 +262,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
-            new ParameterBag()
+            new ParameterBag(),
+            12
         );
 
         static::expectException(\RuntimeException::class);

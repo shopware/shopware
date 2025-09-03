@@ -655,7 +655,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
-        static::assertSame($errors[0]['message'], 'Promotion with code some-random-code not found!');
+        static::assertSame($errors[0]['translatedMessage'], 'Promo code "some-random-code" could not be found.');
     }
 
     /**
@@ -728,7 +728,7 @@ class RecalculationServiceTest extends TestCase
 
         static::assertCount(1, $content['errors']);
         static::assertNotNull($promotionItem);
-        static::assertSame('Discount auto promotion has been added', array_values($content['errors'])[0]['message']);
+        static::assertSame('Discount "auto promotion" has been added', array_values($content['errors'])[0]['translatedMessage']);
         static::assertSame($order->getStateId(), $stateId);
 
         // On recalculation, promotion is applied once more, creating a new line item.
@@ -758,7 +758,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
-        static::assertSame('Discount delivery promotion has been added', $errors[0]['message']);
+        static::assertSame('Discount "delivery promotion" has been added', $errors[0]['translatedMessage']);
         static::assertSame($order->getStateId(), $stateId);
 
         static::assertNotNull($order->getDeliveries());
@@ -1966,7 +1966,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
-        static::assertSame($errors[0]['message'], 'Discount GET5 has been added');
+        static::assertSame($errors[0]['translatedMessage'], 'Discount "GET5" has been added');
         static::assertSame($stateId, $order->getStateId());
 
         return $order;
@@ -2064,7 +2064,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
-        static::assertSame($errors[0]['message'], 'Discount auto promotion has been added');
+        static::assertSame($errors[0]['translatedMessage'], 'Discount "auto promotion" has been added');
         static::assertSame($stateId, $order->getStateId());
     }
 

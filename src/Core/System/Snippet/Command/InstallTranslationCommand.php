@@ -4,7 +4,9 @@ namespace Shopware\Core\System\Snippet\Command;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -27,6 +29,7 @@ class InstallTranslationCommand extends Command
     public function __construct(
         private readonly TranslationLoader $translationLoader,
         private readonly TranslationConfig $config,
+        private readonly TranslationMetadataLoader $metadataLoader,
     ) {
         parent::__construct();
     }
@@ -35,23 +38,51 @@ class InstallTranslationCommand extends Command
     {
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Fetch all available translations');
         $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "de-DE,en-US"');
+        $this->addOption('skip-activation', null, InputOption::VALUE_NONE, 'Skip activation of created languages');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locales = $this->getLocales($input);
-        $progressBar = $this->createProgressBar($output, \count($locales));
+
+        try {
+            $metadata = $this->metadataLoader->getUpdatedMetadata($locales);
+        } catch (\Throwable $e) {
+            $output->writeln(\sprintf('<error>An error occurred while fetching metadata: "%s"</error>', $e->getMessage()));
+
+            return self::FAILURE;
+        }
+
+        $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
+        if ($localesRequiringUpdate === []) {
+            $output->writeln('All translations are already up to date.');
+
+            return self::SUCCESS;
+        }
+
+        $localesDiff = array_diff($locales, $localesRequiringUpdate);
+        if ($localesDiff !== []) {
+            $output->writeln(\sprintf(
+                'The following locales are already up to date and will be skipped: %s',
+                implode(', ', $localesDiff)
+            ));
+        }
+
+        $progressBar = $this->createProgressBar($output, \count($localesRequiringUpdate));
         $context = Context::createCLIContext();
 
-        foreach ($locales as $locale) {
+        $activate = !$input->getOption('skip-activation');
+        foreach ($localesRequiringUpdate as $locale) {
             $progressBar->setMessage($locale);
             $progressBar->advance();
 
-            $this->translationLoader->load($locale, $context);
+            $this->translationLoader->load($locale, $context, $activate);
         }
 
         $progressBar->finish();
         $output->write(\PHP_EOL);
+
+        $this->saveMetadata($metadata, $output);
 
         return self::SUCCESS;
     }
@@ -111,5 +142,17 @@ class InstallTranslationCommand extends Command
         $progressBar->setFormat('install-translations-format');
 
         return $progressBar;
+    }
+
+    private function saveMetadata(MetadataCollection $metadata, OutputInterface $output): void
+    {
+        $output->writeln('Saving translation metadata...');
+
+        try {
+            $this->metadataLoader->save($metadata);
+            $output->writeln('Translation metadata saved successfully.');
+        } catch (\Throwable $e) {
+            $output->writeln(\sprintf('<error>An error occurred while saving metadata: "%s"</error>', $e->getMessage()));
+        }
     }
 }

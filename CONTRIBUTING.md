@@ -8,14 +8,6 @@ If you want more details about available licensing or the contribution agreement
 If you want to learn how to contribute code to Shopware, please refer to [Contributing Code](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html).
 Also, make sure that you add a changelog file that describes your changes in a meaningful way. For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/adr/2020-08-03-implement-new-changelog.md).
 
-## Devcontainer
-
-If you're editor supports Devcontainer, you can open the repository directly in a Container. This environment is preconfigured with all the necessary tools and dependencies to install Shopware. You can find more about Devcontainers [here](https://code.visualstudio.com/docs/devcontainers/containers).
-
-After you opened the repository in a Devcontainer, you can run `composer setup` to install all dependencies. This will download all the necessary dependencies and set up the environment for development. After the setup is complete, you can access the application at [http://localhost:8000](http://localhost:8000).
-
-You can start all the Watcher processes with `composer [tool]` ([see below for a listing](#command-overview)).
-
 ## Local Docker Setup
 
 The repository contains a Docker setup to run the application locally. You can start the containers with `docker compose up -d` and build the project with `docker compose exec web composer setup`.

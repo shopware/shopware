@@ -64,6 +64,7 @@
     classes = {},
     mediaHeight = 240,
     defaultRoute = seoUrl('frontend.detail.page', { productId: product.id }),
+    slots = [],
 %}
 
 {% set defaultClasses = {
@@ -84,58 +85,87 @@
 
 <div {{ attributes.defaults({ class: defaultClasses.root }) }}>
     <div {{ attributes.nested('header').defaults({ class: defaultClasses.header }) }}>
+
+        <twig:slot name="header-top"></twig:slot>
+
         {% block media %}
-            <twig:image:image
-                {{ ...attributes.nested('media').defaults({
-                    media: product.cover.media,
-                    height: mediaHeight,
-                    class: defaultClasses.media,
-                    sizes: '800px',
-                    loading: 'lazy'
-                }) }}
-            />
+            <twig:slot name="media">
+                <twig:media:image
+                    {{ ...attributes.nested('media').defaults({
+                        media: product.cover.media,
+                        height: mediaHeight,
+                        class: defaultClasses.media,
+                        sizes: '800px',
+                        loading: 'lazy'
+                    }) }}
+                />
+            </twig:slot>
         {% endblock %}
 
         {% block badges %}
-            <twig:product-card:badges :product="product" />
+            <twig:slot name="badges">
+                <twig:product-card:badges :product="product" />
+            </twig:slot>
         {% endblock %}
+
+        <twig:slot name="header-bottom"></twig:slot>
     </div>
 
     <div {{ attributes.nested('body').defaults({ class: defaultClasses.body }) }}>
+
+        <twig:slot name="body-top"></twig:slot>
+
         {% block title %}
-            <h2 {{ attributes.nested('title').defaults({ class: defaultClasses.title }) }}>
-                <a
-                    {{ attributes.nested('title-link').defaults({
-                        class: defaultClasses.titleLink,
-                        href: defaultRoute,
-                        style: "--sw-product-card-media-height: #{mediaHeight}px",
-                    }) }}
-                >
-                    {{ product.translated.name }}
-                </a>
-            </h2>
+            <twig:slot name="title">
+                <h2 {{ attributes.nested('title').defaults({ class: defaultClasses.title }) }}>
+                    <a
+                        {{ attributes.nested('title-link').defaults({
+                            class: defaultClasses.titleLink,
+                            href: defaultRoute,
+                            style: "--sw-product-card-media-height: #{mediaHeight}px",
+                        }) }}
+                    >
+                        {{ product.translated.name }}
+                    </a>
+                </h2>
+            </twig:slot>
         {% endblock %}
 
         {% if config('core.listing.showReview') and product.ratingAverage %}
-            <twig:rating:rating :stars="product.ratingAverage" />
+            <twig:slot name="rating">
+                <twig:rating:rating :stars="product.ratingAverage" />
+            </twig:slot>
         {% endif %}
 
         {% if not displayParent %}
-            <twig:product-card:variants :variants="product.variation" />
+            <twig:slot name="variants">
+                <twig:product-card:variants :variants="product.variation" />
+            </twig:slot>
         {% endif %}
+
+        <twig:slot name="body-bottom"></twig:slot>
     </div>
 
     <div {{ attributes.nested('footer').defaults({ class: defaultClasses.footer }) }}>
+
+        <twig:slot name="footer-top"></twig:slot>
+
         {% block price %}
-            <twig:product-card:price :product="product" />
+            <twig:slot name="price">
+                <twig:product-card:price :product="product" />
+            </twig:slot>
         {% endblock %}
 
         {% block actions %}
-            <twig:product-card:actions
-                :product="product"
-                :addToCartExtraFormData="{ 'foo': 'bar' }"
-            />
+            <twig:slot name="actions">
+                <twig:product-card:actions
+                        :product="product"
+                        :addToCartExtraFormData="{ 'foo': 'bar' }"
+                    />
+            </twig:slot>
         {% endblock %}
+
+        <twig:slot name="footer-bottom"></twig:slot>
     </div>
 
     {% block loading_indicator %}

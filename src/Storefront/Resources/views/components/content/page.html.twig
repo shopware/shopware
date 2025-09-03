@@ -1,0 +1,16 @@
+{% props
+    page = null
+%}
+
+<div class="page">
+    {% for element in page.elements %}
+        {% set properties = element.properties %}
+        {% set slots = element.slots %}
+
+        {% if slots is not empty %}
+            {% set properties = properties|merge({ slots: slots }) %}
+        {% endif %}
+
+        {{ component(element.component, properties) }}
+    {% endfor %}
+</div>

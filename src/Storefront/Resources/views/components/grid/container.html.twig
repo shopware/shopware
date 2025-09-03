@@ -15,6 +15,7 @@
     justify = 'start',
     justifyContent = 'start',
     centered = true,
+    slots = [],
 %}
 
 {% set attributeDefaults = {} %}
@@ -220,10 +221,15 @@
 
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
-{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; ' : gridStyle %}
+{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
 
 <div {{ attributes.defaults(attributeDefaults) }} 
      class="{{ gridCVA.apply({ align, alignContent, justify, justifyContent, centered, columns, columnsSm, columnsMd, columnsLg, columnsXl, rows, rowsSm, rowsMd, rowsLg, rowsXl }, attributes.render('class')) }}"
      {% if gridStyle %} style="{{ gridStyle|trim }}"{% endif %}>
-     {% block content %}{% endblock %}
+
+     {% block content %}
+        {% for name, slot in slots %}
+            <twig:slot :name="name"></twig:slot>
+        {% endfor %}
+     {% endblock %}
 </div>

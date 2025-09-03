@@ -1,6 +1,7 @@
 $sw-prefix: 'sw-';
 
 .product-card {
+    min-width: 100%;
     --#{$prefix}card-spacer-y: 1rem;
     --#{$prefix}card-spacer-x: 1rem;
     --#{$prefix}card-border-color: var(--#{$prefix}border-color);

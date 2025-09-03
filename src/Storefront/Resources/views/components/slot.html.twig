@@ -1,0 +1,27 @@
+{% props
+    name = null,
+    elements = [],
+%}
+
+{% set slots = outerScope.slots %}
+
+{% if elements is empty %}
+    {% set elements = slots[name] %}
+{% endif %}
+
+{% if elements is not empty %}
+    {% block elements %}
+        {% for element in elements %}
+            {% set elementProperties = element.properties %}
+
+            {% if element.slots is not empty %}
+                {% set elementProperties = elementProperties|merge({ slots: element.slots }) %}
+            {% endif %}
+
+            {{ component(element.component, elementProperties) }}
+        {% endfor %}
+    {% endblock %}
+{% else %}
+    {% block content %}{% endblock %}
+{% endif %}
+

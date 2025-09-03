@@ -2,6 +2,11 @@
 
 {# @var page \Shopware\Storefront\Page\LandingPage\LandingPage|\Shopware\Storefront\Page\CategoryPage\CategoryPage #}
 {% block base_main_inner %}
+
+    {% if feature('STOREFRONT_COMPONENTS') %}
+        <twig:content:page :page="cmsPage" />
+    {% else %}
+
     <div class="container-main">
         {% block page_content %}
             {% block cms_breadcrumb %}
@@ -26,4 +31,6 @@
             {% endblock %}
         {% endblock %}
     </div>
+
+    {% endif %}
 {% endblock %}

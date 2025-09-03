@@ -1,0 +1,23 @@
+{% props
+    listing = null,
+%}
+
+{% set attributeDefaults = {} %}
+
+{% set listingCVA = cva({
+    base: 'product-listing',
+}) %}
+
+<div {{ attributes.defaults(attributeDefaults) }} class="{{ listingCVA.apply({}, attributes.render('class')) }}">
+
+    {% block content %}
+
+        <twig:grid:container columns="4" columnsLg="2" columnsSm="1">
+            {% for product in listing.elements %}
+                <twig:product-card:product-card :product="product" />
+            {% endfor %}
+        </twig:grid:container>
+
+    {% endblock %}
+
+</div>

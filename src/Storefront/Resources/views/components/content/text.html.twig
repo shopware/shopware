@@ -1,0 +1,13 @@
+{% props
+    text = null,
+%}
+
+{% set attributeDefaults = {} %}
+
+{% set textVariants = cva({
+    base: 'text'
+}) %}
+
+<div {{ attributes.defaults(attributeDefaults) }} class="{{ textVariants.apply({}) }}">
+    {{ text|sw_sanitize|raw }}
+</div>

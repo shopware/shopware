@@ -7,6 +7,10 @@
     alt: media.translated.alt ?: ''
 } %}
 
+{% set mediaImageCVA = cva({
+    base: 'media-image'
+}) %}
+
 {% if media.thumbnails|length > 0 %}
     {% set srcsetValues = [] %}
 
@@ -18,4 +22,4 @@
     {% set attributeDefaults = attributeDefaults|merge({ srcset: srcsetValues }) %}
 {% endif %}
 
-<img {{ attributes.defaults(attributeDefaults) }}>
+<img {{ attributes.defaults(attributeDefaults) }} class="{{ mediaImageCVA.apply({}) }}">

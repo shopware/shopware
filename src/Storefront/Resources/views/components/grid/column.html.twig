@@ -3,6 +3,7 @@
     span = null,
     justify = null,
     align = null,
+    slots = [],
 %}
 
 {% set columnCVA = cva({
@@ -32,5 +33,9 @@
 {% endif %}
 
 <div class="{{ columnCVA.apply({ align, justify }, attributes.render('class')) }}"{% if columnStyle %} style="{{ columnStyle|trim }}"{% endif %}>
-    {% block content %}{% endblock %}
+    {% block content %}
+        {% for name, slot in slots %}
+            <twig:slot :name="name"></twig:slot>
+        {% endfor %}
+    {% endblock %}
 </div>

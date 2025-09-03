@@ -1,4 +1,6 @@
 .grid-column {
+    min-width: 100%;
+
     &.align-start {
         align-self: start;
     }

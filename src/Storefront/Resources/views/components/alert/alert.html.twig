@@ -1,6 +1,8 @@
 {% props
     variant = 'info',
-    size = 'text-md'
+    size = 'text-md',
+    text = null,
+    slots = [],
 %}
 
 {% set alert = cva({
@@ -25,5 +27,9 @@
 }) %}
 
 <div role="alert" {{ attributes.defaults({ class: alert.apply({ variant, size }) }) }}>
-    {% block content %}Alert {{ variant }}{% endblock %}
+    {% block content %}
+        <twig:slot name="content">
+            {{ text }}
+        </twig:slot>
+    {% endblock %}
 </div>

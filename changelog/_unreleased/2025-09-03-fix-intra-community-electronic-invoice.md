@@ -3,7 +3,7 @@ title: Fix intra community electronic invoice
 issue: 12182
 ---
 # Core
-* Fix intra community electronic invoice where calculated taxes is empty
+* Changed price calculation for electronic invoices to correctly handle intra-community purchases where calculated tax is empty.
 * Deprecated `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` in favor of `ZugferdDocument::getPriceWithFallback()`
 ___
 # Upgrade Information

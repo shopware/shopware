@@ -333,7 +333,7 @@ class ZugferdDocument
         ?CalculatedTax $tax,
         /* ?CalculatedPrice $fallbackPrice = null, */
     ): float {
-        $fallbackPrice = func_get_arg(1) ?? null;
+        $fallbackPrice = func_num_args() > 1 ? func_get_arg(1) : null;
 
         $tax = $tax ?? $fallbackPrice?->getCalculatedTaxes()?->first();
 

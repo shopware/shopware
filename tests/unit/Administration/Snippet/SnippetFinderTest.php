@@ -29,7 +29,6 @@ use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollect
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Storefront;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
@@ -39,7 +38,6 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[CoversClass(SnippetFinder::class)]
-#[DisabledFeatures(['v6.8.0.0'])]
 class SnippetFinderTest extends TestCase
 {
     use SnippetFileTrait;

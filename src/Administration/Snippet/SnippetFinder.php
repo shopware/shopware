@@ -4,7 +4,6 @@ namespace Shopware\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
@@ -68,17 +67,11 @@ class SnippetFinder implements SnippetFinderInterface
         $this->addInstalledPlatformPaths($paths, $locale);
 
         if ($paths->isEmpty()) {
-            // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
-            if (!Feature::isActive('v6.8.0.0')) {
-                $this->addShopwareLegacyPaths($paths);
-            }
+            $this->addShopwareCorePaths($paths);
         }
 
         $snippetNames = ['administration.json'];
-        if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
-            $snippetNames[] = \sprintf('%s.json', $locale);
-        }
+        $snippetNames[] = \sprintf('%s.json', $locale);
 
         $this->addPluginPaths($paths, $locale);
         $this->addMeteorBundlePaths($paths);
@@ -168,11 +161,7 @@ class SnippetFinder implements SnippetFinderInterface
         }
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
-     * The method `getInstalledSnippetPaths` will be used to fetch the paths.
-     */
-    private function addShopwareLegacyPaths(SnippetPathCollection $paths): void
+    private function addShopwareCorePaths(SnippetPathCollection $paths): void
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $bundles = $this->kernel->getBundles();

@@ -337,6 +337,11 @@ class ZugferdDocument
      */
     protected function getPrice(CalculatedTax $tax): float
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getPriceWithFallback')
+        );
+
         $price = $tax->getPrice();
 
         if ($this->isGross) {

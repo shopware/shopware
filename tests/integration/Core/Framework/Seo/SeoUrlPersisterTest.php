@@ -507,7 +507,7 @@ class SeoUrlPersisterTest extends TestCase
         /** @var string[] */
         $languageIds = array_map(function ($languageId) {
             static::assertIsString($languageId);
-            
+
             return $languageId;
         }, $languageIds);
 

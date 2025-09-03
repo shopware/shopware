@@ -126,13 +126,10 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $baseResource = '/api/';
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             $baseResource . '_action/order/document/invoice/create',
-            [],
-            [],
-            [],
-            json_encode([$document]) ?: ''
+            [$document]
         );
 
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
@@ -221,13 +218,10 @@ class DocumentGeneratorControllerTest extends TestCase
         $documentIds = [];
 
         foreach ($requests as $type => $payload) {
-            $this->getBrowser()->request(
+            $this->getBrowser()->jsonRequest(
                 'POST',
                 \sprintf('/api/_action/order/document/%s/create', $type),
-                [],
-                [],
-                [],
-                json_encode($payload) ?: ''
+                $payload
             );
 
             $response = $this->getBrowser()->getResponse();
@@ -256,13 +250,10 @@ class DocumentGeneratorControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/receipt/create',
-            [],
-            [],
-            [],
-            json_encode($content) ?: ''
+            $content
         );
 
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
@@ -275,13 +266,10 @@ class DocumentGeneratorControllerTest extends TestCase
 
     public function testCreateWithoutDocumentsParameter(): void
     {
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/receipt/create',
-            [],
-            [],
-            [],
-            json_encode([]) ?: ''
+            []
         );
 
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
@@ -303,13 +291,10 @@ class DocumentGeneratorControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/storno/create',
-            [],
-            [],
-            [],
-            json_encode($content) ?: ''
+            $content
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -324,13 +309,10 @@ class DocumentGeneratorControllerTest extends TestCase
 
     public function testDownloadNoDocuments(): void
     {
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-            [],
-            [],
-            [],
-            json_encode([]) ?: ''
+            []
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
@@ -340,15 +322,12 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-            [],
-            [],
-            [],
-            json_encode([
+            [
                 'documentIds' => [Uuid::randomHex()],
-            ]) ?: ''
+            ]
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
@@ -375,15 +354,12 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertNotNull($document);
         $documentId = $document->getId();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-            [],
-            [],
-            [],
-            json_encode([
+            [
                 'documentIds' => [$documentId],
-            ]) ?: ''
+            ]
         );
 
         $response = $this->getBrowser()->getResponse();

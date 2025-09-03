@@ -13,14 +13,14 @@ export default {
 
     inject: [
         'feature',
-        'appUrlChangeService',
+        'shopIdChangeService',
         'userActivityApiService',
     ],
 
     data() {
         return {
             noNavigation: false,
-            urlDiff: null,
+            shopIdCheck: null,
         };
     },
 
@@ -65,7 +65,7 @@ export default {
     methods: {
         createdComponent() {
             this.checkRouteSettings();
-            this.updateShowUrlChangedModal();
+            this.updateShopIdChangeModal();
         },
 
         checkRouteSettings() {
@@ -76,19 +76,17 @@ export default {
             }
         },
 
-        updateShowUrlChangedModal() {
+        async updateShopIdChangeModal() {
             if (!Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl) {
-                this.urlDiff = null;
+                this.shopIdCheck = null;
                 return;
             }
 
-            this.appUrlChangeService.getUrlDiff().then((diff) => {
-                this.urlDiff = diff;
-            });
+            this.shopIdCheck = await this.shopIdChangeService.checkShopId();
         },
 
         closeModal() {
-            this.urlDiff = null;
+            this.shopIdCheck = null;
         },
 
         onUpdateSearchFrequently() {

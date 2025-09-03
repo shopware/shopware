@@ -2,49 +2,35 @@
 
 namespace Shopware\Core\System\Snippet\Struct;
 
+use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 
 #[Package('discovery')]
 class TranslationConfig extends Struct
 {
-    public string $repositoryUrl;
-
     /**
-     * @var list<string>
-     */
-    public array $locales;
-
-    /**
-     * @var list<string>
-     */
-    public array $plugins;
-
-    public LanguageCollection $languages;
-
-    /**
-     * @var array<string, string>
-     */
-    public array $pluginMapping;
-
-    /**
-     * @internal
-     *
      * @param list<string> $locales
      * @param list<string> $plugins
-     * @param array<string, string> $pluginMapping
+     *
+     * @internal
      */
     public function __construct(
-        string $repositoryUrl,
-        array $locales,
-        array $plugins,
-        LanguageCollection $languages,
-        array $pluginMapping
+        public readonly Uri $repositoryUrl,
+        public readonly array $locales,
+        public readonly array $plugins,
+        public readonly LanguageCollection $languages,
+        public readonly PluginMappingCollection $pluginMapping
     ) {
-        $this->repositoryUrl = $repositoryUrl;
-        $this->locales = $locales;
-        $this->plugins = $plugins;
-        $this->languages = $languages;
-        $this->pluginMapping = $pluginMapping;
+    }
+
+    public function getMappedPluginName(Plugin $plugin): string
+    {
+        $pluginName = $plugin->getName();
+
+        return $this->pluginMapping->get($pluginName)->snippetName ?? $pluginName;
     }
 }

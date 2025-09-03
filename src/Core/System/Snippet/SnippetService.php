@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,8 +19,10 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
+use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 /**
@@ -45,6 +48,8 @@ class SnippetService
         private readonly SnippetFilterFactory $snippetFilterFactory,
         private readonly ExtensionDispatcher $extensionDispatcher,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly FilesystemOperator $privateFileSystem,
+        private readonly Filesystem $localFileSystem,
     ) {
     }
 
@@ -573,12 +578,16 @@ class SnippetService
      */
     private function decodeSnippetFileJson(AbstractSnippetFile $snippetFile): array
     {
+        if ($snippetFile instanceof RemoteSnippetFile) {
+            $content = $this->privateFileSystem->read($snippetFile->getPath());
+        } else {
+            $content = $this->localFileSystem->readFile($snippetFile->getPath());
+        }
+
         try {
-            $json = json_decode((string) file_get_contents($snippetFile->getPath()), true, 512, \JSON_THROW_ON_ERROR);
+            return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw SnippetException::invalidSnippetFile($snippetFile->getPath(), $e);
         }
-
-        return $json;
     }
 }

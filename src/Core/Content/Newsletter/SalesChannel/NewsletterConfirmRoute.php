@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\NewsletterException;
@@ -30,6 +31,8 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
      */
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
@@ -75,7 +78,6 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
-        /** @var NewsletterRecipientEntity|null $newsletterRecipient */
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$newsletterRecipient) {
@@ -89,8 +91,8 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     {
         $definition = new DataValidationDefinition('newsletter_recipient.opt_in_before');
         $definition->add('id', new NotBlank())
-            ->add('status', new EqualTo(['value' => NewsletterSubscribeRoute::STATUS_NOT_SET]))
-            ->add('em', new EqualTo(['value' => $emHash]));
+            ->add('status', new EqualTo(value: NewsletterSubscribeRoute::STATUS_NOT_SET))
+            ->add('em', new EqualTo(value: $emHash));
 
         return $definition;
     }

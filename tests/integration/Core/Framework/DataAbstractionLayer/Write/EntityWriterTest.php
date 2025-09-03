@@ -7,10 +7,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -819,26 +821,38 @@ class EntityWriterTest extends TestCase
         );
 
         // Test fetch
-        $fetchedEntityOne = $testEntityOneRepository->search(
+        $fetchOne = $testEntityOneRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
             $context,
         );
+        static::assertCount(1, $fetchOne->getEntities());
 
         // Test deletion
         $testEntityOneRepository->delete([['technicalName' => 'Some-Technical-Name']], $context);
         $testEntityTwoRepository->delete([['id' => $testEntityTwoId]], $context);
 
+        $fetchOneDeleted = $testEntityOneRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
+            $context,
+        );
+        $fetchTwoDeleted = $testEntityTwoRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('id', $testEntityTwoId)),
+            $context,
+        );
+        static::assertCount(0, $fetchOneDeleted->getEntities());
+        static::assertCount(0, $fetchTwoDeleted->getEntities());
+
         // Clean up
         $this->connection->executeStatement(
-            'DROP TABLE `test_entity_two`;
-            DROP TABLE `test_entity_one`;',
+            'DROP TABLE IF EXISTS `test_entity_two`;
+            DROP TABLE IF EXISTS `test_entity_one`;',
         );
         $this->connection->beginTransaction();
     }
 
     public function testCanUpdateEntitiesToAddCustomFields(): void
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
 
@@ -965,6 +979,9 @@ class EntityWriterTest extends TestCase
         return static::getContainer()->get(EntityWriter::class);
     }
 
+    /**
+     * @return EntityRepository<MediaCollection>
+     */
     private function getMediaRepository(): EntityRepository
     {
         return static::getContainer()->get('media.repository');

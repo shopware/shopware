@@ -331,7 +331,7 @@ class StateMachineRegistry implements ResetInterface
     }
 
     /**
-     * @param EntityRepository<EntityCollection<Entity>> $repository
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
      *
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineException

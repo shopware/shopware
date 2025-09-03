@@ -68,7 +68,7 @@ class EntityHydrator
     }
 
     /**
-     * @template TEntityCollection of EntityCollection<Entity>
+     * @template TEntityCollection of EntityCollection
      *
      * @param TEntityCollection $collection
      * @param array<mixed> $rows
@@ -158,8 +158,8 @@ class EntityHydrator
 
             $encoded = $field->getSerializer()->encode($field, $existence, $kvPair, $params);
 
-            foreach ($encoded as $key => $value) {
-                $mapped[$key] = $value;
+            foreach ($encoded as $key => $encodedValue) {
+                $mapped[$key] = $encodedValue;
             }
         }
 

@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper(propsOverride) {
     return mount(
@@ -14,7 +15,7 @@ async function createWrapper(propsOverride) {
                     config: {
                         content: {
                             source: 'static',
-                            value: null,
+                            value: '',
                         },
                         verticalAlign: {
                             source: 'static',
@@ -42,9 +43,7 @@ async function createWrapper(propsOverride) {
 
 describe('module/sw-cms/elements/product-name/component', () => {
     beforeAll(async () => {
-        await import('src/module/sw-cms/store/cms-page.store');
-        await import('src/module/sw-cms/service/cms.service');
-        await import('src/module/sw-cms/mixin/sw-cms-element.mixin');
+        await setupCmsEnvironment();
     });
 
     afterEach(() => {
@@ -62,6 +61,9 @@ describe('module/sw-cms/elements/product-name/component', () => {
     });
 
     it('should not initially map to a product name if element translated config exists', async () => {
+        Shopware.Store.get('cmsPage').setCurrentPage({
+            type: 'product_detail',
+        });
         const wrapper = await createWrapper({
             element: {
                 config: {
@@ -69,16 +71,16 @@ describe('module/sw-cms/elements/product-name/component', () => {
                         source: 'static',
                         value: 'Sample Product',
                     },
-                    verticalAlign: {
-                        source: 'static',
-                        value: null,
-                    },
                 },
                 translated: {
                     config: {
                         content: {
                             source: 'static',
                             value: 'Sample Product',
+                        },
+                        verticalAlign: {
+                            source: 'static',
+                            value: null,
                         },
                     },
                 },

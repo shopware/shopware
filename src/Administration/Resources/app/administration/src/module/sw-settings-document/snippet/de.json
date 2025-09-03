@@ -1,0 +1,89 @@
+{
+  "sw-settings-document": {
+    "general": {
+      "mainMenuItemGeneral": "Dokumente",
+      "description": "Dokumentkonfigurationen des Einstellungsmoduls",
+      "placeholderSearchBar": "Durchsuche alle Konfigurationen ..."
+    },
+    "list": {
+      "textHeadline": "Dokumente",
+      "textDeleteConfirm": "Bist Du sicher, dass Du das Dokument \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnType": "Typ",
+      "columnUsedIn": "Verwendet für",
+      "columnAssignment": "Zuweisung",
+      "buttonAddDocument": "Dokument anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "messageDeleteSuccess": "Dokument \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonDelete": "Löschen",
+      "global": "Global"
+    },
+    "detail": {
+      "textHeadline": "Neues Dokument",
+      "configCard": "Einstellungen",
+      "companyCard": "Geschäftseinstellungen",
+      "assignmentCard": "Zuweisung",
+      "messageSaveSuccess": "Dokument \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelFileNamePrefix": "Dateinamen-Präfix",
+      "labelFileNameSuffix": "Dateinamen-Suffix",
+      "labelDisplayPrices": "Preise anzeigen",
+      "labelDisplayHeader": "Kopfzeile anzeigen",
+      "labelDisplayLineItems": "Bestellpositionen anzeigen",
+      "labelDisplayLineItemPosition": "Bestellpositionen nummerieren",
+      "labelDisplayPageCount": "Seitennummerierung anzeigen",
+      "labelPageOrientation": "Seitenausrichtung",
+      "labelPageSize": "Seitenformat",
+      "labelItemsPerPage": "Positionen pro Seite",
+      "labelDisplayCompanyAddress": "Geschäftsadresse anzeigen",
+      "helpTextDisplayCompanyAddress": "Fügt die Geschäftsadresse rechts unterhalb des Briefkopfes ein.",
+      "labelDisplayReturnAddress": "Rücksendeangabe anzeigen",
+      "helpTextDisplayReturnAddress": "Fügt die Geschäftsadresse als Rücksendeangabe über der Kundenadresse im Anschriftfeld ein.",
+      "labelCompanyCity": "Stadt",
+      "labelCompanyCountry": "Land",
+      "labelCompanyName": "Geschäftsname",
+      "labelCompanyEmail": "Geschäfts-E-Mail-Adresse",
+      "labelCompanyPhone": "Geschäfts-Telefon",
+      "labelCompanyStreet": "Straße",
+      "labelCompanyUrl": "Geschäfts-Webseite",
+      "labelCompanyZipcode": "Postleitzahl",
+      "labelPaymentDueDate": "Fälligkeit der Zahlung",
+      "labelTaxNumber": "Geschäfts-Steuernummer",
+      "labelTaxOffice": "Finanzamt",
+      "labelVatId": "Geschäfts-USt-Id",
+      "labelBankName": "Bank",
+      "labelBankIban": "IBAN",
+      "labelBankBic": "BIC",
+      "labelType": "Dokumententyp",
+      "labelSalesChannel": "Verkaufskanal",
+      "labelDisplayFooter": "Fußzeile anzeigen",
+      "labelPlaceOfJurisdiction": "Gerichtsstand / Handelsregister-Nr.",
+      "labelPlaceOfFulfillment": "Erfüllungsort",
+      "labelExecutiveDirector": "Geschäftsführer",
+      "labelDisplayAdditionalNoteDelivery": "Hinweis \"innergemeinschaftliche Lieferung\" anzeigen",
+      "labelDeliveryCountries": "Mitgliedsländer",
+      "labelDisplayCustomerVatId": "Kunden-USt-ID anzeigen",
+      "placeholderDisplayDeliveryCountries": "Gültige Länder für \"innergemeinschaftliche Lieferung\" suchen und hinzufügen ...",
+      "labelOptionMedia": "Geschäftslogo",
+      "placeholderName": "Namen eingeben ...",
+      "buttonSave": "Speichern",
+      "disabledSalesChannel": "Es gibt bereits ein Dokument vom selben Typ in diesem Verkaufskanal.",
+      "disabledSalesChannelSelect": "Wähle zunächst einen Dokumententyp.",
+      "disabledTypeSelect": "Der Dokumententyp globaler Dokumente kann nicht geändert werden.",
+      "labelDisplayDocumentInCustomerAccount": "Dokument in \"Mein Konto\" Bereich anzeigen",
+      "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse anzeigen",
+      "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
+      "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen Hinweis zur \"innergemeinschaftlichen Lieferung\" auf den Rechnungsdokumenten.",
+      "helpTextPaymentDueDate": "Bsp.: +30 days, +4 weeks, +1 week 2 days",
+      "helpTextDisplayAdditionalNoteDelivery": "Nur für EU-Mitgliedsstaaten, siehe auch \"Einstellungen > Länder\".",
+      "labelFileTypes": "Dateiformate"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "document": {
+        "label": "Dokumente"
+      }
+    }
+  }
+}

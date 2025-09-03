@@ -21,7 +21,7 @@
 
                         <input type="hidden"
                                name="redirectParameters"
-                               value="{{ redirectParameters }}">
+                               value="{{ redirectParameters is iterable ? redirectParameters|json_encode : redirectParameters }}">
                     {% endblock %}
 
                     {% block component_account_login_form_description %}

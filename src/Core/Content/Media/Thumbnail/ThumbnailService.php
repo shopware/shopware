@@ -277,8 +277,6 @@ class ThumbnailService
                     $fileSystem->write($path, $fileSystem->read($media->getPath()));
                 }
 
-                imagedestroy($thumbnail);
-
                 $event->thumbnail(
                     mediaId: $media->getId(),
                     thumbnailId: $id,
@@ -288,8 +286,6 @@ class ThumbnailService
             }
 
             $this->dispatcher->dispatch($event);
-
-            imagedestroy($image);
         } finally {
             return $records;
         }

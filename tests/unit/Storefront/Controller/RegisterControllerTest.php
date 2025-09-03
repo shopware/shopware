@@ -201,8 +201,8 @@ class RegisterControllerTest extends TestCase
         $this->systemConfigService->set('core.loginRegistration.requirePasswordConfirmation', true, $context->getSalesChannelId());
 
         $expectedDefinition = new DataValidationDefinition('storefront.confirmation');
-        $expectedDefinition->add('emailConfirmation', new NotBlank(), new EqualTo(['value' => 'foo@bar.de']));
-        $expectedDefinition->add('passwordConfirmation', new NotBlank(), new EqualTo(['value' => 'password']));
+        $expectedDefinition->add('emailConfirmation', new NotBlank(), new EqualTo(value: 'foo@bar.de'));
+        $expectedDefinition->add('passwordConfirmation', new NotBlank(), new EqualTo(value: 'password'));
         $this->registerRoute
             ->expects($this->once())
             ->method('register')

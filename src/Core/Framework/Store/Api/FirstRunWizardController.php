@@ -28,6 +28,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('fundamentals@after-sales')]
 class FirstRunWizardController extends AbstractController
 {
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     * @param EntityRepository<AppCollection> $appRepo
+     */
     public function __construct(
         private readonly FirstRunWizardService $frwService,
         private readonly EntityRepository $pluginRepo,
@@ -50,9 +54,7 @@ class FirstRunWizardController extends AbstractController
     #[Route(path: '/api/_action/store/language-plugins', name: 'api.custom.store.language-plugins', methods: ['GET'])]
     public function getLanguagePluginList(Context $context): JsonResponse
     {
-        /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-        /** @var AppCollection $apps */
         $apps = $this->appRepo->search(new Criteria(), $context)->getEntities();
 
         try {
@@ -70,9 +72,7 @@ class FirstRunWizardController extends AbstractController
     #[Route(path: '/api/_action/store/demo-data-plugins', name: 'api.custom.store.demo-data-plugins', methods: ['GET'])]
     public function getDemoDataPluginList(Context $context): JsonResponse
     {
-        /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-        /** @var AppCollection $apps */
         $apps = $this->appRepo->search(new Criteria(), $context)->getEntities();
 
         try {
@@ -108,9 +108,7 @@ class FirstRunWizardController extends AbstractController
         $region = $request->query->has('region') ? (string) $request->query->get('region') : null;
         $category = $request->query->has('category') ? (string) $request->query->get('category') : null;
 
-        /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-        /** @var AppCollection $apps */
         $apps = $this->appRepo->search(new Criteria(), $context)->getEntities();
 
         try {

@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
 
@@ -46,6 +47,9 @@ class ExtensionLoader
      */
     private ?array $installedThemeNames = null;
 
+    /**
+     * @param ?EntityRepository<ThemeCollection> $themeRepository
+     */
     public function __construct(
         private readonly ?EntityRepository $themeRepository,
         private readonly AppLoader $appLoader,
@@ -191,7 +195,7 @@ class ExtensionLoader
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
-            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomDirectory(),
+            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),
             'managedByComposer' => $plugin->getManagedByComposer(),
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
@@ -253,6 +257,8 @@ class ExtensionLoader
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
                 'inAppPurchases' => $this->inAppPurchase->getByExtension($app->getMetadata()->getName()),
+                'permissions' => Utils::makePermissions($app->getPermissions()?->asParsedPrivileges() ?? []),
+                'requestedPermissions' => [],
             ];
 
             $collection->set($name, $this->loadFromArray($context, $row, $language));

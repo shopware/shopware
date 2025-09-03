@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], isSso = false) {
     return mount(await wrapTestComponent('sw-profile-index-general', { sync: true }), {
         global: {
             stubs: {
@@ -62,6 +62,11 @@ async function createWrapper(privileges = []) {
                         }
 
                         return privileges.includes(key);
+                    },
+                },
+                ssoSettingsService: {
+                    isSso: () => {
+                        return Promise.resolve({ isSso: isSso });
                     },
                 },
             },
@@ -162,5 +167,16 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const resultNames = results.map((result) => result.text());
 
         expect(resultNames).toContain('UTC');
+    });
+
+    it('should hiding password fields', async () => {
+        const wrapper = await createWrapper(['user.update_profile'], true);
+        await flushPromises();
+
+        const changeNewPasswordField = wrapper.findByLabel('sw-profile.index.labelNewPassword');
+        const changeNewPasswordConfirmField = wrapper.findByLabel('sw-profile.index.labelNewPasswordConfirm');
+
+        expect(changeNewPasswordField).toBeNull();
+        expect(changeNewPasswordConfirmField).toBeNull();
     });
 });

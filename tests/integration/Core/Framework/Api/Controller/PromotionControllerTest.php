@@ -55,7 +55,7 @@ class PromotionControllerTest extends TestCase
     {
         $promotionId = Uuid::randomHex();
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'POST',
             $this->resourceUri,
             [
@@ -151,7 +151,7 @@ class PromotionControllerTest extends TestCase
         $discountId = Uuid::randomHex();
         $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'PATCH',
             $this->resourceUri . '/' . $promotionId,
             [
@@ -184,7 +184,7 @@ class PromotionControllerTest extends TestCase
         $discountId = Uuid::randomHex();
         $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'DELETE',
             $this->resourceUri . '/' . $promotionId . '/discounts/' . $discountId
         );
@@ -215,7 +215,7 @@ class PromotionControllerTest extends TestCase
         $discountId = Uuid::randomHex();
         $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'PATCH',
             $this->resourceUri . '/' . $promotionId . '/discounts/' . $discountId,
             [
@@ -247,7 +247,7 @@ class PromotionControllerTest extends TestCase
         $discountId = Uuid::randomHex();
         $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'DELETE',
             '/api/promotion/' . $promotionId
         );

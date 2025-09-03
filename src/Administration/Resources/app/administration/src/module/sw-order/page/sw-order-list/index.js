@@ -590,11 +590,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
          */
         getDelivery(order) {
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                return order.primaryOrderDelivery;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return order.deliveries[0];
             }
 
-            return order.deliveries[0];
+            return order.primaryOrderDelivery;
         },
     },
 };

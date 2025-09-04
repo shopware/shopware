@@ -5,6 +5,7 @@ issue: 12182
 # Core
 * Changed price calculation for electronic invoices to correctly handle intra-community purchases where calculated tax is empty.
 * Deprecated `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` in favor of `ZugferdDocument::getPriceWithFallback()`
+* Behavior change: Shopware Core now call `ZugferdDocument::getPriceWithFallback()`and `ZugferdDocument::getPrice()` is no longer used.
 ___
 # Upgrade Information
 ## Deprecated `ZugferdDocument::getPrice()`

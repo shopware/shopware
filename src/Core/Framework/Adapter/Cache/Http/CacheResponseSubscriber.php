@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -92,6 +93,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $isStoreApi = \in_array(
+            StoreApiRouteScope::ID,
+            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
+            true
+        );
+
         $route = $request->attributes->get('_route');
         if ($route === 'frontend.checkout.configure') {
             $this->setCurrencyCookie($request, $response);
@@ -106,18 +113,21 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
-            $newValue = $this->buildCacheHash($request, $context);
+        // Do not use cookies for cache invalidation in the Store API
+        if (!$isStoreApi) {
+            if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
+                $newValue = $this->buildCacheHash($request, $context);
 
-            if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
-                $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
-                $cookie->setSecureDefault($request->isSecure());
+                if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
+                    $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
+                    $cookie->setSecureDefault($request->isSecure());
 
-                $response->headers->setCookie($cookie);
+                    $response->headers->setCookie($cookie);
+                }
+            } elseif ($request->cookies->has(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE)) {
+                $response->headers->removeCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
+                $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
             }
-        } elseif ($request->cookies->has(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE)) {
-            $response->headers->removeCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
-            $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
         }
 
         /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
@@ -130,8 +140,11 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $cache = [];
         }
 
-        if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
-            return;
+        // Do not use states for cache invalidation in the Store API
+        if (!$isStoreApi) {
+            if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
+                return;
+            }
         }
 
         $maxAge = $cache['maxAge'] ?? $this->defaultTtl;

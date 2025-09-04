@@ -23,6 +23,7 @@ class GuestAuthenticator
         if (!$email || !$zipcode) {
             throw CustomerException::guestNotAuthenticated();
         }
+        var_dump($email, $zipcode);
 
         // Verify email and zip code with this order
         $billingAddress = $order->getBillingAddress();

@@ -451,7 +451,7 @@ class CustomerException extends HttpException
         );
     }
 
-    public static function guestNotAuthenticated(): self
+    public static function wrongGuestCredentials(): self
     {
         return new self(
             Response::HTTP_FORBIDDEN,
@@ -460,7 +460,7 @@ class CustomerException extends HttpException
         );
     }
 
-    public static function wrongGuestCredentials(): self
+    public static function guestNotAuthenticated(): self
     {
         return new self(
             Response::HTTP_FORBIDDEN,
@@ -468,7 +468,7 @@ class CustomerException extends HttpException
             'Guest not authenticated.'
         );
     }
-      
+
     public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
     {
         return new UnexpectedTypeException($constraint, $expectedType);

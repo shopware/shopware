@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -189,12 +190,12 @@ class OrderRouteTest extends TestCase
     public static function customerDataProvider(): array
     {
         return [
-            'no customer' => [null, 'test@example.com', 'AA-345', OrderException::class],
-            'no guest customer' => [false, 'test@example.com', 'AA-345', OrderException::class],
-            'no request e-mail' => [true, null, 'AA-345', OrderException::class],
-            'no request postal code' => [true, 'test@example.com', null, OrderException::class],
-            'wrong e-mail' => [true, 'false@example.com', 'AA-345', OrderException::class],
-            'wrong postal code' => [true, 'test@example.com', '12345', OrderException::class],
+            'no customer' => [null, 'test@example.com', 'AA-345', CustomerException::class],
+            'no guest customer' => [false, 'test@example.com', 'AA-345', CustomerException::class],
+            'no request e-mail' => [true, null, 'AA-345', CustomerException::class],
+            'no request postal code' => [true, 'test@example.com', null, CustomerException::class],
+            'wrong e-mail' => [true, 'false@example.com', 'AA-345', CustomerException::class],
+            'wrong postal code' => [true, 'test@example.com', '12345', CustomerException::class],
             'valid guest' => [true, 'test@example.com', 'AA-345', null],
             'valid guest uppercase email' => [true, 'Test@Example.Com', 'AA-345', null],
             'valid guest lowercase postal code' => [true, 'Test@Example.Com', 'aa-345', null],

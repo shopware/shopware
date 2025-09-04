@@ -71,9 +71,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $response = $event->getResponse();
-
         $request = $event->getRequest();
-
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         if (!$context instanceof SalesChannelContext) {
@@ -98,15 +96,19 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
         );
-
         $route = $request->attributes->get('_route');
+
         if ($route === 'frontend.checkout.configure') {
             $this->setCurrencyCookie($request, $response);
         }
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $states = $this->updateSystemState($cart, $context, $request, $response);
+        if ($isStoreApi) {
+            $states = []; // Do not use states for cache invalidation in the Store API
+        } else {
+            $states = $this->updateSystemState($cart, $context, $request, $response);
+        }
 
         // We need to allow it on login, otherwise the state is wrong
         if (!($route === 'frontend.account.login' || $request->isMethod(Request::METHOD_GET))) {
@@ -115,19 +117,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         // Do not use cookies for cache invalidation in the Store API
         if (!$isStoreApi) {
-            if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
-                $newValue = $this->buildCacheHash($request, $context);
-
-                if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
-                    $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
-                    $cookie->setSecureDefault($request->isSecure());
-
-                    $response->headers->setCookie($cookie);
-                }
-            } elseif ($request->cookies->has(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE)) {
-                $response->headers->removeCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
-                $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
-            }
+            $this->updateCacheContextCookie($context, $cart, $request, $response);
         }
 
         /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
@@ -140,11 +130,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $cache = [];
         }
 
-        // Do not use states for cache invalidation in the Store API
-        if (!$isStoreApi) {
-            if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
-                return;
-            }
+        if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
+            return;
         }
 
         $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
@@ -324,5 +311,22 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $cookie->setSecureDefault($request->isSecure());
 
         $response->headers->setCookie($cookie);
+    }
+
+    private function updateCacheContextCookie(mixed $context, Cart $cart, Request $request, Response $response): void
+    {
+        if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
+            $newValue = $this->buildCacheHash($request, $context);
+
+            if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
+                $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
+                $cookie->setSecureDefault($request->isSecure());
+
+                $response->headers->setCookie($cookie);
+            }
+        } elseif ($request->cookies->has(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE)) {
+            $response->headers->removeCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
+            $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
+        }
     }
 }

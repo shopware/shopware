@@ -147,7 +147,7 @@ class SalesChannelContextPersister
             if (!empty($customerId)) {
                 $payload['expired'] = true;
             } else {
-                $payload = ['expired'];
+                $payload = ['expired' => true];
             }
         } else {
             $payload['expired'] = false;

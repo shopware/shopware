@@ -4,6 +4,10 @@ declare global {
         DIVEClass: typeof import('@shopware-ag/dive').DIVE;
         // eslint-disable-next-line @typescript-eslint/consistent-type-imports
         DIVEARPlugin: typeof import('@shopware-ag/dive/ar');
+        // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+        DIVEStatePlugin: typeof import('@shopware-ag/dive/state');
+        // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+        DIVEQuickViewPlugin: typeof import('@shopware-ag/dive/quickview');
         loadDiveUtil: {
             promise: Promise<void> | null;
         };
@@ -35,11 +39,13 @@ export async function loadDIVE(): Promise<void> {
             const diveModule = import('@shopware-ag/dive');
             const statePlugin = import('@shopware-ag/dive/state');
             const arPlugin = import('@shopware-ag/dive/ar');
+            const quickViewPlugin = import('@shopware-ag/dive/quickview');
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            Promise.all([diveModule, arPlugin, statePlugin]).then(([diveModule, arPlugin]) => {
+            Promise.all([diveModule, arPlugin, statePlugin, quickViewPlugin]).then(([diveModule, arPlugin, statePlugin, quickViewPlugin]) => {
                 window.DIVEClass = diveModule.DIVE;
                 window.DIVEARPlugin = arPlugin;
+                window.DIVEQuickViewPlugin = quickViewPlugin;
                 resolve();
             });
         });
@@ -48,12 +54,3 @@ export async function loadDIVE(): Promise<void> {
 
     return window.loadDiveUtil.promise;
 }
-
-let instance: Promise<import('@shopware-ag/dive').QuickView> | null = null;
-export const QuickViewInstance = async (modelUrl: string, options: Partial<import('@shopware-ag/dive').QuickViewSettings>): Promise<import('@shopware-ag/dive').QuickView> => {
-    if (instance) {
-        return instance;
-    }
-    instance = window.DIVEClass.QuickView(modelUrl, options);
-    return instance;
-};

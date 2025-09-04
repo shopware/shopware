@@ -22,8 +22,10 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
         const modalWrapper = document.querySelector('.zoom-modal-wrapper');
         const modal = modalWrapper?.querySelector('.zoom-modal');
         modal?.addEventListener('hidden.bs.modal', () => {
-            this.dive?.mainView.setCanvas(this.canvas as HTMLCanvasElement);
-            this.dive?.orbitController.setDomElements(this.canvas as HTMLCanvasElement);
+            this.dive?.start();
+        });
+        modal?.addEventListener('shown.bs.modal', () => {
+            this.dive?.stop();
         });
 
         await loadDIVE();

@@ -2,7 +2,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 // @ts-ignore
 import type NativeEventEmitter from 'src/helper/emitter.helper';
-import { loadDIVE, QuickViewInstance } from './utils/spatial-dive-load-util';
+import { loadDIVE } from './utils/spatial-dive-load-util';
 
 /**
  * @package innovation
@@ -26,7 +26,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
     }
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    protected dive: import('@shopware-ag/dive').QuickView | undefined;
+    protected dive: import('@shopware-ag/dive/quickview').QuickView | undefined;
 
     /**
      * initialize plugin
@@ -50,7 +50,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         if (this.dive == undefined) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-            this._dive = await window.DIVEClass.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.el as HTMLCanvasElement, displayFloor: true });
+            this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas, displayFloor: true, lightIntensity: this.options.lightIntensity });
         }
 
         // @ts-ignore
@@ -89,7 +89,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         // stop render loop
         this.rendering = false;
 
-        // this._dive?.stop();
+        this.dive?.stop();
 
         // Remove classes from canvas parent
         this.canvas?.parentElement?.classList.remove('spatial-canvas-rendering');

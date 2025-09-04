@@ -39,7 +39,7 @@ class SalutationRoute extends AbstractSalutationRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/salutation', name: 'store-api.salutation', methods: ['GET', 'POST'], defaults: ['_entity' => 'salutation'])]
+    #[Route(path: '/store-api/salutation', name: 'store-api.salutation', methods: ['GET', 'POST'], defaults: ['_entity' => 'salutation', '_httpCache' => true])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName());

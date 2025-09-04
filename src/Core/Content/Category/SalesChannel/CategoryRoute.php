@@ -50,7 +50,7 @@ class CategoryRoute extends AbstractCategoryRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/category/{navigationId}', name: 'store-api.category.detail', methods: ['GET', 'POST'])]
+    #[Route(path: '/store-api/category/{navigationId}', name: 'store-api.category.detail', methods: ['GET', 'POST'], defaults: ['_httpCache' => true])]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($navigationId));

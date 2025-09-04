@@ -31,7 +31,7 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/seo-url', name: 'store-api.seo.url', methods: ['GET', 'POST'], defaults: ['_entity' => 'seo_url'])]
+    #[Route(path: '/store-api/seo-url', name: 'store-api.seo.url', methods: ['GET', 'POST'], defaults: ['_entity' => 'seo_url', '_httpCache' => true])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse
     {
         return new SeoUrlRouteResponse($this->salesChannelRepository->search($criteria, $context));

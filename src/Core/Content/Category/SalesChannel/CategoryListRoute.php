@@ -33,7 +33,7 @@ class CategoryListRoute extends AbstractCategoryListRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/category', name: 'store-api.category.search', defaults: ['_entity' => 'category'], methods: ['GET', 'POST'])]
+    #[Route(path: '/store-api/category', name: 'store-api.category.search', defaults: ['_entity' => 'category', '_httpCache' => true], methods: ['GET', 'POST'])]
     public function load(Criteria $criteria, SalesChannelContext $context): CategoryListRouteResponse
     {
         $rootIds = array_filter([

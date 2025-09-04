@@ -613,7 +613,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
-        $fs->write(\sprintf('theme-config/%s.json', $themeId), (string) json_encode([
+        $fs->write(\sprintf('theme-config/%s.json', $themeId), json_encode([
             'styleFiles' => [],
             'scriptFiles' => [],
         ], \JSON_THROW_ON_ERROR));

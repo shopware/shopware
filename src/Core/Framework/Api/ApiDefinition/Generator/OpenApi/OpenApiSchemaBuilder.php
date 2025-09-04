@@ -45,7 +45,6 @@ class OpenApiSchemaBuilder
         $openApi->merge($this->createServers($api));
         $openApi->info = $this->createInfo($api, $this->version);
 
-        /** @var array<mixed>|string $security */
         $security = $openApi->security;
         $openApi->security = [array_merge(\is_array($security) ? $security : [], $this->createSecurity($api))];
 

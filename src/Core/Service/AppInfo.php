@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ServiceSourceConfig from ServiceSourceResolver
  */
 #[Package('framework')]
 readonly class AppInfo
@@ -15,17 +17,27 @@ readonly class AppInfo
         public string $version,
         public string $hash,
         public string $revision,
-        public string $zipUrl
+        public string $zipUrl,
+        public ?string $hashAlgorithm = null,
+        public ?string $minShopwareSupportedVersion = null,
     ) {
     }
 
     /**
      * @param array<string, mixed> $appInfo
      */
-    public static function fromNameAndArray(string $appName, array $appInfo): self
+    public static function fromRegistryResponse(string $appName, array $appInfo): self
     {
-        if (!isset($appInfo['app-version']) || !isset($appInfo['app-hash']) || !isset($appInfo['app-revision']) || !isset($appInfo['app-zip-url'])) {
-            throw ServiceException::missingAppVersionInfo();
+        $requiredKeys = ['app-version', 'app-hash', 'app-revision', 'app-zip-url', 'app-hash-algorithm', 'app-min-shop-supported-version'];
+        $missingKeys = [];
+        foreach ($requiredKeys as $key) {
+            if (!isset($appInfo[$key])) {
+                $missingKeys[] = $key;
+            }
+        }
+
+        if (!empty($missingKeys)) {
+            throw ServiceException::missingAppVersionInformation(...$missingKeys);
         }
 
         return new AppInfo(
@@ -34,11 +46,29 @@ readonly class AppInfo
             $appInfo['app-hash'],
             $appInfo['app-revision'],
             $appInfo['app-zip-url'],
+            $appInfo['app-hash-algorithm'],
+            $appInfo['app-min-shop-supported-version']
         );
     }
 
     /**
-     * @return array{version: string, hash: string, revision: string, zip-url: string}
+     * @param ServiceSourceConfig $sourceConfig
+     */
+    public static function fromNameAndSourceConfig(string $appName, array $sourceConfig): self
+    {
+        return new AppInfo(
+            $appName,
+            $sourceConfig['version'],
+            $sourceConfig['hash'],
+            $sourceConfig['revision'],
+            $sourceConfig['zip-url'],
+            $sourceConfig['hash-algorithm'] ?? null,
+            $sourceConfig['min-shop-supported-version'] ?? null,
+        );
+    }
+
+    /**
+     * @return ServiceSourceConfig
      */
     public function toArray(): array
     {
@@ -47,6 +77,8 @@ readonly class AppInfo
             'hash' => $this->hash,
             'revision' => $this->revision,
             'zip-url' => $this->zipUrl,
+            'hash-algorithm' => $this->hashAlgorithm,
+            'min-shop-supported-version' => $this->minShopwareSupportedVersion,
         ];
     }
 }

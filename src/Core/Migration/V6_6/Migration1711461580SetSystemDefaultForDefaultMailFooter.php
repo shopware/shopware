@@ -8,11 +8,12 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1711461580SetSystemDefaultForDefaultMailFooter extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,8 +23,10 @@ class Migration1711461580SetSystemDefaultForDefaultMailFooter extends MigrationS
 
     public function update(Connection $connection): void
     {
-        $germanHtml = file_get_contents(__DIR__ . '/../Fixtures/mails/defaultMailFooter/de-html.twig');
-        $germanPlain = file_get_contents(__DIR__ . '/../Fixtures/mails/defaultMailFooter/de-plain.twig');
+        $filesystem = new Filesystem();
+
+        $germanHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/defaultMailFooter/de-html.twig');
+        $germanPlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/defaultMailFooter/de-plain.twig');
 
         // Check if a template contains the German default content.
         // The ID of the oldest one will be returned as this is the one, created during the installation.
@@ -46,8 +49,8 @@ class Migration1711461580SetSystemDefaultForDefaultMailFooter extends MigrationS
             return;
         }
 
-        $englishHtml = file_get_contents(__DIR__ . '/../Fixtures/mails/defaultMailFooter/en-html.twig');
-        $englishPlain = file_get_contents(__DIR__ . '/../Fixtures/mails/defaultMailFooter/en-plain.twig');
+        $englishHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/defaultMailFooter/en-html.twig');
+        $englishPlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/defaultMailFooter/en-plain.twig');
 
         // Check if a template contains the English default content.
         // The ID of the oldest one will be returned as this is the one, created during the installation.

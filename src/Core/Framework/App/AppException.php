@@ -9,15 +9,20 @@ use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class AppException extends HttpException
 {
@@ -60,6 +65,7 @@ class AppException extends HttpException
     final public const SHOP_ID_CHANGE_SUGGESTED = 'FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED';
     final public const APP_URL_NOT_CONFIGURED = 'FRAMEWORK__APP_URL_NOT_CONFIGURED';
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
+    final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -513,9 +519,9 @@ class AppException extends HttpException
         );
     }
 
-    public static function shopIdChangeSuggested(FingerprintComparisonResult $comparisonResult): self
+    public static function shopIdChangeSuggested(ShopId $shopId, FingerprintComparisonResult $comparisonResult): self
     {
-        return new ShopIdChangeSuggestedException($comparisonResult);
+        return new ShopIdChangeSuggestedException($shopId, $comparisonResult);
     }
 
     public static function appUrlNotConfigured(): self
@@ -534,5 +540,10 @@ class AppException extends HttpException
             self::INVALID_SHOP_ID_CONFIGURATION,
             'The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.'
         );
+    }
+
+    public static function shopIdChangeResolveStrategyNotFound(string $strategy): self
+    {
+        return new ShopIdChangeStrategyNotFoundException($strategy);
     }
 }

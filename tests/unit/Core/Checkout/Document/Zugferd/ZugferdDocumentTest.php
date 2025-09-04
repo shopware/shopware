@@ -226,21 +226,21 @@ class ZugferdDocumentTest extends TestCase
 
         $basisQuantity1 = $document
             ->getElementsByTagName('SupplyChainTradeTransaction')->item(0)
-            ->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(0)
-            ->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
-            ->getElementsByTagName('NetPriceProductTradePrice')->item(0)
-            ->getElementsByTagName('BasisQuantity')->item(0);
+            ?->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(0)
+            ?->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
+            ?->getElementsByTagName('NetPriceProductTradePrice')->item(0)
+            ?->getElementsByTagName('BasisQuantity')->item(0);
 
-        static::assertSame('5.00', $basisQuantity1->nodeValue);
+        static::assertSame('5.00', $basisQuantity1?->nodeValue);
 
         $basisQuantity2 = $document
             ->getElementsByTagName('SupplyChainTradeTransaction')->item(0)
-            ->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(1)
-            ->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
-            ->getElementsByTagName('NetPriceProductTradePrice')->item(0)
-            ->getElementsByTagName('BasisQuantity')->item(0);
+            ?->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(1)
+            ?->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
+            ?->getElementsByTagName('NetPriceProductTradePrice')->item(0)
+            ?->getElementsByTagName('BasisQuantity')->item(0);
 
-        static::assertSame('1.00', $basisQuantity2->nodeValue);
+        static::assertSame('1.00', $basisQuantity2?->nodeValue);
     }
 
     /**

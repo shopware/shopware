@@ -24,6 +24,20 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 class SnippetValidator implements SnippetValidatorInterface
 {
     /**
+     * Locale pattern based on BCP 47,
+     * restricted to ISO 639-1 (2-letter) language codes.
+     * Excludes 3-letter prefixes like `ger` or `eng`.
+     */
+    public const LOCALE_PATTERN_BCP47_ISO639_1 =
+        '(?P<locale>' .
+        '(?P<language>[a-z]{2})' .              // ISO 639-1 language prefix
+        '(?:[_-](?P<script>[A-Z][a-z]{3}))?' .  // optional script (Hant, Latn, Cyrl)
+        '(?:[_-](?P<region>[A-Z]{2}|\d{3}))?' . // optional region (DE, US, 419)
+        ')';
+
+    public const SNIPPET_FILE_PATTERN = '/^(?P<domain>.+?)\.' . self::LOCALE_PATTERN_BCP47_ISO639_1 . '(?P<isBase>\.base)?\.json$/';
+
+    /**
      * @internal
      */
     public function __construct(
@@ -156,14 +170,14 @@ class SnippetValidator implements SnippetValidatorInterface
 
     private function getLocaleFromFileName(string $fileName): string
     {
-        $return = preg_match('/([a-z]{2}-[A-Z]{2})(?:\.base)?\.json$/', $fileName, $matches);
+        $return = preg_match(self::SNIPPET_FILE_PATTERN, $fileName, $matches);
 
-        // Snippet file name not known, return 'en-GB' per default
+        // Snippet file name is not known, return 'en' per default
         if (!$return) {
-            return 'en-GB';
+            return 'en';
         }
 
-        return $matches[1];
+        return \str_replace('_', '-', $matches['locale']);
     }
 
     /**

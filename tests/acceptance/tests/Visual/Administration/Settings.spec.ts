@@ -9,7 +9,7 @@ test('Visual: Administration settings page', { tag: '@Visual' }, async ({
     await test.step('Creates a screenshot of the settings overview page.', async () => {
         await ShopAdmin.goesTo(AdminSettingsListing.url());
         await setViewport(AdminSettingsListing.page, {
-          requestURL: 'api/search/sales-channel',
+            waitForSelector: AdminSettingsListing.shopwareServicesLink,
         });
         await expect(AdminSettingsListing.contentView).toHaveScreenshot('Settings-Overview.png');
     });

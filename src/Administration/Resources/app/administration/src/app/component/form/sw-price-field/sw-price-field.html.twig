@@ -27,9 +27,8 @@
             :disabled="isDisabled"
             :name="grossFieldName"
             v-bind="attributesWithoutListeners"
-            @update:model-value="onPriceGrossChange"
+            @update:model-value="onPriceGrossInputChange"
             @keyup="keymonitor"
-            @input-change="onPriceGrossInputChange"
             @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
@@ -81,9 +80,8 @@
             :disabled="isInherited || disabled"
             :name="netFieldName"
             v-bind="attributesWithoutListeners"
-            @update:model-value="onPriceNetChange"
+            @update:model-value="onPriceNetInputChange"
             @keyup="keymonitor"
-            @input-change="onPriceNetInputChange"
             @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template

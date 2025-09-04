@@ -3,8 +3,8 @@ title: Improve RuntimeException for getSchema on store API
 issue: 12296
 author: Björn Meyer
 author_email: b.meyer@shopware.com
-author_github: @BrocksiNet
+author_github: BrocksiNet
 ---
 ___
 # API
-* Changed the raw exception in `Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator::getSchema()` with a domain exception for unsupported operations. The Store API does not provide an entity schema endpoint; use `/store-api/_info/openapi3.json` to retrieve the OpenAPI specification. The Admin API entity schema remains available at `/api/_info/entity-schema.json`.
+* Changed the raw exception in `Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator::getSchema()` with a domain exception for `unsupportedStoreApiSchemaEndpoint`. So it throws the Message: `The store API does not support the entity schema endpoint. Use /store-api/_info/openapi3.json for the OpenAPI specification. The entity schema endpoint is only available for the admin API.`.

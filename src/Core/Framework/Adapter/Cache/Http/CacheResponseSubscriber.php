@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -91,11 +92,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $isStoreApi = \in_array(
-            StoreApiRouteScope::ID,
-            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
-            true
-        );
+        // In Store API we rely on headers to manage caching, as it more explicit and easier to parse on reverse proxy side.
+        // As we don't control headers that browser sends, in storefront we have to rely on cookies. For this reason here
+        // we have two separate branches of logic.
+        if ($this->isStoreApi($request) && Feature::isActive('STORE_API_CACHE')) {
+            $this->setStoreApiHeaders($request, $response);
+
+            return;
+        }
+
         $route = $request->attributes->get('_route');
 
         if ($route === 'frontend.checkout.configure') {
@@ -104,42 +109,33 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        if ($isStoreApi) {
-            $states = []; // Do not use states for cache invalidation in the Store API
-        } else {
-            $states = $this->updateSystemState($cart, $context, $request, $response);
-        }
+        $states = $this->updateSystemState($cart, $context, $request, $response);
 
         // We need to allow it on login, otherwise the state is wrong
         if (!($route === 'frontend.account.login' || $request->isMethod(Request::METHOD_GET))) {
             return;
         }
 
-        // Do not use cookies for cache invalidation in the Store API
-        if (!$isStoreApi) {
-            $this->updateCacheContextCookie($context, $cart, $request, $response);
-        }
+        $this->updateCacheContextCookie($context, $cart, $request, $response);
 
-        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
-        $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
-        if (!$cache) {
+        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cacheAttribute */
+        $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+        if (!$cacheAttribute) {
             return;
         }
 
-        if ($cache === true) {
-            $cache = [];
-        }
+        $cacheConfig = $cacheAttribute === true ? [] : $cacheAttribute;
 
-        if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
+        if ($this->hasInvalidationState($cacheConfig['states'] ?? [], $states)) {
             return;
         }
 
-        $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
+        $maxAge = $cacheConfig['maxAge'] ?? $this->defaultTtl;
 
         $response->setSharedMaxAge($maxAge);
         $response->headers->set(
             HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
-            implode(',', $cache['states'] ?? [])
+            implode(',', $cacheConfig['states'] ?? [])
         );
 
         if ($this->staleIfError !== null) {
@@ -191,6 +187,33 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $context->assign(['customer' => null]);
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    private function setStoreApiHeaders(Request $request, Response $response): void
+    {
+        if (!$request->isMethod(Request::METHOD_GET)) {
+            return;
+        }
+
+        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cacheAttribute */
+        $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+        if (!$cacheAttribute) {
+            return;
+        }
+
+        $cacheConfig = $cacheAttribute === true ? [] : $cacheAttribute;
+
+        $maxAge = $cacheConfig['maxAge'] ?? $this->defaultTtl;
+
+        $response->setSharedMaxAge($maxAge);
+
+        if ($this->staleIfError !== null) {
+            $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
+        }
+
+        if ($this->staleWhileRevalidate !== null) {
+            $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
+        }
     }
 
     /**
@@ -313,7 +336,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->setCookie($cookie);
     }
 
-    private function updateCacheContextCookie(mixed $context, Cart $cart, Request $request, Response $response): void
+    private function updateCacheContextCookie(SalesChannelContext $context, Cart $cart, Request $request, Response $response): void
     {
         if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
             $newValue = $this->buildCacheHash($request, $context);
@@ -328,5 +351,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $response->headers->removeCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
             $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
         }
+    }
+
+    private function isStoreApi(Request $request): bool
+    {
+        return \in_array(
+            StoreApiRouteScope::ID,
+            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
+            true
+        );
     }
 }

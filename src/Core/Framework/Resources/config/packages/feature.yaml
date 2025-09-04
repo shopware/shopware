@@ -46,3 +46,8 @@ shopware:
         major: false
         toggleable: true
         description: "Defers cart errors that happen during SalesChannelContext creation\nThis feature will be standard as of v6.8.0"
+      - name: STORE_API_CACHE
+        default: false
+        major: false
+        toggleable: true
+        description: "Enables cache headers logic for store-api.\nThis feature will be standard as of v6.8.0"

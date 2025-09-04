@@ -31,7 +31,6 @@ parameters:
         closureUsesThis: false
         numericOperandsInArithmeticOperators: false
         dynamicCallOnStaticMethod: false
-        noVariableVariables: false
         strictArrayFilter: false
 
     type_perfect:
@@ -53,9 +52,6 @@ rules:
     - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
 
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
-
-    # complexity rules
-    - Symplify\PHPStanRules\Rules\NoDynamicNameRule
 
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule

@@ -10,6 +10,10 @@ ___
 # Upgrade Information
 ## Deprecated `ZugferdDocument::getPrice()`
 The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` is deprecated and will be removed in the next major version. Replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
+### Extension impact
+If a plugin overrides `ZugferdDocument::getPrice()`, that override will not be executed by the core anymore. Replace it with `ZugferdDocument::getPriceWithFallback()` to be able to make customisations.
+
+
 ___ 
 # Next Major Version Changes
 ## Removal of `ZugferdDocument::getPrice()`

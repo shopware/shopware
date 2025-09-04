@@ -106,7 +106,7 @@ class OrderRouteTest extends TestCase
      * @param ?class-string<\Throwable> $exception
      */
     #[DataProvider('customerDataProvider')]
-    public function testValidateGuestCustomer(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception): void
+    public function testValidateGuestCustomer(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception, bool $login = false): void
     {
         if ($exception !== null) {
             $this->expectException($exception);
@@ -115,10 +115,11 @@ class OrderRouteTest extends TestCase
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setId(Uuid::randomHex());
         $orderCustomer->setEmail('test@example.com');
+        $orderCustomer->setCustomerId(Uuid::randomHex());
 
         if ($isGuest !== null) {
             $customer = new CustomerEntity();
-            $customer->setId(Uuid::randomHex());
+            $customer->setId($orderCustomer->getId());
             $customer->setGuest($isGuest);
 
             $orderCustomer->setCustomer($customer);
@@ -163,25 +164,34 @@ class OrderRouteTest extends TestCase
             ->method('search')
             ->willReturn($searchResult);
 
+        $accountService = $this->createMock(AccountService::class);
+        $accountService->expects($login ? $this->once() : $this->never())
+            ->method('loginById')
+            ->with($orderCustomer->getCustomerId())
+            ->willReturn('newContextToken');
+
         $route = new OrderRoute(
             $orderRepository,
             $this->createMock(EntityRepository::class),
             $this->createMock(RateLimiter::class),
             $eventDispatcher,
-            $this->createMock(AccountService::class),
+            $accountService,
         );
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('deepLinkCode', 'deepLinkCode'));
 
         $request = new Request();
-        $request->attributes->set('email', $mail);
-        $request->attributes->set('zipcode', $postalCode);
+        $request->request->set('email', $mail);
+        $request->request->set('zipcode', $postalCode);
+        $request->request->set('login', $login);
 
-        $responseOrder = $route->load($request, $context, $criteria)->getOrders()->first();
+        $response = $route->load($request, $context, $criteria);
+        $responseOrder = $response->getOrders()->first();
 
         static::assertNotNull($responseOrder);
         static::assertSame($order->getId(), $responseOrder->getId());
+        static::assertSame($login ? 'newContextToken' : null, $response->headers->get('sw-context-token'));
     }
 
     /**
@@ -199,6 +209,7 @@ class OrderRouteTest extends TestCase
             'valid guest' => [true, 'test@example.com', 'AA-345', null],
             'valid guest uppercase email' => [true, 'Test@Example.Com', 'AA-345', null],
             'valid guest lowercase postal code' => [true, 'Test@Example.Com', 'aa-345', null],
+            'valid guest with login' => [true, 'Test@Example.Com', 'aa-345', null, true],
         ];
     }
 }

@@ -29,7 +29,6 @@ parameters:
         requireParentConstructorCall: false
         disallowedBacktick: false
         disallowedEmpty: false
-        disallowedImplicitArrayCreation: false
         disallowedShortTernary: false
         closureUsesThis: false
         matchingInheritedMethodNames: false

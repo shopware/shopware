@@ -9,6 +9,7 @@ test('Visual: Promotions Listing Page', { tag: '@Visual' }, async ({
         await ShopAdmin.goesTo(AdminPromotionsListing.url());
         await setViewport(AdminPromotionsListing.page, {
             waitForSelector: AdminPromotionsListing.smartBarAddPromotionButton,
+            scrollableElementVertical: AdminPromotionsListing.page.locator('.sw-page__main-content'),
         });
         await assertScreenshot(AdminPromotionsListing.page, 'Listing-Empty-State.png');
     });
@@ -20,6 +21,7 @@ test('Visual: Promotions Listing Page', { tag: '@Visual' }, async ({
         await ShopAdmin.goesTo(AdminPromotionsListing.url());
         await setViewport(AdminPromotionsListing.page, {
             waitForSelector: AdminPromotionsListing.smartBarAddPromotionButton,
+            scrollableElementVertical: AdminPromotionsListing.page.locator('.sw-page__main-content'),
         }); 
         await assertScreenshot(AdminPromotionsListing.page, 'Listing-With-Promotions.png');
     });

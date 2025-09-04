@@ -451,7 +451,6 @@ SQL;
             ], 'categories'),
         ];
 
-        /** @var string $translationSql */
         $translationSql = str_replace(array_keys($translationMapping), array_values($translationMapping), $translationSql);
 
         foreach ($languages as $languageId) {

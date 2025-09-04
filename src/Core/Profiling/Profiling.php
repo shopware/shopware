@@ -29,7 +29,6 @@ class Profiling extends Bundle
      */
     public function build(ContainerBuilder $container): void
     {
-        /** @var string $environment */
         $environment = $container->getParameter('kernel.environment');
 
         parent::build($container);

@@ -10,8 +10,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
+use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
+use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -25,17 +28,21 @@ class InstallTranslationCommandTest extends TestCase
 {
     private TranslationLoader&MockObject $translationLoader;
 
+    private TranslationMetadataLoader&MockObject $metadataLoader;
+
     private TranslationConfig $config;
 
     protected function setUp(): void
     {
         $this->translationLoader = $this->createMock(TranslationLoader::class);
+        $this->metadataLoader = $this->createMock(TranslationMetadataLoader::class);
         $this->config = new TranslationConfig(
             new Uri('http://localhost:8000'),
-            ['en-GB', 'es-ES'],
+            ['en-GB', 'es-ES', 'de-DE'],
             [],
             new LanguageCollection(),
-            new PluginMappingCollection()
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
         );
     }
 
@@ -60,6 +67,25 @@ class InstallTranslationCommandTest extends TestCase
 
     public function testExecuteTranslationCommandRunsSuccessful(): void
     {
+        $elements = [
+            MetadataEntry::create([
+                'locale' => 'en-GB',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ];
+
+        $collection = new MetadataCollection($elements);
+        $collection->get('en-GB')?->markForUpdate();
+        $collection->get('es-ES')?->markForUpdate();
+
+        $this->initMetadataLoader($collection);
+
         $this->translationLoader->expects($this->exactly(2))
             ->method('load')
             ->willReturnCallback(function (string $locale, Context $context, bool $activate): void {
@@ -76,8 +102,111 @@ class InstallTranslationCommandTest extends TestCase
         $tester->assertCommandIsSuccessful();
     }
 
+    public function testCommandInstallsOnlyLanguagesRequiringUpdate(): void
+    {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+            MetadataEntry::create([
+                'locale' => 'en-GB',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+            MetadataEntry::create([
+                'locale' => 'de-DE',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+
+        $collection->get('es-ES')?->markForUpdate();
+
+        $this->initMetadataLoader($collection);
+
+        $this->translationLoader->expects($this->exactly(1))
+            ->method('load')
+            ->willReturnCallback(function (string $locale): void {
+                $expectedLocales = ['es-ES'];
+
+                static::assertTrue(\in_array($locale, $expectedLocales, true));
+            });
+
+        $command = $this->getCommand();
+        $tester = new CommandTester($command);
+
+        $tester->execute(['--locales' => 'en-GB,es-ES,de-DE']);
+        $tester->assertCommandIsSuccessful();
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('The following locales are already up to date and will be skipped: en-GB, de-DE', $output);
+        static::assertStringContainsString('Saving translation metadata...', $output);
+        static::assertStringContainsString('Translation metadata saved successfully.', $output);
+    }
+
+    public function testCommandOutputsErrorIfMetadataCannotBeWritten(): void
+    {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+
+        $collection->get('es-ES')?->markForUpdate();
+        $this->initMetadataLoader($collection);
+
+        $this->metadataLoader->expects($this->once())
+            ->method('save')
+            ->willThrowException(new \Exception('Something went wrong'));
+
+        $command = $this->getCommand();
+        $tester = new CommandTester($command);
+
+        $tester->execute(['--locales' => 'es-ES']);
+        $output = $tester->getDisplay();
+
+        static::assertStringContainsString('Saving translation metadata...', $output);
+        static::assertStringContainsString('An error occurred while saving metadata: "Something went wrong"', $output);
+    }
+
+    public function testCommandSkipsLoadingIfEverythingIsUpToDate(): void
+    {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+
+        $this->initMetadataLoader($collection);
+
+        $command = $this->getCommand();
+        $tester = new CommandTester($command);
+
+        $tester->execute(['--locales' => 'es-ES']);
+        $output = $tester->getDisplay();
+
+        static::assertStringContainsString('All translations are already up to date.', $output);
+    }
+
     public function testExecuteRunsSuccessfulWithSkipActivation(): void
     {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'en-GB',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+
+        $collection->get('en-GB')?->markForUpdate();
+        $this->initMetadataLoader($collection);
+
         $this->translationLoader
             ->expects($this->once())
             ->method('load')
@@ -93,8 +222,31 @@ class InstallTranslationCommandTest extends TestCase
         $tester->assertCommandIsSuccessful();
     }
 
+    public function testCommandFailsIfMetadataCannotBeLoaded(): void
+    {
+        $this->metadataLoader->expects($this->once())
+            ->method('getUpdatedMetadata')
+            ->willThrowException(new \Exception('Unable to fetch metadata'));
+
+        $command = $this->getCommand();
+        $tester = new CommandTester($command);
+
+        $tester->execute(['--locales' => 'en-GB']);
+        $output = $tester->getDisplay();
+
+        static::assertStringContainsString('An error occurred while fetching metadata: "Unable to fetch metadata"', $output);
+        static::assertSame(InstallTranslationCommand::FAILURE, $tester->getStatusCode());
+    }
+
     private function getCommand(): InstallTranslationCommand
     {
-        return new InstallTranslationCommand($this->translationLoader, $this->config);
+        return new InstallTranslationCommand($this->translationLoader, $this->config, $this->metadataLoader);
+    }
+
+    private function initMetadataLoader(MetadataCollection $collection): void
+    {
+        $this->metadataLoader->expects($this->once())
+            ->method('getUpdatedMetadata')
+            ->willReturn($collection);
     }
 }

@@ -329,4 +329,66 @@ class ClientTest extends TestCase
         static::assertCount(1, $entriesWithoutSlash);
         static::assertSame($expectedUrl, $responseWithoutSlash->getRequestUrl());
     }
+
+    public function testFetchServiceZipStreamsChunks(): void
+    {
+        $zipUrl = 'https://files.example.com/service.zip';
+        $payload = random_bytes(128);
+
+        $client = new MockHttpClient([
+            $response = new MockResponse($payload, [
+                'response_headers' => ['Content-Type: application/zip'],
+            ]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        $collected = '';
+        foreach ($registryClient->fetchServiceZip($zipUrl) as $chunk) {
+            $collected .= $chunk->getContent();
+        }
+
+        static::assertSame($payload, $collected);
+        static::assertSame($zipUrl, $response->getRequestUrl());
+        static::assertSame('GET', $response->getRequestMethod());
+    }
+
+    public function testFetchServiceZipThrowsOnNon200(): void
+    {
+        $zipUrl = 'https://files.example.com/missing.zip';
+
+        $client = new MockHttpClient([
+            new MockResponse('', ['http_code' => 404]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        $this->expectException(ServiceException::class);
+        // Force execution so checkResponse() runs and throws
+        \iterator_to_array($registryClient->fetchServiceZip($zipUrl));
+    }
+
+    public static function nonZipContentTypeProvider(): \Generator
+    {
+        yield 'json' => ['application/json', json_encode(['ok' => true])];
+        yield 'html' => ['text/html; charset=UTF-8', '<html><body>Not a zip</body></html>'];
+    }
+
+    #[DataProvider('nonZipContentTypeProvider')]
+    public function testFetchServiceZipThrowsWhenResponseIsNotZip(string $contentType, string $body): void
+    {
+        $zipUrl = 'https://files.example.com/service.zip';
+
+        $client = new MockHttpClient([
+            new MockResponse($body, [
+                'http_code' => 200,
+                'response_headers' => ['Content-Type: ' . $contentType],
+            ]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+        $this->expectException(ServiceException::class);
+        // Force execution so checkResponse() runs and throws
+        \iterator_to_array($registryClient->fetchServiceZip($zipUrl));
+    }
 }

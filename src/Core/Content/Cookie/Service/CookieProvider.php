@@ -13,6 +13,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -34,13 +35,14 @@ class CookieProvider
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly TranslatorInterface $translator,
         array $sessionOptions = [],
         private readonly ?CookieProviderInterface $legacyCookieProvider = null,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
-    public function getCookieGroups(SalesChannelContext $salesChannelContext): CookieGroupCollection
+    public function getCookieGroups(SalesChannelContext $salesChannelContext, bool $translate = false): CookieGroupCollection
     {
         $cookieGroups = new CookieGroupCollection();
 
@@ -54,7 +56,17 @@ class CookieProvider
             $cookieGroups->add($this->getCookieGroupMarketing());
         }
 
-        return $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $salesChannelContext))->cookieGroupCollection;
+        $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $salesChannelContext));
+
+        foreach ($cookieGroups as $cookieGroup) {
+            $this->removeCookieGroupsWithoutCookies($cookieGroups, $cookieGroup);
+
+            if ($translate) {
+                $this->translateCookieGroupsAndTheirEntries($cookieGroup);
+            }
+        }
+
+        return $cookieGroups;
     }
 
     private function getCookieGroupRequiredEntries(): CookieGroup
@@ -134,6 +146,42 @@ class CookieProvider
         $cookieGroupMarketing->setEntries(new CookieEntryCollection([]));
 
         return $cookieGroupMarketing;
+    }
+
+    private function removeCookieGroupsWithoutCookies(CookieGroupCollection $cookieGroups, CookieGroup $cookieGroup): void
+    {
+        // If the group is a cookie itself, it cannot have cookie entries but needs to be kept
+        if ($cookieGroup->getCookie() !== null) {
+            return;
+        }
+
+        $entries = $cookieGroup->getEntries();
+        if ($entries === null || $entries->count() === 0) {
+            // Cookie groups without cookie entries should not be shown to the user
+            $cookieGroups->remove($cookieGroup->snippetKeyName);
+        }
+    }
+
+    private function translateCookieGroupsAndTheirEntries(CookieGroup $cookieGroup): void
+    {
+        $cookieGroup->translatedName = $this->translator->trans($cookieGroup->snippetKeyName);
+
+        if (isset($cookieGroup->snippetKeyDescription)) {
+            $cookieGroup->translatedDescription = $this->translator->trans($cookieGroup->snippetKeyDescription);
+        }
+
+        $entries = $cookieGroup->getEntries();
+        if ($entries !== null) {
+            foreach ($entries as $entry) {
+                if (isset($entry->snippetKeyName)) {
+                    $entry->translatedName = $this->translator->trans($entry->snippetKeyName);
+                }
+
+                if (isset($entry->snippetKeyDescription)) {
+                    $entry->translatedDescription = $this->translator->trans($entry->snippetKeyDescription);
+                }
+            }
+        }
     }
 
     /**

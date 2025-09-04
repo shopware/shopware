@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Cookie\SalesChannel;
 
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
-use Shopware\Core\Content\Cookie\Service\CookieService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -21,7 +20,6 @@ class CookieRoute extends AbstractCookieRoute
      */
     public function __construct(
         private readonly CookieProvider $cookieProvider,
-        private readonly CookieService $cookieService,
     ) {
     }
 
@@ -35,13 +33,7 @@ class CookieRoute extends AbstractCookieRoute
     {
         $translate = $request->query->getBoolean('translate', true); // Default to true for Store API consumers
 
-        $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext);
-
-        $this->cookieService->removeCookieGroupsWithoutCookies($cookieGroups);
-
-        if ($translate) {
-            $this->cookieService->translateCookieGroups($cookieGroups);
-        }
+        $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext, $translate);
 
         return new CookieRouteResponse($cookieGroups);
     }

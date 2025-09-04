@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
-use Shopware\Core\Content\Cookie\Service\CookieService;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
@@ -20,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CookieRoute::class)]
 class CookieRouteTest extends TestCase
 {
-    public function testGetCookieGroupsCallsRemoveAndTranslateMethod(): void
+    public function testGetCookieGroupsGetsCalledWithTranslateByDefault(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
@@ -29,22 +28,17 @@ class CookieRouteTest extends TestCase
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieProvider = $this->createMock(CookieProvider::class);
-        $cookieProvider->method('getCookieGroups')->willReturn($expectedCookieGroups);
+        $cookieProvider->expects($this->once())
+            ->method('getCookieGroups')
+            ->with($salesChannelContext, true)
+            ->willReturn($expectedCookieGroups);
 
-        $cookieService = $this->createMock(CookieService::class);
-
-        $cookieService->expects($this->once())
-            ->method('removeCookieGroupsWithoutCookies')
-            ->with($expectedCookieGroups);
-        $cookieService->expects($this->once())->method('translateCookieGroups');
-
-        $response = (new CookieRoute($cookieProvider, $cookieService))
-            ->getCookieGroups(new Request(), $salesChannelContext);
+        $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
 
         static::assertSame($expectedCookieGroups, $response->getCookieGroups());
     }
 
-    public function testGetCookieGroupsCallsTranslateMethod(): void
+    public function testGetCookieGroupsGetsCalledWithTranslate(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
@@ -53,20 +47,17 @@ class CookieRouteTest extends TestCase
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieProvider = $this->createMock(CookieProvider::class);
-        $cookieProvider->method('getCookieGroups')->willReturn($expectedCookieGroups);
+        $cookieProvider->expects($this->once())
+            ->method('getCookieGroups')
+            ->with($salesChannelContext, true)
+            ->willReturn($expectedCookieGroups);
 
-        $cookieService = $this->createMock(CookieService::class);
-
-        $cookieService->expects($this->once())->method('removeCookieGroupsWithoutCookies');
-        $cookieService->expects($this->once())->method('translateCookieGroups');
-
-        $response = (new CookieRoute($cookieProvider, $cookieService))
-            ->getCookieGroups(new Request(['translate' => true]), $salesChannelContext);
+        $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(['translate' => true]), $salesChannelContext);
 
         static::assertSame($expectedCookieGroups, $response->getCookieGroups());
     }
 
-    public function testGetCookieGroupsDoesNotCallTranslateMethod(): void
+    public function testGetCookieGroupsGetsCalledWithoutTranslate(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
@@ -75,14 +66,12 @@ class CookieRouteTest extends TestCase
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieProvider = $this->createMock(CookieProvider::class);
-        $cookieProvider->method('getCookieGroups')->willReturn($expectedCookieGroups);
+        $cookieProvider->expects($this->once())
+            ->method('getCookieGroups')
+            ->with($salesChannelContext, false)
+            ->willReturn($expectedCookieGroups);
 
-        $cookieService = $this->createMock(CookieService::class);
-
-        $cookieService->expects($this->once())->method('removeCookieGroupsWithoutCookies');
-        $cookieService->expects($this->never())->method('translateCookieGroups');
-
-        $response = (new CookieRoute($cookieProvider, $cookieService))
+        $response = (new CookieRoute($cookieProvider))
             ->getCookieGroups(new Request(['translate' => false]), $salesChannelContext);
 
         static::assertSame($expectedCookieGroups, $response->getCookieGroups());

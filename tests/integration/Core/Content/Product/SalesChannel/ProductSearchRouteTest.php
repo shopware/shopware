@@ -98,7 +98,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
         static::assertIsString($browser->getResponse()->getContent());
-        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(15, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries

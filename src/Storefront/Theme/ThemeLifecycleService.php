@@ -575,8 +575,7 @@ class ThemeLifecycleService
             ) {
                 continue;
             }
-            /** @var string $lastNotSameTheme */
-            $lastNotSameTheme = str_replace('@', '', (string) $themeName);
+            $lastNotSameTheme = str_replace('@', '', $themeName);
         }
 
         if ($lastNotSameTheme !== null) {

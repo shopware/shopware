@@ -79,7 +79,8 @@ class TranslationLoaderTest extends TestCase
             ['es-ES'],
             ['SwagPublisher'],
             new LanguageDtoCollection([new Language('es-ES', 'Español')]),
-            new PluginMappingCollection()
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
         );
         $this->initClient();
     }
@@ -258,7 +259,8 @@ class TranslationLoaderTest extends TestCase
             ['es-ES'],
             ['SwagPaypal'],
             new LanguageDtoCollection([new Language('es-ES', 'Español')]),
-            $pluginMapping
+            $pluginMapping,
+            new Uri('http://localhost:8000/metadata.json'),
         );
         $loader = $this->getTranslationLoader();
 

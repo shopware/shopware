@@ -48,7 +48,6 @@ class ProductExceptionTest extends TestCase
 
     public function testProxyManipulationNotAllowed(): void
     {
-        /** @var mixed $property */
         $property = 'property';
 
         $exception = ProductException::proxyManipulationNotAllowed($property);

@@ -5,7 +5,7 @@
     "/cookie-groups": {
       "get": {
         "tags": [
-          "Cookie Groups"
+          "Cookies"
         ],
         "summary": "Fetch all cookie groups",
         "description": "Fetch all cookie groups available in the system.",

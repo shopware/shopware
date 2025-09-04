@@ -252,6 +252,7 @@ class ControllerRateLimiterTest extends TestCase
                 RateLimiter::GUEST_LOGIN => 1,
             ]),
             static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(AccountService::class),
         );
 
         $order = $this->createCustomerWithOrder();
@@ -260,7 +261,6 @@ class ControllerRateLimiterTest extends TestCase
             $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcher::class),
             $orderRoute,
-            $this->createMock(AccountService::class),
             $this->createMock(AbstractTranslator::class)
         );
 

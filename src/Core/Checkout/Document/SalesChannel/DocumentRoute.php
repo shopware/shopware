@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -10,6 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -113,9 +115,17 @@ final class DocumentRoute extends AbstractDocumentRoute
             return;
         }
 
-        $this->checkGuestAuth($order, $orderCustomer, $request);
+        if (Feature::isActive('v6.8.0.0')) {
+            // feature flag due to different exceptions
+            GuestAuthenticator::validateGuestAuthentication($order, $request);
+        } else {
+            Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $orderCustomer, $request));
+        }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - was replaced by GuestAuthenticator::validateGuestAuthentication
+     */
     private function checkGuestAuth(
         OrderEntity $order,
         OrderCustomerEntity $orderCustomer,
@@ -131,8 +141,8 @@ final class DocumentRoute extends AbstractDocumentRoute
         if ($request->get('email', false) && $request->get('zipcode', false)) {
             $billingAddress = $order->getBillingAddress();
             if ($billingAddress === null
-                || $request->get('email') !== $orderCustomer->getEmail()
-                || $request->get('zipcode') !== $billingAddress->getZipcode()) {
+                || strtolower($request->get('email')) !== strtolower($orderCustomer->getEmail())
+                || strtoupper($request->get('zipcode')) !== strtoupper($billingAddress->getZipcode() ?: '')) {
                 throw DocumentException::wrongGuestCredentials();
             }
         } else {

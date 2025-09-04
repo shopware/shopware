@@ -74,6 +74,8 @@ class CustomerException extends HttpException
     public const MISSING_OPTION = 'CONTENT__MISSING_OPTION';
     public const INVALID_OPTION = 'CONTENT__INVALID_OPTION';
     public const REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED = 'CHECKOUT__REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED';
+    final public const CHECKOUT_GUEST_NOT_AUTHENTICATED = 'CHECKOUT__GUEST_NOT_AUTHENTICATED';
+    final public const CHECKOUT_GUEST_WRONG_CREDENTIALS = 'CHECKOUT__GUEST_WRONG_CREDENTIALS';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -444,6 +446,24 @@ class CustomerException extends HttpException
             self::REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED,
             'Customer with id "{{ customerId }}" is not a guest',
             ['customerId' => $customerId],
+        );
+    }
+
+    public static function guestNotAuthenticated(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::CHECKOUT_GUEST_WRONG_CREDENTIALS,
+            'Wrong credentials for guest authentication.'
+        );
+    }
+
+    public static function wrongGuestCredentials(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::CHECKOUT_GUEST_NOT_AUTHENTICATED,
+            'Guest not authenticated.'
         );
     }
 }

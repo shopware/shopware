@@ -3,10 +3,10 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
-use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -45,7 +45,8 @@ class OrderRoute extends AbstractOrderRoute
         private readonly EntityRepository $orderRepository,
         private readonly EntityRepository $promotionRepository,
         private readonly RateLimiter $rateLimiter,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AccountService $accountService,
     ) {
     }
 
@@ -105,7 +106,21 @@ class OrderRoute extends AbstractOrderRoute
             }
 
             $order = $orders->first();
-            $this->checkGuestAuth($order, $request);
+
+            if ($order === null) {
+                throw OrderException::guestNotAuthenticated();
+            }
+
+            if (Feature::isActive('v6.8.0.0')) {
+                // feature flag due to different exceptions
+                GuestAuthenticator::validateGuestAuthentication($order, $request);
+            } else {
+                Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $request));
+            }
+
+            if ($request->get('login') && $customerId = $order->getOrderCustomer()?->getCustomerId()) {
+                $newContextToken = $this->accountService->loginById($customerId, $context);
+            }
         }
 
         if (isset($cacheKey)) {
@@ -125,6 +140,10 @@ class OrderRoute extends AbstractOrderRoute
                 }
                 $response->addPaymentChangeable([$order->getId() => $changeable]);
             }
+        }
+
+        if (isset($newContextToken)) {
+            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newContextToken);
         }
 
         return $response;
@@ -204,8 +223,7 @@ class OrderRoute extends AbstractOrderRoute
     }
 
     /**
-     * @throws CustomerNotLoggedInException
-     * @throws WrongGuestCredentialsException
+     * @deprecated tag:v6.8.0 - was replaced by GuestAuthenticator::validateGuestAuthentication
      */
     private function checkGuestAuth(?OrderEntity $order, Request $request): void
     {
@@ -215,21 +233,13 @@ class OrderRoute extends AbstractOrderRoute
 
         $orderCustomer = $order->getOrderCustomer();
         if ($orderCustomer === null) {
-            // @deprecated tag:v6.8.0 - remove this if block
-            if (!Feature::isActive('v6.8.0.0')) {
-                throw CartException::customerNotLoggedIn(); // @phpstan-ignore shopware.domainException
-            }
-            throw OrderException::customerNotLoggedIn();
+            throw CartException::customerNotLoggedIn(); // @phpstan-ignore shopware.domainException
         }
 
         $guest = $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
         // Throw exception when customer is not guest
         if (!$guest) {
-            // @deprecated tag:v6.8.0 - remove this if block
-            if (!Feature::isActive('v6.8.0.0')) {
-                throw CartException::customerNotLoggedIn(); // @phpstan-ignore shopware.domainException
-            }
-            throw OrderException::customerNotLoggedIn();
+            throw CartException::customerNotLoggedIn(); // @phpstan-ignore shopware.domainException
         }
 
         // Verify email and zip code with this order

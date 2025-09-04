@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
@@ -42,6 +43,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(RateLimiter::class),
             $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(AccountService::class),
         );
 
         $route->load(new Request(), $this->createMock(SalesChannelContext::class), new Criteria());
@@ -90,6 +92,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(RateLimiter::class),
             $eventDispatcher,
+            $this->createMock(AccountService::class),
         );
 
         $responseOrder = $route->load(new Request(), $context, new Criteria())->getOrders()->first();
@@ -164,6 +167,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(RateLimiter::class),
             $eventDispatcher,
+            $this->createMock(AccountService::class),
         );
 
         $criteria = new Criteria();

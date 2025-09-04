@@ -22,23 +22,17 @@ parameters:
 
     # For stricter testing those should be set to true at some point
     strictRules:
-        disallowedLooseComparison: false
         booleansInConditions: false
         booleansInLoopConditions: false
         uselessCast: false
         requireParentConstructorCall: false
-        disallowedBacktick: false
         disallowedEmpty: false
         disallowedShortTernary: false
         closureUsesThis: false
-        matchingInheritedMethodNames: false
         numericOperandsInArithmeticOperators: false
-        strictFunctionCalls: false
         dynamicCallOnStaticMethod: false
-        switchConditionsMatchingType: false
         noVariableVariables: false
         strictArrayFilter: false
-        illegalConstructorMethodCall: false
 
     type_perfect:
         no_mixed_property: true

@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -166,6 +167,80 @@ class ZugferdDocumentTest extends TestCase
                 ['32.97', '58.65', '3.64', '87.98', '14.87', '102.85', '45.26', '57.59'],
             ],
         ];
+    }
+
+    public function testBasisQuantity(): void
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(100.0);
+        $order->setAmountNet(100);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $product1 = new ProductEntity();
+        $product1->setProductNumber('123');
+        $product1->setPurchaseUnit(5);
+
+        $lineItem1 = new OrderLineItemEntity();
+        $lineItem1->setId(Uuid::randomHex());
+        $lineItem1->setProduct($product1);
+        $lineItem1->setLabel('Product ' . $lineItem1->getId());
+        $lineItem1->setQuantity(1);
+        $lineItem1->setPosition(1);
+        $lineItem1->setPrice(new CalculatedPrice(
+            100.0,
+            100.0,
+            new CalculatedTaxCollection([]),
+            new TaxRuleCollection(),
+        ));
+
+        $product2 = new ProductEntity();
+        $product2->setProductNumber('234');
+
+        $lineItem2 = new OrderLineItemEntity();
+        $lineItem2->setId(Uuid::randomHex());
+        $lineItem2->setProduct($product2);
+        $lineItem2->setLabel('Product ' . $lineItem2->getId());
+        $lineItem2->setQuantity(1);
+        $lineItem2->setPosition(2);
+        $lineItem2->setPrice(new CalculatedPrice(
+            100.0,
+            100.0,
+            new CalculatedTaxCollection([]),
+            new TaxRuleCollection(),
+        ));
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withProductLineItem($lineItem1, '');
+        $document->withProductLineItem($lineItem2, '');
+        $document->withPaidAmount(100.0);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $document = $document->getDomContent($order, $calculator);
+
+        $basisQuantity1 = $document
+            ->getElementsByTagName('SupplyChainTradeTransaction')->item(0)
+            ->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(0)
+            ->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
+            ->getElementsByTagName('NetPriceProductTradePrice')->item(0)
+            ->getElementsByTagName('BasisQuantity')->item(0);
+
+        static::assertSame('5.00', $basisQuantity1->nodeValue);
+
+        $basisQuantity2 = $document
+            ->getElementsByTagName('SupplyChainTradeTransaction')->item(0)
+            ->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(1)
+            ->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
+            ->getElementsByTagName('NetPriceProductTradePrice')->item(0)
+            ->getElementsByTagName('BasisQuantity')->item(0);
+
+        static::assertSame('1.00', $basisQuantity2->nodeValue);
     }
 
     /**

@@ -30,17 +30,19 @@ class Migration1748326970UpdateMailTemplatesForAccessibilityTest extends TestCas
     {
         $migration = new Migration1748326970UpdateMailTemplatesForAccessibility();
 
-        $error = [];
+        $error = null;
+        $message = '';
         try {
             $migration->update($this->connection);
             $migration->update($this->connection);
         } catch (\Throwable $e) {
-            $error[] = $e->getMessage();
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
         }
         // at least check that the migrations run without exceptions
 
         // there isn't much purpose in comparing the fixture contents with the DB,
         // because future migrations might change them again, so let's skip all that boilerplate here
-        static::assertCount(0, $error, print_r($error, true));
+        static::assertNull($error, $message);
     }
 }

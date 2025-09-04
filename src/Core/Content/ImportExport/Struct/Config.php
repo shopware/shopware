@@ -61,6 +61,14 @@ class Config
         return $this->parameters[$key] ?? null;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
     public static function fromLog(ImportExportLogEntity $log): self
     {
         $config = $log->getConfig();

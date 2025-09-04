@@ -9,6 +9,9 @@
             "get": {
                 "summary": "Get API routes",
                 "operationId": "getRoutes",
+                "tags": [
+                  "System Info & Health Check"
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",

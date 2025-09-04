@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import {replaceElements, setViewport} from '@shopware-ag/acceptance-test-suite';
+import { replaceElements, setViewport } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Administration your profile page', { tag: '@Visual' }, async ({
     ShopAdmin,

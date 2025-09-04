@@ -520,6 +520,7 @@
         <service id="Shopware\Core\Checkout\Cart\CartCompressor">
             <argument>%shopware.cart.compress%</argument>
             <argument>%shopware.cart.compression_method%</argument>
+            <argument>%shopware.cart.serialization_max_mb_size%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\RedisCartPersister">

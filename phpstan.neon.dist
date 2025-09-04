@@ -180,3 +180,8 @@ parameters:
             identifier: argument.type
             path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
+        - # With the active `reportWrongPhpDocTypeInVarTag` phpstan parameter we should resolve this issue per area
+            message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
+            paths:
+                - src/Core/**
+                - tests/**

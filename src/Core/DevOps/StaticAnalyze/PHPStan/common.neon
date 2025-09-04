@@ -19,7 +19,6 @@ parameters:
 
     # For stricter testing those should be set to true at some point
     reportMaybesInMethodSignatures: false
-    reportWrongPhpDocTypeInVarTag: false
 
     # For stricter testing those should be set to true at some point
     strictRules:

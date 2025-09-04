@@ -8,7 +8,7 @@
 <div class="rating mb-2 text-primary">
     {# Actual rating stars #}
     {% for star in range(1, starsRounded) %}
-        <twig:icon:icon name="star" pack="solid" size="xs" />
+        <twig:Sw:Icon name="star" pack="solid" size="xs" />
     {% endfor %}
 
     {# Remaining stars #}
@@ -16,7 +16,7 @@
 
     {% if delta > 0 %}
         {% for starEmpty in range(1, delta) %}
-            <twig:icon:icon name="star" size="xs" />
+            <twig:Sw:Icon name="star" size="xs" />
         {% endfor %}
     {% endif %}
 </div>

@@ -90,7 +90,7 @@
 
         {% block media %}
             <twig:slot name="media">
-                <twig:media:image
+                <twig:Sw:Media:Image
                     {{ ...attributes.nested('media').defaults({
                         media: product.cover.media,
                         height: mediaHeight,
@@ -104,7 +104,7 @@
 
         {% block badges %}
             <twig:slot name="badges">
-                <twig:product-card:badges :product="product" />
+                <twig:Sw:Product:Badges :product="product" />
             </twig:slot>
         {% endblock %}
 
@@ -133,13 +133,13 @@
 
         {% if config('core.listing.showReview') and product.ratingAverage %}
             <twig:slot name="rating">
-                <twig:rating:rating :stars="product.ratingAverage" />
+                <twig:Sw:Rating:Stars :stars="product.ratingAverage" />
             </twig:slot>
         {% endif %}
 
         {% if not displayParent %}
             <twig:slot name="variants">
-                <twig:product-card:variants :variants="product.variation" />
+                <twig:Sw:Product:Variants :variants="product.variation" />
             </twig:slot>
         {% endif %}
 
@@ -152,16 +152,16 @@
 
         {% block price %}
             <twig:slot name="price">
-                <twig:product-card:price :product="product" />
+                <twig:Sw:Product:PriceDisplay :product="product" />
             </twig:slot>
         {% endblock %}
 
         {% block actions %}
             <twig:slot name="actions">
-                <twig:product-card:actions
-                        :product="product"
-                        :addToCartExtraFormData="{ 'foo': 'bar' }"
-                    />
+                <twig:Sw:Product:CardActions
+                    :product="product"
+                    :addToCartExtraFormData="{ 'foo': 'bar' }"
+                />
             </twig:slot>
         {% endblock %}
 
@@ -169,6 +169,6 @@
     </div>
 
     {% block loading_indicator %}
-        <twig:product-card:skeleton-loader />
+        <twig:Sw:Product:CardLoader />
     {% endblock %}
 </div>

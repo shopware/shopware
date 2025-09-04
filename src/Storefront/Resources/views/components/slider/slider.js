@@ -1,1 +1,0 @@
-console.log('I am a component JS file for the Slider component.');

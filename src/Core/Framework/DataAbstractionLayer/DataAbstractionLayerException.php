@@ -27,7 +27,10 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[Package('framework')]
 class DataAbstractionLayerException extends HttpException
@@ -954,5 +957,10 @@ class DataAbstractionLayerException extends HttpException
             'Can not build accessor for field "{{ propertyName }}" on root "{{ root }}"',
             ['propertyName' => $propertyName, 'root' => $root]
         );
+    }
+
+    public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
+    {
+        return new UnexpectedTypeException($constraint, $expectedType);
     }
 }

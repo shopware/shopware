@@ -28,6 +28,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[Package('checkout')]
 class CustomerException extends HttpException
@@ -465,5 +467,15 @@ class CustomerException extends HttpException
             self::CHECKOUT_GUEST_NOT_AUTHENTICATED,
             'Guest not authenticated.'
         );
+    }
+      
+    public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
+    {
+        return new UnexpectedTypeException($constraint, $expectedType);
+    }
+
+    public static function unexpectedConstraintValue(mixed $value, string $expectedType): ValidatorException
+    {
+        return new UnexpectedValueException($value, $expectedType);
     }
 }

@@ -344,8 +344,17 @@ class RegisterRoute extends AbstractRegisterRoute
 
         // The billing address is mandatory.
         // The shipping address is optional but if there is one, a non-array value results in an exception in the validation process.
-        $definition->add('billingAddress', new Type('associative_array'));
-        $definition->add('shippingAddress', new AtLeastOneOf([new Type('associative_array'), new IsNull()]));
+        $definition->add(
+            'billingAddress',
+            new Type('associative_array', message: 'VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR')
+        );
+        $definition->add(
+            'shippingAddress',
+            new AtLeastOneOf([
+                new Type('associative_array', message: 'VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR'),
+                new IsNull(),
+            ])
+        );
 
         // The billing address validation must not be added if the data is neither a data bag nor valid because the validation building will fail.
         // Using a null value must be possible to allow the event based modification (see BuildValidationEvent).

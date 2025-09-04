@@ -428,7 +428,6 @@ class CustomFieldTest extends TestCase
         $this->addCustomFields(['datetime' => CustomFieldTypes::DATETIME]);
 
         $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
-        /** @var \DateTimeInterface[] $dateTimes */
         $dateTimes = [
             new \DateTime('1990-01-01'),
             new \DateTime('1990-01-01T00:01'),

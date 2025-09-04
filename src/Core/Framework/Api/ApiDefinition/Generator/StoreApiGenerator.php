@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -115,7 +116,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     public function getSchema(array $definitions): array
     {
-        throw new \RuntimeException('The store API does not support the entity schema endpoint. Use /store-api/_info/openapi3.json for the OpenAPI specification. The entity schema endpoint is only available for the admin API.');
+        throw ApiException::unsupportedStoreApiSchemaEndpoint();
     }
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool

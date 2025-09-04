@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
@@ -253,6 +254,7 @@ class ControllerRateLimiterTest extends TestCase
             ]),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(AccountService::class),
+            new GuestAuthenticator(),
         );
 
         $order = $this->createCustomerWithOrder();

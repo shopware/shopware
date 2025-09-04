@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
@@ -45,6 +46,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(RateLimiter::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(AccountService::class),
+            new GuestAuthenticator(),
         );
 
         $route->load(new Request(), $this->createMock(SalesChannelContext::class), new Criteria());
@@ -94,6 +96,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(RateLimiter::class),
             $eventDispatcher,
             $this->createMock(AccountService::class),
+            new GuestAuthenticator(),
         );
 
         $responseOrder = $route->load(new Request(), $context, new Criteria())->getOrders()->first();
@@ -176,6 +179,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(RateLimiter::class),
             $eventDispatcher,
             $accountService,
+            new GuestAuthenticator(),
         );
 
         $criteria = new Criteria();

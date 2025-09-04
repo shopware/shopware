@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class GuestAuthenticator
 {
-    public static function validateGuestAuthentication(OrderEntity $order, Request $request): void
+    public function validate(OrderEntity $order, Request $request): void
     {
         $isOrderByGuest = $order->getOrderCustomer()?->getCustomer()?->getGuest();
 

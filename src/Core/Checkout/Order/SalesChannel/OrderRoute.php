@@ -47,6 +47,7 @@ class OrderRoute extends AbstractOrderRoute
         private readonly RateLimiter $rateLimiter,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AccountService $accountService,
+        private readonly GuestAuthenticator $guestAuthenticator,
     ) {
     }
 
@@ -113,7 +114,7 @@ class OrderRoute extends AbstractOrderRoute
 
             if (Feature::isActive('v6.8.0.0')) {
                 // feature flag due to different exceptions
-                GuestAuthenticator::validateGuestAuthentication($order, $request);
+                $this->guestAuthenticator->validate($order, $request);
             } else {
                 Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $request));
             }

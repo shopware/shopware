@@ -35,6 +35,7 @@ final class DocumentRoute extends AbstractDocumentRoute
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
         private readonly EntityRepository $documentRepository,
+        private readonly GuestAuthenticator $guestAuthenticator,
     ) {
     }
 
@@ -117,7 +118,7 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         if (Feature::isActive('v6.8.0.0')) {
             // feature flag due to different exceptions
-            GuestAuthenticator::validateGuestAuthentication($order, $request);
+            $this->guestAuthenticator->validate($order, $request);
         } else {
             Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $orderCustomer, $request));
         }

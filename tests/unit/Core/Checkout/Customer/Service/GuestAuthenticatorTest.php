@@ -37,7 +37,7 @@ class GuestAuthenticatorTest extends TestCase
             'zipcode' => '12345',
         ]);
 
-        GuestAuthenticator::validateGuestAuthentication($order, $request);
+        (new GuestAuthenticator())->validate($order, $request);
         $this->expectNotToPerformAssertions();
     }
 
@@ -60,7 +60,7 @@ class GuestAuthenticatorTest extends TestCase
 
         $this->expectException(CustomerException::class);
         $this->expectExceptionMessage('Wrong credentials for guest authentication.');
-        GuestAuthenticator::validateGuestAuthentication($order, $request);
+        (new GuestAuthenticator())->validate($order, $request);
     }
 
     public function testGuestAuthenticationWithNoCredentials(): void
@@ -79,7 +79,7 @@ class GuestAuthenticatorTest extends TestCase
 
         $this->expectException(CustomerException::class);
         $this->expectExceptionMessage('Guest not authenticated.');
-        GuestAuthenticator::validateGuestAuthentication($order, $request);
+        (new GuestAuthenticator())->validate($order, $request);
     }
 
     public function testGuestAuthenticationWithRegisteredCustomer(): void
@@ -94,6 +94,6 @@ class GuestAuthenticatorTest extends TestCase
 
         $this->expectException(CustomerException::class);
         $this->expectExceptionMessage('Customer is not logged in.');
-        GuestAuthenticator::validateGuestAuthentication($order, $request);
+        (new GuestAuthenticator())->validate($order, $request);
     }
 }

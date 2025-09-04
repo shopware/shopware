@@ -55,6 +55,7 @@ class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
     public function resolve(Context $context): void
     {
         try {
+            $this->shopIdProvider->reset();
             $this->shopIdProvider->getShopId();
 
             // no resolution needed

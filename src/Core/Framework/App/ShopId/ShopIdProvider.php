@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
@@ -17,10 +18,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @phpstan-import-type ShopIdV2Config from ShopId
  */
 #[Package('framework')]
-class ShopIdProvider
+class ShopIdProvider implements ResetInterface
 {
     final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
     final public const SHOP_ID_SYSTEM_CONFIG_KEY_V2 = 'core.app.shopIdV2';
+
+    private ?ShopId $shopId = null;
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
@@ -35,20 +38,24 @@ class ShopIdProvider
      */
     public function getShopId(): string
     {
-        $shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
+        if ($this->shopId) {
+            return $this->shopId->id;
+        }
 
-        $fingerprintsComparison = $this->fingerprintGenerator->matchFingerprints($shopId->fingerprints);
+        $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
+
+        $fingerprintsComparison = $this->fingerprintGenerator->matchFingerprints($this->shopId->fingerprints);
         if (!$fingerprintsComparison->isMatching()) {
             if ($this->hasAppsRegisteredAtAppServers()) {
-                throw AppException::shopIdChangeSuggested($shopId, $fingerprintsComparison);
+                throw AppException::shopIdChangeSuggested($this->shopId, $fingerprintsComparison);
             }
 
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
-            $this->regenerateAndSetShopId($shopId->id);
+            $this->regenerateAndSetShopId($this->shopId->id);
         }
 
-        return $shopId->id;
+        return $this->shopId->id;
     }
 
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
@@ -68,7 +75,14 @@ class ShopIdProvider
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY);
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
 
+        $this->reset();
+
         $this->eventDispatcher->dispatch(new ShopIdDeletedEvent());
+    }
+
+    public function reset(): void
+    {
+        $this->shopId = null;
     }
 
     private function setShopId(ShopId $shopId): void

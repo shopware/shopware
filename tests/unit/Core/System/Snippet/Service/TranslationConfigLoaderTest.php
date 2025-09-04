@@ -65,7 +65,7 @@ class TranslationConfigLoaderTest extends TestCase
         $this->translationConfigLoader->setConfigFileName('translation_invalid_url.yaml');
 
         static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "invalid_url" is invalid: The repository-url must contain a schema and a host.');
+        static::expectExceptionMessage('The repository URL "invalid_url" is invalid: "repository-url" must contain a schema and a host.');
         $this->translationConfigLoader->load();
     }
 
@@ -83,7 +83,7 @@ class TranslationConfigLoaderTest extends TestCase
         $this->translationConfigLoader->setConfigFileName('translation_non_string_url.yaml');
 
         static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "4" is invalid: The repository-url in the translation config must be a string.');
+        static::expectExceptionMessage('The repository URL "4" is invalid: "repository-url" in the translation config must be a string.');
         $this->translationConfigLoader->load();
     }
 
@@ -92,7 +92,7 @@ class TranslationConfigLoaderTest extends TestCase
         $this->translationConfigLoader->setConfigFileName('translation_empty_string_url.yaml');
 
         static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "" is invalid: The repository-url in the translation config must not be empty.');
+        static::expectExceptionMessage('The repository URL "" is invalid: "repository-url" in the translation config must not be empty.');
         $this->translationConfigLoader->load();
     }
 

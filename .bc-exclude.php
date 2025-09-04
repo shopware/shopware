@@ -93,6 +93,7 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\System\Snippet\Struct\TranslationConfig#$pluginMapping changed from array to Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection', '/'),
         preg_quote('ADDED: Parameter previous was added to Method translationConfigurationFileDoesNotExist() of class Shopware\Core\System\Snippet\SnippetException', '/'),
 
-        preg_quote('Shopware\Core\Framework\App\AppException', '/')
+        preg_quote('Shopware\Core\Framework\App\AppException', '/'),
+        preg_quote('Shopware\Core\Service\ServiceException', '/')
     ],
 ];

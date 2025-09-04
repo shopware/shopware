@@ -1,8 +1,340 @@
-# 6.7.2.0
-
 ## Country-agnostic language layer is now implemented
 With this release, we have fully implemented the country-agnostic language layer as described in the [ADR](https://developer.shopware.com/docs/resources/references/adr/2025-09-01-adding-a-country-agnostic-language-layer.md). Therefore, a new best practice has been established for providing translations in Shopware. We recommend to rename your translation files to use the country-agnostic language codes (e.g., `en` instead of `en-GB`). This change will also require to rename the `base_file` column in the `snippet_set` table accordingly. Although its use is not recommended, the old, specific snippet naming (e.g., `en-GB`) will continue to work for backward compatibility.
 
+# 6.7.2.0
+
+## New robots meta tag configuration
+
+The new configuration option "Robots Meta Tag" has been added to the administration under Settings > Basic information.
+This allows you to set the content of the robots meta tag rendered in the storefront (`<meta name="robots" ...>`).
+
+## Breadcrumb separator using Bootstrap default
+
+The breadcrumb separator is now using the bootstrap default, i.e. the CSS variable `--bs-breadcrumb-divider`, which is set on the corresponding breadcrumb `nav`-element: https://getbootstrap.com/docs/5.3/components/breadcrumb/#dividers
+
+Therefore the block `layout_breadcrumb_placeholder` has been deprecated and will be removed and the separator can be set using the twig variable `breadcrumbDivider`, i.e.
+```twig
+{% block layout_breadcrumb_container %}
+    {% with {breadcrumbDivider: 'url(data:image/svg+xml,' ~ source('@Storefront/assets/icon/my-custom-separator.svg')|url_encode ~ ')'} %}
+        {{ parent() }}
+    {% endwith %}
+{% endblock %}
+```
+## ProductListing with Variants and sort by price
+
+Grouping with `GROUP BY product.display_group`, which is necessary to process product variants, only works without SQL Mode `only_full_group_by`. When this mode is disabled, it causes rows to be dropped - potentially the one with the cheapest price. This leads to inconsistent sorting of products with variants that differ in price.
+Due to sorting by the lowest price, the `cheapestPrice` accessor was removed from the min/max logic in the `CriteriaQueryBuilder`. To ensure that a product is listed based on its cheapest variant, the accessor was supplemented with the `MIN()` function.
+
+## Deprecation of `EntityDefinition` constructor
+
+The constructor of the `EntityDefinition` will be removed, therefore the call of child classes to it should be removed as well, i.e:
+```diff
+ <?php declare(strict_types=1);
+
+ namespace MyCustomEntity\Content\Entity;
+
+ use Shopware\Core\Content\Media\MediaDefinition;
+ use Shopware\Core\Content\Product\ProductDefinition;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
+ class MyCustomEntity extends EntityDefinition
+ {
+     // snip
+ 
+     public function __construct(private readonly array $meta = [])
+     {
+-        parent::__construct();
+         // ...
+     }
+ 
+     // snip
+ }
+```
+
+## Better support for long-running runtimes
+
+If you are running Shopware in a long-running environment (e.g., FrankenPHP or RoadRunner),
+this change enables Symfony to properly reset services implementing `ResetInterface` between requests.
+No configuration changes are required.
+
+## Deprecate FK delete exception handler
+
+All foreign keys with restrict delete behavior are now handled directly by the DAL.
+This means that the following exceptions are not thrown anymore:
+* `LanguageOfOrderDeleteException`
+* `LanguageOfNewsletterDeleteException`
+* `LanguageForeignKeyDeleteException`
+* `ThemeException::themeMediaStillInUse`
+* `SalesChannelException::salesChannelDomainInUse`
+In the cases that previously those exceptions were thrown, now a `RestrictDeleteViolationException` is thrown as in all other cases.
+
+Additionally, the following exception handlers don't throw any exceptions anymore and are deprecated and will be removed in v6.8.0.0:
+* `OrderExceptionHandler`
+* `NewsletterExceptionHandler`
+* `LanguageExceptionHandler`
+* `SalesChannelExceptionHandler`
+* `ThemeExceptionHandler`
+
+## Symfony components update
+
+All Symfony components have been updated to version 7.3.
+This might lead to deprecation warnings in your extensions or customizations.
+Please check the [Symfony 7.3 upgrade guide](https://github.com/symfony/symfony/blob/v7.3.1/UPGRADE-7.3.md) for more information.
+
+## App System: Unit and NewsletterRecipient support for custom field sets
+
+It is now possible to define custom field sets in your app's `manifest.xml` file for the `unit` and `newsletter_recipient` entities.
+
+## Allow custom route names for Storefront controllers
+
+It is now possible to add custom route names for Storefront controllers in the `storefront.yaml` configuration file.
+This allows the route to be identified as a Storefront route without the usage of the `frontend`, `widgets` or `payment` prefixes.
+Add the following configuration to your `storefront.yaml` file:
+
+```yaml
+storefront:
+    router:
+        allowed_routes:
+            - swag.test.foo-bar
+```
+
+## Deprecation of `CartBehavior::isRecalculation`
+
+`CartBehavior::isRecalculation` is deprecated.
+Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
+Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+
+## Skip cart persistence with `CheckoutPermissions::SKIP_CART_PERSISTENCE`
+
+Flag the sales channel context or cart behaviour with `CheckoutPermissions::SKIP_CART_PERSISTENCE` to skip persisting the cart. Useful to trigger a memory only cart calculation:
+```php
+$calculatedCart = $updatedContext->withPermissions(
+    [CheckoutPermissions::SKIP_CART_PERSISTENCE => true],
+    fn (SalesChannelContext $context): Cart => $this->cartService->recalculate($originalCart, $context),
+);
+```
+Please ensure you respect this permission when overwriting with `Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent::setShouldPersist`.
+
+## Load all category levels for current path in NavigationRoute
+
+The navigation route now loads all category levels in the path to the currently active category.
+Before it only loaded the configured levels as well as parents and children of the currently active category.
+However the "siblings" of all the parents were missing, which caused the navigation to be incomplete when you wanted to render the tree to the active path.
+As a result now the sidebar navigation in the CMS element now expands to the full path to the currently active category.
+
+## CMS block component name will be used
+
+When rendering CMS block components in the Administration, the `component` property of the block config will be used instead of `sw-cms-block-${block.type}`. If there is no component name defined, `sw-cms-block-${block.type}` will be used as a fallback. Make sure you have set the correct component name in your CMS block configs.
+
+## Return address in documents
+
+The option `Display company` address in the `Company settings` section of the document configuration is now split into `Display return address` and `Display company address`.  
+The former toggles the display of the return address above the customer address in the address block.  
+The latter toggles the display of the company address below the header on the right-hand side of the document.
+
+## New Elasticsearch enhancement for optimized storefront searching and sorting
+
+This change introduces a new Elasticsearch enhancement that optimizes storefront searching and sorting. It includes the following key features:
+
+- A new boolean property `useForSorting` in `TranslatedField` to indicate if a field can be used for sorting in Elasticsearch queries.
+- Avoid using nested query when searching against Elasticsearch because its performance is not optimal.
+
+These changes require a full re-index, you need to update your Elasticsearch index's mapping by running the following command:
+
+```bash
+bin/console es:index
+```
+
+And the new implementation will be switched and ready to use after the re-indexing is completed.
+
+## Deprecated `NavigationRoute::buildName()`
+
+The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildName()` is deprecated and will be removed in the next major version. It was used to build a dynamic tag name for navigation routes, but now all navigation routes are tagged with the same tag `NavigationRoute::ALL_TAG`.
+
+## Configuration of bath size for file writing operations
+
+You can now configure the batch size for S3 file writing operations in your `config/packages/shopware.yaml`:
+
+```yaml
+shopware:
+    filesystem:
+        batch_write_size: 100  # Default is 250
+```
+
+This controls how many files are processed in a single batch when using the AsyncAwsS3WriteBatchAdapter, which helps prevent "Too many open files" errors and allows for performance tuning based on your infrastructure.
+
+# 6.7.1.2
+
+With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
+This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.
+
+## Deprecate method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
+
+In some occasions, the method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was used to retrieve a single item based on its entity and identifier. However, this method only returns the first item found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+Because of this, we have introduced a new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` that retrieves all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+
+Before
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+// Only a single entity is retrieved
+$entity = $data->get($definition, $url->getForeignKey());
+$seoUrls = $entity->getSeoUrls();
+$seoUrls->add($url);
+```
+
+After
+
+```php
+$url = 'https://example.com/cross-selling/product-123'; 
+$entities = $data->getAll($definition, $url->getForeignKey());
+
+// Now you have to loop through all entities to add the SEO URL
+foreach ($entities as $entity) {
+    $seoUrls = $entity->getSeoUrls();
+    $seoUrls->add($url);
+}
+```
+
+# 6.7.1.0
+
+## Add primary delivery and primary transaction to order
+
+Currently, there are multiple order deliveries and multiple order transactions per order.
+But normally, there is only one active transaction and one delivery containing all products.
+Now, orders contain a `primaryOrderDelivery` and `primaryOrderTransaction`, which is the easiest and in 6.8 recommended way to access them.
+All existing orders will be updated with a migration so that they also have the primary values.
+
+* Replace delivery accesses like `order.deliveries.first()` or `order.deliveries[0]` with `order.primaryOrderDelivery`
+* Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`
+
+## Theme configuration changes
+
+* Theme configuration used during storefront rendering is now stored in a `theme_runtime_config` table and regenerated on the refresh stage of theme lifecycle.
+* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` is now deprecated and will be removed in the next major version. Please update the code that directly uses it to use the `\Shopware\Storefront\Theme\ResolvedConfigLoader` instead.
+* The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` is now deprecated and will be removed in the next major version. Please use `\Shopware\Storefront\Theme\Exception\ThemeException::themeAssignmentException`.
+
+## Translation labels and helpTexts for Themes
+
+A constructed snippet key was introduced in Shopware 6.7 and will be required starting 6.8.
+This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
+To provide translations for theme configuration, [creating administration snippets as usual](https://developer.shopware.com/resources/admin-extension-sdk/faq/#how-can-i-use-snippets-to-translate-my-app)
+will be mandatory.
+
+The snippet keys to be used are constructed as follows.
+The mentioned `themeName` implies the `technicalName` property of the theme in kebab case.
+Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
+
+Examples:
+* Tab: `sw-theme.<technicalName>.<tabName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.label`
+* Block: `sw-theme.<technicalName>.<tabName>.<blockName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.label`
+* Section: `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.label`
+* Field:
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.label`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.label`
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.helpText`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.helpText`
+* Options: `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.<index>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.0.label`
+
+## Breadcrumb template functions require the `SalesChannelContext`
+
+The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e. adjust the default Twig templates as follows
+
+```diff
+- sw_breadcrumb_full(category, context.context)
+- sw_breadcrumb_full_by_id(category, context.context)
++ sw_breadcrumb_full(category, context)
++ sw_breadcrumb_full_by_id(category, context)
+```
+## ThemeConfiguration deprecations
+
+The `label` and `helpText` fields in the `/api/_action/theme/{themeId}/configuration` and in the 
+`/api/_action/theme/{themeId}/structured-fields` API endpoints have been deprecated. For translations you should rely on
+the `labelSnippetKey` and `helpTextSnippetKey` fields instead (present only in the structured fields endpoint).
+
+The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been
+deprecated in favor of the new `ThemeConfigurationService::getPlainThemeConfiguration` and
+`ThemeConfigurationService::getThemeConfigurationFieldStructure` methods. The new methods return the same data as the old ones, 
+excluding the deprecated fields.
+
+
+## Vue i18n Translation Functions
+
+
+* The `$tc` function is deprecated and will be removed in v6.8.0
+* Use `$t` function instead for all translations
+* The `$tc` function now shows a deprecation warning when used with the feature flag `V6_8_0_0` enabled
+
+
+## Measurement system units info are now provided in the store-api
+
+Previously, the store-api did not provide measurement system units info. The product's measurement units were always returned in fixed units (kg/mm).
+
+Now, it provides the measurement system units info in the response of the `context` endpoint and `product` API endpoints depending on the configured measurement system of the sales channel domain.
+
+This allows the clients to render the product's measurement units in the configured measurement units of the sales channel domain instead of fixed units (kg/mm).
+
+_Note: The product's measurement units are still stored in the database in fixed units (kg/mm) and converted to the configured measurement units of the sales channel domain when reading or writing the product's measurement units._
+
+## New Admin API's request headers
+
+We added new request headers `sw-measurement-weight-unit` and `sw-measurement-length-unit` to allow clients to specify the measurement units for length and weight when reading or writing product's measurement units.
+
+This is useful when the user can provide measurement units in the header and get the desired product's measurement units in the response. And also the same when writing the product's measurement units in the desired measurement units without convert the units back and forth
+
+## New twig filter to convert measurement units
+
+For the storefront, we added a new twig filter `sw_convert_unit` to convert measurement units in twig templates. This allows the developers to convert measurement units in the templates without writing custom logic.
+
+It allows the developers to convert measurement units of any value, any variable in the templates without writing custom logic. 
+
+Or they can also convert between any measurement units by passing the desired measurement unit as a parameter to the filter.
+
+### Example:
+
+```twig
+{{ product.customFields.fooInCm|sw_convert_unit(from:'cm') }} // Converts the value of custom field `fooInCm` from cm to the configured measurement unit of the sales channel domain
+
+{{ product.customFields.fooInCm|sw_convert_unit(from:'cm', to:'inch') }} // Converts the value of custom field `fooInCm` from cm to inch
+
+{{ product.weight|sw_convert_unit(from: 'kg', to: 'pound', precision: 1) }} // you can also specify the precision of the converted value
+```
+## Primary delivery ordering and read-only cart extensions
+The `OrderConverter` now explicitly moves the **primary order delivery** to the front of the deliveries list. This ensures legacy compatibility for existing usages of `$deliveries->first()`.
+Two new cart extensions are introduced:
+- `ORIGINAL_PRIMARY_ORDER_DELIVERY` – returns the originally determined primary order delivery.
+- `ORIGINAL_PRIMARY_ORDER_TRANSACTION` – returns the originally determined primary order transaction.
+
+These extensions serve as **informational only**: modifying them does **not** change the actual primary delivery or transaction set in the order.
+## Custom field set name is now unique for apps
+
+The `name` element of the `custom-field-set` in the app manifest is now unique per app.
+It should not be the case for your app anyway as it caused problems,
+but you should check your app manifest and ensure that the `name` of the `custom-field-set` is unique.
+## Deprecated configuration of visibility in config array
+
+The visibility of filesystems should no longer be configured in the config array. Instead, it should be set on the same level as `type`. For example, instead of:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    config:
+      visibility: public
+```
+
+You should now use:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    visibility: public
+```
 
 # 6.7.0.1
 

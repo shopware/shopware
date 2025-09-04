@@ -168,6 +168,40 @@ class ZugferdDocumentTest extends TestCase
         ];
     }
 
+    public function testEmptyCalculatedTaxes(): void
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(100.0);
+        $order->setAmountNet(100);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId(Uuid::randomHex());
+        $lineItem->setLabel('Product ' . $lineItem->getId());
+        $lineItem->setQuantity(1);
+        $lineItem->setPosition(1);
+        $lineItem->setPrice(new CalculatedPrice(
+            100.0,
+            100.0,
+            new CalculatedTaxCollection([]),
+            new TaxRuleCollection(),
+        ));
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withProductLineItem($lineItem, '');
+        $document->withPaidAmount(100.0);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $this->validateDocument($document->getDomContent($order, $calculator), ['100.00', '0.00', '0.00', '100.00', '0.00', '100.00', '100.00', '0.00']);
+    }
+
     /**
      * @param string[] $expected
      */

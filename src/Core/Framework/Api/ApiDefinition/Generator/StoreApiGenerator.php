@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use http\Exception\RuntimeException;
 use OpenApi\Annotations\License;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
@@ -116,7 +115,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     public function getSchema(array $definitions): array
     {
-        throw new RuntimeException();
+        throw new \RuntimeException('The store API does not support the entity schema endpoint. Use /store-api/_info/openapi3.json for the OpenAPI specification. The entity schema endpoint is only available for the admin API.');
     }
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool

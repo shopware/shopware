@@ -289,4 +289,15 @@ class ApiExceptionTest extends TestCase
         static::assertSame(ApiException::class, $exception::class);
         static::assertSame(ApiException::API_EXPECTED_USER, $exception->getErrorCode());
     }
+
+    public function testUnsupportedStoreApiSchemaEndpoint(): void
+    {
+        $exception = ApiException::unsupportedStoreApiSchemaEndpoint();
+
+        static::assertSame(ApiException::API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT, $exception->getErrorCode());
+        static::assertSame(
+            'The store API does not support the entity schema endpoint. Use /store-api/_info/openapi3.json for the OpenAPI specification. The entity schema endpoint is only available for the admin API.',
+            $exception->getMessage()
+        );
+    }
 }

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollecti
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
@@ -170,5 +171,15 @@ class StoreApiGeneratorTest extends TestCase
             static::assertArrayHasKey('in', $parameter);
             static::assertArrayHasKey('schema', $parameter);
         }
+    }
+
+    public function testGetSchemaThrowsUnsupportedException(): void
+    {
+        $this->expectException(ApiException::class);
+        $this->expectExceptionMessage(
+            'The store API does not support the entity schema endpoint. Use /store-api/_info/openapi3.json for the OpenAPI specification. The entity schema endpoint is only available for the admin API.'
+        );
+
+        $this->generator->getSchema($this->definitionRegistry->getDefinitions());
     }
 }

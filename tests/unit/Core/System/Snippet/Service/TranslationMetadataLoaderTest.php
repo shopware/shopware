@@ -106,10 +106,10 @@ class TranslationMetadataLoaderTest extends TestCase
 
         static::expectException(SnippetException::class);
         static::expectExceptionMessage('Failed to download translation metadata from "http://localhost:8000/metadata.json": Error');
-        $loader->getUpdatedMetadata(['es-ES', 'en-GB']);
+        $loader->getUpdatedLocalMetadata(['es-ES', 'en-GB']);
     }
 
-    public function testGetUpdatedMetadataMergesLocalAndRemoteMetadata(): void
+    public function testGetUpdatedLocalMetadataMergesLocalAndRemoteMetadata(): void
     {
         // remote metadata
         $this->initClient([
@@ -147,7 +147,7 @@ class TranslationMetadataLoaderTest extends TestCase
         static::assertArrayHasKey('en-GB', $metadata);
         static::assertCount(2, $metadata);
 
-        $updated = $loader->getUpdatedMetadata(['es-ES', 'en-GB', 'de-DE']);
+        $updated = $loader->getUpdatedLocalMetadata(['es-ES', 'en-GB', 'de-DE']);
 
         // update by remote
         $gb = $updated->get('en-GB');
@@ -173,6 +173,38 @@ class TranslationMetadataLoaderTest extends TestCase
         // no local added because not requested
         $fr = $updated->get('fr-FR');
         static::assertNull($fr);
+    }
+
+    public function testGetUpdatedLocalMetadataUpdatesAllInstalledIfNoLocalesProvided(): void
+    {
+        // remote metadata
+        $this->initClient([
+            [
+                'locale' => 'en-GB',
+                'updatedAt' => '2025-08-07T11:26:28.974+00:00',
+                'progress' => 100,
+            ],
+            [
+                'locale' => 'es-ES',
+                'updatedAt' => '2025-08-12T11:26:28.974+00:00',
+                'progress' => 100,
+            ],
+        ]);
+
+        $metadata = $this->getMetadataCollection();
+
+        $loader = $this->getTranslationMetadataLoader();
+        $loader->save($metadata);
+
+        $updated = $loader->getUpdatedLocalMetadata();
+
+        $en = $updated->get('en-GB');
+        static::assertFalse($en->isUpdateRequired);
+        $this->assertDatetime('2025-08-07T11:26:28.974+00:00', $en->updatedAt);
+
+        $es = $updated->get('es-ES');
+        static::assertTrue($es->isUpdateRequired);
+        $this->assertDatetime('2025-08-12T11:26:28.974+00:00', $es->updatedAt);
     }
 
     private function getTranslationMetadataLoader(): TranslationMetadataLoader

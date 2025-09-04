@@ -30,7 +30,6 @@ parameters:
         disallowedBacktick: false
         disallowedEmpty: false
         disallowedShortTernary: false
-        overwriteVariablesWithLoop: false
         closureUsesThis: false
         matchingInheritedMethodNames: false
         numericOperandsInArithmeticOperators: false

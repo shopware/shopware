@@ -94,6 +94,24 @@
                         "schema": {
                             "type": "boolean"
                         }
+                    },
+                    {
+                        "description": "Instructs Shopware to skip loading the configurator data",
+                        "in": "query",
+                        "name": "skipConfigurator",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "description": "Instructs Shopware to skip loading the CMS page data",
+                        "in": "query",
+                        "name": "skipCmsPage",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
                     }
                 ],
                 "requestBody": {

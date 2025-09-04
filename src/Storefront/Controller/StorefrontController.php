@@ -220,8 +220,8 @@ abstract class StorefrontController extends AbstractController
         }
 
         /** @var array<string, Error[]> $groups */
-        foreach ($groups as $type => $errors) {
-            foreach ($errors as $error) {
+        foreach ($groups as $type => $errorGroup) {
+            foreach ($errorGroup as $error) {
                 $parameters = [];
 
                 foreach ($error->getParameters() as $key => $value) {

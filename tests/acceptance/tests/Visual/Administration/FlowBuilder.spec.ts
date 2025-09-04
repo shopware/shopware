@@ -9,7 +9,7 @@ test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
     await test.step('Create a screenshot of the flow listing.', async () => {
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
         await setViewport(AdminFlowBuilderListing.page, {
-            requestURL: 'api/search/sales-channel-type',
+            waitForSelector: AdminFlowBuilderListing.createFlowButton,
         })
         await replaceElements(AdminFlowBuilderListing.page, [
             AdminFlowBuilderListing.testFlowNameCells,

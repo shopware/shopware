@@ -187,7 +187,7 @@ class CustomFieldRule
      */
     private static function isSwitchOrBoolField(array $renderedField): bool
     {
-        return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true);
+        return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH, CustomFieldTypes::CHECKBOX], true);
     }
 
     /**

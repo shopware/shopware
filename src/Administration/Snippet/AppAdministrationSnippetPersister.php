@@ -105,7 +105,7 @@ readonly class AppAdministrationSnippetPersister
      */
     private function getCoreAdministrationSnippets(): array
     {
-        $path = __DIR__ . '/../Resources/app/administration/src/app/snippet/en-GB.json';
+        $path = __DIR__ . '/../Resources/app/administration/src/app/snippet/en.json';
         $snippets = file_get_contents($path);
 
         if (!$snippets) {

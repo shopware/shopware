@@ -15,8 +15,6 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
         });
         await replaceElements(AdminRuleDetail.page, [
             AdminRuleDetail.header,
-        ]);
-        await hideElements(AdminRuleDetail.page, [
             AdminRuleDetail.nameInput,
         ]);
         await assertScreenshot(AdminRuleDetail.page, 'Rule-Builder-General.png');
@@ -32,7 +30,6 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
         await assertScreenshot(AdminRuleDetail.page, 'Rule-Builder-Detail-Assignments.png');
     });
     await test.step('Creates a screenshot of the Rule Builder add assignments modal.', async () => {
-        await ShopAdmin.goesTo(AdminRuleDetail.url(rule.id, 'assignments'));
         await AdminRuleDetail.shippingMethodAvailabilityRulesCard.getByText('Add assignment').click();
         await setViewport(AdminRuleDetail.page, {
             requestURL: 'api/search/shipping-method',
@@ -42,6 +39,9 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
         await replaceElements(AdminRuleDetail.page, [
             AdminRuleDetail.header,
         ]);
+        await hideElements(AdminRuleDetail.page, [
+            AdminRuleDetail.adminMenuAvatar,
+        ])
         await assertScreenshot(AdminRuleDetail.page, 'Rule-Builder-Detail-Assignments-Modal.png', AdminRuleDetail.assignmentModal);
     });
 });

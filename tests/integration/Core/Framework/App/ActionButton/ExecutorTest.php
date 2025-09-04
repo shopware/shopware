@@ -310,13 +310,15 @@ class ExecutorTest extends TestCase
         $this->executor->execute($action, Context::createDefaultContext());
     }
 
-    public function testThrowsExceptionIfAppUrlChangeIsDetected(): void
+    public function testThrowsExceptionIfShopIdFingerprintsHaveChanged(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2('shopId', [
             AppUrl::IDENTIFIER => 'http://random-shop.url',
         ]));
+
+        static::getContainer()->get(ShopIdProvider::class)->reset();
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);
@@ -335,7 +337,7 @@ class ExecutorTest extends TestCase
         $this->signResponse($this->app->getAppSecret());
 
         static::expectException(AppException::class);
-        static::expectExceptionMessage('Detected APP_URL change');
+        static::expectExceptionMessage('Changes in your system were detected that suggest a change of the shop ID.');
         $this->executor->execute($action, Context::createDefaultContext());
     }
 

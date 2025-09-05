@@ -32,14 +32,8 @@ class OrderException extends HttpException
     final public const ORDER_CUSTOMER_ADDRESS_NOT_FOUND = 'CHECKOUT__ORDER_CUSTOMER_ADDRESS_NOT_FOUND';
     final public const ORDER_INVALID_ORDER_ADDRESS_MAPPING = 'CHECKOUT__INVALID_ORDER_ADDRESS_MAPPING';
     final public const ORDER_DELIVERY_WITHOUT_ADDRESS = 'CHECKOUT__DELIVERY_WITHOUT_ADDRESS';
-    /**
-     * @deprecated tag:v6.8.0 - use CustomerException::CHECKOUT_GUEST_NOT_AUTHENTICATED instead
-     */
-    final public const CHECKOUT_GUEST_NOT_AUTHENTICATED = CustomerException::CHECKOUT_GUEST_NOT_AUTHENTICATED;
-    /**
-     * @deprecated tag:v6.8.0 - use CustomerException::CHECKOUT_GUEST_WRONG_CREDENTIALS instead
-     */
-    final public const CHECKOUT_GUEST_WRONG_CREDENTIALS = CustomerException::CHECKOUT_GUEST_WRONG_CREDENTIALS;
+    final public const CHECKOUT_GUEST_NOT_AUTHENTICATED = 'CHECKOUT__GUEST_NOT_AUTHENTICATED';
+    final public const CHECKOUT_GUEST_WRONG_CREDENTIALS = 'CHECKOUT__GUEST_WRONG_CREDENTIALS';
     final public const CHECKOUT_INVALID_UUID = 'CHECKOUT__INVALID_UUID';
     final public const ASSOCIATION_NOT_FOUND = 'CHECKOUT__ORDER_ASSOCIATION_NOT_FOUND';
     final public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
@@ -207,23 +201,13 @@ class OrderException extends HttpException
         return new CustomerDeletedException($orderId);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - use CustomerException::wrongGuestCredentials() instead
-     */
     public static function guestNotAuthenticated(): self
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'OrderException::guestNotAuthenticated() is deprecated and will be removed in v6.8.0.0. Use CustomerException::guestNotAuthenticated() instead.');
-
         return new GuestNotAuthenticatedException();
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - use CustomerException::wrongGuestCredentials() instead
-     */
     public static function wrongGuestCredentials(): self
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'OrderException::wrongGuestCredentials() is deprecated and will be removed in v6.8.0.0. Use CustomerException::wrongGuestCredentials() instead.');
-
         return new WrongGuestCredentialsException();
     }
 

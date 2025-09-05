@@ -116,7 +116,7 @@ class OrderRoute extends AbstractOrderRoute
                 // feature flag due to different exceptions
                 $this->guestAuthenticator->validate($order, $request);
             } else {
-                Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $request));
+                $this->checkGuestAuth($order, $request);
             }
 
             if ($request->get('login') && $customerId = $order->getOrderCustomer()?->getCustomerId()) {

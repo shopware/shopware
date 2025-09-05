@@ -17,6 +17,8 @@ use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -76,8 +78,6 @@ class CustomerException extends HttpException
     public const MISSING_OPTION = 'CONTENT__MISSING_OPTION';
     public const INVALID_OPTION = 'CONTENT__INVALID_OPTION';
     public const REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED = 'CHECKOUT__REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED';
-    final public const CHECKOUT_GUEST_NOT_AUTHENTICATED = 'CHECKOUT__GUEST_NOT_AUTHENTICATED';
-    final public const CHECKOUT_GUEST_WRONG_CREDENTIALS = 'CHECKOUT__GUEST_WRONG_CREDENTIALS';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -451,22 +451,14 @@ class CustomerException extends HttpException
         );
     }
 
-    public static function wrongGuestCredentials(): self
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
     {
-        return new self(
-            Response::HTTP_FORBIDDEN,
-            self::CHECKOUT_GUEST_WRONG_CREDENTIALS,
-            'Wrong credentials for guest authentication.'
-        );
+        return new GuestNotAuthenticatedException();
     }
 
-    public static function guestNotAuthenticated(): self
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
     {
-        return new self(
-            Response::HTTP_FORBIDDEN,
-            self::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-            'Guest not authenticated.'
-        );
+        return new WrongGuestCredentialsException();
     }
 
     public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException

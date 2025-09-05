@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 class GuestAuthenticatorTest extends TestCase
 {
     #[DataProvider('provideRequestData')]
-    public function testGuestAuthentication(Request $request, ?string $expectedExceptionMessage): void
+    public function testGuestAuthentication(Request $request, ?string $expectedException): void
     {
         $order = new OrderEntity();
         $orderCustomer = new OrderCustomerEntity();
@@ -35,12 +37,11 @@ class GuestAuthenticatorTest extends TestCase
         $billingAddress->setZipcode('12345');
         $order->setBillingAddress($billingAddress);
 
-        if ($expectedExceptionMessage !== null) {
-            $this->expectException(CustomerException::class);
-            $this->expectExceptionMessage($expectedExceptionMessage);
+        if ($expectedException !== null) {
+            $this->expectException($expectedException);
         }
         (new GuestAuthenticator())->validate($order, $request);
-        if ($expectedExceptionMessage === null) {
+        if ($expectedException === null) {
             $this->expectNotToPerformAssertions();
         }
     }
@@ -77,32 +78,32 @@ class GuestAuthenticatorTest extends TestCase
             'invalid email in query' => [new Request([
                 'email' => 'foo@bar.com',
                 'zipcode' => '12345',
-            ]), 'Wrong credentials for guest authentication.'],
+            ]), WrongGuestCredentialsException::class],
             'invalid email in request' => [new Request([], [
                 'email' => 'foo@bar.com',
                 'zipcode' => '12345',
-            ]), 'Wrong credentials for guest authentication.'],
+            ]), WrongGuestCredentialsException::class],
             'invalid zipcode in query' => [new Request([
                 'email' => 'test@example.com',
                 'zipcode' => 'abc',
-            ]), 'Wrong credentials for guest authentication.'],
+            ]), WrongGuestCredentialsException::class],
             'invalid zipcode in request' => [new Request([], [
                 'email' => 'test@example.com',
                 'zipcode' => 'abc',
-            ]), 'Wrong credentials for guest authentication.'],
+            ]), WrongGuestCredentialsException::class],
             'missing zipcode in query' => [new Request([
                 'email' => 'test@example.com',
-            ]), 'Guest not authenticated.'],
+            ]), GuestNotAuthenticatedException::class],
             'missing zipcode in request' => [new Request([], [
                 'email' => 'test@example.com',
-            ]), 'Guest not authenticated.'],
+            ]), GuestNotAuthenticatedException::class],
             'missing email in query' => [new Request([
                 'zip' => '12345',
-            ]), 'Guest not authenticated.'],
+            ]), GuestNotAuthenticatedException::class],
             'missing email in request' => [new Request([], [
                 'zip' => '12345',
-            ]), 'Guest not authenticated.'],
-            'no data' => [new Request(), 'Guest not authenticated.'],
+            ]), GuestNotAuthenticatedException::class],
+            'no data' => [new Request(), GuestNotAuthenticatedException::class],
         ];
     }
 }

@@ -48,6 +48,7 @@
     "safari >= 7"
   ],
   "dependencies": {
+    "@amplitude/analytics-browser": "^2.23.5",
     "@shopware-ag/meteor-admin-sdk": "6.3.0",
     "@shopware-ag/meteor-component-library": "4.16.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
@@ -62,6 +63,7 @@
     "@vueuse/core": "^11.0.3",
     "@vvo/tzdb": "6.158.0",
     "ace-builds": "1.37.4",
+    "analytics": "^0.8.19",
     "apexcharts": "4.4.0",
     "app-module-path": "2.2.0",
     "autoprefixer": "10.4.20",

@@ -55,4 +55,4 @@ shopware:
         default: false
         major: false
         toggleable: true
-        description: "Experimental! Enables Product Analytics which collects usage data in the Administration"
+        description: "Experimental! Enables Product Analytics which collects usage data in the Administration."

@@ -131,7 +131,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
      * Transforms priority-based ordering to a list of namespace names.
      * Priority values are discarded after serving their sorting purpose.
      *
-     * @return string[] Ordered namespace names (last element = highest priority)
+     * @return list<string> Ordered namespace names (last element = highest priority)
      */
     private function getNamespaceHierarchy(): array
     {

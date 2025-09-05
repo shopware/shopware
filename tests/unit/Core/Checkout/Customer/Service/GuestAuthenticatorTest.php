@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -20,7 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(GuestAuthenticator::class)]
 class GuestAuthenticatorTest extends TestCase
 {
-    public function testGuestAuthentication(): void
+    #[DataProvider('provideRequestData')]
+    public function testGuestAuthentication(Request $request, ?string $expectedExceptionMessage): void
     {
         $order = new OrderEntity();
         $orderCustomer = new OrderCustomerEntity();
@@ -32,54 +34,15 @@ class GuestAuthenticatorTest extends TestCase
         $billingAddress = new OrderAddressEntity();
         $billingAddress->setZipcode('12345');
         $order->setBillingAddress($billingAddress);
-        $request = new Request([
-            'email' => 'test@example.com',
-            'zipcode' => '12345',
-        ]);
 
+        if ($expectedExceptionMessage !== null) {
+            $this->expectException(CustomerException::class);
+            $this->expectExceptionMessage($expectedExceptionMessage);
+        }
         (new GuestAuthenticator())->validate($order, $request);
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function testGuestAuthenticationWithInvalidCredentials(): void
-    {
-        $order = new OrderEntity();
-        $orderCustomer = new OrderCustomerEntity();
-        $customer = new CustomerEntity();
-        $customer->setGuest(true);
-        $orderCustomer->setCustomer($customer);
-        $orderCustomer->setEmail('test@example.com');
-        $order->setOrderCustomer($orderCustomer);
-        $billingAddress = new OrderAddressEntity();
-        $billingAddress->setZipcode('12345');
-        $order->setBillingAddress($billingAddress);
-        $request = new Request([
-            'email' => 'foo@bar.com',
-            'zipcode' => 'abc',
-        ]);
-
-        $this->expectException(CustomerException::class);
-        $this->expectExceptionMessage('Wrong credentials for guest authentication.');
-        (new GuestAuthenticator())->validate($order, $request);
-    }
-
-    public function testGuestAuthenticationWithNoCredentials(): void
-    {
-        $order = new OrderEntity();
-        $orderCustomer = new OrderCustomerEntity();
-        $customer = new CustomerEntity();
-        $customer->setGuest(true);
-        $orderCustomer->setCustomer($customer);
-        $orderCustomer->setEmail('test@example.com');
-        $order->setOrderCustomer($orderCustomer);
-        $billingAddress = new OrderAddressEntity();
-        $billingAddress->setZipcode('12345');
-        $order->setBillingAddress($billingAddress);
-        $request = new Request();
-
-        $this->expectException(CustomerException::class);
-        $this->expectExceptionMessage('Guest not authenticated.');
-        (new GuestAuthenticator())->validate($order, $request);
+        if ($expectedExceptionMessage === null) {
+            $this->expectNotToPerformAssertions();
+        }
     }
 
     public function testGuestAuthenticationWithRegisteredCustomer(): void
@@ -96,4 +59,48 @@ class GuestAuthenticatorTest extends TestCase
         $this->expectExceptionMessage('Customer is not logged in.');
         (new GuestAuthenticator())->validate($order, $request);
     }
+
+    public static function provideRequestData(): array
+    {
+        return [
+            'valid data in query' => [new Request([
+                'email' => 'test@example.com',
+                'zipcode' => '12345',
+            ]), null],
+            'valid data in request' => [new Request([], [
+                'email' => 'test@example.com',
+                'zipcode' => '12345',
+            ]), null],
+            'invalid email in query' => [new Request([
+                'email' => 'foo@bar.com',
+                'zipcode' => '12345',
+            ]), 'Wrong credentials for guest authentication.'],
+            'invalid email in request' => [new Request([], [
+                'email' => 'foo@bar.com',
+                'zipcode' => '12345',
+            ]), 'Wrong credentials for guest authentication.'],
+            'invalid zipcode in query' => [new Request([
+                'email' => 'test@example.com',
+                'zipcode' => 'abc',
+            ]), 'Wrong credentials for guest authentication.'],
+            'invalid zipcode in request' => [new Request([], [
+                'email' => 'test@example.com',
+                'zipcode' => 'abc',
+            ]), 'Wrong credentials for guest authentication.'],
+            'missing zipcode in query' => [new Request([
+                'email' => 'test@example.com',
+            ]), 'Guest not authenticated.'],
+            'missing zipcode in request' => [new Request([], [
+                'email' => 'test@example.com',
+            ]), 'Guest not authenticated.'],
+            'missing email in query' => [new Request([
+                'zip' => '12345',
+            ]), 'Guest not authenticated.'],
+            'missing email in request' => [new Request([], [
+                'zip' => '12345',
+            ]), 'Guest not authenticated.'],
+            'no data' => [new Request(), 'Guest not authenticated.'],
+        ];
+    }
+
 }

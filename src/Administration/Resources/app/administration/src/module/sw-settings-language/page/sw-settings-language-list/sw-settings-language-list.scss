@@ -54,7 +54,7 @@
         display: flex;
         justify-content: flex-end;
         margin-bottom: 8px;
-        max-width: 60rem;
+        max-width: $content-width;
         margin-left: auto;
         margin-right: auto;
     }
@@ -64,8 +64,8 @@
     }
 
     .sw-settings-language-list__card-title {
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
         margin-bottom: 4px;
     }
 

@@ -6,7 +6,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="language"
-            :placeholder="$tc('sw-settings-language.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-language.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -20,11 +20,11 @@
         <h2>
 
             {% block sw_settings_language_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
-            /> {{ $tc('sw-settings-language.list.textHeadline') }}
+            /> {{ $t('sw-settings-language.list.textHeadline') }}
             {% endblock %}
 
             {# @deprecated tag:v6.8.0 - Block will be removed. #}
@@ -44,7 +44,7 @@
         {% block sw_settings_language_list_smart_bar_actions_add %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: allowCreate,
                 showOnDisabledElements: true
             }"
@@ -54,7 +54,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.language.create' })"
         >
-            {{ $tc('sw-settings-language.list.buttonAddLanguage') }}
+            {{ $t('sw-settings-language.list.buttonAddLanguage') }}
         </mt-button>
         {% endblock %}
 
@@ -70,7 +70,7 @@
                     class="sw-settings-language-list__snippet-link"
                     :to="{ name: 'sw.settings.snippet.index' }"
                 >
-                    {{ $tc('sw-settings-language.list.manageSnippets') }}
+                    {{ $t('sw-settings-language.list.manageSnippets') }}
                     <mt-icon
                         name="long-arrow-right"
                         size="12"
@@ -84,10 +84,10 @@
                 <template #title>
                     <div class="sw-settings-language-list__card-title-wrapper">
                         <div class="sw-settings-language-list__card-title">
-                            {{ $tc('sw-settings-language.list.cardTitle') }} ({{ total }})
+                            {{ $t('sw-settings-language.list.cardTitle') }} ({{ total }})
                         </div>
                         <div class="sw-settings-language-list__card-subtitle">
-                            {{ $tc('sw-settings-language.list.cardSubtitle') }}
+                            {{ $t('sw-settings-language.list.cardSubtitle') }}
                         </div>
                     </div>
                 </template>
@@ -125,7 +125,7 @@
                             />
                             <router-link
                                 v-else
-                                :title="$tc('sw-settings-language.list.contextMenuEdit')"
+                                :title="$t('sw-settings-language.list.contextMenuEdit')"
                                 :to="{ name: 'sw.settings.language.detail', params: { id: item.id } }"
                             >
                                 {{ item.name }}
@@ -133,10 +133,9 @@
                                     v-if="isDefault(item.id)"
                                     variant="neutral"
                                     size="small"
-
                                     class="sw-settings-language-list__default-label"
                                 >
-                                    {{ $tc('sw-settings-language.list.defaultLabel') }}
+                                    {{ $t('sw-settings-language.list.defaultLabel') }}
                                 </sw-label>
                             </router-link>
                         </template>
@@ -200,14 +199,14 @@
                                 :disabled="isDefault(item.id) || !allowDelete || undefined"
                                 @click="showDelete(item.id)"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                         </template>
                         {% endblock %}
 
                         {% block sw_settings_language_list_content_list_delete_confirm_action %}
                         <template #delete-confirm-text="{ item }">
-                            {{ $tc('sw-settings-language.list.textDeleteConfirm', { name: item.name }, 1 ) }}
+                            {{ $t('sw-settings-language.list.textDeleteConfirm', { name: item.name }, 1 ) }}
                         </template>
                         {% endblock %}
                         {% endblock %}
@@ -228,7 +227,7 @@
             {% block sw_settings_language_list_grid_sidebar_filter %}
             <sw-sidebar-item
                 icon="regular-filter"
-                :title="$tc('sw-settings-language.list.titleSidebarFilter')"
+                :title="$t('sw-settings-language.list.titleSidebarFilter')"
             >
                 <sw-collapse expand-on-loading>
 
@@ -238,7 +237,7 @@
 
                             {% block sw_settings_language_list_grid_sidebar_filter_header_title %}
                             <h4 class="sw-settings-language-list__collapse-title">
-                                {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
+                                {{ $t('sw-settings-language.list.titleSidebarQuickFilter') }}
                             </h4>
                             {% endblock %}
 
@@ -274,7 +273,7 @@
                         <mt-switch
                             v-model="filterRootLanguages"
                             class="sw-settings-language-list__filterField"
-                            :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
+                            :label="$t('sw-settings-language.list.textFilterRootLanguages')"
                         />
                         {% endblock %}
 
@@ -283,7 +282,7 @@
                         <mt-switch
                             v-model="filterInheritedLanguages"
                             class="sw-settings-language-list__filterField"
-                            :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
+                            :label="$t('sw-settings-language.list.textFilterInheritedLanguages')"
                         />
                         {% endblock %}
 

@@ -46,6 +46,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
+    public const ENTITY_NOT_VERSION_AWARE = 'FRAMEWORK__ENTITY_NOT_VERSION_AWARE';
     public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
     public const MIGRATION_DIRECTORY_NOT_FOUND = 'FRAMEWORK__MIGRATION_DIRECTORY_NOT_FOUND';
     public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
@@ -252,6 +253,16 @@ class DataAbstractionLayerException extends HttpException
             self::VERSION_MERGE_ALREADY_LOCKED,
             'Merging of version {{ versionId }} is locked, as the merge is already running by another process.',
             ['versionId' => $versionId]
+        );
+    }
+
+    public static function entityNotVersionAware(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ENTITY_NOT_VERSION_AWARE,
+            'Entity "{{ entityName }}" is not version aware',
+            ['entityName' => $entityName]
         );
     }
 

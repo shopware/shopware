@@ -256,7 +256,7 @@ class ApiException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT,
-            'The store API does not support the entity schema endpoint. Use /store-api/_info/openapi3.json for the OpenAPI specification. The entity schema endpoint is only available for the admin API.',
+            'The Store-API does not support the entity schema endpoint. Use `/store-api/_info/openapi3.json` for the OpenAPI specification.'
         );
     }
 

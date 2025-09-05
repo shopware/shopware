@@ -175,9 +175,9 @@ class StoreApiGeneratorTest extends TestCase
 
     public function testGetSchemaThrowsUnsupportedException(): void
     {
-        $this->expectException(ApiException::class);
+        $this->expectExceptionObject(ApiException::unsupportedStoreApiSchemaEndpoint());
         $this->expectExceptionMessage(
-            'The store API does not support the entity schema endpoint. Use /store-api/_info/openapi3.json for the OpenAPI specification. The entity schema endpoint is only available for the admin API.'
+            'The Store-API does not support the entity schema endpoint. Use `/store-api/_info/openapi3.json` for the OpenAPI specification.'
         );
 
         $this->generator->getSchema($this->definitionRegistry->getDefinitions());

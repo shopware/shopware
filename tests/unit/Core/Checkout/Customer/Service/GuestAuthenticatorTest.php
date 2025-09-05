@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(GuestAuthenticator::class)]
 class GuestAuthenticatorTest extends TestCase
 {
+    /**
+     * @param class-string<\Throwable>|null $expectedException
+     */
     #[DataProvider('provideRequestData')]
     public function testGuestAuthentication(Request $request, ?string $expectedException): void
     {

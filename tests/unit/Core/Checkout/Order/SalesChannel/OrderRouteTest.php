@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
@@ -12,6 +13,8 @@ use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -206,10 +209,10 @@ class OrderRouteTest extends TestCase
         return [
             'no customer' => [null, 'test@example.com', 'AA-345', CustomerException::class],
             'no guest customer' => [false, 'test@example.com', 'AA-345', CustomerException::class],
-            'no request e-mail' => [true, null, 'AA-345', CustomerException::class],
-            'no request postal code' => [true, 'test@example.com', null, CustomerException::class],
-            'wrong e-mail' => [true, 'false@example.com', 'AA-345', CustomerException::class],
-            'wrong postal code' => [true, 'test@example.com', '12345', CustomerException::class],
+            'no request e-mail' => [true, null, 'AA-345', GuestNotAuthenticatedException::class],
+            'no request postal code' => [true, 'test@example.com', null, GuestNotAuthenticatedException::class],
+            'wrong e-mail' => [true, 'false@example.com', 'AA-345', WrongGuestCredentialsException::class],
+            'wrong postal code' => [true, 'test@example.com', '12345', WrongGuestCredentialsException::class],
             'valid guest' => [true, 'test@example.com', 'AA-345', null],
             'valid guest uppercase email' => [true, 'Test@Example.Com', 'AA-345', null],
             'valid guest lowercase postal code' => [true, 'Test@Example.Com', 'aa-345', null],

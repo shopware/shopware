@@ -60,6 +60,9 @@ class GuestAuthenticatorTest extends TestCase
         (new GuestAuthenticator())->validate($order, $request);
     }
 
+    /**
+     * @return array<string, array{0: Request, 1: string|null}>
+     */
     public static function provideRequestData(): array
     {
         return [
@@ -102,5 +105,4 @@ class GuestAuthenticatorTest extends TestCase
             'no data' => [new Request(), 'Guest not authenticated.'],
         ];
     }
-
 }

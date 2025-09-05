@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { replaceElements, hideElements, setViewport } from '@shopware-ag/acceptance-test-suite';
+import { replaceElements, hideElements, setViewport, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 
 test('Administration dashboard', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -18,6 +18,6 @@ test('Administration dashboard', { tag: '@Visual' }, async ({
         await hideElements(AdminDashboard.page, [
             AdminDashboard.statisticsChart,
         ]);
-        await expect(AdminDashboard.contentView).toHaveScreenshot('Dashboard.png');
+        await assertScreenshot(AdminDashboard.page, 'Dashboard.png');
     });
 });

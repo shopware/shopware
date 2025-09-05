@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport, hideElements, replaceElements } from '@shopware-ag/acceptance-test-suite';
+import { setViewport, hideElements, replaceElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 test('Visual: Administration menu', { tag: '@Visual' }, async ({
 ShopAdmin,
 AdminDashboard,
@@ -24,6 +24,6 @@ AdminDashboard,
         await replaceElements(AdminDashboard.page, [
             AdminDashboard.adminMenuUserName,
         ]);
-        await expect(AdminDashboard.adminMenuView).toHaveScreenshot('AdminMenu-Expanded.png');
+        await assertScreenshot(AdminDashboard.page, 'AdminMenu-Expanded.png', AdminDashboard.adminMenuView);
     });
 });

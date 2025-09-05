@@ -1,4 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
 import { setViewport, replaceElements, hideElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({

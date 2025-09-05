@@ -1,4 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
 import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
 import { setViewport, replaceElements, hideElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 

@@ -1,4 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
 import { setViewport, replaceElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Administration category page', { tag: '@Visual' }, async ({

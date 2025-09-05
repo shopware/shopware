@@ -8,32 +8,77 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\Traits\MailUpdate as MailData;
+use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class Migration1744203319MailTemplate extends MigrationStep
+class Migration1757057005MailTemplate extends MigrationStep
 {
+    use UpdateMailTrait;
+
     private const GERMAN_KEY = 'Deutsch';
     private const ENGLISH_KEY = 'English';
 
     public function getCreationTimestamp(): int
     {
-        return 1744203319;
+        return 1757057005;
     }
 
     public function update(Connection $connection): void
     {
+        if (!$this->mailTemplateTypeExists($connection)) {
+            $this->createTemplates($connection);
+
+            return;
+        }
+
+        $this->updateTemplates($connection);
+    }
+
+    private function getMailData(): MailData
+    {
+        return new MailData(
+            'admin_sso_user_invite',
+            $this->readContent(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.txt'),
+            $this->readContent(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.html.twig'),
+            $this->readContent(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.txt'),
+            $this->readContent(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.html.twig'),
+        );
+    }
+
+    private function readContent(string $path): string
+    {
+        $fileContent = \file_get_contents($path);
+
+        if (!\is_string($fileContent)) {
+            throw MigrationException::migrationError('Could not load mail template translation content from ' . $path);
+        }
+
+        return $fileContent;
+    }
+
+    private function createTemplates(Connection $connection): void
+    {
         $languages = $connection->fetchAllKeyValue('SELECT `name`, `id` FROM `language` WHERE `name` IN ("Deutsch", "English")');
 
         $mailTemplateTypeId = $this->getMailTemplateTypeId($connection);
+
         $this->createMailTemplateType($connection, $mailTemplateTypeId);
         $this->createMailTemplateTypeTranslations($connection, $mailTemplateTypeId, $languages);
 
         $mailTemplateId = $this->getMailTemplateId($connection, $mailTemplateTypeId);
         $this->createMailTemplate($connection, $mailTemplateId, $mailTemplateTypeId);
         $this->createMailTemplateTranslations($connection, $mailTemplateId, $languages);
+    }
+
+    private function updateTemplates(Connection $connection): void
+    {
+        $mailUpateData = $this->getMailData();
+
+        $this->updateMail($mailUpateData, $connection);
     }
 
     private function createMailTemplateType(Connection $connection, string $mailTemplateTypeId): void
@@ -107,18 +152,7 @@ class Migration1744203319MailTemplate extends MigrationStep
     {
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $translationContent = [
-            'html_en' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.html.twig'),
-            'text_en' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.txt'),
-            'html_de' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.html.twig'),
-            'text_de' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.txt'),
-        ];
-
-        foreach ($translationContent as $languageId => $content) {
-            if (!\is_string($content)) {
-                throw MigrationException::migrationError('Could not load mail template translation content for ' . $languageId);
-            }
-        }
+        $translationContent = $this->getMailData();
 
         $translations = [];
         if (\array_key_exists(self::ENGLISH_KEY, $languages)) {
@@ -128,8 +162,8 @@ class Migration1744203319MailTemplate extends MigrationStep
                 'sender_name' => 'Admin',
                 'subject' => '{{ nameOfInviter }} invited you to join {{ storeName }}',
                 'description' => 'Shopware Sso admin Invitation',
-                'content_html' => $translationContent['html_en'],
-                'content_plain' => $translationContent['text_en'],
+                'content_html' => $translationContent->getEnHtml(),
+                'content_plain' => $translationContent->getEnPlain(),
                 'created_at' => $createdAt,
             ];
         }
@@ -141,8 +175,8 @@ class Migration1744203319MailTemplate extends MigrationStep
                 'sender_name' => 'Admin',
                 'subject' => '{{ nameOfInviter }} hat dich eingeladen, {{ storeName }} beizutreten',
                 'description' => 'Shopware Sso Admin Einladung',
-                'content_html' => $translationContent['html_de'],
-                'content_plain' => $translationContent['text_de'],
+                'content_html' => $translationContent->getDeHtml(),
+                'content_plain' => $translationContent->getDePlain(),
                 'created_at' => $createdAt,
             ];
         }

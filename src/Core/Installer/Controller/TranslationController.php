@@ -33,15 +33,10 @@ class TranslationController extends InstallerController
     #[Route(path: '/installer/translation/run', name: 'installer.translation-run', methods: ['POST'])]
     public function run(Request $request): JsonResponse
     {
-        $payload = json_decode((string) $request->getContent(), true) ?: [];
-        $offset  = (int) ($payload['offset'] ?? 0);
-
         $session = $request->getSession();
 
         // Clear old failures when starting a new translation run
-        if ($offset === 0) {
-            $session->remove('TRANSLATION_FAILED');
-        }
+        $session->remove('TRANSLATION_FAILED');
 
         /** @var list<string> $locales */
         $locales = (array) $session->get('SELECTED_LANGUAGES', []);
@@ -51,59 +46,52 @@ class TranslationController extends InstallerController
 
         $total = \count($locales);
 
-        if ($total === 0 || $offset >= $total) {
+        if ($total === 0) {
             return new JsonResponse([
-                'offset'     => $total,
-                'total'      => $total,
+                'offset'     => 0,
+                'total'      => 0,
                 'isFinished' => true,
-                'message'    => $total === 0 ? 'No locales selected' : 'Done',
+                'message'    => 'No locales selected',
                 'skipped'    => false,
-                'failures'   => (array) $session->get('TRANSLATION_FAILED', []),
+                'failures'   => [],
             ]);
         }
 
-        $locale      = $locales[$offset];
         $projectRoot = \dirname(__DIR__, 4);
         $console     = $projectRoot . '/bin/console';
 
-        $next = $offset + 1;
-
         $proc = new Process(
-            [$console, 'translation:install', '--locales=' . $locale, '--no-interaction'],
+            [$console, 'translation:install', '--locales=' . implode(',', $locales), '--no-interaction'],
             $projectRoot
         );
-        $proc->setTimeout(600);
+        $proc->setTimeout(1200);
         $proc->run();
 
         if (!$proc->isSuccessful()) {
             $err = trim($proc->getErrorOutput() ?: $proc->getOutput());
+            $cleanError = $this->cleanErrorOutput($err, implode(',', $locales));
 
-            // TODO: maybe remove?
-            $cleanError = $this->cleanErrorOutput($err, $locale);
-
-            // collect failure but DO NOT stop; advance to next
-            $failures = $session->get('TRANSLATION_FAILED', []);
-            $failures[] = ['locale' => $locale, 'error' => $cleanError];
+            $failures = [['locales' => $locales, 'error' => $cleanError]];
             $session->set('TRANSLATION_FAILED', $failures);
 
             return new JsonResponse([
-                'offset'     => $next,
+                'offset'     => $total,
                 'total'      => $total,
-                'isFinished' => $next >= $total,
-                'message'    => $locale,
+                'isFinished' => true,
+                'message'    => 'Installation failed',
                 'skipped'    => true,
                 'error'      => $cleanError,
-                'failures'   => $next >= $total ? $failures : [],
+                'failures'   => $failures,
             ], 200);
         }
 
         return new JsonResponse([
-            'offset'     => $next,
+            'offset'     => $total,
             'total'      => $total,
-            'isFinished' => $next >= $total,
-            'message'    => $locale,
+            'isFinished' => true,
+            'message'    => 'All languages installed successfully',
             'skipped'    => false,
-            'failures'   => $next >= $total ? (array) $session->get('TRANSLATION_FAILED', []) : [],
+            'failures'   => [],
         ]);
     }
 

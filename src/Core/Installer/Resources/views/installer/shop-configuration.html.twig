@@ -126,18 +126,18 @@
 
                 <div class="languages-box">
                     <div class="languages-list auto-columns">
-                        {% for iso, language in languageIsos %}
+                        {% for locale, language in allAvailableLanguages %}
                             <div class="custom-checkbox language-item"
-                                 data-language-name="{{ ("shopware.installer.select_language_" ~ iso) |trans |lower }}">
+                                 data-language-name="{{ language.label|lower }}">
                                 <input type="checkbox"
                                        class="language-toggle"
-                                       id="lang_{{ iso|lower }}"
+                                       id="lang_{{ locale|lower|replace({'-': '_'}) }}"
                                        name="selected_languages[]"
-                                       value="{{ iso }}"
-                                       {% if iso in ['en-GB','de-DE'] %}checked disabled{% endif %}
+                                       value="{{ locale }}"
+                                       {% if locale in ['en-GB','de-DE'] %}checked disabled{% endif %}
                                        onclick="event.target.classList.add('toggled')" />
-                                <label for="lang_{{ iso|lower }}">
-                                    {{ ("shopware.installer.select_language_" ~ iso) |trans }}
+                                <label for="lang_{{ locale|lower|replace({'-': '_'}) }}">
+                                    {{ language.label }}
                                 </label>
                             </div>
                         {% endfor %}

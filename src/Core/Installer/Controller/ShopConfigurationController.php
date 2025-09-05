@@ -10,6 +10,7 @@ use Shopware\Core\Installer\Configuration\ShopConfigurationService;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -36,6 +37,7 @@ class ShopConfigurationController extends InstallerController
         private readonly ShopConfigurationService $shopConfigurationService,
         private readonly AdminConfigurationService $adminConfigurationService,
         private readonly TranslatorInterface $translator,
+        private readonly TranslationConfigLoader $translationConfigLoader,
         private readonly array $supportedLanguages,
         private readonly array $supportedCurrencies
     ) {
@@ -72,14 +74,20 @@ class ShopConfigurationController extends InstallerController
             /** @var list<string> $selectedLanguages */
             $selectedLanguages = $request->request->all('selected_languages') ?: [];
 
-            // TODO: Replace with actual languages from crowdin json file
+            // Use all available languages from TranslationConfigLoader
             $selectedLanguages = array_map(function (string $iso) {
                 // already a full locale like xx-XX?
                 if (preg_match('/^[a-z]{2}-[A-Z]{2}$/', $iso)) {
                     return $iso;
                 }
-                return $this->supportedLanguages[$iso]['id'] ?? $iso;
+                return $this->getAllAvailableLanguages()[$iso]['id'] ?? $iso;
             }, $selectedLanguages);
+
+            // Filter out default languages that are already installed
+            $defaultLanguages = ['en-GB', 'de-DE'];
+            $selectedLanguages = array_filter($selectedLanguages, function($locale) use ($defaultLanguages) {
+                return !in_array($locale, $defaultLanguages);
+            });
 
             $selectedLanguages = array_unique($selectedLanguages);
 
@@ -149,6 +157,7 @@ class ShopConfigurationController extends InstallerController
                 'error' => $error,
                 'countryIsos' => $this->getCountryIsos($connection, $locale),
                 'languageIsos' => $this->supportedLanguages,
+                'allAvailableLanguages' => $this->getAllAvailableLanguages(),
                 'currencyIsos' => $this->supportedCurrencies,
                 'parameters' => $parameters,
                 'selectedLanguages' => $request->request->all('selected_languages') ?: [],
@@ -182,5 +191,32 @@ class ShopConfigurationController extends InstallerController
          */ $countryIsos, fn (array $first, array $second) => strcmp((string) $first['translated'], (string) $second['translated']));
 
         return $countryIsos;
+    }
+
+    /**
+     * Get all available languages from TranslationConfigLoader
+     *
+     * @return array<string, array{id: string, label: string}>
+     */
+    private function getAllAvailableLanguages(): array
+    {
+        try {
+            $config = $this->translationConfigLoader->load();
+            $languages = [];
+
+            foreach ($config->languages as $language) {
+                $locale = $language->locale;
+                $name = $language->name;
+
+                $languages[$locale] = [
+                    'id' => $locale,
+                    'label' => $name
+                ];
+            }
+
+            return $languages;
+        } catch (\Exception) {
+            return [];
+        }
     }
 }

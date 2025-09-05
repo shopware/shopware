@@ -166,6 +166,14 @@
 
         <service id="shopware.installer.guzzle" class="GuzzleHttp\Client"/>
 
+        <service id="Shopware\Core\System\Snippet\Service\TranslationConfigLoader">
+            <argument type="service" id="filesystem"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Struct\TranslationConfig" lazy="true" public="true">
+            <factory service="Shopware\Core\System\Snippet\Service\TranslationConfigLoader" method="load"/>
+        </service>
+
         <service id="Shopware\Core\Installer\License\LicenseFetcher">
             <argument type="service" id="shopware.installer.guzzle"/>
             <argument>%shopware.installer.tosUrls%</argument>
@@ -221,6 +229,7 @@
             <argument type="service" id="Shopware\Core\Installer\Configuration\ShopConfigurationService"/>
             <argument type="service" id="Shopware\Core\Installer\Configuration\AdminConfigurationService"/>
             <argument type="service" id="translator"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationConfigLoader"/>
             <argument>%shopware.installer.supportedLanguages%</argument>
             <argument>%shopware.installer.supportedCurrencies%</argument>
 

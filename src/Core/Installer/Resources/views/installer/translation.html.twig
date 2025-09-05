@@ -12,19 +12,12 @@
             </p>
             <div class="language-import-count">
                 {{ "shopware.installer.translations_import_install_label"|trans }}
-                {{ "shopware.installer.database_import_install_step_text"|trans }}
-                <span id="offset" class="installer-import-count-offset">0</span>
-                {{ "shopware.installer.database_import_install_from_text"|trans }}
-                <span id="total" class="database-import-count-total">{{ total }}</span>
-                <span id="current-locale" class="is--inline is--align-right" style="margin-left:8px;"></span>
             </div>
 
             <div id="progress" class="progress active">
                 <div id="progress-bar" class="progress-bar" style="width:0%"></div>
             </div>
         </div>
-
-
     </div>
 
     <div class="card__footer flex-container">
@@ -43,7 +36,9 @@
 
     <script>
         window.addEventListener('beforeunload', preventPageLeave);
-        doRequest(0);
+
+        // Start the installation process
+        startInstallation();
 
         function importFinished() {
             document.getElementById('next').classList.remove('disabled');
@@ -56,54 +51,31 @@
 
         function preventPageLeave(event) {
             event.preventDefault();
-            return event.returnValue = 'Installing translations…';
         }
 
-        async function doRequest(offset) {
-            const response = await fetch('{{ url('installer.translation-run') }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ offset })
-            });
+        async function startInstallation() {
+            document.getElementById('progress-bar').style.width = '10%';
 
-            const data = await response.json();
+            try {
+                const response = await fetch('{{ url('installer.translation-run') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
 
-            // update counters
-            document.getElementById('offset').innerText = Math.min(data.offset, data.total);
-            document.getElementById('total').innerText = data.total;
-            document.getElementById('current-locale').innerText = data.message ? `(${data.message})` : '';
+                const data = await response.json();
 
-            const pct = data.total ? (data.offset / data.total) * 100 : 100;
-            document.getElementById('progress-bar').style.width = pct + '%';
+                if (data.isFinished) {
+                    document.getElementById('progress-bar').style.width = '100%';
 
-            if (data.isFinished) {
-                if (data.failures && data.failures.length > 0) {
-                    renderFailures(data.failures);
+                    if (data.failures && data.failures.length > 0) {
+                        //TODO render failures
+                    }
+                    importFinished();
                 }
-                importFinished();
-            } else {
-                doRequest(data.offset);
+            } catch (error) {
+                document.getElementById('progress-bar').style.width = '100%';
             }
-        }
-
-        function renderFailures(list) {
-            const container = document.getElementById('import-container');
-            let box = container.querySelector('.translation-failures');
-            if (!box) {
-                box = document.createElement('div');
-                box.className = 'translation-failures alert alert-warning';
-                box.style.marginTop = '20px';
-                box.style.display = 'block';
-                container.appendChild(box);
-            }
-            box.innerHTML = `<strong>Some translations failed:</strong><br>` +
-                list.map(i => `<code>${i.locale}</code>: ${escapeHtml(i.error)}`).join('<br>');
-
-            container.style.display = 'block';
-        }
-
-        function escapeHtml(s) {
-            return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
         }
     </script>
 {% endblock %}

@@ -37,16 +37,15 @@ class AnalyticsCookieCollectListener
             return;
         }
 
-        if ($salesChannel->getAnalytics() === null) {
+        $analytics = $salesChannel->getAnalytics();
+        if ($analytics === null) {
             $criteria = new Criteria([$analyticsId]);
             $criteria->setTitle('analytics-cookie-collect-listener::load-analytics');
 
-            $salesChannel->setAnalytics(
-                $this->salesChannelAnalyticsRepository->search($criteria, $event->getContext())->getEntities()->get($analyticsId)
-            );
+            $analytics = $this->salesChannelAnalyticsRepository->search($criteria, $event->getContext())->getEntities()->get($analyticsId);
         }
 
-        if (!$salesChannel->getAnalytics()?->isActive()) {
+        if (!$analytics?->isActive()) {
             return;
         }
 

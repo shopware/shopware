@@ -101,7 +101,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(DocumentFileRendererRegistry::class),
             $mediaService,
             $documentRepository,
-            $this->createMock(Connection::class),
+            $this->createMock(Connection::class)
         );
 
         try {
@@ -161,7 +161,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
+            $this->createMock(Connection::class)
         );
 
         $document = $generator->preview('invoice', $operation, 'deepLinkCode', $context);
@@ -208,7 +208,6 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
         );
 
         $this->expectException(DocumentException::class);

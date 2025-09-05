@@ -5,11 +5,11 @@ namespace Shopware\Administration\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\MailUpdate as MailData;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -40,24 +40,15 @@ class Migration1757057005MailTemplate extends MigrationStep
 
     private function getMailData(): MailData
     {
+        $filesystem = new Filesystem();
+
         return new MailData(
             'admin_sso_user_invite',
-            $this->readContent(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.txt'),
-            $this->readContent(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.html.twig'),
-            $this->readContent(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.txt'),
-            $this->readContent(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.html.twig'),
+            $filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.txt'),
+            $filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.html.twig'),
+            $filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.txt'),
+            $filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.html.twig'),
         );
-    }
-
-    private function readContent(string $path): string
-    {
-        $fileContent = \file_get_contents($path);
-
-        if (!\is_string($fileContent)) {
-            throw MigrationException::migrationError('Could not load mail template translation content from ' . $path);
-        }
-
-        return $fileContent;
     }
 
     private function createTemplates(Connection $connection): void

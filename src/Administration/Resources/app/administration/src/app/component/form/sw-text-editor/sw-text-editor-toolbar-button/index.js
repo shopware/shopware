@@ -178,7 +178,7 @@ export default {
 
             if (isOutOfRightBound < 0) {
                 if (modalContainer) {
-                    flyoutLinkLeftOffset = -(flyoutLinkMenuWidth / 2) + (linkIconWidth / 2);
+                    flyoutLinkLeftOffset = -(flyoutLinkMenuWidth / 2) + linkIconWidth / 2;
                     arrowPosition = flyoutLinkMenuWidth / 2;
                 } else {
                     flyoutLinkLeftOffset = isOutOfRightBound - 50;

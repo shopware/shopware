@@ -41,6 +41,10 @@ class Manifest
     private function __construct(
         private string $path,
         private readonly bool $validatesPermissions,
+        /**
+         * @var array<string, bool> list of requirements
+         */
+        private readonly array $requirements,
         private readonly Metadata $metadata,
         private readonly ?Setup $setup,
         private readonly ?Admin $admin,
@@ -107,6 +111,14 @@ class Manifest
     public function validatesPermissions(): bool
     {
         return $this->validatesPermissions;
+    }
+
+    /**
+     * @return array<string, bool> list of requirements
+     */
+    public function getRequirements(): array
+    {
+        return $this->requirements;
     }
 
     public function getMetadata(): Metadata
@@ -271,6 +283,8 @@ class Manifest
             $validatesPermissions = $manifest->hasAttribute('validates-permissions')
                 && XmlUtils::phpize($manifest->getAttribute('validates-permissions')) === true;
 
+            $requirements = self::buildRequirements($doc);
+
             $meta = $doc->getElementsByTagName('meta')->item(0);
             \assert($meta !== null);
             $metadata = Metadata::fromXml($meta);
@@ -307,6 +321,7 @@ class Manifest
         return new self(
             \dirname($xmlFile),
             $validatesPermissions,
+            $requirements,
             $metadata,
             $setup,
             $admin,
@@ -322,5 +337,24 @@ class Manifest
             $shippingMethods,
             $gateways
         );
+    }
+
+    /**
+     * @return array<string, bool> list of requirements
+     */
+    private static function buildRequirements(\DOMDocument $doc): array
+    {
+        $requirementsElement = $doc->getElementsByTagName('requirements')->item(0);
+        if ($requirementsElement === null) {
+            return [];
+        }
+
+        $attributes = [];
+        foreach ($requirementsElement->attributes ?? [] as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
+            $attributes[$attribute->name] = XmlUtils::phpize($attribute->value);
+        }
+
+        return $attributes;
     }
 }

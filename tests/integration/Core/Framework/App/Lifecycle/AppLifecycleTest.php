@@ -1708,6 +1708,33 @@ class AppLifecycleTest extends TestCase
         $this->startTransactionBefore();
     }
 
+    public function testInstallThrowsWhenRequirementsNotMet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withRequirements/manifest.xml');
+        // Queue a failing response for the health-check call used by RequiresPublicAccess
+        $this->appendNewResponse(new Response(500));
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('The app requirements are not met');
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+    }
+
+    public function testUpdateThrowsWhenRequirementsNotMet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withRequirements/manifest.xml');
+        // Queue a failing response for the health-check call used by RequiresPublicAccess
+        $this->appendNewResponse(new Response(500));
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('The app requirements are not met');
+        $this->appLifecycle->update(
+            $manifest,
+            new AppUpdateParameters(),
+            ['id' => Uuid::randomHex(), 'roleId' => Uuid::randomHex()],
+            $this->context
+        );
+    }
+
     private function assertShippingMethodsExists(string $appId): void
     {
         $criteria = new Criteria([$appId]);

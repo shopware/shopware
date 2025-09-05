@@ -65,6 +65,20 @@
             <tag name="shopware.app_manifest.validator"/>
         </service>
 
+        <!-- Requirements Validation Services -->
+        <service id="Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\Requirements\RequiresPublicAccess">
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <tag name="app.requirements_validator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator">
+            <argument type="tagged_iterator" tag="app.requirements_validator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister">
             <argument type="service" id="custom_field_set.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -282,6 +296,7 @@
             <argument type="service" id="custom_entity.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">

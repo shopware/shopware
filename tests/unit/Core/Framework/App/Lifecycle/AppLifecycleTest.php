@@ -29,7 +29,9 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -306,6 +308,74 @@ class AppLifecycleTest extends TestCase
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
+    public function testInstallThrowsWhenRequirementsNotMet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $validator = $this->createMock(AppRequirementsValidator::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([
+                new UnmetRequirement('test', 'requires-public-access', 'APP_URL must be publicly reachable'),
+            ]);
+
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
+            [
+                'id' => Uuid::randomHex(),
+                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
+            ],
+        ])]);
+
+        $appRepository = $this->getAppRepositoryMock([[]]);
+        $appLifecycle = $this->getAppLifecycle(
+            $appRepository,
+            $languageRepository,
+            null,
+            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
+            $validator
+        );
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('The app requirements are not met');
+        $appLifecycle->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
+    }
+
+    public function testUpdateThrowsWhenRequirementsNotMet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $validator = $this->createMock(AppRequirementsValidator::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([
+                new UnmetRequirement('test', 'requires-public-access', 'APP_URL must be publicly reachable'),
+            ]);
+
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
+            [
+                'id' => Uuid::randomHex(),
+                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
+            ],
+        ])]);
+
+        $appRepository = $this->getAppRepositoryMock([[['id' => Uuid::randomHex(), 'path' => '', 'configurable' => false, 'allowDisable' => true]]]);
+        $appLifecycle = $this->getAppLifecycle(
+            $appRepository,
+            $languageRepository,
+            null,
+            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
+            $validator
+        );
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('The app requirements are not met');
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
+    }
+
     public function testUpdateResetsConfigurableFlagToFalseWhenConfigXMLWasRemoved(): void
     {
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/config', __DIR__ . '/../_fixtures/Resources/noconfighere');
@@ -363,7 +433,8 @@ class AppLifecycleTest extends TestCase
         EntityRepository $appRepository,
         EntityRepository $languageRepository,
         ?AppAdministrationSnippetPersister $appAdministrationSnippetPersisterMock,
-        StaticSourceResolver $appSourceResolver
+        StaticSourceResolver $appSourceResolver,
+        ?AppRequirementsValidator $requirementsValidator = null
     ): AppLifecycle {
         /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
         $aclRoleRepo = new StaticEntityRepository([new AclRoleCollection()]);
@@ -402,7 +473,8 @@ class AppLifecycleTest extends TestCase
             $this->createMock(ShippingMethodPersister::class),
             $this->createMock(EntityRepository::class),
             $appSourceResolver,
-            $this->createMock(ConfigReader::class)
+            $this->createMock(ConfigReader::class),
+            $requirementsValidator ?? $this->createMock(AppRequirementsValidator::class)
         );
     }
 

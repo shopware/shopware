@@ -80,6 +80,6 @@ final class LoginResponseService
 
     private function createTimeStamp(int $expiresIn): int
     {
-        return strtotime('+' . $expiresIn . ' seconds') * 1000;
+        return (int) strtotime('+' . $expiresIn . ' seconds') * 1000;
     }
 }

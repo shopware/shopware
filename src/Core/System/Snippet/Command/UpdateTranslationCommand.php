@@ -31,16 +31,21 @@ class UpdateTranslationCommand extends Command
         try {
             $metadata = $this->metadataLoader->getUpdatedLocalMetadata();
         } catch (\Throwable $e) {
-            $output->writeln(\sprintf('<error>An error occurred while fetching metadata: "%s"</error>', $e->getMessage()));
+            TranslationCommandHelper::printMetadataLoadingFailed($output, $e);
 
             return self::FAILURE;
         }
 
         $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
         if ($localesRequiringUpdate === []) {
-            $output->writeln('All translations are already up to date.');
+            TranslationCommandHelper::printNoTranslationsToUpdate($output);
 
             return self::SUCCESS;
+        }
+
+        $localesDiff = array_diff($metadata->getKeys(), $localesRequiringUpdate);
+        if ($localesDiff !== []) {
+            TranslationCommandHelper::printSkippedLocales($output, $localesDiff);
         }
 
         $context = Context::createCLIContext();

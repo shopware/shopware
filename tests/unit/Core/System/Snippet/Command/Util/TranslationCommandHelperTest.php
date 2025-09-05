@@ -65,4 +65,36 @@ class TranslationCommandHelperTest extends TestCase
         static::assertStringContainsString('1/3 -- Fetching translations for locale: en-GB', $content);
         static::assertStringContainsString('3/3 -- Fetching translations for locale: fr-FR', $content);
     }
+
+    public function testPrintMetadataLoadingFailed(): void
+    {
+        $output = new BufferedOutput();
+        $exception = new \RuntimeException('Test exception');
+
+        TranslationCommandHelper::printMetadataLoadingFailed($output, $exception);
+
+        $content = $output->fetch();
+        static::assertStringContainsString('An error occurred while fetching metadata: "Test exception"', $content);
+    }
+
+    public function testPrintNoTranslationsToUpdate(): void
+    {
+        $output = new BufferedOutput();
+
+        TranslationCommandHelper::printNoTranslationsToUpdate($output);
+
+        $content = $output->fetch();
+        static::assertStringContainsString('All translations are already up to date.', $content);
+    }
+
+    public function testPrintSkippedLocales(): void
+    {
+        $output = new BufferedOutput();
+        $localesDiff = ['de-DE', 'fr-FR'];
+
+        TranslationCommandHelper::printSkippedLocales($output, $localesDiff);
+
+        $content = $output->fetch();
+        static::assertStringContainsString('The following locales are already up to date and will be skipped: de-DE, fr-FR', $content);
+    }
 }

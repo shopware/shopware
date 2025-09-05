@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[AsCommand(
     name: 'translation:install',
-    description: 'Downloads and installs translations from the translations GitHub repository for the specified locales or all available locales',
+    description: 'Downloads and installs translations from the translations GitHub repository for the specified locales or all available locales. Re-installing will update existing translations.',
 )]
 #[Package('discovery')]
 class InstallTranslationCommand extends Command
@@ -47,24 +47,21 @@ class InstallTranslationCommand extends Command
         try {
             $metadata = $this->metadataLoader->getUpdatedLocalMetadata($locales);
         } catch (\Throwable $e) {
-            $output->writeln(\sprintf('<error>An error occurred while fetching metadata: "%s"</error>', $e->getMessage()));
+            TranslationCommandHelper::printMetadataLoadingFailed($output, $e);
 
             return self::FAILURE;
         }
 
         $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
         if ($localesRequiringUpdate === []) {
-            $output->writeln('All translations are already up to date.');
+            TranslationCommandHelper::printNoTranslationsToUpdate($output);
 
             return self::SUCCESS;
         }
 
         $localesDiff = array_diff($locales, $localesRequiringUpdate);
         if ($localesDiff !== []) {
-            $output->writeln(\sprintf(
-                'The following locales are already up to date and will be skipped: %s',
-                implode(', ', $localesDiff)
-            ));
+            TranslationCommandHelper::printSkippedLocales($output, $localesDiff);
         }
 
         $context = Context::createCLIContext();

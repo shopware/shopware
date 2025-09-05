@@ -46,4 +46,25 @@ class TranslationCommandHelper
 
         $progressBar->finish();
     }
+
+    public static function printMetadataLoadingFailed(OutputInterface $output, \Throwable $e): void
+    {
+        $output->writeln(\sprintf('<error>An error occurred while fetching metadata: "%s"</error>', $e->getMessage()));
+    }
+
+    public static function printNoTranslationsToUpdate(OutputInterface $output): void
+    {
+        $output->writeln('All translations are already up to date.');
+    }
+
+    /**
+     * @param non-empty-array<int, string> $localesDiff
+     */
+    public static function printSkippedLocales(OutputInterface $output, array $localesDiff): void
+    {
+        $output->writeln(\sprintf(
+            'The following locales are already up to date and will be skipped: %s',
+            implode(', ', $localesDiff)
+        ));
+    }
 }

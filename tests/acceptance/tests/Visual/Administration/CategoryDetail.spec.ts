@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport, replaceElements } from '@shopware-ag/acceptance-test-suite';
+import { setViewport, replaceElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Administration category page', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -15,7 +15,7 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
         await replaceElements(AdminCategories.page, [
             AdminCategories.categoryItems,
         ]);
-        await expect(AdminCategories.contentView).toHaveScreenshot('Category-General.png');
+        await assertScreenshot(AdminCategories.page, 'Category-General.png');
     });
 
     await test.step('Creates a screenshot of the "configure home page" modal.', async () => {
@@ -23,7 +23,7 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
         await setViewport(AdminCategories.page, {
             waitForSelector: '.sw-category-entry-point-modal__seo-headline',
         });
-        await expect(AdminCategories.page.locator('.sw-modal__dialog')).toHaveScreenshot('Category-Modal.png');
+        await assertScreenshot(AdminCategories.page, 'Category-Modal.png', AdminCategories.page.locator('.sw-modal__dialog'));
         await AdminCategories.configureModalCancelButton.click();
     });
 
@@ -36,7 +36,7 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
         await replaceElements(AdminCategories.page, [
             AdminCategories.categoryItems,
         ]);
-        await expect(AdminCategories.contentView).toHaveScreenshot('Category-Products.png');
+        await assertScreenshot(AdminCategories.page, 'Category-Products.png');
     });
 
     await test.step('Creates a screenshot of the category page on the layout tab.', async () => {
@@ -47,7 +47,7 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
         await replaceElements(AdminCategories.page, [
             AdminCategories.categoryItems,
         ]);
-        await expect(AdminCategories.contentView).toHaveScreenshot('Category-Layout.png');
+        await assertScreenshot(AdminCategories.page, 'Category-Layout.png');
     });
 
     await test.step('Creates a screenshot of the category page on the SEO tab.', async () => {
@@ -58,6 +58,6 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
         await replaceElements(AdminCategories.page, [
             AdminCategories.categoryItems,
         ]);
-        await expect(AdminCategories.contentView).toHaveScreenshot('Category-SEO.png');
+        await assertScreenshot(AdminCategories.page, 'Category-SEO.png');
     });
 });

@@ -792,11 +792,10 @@ class RequestCriteriaBuilderTest extends TestCase
 
         $payload['includes'] = 'string_instead_of_array';
 
-        $request = new Request([], $payload, [], [], []);
+        $request = new Request(request: $payload);
         $request->setMethod(Request::METHOD_POST);
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage('Expected data at includes to be of the type array, string given');
+        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('includes', 'string'));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,
@@ -812,7 +811,7 @@ class RequestCriteriaBuilderTest extends TestCase
             'excludes' => ['product', 'category'],
         ];
 
-        $request = new Request([], $payload, [], [], []);
+        $request = new Request(request: $payload);
         $request->setMethod(Request::METHOD_POST);
 
         $criteria = new Criteria();
@@ -829,8 +828,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $request = new Request([], $payload, [], [], []);
         $request->setMethod(Request::METHOD_POST);
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage('Expected data at excludes to be of the type array, string given');
+        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('excludes', 'string'));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,

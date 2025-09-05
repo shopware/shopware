@@ -247,7 +247,7 @@ class StructEncoderTest extends TestCase
             'apiAlias' => 'product',
         ];
 
-        static::assertEquals($expected, $encoded);
+        static::assertSame($expected, $encoded);
     }
 
     public function testResponseFieldsEncodeExcludesCorrectly(): void
@@ -291,7 +291,7 @@ class StructEncoderTest extends TestCase
             'apiAlias' => 'product',
         ];
 
-        static::assertEquals($expected, $encoded);
+        static::assertSame($expected, $encoded);
     }
 
     /**

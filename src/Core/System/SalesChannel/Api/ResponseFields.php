@@ -55,7 +55,7 @@ class ResponseFields
 
     protected function validateFields(): void
     {
-        if (isset($this->includes)) {
+        if (\is_array($this->includes)) {
             foreach ($this->includes as $type => $fields) {
                 if (\is_array($fields)) {
                     continue;
@@ -71,7 +71,7 @@ class ResponseFields
             }
         }
 
-        if (isset($this->excludes)) {
+        if (\is_array($this->excludes)) {
             foreach ($this->excludes as $type => $fields) {
                 if (\is_array($fields)) {
                     continue;

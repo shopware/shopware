@@ -285,9 +285,13 @@ class StructEncoderTest extends TestCase
 
         $encoded = $structEncoder->encode($product, $responseFields);
 
-        static::assertArrayHasKey('id', $encoded);
-        static::assertArrayHasKey('ean', $encoded);
-        static::assertArrayNotHasKey('name', $encoded);
+        $expected = [
+            'ean' => 'ean123',
+            'id' => '1',
+            'apiAlias' => 'product',
+        ];
+
+        static::assertEquals($expected, $encoded);
     }
 
     /**

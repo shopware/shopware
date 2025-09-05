@@ -116,12 +116,14 @@ final class DocumentRoute extends AbstractDocumentRoute
             return;
         }
 
-        if (Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('v6.8.0.0')) {
             // feature flag due to different exceptions
-            $this->guestAuthenticator->validate($order, $request);
-        } else {
             Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $orderCustomer, $request));
+
+            return;
         }
+
+        $this->guestAuthenticator->validate($order, $request);
     }
 
     /**

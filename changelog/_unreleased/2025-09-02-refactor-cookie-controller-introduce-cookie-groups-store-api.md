@@ -35,11 +35,63 @@ ___
 The providing of cookies has been refactored.
 With this the new route `/store-api/cookie-groups` has been added to retrieve all registered cookie groups and their cookie entries.
 This route is provided by the new `\Shopware\Core\Content\Cookie\SalesChannel\CookieRoute` service.
+
 The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` has been deprecated and so all its implementations.
 They will be removed in the next major version.
+
 To register new cookie groups and cookie entries, the new `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` should be used instead.
+The way apps are registering cookies has not changed.
+
 Additionally, the `snippet_name` and `snippet_description` properties on cookies in Twig templates have been deprecated.
 Use `snippetKeyName` and `snippetKeyDescription` instead.
+
+Adding new cookies before:
+```php
+class CustomCookieProvider implements CookieProviderInterface
+{
+    public function __construct(
+        private readonly CookieProviderInterface $inner,
+    ) {
+    }
+
+    public function getCookieGroups(): array
+    {
+        $cookieGroups = $this->inner->getCookieGroups();
+        
+        $cookieGroups[] = [
+            'snippet_name' => 'cookie.group.name',
+            'entries' => [
+                [
+                    'cookie' => 'cookie-name',
+                ],
+            ],
+        ];
+        
+        return $cookieGroups;
+    }
+}
+```
+
+Adding new cookies now:
+```php
+use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
+use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+
+class AppCookieCollectListener
+{
+    public function __invoke(CookieGroupCollectEvent $event): void
+    {
+        $cookieGroups = $event->cookieGroupCollection;
+        $newCookieGroup = new CookieGroup('cookie.group.name');
+        
+        $newCookieEntry = new CookieEntry('cookie-name')
+        $newCookieGroup->setEntries([$entry]);
+        
+        $cookieGroups->add($newCookieGroup);
+    }
+}
+```
 
 ___
 

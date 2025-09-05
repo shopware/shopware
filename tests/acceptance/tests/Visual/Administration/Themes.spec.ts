@@ -1,4 +1,4 @@
-import { test, assertScreenshot, setViewport } from '@fixtures/AcceptanceTest';
+import { test, assertScreenshot, setViewport, replaceElements } from '@fixtures/AcceptanceTest';
 
 test('Visual: Administration themes page', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -23,6 +23,11 @@ test('Visual: Administration themes page', { tag: '@Visual' }, async ({
             scrollableElementVertical: AdminThemesDetail.scrollableElement,
             waitForSelector: AdminThemesDetail.themeCard('Theme colours'),
         });
+        await replaceElements(AdminThemesDetail.page, [
+            AdminThemesDetail.page.locator('.sw-media-media-item__metadata').nth(0),
+            AdminThemesDetail.page.locator('.sw-media-media-item__metadata').nth(1),
+            AdminThemesDetail.page.locator('.sw-media-media-item__metadata').nth(2),
+        ])
         await assertScreenshot(AdminThemesDetail.page, 'Themes-Detail.png', AdminThemesDetail.contentView);
     });
 });

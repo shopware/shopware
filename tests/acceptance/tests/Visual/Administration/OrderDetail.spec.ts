@@ -53,6 +53,7 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
         await AdminOrderDetail.documentsTabLink.click();
         await setViewport(AdminOrderDetail.page, {
             requestURL: '/api/search/document',
+            contentHeight: 1080,
         });
         await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-Documents-Tab.png');
     });

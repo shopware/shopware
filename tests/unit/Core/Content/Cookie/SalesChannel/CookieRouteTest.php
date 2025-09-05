@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,6 +20,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CookieRoute::class)]
 class CookieRouteTest extends TestCase
 {
+    public function testItThrowsDecorationPatternException(): void
+    {
+        $this->expectExceptionObject(new DecorationPatternException(CookieRoute::class));
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        (new CookieRoute($cookieProvider))->getDecorated();
+    }
+
     public function testGetCookieGroupsGetsCalledWithTranslateByDefault(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();

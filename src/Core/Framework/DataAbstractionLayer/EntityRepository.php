@@ -22,8 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\VarExporter\LazyGhostTrait;
@@ -157,7 +157,7 @@ class EntityRepository
         ReplicaConnection::ensurePrimary();
 
         if (!$this->definition->isVersionAware()) {
-            throw new \RuntimeException(\sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
+            throw DataAbstractionLayerException::entityNotVersionAware($this->definition->getEntityName());
         }
 
         return $this->versionManager->createVersion($this->definition, $id, WriteContext::createFromContext($context), $name, $versionId);
@@ -168,7 +168,7 @@ class EntityRepository
         ReplicaConnection::ensurePrimary();
 
         if (!$this->definition->isVersionAware()) {
-            throw new \RuntimeException(\sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
+            throw DataAbstractionLayerException::entityNotVersionAware($this->definition->getEntityName());
         }
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
@@ -179,7 +179,7 @@ class EntityRepository
 
         $newId ??= Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
-            throw new InvalidUuidException($newId);
+            throw UuidException::invalidUuid($newId);
         }
 
         $affected = $this->versionManager->clone(

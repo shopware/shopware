@@ -67,11 +67,10 @@ class InstallTranslationCommand extends Command
             ));
         }
 
+        $context = Context::createCLIContext();
         $activate = !$input->getOption('skip-activation');
 
-        $context = Context::createCLIContext();
-
-        TranslationCommandHelper::loadTranslationsWithProgressBar(
+        TranslationCommandHelper::executeLoadWithProgressBar(
             $localesRequiringUpdate,
             $output,
             fn (string $locale) => $this->translationLoader->load($locale, $context, $activate),

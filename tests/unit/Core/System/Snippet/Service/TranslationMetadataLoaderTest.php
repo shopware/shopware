@@ -199,10 +199,12 @@ class TranslationMetadataLoaderTest extends TestCase
         $updated = $loader->getUpdatedLocalMetadata();
 
         $en = $updated->get('en-GB');
+        static::assertInstanceOf(MetadataEntry::class, $en);
         static::assertFalse($en->isUpdateRequired);
         $this->assertDatetime('2025-08-07T11:26:28.974+00:00', $en->updatedAt);
 
         $es = $updated->get('es-ES');
+        static::assertInstanceOf(MetadataEntry::class, $es);
         static::assertTrue($es->isUpdateRequired);
         $this->assertDatetime('2025-08-12T11:26:28.974+00:00', $es->updatedAt);
     }

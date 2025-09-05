@@ -28,7 +28,10 @@ class TranslationCommandHelper
         }
     }
 
-    public static function loadTranslationsWithProgressBar(array $locales, OutputInterface $output, callable $loadCallback): void
+    /**
+     * @param list<string> $locales
+     */
+    public static function executeLoadWithProgressBar(array $locales, OutputInterface $output, callable $loadCallback): void
     {
         ProgressBar::setFormatDefinition(self::PROGRESS_BAR_NAME, self::PROGRESS_BAR_FORMAT);
         $progressBar = new ProgressBar($output, \count($locales));

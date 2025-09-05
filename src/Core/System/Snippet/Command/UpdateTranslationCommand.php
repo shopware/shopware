@@ -45,7 +45,7 @@ class UpdateTranslationCommand extends Command
 
         $context = Context::createCLIContext();
 
-        TranslationCommandHelper::loadTranslationsWithProgressBar(
+        TranslationCommandHelper::executeLoadWithProgressBar(
             $localesRequiringUpdate,
             $output,
             fn (string $locale) => $this->translationLoader->load($locale, $context),

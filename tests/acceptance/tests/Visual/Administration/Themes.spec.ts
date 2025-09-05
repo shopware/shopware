@@ -1,5 +1,4 @@
-import { test } from '@fixtures/AcceptanceTest';
-import { assertScreenshot, setViewport } from '@shopware-ag/acceptance-test-suite';
+import { test, assertScreenshot, setViewport } from '@fixtures/AcceptanceTest';
 
 test('Visual: Administration themes page', { tag: '@Visual' }, async ({
     ShopAdmin,

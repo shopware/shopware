@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cookie\Service;
 
+use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
@@ -190,6 +191,11 @@ class CookieProvider
     private function convertLegacyCookies(CookieGroupCollection $cookieGroupCollection, array $legacyCookieGroups): void
     {
         foreach ($legacyCookieGroups as $legacyCookieGroup) {
+            $snippetName = $legacyCookieGroup['snippet_name'] ?? null;
+            if ($snippetName === null) {
+                throw CookieException::invalidLegacyCookieGroupProvided($legacyCookieGroup);
+            }
+
             $cookieGroup = $cookieGroupCollection->get($legacyCookieGroup['snippet_name']);
             if ($cookieGroup === null) {
                 $cookieGroup = new CookieGroup($legacyCookieGroup['snippet_name']);
@@ -224,6 +230,10 @@ class CookieProvider
                 }
 
                 foreach ($legacyCookieGroup['entries'] as $entry) {
+                    $cookie = $entry['cookie'] ?? null;
+                    if ($cookie === null) {
+                        throw CookieException::invalidLegacyCookieEntryProvided($entry);
+                    }
                     $cookieEntry = new CookieEntry($entry['cookie']);
 
                     if (\array_key_exists('snippet_name', $entry)) {

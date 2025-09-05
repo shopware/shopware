@@ -6,6 +6,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
@@ -15,6 +16,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Framework\Cookie\CookieProvider as LegacyCookieProvider;
+use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -133,7 +135,7 @@ class CookieProviderTest extends TestCase
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
-        $legacyCookieProvider = new LegacyCookieProvider(['name' => 'test-session-name-']);
+        $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
 
         $cookieGroups = (new CookieProvider(
             new EventDispatcher(),
@@ -142,7 +144,7 @@ class CookieProviderTest extends TestCase
             $legacyCookieProvider,
         ))->getCookieGroups(Generator::generateSalesChannelContext());
 
-        static::assertCount(2, $cookieGroups);
+        static::assertCount(4, $cookieGroups);
 
         $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
@@ -156,5 +158,117 @@ class CookieProviderTest extends TestCase
         $cookiePreferenceCookie = $requiredGroup->getEntries()->get('cookie-preference');
         static::assertNotNull($cookiePreferenceCookie);
         static::assertTrue($cookiePreferenceCookie->hidden);
+
+        $testGroup1 = $cookieGroups->get('test-group-1');
+        static::assertInstanceOf(CookieGroup::class, $testGroup1);
+        static::assertNull($testGroup1->getEntries());
+        static::assertSame('test-cookie', $testGroup1->getCookie());
+        static::assertSame('test-value', $testGroup1->value);
+        static::assertSame(10, $testGroup1->expiration);
+
+        $testGroup2 = $cookieGroups->get('test-group-2');
+        static::assertInstanceOf(CookieGroup::class, $testGroup2);
+        static::assertNotNull($testGroup2->getEntries());
+        static::assertCount(1, $testGroup2->getEntries());
+        $testGroup2Entry = $testGroup2->getEntries()->get('test-cookie-2');
+        static::assertNotNull($testGroup2Entry);
+        static::assertSame('test-description', $testGroup2Entry->snippetKeyDescription);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyCookieConvertingMissingSnippetNameInGroup(): void
+    {
+        $invalidGroup = [
+            'cookie' => 'test-cookie',
+        ];
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
+        /** @phpstan-ignore argument.type (Left out required array key for testing purpose) */
+        $legacyCookieProvider->setTestCookieGroups([$invalidGroup]);
+
+        $this->expectExceptionObject(CookieException::invalidLegacyCookieGroupProvided($invalidGroup));
+        (new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            [],
+            $legacyCookieProvider,
+        ))->getCookieGroups(Generator::generateSalesChannelContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyCookieConvertingMissingCookieInEntry(): void
+    {
+        $invalidEntry = [
+            'snippet_name' => 'test-cookie',
+        ];
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
+        /** @phpstan-ignore argument.type (Left out required array key for testing purpose) */
+        $legacyCookieProvider->setTestCookieGroups([
+            [
+                'snippet_name' => 'test-group-1',
+                'entries' => [$invalidEntry],
+            ],
+        ]);
+
+        $this->expectExceptionObject(CookieException::invalidLegacyCookieEntryProvided($invalidEntry));
+        (new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            [],
+            $legacyCookieProvider,
+        ))->getCookieGroups(Generator::generateSalesChannelContext());
+    }
+}
+
+/**
+ * @internal
+ *
+ * @phpstan-import-type CookieGroupArray from CookieProviderInterface
+ * Can be removed with tag:v6.8.0
+ */
+class LegacyCookieProviderForTesting extends LegacyCookieProvider
+{
+    /**
+     * @var list<CookieGroupArray>|null
+     */
+    private ?array $testCookieGroups = null;
+
+    public function getCookieGroups(): array
+    {
+        if ($this->testCookieGroups !== null) {
+            return $this->testCookieGroups;
+        }
+
+        $cookieGroups = parent::getCookieGroups();
+        $cookieGroups[] = [
+            'snippet_name' => 'test-group-1',
+            'cookie' => 'test-cookie',
+            'value' => 'test-value',
+            'expiration' => '10',
+        ];
+        $cookieGroups[] = [
+            'snippet_name' => 'test-group-2',
+            'entries' => [
+                [
+                    'cookie' => 'test-cookie-2',
+                    'snippet_description' => 'test-description',
+                ],
+            ],
+        ];
+
+        return $cookieGroups;
+    }
+
+    /**
+     * @param list<CookieGroupArray> $testCookieGroups
+     */
+    public function setTestCookieGroups(array $testCookieGroups): void
+    {
+        $this->testCookieGroups = $testCookieGroups;
     }
 }

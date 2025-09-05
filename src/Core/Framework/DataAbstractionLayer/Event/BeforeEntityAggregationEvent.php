@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('framework')]
-class EntityAggregatedEvent extends Event implements ShopwareEvent
+class BeforeEntityAggregationEvent extends Event implements ShopwareEvent
 {
     public function __construct(
         private readonly Criteria $criteria,

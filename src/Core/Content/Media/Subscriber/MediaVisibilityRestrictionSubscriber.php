@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Subscriber;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregatedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeEntityAggregationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -29,7 +29,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
     {
         return [
             EntitySearchedEvent::class => 'securePrivateFolders',
-            EntityAggregatedEvent::class => 'securePrivateMediaAggregation',
+            BeforeEntityAggregationEvent::class => 'securePrivateMediaAggregation',
         ];
     }
 
@@ -46,7 +46,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
         };
     }
 
-    public function securePrivateMediaAggregation(EntityAggregatedEvent $event): void
+    public function securePrivateMediaAggregation(BeforeEntityAggregationEvent $event): void
     {
         if ($event->getContext()->getScope() === Context::SYSTEM_SCOPE) {
             return;
@@ -97,12 +97,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
     private function addRestrictionToFilterAggregation(FilterAggregation $aggregation, Filter $restrictionFilter): FilterAggregation
     {
         $aggregation->addFilters([$restrictionFilter]);
-
-        return new FilterAggregation(
-            $aggregation->getName(),
-            $aggregation->getAggregation(),
-            $aggregation->getFilter()
-        );
+        return $aggregation;
     }
 
     private function wrapAggregationWithRestriction(Aggregation $aggregation, Filter $restrictionFilter): FilterAggregation
@@ -114,7 +109,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
         );
     }
 
-    public function getMediaRestriction(): MultiFilter
+    private function getMediaRestriction(): MultiFilter
     {
         return new MultiFilter('OR', [
             new EqualsFilter('private', false),
@@ -126,7 +121,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
 
     }
 
-    public function getMediaFolderRestriction(): MultiFilter
+    private function getMediaFolderRestriction(): MultiFilter
     {
         return new MultiFilter('OR', [
             new EqualsFilter('media_folder.configuration.private', false),

@@ -15,7 +15,7 @@ use Twig\Loader\LoaderInterface;
 class TemplateFinder implements TemplateFinderInterface, ResetInterface
 {
     /**
-     * @var ?string[]
+     * @var list<string>|null
      */
     private ?array $namespaceHierarchy = null;
 

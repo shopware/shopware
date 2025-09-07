@@ -74,6 +74,11 @@ class MySQLFactory
             }
         }
 
-        return DriverManager::getConnection($parameters, $config);
+        $connection = DriverManager::getConnection($parameters, $config);
+
+        // To support enum column type
+        $connection->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+
+        return $connection;
     }
 }

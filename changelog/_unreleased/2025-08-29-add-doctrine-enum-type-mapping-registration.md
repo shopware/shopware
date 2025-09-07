@@ -9,3 +9,4 @@ author_github: @flkasper
 # Core
 
 * Register doctrine enum type mapping to connection
+* Revert "fix: Ignore tables with enums in definition validator as DBAL 3.x does not support enums (#7196)"

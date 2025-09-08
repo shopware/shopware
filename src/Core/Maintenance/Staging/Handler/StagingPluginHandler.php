@@ -33,7 +33,7 @@ readonly class StagingPluginHandler
             return;
         }
 
-        $names = array_values(array_unique(array_filter(array_map(static fn ($v) => \is_string($v) ? trim($v) : '', $this->pluginsToDisable))));
+        $names = array_values(array_unique(array_filter(array_map(static fn ($v) => trim($v), $this->pluginsToDisable))));
         if ($names === []) {
             return;
         }

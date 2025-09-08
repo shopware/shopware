@@ -87,7 +87,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
         $extension = new ResolveListingAggregationsExtension(
             new Criteria(),
             $this->createMock(SalesChannelContext::class),
-            $this->createMock(IdSearchResult::class)
+            new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext())
         );
 
         $result = (new ExtensionDispatcher($dispatcher))->publish(

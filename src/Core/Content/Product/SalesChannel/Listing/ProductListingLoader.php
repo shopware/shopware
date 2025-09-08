@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -39,7 +40,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductListingLoader
 {
     public const ID_CACHE_KEY = 'product-listing-ids-';
-    public const AGGREGATION_CACHE_KEY = 'product-listing-aggregations-';
+    public const AGGREGATIONS_CACHE_KEY = 'product-listing-aggregations-';
 
     /**
      * @internal
@@ -302,18 +303,24 @@ class ProductListingLoader
             $item->expiresAfter(3600);
             $item->tag($cacheTags);
 
-            return [
-                'ids' => $ids,
-                'total' => $idSearchResult->getTotal(),
-            ];
+            // To reduce cache size and to prevent cache issues we clear context and criteria before caching
+            // They will be reassigned right after uncompressing the cached value
+            $idSearchResult->assign(['context' => Context::createDefaultContext(), 'criteria' => new Criteria()]);
+
+            return CacheValueCompressor::compress($idSearchResult);
         });
 
-        return IdSearchResult::fromIds($ids['ids'], $criteria, $context->getContext(), $ids['total']);
+        /** @var IdSearchResult */
+        $ids = CacheValueCompressor::uncompress($ids);
+
+        $ids->assign(['context' => $context->getContext(), 'criteria' => $criteria]);
+
+        return $ids;
     }
 
     private function resolveAggregations(Criteria $criteria, SalesChannelContext $context, IdSearchResult $idSearchResult): ?AggregationResultCollection
     {
-        $cacheKey = self::AGGREGATION_CACHE_KEY . $this->generator->getCriteriaHash($criteria) . $this->generator->getSalesChannelContextHash($context);
+        $cacheKey = self::AGGREGATIONS_CACHE_KEY . $this->generator->getCriteriaHash($criteria) . $this->generator->getSalesChannelContextHash($context);
 
         $aggregations = $this->cache->get($cacheKey, function (ItemInterface $item) use ($criteria, $context, $idSearchResult) {
             $aggregationResult = $this->productRepository->aggregate($criteria, $context);

@@ -40,7 +40,7 @@ class IdSearchResult extends Struct
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string>|list<array<string, string>> $ids
      */
     public static function fromIds(
         array $ids,

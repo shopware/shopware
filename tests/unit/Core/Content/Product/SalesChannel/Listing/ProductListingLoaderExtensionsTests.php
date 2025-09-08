@@ -6,18 +6,21 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Extension\ResolveListingAggregationsExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\BucketResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Examples\ResolveListingAggregationsExample;
 use Shopware\Tests\Examples\ResolveListingExample;
 use Shopware\Tests\Examples\ResolveListingIdsExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -29,6 +32,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(ResolveListingExample::class)]
 #[CoversClass(ResolveListingExtension::class)]
 #[CoversClass(ResolveListingIdsExtension::class)]
+#[CoversClass(ResolveListingAggregationsExtension::class)]
 class ProductListingLoaderExtensionsTests extends TestCase
 {
     public function testResolveListingIdsExtensions(): void
@@ -60,6 +64,44 @@ class ProductListingLoaderExtensionsTests extends TestCase
         static::assertInstanceOf(IdSearchResult::class, $result);
 
         static::assertSame(['plugin-id'], $result->getIds());
+    }
+
+    public function testResolveListingAggregationsExtensions(): void
+    {
+        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())
+            ->method('get')
+            ->willReturn(new Response(200, [], json_encode(['aggregations' => []], \JSON_THROW_ON_ERROR)));
+
+        /** @var StaticEntityRepository<ProductCollection> $productRepo */
+        $productRepo = new StaticEntityRepository([
+            new AggregationResultCollection([new BucketResult('test-bucket', [])]),
+        ]);
+
+        $example = new ResolveListingAggregationsExample($client, $productRepo);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ResolveListingAggregationsExtension::NAME . '.pre', $example);
+
+        $extension = new ResolveListingAggregationsExtension(
+            new Criteria(),
+            $this->createMock(SalesChannelContext::class),
+            $this->createMock(IdSearchResult::class)
+        );
+
+        $result = (new ExtensionDispatcher($dispatcher))->publish(
+            name: ResolveListingAggregationsExtension::NAME,
+            extension: $extension,
+            function: static function () {
+                return new AggregationResultCollection([new BucketResult('test-bucket', [])]);
+            }
+        );
+
+        static::assertInstanceOf(AggregationResultCollection::class, $result);
+
+        static::assertInstanceOf(BucketResult::class, $result->first());
+        static::assertSame('test-bucket', $result->first()->getName());
     }
 
     public function testResolveListingExtension(): void

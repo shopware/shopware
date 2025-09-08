@@ -109,6 +109,23 @@ class StaticEntityRepository extends EntityRepository
         throw new \RuntimeException('Invalid mock repository configuration');
     }
 
+    public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
+    {
+        $result = \array_shift($this->searches);
+        $callable = $result;
+
+        if (\is_callable($callable)) {
+            /** @var callable(Criteria, Context): ResultTypes $callable */
+            $result = $callable($criteria, $context);
+        }
+
+        if ($result instanceof AggregationResultCollection) {
+            return $result;
+        }
+
+        throw new \RuntimeException('Invalid mock repository configuration');
+    }
+
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         $result = \array_shift($this->searches);

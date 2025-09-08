@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
+use Shopware\Core\Content\Product\Extension\ResolveListingAggregationsExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -15,6 +16,9 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
@@ -27,11 +31,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('inventory')]
 class ProductListingLoader
 {
+    public const ID_CACHE_KEY = 'product-listing-ids-';
+    public const AGGREGATION_CACHE_KEY = 'product-listing-aggregations-';
+
     /**
      * @internal
      *
@@ -43,7 +52,9 @@ class ProductListingLoader
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
-        private readonly ExtensionDispatcher $extensions
+        private readonly ExtensionDispatcher $extensions,
+        private readonly CacheInterface $cache,
+        private readonly EntityCacheKeyGenerator $generator,
     ) {
     }
 
@@ -74,9 +85,7 @@ class ProductListingLoader
             function: $this->resolveIds(...)
         );
 
-        $aggregations = $this->productRepository->aggregate($clone, $context);
-
-        /** @var list<string> $ids */
+        /** @var list<string> */
         $ids = $idResult->getIds();
         // no products found, no need to continue
         if (empty($ids)) {
@@ -84,7 +93,7 @@ class ProductListingLoader
                 ProductDefinition::ENTITY_NAME,
                 0,
                 new ProductCollection(),
-                $aggregations,
+                null,
                 $criteria,
                 $context->getContext()
             );
@@ -94,6 +103,12 @@ class ProductListingLoader
 
             return $result;
         }
+
+        $aggregations = $this->extensions->publish(
+            name: ResolveListingAggregationsExtension::NAME,
+            extension: new ResolveListingAggregationsExtension($clone, $context, $idResult),
+            function: $this->resolveAggregations(...)
+        );
 
         $mapping = $this->resolvePreviews($ids, $clone, $context);
 
@@ -274,7 +289,50 @@ class ProductListingLoader
             );
         }
 
-        return $this->productRepository->searchIds($criteria, $context);
+        $cacheKey = self::ID_CACHE_KEY . $this->generator->getCriteriaHash($criteria) . $this->generator->getSalesChannelContextHash($context);
+
+        $ids = $this->cache->get($cacheKey, function (ItemInterface $item) use ($criteria, $context) {
+            $idSearchResult = $this->productRepository->searchIds($criteria, $context);
+
+            /** @var list<string> */
+            $ids = $idSearchResult->getIds();
+
+            $cacheTags = \array_map(fn (string $id): string => EntityCacheKeyGenerator::buildProductTag($id), $ids);
+
+            $item->expiresAfter(3600);
+            $item->tag($cacheTags);
+
+            return [
+                'ids' => $ids,
+                'total' => $idSearchResult->getTotal(),
+            ];
+        });
+
+        return IdSearchResult::fromIds($ids['ids'], $criteria, $context->getContext(), $ids['total']);
+    }
+
+    private function resolveAggregations(Criteria $criteria, SalesChannelContext $context, IdSearchResult $idSearchResult): ?AggregationResultCollection
+    {
+        $cacheKey = self::AGGREGATION_CACHE_KEY . $this->generator->getCriteriaHash($criteria) . $this->generator->getSalesChannelContextHash($context);
+
+        $aggregations = $this->cache->get($cacheKey, function (ItemInterface $item) use ($criteria, $context, $idSearchResult) {
+            $aggregationResult = $this->productRepository->aggregate($criteria, $context);
+
+            /** @var list<string> */
+            $ids = $idSearchResult->getIds();
+
+            $cacheTags = \array_map(fn (string $id): string => EntityCacheKeyGenerator::buildProductTag($id), $ids);
+
+            $item->expiresAfter(3600);
+            $item->tag($cacheTags);
+
+            return CacheValueCompressor::compress($aggregationResult);
+        });
+
+        /** @var ?AggregationResultCollection */
+        $aggregations = CacheValueCompressor::uncompress($aggregations);
+
+        return $aggregations;
     }
 
     /**

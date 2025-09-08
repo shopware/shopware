@@ -205,6 +205,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $maxAge = $cacheConfig['maxAge'] ?? $this->defaultTtl;
 
+        // Response headers have at this point 'no-cache' directive set, it has to be removed manually.
+        // The reason for this is that StoreApiResponseListener creates a new JsonResponse which is initialized
+        // with all headers in the original response, including 'no-cache' directive (that is default in Symfony responses).
+        // After that directive goes to the $cacheControl property of headers bag and is used in the header reconstruction
+        // when setSharedMaxAge is called.
+        $response->headers->removeCacheControlDirective('no-cache');
         $response->setSharedMaxAge($maxAge);
 
         if ($this->staleIfError !== null) {

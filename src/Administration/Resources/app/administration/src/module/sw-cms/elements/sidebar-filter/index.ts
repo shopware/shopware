@@ -1,5 +1,3 @@
-import CMS from '../../constant/sw-cms.constant';
-
 /**
  * @private
  * @sw-package discovery
@@ -26,6 +24,6 @@ Shopware.Service('cmsService').registerCmsElement({
     component: 'sw-cms-el-sidebar-filter',
     configComponent: 'sw-cms-el-config-sidebar-filter',
     previewComponent: 'sw-cms-el-preview-sidebar-filter',
-    allowedPageTypes: [CMS.PAGE_TYPES.LISTING],
+    allowedPageTypes: [Shopware.Constants.CMS.PAGE_TYPES.LISTING],
     disabledConfigInfoTextKey: 'sw-cms.elements.sidebarFilter.infoText.filterElement',
 });

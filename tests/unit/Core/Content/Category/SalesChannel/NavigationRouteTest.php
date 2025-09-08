@@ -9,10 +9,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
+use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -41,6 +41,8 @@ class NavigationRouteTest extends TestCase
 
     private CategoryTreePathResolver&MockObject $categoryTreePathResolver;
 
+    private DefaultCategoryLevelLoader&MockObject $defaultCategoryLevelLoader;
+
     private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
@@ -49,12 +51,14 @@ class NavigationRouteTest extends TestCase
         $this->categoryRepository = $this->createMock(SalesChannelRepository::class);
         $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
         $this->categoryTreePathResolver = $this->createMock(CategoryTreePathResolver::class);
+        $this->defaultCategoryLevelLoader = $this->createMock(DefaultCategoryLevelLoader::class);
 
         $this->navigationRoute = new NavigationRoute(
             $this->connection,
             $this->categoryRepository,
             $this->cacheTagCollector,
-            $this->categoryTreePathResolver
+            $this->categoryTreePathResolver,
+            $this->defaultCategoryLevelLoader,
         );
 
         $this->salesChannelContext = Generator::generateSalesChannelContext();
@@ -83,20 +87,9 @@ class NavigationRouteTest extends TestCase
                 ],
             ]);
 
-        $categories = new CategoryCollection();
-        $searchResult = new EntitySearchResult(
-            'category',
-            0,
-            $categories,
-            null,
-            $criteria,
-            $this->salesChannelContext->getContext()
-        );
-
         $this->categoryRepository
-            ->expects($this->once())
-            ->method('search')
-            ->willReturn($searchResult);
+            ->expects($this->never())
+            ->method('search');
 
         $this->categoryTreePathResolver
             ->expects($this->once())
@@ -141,20 +134,9 @@ class NavigationRouteTest extends TestCase
                 ],
             ]);
 
-        $categories = new CategoryCollection();
-        $searchResult = new EntitySearchResult(
-            'category',
-            0,
-            $categories,
-            null,
-            $criteria,
-            $this->salesChannelContext->getContext()
-        );
-
         $this->categoryRepository
-            ->expects($this->once())
-            ->method('search')
-            ->willReturn($searchResult);
+            ->expects($this->never())
+            ->method('search');
 
         $this->categoryTreePathResolver
             ->expects($this->once())

@@ -40,7 +40,6 @@ class ContextGatewayCommandExecutor
         $parameters = [];
 
         if ($tokenCommand = $commands->getSingleTokenCommand()) {
-            /** @phpstan-ignore symplify.noDynamicName */
             $this->registry->get($tokenCommand::COMMAND_KEY)->handle($tokenCommand, $context, $parameters);
 
             $token = $parameters['token'];

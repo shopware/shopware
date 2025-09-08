@@ -23,7 +23,8 @@ class TranslationConfig extends Struct
         public readonly array $locales,
         public readonly array $plugins,
         public readonly LanguageCollection $languages,
-        public readonly PluginMappingCollection $pluginMapping
+        public readonly PluginMappingCollection $pluginMapping,
+        public readonly Uri $metadataUrl,
     ) {
     }
 

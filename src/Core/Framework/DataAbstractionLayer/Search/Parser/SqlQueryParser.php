@@ -232,7 +232,7 @@ class SqlQueryParser
         }
 
         $result->addParameter($key, $value, ArrayParameterType::STRING);
-        $where[] = $select . ' IN (:' . $key . ')';
+        $where = [$select . ' IN (:' . $key . ')'];
 
         if ($hasNulls) {
             $where[] = $select . ' IS NULL';

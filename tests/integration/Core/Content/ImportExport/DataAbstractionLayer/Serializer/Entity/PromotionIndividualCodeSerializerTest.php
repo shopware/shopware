@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\PromotionIndividualCodeSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
@@ -22,8 +24,14 @@ class PromotionIndividualCodeSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     private EntityRepository $promoRepository;
 
+    /**
+     * @var EntityRepository<PromotionIndividualCodeCollection>
+     */
     private EntityRepository $promoCodeRepository;
 
     private PromotionIndividualCodeSerializer $serializer;

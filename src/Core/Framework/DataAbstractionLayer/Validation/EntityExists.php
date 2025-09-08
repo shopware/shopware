@@ -19,6 +19,9 @@ class EntityExists extends Constraint
         self::ENTITY_DOES_NOT_EXISTS => 'ENTITY_DOES_NOT_EXISTS',
     ];
 
+    /**
+     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
+     */
     public string $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.';
 
     protected string $entity;
@@ -34,13 +37,19 @@ class EntityExists extends Constraint
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $entity and $context parameter will be required
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $entity, $context and $primaryProperty property will be natively typed as constructor property promotion
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $entity, $context, $primaryProperty and $message properties will be natively typed as constructor property promotion
      *
      * @internal
      */
     #[HasNamedArguments]
-    public function __construct(?array $options = null, ?string $entity = null, ?Context $context = null, string $primaryProperty = 'id', ?Criteria $criteria = null)
-    {
+    public function __construct(
+        ?array $options = null,
+        ?string $entity = null,
+        ?Context $context = null,
+        string $primaryProperty = 'id',
+        ?Criteria $criteria = null,
+        string $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.'
+    ) {
         if ($options !== null || $entity === null || $context === null) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
@@ -63,6 +72,7 @@ class EntityExists extends Constraint
             $this->context = $context;
             $this->criteria = $criteria ?? new Criteria();
             $this->primaryProperty = $primaryProperty;
+            $this->message = $message;
         } else {
             $options = array_merge(
                 ['criteria' => new Criteria()],
@@ -107,5 +117,10 @@ class EntityExists extends Constraint
     public function getPrimaryProperty(): string
     {
         return $this->primaryProperty;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 }

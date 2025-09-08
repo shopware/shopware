@@ -32,13 +32,15 @@ class Migration1757057005MailTemplate extends MigrationStep
     private function getMailData(): MailData
     {
         $filesystem = new Filesystem();
-
-        return new MailData(
+        $mailData = new MailData(
             'admin_sso_user_invite',
-            $filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.txt'),
-            $filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.html.twig'),
-            $filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.txt'),
-            $filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.html.twig'),
         );
+
+        $mailData->setEnPlain($filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.txt'));
+        $mailData->setEnHtml($filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.html.twig'));
+        $mailData->setDePlain($filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.txt'));
+        $mailData->setDeHtml($filesystem->readFile(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.html.twig'));
+
+        return $mailData;
     }
 }

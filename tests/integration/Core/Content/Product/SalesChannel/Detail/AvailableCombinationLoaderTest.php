@@ -112,6 +112,10 @@ class AvailableCombinationLoaderTest extends TestCase
         foreach ($result->getCombinations() as $combination) {
             static::assertSame($expected, $result->isAvailable($combination));
         }
+
+        if ($differentChannel) {
+            static::assertCount(0, $result->getCombinations());
+        }
     }
 
     /**

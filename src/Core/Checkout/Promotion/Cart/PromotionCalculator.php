@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
@@ -48,6 +49,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;
+
+    /**
+     * @var array<string, LineItem>
+     */
+    private array $splitted = [];
 
     /**
      * @internal
@@ -269,13 +275,13 @@ class PromotionCalculator
             $shouldSplit = true;
         }
 
-        $splitItems = [];
-        foreach ($calculatedCart->getLineItems() as $split) {
-            $split->setStackable(true);
-            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $shouldSplit ? 1 : $split->getQuantity(), $context);
-        }
+        $this->splitted = [];
 
-        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
+        foreach ($calculatedCart->getLineItems() as $item) {
+            $item->setStackable(true);
+            $this->splitted[$item->getId()] = $this->lineItemQuantitySplitter->split($item, $shouldSplit ? 1 : $item->getQuantity(), $context);
+        }
+        $packages = $this->enrichPackagesWithCartData($packages);
 
         // every scope packager can have an additional
         // list of rules that can be used to filter out items.
@@ -289,12 +295,12 @@ class PromotionCalculator
         // discount, the packages might be restructured
         // also make sure we have correct cart items in our restructured packages from the picker
         $packages = $this->advancedPicker->pickItems($discount, $packages);
-        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
+        $packages = $this->enrichPackagesWithCartData($packages);
 
         // if we have any graduation settings, make sure to reduce the items
         // that are eligible for our discount by executing our graduation resolver.
         $packages = $this->advancedFilter->filterPackages($discount, $packages, $originalPackageCount);
-        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
+        $packages = $this->enrichPackagesWithCartData($packages);
 
         $calculator = match ($discount->getType()) {
             PromotionDiscountEntity::TYPE_ABSOLUTE => new DiscountAbsoluteCalculator($this->absolutePriceCalculator),
@@ -397,24 +403,22 @@ class PromotionCalculator
     }
 
     /**
-     * @param array<string, LineItem> $splitItems
-     *
      * @throws CartException
      */
-    private function enrichPackagesWithCartData(DiscountPackageCollection $result, array $splitItems): DiscountPackageCollection
+    private function enrichPackagesWithCartData(DiscountPackageCollection $result): DiscountPackageCollection
     {
         // set the line item from the cart for each unit
         foreach ($result as $package) {
-            $cartItems = $package->getCartItems()->getElements();
+            $cartItemsForUnit = new LineItemFlatCollection();
 
-            foreach ($package->getMetaData() as $key => $item) {
-                if (!\array_key_exists($key, $cartItems)) {
-                    $cartItems[$key] = $splitItems[$item->getLineItemId()];
-                }
+            foreach ($package->getMetaData() as $item) {
+                $lineItemId = $item->getLineItemId();
+
+                $cartItemsForUnit->add($this->splitted[$lineItemId]);
             }
 
             // assign instead of add for performance reasons
-            $package->getCartItems()->assign(['elements' => $cartItems]);
+            $package->getCartItems()->assign(['elements' => $cartItemsForUnit->getElements()]);
         }
 
         return $result;

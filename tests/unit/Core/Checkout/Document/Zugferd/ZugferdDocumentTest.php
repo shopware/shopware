@@ -203,7 +203,8 @@ class ZugferdDocumentTest extends TestCase
         $this->validateDocument($document->getDomContent($order, $calculator), ['100.00', '0.00', '0.00', '100.00', '0.00', '100.00', '100.00', '0.00']);
     }
 
-    public function testBasisQuantity(): void
+    #[DataProvider('basisQuantityProvider')]
+    public function testBasisQuantity(?int $purchaseUnit, string $expectedBasisQuantity): void
     {
         $order = new OrderEntity();
         $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
@@ -212,33 +213,19 @@ class ZugferdDocumentTest extends TestCase
         $order->setItemRounding(new CashRoundingConfig(2, .01, false));
         $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
 
-        $product1 = new ProductEntity();
-        $product1->setProductNumber('123');
-        $product1->setPurchaseUnit(5);
+        $product = new ProductEntity();
+        $product->setProductNumber('123');
+        if ($purchaseUnit !== null) {
+            $product->setPurchaseUnit($purchaseUnit);
+        }
 
-        $lineItem1 = new OrderLineItemEntity();
-        $lineItem1->setId(Uuid::randomHex());
-        $lineItem1->setProduct($product1);
-        $lineItem1->setLabel('Product ' . $lineItem1->getId());
-        $lineItem1->setQuantity(1);
-        $lineItem1->setPosition(1);
-        $lineItem1->setPrice(new CalculatedPrice(
-            100.0,
-            100.0,
-            new CalculatedTaxCollection([]),
-            new TaxRuleCollection(),
-        ));
-
-        $product2 = new ProductEntity();
-        $product2->setProductNumber('234');
-
-        $lineItem2 = new OrderLineItemEntity();
-        $lineItem2->setId(Uuid::randomHex());
-        $lineItem2->setProduct($product2);
-        $lineItem2->setLabel('Product ' . $lineItem2->getId());
-        $lineItem2->setQuantity(1);
-        $lineItem2->setPosition(2);
-        $lineItem2->setPrice(new CalculatedPrice(
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId(Uuid::randomHex());
+        $lineItem->setProduct($product);
+        $lineItem->setLabel('Product ' . $lineItem->getId());
+        $lineItem->setQuantity(1);
+        $lineItem->setPosition(1);
+        $lineItem->setPrice(new CalculatedPrice(
             100.0,
             100.0,
             new CalculatedTaxCollection([]),
@@ -246,8 +233,7 @@ class ZugferdDocumentTest extends TestCase
         ));
 
         $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
-        $document->withProductLineItem($lineItem1, '');
-        $document->withProductLineItem($lineItem2, '');
+        $document->withProductLineItem($lineItem, '');
         $document->withPaidAmount(100.0);
 
         $calculator = new AmountCalculator(
@@ -258,23 +244,26 @@ class ZugferdDocumentTest extends TestCase
 
         $document = $document->getDomContent($order, $calculator);
 
-        $basisQuantity1 = $document
+        $basisQuantity = $document
             ->getElementsByTagName('SupplyChainTradeTransaction')->item(0)
             ?->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(0)
             ?->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
             ?->getElementsByTagName('NetPriceProductTradePrice')->item(0)
             ?->getElementsByTagName('BasisQuantity')->item(0);
 
-        static::assertSame('5.00', $basisQuantity1?->nodeValue);
+        static::assertSame($expectedBasisQuantity, $basisQuantity?->nodeValue);
+    }
 
-        $basisQuantity2 = $document
-            ->getElementsByTagName('SupplyChainTradeTransaction')->item(0)
-            ?->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(1)
-            ?->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
-            ?->getElementsByTagName('NetPriceProductTradePrice')->item(0)
-            ?->getElementsByTagName('BasisQuantity')->item(0);
-
-        static::assertSame('1.00', $basisQuantity2?->nodeValue);
+    public static function basisQuantityProvider(): \Generator
+    {
+        yield 'with purchase unit' => [
+            'purchaseUnit' => 5,
+            'expectedBasisQuantity' => '5.00'
+        ];
+        yield 'without purchase unit' => [
+            'purchaseUnit' => null,
+            'expectedBasisQuantity' => '1.00'
+        ];
     }
 
     /**

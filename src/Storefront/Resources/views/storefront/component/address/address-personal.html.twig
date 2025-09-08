@@ -23,7 +23,7 @@
                     {% set isCompany = true %}
                 {% endif %}
 
-                {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
+                {% if onlyCompanyRegistration and (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
                     {% set isCompany = true %}
                 {% endif %}
 
@@ -44,12 +44,10 @@
                         </option>
                     {% endif %}
 
-                    {% if not onlyCompanyRegistration %}
-                        <option value="{{ privateType }}"
-                            {% if accountType === privateType || (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
-                            {{ "account.personalTypePrivate"|trans|sw_sanitize }}
-                        </option>
-                    {% endif %}
+                    <option value="{{ privateType }}"
+                        {% if accountType === privateType || (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
+                        {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                    </option>
 
                     <option value="{{ businessType }}"
                         {% if accountType === businessType || (isCompany == true and isLoginPage == false) %} selected="selected"{% endif %}>
@@ -64,7 +62,7 @@
                         name: accountTypeFieldName,
                         options: accountTypeOptions,
                         validationRules: 'required',
-                        disabled: (onlyCompanyRegistration) ? 'true',
+                        disabled: null,
                         additionalClass: 'col-md-6 contact-type',
                         additionalSelectClass: 'contact-select',
                         attributes: {

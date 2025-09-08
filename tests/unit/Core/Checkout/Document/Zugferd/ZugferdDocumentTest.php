@@ -258,11 +258,11 @@ class ZugferdDocumentTest extends TestCase
     {
         yield 'with purchase unit' => [
             'purchaseUnit' => 5,
-            'expectedBasisQuantity' => '5.00'
+            'expectedBasisQuantity' => '5.00',
         ];
         yield 'without purchase unit' => [
             'purchaseUnit' => null,
-            'expectedBasisQuantity' => '1.00'
+            'expectedBasisQuantity' => '1.00',
         ];
     }
 

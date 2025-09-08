@@ -43,7 +43,8 @@ class ScriptController extends StorefrontController
         $this->hook($hook);
 
         $fields = new ResponseFields(
-            $request->get('includes', [])
+            $request->get('includes', []),
+            $request->get('excludes', []),
         );
 
         $response = $hook->getScriptResponse();

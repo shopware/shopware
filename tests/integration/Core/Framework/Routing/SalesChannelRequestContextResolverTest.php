@@ -62,7 +62,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $this->createTestSalesChannel();
         $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
-        $phpunit = $this;
         $currencyId = $this->getCurrencyId('USD');
 
         $request = new Request();
@@ -73,10 +72,10 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
+        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $currencyId): void {
             $eventDidRun = true;
-            $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            $phpunit->assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+            static::assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+            static::assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
         };
 
         $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
@@ -176,10 +175,10 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
+        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $currencyId): void {
             $eventDidRun = true;
-            $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            $phpunit->assertInstanceOf(AdminSalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+            static::assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+            static::assertInstanceOf(AdminSalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
         };
 
         $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);

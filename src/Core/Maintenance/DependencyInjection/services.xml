@@ -168,10 +168,12 @@
             <tag name="kernel.event_listener"/>
         </service>
 
-        <service id="Shopware\Core\Maintenance\Staging\Handler\StagingPluginHandler">
+        <service id="Shopware\Core\Maintenance\Staging\Handler\StagingExtensionHandler">
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
-            <argument>%shopware.staging.plugins.disable%</argument>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument>%shopware.staging.extensions.disable%</argument>
 
             <tag name="kernel.event_listener"/>
         </service>

@@ -847,7 +847,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('show_banner')->defaultTrue()->end()
                     ->end()
                 ->end()
-                ->arrayNode('plugins')
+                ->arrayNode('extensions')
                     ->children()
                         ->arrayNode('disable')
                             ->scalarPrototype()->end()

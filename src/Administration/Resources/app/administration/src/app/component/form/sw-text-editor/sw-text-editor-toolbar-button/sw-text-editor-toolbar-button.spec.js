@@ -32,7 +32,7 @@ async function createWrapper() {
 
 async function setupTest(wrapper, viewportWidth = 1200) {
     await flushPromises();
-    
+
     const linkButton = wrapper.find('.sw-text-editor-toolbar-button__icon');
     await linkButton.trigger('click');
     await flushPromises();
@@ -60,7 +60,7 @@ describe('components/form/sw-text-editor/sw-text-editor-toolbar-button', () => {
 
     it('should center flyout over icon when inside a modal and overflow occurs at the modal right bound', async () => {
         const wrapper = await createWrapper();
-        
+
         const modalDiv = document.createElement('div');
         modalDiv.className = 'mt-modal';
         document.body.appendChild(modalDiv);
@@ -79,7 +79,7 @@ describe('components/form/sw-text-editor/sw-text-editor-toolbar-button', () => {
 
     it('should use viewport fallback when not in a modal and overflow occurs to the right', async () => {
         const wrapper = await createWrapper();
-        
+
         const { vm, flyoutEl } = await setupTest(wrapper, 900);
 
         mockElementDimensions(vm.$el, flyoutEl, 980);
@@ -92,7 +92,7 @@ describe('components/form/sw-text-editor/sw-text-editor-toolbar-button', () => {
 
     it('should keep default offset and arrow when there is no overflow', async () => {
         const wrapper = await createWrapper();
-        
+
         const { vm, flyoutEl } = await setupTest(wrapper, 1400);
 
         mockElementDimensions(vm.$el, flyoutEl, 500, 300);

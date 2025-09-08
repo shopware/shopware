@@ -220,6 +220,11 @@ class WriteCommandQueue
             return false;
         }
 
+        // JSON update commands can not reference foreign keys (verified by DB constraints)
+        if ($command instanceof JsonUpdateCommand) {
+            return false;
+        }
+
         // get access to all foreign keys of the definition
         $fks = $foreignKeys[$entity];
 

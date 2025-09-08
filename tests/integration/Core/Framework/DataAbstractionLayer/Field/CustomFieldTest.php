@@ -22,11 +22,14 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -40,6 +43,7 @@ class CustomFieldTest extends TestCase
         tearDown as protected tearDownDefinitions;
     }
     use KernelTestBehaviour;
+    use BasicTestDataBehaviour;
 
     private Connection $connection;
 
@@ -1116,6 +1120,33 @@ class CustomFieldTest extends TestCase
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         $encoded = json_decode(json_encode($first, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame($dateTime->format(\DateTime::ATOM), $encoded['custom']['json']['date']);
+    }
+
+    public function testCustomFieldWithSameNameAsFKWorks(): void
+    {
+        $repo = $this->getContainer()->get('language.repository');
+        static::assertInstanceOf(EntityRepository::class, $repo);
+
+        $id = Uuid::randomHex();
+        $entity = [
+            'id' => $id,
+            'name' => 'test',
+            'localeId' => $this->getLocaleIdOfSystemLanguage(),
+            'translationCodeId' => $this->getLocaleIdOfSystemLanguage(),
+        ];
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $repo->update([[
+            'id' => $id,
+            'customFields' => [
+                'locale_id' => 'test that this works'
+            ]
+        ]], Context::createDefaultContext());
+
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(LanguageEntity::class, $first);
+        static::assertSame('test that this works', $first->getCustomFields()['locale_id']);
     }
 
     /**

@@ -3,10 +3,8 @@
 namespace Shopware\Administration\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\MailUpdate as MailData;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 use Symfony\Component\Filesystem\Filesystem;
@@ -18,9 +16,6 @@ use Symfony\Component\Filesystem\Filesystem;
 class Migration1757057005MailTemplate extends MigrationStep
 {
     use UpdateMailTrait;
-
-    private const GERMAN_KEY = 'Deutsch';
-    private const ENGLISH_KEY = 'English';
 
     public function getCreationTimestamp(): int
     {

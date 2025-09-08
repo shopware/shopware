@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Migration\V6_7\Migration1757057005MailTemplate;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Migration\Traits\MailUpdate;
+use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
@@ -16,6 +18,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 #[CoversClass(Migration1757057005MailTemplate::class)]
 class Migration1757057005MailTemplateTest extends TestCase
 {
+    use UpdateMailTrait;
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -25,141 +29,91 @@ class Migration1757057005MailTemplateTest extends TestCase
 
     public function testMigration(): void
     {
-        // Prepare test
+        // prepare the test
         $mailTemplateTypeId = $this->getTemplateTypeId();
-        if ($mailTemplateTypeId !== null) {
-            $this->deleteTemplateTypeTranslations($mailTemplateTypeId);
-            $this->deleteTemplateType($mailTemplateTypeId);
-        }
-
         $mailTemplateId = $this->getMailTemplateId($mailTemplateTypeId);
-        if ($mailTemplateId !== null) {
-            $this->deleteMailTemplate($mailTemplateId);
-            $this->deleteMailTemplateTranslations($mailTemplateId);
-        }
 
-        static::assertFalse($this->checkTemplateTypeExists());
-        static::assertSame(0, $this->checkTemplateTypeTranslationsExists($mailTemplateTypeId));
-        static::assertFalse($this->checkIdMailTemplateExists($mailTemplateId));
-        static::assertSame(0, $this->checkMailTemplateTranslationExists($mailTemplateId));
+        $mailTranslations = new MailUpdate(
+            'admin_sso_user_invite',
+            'en plain text',
+            '<h1>en HTML</h1>',
+            'de plain text',
+            '<h1>de HTML</h1>',
+        );
+
+        $this->updateMail($mailTranslations, $this->connection);
+
+        $translations = $this->getMailTemplateTranslations($mailTemplateId);
+        static::assertSame('en plain text', $translations->enPlain);
+        static::assertSame('<h1>en HTML</h1>', $translations->enHtml);
+        static::assertSame('de plain text', $translations->dePlain);
+        static::assertSame('<h1>de HTML</h1>', $translations->deHtml);
 
         // Start with the test
         $migration = new Migration1757057005MailTemplate();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $mailTemplateTypeId = $this->getTemplateTypeId();
-        $mailTemplateId = $this->getMailTemplateId($mailTemplateTypeId);
-
-        static::assertTrue($this->checkTemplateTypeExists());
-        static::assertSame(2, $this->checkTemplateTypeTranslationsExists($mailTemplateTypeId));
-        static::assertTrue($this->checkIdMailTemplateExists($mailTemplateId));
-        static::assertSame(2, $this->checkMailTemplateTranslationExists($mailTemplateId));
+        $translations = $this->getMailTemplateTranslations($mailTemplateId);
+        static::assertStringContainsString('To get access to the store, please either log in or sign up using the email address', $translations->enPlain);
+        static::assertStringContainsString('<p>To get access to the store, please either log in or sign up using the email address', $translations->enHtml);
+        static::assertStringContainsString('Um Zugriff auf den Shop zu erhalten, logge Dich bitte entweder ein oder registriere Dich mit der E-Mail-Adresse', $translations->dePlain);
+        static::assertStringContainsString('<p>Um Zugriff auf den Shop zu erhalten, logge Dich bitte entweder ein oder registriere Dich mit der E-Mail-Adresse', $translations->deHtml);
     }
 
-    private function checkTemplateTypeExists(): bool
+    private function getMailTemplateTranslations(string $mailTemplateId): \stdClass
     {
-        return (bool) $this->getTemplateTypeId();
-    }
+        $languages = $this->connection->fetchAllKeyValue('SELECT `name`, `id` FROM `language` WHERE `name` IN ("Deutsch", "English")');
 
-    private function checkTemplateTypeTranslationsExists(?string $mailTemplateTypeId): int
-    {
-        if ($mailTemplateTypeId === null) {
-            return 0;
-        }
-
-        return (int) $this->connection->fetchOne(
-            'SELECT COUNT(`name`) FROM `mail_template_type_translation` WHERE `mail_template_type_id` = :mailTemplateTypeId',
-            ['mailTemplateTypeId' => $mailTemplateTypeId]
-        );
-    }
-
-    private function checkIdMailTemplateExists(?string $mailTemplateId): bool
-    {
-        if ($mailTemplateId === null) {
-            return false;
-        }
-
-        return (bool) $this->connection->fetchOne(
-            'SELECT `id` FROM `mail_template` WHERE `id` = :mailTemplateId',
-            ['mailTemplateId' => $mailTemplateId]
-        );
-    }
-
-    private function checkMailTemplateTranslationExists(?string $mailTemplateId): int
-    {
-        if ($mailTemplateId === null) {
-            return 0;
-        }
-
-        return (int) $this->connection->fetchOne(
-            'SELECT COUNT(`mail_template_id`) FROM `mail_template_translation` WHERE `mail_template_id` = :mailTemplateId',
+        $translationArray = $this->connection->fetchAllAssociative(
+            'SELECT `language_id`, `content_html`, `content_plain`  FROM `mail_template_translation` WHERE `mail_template_id` = :mailTemplateId',
             [
                 'mailTemplateId' => $mailTemplateId,
             ]
         );
+
+        $translations = new \stdClass();
+        foreach ($languages as $language => $languageId) {
+            foreach ($translationArray as $translation) {
+                if ($language === 'Deutsch' && $translation['language_id'] === $languageId) {
+                    $translations->dePlain = $translation['content_plain'];
+                    $translations->deHtml = $translation['content_html'];
+                }
+
+                if ($language === 'English' && $translation['language_id'] === $languageId) {
+                    $translations->enPlain = $translation['content_plain'];
+                    $translations->enHtml = $translation['content_html'];
+                }
+            }
+        }
+
+        return $translations;
     }
 
-    private function getTemplateTypeId(): ?string
+    private function getTemplateTypeId(): string
     {
         $result = $this->connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` LIKE "admin_sso_user_invite"'
+            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = "admin_sso_user_invite"'
         );
 
         if (!$result) {
-            return null;
+            static::fail('Mail template type id is null');
         }
 
         return $result;
     }
 
-    private function getMailTemplateId(?string $mailTemplateTypeId): ?string
+    private function getMailTemplateId(string $mailTemplateTypeId): string
     {
-        if ($mailTemplateTypeId === null) {
-            return null;
-        }
-
         $result = $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId AND system_default = 1',
             ['mailTemplateTypeId' => $mailTemplateTypeId]
         );
 
         if (!$result) {
-            return null;
+            static::fail('Mail template id not found');
         }
 
         return $result;
-    }
-
-    private function deleteTemplateType(?string $templateTypeId): void
-    {
-        if ($templateTypeId === null) {
-            return;
-        }
-
-        $this->connection->delete('mail_template_type', ['id' => $templateTypeId]);
-    }
-
-    private function deleteTemplateTypeTranslations(?string $templateTypeId): void
-    {
-        if ($templateTypeId === null) {
-            return;
-        }
-
-        $this->connection->delete('mail_template_type_translation', ['mail_template_type_id' => $templateTypeId]);
-    }
-
-    private function deleteMailTemplate(?string $mailTemplateId): void
-    {
-        if ($mailTemplateId === null) {
-            return;
-        }
-
-        $this->connection->delete('mail_template', ['id' => $mailTemplateId]);
-    }
-
-    private function deleteMailTemplateTranslations(?string $mailTemplateId): void
-    {
-        $this->connection->delete('mail_template_translation', ['mail_template_id' => $mailTemplateId]);
     }
 }

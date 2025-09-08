@@ -47,6 +47,7 @@ class TranslationConfigLoader
         \assert(\is_array($plugins), 'The plugins in the translation config must be an array.');
 
         $languages = $config['languages'] ?? [];
+        $excludedLocales = $config['excluded-locales'] ?? [];
 
         $languageData = [];
         foreach ($languages as $language) {
@@ -61,7 +62,8 @@ class TranslationConfigLoader
             $plugins,
             new LanguageCollection($languageData),
             $pluginMapping,
-            $metadataUrl
+            $metadataUrl,
+            $excludedLocales,
         );
     }
 

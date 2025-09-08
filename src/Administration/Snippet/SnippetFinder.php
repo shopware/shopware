@@ -102,6 +102,10 @@ class SnippetFinder implements SnippetFinderInterface
 
     private function addInstalledPlatformPaths(SnippetPathCollection $paths, string $locale): void
     {
+        if (\in_array($locale, $this->translationConfig->excludedLocales, true)) {
+            return;
+        }
+
         $path = Path::join($this->translationLoader->getLocalePath($locale), 'Platform');
 
         if (!$this->translationReader->directoryExists($path)) {

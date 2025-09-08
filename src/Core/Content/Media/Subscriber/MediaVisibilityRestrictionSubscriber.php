@@ -90,13 +90,14 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
     {
         return match ($aggregation::class) {
             FilterAggregation::class => $this->addRestrictionToFilterAggregation($aggregation, $restrictionFilter),
-            default => $this->wrapAggregationWithRestriction($aggregation, $restrictionFilter)
+            default => $this->wrapAggregationWithRestriction($aggregation, $restrictionFilter),
         };
     }
 
     private function addRestrictionToFilterAggregation(FilterAggregation $aggregation, Filter $restrictionFilter): FilterAggregation
     {
         $aggregation->addFilters([$restrictionFilter]);
+
         return $aggregation;
     }
 
@@ -118,7 +119,6 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
                 new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
             ]),
         ]);
-
     }
 
     private function getMediaFolderRestriction(): MultiFilter
@@ -128,5 +128,4 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
             new EqualsFilter('media_folder.configuration.private', null),
         ]);
     }
-
 }

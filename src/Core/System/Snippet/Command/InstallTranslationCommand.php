@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[AsCommand(
     name: 'translation:install',
-    description: 'Downloads and installs translations from the translations GitHub repository for the specified locales or all available locales. Re-installing will update existing translations.',
+    description: 'Downloads and installs translations from the translations GitHub repository for the specified locales or all available locales. Re-installing will overwrite existing translations.',
 )]
 #[Package('discovery')]
 class InstallTranslationCommand extends Command

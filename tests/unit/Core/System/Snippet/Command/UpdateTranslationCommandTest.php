@@ -35,28 +35,28 @@ class UpdateTranslationCommandTest extends TestCase
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
-        $de = MetadataEntry::create([
-            'locale' => 'de-DE',
+        $pl = MetadataEntry::create([
+            'locale' => 'pl-PL',
             'updatedAt' => '2024-01-01T00:00:00+00:00',
             'progress' => 100,
         ]);
 
-        $gb = MetadataEntry::create([
-            'locale' => 'en-GB',
+        $es = MetadataEntry::create([
+            'locale' => 'es-ES',
             'updatedAt' => '2024-01-01T00:00:00+00:00',
             'progress' => 100,
         ]);
 
-        $metadataCollection = new MetadataCollection([$de, $gb]);
-        $metadataCollection->get('de-DE')?->markForUpdate();
-        $metadataCollection->get('en-GB')?->markForUpdate();
+        $metadataCollection = new MetadataCollection([$pl, $es]);
+        $metadataCollection->get('pl-PL')?->markForUpdate();
+        $metadataCollection->get('es-ES')?->markForUpdate();
 
         $this->initMetadataLoader($metadataCollection);
 
         $this->translationLoader->expects($this->exactly(2))
             ->method('load')
             ->willReturnCallback(function (string $locale): void {
-                $expectedLocales = ['de-DE', 'en-GB'];
+                $expectedLocales = ['pl-PL', 'es-ES'];
 
                 static::assertTrue(\in_array($locale, $expectedLocales, true));
             });
@@ -69,8 +69,8 @@ class UpdateTranslationCommandTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('1/2 -- Fetching translations for locale: de-DE', $output);
-        static::assertStringContainsString('2/2 -- Fetching translations for locale: en-GB', $output);
+        static::assertStringContainsString('1/2 -- Fetching translations for locale: pl-PL', $output);
+        static::assertStringContainsString('2/2 -- Fetching translations for locale: es-ES', $output);
         static::assertStringContainsString('Saving translation metadata...', $output);
         static::assertStringContainsString('Translation metadata saved successfully.', $output);
     }
@@ -80,19 +80,19 @@ class UpdateTranslationCommandTest extends TestCase
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
-        $de = MetadataEntry::create([
-            'locale' => 'de-DE',
+        $pl = MetadataEntry::create([
+            'locale' => 'pl-PL',
             'updatedAt' => '2024-01-01T00:00:00+00:00',
             'progress' => 100,
         ]);
 
-        $gb = MetadataEntry::create([
-            'locale' => 'en-GB',
+        $es = MetadataEntry::create([
+            'locale' => 'es-ES',
             'updatedAt' => '2024-01-01T00:00:00+00:00',
             'progress' => 100,
         ]);
 
-        $metadataCollection = new MetadataCollection([$de, $gb]);
+        $metadataCollection = new MetadataCollection([$pl, $es]);
 
         $this->initMetadataLoader($metadataCollection);
 
@@ -114,14 +114,14 @@ class UpdateTranslationCommandTest extends TestCase
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
-        $de = MetadataEntry::create([
-            'locale' => 'de-DE',
+        $pl = MetadataEntry::create([
+            'locale' => 'pl-PL',
             'updatedAt' => '2024-01-01T00:00:00+00:00',
             'progress' => 100,
         ]);
 
-        $gb = MetadataEntry::create([
-            'locale' => 'en-GB',
+        $es = MetadataEntry::create([
+            'locale' => 'es-ES',
             'updatedAt' => '2024-01-01T00:00:00+00:00',
             'progress' => 100,
         ]);
@@ -132,14 +132,14 @@ class UpdateTranslationCommandTest extends TestCase
             'progress' => 100,
         ]);
 
-        $metadataCollection = new MetadataCollection([$de, $gb, $fr]);
-        $metadataCollection->get('de-DE')?->markForUpdate();
+        $metadataCollection = new MetadataCollection([$pl, $es, $fr]);
+        $metadataCollection->get('pl-PL')?->markForUpdate();
 
         $this->initMetadataLoader($metadataCollection);
 
         $this->translationLoader->expects($this->once())
             ->method('load')
-            ->with('de-DE');
+            ->with('pl-PL');
 
         $this->metadataLoader->expects($this->once())
             ->method('save')
@@ -149,8 +149,8 @@ class UpdateTranslationCommandTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('The following locales are already up to date and will be skipped: en-GB, fr-FR', $output);
-        static::assertStringContainsString('1/1 -- Fetching translations for locale: de-DE', $output);
+        static::assertStringContainsString('The following locales are already up to date and will be skipped: es-ES, fr-FR', $output);
+        static::assertStringContainsString('1/1 -- Fetching translations for locale: pl-PL', $output);
         static::assertStringContainsString('Saving translation metadata...', $output);
         static::assertStringContainsString('Translation metadata saved successfully.', $output);
     }

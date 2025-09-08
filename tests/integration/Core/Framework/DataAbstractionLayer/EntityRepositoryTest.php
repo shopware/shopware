@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
@@ -1583,6 +1584,21 @@ class EntityRepositoryTest extends TestCase
             ],
         ], Context::createDefaultContext());
     }
+
+    public function testFilterOnManyToManyField(): void
+    {
+       $criteria = new Criteria();
+       $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+           new EqualsAnyFilter('currencies.id', [Defaults::CURRENCY, Uuid::randomHex()]),
+           new EqualsFilter('currencies.id', null)
+       ]));
+
+       $repo = $this->getContainer()->get('sales_channel.repository');
+
+       $result = $repo->search($criteria, Context::createDefaultContext());
+       static::assertCount(2, $result);
+    }
+
 
     /**
      * @param array<string, string> $properties

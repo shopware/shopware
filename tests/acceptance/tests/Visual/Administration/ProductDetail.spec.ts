@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport, replaceElements } from '@shopware-ag/acceptance-test-suite';
+import { setViewport, replaceElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -32,7 +32,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,
         ]);
-        await expect(AdminProductDetail.contentView).toHaveScreenshot('Product-Detail-General-Tab.png');
+        await assertScreenshot(AdminProductDetail.page, 'Product-Detail-General-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page Specifications tab.', async () => {
@@ -43,7 +43,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,
         ]);
-        await expect(AdminProductDetail.contentView).toHaveScreenshot('Product-Detail-Specifications-Tab.png');
+        await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Specifications-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page Advanced Pricing tab.', async () => {
@@ -54,7 +54,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,
         ]);
-        await expect(AdminProductDetail.contentView).toHaveScreenshot('Product-Detail-Advanced-Pricing-Tab.png');
+        await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Advanced-Pricing-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page Variants tab.', async () => {
@@ -65,7 +65,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,
         ]);
-        await expect(AdminProductDetail.contentView).toHaveScreenshot('Product-Detail-Variants-Tab.png');
+        await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Variants-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page Layout tab.', async () => {
@@ -76,7 +76,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,
         ]);
-        await expect(AdminProductDetail.contentView).toHaveScreenshot('Product-Detail-Layout-Tab.png');
+        await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Layout-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page SEO tab.', async () => {
@@ -87,7 +87,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,
         ]);
-        await expect(AdminProductDetail.contentView).toHaveScreenshot('Product-Detail-SEO-Tab.png');
+        await assertScreenshot(AdminProductDetail.page, 'Product-Detail-SEO-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page Cross Selling tab.', async () => {
@@ -98,7 +98,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,
         ]);
-        await expect(AdminProductDetail.contentView).toHaveScreenshot('Product-Detail-Cross-Selling-Tab.png');
+        await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Cross-Selling-Tab.png');
     });
 
     await test.step('Creates a screenshot of the product detail page Reviews tab.', async () => {
@@ -109,6 +109,6 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await replaceElements(AdminProductDetail.page, [
             AdminProductDetail.productHeadline,
         ]);
-        await expect(AdminProductDetail.contentView).toHaveScreenshot('Product-Detail-Reviews-Tab.png');
+        await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Reviews-Tab.png');
     });
 });

@@ -15,10 +15,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -756,5 +758,246 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertInstanceOf(SalesChannelContext::class, $requestContext);
         static::assertNull($requestContext->getCustomer());
         static::assertNull($requestContext->getCustomerId());
+    }
+
+    /**
+     * @param array<string, mixed> $requestResponseOptions
+     * @param array<string, mixed> $subscriberConfig
+     */
+    #[DataProvider('storeApiCachingProvider')]
+    public function testStoreApiCaching(
+        array $requestResponseOptions,
+        array $subscriberConfig,
+        string $expectedCacheControl,
+    ): void {
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            $this->createMock(CartService::class),
+            $subscriberConfig['defaultTtl'] ?? 100,
+            true,
+            new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
+            $subscriberConfig['staleWhileRevalidate'] ?? null,
+            $subscriberConfig['staleIfError'] ?? null,
+            new EventDispatcher()
+        );
+
+        $request = new Request();
+        $response = new Response();
+        foreach ($requestResponseOptions as $key => $value) {
+            if ($key === '_method') {
+                $request->setMethod($value);
+            } elseif ($key === 'responseOriginalCacheControl') {
+                $response->headers->set('cache-control', $requestResponseOptions['responseOriginalCacheControl']);
+            } else {
+                $request->attributes->set($key, $value);
+            }
+        }
+
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        static::assertSame($expectedCacheControl, $response->headers->get('cache-control'));
+        static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
+    }
+
+    /**
+     * @return iterable<array{
+     *      requestResponseOptions: array<string, mixed>,
+     *      subscriberConfig: array<string, mixed>,
+     *      expectedCacheControl: string
+     *  }>
+     */
+    public static function storeApiCachingProvider(): iterable
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $baseRequestAttributes = [
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        ];
+
+        yield 'Store API with defaults' => [
+            'requestResponseOptions' => $baseRequestAttributes,
+            'subscriberConfig' => [],
+            'expectedCacheControl' => 'public, s-maxage=100',
+        ];
+
+        yield 'Store API with custom subscriber config options' => [
+            'requestResponseOptions' => $baseRequestAttributes,
+            'subscriberConfig' => ['defaultTtl' => 200, 'staleWhileRevalidate' => '5', 'staleIfError' => '6'],
+            'expectedCacheControl' => 'public, s-maxage=200, stale-if-error=6, stale-while-revalidate=5',
+        ];
+
+        yield 'Store API custom endpoint maxAge has priority' => [
+            'requestResponseOptions' => array_merge($baseRequestAttributes, [
+                PlatformRequest::ATTRIBUTE_HTTP_CACHE => ['maxAge' => 300],
+            ]),
+            'subscriberConfig' => ['defaultTtl' => 200],
+            'expectedCacheControl' => 'public, s-maxage=300',
+        ];
+
+        yield 'Store API preconfigured no-cache directive removed' => [
+            'requestResponseOptions' => array_merge($baseRequestAttributes, [
+                'responseOriginalCacheControl' => 'no-cache, private',
+            ]),
+            'subscriberConfig' => [],
+            'expectedCacheControl' => 'public, s-maxage=100',
+        ];
+
+        yield 'Store API POST is not cached' => [
+            'requestResponseOptions' => array_merge($baseRequestAttributes, ['_method' => Request::METHOD_POST]),
+            'subscriberConfig' => ['staleWhileRevalidate' => '5', 'staleIfError' => '6'],
+            'expectedCacheControl' => 'no-cache, private',
+        ];
+
+        yield 'Store API endpoints without cache attributes are not cached' => [
+            'requestResponseOptions' => [
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => null,
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+            ],
+            'subscriberConfig' => [],
+            'expectedCacheControl' => 'no-cache, private',
+        ];
+    }
+
+    #[DisabledFeatures(['STORE_API_CACHE'])]
+    public function testStoreApiBehavesLikeStorefrontWithoutFeatureFlag(): void
+    {
+        $cartService = $this->createMock(CartService::class);
+        $cart = new Cart('test');
+        $cart->add(new LineItem('test', 'test', 'test', 1));
+        $cartService->method('getCart')->willReturn($cart);
+
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            $cartService,
+            100,
+            true,
+            new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
+            '5',
+            '6',
+            new EventDispatcher()
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
+
+        // Test Store API request without feature flag - should behave like Storefront
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request->attributes->set('_route', 'store-api.test'); // Set route to allow normal flow
+
+        $response = new Response();
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        // Without feature flag, Store API should behave like Storefront and set cookies
+        static::assertSame('public, s-maxage=100, stale-if-error=6, stale-while-revalidate=5', $response->headers->get('cache-control'));
+        static::assertNotEmpty($response->headers->getCookies(), 'Without feature flag, Store API should set cookies like Storefront');
+
+        // Verify the exact cookies that should be set
+        $cookies = $response->headers->getCookies();
+        $cookieNames = array_map(fn (Cookie $cookie) => $cookie->getName(), $cookies);
+
+        static::assertContains(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, $cookieNames, 'Should set system state cookie');
+        static::assertContains(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookieNames, 'Should set context cache cookie');
+    }
+
+    public function testStoreApiCachingIgnoresStatesAndCookies(): void
+    {
+        $cartService = $this->createMock(CartService::class);
+        $cart = new Cart('test');
+        $cart->add(new LineItem('test', 'test', 'test', 1));
+        $cartService->method('getCart')->willReturn($cart);
+
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            $cartService,
+            100,
+            true,
+            new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
+            null,
+            null,
+            new EventDispatcher()
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
+
+        // Test Store API with states that would normally prevent caching
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, [
+            'states' => ['cart-filled', 'logged-in'],
+        ]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled,logged-in');
+
+        $response = new Response();
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        // Store API should cache regardless of states and not set any cookies
+        static::assertSame('public, s-maxage=100', $response->headers->get('cache-control'));
+        static::assertEmpty($response->headers->getCookies(), 'Store API should not set state cookies even with filled cart and logged-in customer');
+    }
+
+    public function testStoreApiCachingIgnoresContextCacheCookies(): void
+    {
+        $cartService = $this->createMock(CartService::class);
+        $cart = new Cart('test');
+        $cart->add(new LineItem('test', 'test', 'test', 1));
+        $cartService->method('getCart')->willReturn($cart);
+
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            $cartService,
+            100,
+            true,
+            new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
+            null,
+            null,
+            new EventDispatcher()
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
+
+        // Test Store API with existing context cache cookie
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'existing-hash');
+
+        $response = new Response();
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        // Store API should cache and not set/update context cache cookies
+        static::assertSame('public, s-maxage=100', $response->headers->get('cache-control'));
+        static::assertEmpty($response->headers->getCookies(), 'Store API should not set context cache cookies');
     }
 }

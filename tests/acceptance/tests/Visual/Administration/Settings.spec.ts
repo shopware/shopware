@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport } from '@shopware-ag/acceptance-test-suite';
+import { setViewport, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Administration settings page', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -11,6 +11,6 @@ test('Visual: Administration settings page', { tag: '@Visual' }, async ({
         await setViewport(AdminSettingsListing.page, {
             waitForSelector: AdminSettingsListing.shopwareServicesLink,
         });
-        await expect(AdminSettingsListing.contentView).toHaveScreenshot('Settings-Overview.png');
+        await assertScreenshot(AdminSettingsListing.page, 'Settings-Overview.png');
     });
 });

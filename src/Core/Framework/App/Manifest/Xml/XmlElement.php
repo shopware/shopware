@@ -26,6 +26,7 @@ abstract class XmlElement extends Struct
         $this->validateRequiredElements($data, static::REQUIRED_FIELDS);
 
         foreach ($data as $property => $value) {
+            // @phpstan-ignore property.dynamicName (The XML element is abstract dynamic so we allow all dynamic properties)
             $this->$property = $value;
         }
     }

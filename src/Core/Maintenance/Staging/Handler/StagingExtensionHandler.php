@@ -38,7 +38,7 @@ readonly class StagingExtensionHandler
             return;
         }
 
-        $names = array_values(array_unique(array_filter(array_map(static fn ($v) => trim((string) $v), $this->extensionsToDisable))));
+        $names = array_values(array_unique(array_filter(array_map(static fn ($v) => trim($v), $this->extensionsToDisable))));
         if ($names === []) {
             return;
         }

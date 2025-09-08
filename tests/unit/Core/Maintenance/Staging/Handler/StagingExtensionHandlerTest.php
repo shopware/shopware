@@ -60,12 +60,14 @@ class StagingExtensionHandlerTest extends TestCase
         $lifecycle = $this->createMock(PluginLifecycleService::class);
         $lifecycle->expects($this->never())->method('deactivatePlugin');
 
+        $activeAppId = Uuid::randomHex();
+
         $appRepo = $this->createMock(EntityRepository::class);
         $appRepo->expects($this->once())
             ->method('search')
-            ->willReturnCallback(function (Criteria $criteria, Context $passedContext): EntitySearchResult {
+            ->willReturnCallback(function (Criteria $criteria, Context $passedContext) use ($activeAppId): EntitySearchResult {
                 $active = new AppEntity();
-                $active->setId(Uuid::randomHex());
+                $active->setId($activeAppId);
                 $active->setName('ActiveApp');
                 $active->setActive(true);
 
@@ -83,7 +85,7 @@ class StagingExtensionHandlerTest extends TestCase
         $appState->expects($this->once())
             ->method('deactivateApp')
             ->with(
-                static::callback(static fn (string $id): bool => \is_string($id) && $id !== ''),
+                static::callback(static fn (string $id): bool => $id === $activeAppId),
                 static::isInstanceOf(Context::class)
             );
 

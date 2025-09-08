@@ -86,7 +86,7 @@ class ShopConfigurationController extends InstallerController
             // Filter out default languages that are already installed
             $defaultLanguages = ['en-GB', 'de-DE'];
             $selectedLanguages = array_filter($selectedLanguages, function($locale) use ($defaultLanguages) {
-                return !in_array($locale, $defaultLanguages);
+                return !in_array($locale, $defaultLanguages, true);
             });
 
             $selectedLanguages = array_unique($selectedLanguages);

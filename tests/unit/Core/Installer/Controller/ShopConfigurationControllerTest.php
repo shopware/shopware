@@ -15,6 +15,7 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -45,6 +46,8 @@ class ShopConfigurationControllerTest extends TestCase
 
     private MockObject&AdminConfigurationService $adminConfigService;
 
+    private MockObject&TranslationConfigLoader $translationConfigLoader;
+
     private ShopConfigurationController $controller;
 
     /**
@@ -65,6 +68,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->shopConfigService = $this->createMock(ShopConfigurationService::class);
         $this->adminConfigService = $this->createMock(AdminConfigurationService::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
+        $this->translationConfigLoader = $this->createMock(TranslationConfigLoader::class);
 
         $this->controller = new ShopConfigurationController(
             $connectionFactory,
@@ -72,6 +76,7 @@ class ShopConfigurationControllerTest extends TestCase
             $this->shopConfigService,
             $this->adminConfigService,
             $this->translator,
+            $this->translationConfigLoader,
             [
                 'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                 'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
@@ -106,6 +111,7 @@ class ShopConfigurationControllerTest extends TestCase
             ]);
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translationConfigLoader->method('load')->willReturn((object) ['languages' => []]);
 
         $this->twig->expects($this->once())->method('render')
             ->with(
@@ -123,10 +129,12 @@ class ShopConfigurationControllerTest extends TestCase
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
                     ],
+                    'allAvailableLanguages' => [],
                     'parameters' => [
                         'config_shop_language' => $expectedShopLanguage,
                         'config_shop_currency' => $expectedPresetCurrency,
                     ],
+                    'selectedLanguages' => [],
                 ])
             )
             ->willReturn('config');
@@ -252,6 +260,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translationConfigLoader->method('load')->willReturn((object) ['languages' => []]);
 
         $this->twig->expects($this->once())->method('render')
             ->with(
@@ -269,10 +278,12 @@ class ShopConfigurationControllerTest extends TestCase
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
                     ],
+                    'allAvailableLanguages' => [],
                     'parameters' => [
                         'config_shop_language' => 'de-DE',
                         'config_shop_currency' => 'EUR',
                     ],
+                    'selectedLanguages' => [],
                 ])
             )
             ->willReturn('config');
@@ -321,6 +332,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $translations[$key]);
+        $this->translationConfigLoader->method('load')->willReturn((object) ['languages' => []]);
 
         $this->twig->expects($this->once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
             static::assertSame('@Installer/installer/shop-configuration.html.twig', $view);

@@ -18,7 +18,7 @@ class PagingListingProcessor extends AbstractListingProcessor
      */
     public function __construct(
         private readonly SystemConfigService $config,
-        private readonly ?int $maxLimit = null
+        private readonly int $maxLimit = 100
     ) {
     }
 
@@ -56,26 +56,21 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
     {
-        $limit = $request->query->getInt('limit');
-
-        if ($request->isMethod(Request::METHOD_POST)) {
-            $limit = $request->request->getInt('limit', $limit);
-        }
+        $limit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
+        $limit = $request->request->has('limit') ? $request->request->getInt('limit') : $limit;
 
         // request > criteria > config
         if ($limit > 0) {
-            return $this->maxLimit !== null ? min($limit, $this->maxLimit) : $limit;
+            return min($limit, $this->maxLimit);
         }
 
         if ($criteria->getLimit() !== null && $criteria->getLimit() > 0) {
-            return $this->maxLimit !== null ? min($criteria->getLimit(), $this->maxLimit) : $criteria->getLimit();
+            return min($criteria->getLimit(), $this->maxLimit);
         }
 
         $limit = $this->config->getInt('core.listing.productsPerPage', $context->getSalesChannelId());
 
-        $limit = $this->maxLimit !== null ? min($limit, $this->maxLimit) : $limit;
-
-        return $limit <= 0 ? 24 : $limit;
+        return $limit <= 0 ? 24 : min($limit, $this->maxLimit);
     }
 
     private function getPage(Request $request): ?int

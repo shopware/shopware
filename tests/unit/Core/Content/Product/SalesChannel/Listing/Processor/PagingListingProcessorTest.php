@@ -74,9 +74,9 @@ class PagingListingProcessorTest extends TestCase
 
         yield 'Criteria with limit & page, post request with page (should use request body parameter over query parameter and criteria)' => [
             'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
-            'request' => new Request(['p' => 2], ['p' => 3]),
+            'request' => new Request(['p' => 2, 'limit' => 10], ['p' => 3, 'limit' => 25]),
             'page' => 3,
-            'limit' => 50,
+            'limit' => 25,
         ];
 
         yield 'Criteria with limit and max limit given' => [
@@ -113,7 +113,7 @@ class PagingListingProcessorTest extends TestCase
             'criteria' => new Criteria(),
             'request' => new Request(['p' => 1, 'limit' => 200]),
             'page' => 1,
-            'limit' => 200,
+            'limit' => 100,
         ];
 
         yield 'Empty criteria, request with limit and max limit given' => [
@@ -128,12 +128,13 @@ class PagingListingProcessorTest extends TestCase
             'criteria' => (new Criteria())->setLimit(50)->setOffset(50),
             'request' => new Request(['p' => 1, 'limit' => 200]),
             'page' => 1, // page should be taken from request
-            'limit' => 200, // limit should be taken from request
+            'limit' => 200, // limit should be taken from request,
+            'maxLimit' => 300,
         ];
     }
 
     #[DataProvider('provideTestPrepare')]
-    public function testPrepare(Criteria $criteria, Request $request, int $page, int $limit, ?int $maxLimit = null): void
+    public function testPrepare(Criteria $criteria, Request $request, int $page, int $limit, int $maxLimit = 100): void
     {
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -147,11 +148,6 @@ class PagingListingProcessorTest extends TestCase
         $processor->prepare($request, $criteria, $context);
 
         static::assertSame(($page - 1) * $limit, $criteria->getOffset());
-
-        if ($maxLimit) {
-            $limit = min($limit, $maxLimit);
-        }
-
         static::assertSame($limit, $criteria->getLimit());
     }
 

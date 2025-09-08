@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Custo
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -38,12 +37,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class CustomFieldTest extends TestCase
 {
+    use BasicTestDataBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour {
         tearDown as protected tearDownDefinitions;
     }
     use KernelTestBehaviour;
-    use BasicTestDataBehaviour;
 
     private Connection $connection;
 
@@ -1139,14 +1138,13 @@ class CustomFieldTest extends TestCase
         $repo->update([[
             'id' => $id,
             'customFields' => [
-                'locale_id' => 'test that this works'
-            ]
+                'locale_id' => 'test that this works',
+            ],
         ]], Context::createDefaultContext());
-
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertInstanceOf(LanguageEntity::class, $first);
-        static::assertSame('test that this works', $first->getCustomFields()['locale_id']);
+        static::assertSame('test that this works', $first->getCustomFields()['locale_id'] ?? '');
     }
 
     /**

@@ -1015,7 +1015,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function getMediaFolderName(string $entity): string
     {
         $capitalizedEntityParts = array_map(
-            static fn ($part) => ucfirst((string) $part),
+            static fn ($part) => ucfirst($part),
             explode('_', $entity)
         );
 

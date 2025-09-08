@@ -181,7 +181,7 @@ class CmsController extends StorefrontController
         $configurator = $result->getConfigurator();
 
         $reviewTotal = 0;
-        if ($this->systemConfigService->getBool('core.listing.showReview')) {
+        if ($this->systemConfigService->getBool('core.listing.showReview', $context->getSalesChannelId())) {
             $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
             $reviewTotal = $reviews->getTotal();
         }

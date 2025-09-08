@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -219,7 +218,6 @@ abstract class StorefrontController extends AbstractController
             $flat = array_merge($flat, $messages);
         }
 
-        /** @var array<string, Error[]> $groups */
         foreach ($groups as $type => $errorGroup) {
             foreach ($errorGroup as $error) {
                 $parameters = [];

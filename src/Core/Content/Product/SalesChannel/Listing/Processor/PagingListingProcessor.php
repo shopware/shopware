@@ -16,8 +16,10 @@ class PagingListingProcessor extends AbstractListingProcessor
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $config)
-    {
+    public function __construct(
+        private readonly SystemConfigService $config,
+        private readonly ?int $maxLimit = null
+    ) {
     }
 
     public function getDecorated(): AbstractListingProcessor
@@ -27,7 +29,7 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $limit = $this->getLimit($criteria, $context);
+        $limit = $this->getLimit($criteria, $context, $request);
 
         $page = $this->getPage($request);
         if ($page !== null) {
@@ -48,17 +50,30 @@ class PagingListingProcessor extends AbstractListingProcessor
             $result->setPage($page);
         }
 
-        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context);
+        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context, $request);
         $result->setLimit($limit);
     }
 
-    private function getLimit(Criteria $criteria, SalesChannelContext $context): int
+    private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
     {
+        $limit = $request->query->getInt('limit');
+
+        if ($request->isMethod(Request::METHOD_POST)) {
+            $limit = $request->request->getInt('limit', $limit);
+        }
+
+        // request > criteria > config
+        if ($limit > 0) {
+            return $this->maxLimit !== null ? min($limit, $this->maxLimit) : $limit;
+        }
+
         if ($criteria->getLimit() !== null && $criteria->getLimit() > 0) {
-            return $criteria->getLimit();
+            return $this->maxLimit !== null ? min($criteria->getLimit(), $this->maxLimit) : $criteria->getLimit();
         }
 
         $limit = $this->config->getInt('core.listing.productsPerPage', $context->getSalesChannelId());
+
+        $limit = $this->maxLimit !== null ? min($limit, $this->maxLimit) : $limit;
 
         return $limit <= 0 ? 24 : $limit;
     }

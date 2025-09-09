@@ -14,7 +14,7 @@
         },
         "welcome": {
             "modalTitle": "Welcome",
-            "headlineWelcome": "Welcome to the Shopware 6 administration",
+            "headlineWelcome": "Welcome to the Shopware 6 Administration",
             "messageWelcome":  "This wizard guides you through the setup and tries to be helpful with the most important settings."
         },
         "dataImport": {

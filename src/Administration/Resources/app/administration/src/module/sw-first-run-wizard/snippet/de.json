@@ -14,7 +14,7 @@
         },
         "welcome": {
             "modalTitle": "Willkommen",
-            "headlineWelcome": "Willkommen in der Administration von Shopware 6",
+            "headlineWelcome": "Willkommen in der Shopware 6 Administration",
             "messageWelcome": "Dieser Einrichtungsassistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration."
         },
         "dataImport": {

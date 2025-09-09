@@ -207,6 +207,47 @@ PRIMARY KEY (template_id, language_id)
 
 **Purpose**: Provides multi-language support for templates and elements.
 
+### ContentElementType
+
+The type registry entity that provides type validation, version management, and extensibility hooks.
+
+**Table: `content_element_type`**
+```sql
+id                  BINARY(16)      PRIMARY KEY
+type_key            VARCHAR(255)    NOT NULL -- 'product-box', 'heading', etc.
+category            ENUM            NOT NULL -- 'container', 'static', 'entity', 'service'
+version             VARCHAR(20)     NOT NULL -- Semantic version (e.g., '2.0.0')
+is_live             BOOLEAN         DEFAULT FALSE -- Indicates the production version
+created_at          DATETIME        NOT NULL
+updated_at          DATETIME
+
+UNIQUE INDEX idx_type_version (type_key, version)
+UNIQUE INDEX idx_one_live_per_type (type_key) WHERE is_live = true
+```
+
+**Purpose**: Serves as a type registry and version management system for content elements. While elements store their type as a string for backward compatibility, this entity provides:
+
+1. **Type Validation**: Database-level foreign key constraints ensure only registered types are used
+2. **Version Management**: Multiple versions of the same element type with controlled rollout via `is_live`
+3. **Type Discovery**: Queryable registry for admin UIs and third-party integrations
+4. **Plugin Extensibility**: Apps/plugins can register custom element types dynamically
+5. **Performance Optimization**: Enables pre-query type discovery for optimized association loading
+
+**Version Management Example**:
+```sql
+-- Multiple versions can coexist with controlled rollout
+content_element_type:
+├── type_key: 'product-box', version: '1.0.0', is_live: false  -- Legacy
+├── type_key: 'product-box', version: '2.0.0', is_live: true   -- Production
+├── type_key: 'product-box', version: '3.0.0', is_live: false  -- Testing
+```
+
+**Category Classification**:
+- `container`: Layout elements with no data (grid, section, column)
+- `static`: Content stored in config field (heading, text, button)
+- `entity`: Elements with DAL associations (product-box, category-nav)
+- `service`: Runtime-loaded elements (cart, wishlist, user-menu)
+
 ## Extension Table Design Principle
 
 **Critical Design Rule**: Extension tables contain ONLY foreign key relationships. All configuration and display options belong in the base element's `config` JSON field.
@@ -505,7 +546,6 @@ classDiagram
 | Relationship | Cardinality | Notes |
 |-------------|------------|-------|
 | Template → Elements | 1:N | Each template has multiple root elements |
-| Element → Element (sections) | 1:N | Section elements contain child elements |
 | Element → Children | 1:N | Elements can have multiple children |
 | Element → Extension | 1:0..1 | Element may have type-specific extension |
 | Extension → Domain Entity | N:1 | Many elements can reference same entity |
@@ -676,6 +716,49 @@ class ContentElementOrderDefinition extends EntityDefinition
 }
 ```
 
+### ContentElementType Definition
+
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content;
+
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+
+class ContentElementTypeDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'content_element_type';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    public function getEntityClass(): string
+    {
+        return ContentElementTypeEntity::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new StringField('type_key', 'typeKey'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('category', 'category'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('version', 'version'))->addFlags(new ApiAware(), new Required()),
+            (new BoolField('is_live', 'isLive'))->addFlags(new ApiAware()),
+        ]);
+    }
+}
+```
+
 ### Customer Element Extension Definition
 
 ```php
@@ -719,40 +802,3 @@ class ContentElementCustomerDefinition extends EntityDefinition
     }
 }
 ```
-
-## Implementation Best Practices
-
-### Entity Loading Best Practices
-
-1. **Use DAL Associations**: Leverage the power of Shopware's DAL to load related entities efficiently
-2. **Batch Loading**: Always batch load entities of the same type to minimize queries
-3. **Lazy Loading**: Mark elements that don't need immediate loading with the `lazy_load` flag
-4. **Proper Indexing**: Ensure database indexes on `parent_id`, `template_id`, and `type` fields
-
-### Extension Table Pattern
-
-When adding new element types that reference existing Shopware entities:
-
-1. Create an extension table with only the foreign key relationship
-2. Store all configuration in the base element's `config` field
-3. Use DAL associations to load the referenced entity
-4. Keep the extension table minimal - it's only for type safety and associations
-
-### Performance Considerations
-
-- The self-referential hierarchy allows unlimited nesting with a single table
-- Extension tables provide type safety without data duplication
-- The `config` JSON field provides flexibility without schema migrations
-- Position-based ordering ensures consistent element sequence
-
-## Summary
-
-The Content System entity architecture provides:
-
-- **Flexible Hierarchy**: Self-referential elements support unlimited nesting
-- **Type Safety**: Extension tables provide proper DAL associations
-- **Performance**: Optimized for batch loading and minimal queries
-- **Extensibility**: New element types can be added without breaking existing code
-- **Compatibility**: Seamless integration with existing Shopware entities
-
-This architecture balances the need for flexibility in content management with the performance and type safety requirements of a modern e-commerce platform.

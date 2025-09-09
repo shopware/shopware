@@ -140,28 +140,60 @@ These load data from services AFTER the primary entity resolution phase.
 
 ## Hydration Process
 
-The hydration process transforms database entities into API-ready response structures through three distinct phases:
+The hydration process transforms database entities into API-ready response structures through three distinct phases, with optional type discovery for optimized association loading:
+
+### Phase 0: Type Discovery (Optional Optimization)
+
+When using the content element type entity, perform type discovery for optimized association loading:
+
+```php
+// Lightweight query to discover element types
+$types = $connection->fetchFirstColumn(
+    'SELECT DISTINCT type FROM content_element WHERE template_id = :id',
+    ['id' => $templateId]
+);
+
+// Load type entities for metadata
+$typeEntities = $typeRepository->findByKeys($types);
+
+// Fire event for custom association requirements
+$event = new ContentElementTypesDiscoveredEvent($types, $typeEntities, $templateId);
+$eventDispatcher->dispatch($event);
+```
 
 ### Phase 1: Entity Resolution (DAL Associations)
 
 Load elements with their entity associations from the database.
 
 ```php
-// Single query loads entire element hierarchy with associations
+// Build criteria with default associations
 $criteria = new Criteria();
 $criteria->addFilter(new EqualsFilter('templateId', $templateId));
 $criteria->addAssociation('children'); // Recursive loading
 $criteria->addSorting(new FieldSorting('position'));
 
-// Add associations based on element types present
-$criteria->addAssociation('productElement.product.prices.currency');
-$criteria->addAssociation('productElement.product.manufacturer');
-$criteria->addAssociation('productElement.product.media');
-$criteria->addAssociation('categoryElement.category.children');
-$criteria->addAssociation('mediaElement.media');
-$criteria->addAssociation('manufacturerElement.manufacturer');
-$criteria->addAssociation('orderElement.order.lineItems');
-$criteria->addAssociation('customerElement.customer.addresses');
+// Default associations that cover most use cases
+$defaultAssociations = [
+    'productElement.product.prices.currency',
+    'productElement.product.manufacturer',
+    'productElement.product.media',
+    'categoryElement.category.children',
+    'mediaElement.media',
+    'manufacturerElement.manufacturer',
+    'orderElement.order.lineItems',
+    'customerElement.customer.addresses',
+];
+
+foreach ($defaultAssociations as $association) {
+    $criteria->addAssociation($association);
+}
+
+// Fire event for plugins to add custom associations
+$event = new ContentElementAssociationEvent($criteria, $templateId, $context);
+$eventDispatcher->dispatch($event);
+
+// Execute optimized query
+$elements = $elementRepository->search($criteria, $context);
 ```
 
 ### Phase 2: Static Data Processing
@@ -481,6 +513,82 @@ class ContentHydrationService
             ],
             default => $cartData
         };
+    }
+}
+```
+
+## Event-Based Association Extension
+
+The system provides events for extending association loading without modifying core code:
+
+```php
+/**
+ * Event fired before loading elements, allowing custom associations
+ */
+class ContentElementAssociationEvent extends Event
+{
+    public function __construct(
+        private Criteria $criteria,
+        private string $templateId,
+        private SalesChannelContext $context
+    ) {}
+    
+    public function getCriteria(): Criteria {
+        return $this->criteria;
+    }
+    
+    public function addAssociation(string $association): void {
+        $this->criteria->addAssociation($association);
+    }
+    
+    public function getTemplateId(): string {
+        return $this->templateId;
+    }
+}
+
+/**
+ * Event fired after type discovery, includes type metadata
+ */
+class ContentElementTypesDiscoveredEvent extends Event
+{
+    public function __construct(
+        private array $types,
+        private ContentElementTypeCollection $typeEntities,
+        private string $templateId
+    ) {}
+    
+    public function getTypes(): array {
+        return $this->types;
+    }
+    
+    public function getTypeEntities(): ContentElementTypeCollection {
+        return $this->typeEntities;
+    }
+}
+```
+
+### Plugin Extension Example
+
+```php
+class CustomElementSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array {
+        return [
+            ContentElementAssociationEvent::class => 'onAssociation',
+            ContentElementTypesDiscoveredEvent::class => 'onTypesDiscovered',
+        ];
+    }
+    
+    public function onAssociation(ContentElementAssociationEvent $event): void {
+        // Add associations for custom element types
+        $event->addAssociation('customElement.customEntity.relation');
+    }
+    
+    public function onTypesDiscovered(ContentElementTypesDiscoveredEvent $event): void {
+        // React to discovered types
+        if (in_array('custom-widget', $event->getTypes(), true)) {
+            // Perform custom logic based on type presence
+        }
     }
 }
 ```

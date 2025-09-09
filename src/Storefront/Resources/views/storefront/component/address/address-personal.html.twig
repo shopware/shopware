@@ -73,14 +73,6 @@
                         },
                     } %}
                 {% endblock %}
-
-                {% if onlyCompanyRegistration %}
-                    {# This is rendered on the profile edit page if the customer registered via a custom commercial registration form. #}
-                    {# The selection field is then disabled and the account type is set to "business". #}
-                    <input type="hidden"
-                           name="{{ accountTypeFieldName }}"
-                           value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
-                {% endif %}
             </div>
         {% elseif not hideCustomerTypeSelect %}
             {# This case applies to custom registration forms with the "Company signup form" config enabled. #}

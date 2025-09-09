@@ -83,6 +83,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         if ($criteria === null) {
             return;
         }
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $considerInheritance = $message->getContext()->considerInheritance();
         $message->getContext()->setConsiderInheritance(true);

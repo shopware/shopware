@@ -67,7 +67,14 @@ class ActiveAppsLoader implements ResetInterface
             ], $data);
         } catch (\Throwable $e) {
             if (\defined('\STDERR') && !EnvironmentHelper::getVariable('TESTS_RUNNING')) {
-                fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);
+                $isPlatform = (bool) getenv('PLATFORM_PROJECT') || (bool) getenv('PLATFORM_APPLICATION');
+                $isBuildPhase = (getenv('PLATFORM_APPLICATION_NAME') && !getenv('PLATFORM_ENVIRONMENT') && !getenv('PLATFORM_RELATIONSHIPS'));
+
+                if ($isPlatform && $isBuildPhase) {
+                    fwrite(\STDERR, 'Apps not loaded from DB during Platform.sh build (DB services are unavailable by design). Falling back to local app assets.' . \PHP_EOL);
+                } else {
+                    fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);
+                }
             }
 
             return array_map(fn (Manifest $manifest) => [

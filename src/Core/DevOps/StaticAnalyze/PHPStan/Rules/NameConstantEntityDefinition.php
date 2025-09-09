@@ -58,11 +58,10 @@ class NameConstantEntityDefinition implements Rule
             return [];
         }
 
-        // Do not check attribute entities and custom entities due to their generic nature
+        // Do not check attribute and custom entities due to their generic nature
         if (str_starts_with($namespace, 'Shopware\Core\Framework\DataAbstractionLayer\Attribute')) {
             return [];
         }
-
         if (str_starts_with($namespace, 'Shopware\Core\System\CustomEntity\Schema\Dynamic')) {
             return [];
         }

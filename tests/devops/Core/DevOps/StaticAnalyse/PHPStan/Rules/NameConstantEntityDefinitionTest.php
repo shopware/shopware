@@ -83,6 +83,22 @@ class NameConstantEntityDefinitionTest extends RuleTestCase
         );
     }
 
+    public function testConstantIsNotPresentButIsInTestNamespace(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/NameConstantEntityDefinition/no-constant-in-test.php'],
+            []
+        );
+    }
+
+    public function testConstantIsNotPresentButIsAbstractEntityDefinition(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/NameConstantEntityDefinition/no-constant-in-abstract-entity-definition.php'],
+            []
+        );
+    }
+
     protected function getRule(): Rule
     {
         return new NameConstantEntityDefinition(

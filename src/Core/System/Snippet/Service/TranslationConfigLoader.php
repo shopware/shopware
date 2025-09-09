@@ -22,6 +22,10 @@ use Symfony\Component\Yaml\Yaml;
 #[Package('discovery')]
 class TranslationConfigLoader
 {
+    private const REPOSITORY_URL = 'repository-url';
+
+    private const METADATA_URL = 'metadata-url';
+
     public function __construct(
         private readonly Filesystem $configReader,
     ) {
@@ -31,38 +35,8 @@ class TranslationConfigLoader
     {
         $config = $this->parseConfig();
 
-        $urlString = $config['repository-url'];
-
-        if (!\is_string($urlString)) {
-            $exception = new \InvalidArgumentException('The repository-url in the translation config must be a string.');
-            try {
-                $encodedUrl = json_encode($urlString, \JSON_THROW_ON_ERROR);
-            } catch (\JsonException $e) {
-                $encodedUrl = 'Unable to convert repository-url to string.';
-                $exception = $e;
-            }
-
-            throw SnippetException::invalidRepositoryUrl($encodedUrl, $exception);
-        }
-        if (\mb_strlen(\trim($urlString)) < 1) {
-            throw SnippetException::invalidRepositoryUrl(
-                $urlString,
-                new \InvalidArgumentException('The repository-url in the translation config must not be empty.')
-            );
-        }
-
-        try {
-            $url = new Uri($urlString);
-        } catch (MalformedUriException $e) {
-            throw SnippetException::invalidRepositoryUrl($urlString, $e);
-        }
-
-        if (empty($url->getScheme()) || empty($url->getHost())) {
-            throw SnippetException::invalidRepositoryUrl(
-                $urlString,
-                new MalformedUriException('The repository-url must contain a schema and a host.')
-            );
-        }
+        $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
+        $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
 
         /** @var list<string> $locales */
         $locales = $config['locales'];
@@ -81,7 +55,14 @@ class TranslationConfigLoader
 
         $pluginMapping = $this->getPluginMapping($config['plugin-mapping'] ?? []);
 
-        return new TranslationConfig($url, $locales, $plugins, new LanguageCollection($languageData), $pluginMapping);
+        return new TranslationConfig(
+            $repositoryUrl,
+            $locales,
+            $plugins,
+            new LanguageCollection($languageData),
+            $pluginMapping,
+            $metadataUrl
+        );
     }
 
     protected function getRelativeConfigurationPath(): string
@@ -137,5 +118,53 @@ class TranslationConfigLoader
         }
 
         return $pluginMappings;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function getUrlFromConfigByType(string $type, array $config): Uri
+    {
+        $url = $config[$type];
+
+        if (!\is_string($url)) {
+            $exception = new \InvalidArgumentException(\sprintf('"%s" in the translation config must be a string.', $type));
+
+            try {
+                $encodedUrl = json_encode($url, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                $encodedUrl = \sprintf('Unable to convert %s to string.', $type);
+                $exception = $e;
+            }
+
+            throw SnippetException::invalidRepositoryUrl($encodedUrl, $exception);
+        }
+
+        return $this->getValidatedUrl($url, $type);
+    }
+
+    private function getValidatedUrl(string $urlString, string $type): Uri
+    {
+        if (\mb_strlen(\trim($urlString)) < 1) {
+            throw SnippetException::invalidRepositoryUrl(
+                $urlString,
+                new \InvalidArgumentException(\sprintf('"%s" in the translation config must not be empty.', $type))
+            );
+        }
+
+        try {
+            $url = new Uri($urlString);
+        } catch (MalformedUriException $e) {
+            throw SnippetException::invalidRepositoryUrl($urlString, $e);
+        }
+
+        if (empty($url->getScheme()) || empty($url->getHost())) {
+            throw SnippetException::invalidRepositoryUrl(
+                $urlString,
+                new MalformedUriException(\sprintf('"%s" must contain a schema and a host.', $type))
+            );
+        }
+
+        return $url;
     }
 }

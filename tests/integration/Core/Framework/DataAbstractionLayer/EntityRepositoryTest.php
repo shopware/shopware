@@ -1587,18 +1587,17 @@ class EntityRepositoryTest extends TestCase
 
     public function testFilterOnManyToManyField(): void
     {
-       $criteria = new Criteria();
-       $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-           new EqualsAnyFilter('currencies.id', [Defaults::CURRENCY, Uuid::randomHex()]),
-           new EqualsFilter('currencies.id', null)
-       ]));
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsAnyFilter('currencies.id', [Defaults::CURRENCY, Uuid::randomHex()]),
+            new EqualsFilter('currencies.id', null),
+        ]));
 
-       $repo = $this->getContainer()->get('sales_channel.repository');
+        $repo = $this->getContainer()->get('sales_channel.repository');
 
-       $result = $repo->search($criteria, Context::createDefaultContext());
-       static::assertCount(2, $result);
+        $result = $repo->search($criteria, Context::createDefaultContext());
+        static::assertCount(2, $result);
     }
-
 
     /**
      * @param array<string, string> $properties

@@ -495,7 +495,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->createVersion('test', Context::createDefaultContext());
     }
@@ -533,7 +533,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->merge('test', Context::createDefaultContext());
     }

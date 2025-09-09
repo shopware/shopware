@@ -30,6 +30,7 @@ class QueryParameterAllowList
             'grouping[]',
             'total-count-mode',
             'includes',
+            'excludes',
         ];
 
         return [

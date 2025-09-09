@@ -198,7 +198,7 @@ class ThemeLifecycleService
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
         $criteria->setLimit(1);
 
-        /** @var array<string> $defaultFolderIds */
+        /** @var list<string> $defaultFolderIds */
         $defaultFolderIds = $this->mediaFolderRepository->searchIds($criteria, $context)->getIds();
 
         return \count($defaultFolderIds) === 1 ? $defaultFolderIds[0] : null;

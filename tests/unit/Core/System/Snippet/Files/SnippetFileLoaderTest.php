@@ -514,7 +514,7 @@ class SnippetFileLoaderTest extends TestCase
         static::assertCount(0, $collection);
     }
 
-    public function testLoadSkipsExcludedPlatformLocalesButLoadsFromPlugins(): void
+    public function testLoadSkipsExcludedLocales(): void
     {
         $loader = $this->getTranslationLoader();
         $this->createSnippetFixtures($this->filesystem, $loader);
@@ -555,28 +555,7 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
 
         $files = $collection->getElements();
-        static::assertContainsOnlyInstancesOf(RemoteSnippetFile::class, $files);
-
-        $platformPath = Path::join($loader->getLocalePath('es-ES'), 'Platform');
-        $platformPath = mb_ltrim($platformPath, '/\\');
-        $activePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
-        $activePluginPath = mb_ltrim($activePluginPath, '/\\');
-        $actualPaths = array_map(static fn (RemoteSnippetFile $file) => $file->getPath(), $files);
-
-        $expectedPaths = [
-            Path::join($activePluginPath, 'storefront.json'),
-            Path::join($activePluginPath, 'messages.es-ES.base.json'),
-            Path::join($activePluginPath, 'administration.json'),
-        ];
-
-        sort($actualPaths);
-        sort($expectedPaths);
-
-        static::assertSame($expectedPaths, $actualPaths);
-
-        static::assertFalse(\in_array(Path::join($platformPath, 'storefront.json'), $actualPaths, true));
-        static::assertFalse(\in_array(Path::join($platformPath, 'messages.es-ES.base.json'), $actualPaths, true));
-        static::assertFalse(\in_array(Path::join($platformPath, 'administration.json'), $actualPaths, true));
+        static::assertEmpty($files);
     }
 
     public function testLoadCoreSnippetsSkipsInvalidPathStructure(): void

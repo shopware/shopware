@@ -370,7 +370,7 @@ class SnippetFinderTest extends TestCase
         ], $snippets);
     }
 
-    public function testFinderSkipsExcludedShopwareLocalesButLoadsFromPlugins(): void
+    public function testFinderSkipsExcludedLocales(): void
     {
         $config = new TranslationConfig(
             new Uri('http://localhost:8000'),
@@ -392,10 +392,7 @@ class SnippetFinderTest extends TestCase
         );
 
         $snippets = $snippetFinder->findSnippets('es-ES');
-
-        static::assertEquals([
-            'plugin_administration' => 'Plugin admin',
-        ], $snippets);
+        static::assertEmpty($snippets);
     }
 
     /**

@@ -22,11 +22,10 @@ use Symfony\Component\Finder\Finder;
 #[Package('discovery')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
+    public const SCOPE_PLATFORM = 'Platform';
+
+    public const SCOPE_PLUGINS = 'Plugins';
     private const ADMINISTRATION_BUNDLE_NAME = 'Administration';
-
-    private const SCOPE_PLATFORM = 'Platform';
-
-    private const SCOPE_PLUGINS = 'Plugins';
 
     /**
      * @internal
@@ -68,7 +67,10 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             $exclude
         );
 
-        $excludedPathsRegexp[] = $this->getExcludedLocalesPatternFromConfig($localesBasePath);
+        $excludedLocalesPattern = $this->getExcludedLocalesPatternFromConfig($localesBasePath);
+        if ($excludedLocalesPattern !== null) {
+            $excludedPathsRegexp[] = $excludedLocalesPattern;
+        }
 
         $translationFiles = $this->translationReader
             ->listContents($localesBasePath, true)
@@ -241,16 +243,16 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         return $authors[$bundle::class] ?? '';
     }
 
-    private function getExcludedLocalesPatternFromConfig(string $path): string
+    private function getExcludedLocalesPatternFromConfig(string $path): ?string
     {
         $excludedLocales = $this->config->excludedLocales;
 
         if (empty($excludedLocales)) {
-            return '#^$#'; // Pattern that matches nothing
+            return null;
         }
 
         $localePattern = implode('|', $excludedLocales);
 
-        return '#^/?' . Path::join($path, '(' . $localePattern . ')', self::SCOPE_PLATFORM) . '.*$#';
+        return '#^/?' . Path::join($path, '(' . $localePattern . ')', '*') . '.*$#';
     }
 }

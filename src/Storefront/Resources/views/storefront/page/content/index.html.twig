@@ -3,7 +3,7 @@
 {# @var page \Shopware\Storefront\Page\LandingPage\LandingPage|\Shopware\Storefront\Page\CategoryPage\CategoryPage #}
 {% block base_main_inner %}
 
-    {% if feature('STOREFRONT_COMPONENTS') %}
+    {% if feature('STOREFRONT_COMPONENTS') and cmsPage %}
         <twig:Sw:Content:Page :page="cmsPage" />
     {% else %}
 

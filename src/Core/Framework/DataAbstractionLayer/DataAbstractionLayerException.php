@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;

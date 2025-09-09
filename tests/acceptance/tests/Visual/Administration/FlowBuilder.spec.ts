@@ -1,6 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
-import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
-import { setViewport, replaceElements, hideElements, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
+import { test, setViewport, replaceElements, hideElements, assertScreenshot, FlowConfig } from '@fixtures/AcceptanceTest';
 
 test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
     ShopAdmin,

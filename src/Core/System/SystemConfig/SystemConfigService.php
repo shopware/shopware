@@ -244,10 +244,10 @@ class SystemConfigService implements ResetInterface
             }
         }
 
-        $event = new BeforeSystemConfigMultipleChangedEvent($values, $salesChannelId);
-        $this->dispatcher->dispatch($event);
+        $beforeChangedEvent = new BeforeSystemConfigMultipleChangedEvent($values, $salesChannelId);
+        $this->dispatcher->dispatch($beforeChangedEvent);
 
-        $values = $event->getConfig();
+        $values = $beforeChangedEvent->getConfig();
 
         $where = $salesChannelId ? 'sales_channel_id = :salesChannelId' : 'sales_channel_id IS NULL';
 

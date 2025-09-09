@@ -210,7 +210,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $languageMapping = $this->getLanguageMapping();
 
-        /** @var array<string, string> $item */
         foreach ($data as $id => $item) {
             /** @var array<int|string, array<string, string|null>> $translation */
             $translation = $item['translation'] ?? [];
@@ -226,6 +225,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 context: $context
             );
 
+            /** @var array<string, string> $item */
             $visibilities = ElasticsearchIndexingUtils::parseJson($item, 'visibilities');
 
             $visibilitiesFlatten = [];
@@ -244,6 +244,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 continue;
             }
 
+            /** @var array<string, string> $item */
             $documents[$id] = [
                 'id' => $id,
                 'autoIncrement' => (float) $item['autoIncrement'],
@@ -451,7 +452,6 @@ SQL;
             ], 'categories'),
         ];
 
-        /** @var string $translationSql */
         $translationSql = str_replace(array_keys($translationMapping), array_values($translationMapping), $translationSql);
 
         foreach ($languages as $languageId) {

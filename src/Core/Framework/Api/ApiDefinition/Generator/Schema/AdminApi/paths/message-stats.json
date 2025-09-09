@@ -7,8 +7,12 @@
     "paths": {
         "\/_info\/message-stats.json": {
             "get": {
-                "summary": "Get statistics for recently processed messages in the message queue",
+                "summary": "Get statistics message queue",
+                "description": "Get statistics for recently processed messages in the message queue",
                 "operationId": "getMessageStats",
+                "tags": [
+                  "System Info & Health Check"
+                ],
                 "responses": {
                     "200": {
                         "description": "Statistics received",

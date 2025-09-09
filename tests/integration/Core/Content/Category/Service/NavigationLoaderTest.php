@@ -27,6 +27,9 @@ class NavigationLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $repository;
 
     private NavigationLoaderInterface $navigationLoader;

@@ -1,12 +1,12 @@
-# Shopware CMS v2 Element Hydration and Response Building
+# Shopware Content System Element Hydration and Response Building
 
 ## Overview
 
-This document describes how CMS v2 entities are loaded from the database, transformed, and built into API responses. While the [Entity Architecture](./shopware-cms-v2-entity-architecture.md) defines database structure, this document focuses on runtime data loading, transformation, and response composition.
+This document describes how Content System entities are loaded from the database, transformed, and built into API responses. While the [Entity Architecture](./shopware-cms-v2-entity-architecture.md) defines database structure, this document focuses on runtime data loading, transformation, and response composition.
 
 ## Three-Tier Element Classification
 
-Elements in CMS v2 are classified into three categories based on their data source and loading pattern:
+Elements in the Content System are classified into three categories based on their data source and loading pattern:
 
 ### 1. Container/Layout Elements (Pure Structure)
 
@@ -51,7 +51,7 @@ These elements contain their data directly in the `config` field. No entity reso
 ```
 
 **Characteristics:**
-- All data stored in `cms_v2_element.config` JSON field
+- All data stored in `content_element.config` JSON field
 - No foreign key relationships
 - No additional queries during hydration
 - Data immediately available from element entity
@@ -121,13 +121,13 @@ These load data from services AFTER the primary entity resolution phase.
 | html | config field | ❌ | Immediate | Full cache |
 | icon | config field | ❌ | Immediate | Full cache |
 | **Entity Elements** | | | | |
-| product-box | Product entity | ✅ cms_v2_element_product | Phase 1 | Context cache |
-| product-listing | Product entity | ✅ cms_v2_element_product | Phase 1 | Context cache |
-| category-nav | Category entity | ✅ cms_v2_element_category | Phase 1 | Context cache |
-| media-image | Media entity | ✅ cms_v2_element_media | Phase 1 | Full cache |
-| manufacturer-logo | Manufacturer entity | ✅ cms_v2_element_manufacturer | Phase 1 | Full cache |
-| order-details | Order entity | ✅ cms_v2_element_order | Phase 1 | User cache |
-| customer-profile | Customer entity | ✅ cms_v2_element_customer | Phase 1 | User cache |
+| product-box | Product entity | ✅ content_element_product | Phase 1 | Context cache |
+| product-listing | Product entity | ✅ content_element_product | Phase 1 | Context cache |
+| category-nav | Category entity | ✅ content_element_category | Phase 1 | Context cache |
+| media-image | Media entity | ✅ content_element_media | Phase 1 | Full cache |
+| manufacturer-logo | Manufacturer entity | ✅ content_element_manufacturer | Phase 1 | Full cache |
+| order-details | Order entity | ✅ content_element_order | Phase 1 | User cache |
+| customer-profile | Customer entity | ✅ content_element_customer | Phase 1 | User cache |
 | **Service Elements** | | | | |
 | cart-full | CartService | ❌ | Phase 3 | No cache |
 | cart-mini | CartService | ❌ | Phase 3 | No cache |
@@ -169,7 +169,7 @@ $criteria->addAssociation('customerElement.customer.addresses');
 Format static elements that have their data in the config field.
 
 ```php
-private function processStaticElements(CmsV2ElementCollection $elements): void
+private function processStaticElements(ContentElementCollection $elements): void
 {
     foreach ($elements as $element) {
         if ($this->isStaticElement($element->getType())) {
@@ -192,7 +192,7 @@ private function processStaticElements(CmsV2ElementCollection $elements): void
 Load data from services for elements that require runtime information.
 
 ```php
-private function loadServiceData(CmsV2ElementCollection $elements, SalesChannelContext $context): void
+private function loadServiceData(ContentElementCollection $elements, SalesChannelContext $context): void
 {
     foreach ($elements as $element) {
         switch ($element->getType()) {
@@ -217,7 +217,7 @@ private function loadServiceData(CmsV2ElementCollection $elements, SalesChannelC
     }
 }
 
-private function loadCartData(CmsV2ElementEntity $element, SalesChannelContext $context): void
+private function loadCartData(ContentElementEntity $element, SalesChannelContext $context): void
 {
     $cart = $this->cartService->getCart($context->getToken(), $context);
     
@@ -267,9 +267,9 @@ Different element types require different caching strategies:
 Collect all required entity IDs before loading to minimize queries:
 
 ```php
-class CmsV2ElementLoader
+class ContentElementLoader
 {
-    public function load(CmsV2ElementCollection $elements, SalesChannelContext $context): void
+    public function load(ContentElementCollection $elements, SalesChannelContext $context): void
     {
         // Step 1: Collect all entity IDs by type
         $productIds = [];
@@ -351,16 +351,16 @@ class CartElementProcessor
 ## Hydration Service Implementation
 
 ```php
-namespace Shopware\Core\Content\Cms\V2\Service;
+namespace Shopware\Core\Content\Service;
 
-use Shopware\Core\Content\Cms\V2\Entity\CmsV2ElementCollection;
-use Shopware\Core\Content\Cms\V2\Entity\CmsV2ElementEntity;
+use Shopware\Core\Content\Entity\ContentElementCollection;
+use Shopware\Core\Content\Entity\ContentElementEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class CmsV2HydrationService
+class ContentHydrationService
 {
     public function __construct(
         private readonly EntityRepository $elementRepository,
@@ -372,7 +372,7 @@ class CmsV2HydrationService
     /**
      * Three-phase hydration process
      */
-    public function hydrate(string $templateId, SalesChannelContext $context): CmsV2ElementCollection
+    public function hydrate(string $templateId, SalesChannelContext $context): ContentElementCollection
     {
         // Phase 1: Load elements with entity associations
         $elements = $this->loadElements($templateId, $context->getContext());
@@ -386,7 +386,7 @@ class CmsV2HydrationService
         return $elements;
     }
     
-    private function loadElements(string $templateId, Context $context): CmsV2ElementCollection
+    private function loadElements(string $templateId, Context $context): ContentElementCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('templateId', $templateId));
@@ -405,7 +405,7 @@ class CmsV2HydrationService
         return $this->elementRepository->search($criteria, $context)->getEntities();
     }
     
-    private function processStaticElements(CmsV2ElementCollection $elements): void
+    private function processStaticElements(ContentElementCollection $elements): void
     {
         foreach ($elements as $element) {
             if ($this->isStaticElement($element->getType())) {
@@ -418,7 +418,7 @@ class CmsV2HydrationService
         }
     }
     
-    private function loadServiceData(CmsV2ElementCollection $elements, SalesChannelContext $context): void
+    private function loadServiceData(ContentElementCollection $elements, SalesChannelContext $context): void
     {
         // Collect all service-loaded elements
         $cartElements = [];
@@ -488,18 +488,18 @@ class CmsV2HydrationService
 ## Response Builder Implementation
 
 ```php
-namespace Shopware\Core\Content\Cms\V2\Service;
+namespace Shopware\Core\Content\Service;
 
 /**
- * Runtime service that builds the CMS v2 API response.
+ * Runtime service that builds the Content System API response.
  * This is NOT a database entity - it composes the response at runtime
  * using loaded templates and the current request context.
  */
-class CmsV2ResponseBuilder
+class ContentResponseBuilder
 {
     public function __construct(
         private readonly SeoGenerator $seoGenerator,
-        private readonly CmsV2HydrationService $hydrationService
+        private readonly ContentHydrationService $hydrationService
     ) {}
     
     /**
@@ -507,8 +507,8 @@ class CmsV2ResponseBuilder
      * No data is persisted - this is pure response composition.
      */
     public function build(
-        CmsV2TemplateEntity $storeTemplate,
-        CmsV2TemplateEntity $pageTemplate,
+        ContentTemplateEntity $storeTemplate,
+        ContentTemplateEntity $pageTemplate,
         SalesChannelContext $context
     ): array {
         // Hydrate all elements
@@ -531,8 +531,8 @@ class CmsV2ResponseBuilder
     }
     
     private function buildTemplate(
-        CmsV2TemplateEntity $template,
-        CmsV2ElementCollection $elements,
+        ContentTemplateEntity $template,
+        ContentElementCollection $elements,
         SalesChannelContext $context
     ): array {
         return [
@@ -546,7 +546,7 @@ class CmsV2ResponseBuilder
         ];
     }
     
-    private function buildElements(?CmsV2ElementCollection $elements): array
+    private function buildElements(?ContentElementCollection $elements): array
     {
         if (!$elements) {
             return [];
@@ -594,7 +594,7 @@ class CmsV2ResponseBuilder
         return $result;
     }
     
-    private function buildElementData(CmsV2ElementEntity $element): array
+    private function buildElementData(ContentElementEntity $element): array
     {
         // Start with config data
         $data = $element->getConfig() ?? [];
@@ -631,7 +631,7 @@ class CmsV2ResponseBuilder
         return $data;
     }
     
-    private function groupElementsBySlot(CmsV2ElementCollection $elements): array
+    private function groupElementsBySlot(ContentElementCollection $elements): array
     {
         $slots = [];
         
@@ -650,7 +650,7 @@ class CmsV2ResponseBuilder
     /**
      * Generates SEO metadata at runtime based on template patterns and entity data.
      */
-    private function generateSeo(CmsV2TemplateEntity $template, SalesChannelContext $context): array
+    private function generateSeo(ContentTemplateEntity $template, SalesChannelContext $context): array
     {
         $seoPatterns = $template->getData()['seoPatterns'] ?? [];
         $primaryEntity = $this->getPrimaryEntity($template, $context);
@@ -749,5 +749,5 @@ class SeoGenerator
 
 ## See Also
 
-- [CMS v2 Entity Architecture](./shopware-cms-v2-entity-architecture.md) - Database structure and entity definitions
-- [CMS v2 API Response Structure](./shopware-cms-v2.md) - API response format and structure
+- [Content System Entity Architecture](./shopware-cms-v2-entity-architecture.md) - Database structure and entity definitions
+- [Content System API Response Structure](./shopware-cms-v2.md) - API response format and structure

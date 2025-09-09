@@ -1,8 +1,8 @@
-# Shopware CMS v2 Entity Architecture
+# Shopware Content System Entity Architecture
 
 ## Entity Architecture Overview
 
-The CMS v2 entity architecture implements a hybrid approach that balances type safety, performance, and maintainability. The design leverages Shopware's Data Abstraction Layer (DAL) while introducing new patterns optimized for hierarchical content structures.
+The Content System entity architecture implements a hybrid approach that balances type safety, performance, and maintainability. The design leverages Shopware's Data Abstraction Layer (DAL) while introducing new patterns optimized for hierarchical content structures.
 
 ### Design Principles
 
@@ -13,17 +13,17 @@ The CMS v2 entity architecture implements a hybrid approach that balances type s
 5. **Compatibility**: Integrates seamlessly with existing Shopware entities (Product, Category, Media, etc.)
 
 The entity structure follows a **Base + Extension** pattern where:
-- A base `cms_v2_element` table handles hierarchy and common properties
+- A base `content_element` table handles hierarchy and common properties
 - Type-specific extension tables provide proper associations to domain entities
 - This approach enables native DAL associations while maintaining flexibility
 
 ## Core Entities
 
-### CmsV2Template
+### ContentTemplate
 
 The template entity represents both store-wide templates and page-specific templates.
 
-**Table: `cms_v2_template`**
+**Table: `content_template`**
 ```sql
 id                  BINARY(16)      PRIMARY KEY
 type                VARCHAR(255)    NOT NULL -- 'store-template', 'category-listing', 'product-detail', etc.
@@ -48,17 +48,17 @@ public function getTemplateType(): string {
 }
 ```
 
-### CmsV2Element
+### ContentElement
 
-The core element entity handles the hierarchical structure of all CMS elements, including section containers.
+The core element entity handles the hierarchical structure of all content elements, including section containers.
 
-**Table: `cms_v2_element`**
+**Table: `content_element`**
 ```sql
 id                  BINARY(16)      PRIMARY KEY
 type                VARCHAR(255)    NOT NULL -- 'product-box', 'heading', 'button', 'grid', etc.
 version             VARCHAR(20)     NOT NULL -- Element type version
-template_id         BINARY(16)      FOREIGN KEY -> cms_v2_template
-parent_id           BINARY(16)      FOREIGN KEY -> cms_v2_element (self-referential)
+template_id         BINARY(16)      FOREIGN KEY -> content_template
+parent_id           BINARY(16)      FOREIGN KEY -> content_element (self-referential)
 slot_name           VARCHAR(255)    NULL -- Named slot if element fills a parent slot
 position            INT             NOT NULL -- Order within parent/slot
 config              JSON            -- All static configuration, styling, and attributes
@@ -96,13 +96,13 @@ INDEX idx_type (type)
 - Elements WITHOUT `slot_name` (but with `parent_id`): Become sequential content in the parent's `elements` array
 - Both use the `position` field for ordering within their respective containers
 
-### CmsV2ElementProduct
+### ContentElementProduct
 
 Extension table for product-related elements.
 
-**Table: `cms_v2_element_product`**
+**Table: `content_element_product`**
 ```sql
-element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> cms_v2_element
+element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> content_element
 product_id          BINARY(16)      NOT NULL, FOREIGN KEY -> product
 
 INDEX idx_product (product_id)
@@ -110,13 +110,13 @@ INDEX idx_product (product_id)
 
 **Purpose**: Provides foreign key relationship to enable DAL associations for product hydration. Display options (show_buy_button, show_wishlist, etc.) are stored in the base element's `config` JSON field.
 
-### CmsV2ElementCategory
+### ContentElementCategory
 
 Extension table for category-related elements.
 
-**Table: `cms_v2_element_category`**
+**Table: `content_element_category`**
 ```sql
-element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> cms_v2_element
+element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> content_element
 category_id         BINARY(16)      NOT NULL, FOREIGN KEY -> category
 
 INDEX idx_category (category_id)
@@ -124,13 +124,13 @@ INDEX idx_category (category_id)
 
 **Purpose**: Provides foreign key relationship to enable DAL associations for category hydration. Display options (show_description, max_depth, etc.) are stored in the base element's `config` JSON field.
 
-### CmsV2ElementMedia
+### ContentElementMedia
 
 Extension table for media-related elements.
 
-**Table: `cms_v2_element_media`**
+**Table: `content_element_media`**
 ```sql
-element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> cms_v2_element
+element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> content_element
 media_id            BINARY(16)      NOT NULL, FOREIGN KEY -> media
 
 INDEX idx_media (media_id)
@@ -138,13 +138,13 @@ INDEX idx_media (media_id)
 
 **Purpose**: Provides foreign key relationship to enable DAL associations for media hydration. Display options (alt_text, link_url, etc.) are stored in the base element's `config` JSON field.
 
-### CmsV2ElementManufacturer
+### ContentElementManufacturer
 
 Extension table for manufacturer/brand elements.
 
-**Table: `cms_v2_element_manufacturer`**
+**Table: `content_element_manufacturer`**
 ```sql
-element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> cms_v2_element
+element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> content_element
 manufacturer_id     BINARY(16)      NOT NULL, FOREIGN KEY -> product_manufacturer
 
 INDEX idx_manufacturer (manufacturer_id)
@@ -152,13 +152,13 @@ INDEX idx_manufacturer (manufacturer_id)
 
 **Purpose**: Provides foreign key relationship to enable DAL associations for manufacturer hydration. Display options (show_logo, show_description, etc.) are stored in the base element's `config` JSON field.
 
-### CmsV2ElementOrder
+### ContentElementOrder
 
 Extension table for order-related elements.
 
-**Table: `cms_v2_element_order`**
+**Table: `content_element_order`**
 ```sql
-element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> cms_v2_element
+element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> content_element
 order_id            BINARY(16)      NOT NULL, FOREIGN KEY -> order
 
 INDEX idx_order (order_id)
@@ -166,13 +166,13 @@ INDEX idx_order (order_id)
 
 **Purpose**: Provides foreign key relationship to enable DAL associations for order hydration. Display options (showItems, showShipping, showStatus, etc.) are stored in the base element's `config` JSON field. Used for order confirmation pages, order history, and order tracking widgets.
 
-### CmsV2ElementCustomer
+### ContentElementCustomer
 
 Extension table for customer-related elements.
 
-**Table: `cms_v2_element_customer`**
+**Table: `content_element_customer`**
 ```sql
-element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> cms_v2_element
+element_id          BINARY(16)      PRIMARY KEY, FOREIGN KEY -> content_element
 customer_id         BINARY(16)      NOT NULL, FOREIGN KEY -> customer
 
 INDEX idx_customer (customer_id)
@@ -182,9 +182,9 @@ INDEX idx_customer (customer_id)
 
 ### Translation Entities
 
-**Table: `cms_v2_element_translation`**
+**Table: `content_element_translation`**
 ```sql
-element_id          BINARY(16)      NOT NULL, FOREIGN KEY -> cms_v2_element
+element_id          BINARY(16)      NOT NULL, FOREIGN KEY -> content_element
 language_id         BINARY(16)      NOT NULL, FOREIGN KEY -> language
 config              JSON            -- Translated configuration
 created_at          DATETIME        NOT NULL
@@ -193,9 +193,9 @@ updated_at          DATETIME
 PRIMARY KEY (element_id, language_id)
 ```
 
-**Table: `cms_v2_template_translation`**
+**Table: `content_template_translation`**
 ```sql
-template_id         BINARY(16)      NOT NULL, FOREIGN KEY -> cms_v2_template
+template_id         BINARY(16)      NOT NULL, FOREIGN KEY -> content_template
 language_id         BINARY(16)      NOT NULL, FOREIGN KEY -> language
 name                VARCHAR(255)    
 data                JSON            -- Translated data
@@ -217,7 +217,7 @@ This separation serves distinct purposes:
 
 Example of proper separation:
 ```json
-// In cms_v2_element.config (JSON field)
+// In content_element.config (JSON field)
 {
   "showBuyButton": true,
   "showWishlist": true,
@@ -229,9 +229,9 @@ Example of proper separation:
 ```
 
 ```sql
--- In cms_v2_element_product (extension table)
+-- In content_element_product (extension table)
 -- ONLY contains foreign key relationship
-element_id -> cms_v2_element.id
+element_id -> content_element.id
 product_id -> product.id
 ```
 
@@ -254,12 +254,12 @@ The dynamic data reference system enables efficient loading of domain entities (
 ### Reference Flow
 
 ```
-CmsV2Element (base)
+ContentElement (base)
     ├── config: {showBuyButton: true, displayType: 'basic-box'}
     └── type: 'product-box'
          ↓
-CmsV2ElementProduct (extension)
-    ├── element_id → CmsV2Element.id
+ContentElementProduct (extension)
+    ├── element_id → ContentElement.id
     └── product_id → Product.id (with full DAL association)
 ```
 
@@ -267,19 +267,19 @@ CmsV2ElementProduct (extension)
 
 | Element Type | Extension Table | Referenced Entity | Use Case |
 |-------------|-----------------|-------------------|----------|
-| `product-box` | `cms_v2_element_product` | Product | Product display |
-| `product-listing` | `cms_v2_element_product` | Product (multiple) | Product grids |
-| `category-navigation` | `cms_v2_element_category` | Category | Navigation menus |
-| `category-header` | `cms_v2_element_category` | Category | Category pages |
-| `image` | `cms_v2_element_media` | Media | Images, videos |
-| `manufacturer-logo` | `cms_v2_element_manufacturer` | ProductManufacturer | Brand displays |
-| `order-details` | `cms_v2_element_order` | Order | Order confirmation page |
-| `order-history` | `cms_v2_element_order` | Order (multiple) | Customer account order list |
-| `order-status` | `cms_v2_element_order` | Order | Order tracking widget |
-| `customer-profile` | `cms_v2_element_customer` | Customer | Customer profile display |
-| `customer-addresses` | `cms_v2_element_customer` | Customer | Address book management |
-| `customer-dashboard` | `cms_v2_element_customer` | Customer | Account dashboard widgets |
-| `customer-wishlist` | `cms_v2_element_customer` | Customer | Wishlist display |
+| `product-box` | `content_element_product` | Product | Product display |
+| `product-listing` | `content_element_product` | Product (multiple) | Product grids |
+| `category-navigation` | `content_element_category` | Category | Navigation menus |
+| `category-header` | `content_element_category` | Category | Category pages |
+| `image` | `content_element_media` | Media | Images, videos |
+| `manufacturer-logo` | `content_element_manufacturer` | ProductManufacturer | Brand displays |
+| `order-details` | `content_element_order` | Order | Order confirmation page |
+| `order-history` | `content_element_order` | Order (multiple) | Customer account order list |
+| `order-status` | `content_element_order` | Order | Order tracking widget |
+| `customer-profile` | `content_element_customer` | Customer | Customer profile display |
+| `customer-addresses` | `content_element_customer` | Customer | Address book management |
+| `customer-dashboard` | `content_element_customer` | Customer | Account dashboard widgets |
+| `customer-wishlist` | `content_element_customer` | Customer | Wishlist display |
 
 ### Benefits
 
@@ -295,11 +295,11 @@ To add a new element type with dynamic data:
 
 1. Create the extension table:
 ```sql
-CREATE TABLE cms_v2_element_custom (
+CREATE TABLE content_element_custom (
     element_id BINARY(16) PRIMARY KEY,
     custom_entity_id BINARY(16) NOT NULL,
     -- type-specific fields
-    FOREIGN KEY (element_id) REFERENCES cms_v2_element(id),
+    FOREIGN KEY (element_id) REFERENCES content_element(id),
     FOREIGN KEY (custom_entity_id) REFERENCES custom_entity(id)
 );
 ```
@@ -361,32 +361,32 @@ This diagram shows the detailed database relationships with cardinality:
 
 ```mermaid
 erDiagram
-    CmsV2Template ||--o{ CmsV2Element : "has elements"
-    CmsV2Template ||--o{ CmsV2TemplateTranslation : translates
+    ContentTemplate ||--o{ ContentElement : "has elements"
+    ContentTemplate ||--o{ ContentTemplateTranslation : translates
     
-    CmsV2Element ||--o{ CmsV2Element : "parent-child"
-    CmsV2Element ||--o{ CmsV2ElementTranslation : translates
-    CmsV2Element ||--o| CmsV2ElementProduct : extends
-    CmsV2Element ||--o| CmsV2ElementCategory : extends
-    CmsV2Element ||--o| CmsV2ElementMedia : extends
-    CmsV2Element ||--o| CmsV2ElementManufacturer : extends
+    ContentElement ||--o{ ContentElement : "parent-child"
+    ContentElement ||--o{ ContentElementTranslation : translates
+    ContentElement ||--o| ContentElementProduct : extends
+    ContentElement ||--o| ContentElementCategory : extends
+    ContentElement ||--o| ContentElementMedia : extends
+    ContentElement ||--o| ContentElementManufacturer : extends
     
-    CmsV2ElementProduct }o--|| Product : references
-    CmsV2ElementCategory }o--|| Category : references
-    CmsV2ElementMedia }o--|| Media : references
-    CmsV2ElementManufacturer }o--|| ProductManufacturer : references
+    ContentElementProduct }o--|| Product : references
+    ContentElementCategory }o--|| Category : references
+    ContentElementMedia }o--|| Media : references
+    ContentElementManufacturer }o--|| ProductManufacturer : references
     
-    CmsV2ElementTranslation }o--|| Language : "for language"
-    CmsV2TemplateTranslation }o--|| Language : "for language"
+    ContentElementTranslation }o--|| Language : "for language"
+    ContentTemplateTranslation }o--|| Language : "for language"
     
-    CmsV2Template {
+    ContentTemplate {
         uuid id PK
         string type
         string version
         json data
     }
     
-    CmsV2Element {
+    ContentElement {
         uuid id PK
         uuid parent_id FK
         uuid template_id FK
@@ -396,7 +396,7 @@ erDiagram
         json config
     }
     
-    CmsV2ElementProduct {
+    ContentElementProduct {
         uuid element_id PK
         uuid product_id FK
         boolean show_buy_button
@@ -410,7 +410,7 @@ This diagram illustrates how the base element entity is extended for different t
 
 ```mermaid
 classDiagram
-    class CmsV2Element {
+    class ContentElement {
         +id: UUID
         +type: string
         +parent_id: UUID
@@ -422,7 +422,7 @@ classDiagram
         +getParent()
     }
     
-    class CmsV2ElementProduct {
+    class ContentElementProduct {
         +element_id: UUID
         +product_id: UUID
         +show_buy_button: bool
@@ -430,7 +430,7 @@ classDiagram
         +getProduct()
     }
     
-    class CmsV2ElementCategory {
+    class ContentElementCategory {
         +element_id: UUID
         +category_id: UUID
         +show_description: bool
@@ -438,7 +438,7 @@ classDiagram
         +getCategory()
     }
     
-    class CmsV2ElementMedia {
+    class ContentElementMedia {
         +element_id: UUID
         +media_id: UUID
         +alt_text: string
@@ -467,38 +467,38 @@ classDiagram
         +mimeType: string
     }
     
-    CmsV2Element "1" -- "0..1" CmsV2ElementProduct : extends
-    CmsV2Element "1" -- "0..1" CmsV2ElementCategory : extends
-    CmsV2Element "1" -- "0..1" CmsV2ElementMedia : extends
+    ContentElement "1" -- "0..1" ContentElementProduct : extends
+    ContentElement "1" -- "0..1" ContentElementCategory : extends
+    ContentElement "1" -- "0..1" ContentElementMedia : extends
     
-    CmsV2ElementProduct --> Product : references
-    CmsV2ElementCategory --> Category : references
-    CmsV2ElementMedia --> Media : references
+    ContentElementProduct --> Product : references
+    ContentElementCategory --> Category : references
+    ContentElementMedia --> Media : references
 ```
 
 ### Key Relationships
 
 #### Template Hierarchy
-- **CmsV2Template** → **CmsV2Element** (direct relationship to elements)
+- **ContentTemplate** → **ContentElement** (direct relationship to elements)
 - Root elements (with `parent_id` = null) are directly attached to templates
 - Templates define their sections (header/content/footer) in the `data` JSON field
 - Templates are composed at runtime with context from `SalesChannelContext`
 - SEO metadata is generated at runtime from entity data and template patterns
 
 #### Element Tree
-- **CmsV2Element** → **CmsV2Element** (parent-child via `parent_id`)
+- **ContentElement** → **ContentElement** (parent-child via `parent_id`)
 - Elements form a tree structure with `slot_name` for named slots
 - `position` field maintains order within parent/slot
 
 #### Domain Entity Associations
-- **CmsV2ElementProduct** ↔ **Product** (ManyToOne)
-- **CmsV2ElementCategory** ↔ **Category** (ManyToOne)
-- **CmsV2ElementMedia** ↔ **Media** (ManyToOne)
-- **CmsV2ElementManufacturer** ↔ **ProductManufacturer** (ManyToOne)
+- **ContentElementProduct** ↔ **Product** (ManyToOne)
+- **ContentElementCategory** ↔ **Category** (ManyToOne)
+- **ContentElementMedia** ↔ **Media** (ManyToOne)
+- **ContentElementManufacturer** ↔ **ProductManufacturer** (ManyToOne)
 
 #### Translation Relationships
-- **CmsV2Element** → **CmsV2ElementTranslation** (OneToMany)
-- **CmsV2Template** → **CmsV2TemplateTranslation** (OneToMany)
+- **ContentElement** → **ContentElementTranslation** (OneToMany)
+- **ContentTemplate** → **ContentTemplateTranslation** (OneToMany)
 
 ### Cardinality Rules
 
@@ -513,8 +513,8 @@ classDiagram
 
 ## See Also
 
-- [CMS v2 Element Hydration](./shopware-cms-v2-element-hydration.md) - Runtime data loading, transformation, and response building
-- [CMS v2 API Response Structure](./shopware-cms-v2.md) - API response format and structure
+- [Content System Element Hydration](./shopware-cms-v2-element-hydration.md) - Runtime data loading, transformation, and response building
+- [Content System API Response Structure](./shopware-cms-v2.md) - API response format and structure
 
 ## Implementation Examples
 
@@ -523,7 +523,7 @@ classDiagram
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\CmsV2;
+namespace Shopware\Core\Content;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -543,9 +543,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class CmsV2ElementDefinition extends EntityDefinition
+class ContentElementDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'cms_v2_element';
+    public const ENTITY_NAME = 'content_element';
 
     public function getEntityName(): string
     {
@@ -554,7 +554,7 @@ class CmsV2ElementDefinition extends EntityDefinition
 
     public function getEntityClass(): string
     {
-        return CmsV2ElementEntity::class;
+        return ContentElementEntity::class;
     }
 
     protected function defineFields(): FieldCollection
@@ -563,7 +563,7 @@ class CmsV2ElementDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
             (new StringField('version', 'version'))->addFlags(new ApiAware(), new Required()),
-            (new FkField('template_id', 'templateId', CmsV2TemplateDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('template_id', 'templateId', ContentTemplateDefinition::class))->addFlags(new ApiAware()),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
             (new StringField('slot_name', 'slotName'))->addFlags(new ApiAware()),
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
@@ -571,17 +571,17 @@ class CmsV2ElementDefinition extends EntityDefinition
             (new BoolField('lazy_load', 'lazyLoad'))->addFlags(new ApiAware()),
             
             // Associations
-            (new ManyToOneAssociationField('template', 'template_id', CmsV2TemplateDefinition::class))
+            (new ManyToOneAssociationField('template', 'template_id', ContentTemplateDefinition::class))
                 ->addFlags(new ApiAware()),
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware()),
             
             // Type-specific extension associations
-            (new OneToOneAssociationField('productElement', 'id', 'element_id', CmsV2ElementProductDefinition::class))
+            (new OneToOneAssociationField('productElement', 'id', 'element_id', ContentElementProductDefinition::class))
                 ->addFlags(new ApiAware()),
-            (new OneToOneAssociationField('categoryElement', 'id', 'element_id', CmsV2ElementCategoryDefinition::class))
+            (new OneToOneAssociationField('categoryElement', 'id', 'element_id', ContentElementCategoryDefinition::class))
                 ->addFlags(new ApiAware()),
-            (new OneToOneAssociationField('mediaElement', 'id', 'element_id', CmsV2ElementMediaDefinition::class))
+            (new OneToOneAssociationField('mediaElement', 'id', 'element_id', ContentElementMediaDefinition::class))
                 ->addFlags(new ApiAware()),
         ]);
     }
@@ -593,7 +593,7 @@ class CmsV2ElementDefinition extends EntityDefinition
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\CmsV2\Aggregate\CmsV2ElementProduct;
+namespace Shopware\Core\Content\Aggregate\ContentElementProduct;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -605,9 +605,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class CmsV2ElementProductDefinition extends EntityDefinition
+class ContentElementProductDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'cms_v2_element_product';
+    public const ENTITY_NAME = 'content_element_product';
 
     public function getEntityName(): string
     {
@@ -617,13 +617,13 @@ class CmsV2ElementProductDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('element_id', 'elementId', CmsV2ElementDefinition::class))
+            (new FkField('element_id', 'elementId', ContentElementDefinition::class))
                 ->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new FkField('product_id', 'productId', ProductDefinition::class))
                 ->addFlags(new ApiAware(), new Required()),
             
             // Associations
-            (new OneToOneAssociationField('element', 'element_id', 'id', CmsV2ElementDefinition::class))
+            (new OneToOneAssociationField('element', 'element_id', 'id', ContentElementDefinition::class))
                 ->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class))
                 ->addFlags(new ApiAware()),
@@ -637,7 +637,7 @@ class CmsV2ElementProductDefinition extends EntityDefinition
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\CmsV2\Aggregate\CmsV2ElementOrder;
+namespace Shopware\Core\Content\Aggregate\ContentElementOrder;
 
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -649,9 +649,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class CmsV2ElementOrderDefinition extends EntityDefinition
+class ContentElementOrderDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'cms_v2_element_order';
+    public const ENTITY_NAME = 'content_element_order';
 
     public function getEntityName(): string
     {
@@ -661,13 +661,13 @@ class CmsV2ElementOrderDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('element_id', 'elementId', CmsV2ElementDefinition::class))
+            (new FkField('element_id', 'elementId', ContentElementDefinition::class))
                 ->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new FkField('order_id', 'orderId', OrderDefinition::class))
                 ->addFlags(new ApiAware(), new Required()),
             
             // Associations
-            (new OneToOneAssociationField('element', 'element_id', 'id', CmsV2ElementDefinition::class))
+            (new OneToOneAssociationField('element', 'element_id', 'id', ContentElementDefinition::class))
                 ->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class))
                 ->addFlags(new ApiAware()),
@@ -681,7 +681,7 @@ class CmsV2ElementOrderDefinition extends EntityDefinition
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\CmsV2\Aggregate\CmsV2ElementCustomer;
+namespace Shopware\Core\Content\Aggregate\ContentElementCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -693,9 +693,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class CmsV2ElementCustomerDefinition extends EntityDefinition
+class ContentElementCustomerDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'cms_v2_element_customer';
+    public const ENTITY_NAME = 'content_element_customer';
 
     public function getEntityName(): string
     {
@@ -705,13 +705,13 @@ class CmsV2ElementCustomerDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('element_id', 'elementId', CmsV2ElementDefinition::class))
+            (new FkField('element_id', 'elementId', ContentElementDefinition::class))
                 ->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))
                 ->addFlags(new ApiAware(), new Required()),
             
             // Associations
-            (new OneToOneAssociationField('element', 'element_id', 'id', CmsV2ElementDefinition::class))
+            (new OneToOneAssociationField('element', 'element_id', 'id', ContentElementDefinition::class))
                 ->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class))
                 ->addFlags(new ApiAware()),
@@ -747,7 +747,7 @@ When adding new element types that reference existing Shopware entities:
 
 ## Summary
 
-The CMS v2 entity architecture provides:
+The Content System entity architecture provides:
 
 - **Flexible Hierarchy**: Self-referential elements support unlimited nesting
 - **Type Safety**: Extension tables provide proper DAL associations

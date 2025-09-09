@@ -1,8 +1,8 @@
-# Shopware CMS API Response Structure Documentation
+# Shopware Content System API Response Structure Documentation
 
 ## Overview
 
-The CMS v2 architecture uses a hierarchical component-based structure with two rendering strategies: granular (element-by-element) and template-based (optimized for known patterns).
+The Content System architecture uses a hierarchical component-based structure with two rendering strategies: granular (element-by-element) and template-based (optimized for known patterns).
 
 ## Core Principles
 
@@ -362,7 +362,7 @@ SEO metadata is generated dynamically at runtime based on the current context, l
 Templates can define SEO generation patterns in their `data` field:
 
 ```json5
-// In cms_v2_template.data or translation
+// In content_template.data or translation
 {
   "seoPatterns": {
     "metaTitle": "{product.name} - {product.manufacturer.name} | {shop.name}",
@@ -494,9 +494,9 @@ The key: platform-specific enhancements should improve the experience without be
 
 ## Entity Architecture
 
-The entity architecture and database schema for CMS v2 is documented separately to maintain clear separation between API structure and implementation details.
+The entity architecture and database schema for the Content System is documented separately to maintain clear separation between API structure and implementation details.
 
-→ See [CMS v2 Entity Architecture](./shopware-cms-v2-entity-architecture.md)
+→ See [Content System Entity Architecture](./shopware-cms-v2-entity-architecture.md)
 
 This separate documentation includes:
 - Database schema and table structures

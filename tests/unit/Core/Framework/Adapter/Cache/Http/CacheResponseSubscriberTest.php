@@ -855,10 +855,17 @@ class CacheResponseSubscriberTest extends TestCase
             'expectedCacheControl' => 'no-cache, private',
         ];
 
-        yield 'Store API endpoints without cache attributes are not cached' => [
+        yield 'Store API endpoints without SalesChannelContext are not cached' => [
             'requestResponseOptions' => [
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => null,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+            ],
+            'subscriberConfig' => [],
+            'expectedCacheControl' => 'no-cache, private',
+        ];
+
+        yield 'Store API endpoints without cache attributes are not cached' => [
+            'requestResponseOptions' => [
+                PlatformRequest::ATTRIBUTE_HTTP_CACHE => null,
             ],
             'subscriberConfig' => [],
             'expectedCacheControl' => 'no-cache, private',

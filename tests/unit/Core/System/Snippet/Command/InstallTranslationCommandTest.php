@@ -225,7 +225,7 @@ class InstallTranslationCommandTest extends TestCase
     public function testCommandFailsIfMetadataCannotBeLoaded(): void
     {
         $this->metadataLoader->expects($this->once())
-            ->method('getUpdatedMetadata')
+            ->method('getUpdatedLocalMetadata')
             ->willThrowException(new \Exception('Unable to fetch metadata'));
 
         $command = $this->getCommand();
@@ -246,7 +246,7 @@ class InstallTranslationCommandTest extends TestCase
     private function initMetadataLoader(MetadataCollection $collection): void
     {
         $this->metadataLoader->expects($this->once())
-            ->method('getUpdatedMetadata')
+            ->method('getUpdatedLocalMetadata')
             ->willReturn($collection);
     }
 }

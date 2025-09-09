@@ -1945,8 +1945,17 @@ class VersioningTest extends TestCase
 
         $this->productRepository->update([$update->build()], $version);
 
-        // when the version is merged - the manufacturer should be created first
-        static::getContainer()->get('product.repository')->merge($versionId, $live);
+        $error = null;
+        $message = '';
+
+        try {
+            // when the version is merged - the manufacturer should be created first
+            static::getContainer()->get('product.repository')->merge($versionId, $live);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     private function getReviewCount(string $productId, string $versionId): int

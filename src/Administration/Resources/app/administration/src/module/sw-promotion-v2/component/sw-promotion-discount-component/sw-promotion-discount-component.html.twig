@@ -1,9 +1,9 @@
 {% block sw_promotion_discount_component %}
 <mt-card
+    :id="'promotion-discount-' + discount.id"
     class="sw-promotion-discount-component"
     position-identifier="sw-promotion-discount-component"
     :title="$tc('sw-promotion.detail.main.discounts.card')"
-    :id="'promotion-discount-' + discount.id"
 >
     <template #headerRight>
         <sw-context-button class="sw-promotion-discount-component__context-button">

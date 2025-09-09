@@ -132,6 +132,9 @@ class SearchKeywordUpdaterTest extends TestCase
 
         static::getContainer()->get(SearchKeywordUpdater::class)
             ->update($ids->getList(['p1', 'p2']), Context::createDefaultContext());
+
+        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, []);
+        $this->assertKeywords($ids->get('p2'), Defaults::LANGUAGE_SYSTEM, []);
     }
 
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void
@@ -318,7 +321,7 @@ class SearchKeywordUpdaterTest extends TestCase
             ]
         );
 
-        static::assertEquals($expectedKeywords, $keywords);
+        static::assertEquals($expectedKeywords, $keywords, 'no match: ' . print_r($keywords, true));
     }
 
     private function assertLanguageHasNoKeywords(string $languageId): void

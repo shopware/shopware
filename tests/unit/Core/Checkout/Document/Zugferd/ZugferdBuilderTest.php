@@ -210,7 +210,7 @@ class ZugferdBuilderTest extends TestCase
             static::assertStringContainsString("LineID>{$this->getPosition($lineItem)}<", $xmlContent);
             static::assertStringContainsString("Name>{$lineItem->getLabel()}<", $xmlContent);
             static::assertStringContainsString("ChargeAmount>$unitPrice<", $xmlContent);
-            static::assertStringContainsString("BasisQuantity unitCode=\"H87\">$quantity<", $xmlContent);
+            static::assertStringContainsString('BasisQuantity unitCode="H87">1.00<', $xmlContent);
             static::assertStringContainsString("BilledQuantity unitCode=\"H87\">$quantity<", $xmlContent);
             static::assertStringContainsString("LineTotalAmount>$totalPrice<", $xmlContent);
             static::assertStringContainsString("Name>{$lineItem->getLabel()}<", $xmlContent);

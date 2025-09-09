@@ -148,7 +148,7 @@ class ScriptRule extends Rule
     private function render(TwigEnvironment $twig, Script $script, Hook $hook, string $name, array $context): bool
     {
         if (!$this->traces) {
-            return filter_var(trim((string) $twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
+            return filter_var(trim($twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
         }
 
         $match = false;

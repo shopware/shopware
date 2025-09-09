@@ -146,7 +146,7 @@ class ShopConfigurationController extends InstallerController
         $countryIsos = array_map(fn ($country) => [
             'iso3' => $country['iso3'],
             'default' => $country['iso'] === $localeIsoCode,
-            'translated' => $this->translator->trans('shopware.installer.select_country_' . mb_strtolower((string) $country['iso3'])),
+            'translated' => $this->translator->trans('shopware.installer.select_country_' . mb_strtolower($country['iso3'])),
         ], $countries);
 
         usort(/**
@@ -154,7 +154,7 @@ class ShopConfigurationController extends InstallerController
          *
          * @param array<string, string> $first
          * @param array<string, string> $second
-         */ $countryIsos, fn (array $first, array $second) => strcmp((string) $first['translated'], (string) $second['translated']));
+         */ $countryIsos, fn (array $first, array $second) => strcmp($first['translated'], $second['translated']));
 
         return $countryIsos;
     }

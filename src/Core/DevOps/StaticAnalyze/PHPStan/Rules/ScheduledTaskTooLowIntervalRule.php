@@ -56,7 +56,7 @@ class ScheduledTaskTooLowIntervalRule implements Rule
 
         foreach ($node->stmts ?? [] as $stmt) {
             if ($stmt instanceof Return_ && $stmt->expr instanceof LNumber) {
-                $interval = (int) $stmt->expr->value;
+                $interval = $stmt->expr->value;
 
                 if ($interval < self::MIN_SCHEDULED_TASK_INTERVAL) {
                     return [

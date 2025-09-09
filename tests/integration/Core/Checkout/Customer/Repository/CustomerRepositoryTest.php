@@ -170,6 +170,8 @@ class CustomerRepositoryTest extends TestCase
 
     public function testDeleteCustomerWithTags(): void
     {
+        static::expectNotToPerformAssertions();
+
         $customerId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
         $customer = [

@@ -89,6 +89,7 @@ class UninstallAppsStrategyTest extends TestCase
         $wasThrown = false;
 
         try {
+            $this->shopIdProvider->reset();
             $this->shopIdProvider->getShopId();
         } catch (ShopIdChangeSuggestedException) {
             $wasThrown = true;

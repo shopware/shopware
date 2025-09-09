@@ -135,6 +135,7 @@ class ReinstallAppsStrategyTest extends TestCase
         $wasThrown = false;
 
         try {
+            $this->shopIdProvider->reset();
             $this->shopIdProvider->getShopId();
         } catch (ShopIdChangeSuggestedException) {
             $wasThrown = true;

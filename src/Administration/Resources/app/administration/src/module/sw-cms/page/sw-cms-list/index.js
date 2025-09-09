@@ -51,6 +51,7 @@ export default {
             assignablePageTypes: [
                 'categories',
                 'products',
+                'landingPages',
             ],
             searchConfigEntity: 'cms_page',
             showLayoutSetAsDefaultModal: false,
@@ -104,6 +105,7 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.getAssociation('categories').addSorting(Criteria.sort('name', 'ASC')).setLimit(this.associationLimit);
             criteria.getAssociation('products').addSorting(Criteria.sort('name', 'ASC')).setLimit(this.associationLimit);
+            criteria.getAssociation('landingPages').addSorting(Criteria.sort('name', 'ASC')).setLimit(this.associationLimit);
             criteria.addAssociation('previewMedia').addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.term !== null) {
@@ -119,10 +121,16 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+         */
         associatedCategoryBuckets() {
             return this.pages.aggregations?.categories?.buckets || [];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+         */
         associatedProductBuckets() {
             return this.pages.aggregations?.products?.buckets || [];
         },
@@ -555,17 +563,22 @@ export default {
         },
 
         deleteDisabledToolTip(page) {
-            if (page.type === 'product_detail') {
-                return {
-                    showDelay: 300,
-                    message: this.$tc('sw-cms.general.deleteDisabledProductToolTip'),
-                    disabled: !this.layoutIsLinked(page.id),
-                };
+            let snippetKey;
+
+            switch (page.type) {
+                case 'product_detail':
+                    snippetKey = 'sw-cms.general.deleteDisabledProductToolTip';
+                    break;
+                case 'landingpage':
+                    snippetKey = 'sw-cms.general.deleteDisabledLandingPageToolTip';
+                    break;
+                default:
+                    snippetKey = 'sw-cms.general.deleteDisabledToolTip';
             }
 
             return {
                 showDelay: 300,
-                message: this.$tc('sw-cms.general.deleteDisabledToolTip'),
+                message: this.$tc(snippetKey),
                 disabled: !this.layoutIsLinked(page.id),
             };
         },
@@ -589,8 +602,13 @@ export default {
             return page.products.length;
         },
 
+        getPageLandingPageCount(page) {
+            return page.landingPages.length;
+        },
+
         getPageCount(page) {
-            const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
+            const pageCount =
+                this.getPageCategoryCount(page) + this.getPageProductCount(page) + this.getPageLandingPageCount(page);
             return pageCount > 0 ? pageCount : '-';
         },
 
@@ -598,6 +616,7 @@ export default {
             return [
                 ...page.categories.map((item) => item.name),
                 ...page.products.map((item) => item.name),
+                ...page.landingPages.map((item) => item.name),
             ];
         },
 
@@ -628,7 +647,12 @@ export default {
         },
 
         optionContextDeleteDisabled(page) {
-            return this.getPageCategoryCount(page) > 0 || this.getPageProductCount(page) > 0 || !this.acl.can('cms.deleter');
+            return (
+                this.getPageCategoryCount(page) > 0 ||
+                this.getPageProductCount(page) > 0 ||
+                this.getPageLandingPageCount(page) > 0 ||
+                !this.acl.can('cms.deleter')
+            );
         },
     },
 };

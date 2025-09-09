@@ -121,6 +121,10 @@
                                             "zipcode": {
                                               "description": "The zip/postal code of the billing address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
                                               "type": "string"
+                                            },
+                                            "login": {
+                                              "description": "If set and when handling a guest order, a context token will be returned in the response header with a logged-in session.",
+                                              "type": "boolean"
                                             }
                                         },
                                         "type": "object"
@@ -133,6 +137,14 @@
                 "responses": {
                     "200": {
                         "description": "An array of orders and an indicator if the payment of the order can be changed.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains sw-context-token value, if login parameter is set to true and a guest order was found and the correct credentials were provided.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {

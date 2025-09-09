@@ -61,7 +61,8 @@ class ScriptStoreApiRoute
         $this->executor->execute($responseHook);
 
         $fields = new ResponseFields(
-            $request->get('includes', [])
+            $request->get('includes', []),
+            $request->get('excludes', []),
         );
 
         $symfonyResponse = $this->scriptResponseEncoder->encodeToSymfonyResponse(

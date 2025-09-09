@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutCartRuleLoaderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -12,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
@@ -50,6 +52,7 @@ class CartRuleLoader implements ResetInterface
         private readonly Connection $connection,
         private readonly CartFactory $cartFactory,
         private readonly ExtensionDispatcher $extensions,
+        private readonly AbstractTranslator $translator,
     ) {
     }
 
@@ -101,6 +104,8 @@ class CartRuleLoader implements ResetInterface
                 extension: new CheckoutCartRuleLoaderExtension($context, $cart, $behaviorContext, $new),
                 function: $this->_load(...),
             );
+
+            $this->translateCartErrors($cart->getErrors(), $context);
 
             // save the cart if errors exist, so the errors get persisted
             if ($this->updated($result->getCart(), $timestamps, $dataHashes)
@@ -326,5 +331,25 @@ class CartRuleLoader implements ResetInterface
         }
 
         return $cart;
+    }
+
+    private function translateCartErrors(ErrorCollection $errorCollection, SalesChannelContext $context): void
+    {
+        foreach ($errorCollection as $error) {
+            $parameters = [];
+
+            foreach ($error->getParameters() as $key => $value) {
+                $parameters['%' . $key . '%'] = $value;
+            }
+
+            $translatedMessage = $this->translator->trans(
+                'checkout.' . $error->getMessageKey(),
+                $parameters,
+                null,
+                $context->getLanguageInfo()->localeCode
+            );
+
+            $error->setTranslatedMessage($translatedMessage);
+        }
     }
 }

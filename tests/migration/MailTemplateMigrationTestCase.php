@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests;
+namespace Shopware\Tests\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversNothing;

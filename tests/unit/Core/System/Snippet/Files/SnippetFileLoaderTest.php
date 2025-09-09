@@ -82,6 +82,7 @@ class SnippetFileLoaderTest extends TestCase
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
     }
 
@@ -368,6 +369,7 @@ class SnippetFileLoaderTest extends TestCase
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
 
         $collection = new SnippetFileCollection();

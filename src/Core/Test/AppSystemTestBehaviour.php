@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Test;
 
+use PHPUnit\Framework\Attributes\After;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -62,5 +64,11 @@ trait AppSystemTestBehaviour
         return static::getContainer()
             ->get(ScriptTraces::class)
             ->getTraces();
+    }
+
+    #[After]
+    protected function deleteShopIdAndResetShopIdProvider(): void
+    {
+        static::getContainer()->get(ShopIdProvider::class)->deleteShopId();
     }
 }

@@ -95,6 +95,7 @@ class ShopIdProviderTest extends TestCase
         $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
 
         try {
+            $this->shopIdProvider->reset();
             $this->shopIdProvider->getShopId();
 
             static::fail(\sprintf('Expected %s to be thrown', ShopIdChangeSuggestedException::class));
@@ -111,6 +112,8 @@ class ShopIdProviderTest extends TestCase
         $shopIdBeforeUpdate = $this->shopIdProvider->getShopId();
         $shopIdConfigBeforeUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         static::assertSame($appUrlBeforeUpdate, $shopIdConfigBeforeUpdate['fingerprints'][AppUrl::IDENTIFIER] ?? null);
+
+        $this->shopIdProvider->reset();
 
         $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
         $shopIdAfterUpdate = $this->shopIdProvider->getShopId();

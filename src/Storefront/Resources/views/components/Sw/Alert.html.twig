@@ -28,8 +28,8 @@
 
 <div role="alert" {{ attributes.defaults({ class: alert.apply({ variant, size }) }) }}>
     {% block content %}
-        <twig:slot name="content">
+        <twig:Slot name="content">
             {{ text }}
-        </twig:slot>
+        </twig:Slot>
     {% endblock %}
 </div>

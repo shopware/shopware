@@ -68,7 +68,7 @@
                                     <div class="cms-listing-col {{ listingColumns }}" role="listitem">
                                         {% block element_product_listing_box %}
                                             {% if feature('STOREFRONT_COMPONENTS') %}
-                                                <twig:product-card:product-card :product="product" />
+                                                <twig:Sw:Product:Card :product="product" />
                                             {% else %}
                                                 {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
                                                     layout: boxLayout,

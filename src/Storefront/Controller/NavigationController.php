@@ -65,11 +65,11 @@ class NavigationController extends StorefrontController
             $elements = $page->getCmsPage()->getAllElements();
             $listing = $elements[4];
             $listingData = $listing->getData()->getListing();
-    
+
             $cmsPage = $this->getNewCmsStructure($listingData);
 
             return $this->renderStorefront(
-                '@Storefront/storefront/page/content/index.html.twig', 
+                '@Storefront/storefront/page/content/index.html.twig',
                 ['page' => $page, 'cmsPage' => $cmsPage]);
         }
 
@@ -185,7 +185,7 @@ class NavigationController extends StorefrontController
             'elements' => [
                 [
                     'id' => '123',
-                    'component' => 'grid:container',
+                    'component' => 'Sw:Grid:Container',
                     'properties' => [
                         'columns' => '2',
                         'columnsLg' => '1',
@@ -199,7 +199,7 @@ class NavigationController extends StorefrontController
                         'column-1' => [
                             [
                                 'id' => '123',
-                                'component' => 'grid:column',
+                                'component' => 'Sw:Grid:Column',
                                 'properties' => [
                                     'start' => null,
                                     'span' => null,
@@ -208,7 +208,7 @@ class NavigationController extends StorefrontController
                                     'content' => [
                                         [
                                             'id' => '123',
-                                            'component' => 'media:image',
+                                            'component' => 'Sw:Media:Image',
                                             'properties' => [
                                                 'media' => $media,
                                             ],
@@ -220,7 +220,7 @@ class NavigationController extends StorefrontController
                         'column-2' => [
                             [
                                 'id' => 'ABC',
-                                'component' => 'grid:column',
+                                'component' => 'Sw:Grid:Column',
                                 'properties' => [
                                     'start' => null,
                                     'span' => null,
@@ -229,14 +229,14 @@ class NavigationController extends StorefrontController
                                     'default' => [
                                         [
                                             'id' => '123',
-                                            'component' => 'content:text',
+                                            'component' => 'Sw:Content:Text',
                                             'properties' => [
                                                 'text' => '<h1>Lorem ipsum dolor sit amet.</h1><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>',
                                             ],
                                         ],
                                         [
                                             'id' => '123',
-                                            'component' => 'alert:alert',
+                                            'component' => 'Sw:Alert',
                                             'properties' => [
                                                 'text' => 'Hello World',
                                             ],
@@ -244,7 +244,7 @@ class NavigationController extends StorefrontController
                                                 'content' => [
                                                     [
                                                         'id' => '123',
-                                                        'component' => 'button:button',
+                                                        'component' => 'Sw:Button',
                                                         'properties' => [
                                                             'text' => 'Click Me!',
                                                         ],
@@ -260,7 +260,7 @@ class NavigationController extends StorefrontController
                 ],
                 [
                     'id' => '123',
-                    'component' => 'product:listing',
+                    'component' => 'SW:Product:Listing',
                     'properties' => [
                         'listing' => $listingData
                     ],

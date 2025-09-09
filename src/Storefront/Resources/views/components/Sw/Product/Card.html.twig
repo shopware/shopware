@@ -86,11 +86,11 @@
 <div {{ attributes.defaults({ class: defaultClasses.root }) }}>
     <div {{ attributes.nested('header').defaults({ class: defaultClasses.header }) }}>
 
-        <twig:slot name="header-top"></twig:slot>
+        <twig:Slot name="header-top"></twig:Slot>
 
         {% block media %}
-            <twig:slot name="media">
-                <twig:media:image
+            <twig:Slot name="media">
+                <twig:Sw:Media:Image
                     {{ ...attributes.nested('media').defaults({
                         media: product.cover.media,
                         height: mediaHeight,
@@ -99,24 +99,24 @@
                         loading: 'lazy'
                     }) }}
                 />
-            </twig:slot>
+            </twig:Slot>
         {% endblock %}
 
         {% block badges %}
-            <twig:slot name="badges">
-                <twig:product-card:badges :product="product" />
-            </twig:slot>
+            <twig:Slot name="badges">
+                <twig:Sw:Product:Badges :product="product" />
+            </twig:Slot>
         {% endblock %}
 
-        <twig:slot name="header-bottom"></twig:slot>
+        <twig:Slot name="header-bottom"></twig:Slot>
     </div>
 
     <div {{ attributes.nested('body').defaults({ class: defaultClasses.body }) }}>
 
-        <twig:slot name="body-top"></twig:slot>
+        <twig:Slot name="body-top"></twig:Slot>
 
         {% block title %}
-            <twig:slot name="title">
+            <twig:Slot name="title">
                 <h2 {{ attributes.nested('title').defaults({ class: defaultClasses.title }) }}>
                     <a
                         {{ attributes.nested('title-link').defaults({
@@ -128,47 +128,47 @@
                         {{ product.translated.name }}
                     </a>
                 </h2>
-            </twig:slot>
+            </twig:Slot>
         {% endblock %}
 
         {% if config('core.listing.showReview') and product.ratingAverage %}
-            <twig:slot name="rating">
-                <twig:rating:rating :stars="product.ratingAverage" />
-            </twig:slot>
+            <twig:Slot name="rating">
+                <twig:Sw:Rating:Stars :stars="product.ratingAverage" />
+            </twig:Slot>
         {% endif %}
 
         {% if not displayParent %}
-            <twig:slot name="variants">
-                <twig:product-card:variants :variants="product.variation" />
-            </twig:slot>
+            <twig:Slot name="variants">
+                <twig:Sw:Product:Variants :variants="product.variation" />
+            </twig:Slot>
         {% endif %}
 
-        <twig:slot name="body-bottom"></twig:slot>
+        <twig:Slot name="body-bottom"></twig:Slot>
     </div>
 
     <div {{ attributes.nested('footer').defaults({ class: defaultClasses.footer }) }}>
 
-        <twig:slot name="footer-top"></twig:slot>
+        <twig:Slot name="footer-top"></twig:Slot>
 
         {% block price %}
-            <twig:slot name="price">
-                <twig:product-card:price :product="product" />
-            </twig:slot>
+            <twig:Slot name="price">
+                <twig:Sw:Product:PriceDisplay :product="product" />
+            </twig:Slot>
         {% endblock %}
 
         {% block actions %}
-            <twig:slot name="actions">
-                <twig:product-card:actions
-                        :product="product"
-                        :addToCartExtraFormData="{ 'foo': 'bar' }"
-                    />
-            </twig:slot>
+            <twig:Slot name="actions">
+                <twig:Sw:Product:CardActions
+                    :product="product"
+                    :addToCartExtraFormData="{ 'foo': 'bar' }"
+                />
+            </twig:Slot>
         {% endblock %}
 
-        <twig:slot name="footer-bottom"></twig:slot>
+        <twig:Slot name="footer-bottom"></twig:Slot>
     </div>
 
     {% block loading_indicator %}
-        <twig:product-card:skeleton-loader />
+        <twig:Sw:Product:CardLoader />
     {% endblock %}
 </div>

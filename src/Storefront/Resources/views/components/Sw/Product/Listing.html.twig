@@ -12,11 +12,11 @@
 
     {% block content %}
 
-        <twig:grid:container columns="4" columnsLg="2" columnsSm="1">
+        <twig:Sw:Grid:Container columns="4" columnsLg="2" columnsSm="1">
             {% for product in listing.elements %}
-                <twig:product-card:product-card :product="product" />
+                <twig:Sw:Product:Card :product="product" />
             {% endfor %}
-        </twig:grid:container>
+        </twig:Sw:Grid:Container>
 
     {% endblock %}
 

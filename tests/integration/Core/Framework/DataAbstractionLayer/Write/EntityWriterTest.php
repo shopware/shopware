@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefin
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -856,6 +857,8 @@ class EntityWriterTest extends TestCase
         $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
 
+        $context = Context::createDefaultContext();
+
         $productRepository->create(
             [
                 [
@@ -867,7 +870,7 @@ class EntityWriterTest extends TestCase
                     'stock' => 0,
                 ],
             ],
-            Context::createDefaultContext(),
+            $context,
         );
 
         $productRepository->update(
@@ -877,8 +880,13 @@ class EntityWriterTest extends TestCase
                     'customFields' => ['foo' => 'bar'],
                 ],
             ],
-            Context::createDefaultContext(),
+            $context,
         );
+
+        $product = $productRepository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertIsArray($product->getCustomFields());
     }
 
     public function testCloneVariantTranslation(): void

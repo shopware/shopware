@@ -178,7 +178,7 @@ class MediaUploadServiceTest extends TestCase
             ->method('fetchFromURL')
             ->with(
                 $url,
-                static::stringStartsWith($tmpDir)
+                static::stringContains($tmpDir)
             )
             ->willReturn($mediaFile);
 

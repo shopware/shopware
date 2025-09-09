@@ -98,7 +98,7 @@ class ParsedIdTokenTest extends TestCase
 
         $tokenGenerator->setEmail($email);
         $setter = $this->getSetter($property);
-        // @phpstan-ignore symplify.noDynamicName
+        // @phpstan-ignore method.dynamicName
         $tokenGenerator->$setter($value);
 
         $token = $tokenGenerator->generate();
@@ -106,7 +106,7 @@ class ParsedIdTokenTest extends TestCase
         static::assertInstanceOf(Plain::class, $parsed);
 
         $result = ParsedIdToken::createFromDataSet($parsed->claims());
-        // @phpstan-ignore symplify.noDynamicName
+        // @phpstan-ignore property.dynamicName
         static::assertSame($email, $result->$property);
     }
 

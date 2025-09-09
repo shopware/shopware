@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -94,6 +95,16 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('baz', $e->getParameters()['path']);
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(DataAbstractionLayerException::INVALID_SORT_QUERY, $e->getErrorCode());
+    }
+
+    public function testInvalidUuid(): void
+    {
+        $e = DataAbstractionLayerException::invalidUuid('invalid-uuid');
+
+        static::assertInstanceOf(InvalidUuidException::class, $e->getPrevious());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::INVALID_UUID, $e->getErrorCode());
+        static::assertSame('Value is not a valid UUID: invalid-uuid', $e->getMessage());
     }
 
     public function testCannotCreateNewVersion(): void

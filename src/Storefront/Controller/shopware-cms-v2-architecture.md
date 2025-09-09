@@ -24,21 +24,31 @@ The system follows a **Base + Extension** pattern:
 
 ### Component Architecture
 
-```
-┌─────────────────────────────────────────┐
-│           API Controller                │
-├─────────────────────────────────────────┤
-│         Response Builder                │
-├─────────────────────────────────────────┤
-│        Hydration Service                │
-├──────────────┬──────────────────────────┤
-│   Entity     │    Service               │
-│   Loader     │    Loader                │
-├──────────────┴──────────────────────────┤
-│            DAL Repository               │
-├─────────────────────────────────────────┤
-│           Database Layer                │
-└─────────────────────────────────────────┘
+```mermaid
+graph TB
+    API[API Controller]
+    RB[Response Builder]
+    HS[Hydration Service]
+    EL[Entity Loader]
+    SL[Service Loader]
+    DAL[DAL Repository]
+    DB[(Database Layer)]
+    
+    API --> RB
+    RB --> HS
+    HS --> EL
+    HS --> SL
+    EL --> DAL
+    SL --> DAL
+    DAL --> DB
+    
+    style API fill:#e1f5fe
+    style RB fill:#e8f5e9
+    style HS fill:#fff3e0
+    style EL fill:#f3e5f5
+    style SL fill:#f3e5f5
+    style DAL fill:#fce4ec
+    style DB fill:#f5f5f5
 ```
 
 ### Data Flow
@@ -46,16 +56,16 @@ The system follows a **Base + Extension** pattern:
 ```mermaid
 graph TD
     A[Request] --> B[Load Template]
-    B --> C[Load Elements]
-    C --> D{Element Type}
-    D -->|Static| E[Extract Config]
-    D -->|Entity| F[Load Associations]
-    D -->|Service| G[Load Runtime Data]
-    E --> H[Build Response]
-    F --> H
-    G --> H
-    H --> I[Apply Cache]
-    I --> J[Return Response]
+    B --> C[Load Elements<br/>with Associations]
+    C --> D[Hydrate Elements<br/>3 Phases]
+    D --> E[Build Response]
+    E --> F[Apply Cache]
+    F --> G[Return Response]
+    
+    style A fill:#e1f5fe
+    style D fill:#fff3e0
+    style E fill:#e8f5e9
+    style F fill:#fce4ec
 ```
 
 ## Technical Specification
@@ -96,7 +106,10 @@ CREATE TABLE content_element (
     
     INDEX idx_parent (parent_id, position),
     INDEX idx_template (template_id),
-    INDEX idx_type (type)
+    INDEX idx_type (type),
+    
+    -- Ensure only registered element types are used
+    FOREIGN KEY (type, version) REFERENCES content_element_type(type_key, version)
 );
 ```
 
@@ -117,27 +130,63 @@ Applied to: product, category, media, manufacturer, order, customer
 
 ### Element Type System
 
-#### Categories
+#### Element Type Categories
 
-| Category | Description | Data Source | Caching |
-|----------|-------------|-------------|---------|
-| **Container** | Layout structure only | None | Full |
-| **Static** | Content in config field | Config JSON | Full |
-| **Entity** | Associated domain entities | Extension table | Context-aware |
-| **Service** | Runtime-loaded data | Service layer | None/User |
+The system classifies elements into four distinct categories, each with specific loading and processing characteristics:
+
+##### Container Elements
+Structural components that organize child elements without holding data themselves. They pass through hydration unchanged and are fully cacheable. Examples: grid, section, column, tabs, accordion.
+
+##### Static Elements
+Store all content directly in the `config` JSON field, requiring no additional queries during hydration. The system extracts data from configuration and formats it for the response, with full caching support. Examples: heading, text, button, HTML, icon.
+
+##### Entity Elements
+Maintain associations to domain entities through extension tables (e.g., `content_element_product`). Loaded via DAL in Phase 1 using batch queries for performance, with context-aware caching based on customer group, sales channel, and currency. Examples: product-box, category-navigation, media-image, manufacturer-logo.
+
+##### Service Elements
+Load data from services in Phase 3 for user-specific or session-dependent content. Service calls are batched where possible (e.g., all cart elements share one cart service call), with limited or user-specific caching. Examples: cart displays, wishlist, user-menu, currency-switcher.
+
+#### Processing Flow by Category
+
+```mermaid
+graph LR
+    E[Element] --> T{Type Category?}
+    T -->|Container| C[Pass Through<br/>No Processing]
+    T -->|Static| S[Extract from Config<br/>Immediate]
+    T -->|Entity| EN[Load via DAL<br/>Phase 1]
+    T -->|Service| SE[Load via Service<br/>Phase 3]
+    
+    C --> R[Response]
+    S --> R
+    EN --> R
+    SE --> R
+    
+    style C fill:#e8f5e9
+    style S fill:#e1f5fe
+    style EN fill:#fff3e0
+    style SE fill:#fce4ec
+```
 
 #### Type Registry
 
-```yaml
-ContentElementType:
-  type_key: string       # Unique identifier
-  category: enum         # Category from above
-  version: string        # Semantic version
-  is_live: boolean       # Production flag
-  
-  Constraints:
-    - Unique(type_key, version)
-    - OnlyOneLive(type_key)
+**content_element_type**
+```sql
+CREATE TABLE content_element_type (
+    id          BINARY(16)      PRIMARY KEY,
+    type_key    VARCHAR(255)    NOT NULL,     -- 'product-box', 'heading', etc.
+    category    ENUM('container', 'static', 'entity', 'service') NOT NULL,
+    version     VARCHAR(20)     NOT NULL,     -- Semantic version (e.g., '2.0.0')
+    is_live     BOOLEAN         DEFAULT FALSE,
+    created_at  DATETIME        NOT NULL,
+    updated_at  DATETIME,
+    
+    UNIQUE INDEX idx_type_version (type_key, version),
+    INDEX idx_type_live (type_key, is_live),
+    
+    -- Ensure only one live version per type
+    UNIQUE INDEX idx_one_live_per_type (type_key, is_live) 
+        WHERE is_live = TRUE
+);
 ```
 
 ### Hydration Algorithm

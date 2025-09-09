@@ -141,7 +141,7 @@ Structural components that organize child elements without holding data themselv
 Store all content directly in the `config` JSON field, requiring no additional queries during hydration. The system extracts data from configuration and formats it for the response, with full caching support. Examples: heading, text, button, HTML, icon.
 
 ##### Entity Elements
-Maintain associations to domain entities through extension tables (e.g., `content_element_product`). Loaded via DAL in Phase 1 using batch queries for performance, with context-aware caching based on customer group, sales channel, and currency. Examples: product-box, category-navigation, media-image, manufacturer-logo.
+Maintain associations to domain entities through extension tables (e.g., `content_element_product`). All associated entities are loaded together with the template in a single query through DAL associations, eliminating the need for separate queries or additional caching layers. Examples: product-box, category-navigation, media-image, manufacturer-logo.
 
 ##### Service Elements
 Load data from services in Phase 3 for user-specific or session-dependent content. Service calls are batched where possible (e.g., all cart elements share one cart service call), with limited or user-specific caching. Examples: cart displays, wishlist, user-menu, currency-switcher.
@@ -153,7 +153,7 @@ graph LR
     E[Element] --> T{Type Category?}
     T -->|Container| C[Pass Through<br/>No Processing]
     T -->|Static| S[Extract from Config<br/>Immediate]
-    T -->|Entity| EN[Load via DAL<br/>Phase 1]
+    T -->|Entity| EN[Already Loaded<br/>via Associations]
     T -->|Service| SE[Load via Service<br/>Phase 3]
     
     C --> R[Response]
@@ -193,10 +193,11 @@ CREATE TABLE content_element_type (
 
 ```
 FUNCTION hydrate(templateId, context):
-    // Phase 1: Load with associations
-    elements = loadElements(templateId, context)
+    // Phase 1: Load template with all entity associations
+    // All entity elements are loaded in a single query via DAL JOINs
+    elements = loadTemplateWithAssociations(templateId, context)
     
-    // Phase 2: Process by type
+    // Phase 2: Process loaded data by type
     FOR EACH element IN elements:
         SWITCH element.type.category:
             CASE 'static':
@@ -206,7 +207,7 @@ FUNCTION hydrate(templateId, context):
             CASE 'service':
                 deferredElements.add(element)
     
-    // Phase 3: Batch load service data
+    // Phase 3: Load service data only
     IF deferredElements.notEmpty:
         serviceData = batchLoadServices(deferredElements, context)
         applyServiceData(deferredElements, serviceData)

@@ -370,6 +370,34 @@ class SnippetFinderTest extends TestCase
         ], $snippets);
     }
 
+    public function testFinderSkipsExcludedShopwareLocalesButLoadsFromPlugins(): void
+    {
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['es-ES'],
+        );
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $pluginPath = __DIR__ . '/_fixtures/activePlugin';
+        $snippetFinder = $this->getSnippetFinder(
+            kernel: $this->getKernelMock(pluginPaths: [$pluginPath], activePluginPaths: ['activePlugin']),
+            connection: $this->getConnectionMock('es-ES', []),
+            translationConfig: $config,
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+
+        static::assertEquals([
+            'plugin_administration' => 'Plugin admin',
+        ], $snippets);
+    }
+
     /**
      * @param array<string, mixed> $snippets
      */

@@ -52,6 +52,9 @@ class TranslationConfigLoaderTest extends TestCase
         $publisherMapping = $config->pluginMapping->get('SwagPublisher');
         static::assertInstanceOf(PluginMapping::class, $publisherMapping);
         static::assertSame('PluginPublisher', $publisherMapping->snippetName);
+
+        $excludedLocales = $config->excludedLocales;
+        static::assertSame(['it-IT'], $excludedLocales);
     }
 
     public function testConfigFileSettings(): void

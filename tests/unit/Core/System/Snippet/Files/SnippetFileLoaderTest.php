@@ -514,6 +514,71 @@ class SnippetFileLoaderTest extends TestCase
         static::assertCount(0, $collection);
     }
 
+    public function testLoadSkipsExcludedPlatformLocalesButLoadsFromPlugins(): void
+    {
+        $loader = $this->getTranslationLoader();
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $path = __DIR__ . '/_fixtures/activePlugin';
+
+        $plugin = new TestPlugin(true, $path);
+        $plugin->setName('activePlugin');
+        $plugin->setPath($path);
+
+        $kernel = $this->getKernel([], $plugin);
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin', 'inactivePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['es-ES'],
+        );
+
+        $collection = new SnippetFileCollection();
+
+        $snippetFileLoader = new SnippetFileLoader(
+            $kernel,
+            $this->createMock(Connection::class),
+            $this->createMock(AppSnippetFileLoader::class),
+            new ActiveAppsLoader(
+                $this->createMock(Connection::class),
+                $this->createMock(AppLoader::class),
+                '/',
+            ),
+            $this->config,
+            $loader,
+            $this->filesystem
+        );
+
+        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
+
+        $files = $collection->getElements();
+        static::assertContainsOnlyInstancesOf(RemoteSnippetFile::class, $files);
+
+        $platformPath = Path::join($loader->getLocalePath('es-ES'), 'Platform');
+        $platformPath = mb_ltrim($platformPath, '/\\');
+        $activePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
+        $activePluginPath = mb_ltrim($activePluginPath, '/\\');
+        $actualPaths = array_map(static fn (RemoteSnippetFile $file) => $file->getPath(), $files);
+
+        $expectedPaths = [
+            Path::join($activePluginPath, 'storefront.json'),
+            Path::join($activePluginPath, 'messages.es-ES.base.json'),
+            Path::join($activePluginPath, 'administration.json'),
+        ];
+
+        sort($actualPaths);
+        sort($expectedPaths);
+
+        static::assertSame($expectedPaths, $actualPaths);
+
+        static::assertFalse(\in_array(Path::join($platformPath, 'storefront.json'), $actualPaths, true));
+        static::assertFalse(\in_array(Path::join($platformPath, 'messages.es-ES.base.json'), $actualPaths, true));
+        static::assertFalse(\in_array(Path::join($platformPath, 'administration.json'), $actualPaths, true));
+    }
+
     public function testLoadCoreSnippetsSkipsInvalidPathStructure(): void
     {
         $this->filesystem->write('locales/invalid-path/file.json', '{}');

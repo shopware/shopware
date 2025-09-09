@@ -23,7 +23,7 @@
                     {% set isCompany = true %}
                 {% endif %}
 
-                {% if onlyCompanyRegistration and (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
+                {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
                     {% set isCompany = true %}
                 {% endif %}
 

@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration;
+namespace Shopware\Tests;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
@@ -12,6 +14,8 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
+#[CoversNothing]
 class MailTemplateMigrationTestCase extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -22,6 +26,13 @@ class MailTemplateMigrationTestCase extends TestCase
     public const LANGUAGE_NAME_DE = 'Deutsch';
 
     protected Connection $connection;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->connection = $this->getContainer()->get(Connection::class);
+    }
 
     public static function assertMailTemplateTranslations(Translations $expected, Translations $current): void
     {
@@ -61,13 +72,6 @@ class MailTemplateMigrationTestCase extends TestCase
             $mailTemplateId,
             $translations
         );
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     protected function getTranslations(string $mailTemplateId): Translations

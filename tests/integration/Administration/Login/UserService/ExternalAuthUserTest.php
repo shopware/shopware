@@ -195,7 +195,7 @@ class ExternalAuthUserTest extends TestCase
             'email' => 'test@test.com',
         ];
 
-        $externalAuthUser = ExternalAuthUser::createFromDatabaseQuery($data, $token, $refreshToken);
+        $externalAuthUser = ExternalAuthUser::createFromDatabaseQuery($data, $token, $refreshToken, new \DateTimeImmutable());
 
         static::assertSame($id, $externalAuthUser->id);
         static::assertSame($userId, $externalAuthUser->userId);

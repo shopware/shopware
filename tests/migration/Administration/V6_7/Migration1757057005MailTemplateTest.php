@@ -2,14 +2,12 @@
 
 namespace Shopware\Tests\Migration\Administration\V6_7;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Migration\V6_7\Migration1757057005MailTemplate;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\Traits\MailUpdate;
-use Shopware\Tests\Migration\MailTemplateMigrationTrait;
+use Shopware\Tests\Migration\MailTemplateMigrationTestCase;
 use Shopware\Tests\Migration\Translations;
 
 /**
@@ -17,12 +15,8 @@ use Shopware\Tests\Migration\Translations;
  */
 #[Package('framework')]
 #[CoversClass(Migration1757057005MailTemplate::class)]
-class Migration1757057005MailTemplateTest extends TestCase
+class Migration1757057005MailTemplateTest extends MailTemplateMigrationTestCase
 {
-    use MailTemplateMigrationTrait;
-
-    private Connection $connection;
-
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();

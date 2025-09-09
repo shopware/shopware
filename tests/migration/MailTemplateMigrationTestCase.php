@@ -3,19 +3,25 @@
 namespace Shopware\Tests\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
-trait MailTemplateMigrationTrait
+class MailTemplateMigrationTestCase extends TestCase
 {
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use UpdateMailTrait;
 
-    private const LANGUAGE_NAME_EN = 'English';
-    private const LANGUAGE_NAME_DE = 'Deutsch';
+    public const LANGUAGE_NAME_EN = 'English';
+    public const LANGUAGE_NAME_DE = 'Deutsch';
+
+    protected Connection $connection;
 
     public static function assertMailTemplateTranslations(Translations $expected, Translations $current): void
     {
@@ -36,10 +42,10 @@ trait MailTemplateMigrationTrait
             $expected->setDeHtml($fileSystem->readFile((string) $expected->getDeHtml()));
         }
 
-        \assert($expected->getEnPlain() === $current->getEnPlain(), new \AssertionError('Expect "enPlain" to be same'));
-        \assert($expected->getEnHtml() === $current->getEnHtml(), new \AssertionError('Expect "enHtml" to be same'));
-        \assert($expected->getDePlain() === $current->getDePlain(), new \AssertionError('Expect "dePlain" to be same'));
-        \assert($expected->getDeHtml() === $current->getDeHtml(), new \AssertionError('Expect "deHtml" to be same'));
+        static::assertSame($expected->getEnPlain(), $current->getEnPlain());
+        static::assertSame($expected->getEnHtml(), $current->getEnHtml());
+        static::assertSame($expected->getDePlain(), $current->getDePlain());
+        static::assertSame($expected->getDeHtml(), $current->getDeHtml());
     }
 
     public function getMailTemplateTranslations(string $mailTemplateTypeTechnicalName): MailTemplateTranslationResult
@@ -57,11 +63,18 @@ trait MailTemplateMigrationTrait
         );
     }
 
-    public function getTranslations(string $mailTemplateId): Translations
+    protected function setUp(): void
     {
-        $languages = $this->getConnection()->fetchAllKeyValue('SELECT `name`, `id` FROM `language` WHERE `name` IN ("Deutsch", "English")');
+        parent::setUp();
 
-        $translationArray = $this->getConnection()->fetchAllAssociativeIndexed(
+        $this->connection = $this->getContainer()->get(Connection::class);
+    }
+
+    protected function getTranslations(string $mailTemplateId): Translations
+    {
+        $languages = $this->connection->fetchAllKeyValue('SELECT `name`, `id` FROM `language` WHERE `name` IN ("Deutsch", "English")');
+
+        $translationArray = $this->connection->fetchAllAssociativeIndexed(
             'SELECT `language_id`, `content_html`, `content_plain`  FROM `mail_template_translation` WHERE `mail_template_id` = :mailTemplateId',
             [
                 'mailTemplateId' => $mailTemplateId,
@@ -84,34 +97,29 @@ trait MailTemplateMigrationTrait
         return $translations;
     }
 
-    private function getConnection(): Connection
+    protected function getMailTemplateTypeId(string $mailTemplateTypeTechnicalName): string
     {
-        return KernelLifecycleManager::getConnection();
-    }
-
-    private function getMailTemplateTypeId(string $mailTemplateTypeTechnicalName): string
-    {
-        $result = $this->getConnection()->fetchOne(
+        $result = $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
             ['technicalName' => $mailTemplateTypeTechnicalName]
         );
 
         if (!$result) {
-            throw new \RuntimeException('Coud not find mail template type id. Check the given technical_name.');
+            static::fail('Could not find mail template type id. Check the given technical_name.');
         }
 
         return $result;
     }
 
-    private function getMailTemplateId(string $mailTemplateTypeId): string
+    protected function getMailTemplateId(string $mailTemplateTypeId): string
     {
-        $result = $this->getConnection()->fetchOne(
+        $result = $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId AND system_default = 1',
             ['mailTemplateTypeId' => $mailTemplateTypeId]
         );
 
         if (!$result) {
-            throw new \RuntimeException('Coud not find mail template id');
+            static::fail('Could not find mail template id');
         }
 
         return $result;

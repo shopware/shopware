@@ -177,6 +177,8 @@ class CmsSlotsDataResolver
         $searchResults = [];
         foreach ($searches as $definitionClass => $criteriaObjects) {
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
+                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
                 $definition = $this->definitionRegistry->get($definitionClass);
 
                 $repository = $this->getSalesChannelApiRepository($definition);

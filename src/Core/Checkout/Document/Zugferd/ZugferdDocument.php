@@ -176,9 +176,14 @@ class ZugferdDocument
         if (!Feature::isActive('v6.8.0.0')) {
             $this->addLineTotalAmount($totalNet);
         }
+
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
-            ->setDocumentPositionNetPrice(\round($totalNet / $lineItem->getQuantity(), 2), $lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
+            ->setDocumentPositionNetPrice(
+                \round($totalNet / $lineItem->getQuantity(), 2),
+                $lineItem->getProduct()?->getPurchaseUnit() ?? 1,
+                ZugferdUnitCodes::REC20_PIECE
+            )
             ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
             ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax?->getTaxRate() ?? 0.0)
             ->setDocumentPositionLineSummation($totalNet)

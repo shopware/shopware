@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -200,6 +201,69 @@ class ZugferdDocumentTest extends TestCase
         );
 
         $this->validateDocument($document->getDomContent($order, $calculator), ['100.00', '0.00', '0.00', '100.00', '0.00', '100.00', '100.00', '0.00']);
+    }
+
+    #[DataProvider('basisQuantityProvider')]
+    public function testBasisQuantity(?int $purchaseUnit, string $expectedBasisQuantity): void
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(100.0);
+        $order->setAmountNet(100);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $product = new ProductEntity();
+        $product->setProductNumber('123');
+        if ($purchaseUnit !== null) {
+            $product->setPurchaseUnit($purchaseUnit);
+        }
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId(Uuid::randomHex());
+        $lineItem->setProduct($product);
+        $lineItem->setLabel('Product ' . $lineItem->getId());
+        $lineItem->setQuantity(1);
+        $lineItem->setPosition(1);
+        $lineItem->setPrice(new CalculatedPrice(
+            100.0,
+            100.0,
+            new CalculatedTaxCollection([]),
+            new TaxRuleCollection(),
+        ));
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withProductLineItem($lineItem, '');
+        $document->withPaidAmount(100.0);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $document = $document->getDomContent($order, $calculator);
+
+        $basisQuantity = $document
+            ->getElementsByTagName('SupplyChainTradeTransaction')->item(0)
+            ?->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(0)
+            ?->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
+            ?->getElementsByTagName('NetPriceProductTradePrice')->item(0)
+            ?->getElementsByTagName('BasisQuantity')->item(0);
+
+        static::assertSame($expectedBasisQuantity, $basisQuantity?->nodeValue);
+    }
+
+    public static function basisQuantityProvider(): \Generator
+    {
+        yield 'with purchase unit' => [
+            'purchaseUnit' => 5,
+            'expectedBasisQuantity' => '5.00',
+        ];
+        yield 'without purchase unit' => [
+            'purchaseUnit' => null,
+            'expectedBasisQuantity' => '1.00',
+        ];
     }
 
     /**

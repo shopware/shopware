@@ -40,12 +40,12 @@ class TranslationMetadataLoaderTest extends TestCase
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->config = new TranslationConfig(
             new Uri('http://localhost:8000'),
-            ['es-ES', 'en-GB', 'de-DE', 'fr-FR'],
+            ['es-ES', 'it-IT', 'ro-RO', 'fr-FR'],
             ['SwagPublisher'],
             new LanguageCollection([
                 new Language('es-ES', 'Español'),
-                new Language('en-GB', 'English'),
-                new Language('de-DE', 'Deutsch'),
+                new Language('it-IT', 'Italiano'),
+                new Language('ro-RO', 'Română'),
                 new Language('fr-FR', 'Français'),
             ]),
             new PluginMappingCollection(),
@@ -62,7 +62,7 @@ class TranslationMetadataLoaderTest extends TestCase
                 'progress' => 100,
             ],
             [
-                'locale' => 'en-GB',
+                'locale' => 'it-IT',
                 'updatedAt' => '2025-08-07T11:26:28.974+00:00',
                 'progress' => 100,
             ],
@@ -76,17 +76,17 @@ class TranslationMetadataLoaderTest extends TestCase
         $metadata = $this->readMetadataFromLocalFilesystem();
 
         static::assertArrayHasKey('es-ES', $metadata);
-        static::assertArrayHasKey('en-GB', $metadata);
+        static::assertArrayHasKey('it-IT', $metadata);
 
         $es = $metadata['es-ES'];
         static::assertSame('es-ES', $es['locale']);
         static::assertSame('2025-08-07T11:26:28.974+00:00', $es['updatedAt']);
         static::assertSame(100, $es['progress']);
 
-        $en = $metadata['en-GB'];
-        static::assertSame('en-GB', $en['locale']);
-        static::assertSame('2025-08-07T11:26:28.974+00:00', $en['updatedAt']);
-        static::assertSame(100, $en['progress']);
+        $it = $metadata['it-IT'];
+        static::assertSame('it-IT', $it['locale']);
+        static::assertSame('2025-08-07T11:26:28.974+00:00', $it['updatedAt']);
+        static::assertSame(100, $it['progress']);
     }
 
     public function testThrowExceptionIfDownloadFailed(): void
@@ -106,10 +106,10 @@ class TranslationMetadataLoaderTest extends TestCase
 
         static::expectException(SnippetException::class);
         static::expectExceptionMessage('Failed to download translation metadata from "http://localhost:8000/metadata.json": Error');
-        $loader->getUpdatedMetadata(['es-ES', 'en-GB']);
+        $loader->getUpdatedLocalMetadata(['es-ES', 'it-IT']);
     }
 
-    public function testGetUpdatedMetadataMergesLocalAndRemoteMetadata(): void
+    public function testGetUpdatedLocalMetadataMergesLocalAndRemoteMetadata(): void
     {
         // remote metadata
         $this->initClient([
@@ -119,12 +119,12 @@ class TranslationMetadataLoaderTest extends TestCase
                 'progress' => 100,
             ],
             [
-                'locale' => 'en-GB',
+                'locale' => 'it-IT',
                 'updatedAt' => '2025-09-12T11:26:28.974+00:00',
                 'progress' => 99,
             ],
             [
-                'locale' => 'de-DE',
+                'locale' => 'ro-RO',
                 'updatedAt' => '2025-09-10T11:26:28.974+00:00',
                 'progress' => 90,
             ],
@@ -142,37 +142,71 @@ class TranslationMetadataLoaderTest extends TestCase
 
         $metadata = $this->readMetadataFromLocalFilesystem();
 
-        // only en-GB and es-ES are stored locally
+        // only it-IT and es-ES are stored locally
         static::assertArrayHasKey('es-ES', $metadata);
-        static::assertArrayHasKey('en-GB', $metadata);
+        static::assertArrayHasKey('it-IT', $metadata);
         static::assertCount(2, $metadata);
 
-        $updated = $loader->getUpdatedMetadata(['es-ES', 'en-GB', 'de-DE']);
+        $updated = $loader->getUpdatedLocalMetadata(['es-ES', 'it-IT', 'ro-RO']);
 
         // update by remote
-        $gb = $updated->get('en-GB');
-        static::assertNotNull($gb);
-        static::assertSame('en-GB', $gb->locale);
-        static::assertSame(99, $gb->progress);
-        $this->assertDatetime('2025-09-12T11:26:28.974000+00:00', $gb->updatedAt);
+        $it = $updated->get('it-IT');
+        static::assertNotNull($it);
+        static::assertSame('it-IT', $it->locale);
+        static::assertSame(99, $it->progress);
+        $this->assertDatetime('2025-09-12T11:26:28.974000+00:00', $it->updatedAt);
 
         // no update required
-        $gb = $updated->get('es-ES');
-        static::assertNotNull($gb);
-        static::assertSame('es-ES', $gb->locale);
-        static::assertSame(100, $gb->progress);
-        $this->assertDatetime('2025-08-07T11:26:28.974+00:00', $gb->updatedAt);
+        $es = $updated->get('es-ES');
+        static::assertNotNull($es);
+        static::assertSame('es-ES', $es->locale);
+        static::assertSame(100, $es->progress);
+        $this->assertDatetime('2025-08-07T11:26:28.974+00:00', $es->updatedAt);
 
         // new locale added
-        $de = $updated->get('de-DE');
-        static::assertNotNull($de);
-        static::assertSame('de-DE', $de->locale);
-        static::assertSame(90, $de->progress);
-        $this->assertDatetime('2025-09-10T11:26:28.974000+00:00', $de->updatedAt);
+        $ro = $updated->get('ro-RO');
+        static::assertNotNull($ro);
+        static::assertSame('ro-RO', $ro->locale);
+        static::assertSame(90, $ro->progress);
+        $this->assertDatetime('2025-09-10T11:26:28.974000+00:00', $ro->updatedAt);
 
         // no local added because not requested
         $fr = $updated->get('fr-FR');
         static::assertNull($fr);
+    }
+
+    public function testGetUpdatedLocalMetadataUpdatesAllInstalledIfNoLocalesProvided(): void
+    {
+        // remote metadata
+        $this->initClient([
+            [
+                'locale' => 'it-IT',
+                'updatedAt' => '2025-08-07T11:26:28.974+00:00',
+                'progress' => 100,
+            ],
+            [
+                'locale' => 'es-ES',
+                'updatedAt' => '2025-08-12T11:26:28.974+00:00',
+                'progress' => 100,
+            ],
+        ]);
+
+        $metadata = $this->getMetadataCollection();
+
+        $loader = $this->getTranslationMetadataLoader();
+        $loader->save($metadata);
+
+        $updated = $loader->getUpdatedLocalMetadata();
+
+        $it = $updated->get('it-IT');
+        static::assertInstanceOf(MetadataEntry::class, $it);
+        static::assertFalse($it->isUpdateRequired);
+        $this->assertDatetime('2025-08-07T11:26:28.974+00:00', $it->updatedAt);
+
+        $es = $updated->get('es-ES');
+        static::assertInstanceOf(MetadataEntry::class, $es);
+        static::assertTrue($es->isUpdateRequired);
+        $this->assertDatetime('2025-08-12T11:26:28.974+00:00', $es->updatedAt);
     }
 
     private function getTranslationMetadataLoader(): TranslationMetadataLoader
@@ -197,7 +231,7 @@ class TranslationMetadataLoaderTest extends TestCase
     {
         $elements = [
             MetadataEntry::create([
-                'locale' => 'en-GB',
+                'locale' => 'it-IT',
                 'updatedAt' => '2025-08-07T11:26:28.974+00:00',
                 'progress' => 100,
             ]),

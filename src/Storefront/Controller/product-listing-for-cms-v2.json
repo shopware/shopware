@@ -7,84 +7,84 @@
     "sections": {
       "header": {
         "id": "c5afc4d0-eee9-4890-82c9-d0c493dede37",
-        "type": "header",
-        "version": "1.0.0",
-        "style": {
+        "properties": {
           "background": "white",
           "shadow": "small",
           "sticky": true,
           "layer": 1000,
           "fullWidth": true
         },
-        "elements": [
-          {
-            "id": "66a96b92-924f-4e99-92d2-44de9061c85b",
-            "type": "navigation",
-            "version": "1.2.0",
-            "data": {
-              "sticky": true,
-              "transparent": false,
-              "navigation": {
-                "items": [
+        "slots": {
+          "_default": [
+            {
+              "id": "66a96b92-924f-4e99-92d2-44de9061c85b",
+              "properties": {
+                "sticky": true,
+                "transparent": false,
+                "layout": "horizontal",
+                "alignment": "space-between",
+                "verticalAlignment": "center",
+                "padding": "medium",
+                "maxWidth": "1200",
+                "centered": true
+              },
+              "data": {
+                "navigation": {
+                  "items": [
+                    {
+                      "id": "3a30f6f0-1cc1-4b3e-b98a-247cb93b2669",
+                      "name": "Green Tea",
+                      "url": "/tea/green-tea",
+                      "active": true
+                    },
+                    {
+                      "id": "884c66c1-471c-497e-8e06-eed2a30d06c0",
+                      "name": "Rooibos",
+                      "url": "/tea/rooibos",
+                      "active": false
+                    }
+                  ]
+                }
+              },
+              "slots": {
+                "logo": [
                   {
-                    "id": "3a30f6f0-1cc1-4b3e-b98a-247cb93b2669",
-                    "name": "Green Tea",
-                    "url": "/tea/green-tea",
-                    "active": true
-                  },
-                  {
-                    "id": "884c66c1-471c-497e-8e06-eed2a30d06c0",
-                    "name": "Rooibos",
-                    "url": "/tea/rooibos",
-                    "active": false
+                    "id": "ee87cec8-b59f-428b-918c-fb53b3a6629e",
+                    "properties": {
+                      "width": "150",
+                      "height": "40",
+                      "link": "/"
+                    },
+                    "data": {
+                      "image": {
+                        "url": "/media/logo.svg",
+                        "alt": "Tea Shop Logo"
+                      }
+                    },
+                    "type": "logo"
                   }
                 ]
-              }
-            },
-            "style": {
-              "layout": "horizontal",
-              "alignment": "space-between",
-              "verticalAlignment": "center",
-              "padding": "medium",
-              "maxWidth": "1200",
-              "centered": true
-            },
-            "slots": {
-              "logo": {
-                "id": "ee87cec8-b59f-428b-918c-fb53b3a6629e",
-                "type": "logo",
-                "version": "1.0.0",
-                "data": {
-                  "image": {
-                    "url": "/media/logo.svg",
-                    "alt": "Tea Shop Logo"
-                  },
-                  "link": "/"
-                },
-                "style": {
-                  "width": "150",
-                  "height": "40"
-                }
-              }
+              },
+              "type": "navigation"
             }
-          }
-        ]
+          ]
+        },
+        "type": "header"
       },
       "content": {
         "placeholder": "page-content"
       },
       "footer": {
         "id": "02228cd2-e797-4f44-a8a7-28347780e9d1",
-        "type": "footer",
-        "version": "1.0.0",
-        "style": {
+        "properties": {
           "background": "dark-blue",
           "textColor": "white",
           "spacing": {
             "top": "extra-large",
             "inner": "large"
           }
-        }
+        },
+        "type": "footer"
       }
     }
   },
@@ -93,593 +93,662 @@
     "type": "category-listing",
     "version": "2.1.0",
     "name": "Green Tea Category",
+    "properties": {},
     "data": {
       "category": {
         "id": "5607d225-1b91-439f-aeb5-a7fc2b61261b",
         "name": "Green Tea",
         "description": "Discover our premium selection of green teas from around the world",
         "breadcrumb": [
-          {"name": "Home", "url": "/"},
-          {"name": "Tea", "url": "/tea"},
-          {"name": "Green Tea", "url": "/tea/green-tea"}
+          {
+            "name": "Home",
+            "url": "/"
+          },
+          {
+            "name": "Tea",
+            "url": "/tea"
+          },
+          {
+            "name": "Green Tea",
+            "url": "/tea/green-tea"
+          }
         ],
         "productCount": 24
       }
     },
-    "style": {
-      "background": "light-gray",
-      "minHeight": "full"
-    },
-    "elements": [
-      {
-        "id": "6b65d93b-1b17-439d-8970-1f2cb34500ed",
-        "type": "breadcrumb",
-        "version": "1.0.0",
-        "data": {
-          "items": [
-            {"name": "Home", "url": "/"},
-            {"name": "Tea", "url": "/tea"},
-            {"name": "Green Tea", "url": "/tea/green-tea"}
-          ]
-        },
-        "style": {
-          "padding": "small",
-          "maxWidth": "1200",
-          "centered": true
-        }
-      },
-      {
-        "id": "bc061a4f-a175-4ce3-b60e-04adaab46f46",
-        "type": "category-header",
-        "version": "1.1.0",
-        "style": {
-          "padding": "medium",
-          "maxWidth": "1200",
-          "centered": true,
-          "spacing": {
-            "bottom": "medium"
-          }
-        },
-        "elements": [
-          {
-            "id": "fc9d0bbf-bae6-4c83-b4fe-f821ba571e7a",
-            "type": "heading",
-            "version": "1.0.0",
-            "data": {
-              "text": "Green Tea",
-              "level": 1
-            },
-            "style": {
-              "size": "extra-large",
-              "weight": "bold",
-              "color": "dark",
-              "spacing": {
-                "bottom": "small"
+    "slots": {
+      "_default": [
+        {
+          "id": "6b65d93b-1b17-439d-8970-1f2cb34500ed",
+          "properties": {
+            "padding": "small",
+            "maxWidth": "1200",
+            "centered": true
+          },
+          "data": {
+            "items": [
+              {
+                "name": "Home",
+                "url": "/"
+              },
+              {
+                "name": "Tea",
+                "url": "/tea"
+              },
+              {
+                "name": "Green Tea",
+                "url": "/tea/green-tea"
               }
+            ]
+          },
+          "type": "breadcrumb"
+        },
+        {
+          "id": "bc061a4f-a175-4ce3-b60e-04adaab46f46",
+          "properties": {
+            "padding": "medium",
+            "maxWidth": "1200",
+            "centered": true,
+            "spacing": {
+              "bottom": "medium"
             }
           },
-          {
-            "id": "b3f40ba3-c102-414b-812a-b33e09512cb9",
-            "type": "text",
-            "version": "1.0.0",
-            "data": {
-              "text": "Discover our premium selection of green teas from around the world"
+          "slots": {
+            "_default": [
+              {
+                "id": "fc9d0bbf-bae6-4c83-b4fe-f821ba571e7a",
+                "properties": {
+                  "level": 1,
+                  "size": "extra-large",
+                  "weight": "bold",
+                  "color": "dark",
+                  "spacing": {
+                    "bottom": "small"
+                  }
+                },
+                "data": {
+                  "text": "Green Tea"
+                },
+                "type": "heading"
+              },
+              {
+                "id": "b3f40ba3-c102-414b-812a-b33e09512cb9",
+                "properties": {
+                  "size": "large",
+                  "color": "gray",
+                  "lineHeight": "relaxed"
+                },
+                "data": {
+                  "text": "Discover our premium selection of green teas from around the world"
+                },
+                "type": "text"
+              }
+            ]
+          },
+          "type": "category-header"
+        },
+        {
+          "id": "cfbd1515-6ab5-4b2e-9208-da648fd92cd1",
+          "properties": {
+            "columns": {
+              "desktop": 12,
+              "tablet": 8,
+              "mobile": 4
             },
-            "style": {
-              "size": "large",
-              "color": "gray",
-              "lineHeight": "relaxed"
-            }
-          }
-        ]
-      },
-      {
-        "id": "cfbd1515-6ab5-4b2e-9208-da648fd92cd1",
-        "type": "grid",
-        "version": "2.0.0",
-        "data": {
-          "columns": {
-            "desktop": 12,
-            "tablet": 8,
-            "mobile": 4
+            "gap": "medium",
+            "responsive": true,
+            "layout": "sidebar-content",
+            "sidebarWidth": "280",
+            "maxWidth": "1200",
+            "centered": true,
+            "padding": "medium"
           },
-          "gap": "medium",
-          "responsive": true
-        },
-        "style": {
-          "layout": "sidebar-content",
-          "sidebarWidth": "280",
-          "gap": "medium",
-          "maxWidth": "1200",
-          "centered": true,
-          "padding": "medium"
-        },
-        "slots": {
-          "sidebar": {
-            "id": "ad32c59f-83ac-44e4-ac8f-622d14ab88dc",
-            "type": "filter-panel",
-            "version": "3.2.0",
-            "data": {
-              "sticky": true,
-              "collapsible": true,
-              "mobileOffcanvas": true,
-              "filters": [
-                {
-                  "id": "filter-type",
-                  "name": "Tea Type",
-                  "type": "multi-select",
-                  "options": [
+          "slots": {
+            "sidebar": [
+              {
+                "id": "ad32c59f-83ac-44e4-ac8f-622d14ab88dc",
+                "properties": {
+                  "sticky": true,
+                  "collapsible": true,
+                  "mobileOffcanvas": true,
+                  "background": "white",
+                  "corners": "rounded",
+                  "padding": "medium",
+                  "shadow": "subtle",
+                  "stickyOffset": "100"
+                },
+                "data": {
+                  "filters": [
                     {
-                      "value": "sencha",
-                      "label": "Sencha",
-                      "count": 8,
-                      "selected": false
+                      "id": "filter-type",
+                      "name": "Tea Type",
+                      "type": "multi-select",
+                      "options": [
+                        {
+                          "value": "sencha",
+                          "label": "Sencha",
+                          "count": 8,
+                          "selected": false
+                        },
+                        {
+                          "value": "matcha",
+                          "label": "Matcha",
+                          "count": 4,
+                          "selected": false
+                        }
+                      ]
                     },
                     {
-                      "value": "matcha",
-                      "label": "Matcha",
-                      "count": 4,
-                      "selected": false
+                      "id": "filter-price",
+                      "name": "Price",
+                      "type": "range-slider",
+                      "data": {
+                        "min": 5,
+                        "max": 50,
+                        "step": 5,
+                        "currency": "EUR",
+                        "currentMin": 5,
+                        "currentMax": 50
+                      }
+                    }
+                  ],
+                  "activeFilters": []
+                },
+                "type": "filter-panel"
+              }
+            ],
+            "main": [
+              {
+                "id": "38533016-a5ae-40c3-b7a5-c7dd73b43b98",
+                "properties": {
+                  "layout": "grid",
+                  "columns": {
+                    "desktop": 4,
+                    "tablet": 3,
+                    "mobile": 2
+                  },
+                  "gap": "small",
+                  "verticalLayout": "vertical",
+                  "verticalGap": "medium"
+                },
+                "data": {
+                  "sorting": {
+                    "active": "price-asc",
+                    "options": [
+                      {
+                        "value": "name-asc",
+                        "label": "Name A-Z"
+                      },
+                      {
+                        "value": "price-asc",
+                        "label": "Price Low to High"
+                      },
+                      {
+                        "value": "rating",
+                        "label": "Customer Rating"
+                      }
+                    ]
+                  },
+                  "pagination": {
+                    "total": 24,
+                    "perPage": 12,
+                    "currentPage": 1,
+                    "totalPages": 2
+                  }
+                },
+                "slots": {
+                  "toolbar": [
+                    {
+                      "id": "63cb499e-64de-4f68-b8b5-51ccb8321a7c",
+                      "properties": {
+                        "layout": "horizontal",
+                        "alignment": "space-between",
+                        "verticalAlignment": "center",
+                        "spacing": {
+                          "bottom": "medium"
+                        }
+                      },
+                      "slots": {
+                        "_default": [
+                          {
+                            "id": "0fd71dc8-d78d-4761-b7d5-71305b3ac708",
+                            "properties": {
+                              "size": "medium",
+                              "color": "gray"
+                            },
+                            "data": {
+                              "count": 24,
+                              "text": "24 Products found"
+                            },
+                            "type": "result-count"
+                          },
+                          {
+                            "id": "0fd71dc8-d78d-4761-b7d5-71305b3ac709",
+                            "properties": {},
+                            "data": {
+                              "active": "price-asc",
+                              "options": [
+                                {
+                                  "value": "name-asc",
+                                  "label": "Name A-Z"
+                                },
+                                {
+                                  "value": "price-asc",
+                                  "label": "Price Low to High"
+                                }
+                              ]
+                            },
+                            "type": "sorting-dropdown"
+                          }
+                        ]
+                      },
+                      "type": "listing-toolbar"
+                    }
+                  ],
+                  "products": [
+                    {
+                      "id": "0fd71dc8-d78d-4761-b7d5-71305b3ac710",
+                      "properties": {
+                        "layout": "grid",
+                        "columns": "auto-fit",
+                        "minColumnWidth": "250",
+                        "gap": "medium"
+                      },
+                      "slots": {
+                        "_default": [
+                          {
+                            "id": "732a1d5f-0b25-414f-8057-5e3fb20dfca7",
+                            "properties": {
+                              "type": "basic-box",
+                              "showBuyButton": true,
+                              "showWishlist": true,
+                              "background": "white",
+                              "corners": "rounded",
+                              "shadow": "subtle",
+                              "hoverEffect": "lift",
+                              "clickable": true
+                            },
+                            "data": {
+                              "product": {
+                                "id": "544553f2-3638-4528-9c02-bb95b1085ef0",
+                                "name": "Premium Sencha",
+                                "manufacturer": {
+                                  "name": "Kyoto Tea Gardens"
+                                },
+                                "description": "A delicate and refreshing Japanese green tea with a sweet, grassy flavor",
+                                "price": {
+                                  "value": 15.0,
+                                  "currency": "EUR",
+                                  "formatted": "\u20ac15.00",
+                                  "net": 12.61,
+                                  "gross": 15.0,
+                                  "taxRate": 19
+                                },
+                                "originalPrice": {
+                                  "value": 18.0,
+                                  "currency": "EUR",
+                                  "formatted": "\u20ac18.00"
+                                },
+                                "image": {
+                                  "url": "/media/3dac9824-c758-466b-8854-daf75b5d07f9.jpg",
+                                  "alt": "Premium Sencha Green Tea",
+                                  "thumbnails": {
+                                    "small": "/media/3dac9824-c758-466b-8854-daf75b5d07f9_200x200.jpg",
+                                    "medium": "/media/3dac9824-c758-466b-8854-daf75b5d07f9_400x400.jpg"
+                                  }
+                                },
+                                "attributes": {
+                                  "caffeine": "medium",
+                                  "type": "sencha",
+                                  "strength": "light",
+                                  "size": "100g"
+                                },
+                                "stock": {
+                                  "available": true,
+                                  "quantity": 45,
+                                  "deliveryTime": "1-3 days"
+                                },
+                                "rating": {
+                                  "average": 4.5,
+                                  "count": 28
+                                },
+                                "url": "/tea/green-tea/premium-sencha",
+                                "badges": [
+                                  {
+                                    "type": "discount",
+                                    "text": "-17%",
+                                    "color": "red"
+                                  },
+                                  {
+                                    "type": "new",
+                                    "text": "New",
+                                    "color": "green"
+                                  }
+                                ]
+                              }
+                            },
+                            "slots": {
+                              "_default": [
+                                {
+                                  "id": "6b2b96b5-a68d-468e-812c-aed2e3807856",
+                                  "properties": {
+                                    "lazy": true,
+                                    "showThumbnailSlider": true,
+                                    "aspectRatio": "square",
+                                    "objectFit": "cover"
+                                  },
+                                  "data": {
+                                    "image": {
+                                      "url": "/media/3dac9824-c758-466b-8854-daf75b5d07f9.jpg",
+                                      "alt": "Premium Sencha Green Tea"
+                                    }
+                                  },
+                                  "slots": {
+                                    "_default": [
+                                      {
+                                        "id": "1b75597e-703a-496d-b29c-cadd62893cd1",
+                                        "properties": {
+                                          "fill": true,
+                                          "objectFit": "cover",
+                                          "loading": "lazy"
+                                        },
+                                        "data": {
+                                          "src": "/media/3dac9824-c758-466b-8854-daf75b5d07f9_400x400.jpg",
+                                          "alt": "Premium Sencha Green Tea"
+                                        },
+                                        "type": "image"
+                                      },
+                                      {
+                                        "id": "e0f39187-aaff-4abe-9a8d-ed767ce2aea5",
+                                        "properties": {
+                                          "position": "top-left",
+                                          "layout": "vertical",
+                                          "gap": "small"
+                                        },
+                                        "slots": {
+                                          "_default": [
+                                            {
+                                              "id": "1cbdedee-a5af-46e1-bdcd-097d704e30e4",
+                                              "properties": {
+                                                "background": "red",
+                                                "textColor": "white",
+                                                "padding": "small",
+                                                "corners": "slightly-rounded",
+                                                "size": "small",
+                                                "weight": "semibold"
+                                              },
+                                              "data": {
+                                                "text": "-17%",
+                                                "type": "discount"
+                                              },
+                                              "type": "badge"
+                                            }
+                                          ]
+                                        },
+                                        "type": "badge-container"
+                                      }
+                                    ]
+                                  },
+                                  "type": "product-image"
+                                },
+                                {
+                                  "id": "1b75597e-703a-496d-b29c-cadd62893cd2",
+                                  "properties": {
+                                    "padding": "medium"
+                                  },
+                                  "slots": {
+                                    "_default": [
+                                      {
+                                        "id": "e0f39187-aaff-4abe-9a8d-ed767ce2aea6",
+                                        "properties": {
+                                          "tag": "h3",
+                                          "truncate": true,
+                                          "maxLines": 2,
+                                          "size": "medium-large",
+                                          "weight": "semibold",
+                                          "color": "dark",
+                                          "spacing": {
+                                            "bottom": "small"
+                                          },
+                                          "showEllipsis": true
+                                        },
+                                        "data": {
+                                          "text": "Premium Sencha"
+                                        },
+                                        "type": "product-name"
+                                      },
+                                      {
+                                        "id": "d4df34cf-87fe-48e2-8ba2-8dc3e20d53a0",
+                                        "properties": {
+                                          "size": "small",
+                                          "color": "gray",
+                                          "spacing": {
+                                            "bottom": "small"
+                                          }
+                                        },
+                                        "data": {
+                                          "text": "Kyoto Tea Gardens"
+                                        },
+                                        "type": "manufacturer"
+                                      },
+                                      {
+                                        "id": "1cbdedee-a5af-46e1-bdcd-097d704e30e5",
+                                        "properties": {
+                                          "showOriginalPrice": true,
+                                          "showTaxInfo": true,
+                                          "layout": "horizontal",
+                                          "alignment": "baseline",
+                                          "gap": "small",
+                                          "spacing": {
+                                            "bottom": "small"
+                                          }
+                                        },
+                                        "data": {
+                                          "price": {
+                                            "value": 15.0,
+                                            "currency": "EUR",
+                                            "formatted": "\u20ac15.00"
+                                          },
+                                          "originalPrice": {
+                                            "value": 18.0,
+                                            "formatted": "\u20ac18.00"
+                                          }
+                                        },
+                                        "slots": {
+                                          "_default": [
+                                            {
+                                              "id": "5c02fa17-8788-49d1-a85e-bf4bf87c176c",
+                                              "properties": {
+                                                "size": "large",
+                                                "weight": "bold",
+                                                "color": "green"
+                                              },
+                                              "data": {
+                                                "value": 15.0,
+                                                "formatted": "\u20ac15.00"
+                                              },
+                                              "type": "price"
+                                            },
+                                            {
+                                              "id": "077de4df-4c09-4238-ad8d-81ec024c9d87",
+                                              "properties": {
+                                                "size": "medium",
+                                                "color": "light-gray",
+                                                "strikethrough": true
+                                              },
+                                              "data": {
+                                                "value": 18.0,
+                                                "formatted": "\u20ac18.00"
+                                              },
+                                              "type": "price-original"
+                                            }
+                                          ]
+                                        },
+                                        "type": "product-price"
+                                      },
+                                      {
+                                        "id": "eea0e2e6-6af3-42f1-8af7-ce9f8a5ee8eb",
+                                        "properties": {
+                                          "showCount": true,
+                                          "layout": "horizontal",
+                                          "alignment": "center",
+                                          "gap": "small",
+                                          "spacing": {
+                                            "bottom": "medium"
+                                          }
+                                        },
+                                        "data": {
+                                          "rating": {
+                                            "average": 4.5,
+                                            "count": 28
+                                          }
+                                        },
+                                        "type": "product-rating"
+                                      }
+                                    ]
+                                  },
+                                  "type": "product-info"
+                                },
+                                {
+                                  "id": "45c2d03a-f0af-4af3-864f-623b10b6ac0b",
+                                  "properties": {
+                                    "padding": {
+                                      "horizontal": "medium",
+                                      "bottom": "medium"
+                                    },
+                                    "layout": "horizontal",
+                                    "gap": "small"
+                                  },
+                                  "slots": {
+                                    "_default": [
+                                      {
+                                        "id": "2cce4752-0af2-4136-a581-ee6632b5a2c9",
+                                        "properties": {
+                                          "buttonText": "Add to Cart",
+                                          "buttonStyle": "primary",
+                                          "grow": true
+                                        },
+                                        "data": {
+                                          "productId": "544553f2-3638-4528-9c02-bb95b1085ef0"
+                                        },
+                                        "slots": {
+                                          "_default": [
+                                            {
+                                              "id": "de26ce69-76fe-4099-b02b-239f6b7422e6",
+                                              "properties": {
+                                                "variant": "primary",
+                                                "size": "medium",
+                                                "fullWidth": true,
+                                                "corners": "slightly-rounded"
+                                              },
+                                              "data": {
+                                                "text": "Add to Cart",
+                                                "action": "add-to-cart",
+                                                "productId": "544553f2-3638-4528-9c02-bb95b1085ef0"
+                                              },
+                                              "type": "button"
+                                            }
+                                          ]
+                                        },
+                                        "type": "add-to-cart"
+                                      },
+                                      {
+                                        "id": "96eaceeb-c4e0-4048-8d4b-e392d9784183",
+                                        "properties": {
+                                          "size": "square-medium"
+                                        },
+                                        "data": {
+                                          "productId": "544553f2-3638-4528-9c02-bb95b1085ef0",
+                                          "inWishlist": false
+                                        },
+                                        "type": "wishlist-button"
+                                      }
+                                    ]
+                                  },
+                                  "type": "product-actions"
+                                }
+                              ],
+                              "image": [
+                                {
+                                  "id": "6b2b96b5-a68d-468e-812c-aed2e3807856",
+                                  "properties": {
+                                    "lazy": true,
+                                    "showThumbnailSlider": true,
+                                    "aspectRatio": "square",
+                                    "objectFit": "cover"
+                                  },
+                                  "data": {
+                                    "image": {
+                                      "url": "/media/3dac9824-c758-466b-8854-daf75b5d07f9.jpg",
+                                      "alt": "Premium Sencha Green Tea"
+                                    }
+                                  },
+                                  "type": "product-image"
+                                }
+                              ],
+                              "content": [
+                                {
+                                  "id": "1b75597e-703a-496d-b29c-cadd62893cd2",
+                                  "properties": {
+                                    "padding": "medium"
+                                  },
+                                  "type": "product-info"
+                                }
+                              ],
+                              "actions": [
+                                {
+                                  "id": "45c2d03a-f0af-4af3-864f-623b10b6ac0b",
+                                  "properties": {
+                                    "padding": {
+                                      "horizontal": "medium",
+                                      "bottom": "medium"
+                                    },
+                                    "layout": "horizontal",
+                                    "gap": "small"
+                                  },
+                                  "type": "product-actions"
+                                }
+                              ]
+                            },
+                            "type": "product-box"
+                          }
+                        ]
+                      },
+                      "type": "product-grid"
+                    }
+                  ],
+                  "pagination": [
+                    {
+                      "id": "e0b6108b-b1cc-40c1-9a92-8fd0f5cc5b92",
+                      "properties": {
+                        "showFirstLast": true,
+                        "showPrevNext": true,
+                        "maxVisible": 5,
+                        "layout": "horizontal",
+                        "alignment": "center",
+                        "gap": "small",
+                        "spacing": {
+                          "top": "large"
+                        }
+                      },
+                      "data": {
+                        "currentPage": 1,
+                        "totalPages": 2,
+                        "perPage": 12,
+                        "total": 24
+                      },
+                      "type": "pagination"
                     }
                   ]
                 },
-                {
-                  "id": "filter-price",
-                  "name": "Price",
-                  "type": "range-slider",
-                  "data": {
-                    "min": 5,
-                    "max": 50,
-                    "step": 5,
-                    "currency": "EUR",
-                    "currentMin": 5,
-                    "currentMax": 50
-                  }
-                }
-              ],
-              "activeFilters": []
-            },
-            "style": {
-              "background": "white",
-              "corners": "rounded",
-              "padding": "medium",
-              "shadow": "subtle",
-              "sticky": true,
-              "stickyOffset": "100"
-            }
+                "type": "product-list"
+              }
+            ]
           },
-          "main": {
-            "id": "38533016-a5ae-40c3-b7a5-c7dd73b43b98",
-            "type": "product-list",
-            "version": "2.5.0",
-            "data": {
-              "layout": "grid",
-              "columns": {
-                "desktop": 4,
-                "tablet": 3,
-                "mobile": 2
-              },
-              "gap": "small",
-              "sorting": {
-                "active": "price-asc",
-                "options": [
-                  {"value": "name-asc", "label": "Name A-Z"},
-                  {"value": "price-asc", "label": "Price Low to High"},
-                  {"value": "rating", "label": "Customer Rating"}
-                ]
-              },
-              "pagination": {
-                "total": 24,
-                "perPage": 12,
-                "currentPage": 1,
-                "totalPages": 2
-              }
-            },
-            "style": {
-              "layout": "vertical",
-              "gap": "medium"
-            },
-            "slots": {
-              "toolbar": {
-                "id": "63cb499e-64de-4f68-b8b5-51ccb8321a7c",
-                "type": "listing-toolbar",
-                "version": "1.3.0",
-                "style": {
-                  "layout": "horizontal",
-                  "alignment": "space-between",
-                  "verticalAlignment": "center",
-                  "spacing": {
-                    "bottom": "medium"
-                  }
-                },
-                "elements": [
-                  {
-                    "id": "0fd71dc8-d78d-4761-b7d5-71305b3ac708",
-                    "type": "result-count",
-                    "version": "1.0.0",
-                    "data": {
-                      "count": 24,
-                      "text": "24 Products found"
-                    },
-                    "style": {
-                      "size": "medium",
-                      "color": "gray"
-                    }
-                  },
-                  {
-                    "id": "0fd71dc8-d78d-4761-b7d5-71305b3ac708",
-                    "type": "sorting-dropdown",
-                    "version": "1.1.0",
-                    "data": {
-                      "active": "price-asc",
-                      "options": [
-                        {"value": "name-asc", "label": "Name A-Z"},
-                        {"value": "price-asc", "label": "Price Low to High"}
-                      ]
-                    }
-                  }
-                ]
-              },
-              "products": {
-                "id": "0fd71dc8-d78d-4761-b7d5-71305b3ac708",
-                "type": "product-grid",
-                "version": "1.0.0",
-                "style": {
-                  "layout": "grid",
-                  "columns": "auto-fit",
-                  "minColumnWidth": "250",
-                  "gap": "medium"
-                },
-                "elements": [
-                  {
-                    "id": "732a1d5f-0b25-414f-8057-5e3fb20dfca7",
-                    "type": "product-box",
-                    "version": "2.3.0",
-                    "data": {
-                      "type": "basic-box",
-                      "showBuyButton": true,
-                      "showWishlist": true,
-                      "product": {
-                        "id": "544553f2-3638-4528-9c02-bb95b1085ef0",
-                        "name": "Premium Sencha",
-                        "manufacturer": {
-                          "name": "Kyoto Tea Gardens"
-                        },
-                        "description": "A delicate and refreshing Japanese green tea with a sweet, grassy flavor",
-                        "price": {
-                          "value": 15.00,
-                          "currency": "EUR",
-                          "formatted": "€15.00",
-                          "net": 12.61,
-                          "gross": 15.00,
-                          "taxRate": 19
-                        },
-                        "originalPrice": {
-                          "value": 18.00,
-                          "currency": "EUR",
-                          "formatted": "€18.00"
-                        },
-                        "image": {
-                          "url": "/media/3dac9824-c758-466b-8854-daf75b5d07f9.jpg",
-                          "alt": "Premium Sencha Green Tea",
-                          "thumbnails": {
-                            "small": "/media/3dac9824-c758-466b-8854-daf75b5d07f9_200x200.jpg",
-                            "medium": "/media/3dac9824-c758-466b-8854-daf75b5d07f9_400x400.jpg"
-                          }
-                        },
-                        "attributes": {
-                          "caffeine": "medium",
-                          "type": "sencha",
-                          "strength": "light",
-                          "size": "100g"
-                        },
-                        "stock": {
-                          "available": true,
-                          "quantity": 45,
-                          "deliveryTime": "1-3 days"
-                        },
-                        "rating": {
-                          "average": 4.5,
-                          "count": 28
-                        },
-                        "url": "/tea/green-tea/premium-sencha",
-                        "badges": [
-                          {
-                            "type": "discount",
-                            "text": "-17%",
-                            "color": "red"
-                          },
-                          {
-                            "type": "new",
-                            "text": "New",
-                            "color": "green"
-                          }
-                        ]
-                      }
-                    },
-                    "style": {
-                      "background": "white",
-                      "corners": "rounded",
-                      "shadow": "subtle",
-                      "hoverEffect": "lift",
-                      "clickable": true
-                    },
-                    "slots": {
-                      "image": {
-                        "id": "6b2b96b5-a68d-468e-812c-aed2e3807856",
-                        "type": "product-image",
-                        "version": "1.2.0",
-                        "data": {
-                          "lazy": true,
-                          "showThumbnailSlider": true,
-                          "image": {
-                            "url": "/media/3dac9824-c758-466b-8854-daf75b5d07f9.jpg",
-                            "alt": "Premium Sencha Green Tea"
-                          }
-                        },
-                        "style": {
-                          "aspectRatio": "square",
-                          "objectFit": "cover"
-                        },
-                        "elements": [
-                          {
-                            "id": "1b75597e-703a-496d-b29c-cadd62893cd1",
-                            "type": "image",
-                            "version": "1.0.0",
-                            "data": {
-                              "src": "/media/3dac9824-c758-466b-8854-daf75b5d07f9_400x400.jpg",
-                              "alt": "Premium Sencha Green Tea",
-                              "loading": "lazy"
-                            },
-                            "style": {
-                              "fill": true,
-                              "objectFit": "cover"
-                            }
-                          },
-                          {
-                            "id": "e0f39187-aaff-4abe-9a8d-ed767ce2aea5",
-                            "type": "badge-container",
-                            "version": "1.0.0",
-                            "style": {
-                              "position": "top-left",
-                              "layout": "vertical",
-                              "gap": "small"
-                            },
-                            "elements": [
-                              {
-                                "id": "1cbdedee-a5af-46e1-bdcd-097d704e30e4",
-                                "type": "badge",
-                                "version": "1.0.0",
-                                "data": {
-                                  "text": "-17%",
-                                  "type": "discount"
-                                },
-                                "style": {
-                                  "background": "red",
-                                  "textColor": "white",
-                                  "padding": "small",
-                                  "corners": "slightly-rounded",
-                                  "size": "small",
-                                  "weight": "semibold"
-                                }
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                      "content": {
-                        "id": "1b75597e-703a-496d-b29c-cadd62893cd1",
-                        "type": "product-info",
-                        "version": "1.4.0",
-                        "style": {
-                          "padding": "medium"
-                        },
-                        "elements": [
-                          {
-                            "id": "e0f39187-aaff-4abe-9a8d-ed767ce2aea5",
-                            "type": "product-name",
-                            "version": "1.0.0",
-                            "data": {
-                              "tag": "h3",
-                              "truncate": true,
-                              "maxLines": 2,
-                              "text": "Premium Sencha"
-                            },
-                            "style": {
-                              "size": "medium-large",
-                              "weight": "semibold",
-                              "color": "dark",
-                              "spacing": {
-                                "bottom": "small"
-                              },
-                              "truncate": {
-                                "lines": 2,
-                                "showEllipsis": true
-                              }
-                            }
-                          },
-                          {
-                            "id": "d4df34cf-87fe-48e2-8ba2-8dc3e20d53a0",
-                            "type": "manufacturer",
-                            "version": "1.0.0",
-                            "data": {
-                              "text": "Kyoto Tea Gardens"
-                            },
-                            "style": {
-                              "size": "small",
-                              "color": "gray",
-                              "spacing": {
-                                "bottom": "small"
-                              }
-                            }
-                          },
-                          {
-                            "id": "1cbdedee-a5af-46e1-bdcd-097d704e30e4",
-                            "type": "product-price",
-                            "version": "1.2.0",
-                            "data": {
-                              "showOriginalPrice": true,
-                              "showTaxInfo": true,
-                              "price": {
-                                "value": 15.00,
-                                "currency": "EUR",
-                                "formatted": "€15.00"
-                              },
-                              "originalPrice": {
-                                "value": 18.00,
-                                "formatted": "€18.00"
-                              }
-                            },
-                            "style": {
-                              "layout": "horizontal",
-                              "alignment": "baseline",
-                              "gap": "small",
-                              "spacing": {
-                                "bottom": "small"
-                              }
-                            },
-                            "elements": [
-                              {
-                                "id": "5c02fa17-8788-49d1-a85e-bf4bf87c176c",
-                                "type": "price",
-                                "version": "1.0.0",
-                                "data": {
-                                  "value": 15.00,
-                                  "formatted": "€15.00"
-                                },
-                                "style": {
-                                  "size": "large",
-                                  "weight": "bold",
-                                  "color": "green"
-                                }
-                              },
-                              {
-                                "id": "077de4df-4c09-4238-ad8d-81ec024c9d87",
-                                "type": "price-original",
-                                "version": "1.0.0",
-                                "data": {
-                                  "value": 18.00,
-                                  "formatted": "€18.00"
-                                },
-                                "style": {
-                                  "size": "medium",
-                                  "color": "light-gray",
-                                  "strikethrough": true
-                                }
-                              }
-                            ]
-                          },
-                          {
-                            "id": "eea0e2e6-6af3-42f1-8af7-ce9f8a5ee8eb",
-                            "type": "product-rating",
-                            "version": "1.1.0",
-                            "data": {
-                              "showCount": true,
-                              "rating": {
-                                "average": 4.5,
-                                "count": 28
-                              }
-                            },
-                            "style": {
-                              "layout": "horizontal",
-                              "alignment": "center",
-                              "gap": "small",
-                              "spacing": {
-                                "bottom": "medium"
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      "actions": {
-                        "id": "45c2d03a-f0af-4af3-864f-623b10b6ac0b",
-                        "type": "product-actions",
-                        "version": "1.3.0",
-                        "style": {
-                          "padding": {
-                            "horizontal": "medium",
-                            "bottom": "medium"
-                          },
-                          "layout": "horizontal",
-                          "gap": "small"
-                        },
-                        "elements": [
-                          {
-                            "id": "2cce4752-0af2-4136-a581-ee6632b5a2c9",
-                            "type": "add-to-cart",
-                            "version": "2.0.0",
-                            "data": {
-                              "buttonText": "Add to Cart",
-                              "buttonStyle": "primary",
-                              "productId": "544553f2-3638-4528-9c02-bb95b1085ef0"
-                            },
-                            "style": {
-                              "grow": true
-                            },
-                            "elements": [
-                              {
-                                "id": "de26ce69-76fe-4099-b02b-239f6b7422e6",
-                                "type": "button",
-                                "version": "1.0.0",
-                                "data": {
-                                  "text": "Add to Cart",
-                                  "action": "add-to-cart",
-                                  "productId": "544553f2-3638-4528-9c02-bb95b1085ef0"
-                                },
-                                "style": {
-                                  "variant": "primary",
-                                  "size": "medium",
-                                  "fullWidth": true,
-                                  "corners": "slightly-rounded"
-                                }
-                              }
-                            ]
-                          },
-                          {
-                            "id": "96eaceeb-c4e0-4048-8d4b-e392d9784183",
-                            "type": "wishlist-button",
-                            "version": "1.1.0",
-                            "data": {
-                              "productId": "544553f2-3638-4528-9c02-bb95b1085ef0",
-                              "inWishlist": false
-                            },
-                            "style": {
-                              "size": "square-medium"
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  }
-                ]
-              },
-              "pagination": {
-                "id": "e0b6108b-b1cc-40c1-9a92-8fd0f5cc5b92",
-                "type": "pagination",
-                "version": "1.2.0",
-                "data": {
-                  "showFirstLast": true,
-                  "showPrevNext": true,
-                  "maxVisible": 5,
-                  "currentPage": 1,
-                  "totalPages": 2,
-                  "perPage": 12,
-                  "total": 24
-                },
-                "style": {
-                  "layout": "horizontal",
-                  "alignment": "center",
-                  "gap": "small",
-                  "spacing": {
-                    "top": "large"
-                  }
-                }
-              }
-            }
-          }
+          "type": "grid"
         }
-      }
-    ],
+      ]
+    },
     "seo": {
       "metaTitle": "Green Tea Collection - Premium Japanese & Chinese Green Teas",
       "metaDescription": "Shop our curated selection of premium green teas.",

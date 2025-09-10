@@ -93,23 +93,21 @@ CREATE TABLE content_template (
 ```sql
 CREATE TABLE content_element (
     id          BINARY(16)      PRIMARY KEY,
-    type        VARCHAR(255)    NOT NULL,
-    version     VARCHAR(20)     NOT NULL,
+    type        VARCHAR(255)    NOT NULL,  -- Element type identifier
     template_id BINARY(16)      REFERENCES content_template(id),
     parent_id   BINARY(16)      REFERENCES content_element(id),
-    slot_name   VARCHAR(255)    NULL,     -- Named slot in parent
-    position    INT             NOT NULL,  -- Order in parent/slot
-    config      JSON,                      -- All configuration
+    slot_name   VARCHAR(255)    NOT NULL DEFAULT '_default',  -- Slot in parent
+    position    INT             NOT NULL,  -- Order within slot
+    config      JSON,                      -- All properties/configuration
     lazy_load   BOOLEAN         DEFAULT FALSE,
     created_at  DATETIME        NOT NULL,
     updated_at  DATETIME,
     
-    INDEX idx_parent (parent_id, position),
+    INDEX idx_parent_slot (parent_id, slot_name, position),
     INDEX idx_template (template_id),
     INDEX idx_type (type),
     
-    -- Ensure only registered element types are used
-    FOREIGN KEY (type, version) REFERENCES content_element_type(type_key, version)
+    FOREIGN KEY (type) REFERENCES content_element_type(type_key)
 );
 ```
 
@@ -178,13 +176,13 @@ Elements marked with `lazy_load = true` defer data fetching until explicitly req
 **content_element_type**
 ```sql
 CREATE TABLE content_element_type (
-    id          BINARY(16)      PRIMARY KEY,
-    type_key    VARCHAR(255)    NOT NULL,     -- 'product-box', 'heading', etc.
-    category    ENUM('container', 'static', 'entity', 'service') NOT NULL,
-    version     VARCHAR(20)     NOT NULL,     -- Semantic version (e.g., '2.0.0')
-    is_live     BOOLEAN         DEFAULT FALSE,
-    created_at  DATETIME        NOT NULL,
-    updated_at  DATETIME,
+    id             BINARY(16)      PRIMARY KEY,
+    type_key       VARCHAR(255)    NOT NULL,     -- 'product-box', 'heading', etc.
+    category       ENUM('container', 'static', 'entity', 'service') NOT NULL,
+    version        VARCHAR(20)     NOT NULL,     -- Semantic version (e.g., '2.0.0')
+    is_live        BOOLEAN         DEFAULT FALSE,
+    created_at     DATETIME        NOT NULL,
+    updated_at     DATETIME,
     
     UNIQUE INDEX idx_type_version (type_key, version),
     INDEX idx_type_live (type_key, is_live),
@@ -204,20 +202,25 @@ FUNCTION hydrate(templateId, context):
     elements = loadTemplateWithAssociations(templateId, context, 
                                            excludeLazy: true)
     
-    // Phase 2: Process loaded data by type
+    // Phase 2: Process loaded data by component category
     FOR EACH element IN elements:
         IF element.lazy_load == true:
             element.data = null
             element.lazyLoad = true
             CONTINUE
         
-        SWITCH element.type.category:
-            CASE 'static':
-                element.data = extractFromConfig(element.config)
-            CASE 'entity':
+        // Get category from type registry
+        category = getTypeCategory(element.type)
+        
+        SWITCH category:
+            CASE 'Static':
+                element.data = extractFromProperties(element.properties)
+            CASE 'Entity':
                 element.data = already loaded via association
-            CASE 'service':
+            CASE 'Service':
                 deferredElements.add(element)
+            CASE 'Container':
+                // Pass through, no data needed
     
     // Phase 3: Load service data only (skip lazy-loaded)
     IF deferredElements.notEmpty:
@@ -255,16 +258,13 @@ interface Template {
 
 interface Element {
     id: string;
-    type: string;
-    version: string;
-    data: object | null;    // Element-specific data (null if lazy loaded)
+    type: string;           // Element type identifier
+    properties?: object;    // All configuration (merged data + style)
+    data?: object | null;   // Runtime/hydrated data (null if lazy loaded)
     lazyLoad?: boolean;     // True if element data needs separate loading
-    style?: object;         // Styling configuration
-    attributes?: object;    // HTML attributes
-    slots?: {               // Named slots
-        [key: string]: Element[];
+    slots?: {               // All content areas
+        [key: string]: Element[];  // Including '_default' for natural flow
     };
-    elements?: Element[];   // Direct children
 }
 ```
 
@@ -324,8 +324,8 @@ INSERT INTO content_element_type (id, type_key, category, version, is_live)
 VALUES (UUID(), 'hero-banner', 'static', '1.0.0', true);
 
 -- Create an element instance
-INSERT INTO content_element (id, type, version, template_id, config) 
-VALUES (UUID(), 'hero-banner', '1.0.0', @templateId, JSON_OBJECT(
+INSERT INTO content_element (id, type, template_id, slot_name, config) 
+VALUES (UUID(), 'hero-banner', @templateId, '_default', JSON_OBJECT(
     'title', 'Summer Sale',
     'subtitle', 'Up to 50% off',
     'backgroundImage', '/media/banner.jpg',
@@ -476,7 +476,7 @@ interface HydrationServiceInterface {
 ### Extension Example
 
 ```php
-// Example: Adding a custom element type
+// Example: Adding a custom element type with namespaced component
 class CustomElementSubscriber implements EventSubscriberInterface {
     public static function getSubscribedEvents(): array {
         return [
@@ -486,14 +486,14 @@ class CustomElementSubscriber implements EventSubscriberInterface {
     }
     
     public function onAssociation(ContentElementAssociationEvent $event): void {
-        // Add custom associations
+        // Add custom associations based on type
         if ($event->hasType('custom-widget')) {
             $event->addAssociation('customElement.customEntity');
         }
     }
     
     public function onHydration(ContentElementHydrationEvent $event): void {
-        // Custom hydration logic
+        // Custom hydration logic based on type
         foreach ($event->getElements()->filterByType('custom-widget') as $element) {
             $element->setData($this->loadCustomData($element));
         }

@@ -1,5 +1,5 @@
 includes:
-    - ../../../../../vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
     - extension.neon
     - rules.neon
 

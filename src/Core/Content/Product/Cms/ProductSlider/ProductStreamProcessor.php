@@ -103,6 +103,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $limit = $elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT;
 
         $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addFilter(...$filters);
         $criteria->setLimit($limit);
 

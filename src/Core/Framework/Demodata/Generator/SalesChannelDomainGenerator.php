@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -15,9 +18,9 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @internal
@@ -44,21 +47,29 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
     {
         $storefrontSalesChannelId = $this->getStorefrontSalesChannelId($context);
 
+        // Get the language that is not already the system language.
+        $nonSystemLanguage = $this->getNonSystemLanguage($context);
+
+        if (!$nonSystemLanguage) {
+            $context->getConsole()->note('Skipping sales_channel_domain generation. No other language found.');
+
+            return;
+        }
+
         if (!$storefrontSalesChannelId) {
             $context->getConsole()->note('Skipping sales_channel_domain generation. No storefront sales channel found.');
+
             return;
         }
 
         // If there is already more than one sales channel domain, do nothing.
         if ($this->getCurrentSalesChannelDomains($context, $storefrontSalesChannelId)->count() > 1) {
             $context->getConsole()->note('Skipping sales_channel_domain generation. Already exists.');
+
             return;
         }
 
         $context->getConsole()->progressStart($numberOfItems);
-
-        // Get the language that is not already the system language.
-        $nonSystemLanguage = $this->getNonSystemLanguage($context);
 
         $isDE = $nonSystemLanguage->getName() === 'Deutsch';
         $domainPath = $isDE ? '/de' : '/en';
@@ -97,6 +108,7 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
 
     private function getNonSystemLanguage(DemodataContext $context): ?LanguageEntity
     {
+        /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = $this->registry->getRepository('language');
         $criteria = new Criteria();
         $criteria->setLimit(1);
@@ -116,9 +128,7 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param DemodataContext $context
-     * @param string $storefrontSalesChannelId
-     * @return EntitySearchResult<SalesChannelCollection>
+     * @return EntitySearchResult<covariant EntityCollection<covariant Entity>>
      */
     private function getCurrentSalesChannelDomains(DemodataContext $context, string $storefrontSalesChannelId): EntitySearchResult
     {

@@ -75,7 +75,6 @@ Components are rendering implementations chosen entirely by consumers. They can 
 
 ### Decision: Component Removal from API
 
-**Status**: Accepted  
 **Context**: Component identifiers in the API created tight coupling between data layer and rendering layer, preventing independent evolution of frontend technologies. Each consumer platform (web, mobile, email) needed different component implementations but the API was forcing a single component model.  
 **Decision**: Remove all component references from API responses, use only type identifiers. The API provides semantic types (what content represents), consumers map these to their own components (how to render).  
 
@@ -386,7 +385,6 @@ Templates use a waterfall composition pattern where content flows downward throu
 
 ### Decision: No Template Override System
 
-**Status**: Accepted  
 **Context**: Many CMS and e-commerce platforms (including Shopware) allow templates to be overridden with extensions. This creates hidden complexity where merchants cannot see what has been modified, updates break customizations, and debugging becomes difficult when multiple extensions override the same template. The question arose whether the new content system should support template overrides for existing element types.  
 **Decision**: Element type templates cannot be overridden. Each type maps to exactly one template. Extensions must create new element types rather than modifying existing ones.  
 **Consequences**:

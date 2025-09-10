@@ -51,23 +51,6 @@ graph TB
     style DB fill:#f5f5f5
 ```
 
-### Data Flow
-
-```mermaid
-graph TD
-    A[Request] --> B[Load Template]
-    B --> C[Load Elements<br/>with Associations]
-    C --> D[Hydrate Elements<br/>3 Phases]
-    D --> E[Build Response]
-    E --> F[Apply Cache]
-    F --> G[Return Response]
-    
-    style A fill:#e1f5fe
-    style D fill:#fff3e0
-    style E fill:#e8f5e9
-    style F fill:#fce4ec
-```
-
 ## Technical Specification
 
 ### Database Schema
@@ -128,7 +111,6 @@ Applied to: product, category, media, manufacturer, order, customer
 
 #### Decision: Base + Extension Pattern
 
-**Status**: Accepted  
 **Context**: Need flexibility for element types while maintaining referential integrity  
 **Decision**: Use base table with type-specific extension tables  
 **Consequences**:
@@ -212,7 +194,6 @@ CREATE TABLE content_element_type (
 
 #### Decision: Type Registry System
 
-**Status**: Accepted  
 **Context**: Need versioning and discovery for element types  
 **Decision**: Implement type registry with version management  
 **Consequences**:
@@ -260,7 +241,6 @@ FUNCTION hydrate(templateId, context):
 
 #### Decision: Three-Phase Hydration
 
-**Status**: Accepted  
 **Context**: Different element types have different loading requirements  
 **Decision**: Implement phased hydration (entity → static → service)  
 **Consequences**:
@@ -420,33 +400,6 @@ class RecommendationSubscriber implements EventSubscriberInterface
 
 ## Code Examples
 
-### Entity Definition Pattern
-
-```php
-// Pseudocode for entity definition pattern
-class ContentElementDefinition extends EntityDefinition {
-    protected function defineFields(): FieldCollection {
-        return new FieldCollection([
-            id_field(),
-            string_field('type'),
-            string_field('version'),
-            fk_field('template_id'),
-            parent_fk_field(),
-            json_field('config'),
-            
-            // Associations
-            parent_association(),
-            children_association(),
-            
-            // Extension associations (added dynamically)
-            foreach (registered_extensions as extension) {
-                one_to_one_association(extension)
-            }
-        ]);
-    }
-}
-```
-
 ### Hydration Service Interface
 
 ```php
@@ -471,10 +424,9 @@ interface HydrationServiceInterface {
 }
 ```
 
-### Extension Example
+### Extension Event Subscriber
 
 ```php
-// Example: Adding a custom element type with namespaced component
 class CustomElementSubscriber implements EventSubscriberInterface {
     public static function getSubscribedEvents(): array {
         return [
@@ -484,14 +436,12 @@ class CustomElementSubscriber implements EventSubscriberInterface {
     }
     
     public function onAssociation(ContentElementAssociationEvent $event): void {
-        // Add custom associations based on type
         if ($event->hasType('custom-widget')) {
             $event->addAssociation('customElement.customEntity');
         }
     }
     
     public function onHydration(ContentElementHydrationEvent $event): void {
-        // Custom hydration logic based on type
         foreach ($event->getElements()->filterByType('custom-widget') as $element) {
             $element->setData($this->loadCustomData($element));
         }

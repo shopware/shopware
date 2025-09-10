@@ -141,10 +141,10 @@ Structural components that organize child elements without holding data themselv
 Store all content directly in the `config` JSON field, requiring no additional queries during hydration. The system extracts data from configuration and formats it for the response, with full caching support. Examples: heading, text, button, HTML, icon.
 
 ##### Entity Elements
-Maintain associations to domain entities through extension tables (e.g., `content_element_product`). All associated entities are loaded together with the template in a single query through DAL associations, eliminating the need for separate queries or additional caching layers. Examples: product-box, category-navigation, media-image, manufacturer-logo.
+Maintain associations to domain entities through extension tables (e.g., `content_element_product`). All associated entities are loaded together with the template in a single query through DAL associations, eliminating the need for separate queries or additional caching layers. Supports lazy loading for deferred data fetching. Examples: product-box, category-navigation, media-image, manufacturer-logo.
 
 ##### Service Elements
-Load data from services in Phase 3 for user-specific or session-dependent content. Service calls are batched where possible (e.g., all cart elements share one cart service call), with limited or user-specific caching. Examples: cart displays, wishlist, user-menu, currency-switcher.
+Load data from services in Phase 3 for user-specific or session-dependent content. Service calls are batched where possible (e.g., all cart elements share one cart service call), with limited or user-specific caching. Supports lazy loading to defer expensive service calls. Examples: cart displays, wishlist, user-menu, currency-switcher.
 
 #### Processing Flow by Category
 
@@ -166,6 +166,12 @@ graph LR
     style EN fill:#fff3e0
     style SE fill:#fce4ec
 ```
+
+#### Lazy Loading Strategy
+
+Elements marked with `lazy_load = true` defer data fetching until explicitly requested, improving initial page load performance. Only Entity and Service elements support lazy loading since Container and Static elements have intrinsic data. Common use cases include below-fold content, hidden tabs, and heavy service calls.
+
+**Implementation**: When `lazy_load = true`, hydration skips data loading and returns `{data: null, lazyLoad: true}`. The frontend requests element data on demand via `/api/content-element/{id}`, which loads only that element using the same hydration logic.
 
 #### Type Registry
 
@@ -194,11 +200,17 @@ CREATE TABLE content_element_type (
 ```
 FUNCTION hydrate(templateId, context):
     // Phase 1: Load template with all entity associations
-    // All entity elements are loaded in a single query via DAL JOINs
-    elements = loadTemplateWithAssociations(templateId, context)
+    // Skip associations for lazy-loaded entity elements
+    elements = loadTemplateWithAssociations(templateId, context, 
+                                           excludeLazy: true)
     
     // Phase 2: Process loaded data by type
     FOR EACH element IN elements:
+        IF element.lazy_load == true:
+            element.data = null
+            element.lazyLoad = true
+            CONTINUE
+        
         SWITCH element.type.category:
             CASE 'static':
                 element.data = extractFromConfig(element.config)
@@ -207,7 +219,7 @@ FUNCTION hydrate(templateId, context):
             CASE 'service':
                 deferredElements.add(element)
     
-    // Phase 3: Load service data only
+    // Phase 3: Load service data only (skip lazy-loaded)
     IF deferredElements.notEmpty:
         serviceData = batchLoadServices(deferredElements, context)
         applyServiceData(deferredElements, serviceData)
@@ -245,7 +257,8 @@ interface Element {
     id: string;
     type: string;
     version: string;
-    data: object;           // Element-specific data
+    data: object | null;    // Element-specific data (null if lazy loaded)
+    lazyLoad?: boolean;     // True if element data needs separate loading
     style?: object;         // Styling configuration
     attributes?: object;    // HTML attributes
     slots?: {               // Named slots

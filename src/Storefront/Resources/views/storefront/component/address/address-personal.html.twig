@@ -44,10 +44,12 @@
                         </option>
                     {% endif %}
 
-                    <option value="{{ privateType }}"
-                        {% if accountType === privateType || (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
-                        {{ "account.personalTypePrivate"|trans|sw_sanitize }}
-                    </option>
+                    {% if not onlyCompanyRegistration %}
+                        <option value="{{ privateType }}"
+                            {% if accountType === privateType || (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
+                            {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                        </option>
+                    {% endif %}
 
                     <option value="{{ businessType }}"
                         {% if accountType === businessType || (isCompany == true and isLoginPage == false) %} selected="selected"{% endif %}>
@@ -62,6 +64,7 @@
                         name: accountTypeFieldName,
                         options: accountTypeOptions,
                         validationRules: 'required',
+                        disabled: (onlyCompanyRegistration) ? 'true',
                         additionalClass: 'col-md-6 contact-type',
                         additionalSelectClass: 'contact-select',
                         attributes: {
@@ -73,6 +76,14 @@
                         },
                     } %}
                 {% endblock %}
+
+                {% if onlyCompanyRegistration %}
+                    {# This is rendered on the profile edit page if the customer registered via a custom commercial registration form. #}
+                    {# The selection field is then disabled and the account type is set to "business". #}
+                    <input type="hidden"
+                           name="{{ accountTypeFieldName }}"
+                           value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+                {% endif %}
             </div>
         {% elseif not hideCustomerTypeSelect %}
             {# This case applies to custom registration forms with the "Company signup form" config enabled. #}

@@ -75,6 +75,7 @@ export default defineConfig(({ command }) => {
                     secure: false,
                 },
             },
+            allowedHosts: true,
             // DDEV_PRIMARY_URL is initialised in ddev environment only
             origin: process.env.DDEV_PRIMARY_URL
                 ? `${process.env.DDEV_PRIMARY_URL.replace(/:\d+$/, "")}:` + (Number(process.env.ADMIN_PORT) || 5173)

@@ -50,7 +50,7 @@
           "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",
           "helpText": {
             "page": "Eine Seite / Liste hat zugehörige Produkte und kann direkt mit dem zugeordneten Layout aufgerufen werden.",
-            "folder": "Ein Strukturelement / Einstiegspunkt wird nur in der Struktur angezeigt und ist nicht direkt zugänglich, es sei denn, es ist als Einstiegspunkt eines Verkaufskanals zugeordnet.",
+            "folder": "Ein Strukturelement / Einstiegspunkt wird nur in der Struktur angezeigt sofern Unterkategorien vorhanden sind und ist nicht direkt zugänglich, es sei denn, es ist als Einstiegspunkt eines Verkaufskanals zugeordnet.",
             "link": "Ein Link ermöglicht den Verweis auf ein Produkt, eine andere Kategorie, eine Landingpage oder eine externe Seite."
           }
         }

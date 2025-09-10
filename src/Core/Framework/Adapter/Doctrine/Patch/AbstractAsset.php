@@ -154,66 +154,26 @@ abstract class AbstractAsset
     }
 
     /**
-     * Gets the quoted representation of this asset but only if it was defined with one. Otherwise
-     * return the plain unquoted value as inserted.
+     * Returns the quoted representation of this asset's name. If the name is unquoted, it is normalized according to
+     * the platform's unquoted name normalization rules.
      *
-     * @deprecated Use {@see NamedObject::getObjectName()} or {@see OptionallyQualifiedName::getObjectName()} followed
-     * by {@see Name::toSQL()} instead.
+     * getReservedKeywordsList is not used here, because it will be removed without replacement in DBAL 5.0
+     *
+     * @see https://github.com/doctrine/dbal/pull/6589
      */
     public function getQuotedName(AbstractPlatform $platform): string
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6674',
-            '%s is deprecated and will be removed in 5.0.',
-            __METHOD__,
-        );
+        $parts = array_map(static function (Identifier $identifier) use ($platform): string {
+            $value = $identifier->getValue();
 
-        $keywords = $platform->getReservedKeywordsList();
-        $folding = $platform->getUnquotedIdentifierFolding();
-        $parts = $normalizedParts = [];
+            // We do not normalize quoted identifiers, as the method is not available.
+            // if (! $identifier->isQuoted()) {
+            //    $value = $platform->normalizeUnquotedIdentifier($value);
+            // }
+            return $platform->quoteSingleIdentifier($value);
+        }, $this->identifiers);
 
-        foreach (explode('.', $this->getName()) as $identifier) {
-            $isQuoted = $this->_quoted || $keywords->isKeyword($identifier);
-
-            if (!$isQuoted) {
-                $parts[] = $identifier;
-
-                /** @phpstan-ignore argument.type */
-                $normalizedParts[] = $folding->foldUnquotedIdentifier($identifier);
-            } else {
-                $parts[] = $platform->quoteSingleIdentifier($identifier);
-                $normalizedParts[] = $identifier;
-            }
-        }
-
-        $name = implode('.', $parts);
-
-        if ($this->validateFuture) {
-            $futureParts = array_map(static function (Identifier $identifier) use ($folding): string {
-                $value = $identifier->getValue();
-
-                if (!$identifier->isQuoted()) {
-                    $value = $folding->foldUnquotedIdentifier($value);
-                }
-
-                return $value;
-            }, $this->identifiers);
-
-            if ($normalizedParts !== $futureParts) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6592',
-                    'Relying on implicitly quoted identifiers preserving their original case is deprecated. '
-                    . 'The current name %s will become %s in 5.0. '
-                    . 'Please quote the name if the case needs to be preserved.',
-                    $name,
-                    implode('.', array_map([$platform, 'quoteSingleIdentifier'], $futureParts)),
-                );
-            }
-        }
-
-        return $name;
+        return implode('.', $parts);
     }
 
     /**

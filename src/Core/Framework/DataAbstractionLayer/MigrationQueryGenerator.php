@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -51,7 +53,13 @@ class MigrationQueryGenerator
 
         $this->dropIndexes($tableSchema);
 
-        return $this->getPlatform()->getAlterTableSQL($schemaManager->createComparator()->compareTables($originalTableSchema, $tableSchema));
+        // ReportModifiedIndexes is no longer supported in the Comparator as of doctrine/dbal 5.x
+        // but schemaManager->createComparator() does not allow us to pass a config
+        $config = new ComparatorConfig();
+        $config = $config->withReportModifiedIndexes(false);
+        $comparator = new Comparator($this->getPlatform(), $config);
+
+        return $this->getPlatform()->getAlterTableSQL($comparator->compareTables($originalTableSchema, $tableSchema));
     }
 
     /**
@@ -71,11 +79,16 @@ class MigrationQueryGenerator
         return $this->connection->getDatabasePlatform();
     }
 
+    /**
+     * Never try to drop primary key, they are listed in indexes until doctrine/dbal 5.x,
+     * $table->getPrimaryKeyConstraint() cannot be matched against index name,
+     * a primary key is by default named 'primary' in doctrine/dbal 4.x within index list.
+     */
     private function dropIndexes(Table $table): void
     {
         foreach ($table->getIndexes() as $index) {
-            /** @phpstan-ignore method.deprecated (if can be removed with DBAL 5.0 as primaries won't be inlcuded anymore) */
-            if ($index->isPrimary()) {
+            // Skip primary key, this is not an index that can be dropped, it won't be listed in doctrine/dbal 5.x
+            if ($index->getName() === 'primary') {
                 continue;
             }
 

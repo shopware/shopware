@@ -4,16 +4,18 @@
 
 The Content System V2 API provides a unified, flexible response structure that supports multiple rendering strategies. Consumers have complete control over how content is rendered, choosing between template-based, recursive, or hybrid approaches based on their specific needs and capabilities.
 
+## Key Principles
+
+The content system architecture maintains strict separation between data and presentation. The API remains agnostic to rendering strategies, providing complete data regardless of the chosen rendering mode. Each consumer independently decides how to interpret and display content.
+
 ## Table of Contents
 
 1. [API Response Structure](#api-response-structure)
 2. [Architecture Concepts](#architecture-concepts)
-3. [Architecture Decisions](#architecture-decisions)
-4. [Type Categories](#type-categories)
-5. [Slot Model Architecture](#slot-model-architecture)
-6. [Consumer Rendering Modes](#consumer-rendering-modes)
-7. [Component Mapping Strategy](#component-mapping-strategy)
-8. [Implementation Examples](#implementation-examples)
+3. [Type Categories](#type-categories)
+4. [Slot Model Architecture](#slot-model-architecture)
+5. [Consumer Rendering Modes](#consumer-rendering-modes)
+6. [Component Mapping Strategy](#component-mapping-strategy)
 
 ## API Response Structure
 
@@ -23,7 +25,6 @@ The Content System V2 API provides a unified, flexible response structure that s
 interface Element {
     id: string;
     type: string;                // Immutable type identifier
-    component: string;           // Namespaced component identifier (mutable)
     properties?: object;          // All configuration (merged data + style)
     data?: object | null;         // Runtime/hydrated data
     lazyLoad?: boolean;          // Deferred loading flag
@@ -72,25 +73,37 @@ Categories are internal database classifications (`container`, `static`, `entity
 
 Components are rendering implementations chosen entirely by consumers. They can be React components, Vue components, HTML elements, or any other rendering technology. The mapping from types to components happens exclusively on the consumer side.
 
-## Architecture Decisions
-
-### ADR-004: Component Removal from API
+### Decision: Component Removal from API
 
 **Status**: Accepted  
-**Context**: Component identifiers in the API created tight coupling between data layer and rendering layer, preventing independent evolution of frontend technologies  
-**Decision**: Remove all component references from API responses, use only type identifiers  
+**Context**: Component identifiers in the API created tight coupling between data layer and rendering layer, preventing independent evolution of frontend technologies. Each consumer platform (web, mobile, email) needed different component implementations but the API was forcing a single component model.  
+**Decision**: Remove all component references from API responses, use only type identifiers. The API provides semantic types (what content represents), consumers map these to their own components (how to render).  
+
+**Benefits Realized**:
+- **Clean Separation**: Data layer completely independent of UI frameworks and rendering technologies
+- **Future-Proof**: New frontend technologies can be adopted without any API changes required
+- **Multi-Platform Support**: Each platform uses components appropriate to its technology stack (React Native for mobile, HTML for email, Vue for web)
+- **Team Autonomy**: Frontend teams can refactor, replace, or upgrade their component libraries freely without backend coordination
+- **API Simplicity**: Single responsibility - providing data and structure, not rendering instructions
+
 **Consequences**:
-- ✅ Complete decoupling of data and presentation
+- ✅ Complete decoupling of data and presentation layers
 - ✅ Each consumer platform can use appropriate technology
-- ✅ Frontend teams can refactor without API changes
+- ✅ Frontend teams can refactor without API changes  
 - ✅ Simpler API with single responsibility
+- ✅ Enables progressive enhancement of frontend without backend changes
 - ⚠️ Consumers must maintain type-to-component mappings
 - ⚠️ No rendering hints from backend
+- ⚠️ Each consumer must implement its own component library
 
 **Alternatives Considered**:
-1. Keep components in API (rejected: tight coupling)
-2. Dual type/component system (rejected: complexity without benefit)
-3. Optional component hints (rejected: still creates coupling)
+1. Keep components in API (rejected: tight coupling, prevents platform-specific optimizations)
+2. Dual type/component system (rejected: complexity without clear benefit, confusing separation)
+3. Optional component hints (rejected: still creates coupling, ambiguous responsibility)
+4. Platform-specific APIs (rejected: violates DRY principle, maintenance burden)
+
+**Example Impact**: 
+The API returns `type: "product-box"` rather than `component: "ProductCard"`. The web storefront maps this to a Vue component, the mobile app to a React Native component, and the email generator to an HTML table row. Each implementation is optimized for its platform without affecting others.
 
 ## Type Categories
 
@@ -178,11 +191,7 @@ FUNCTION renderRecursive(element):
     RETURN output
 ```
 
-**Characteristics:**
-- Simple implementation
-- No template knowledge required
-- Renders everything in order
-- Best for: Mobile apps, debugging, simple displays
+Simple implementation requiring no template knowledge. Renders all content in order, making it ideal for mobile apps, debugging, and straightforward displays.
 
 ### Mode 2: Pure Template Rendering
 
@@ -204,11 +213,7 @@ FUNCTION renderWithTemplate(element):
         RETURN renderRecursive(element)
 ```
 
-**Characteristics:**
-- Precise layout control
-- Template decides slot usage
-- Requires template registry
-- Best for: Branded experiences, complex layouts
+Provides precise layout control through templates that decide slot usage. Requires a template registry but enables branded experiences and complex layouts.
 
 ### Mode 3: Hybrid Approach
 
@@ -230,11 +235,7 @@ FUNCTION renderHybrid(element):
         RETURN empty
 ```
 
-**Characteristics:**
-- Best of both worlds
-- Progressive enhancement
-- Graceful degradation
-- Best for: Mixed content, extensible systems
+Combines both strategies for progressive enhancement with graceful degradation. Ideal for mixed content and extensible systems.
 
 ## Component Mapping Strategy
 
@@ -242,302 +243,165 @@ FUNCTION renderHybrid(element):
 
 Each consumer can organize components however makes sense for their architecture:
 
-```javascript
-// Web Storefront - Organized by Business Domain
-class WebStorefrontMapper {
-    constructor() {
-        this.componentMap = {
-            // Product domain
-            'product-box': 'Product.Card',
-            'product-price': 'Product.Price',
-            'product-image': 'Product.Image',
-            'product-rating': 'Product.Rating',
-            
-            // Category domain
-            'category-header': 'Category.Hero',
-            'category-navigation': 'Category.Nav',
-            
-            // Cart/Checkout domain
-            'cart-button': 'Cart.AddButton',
-            'cart-summary': 'Cart.Summary',
-            
-            // Base components
-            'heading': 'Base.Heading',
-            'text': 'Base.Text',
-            'button': 'Base.Button',
-            'grid': 'Layout.Grid'
-        };
-    }
+```
+// Web Storefront - Shopware Component Mapping
+MAPPER WebStorefrontMapper:
+    DEFINE componentMap AS:
+        // Grid and Layout
+        'grid' → 'Sw:Grid:Container'
+        'column' → 'Sw:Grid:Column'
+        'section' → 'Sw:Layout:Section'
+        
+        // Content elements
+        'heading' → 'Sw:Content:Heading'
+        'text' → 'Sw:Content:Text'
+        'button' → 'Sw:Content:Button'
+        'html' → 'Sw:Content:Html'
+        
+        // Media elements
+        'image' → 'Sw:Media:Image'
+        'video' → 'Sw:Media:Video'
+        'gallery' → 'Sw:Media:Gallery'
+        
+        // Product domain
+        'product-box' → 'Sw:Product:Box'
+        'product-price' → 'Sw:Product:Price'
+        'product-image' → 'Sw:Product:Image'
+        'product-rating' → 'Sw:Product:Rating'
+        
+        // Category domain
+        'category-header' → 'Sw:Category:Header'
+        'category-navigation' → 'Sw:Category:Navigation'
+        
+        // Commerce features
+        'cart-button' → 'Sw:Commerce:CartButton'
+        'wishlist-button' → 'Sw:Commerce:WishlistButton'
+        'filter-panel' → 'Sw:Commerce:FilterPanel'
     
-    getComponent(type) {
-        return this.componentMap[type] || 'Base.Unknown';
-    }
-}
+    FUNCTION getComponent(type):
+        IF componentMap HAS type:
+            RETURN componentMap[type]
+        ELSE:
+            RETURN 'Sw:Base:Unknown'
 
-// Mobile App - Flat Component Structure
-class MobileAppMapper {
-    constructor() {
-        this.componentMap = {
-            // Simple flat mapping
-            'grid': 'View',
-            'section': 'ScrollView',
-            'heading': 'Text',
-            'text': 'Text',
-            'button': 'TouchableOpacity',
-            'image': 'FastImage',
-            'product-box': 'ProductListItem',
-            'product-price': 'PriceText',
-            'category-header': 'CategoryBanner',
-            'filter-panel': 'FilterBottomSheet',
-            'cart-button': 'CartActionButton'
-        };
-    }
-}
-
-// Email Generator - HTML Elements
-class EmailTemplateMapper {
-    constructor() {
-        this.componentMap = {
-            // Direct HTML mapping
-            'grid': 'table',
-            'section': 'div',
-            'heading': 'h2',
-            'text': 'p',
-            'button': 'a',
-            'image': 'img',
-            'product-box': 'tr',
-            'category-header': 'div'
-        };
-    }
+// Mobile App - Native Component Mapping
+MAPPER MobileAppMapper:
+    DEFINE componentMap AS:
+        // Layout components
+        'grid' → 'View'
+        'section' → 'ScrollView'
+        'column' → 'View'
+        
+        // Basic elements
+        'heading' → 'Text'
+        'text' → 'Text'
+        'button' → 'TouchableOpacity'
+        'image' → 'FastImage'
+        
+        // Product components
+        'product-box' → 'ProductListItem'
+        'product-price' → 'PriceText'
+        'product-image' → 'ProductImage'
+        'product-rating' → 'RatingStars'
+        
+        // Category components
+        'category-header' → 'CategoryBanner'
+        'category-navigation' → 'CategoryTabs'
+        
+        // Commerce components
+        'filter-panel' → 'FilterBottomSheet'
+        'cart-button' → 'CartActionButton'
+        'wishlist-button' → 'WishlistButton'
     
-    getClass(type) {
-        // CSS classes based on type
-        return type.replace('-', '_');
-    }
-}
+    FUNCTION getComponent(type):
+        IF componentMap HAS type:
+            RETURN componentMap[type]
+        ELSE:
+            RETURN 'View'  // Default container
+
+// Email Generator - HTML Element Mapping
+MAPPER EmailTemplateMapper:
+    DEFINE componentMap AS:
+        // Layout elements
+        'grid' → 'table'
+        'column' → 'td'
+        'section' → 'div'
+        
+        // Content elements
+        'heading' → 'h2'
+        'text' → 'p'
+        'button' → 'a'
+        'image' → 'img'
+        'html' → 'div'
+        
+        // Product elements (table-based for email)
+        'product-box' → 'tr'
+        'product-price' → 'span'
+        'product-image' → 'img'
+        
+        // Category elements
+        'category-header' → 'div'
+        'category-navigation' → 'table'
+        
+        // Commerce elements
+        'cart-button' → 'a'
+        'filter-panel' → 'div'
+    
+    FUNCTION getComponent(type):
+        IF componentMap HAS type:
+            RETURN componentMap[type]
+        ELSE:
+            RETURN 'div'  // Safe default
+    
+    FUNCTION getCssClass(type):
+        RETURN REPLACE(type, '-', '_')  // Convert to CSS-safe class
 ```
 
-### Fallback Strategies
 
-```javascript
-class SmartComponentMapper {
-    constructor(customMap = {}) {
-        // Default mappings
-        this.defaultMap = {
-            'heading': 'h2',
-            'text': 'p',
-            'button': 'button',
-            'image': 'img'
-        };
-        
-        // Merge custom mappings
-        this.componentMap = { ...this.defaultMap, ...customMap };
-    }
-    
-    getComponent(type) {
-        // Try exact match
-        if (this.componentMap[type]) {
-            return this.componentMap[type];
-        }
-        
-        // Try pattern matching
-        if (type.endsWith('-box')) return 'GenericBox';
-        if (type.endsWith('-panel')) return 'GenericPanel';
-        if (type.startsWith('heading-')) return 'Heading';
-        
-        // Fallback
-        return 'UnknownElement';
-    }
-}
+## System Extensibility
+
+The web storefront consumer is designed for extensibility without modifying core files. Extensions integrate through Twig templates, Symfony UX components, and Shopware's plugin system.
+
+### Component Registration
+
+Components are autodiscovered based on filesystem conventions. The system scans predefined directories and automatically maps types to templates:
+
+```
+// Autodiscovery paths (example)
+AUTODISCOVERY_PATHS:
+    Core:    'src/Storefront/Resources/views/components/cms/{type}.html.twig'
+    Plugins: 'custom/plugins/*/src/Resources/views/components/cms/{type}.html.twig'
+    Apps:    'custom/apps/*/Resources/views/components/cms/{type}.html.twig'
 ```
 
-## Implementation Examples
+### Template System
 
-### Example 1: Mobile App Consumer
+Templates use a waterfall composition pattern where content flows downward through slots. Each template is isolated and cannot modify parent structures. The system enforces strict separation through several principles:
 
-Simple recursive rendering for React Native:
+**Template Isolation**: Each component template renders only its own markup structure. Templates should not use Twig's `{% extends %}` or `{% block %}` statements to modify parent templates.
 
-```javascript
-class ContentRenderer {
-    render(element) {
-        const Component = this.getComponent(element.component);
-        
-        // Always recurse through all slots
-        const children = Object.entries(element.slots || {})
-            .flatMap(([_, content]) => 
-                content.map(child => this.render(child))
-            );
-        
-        return (
-            <Component {...element.properties}>
-                {children}
-            </Component>
-        );
-    }
-    
-    getComponent(type) {
-        // Simple component mapping
-        switch(type) {
-            case 'Sw:Static:Text': return Text;
-            case 'Sw:Static:Image': return Image;
-            default: return View;
-        }
-    }
-}
-```
+**Slot-Based Composition**: Components delegate rendering of child content through a `render_slot()` (not necessarily called like this) function. Slots act as injection points where child components render their content. The parent defines where slots appear but cannot modify what renders inside them.
 
-### Example 2: Web Storefront Consumer
+**Unidirectional Data Flow**: Data and rendering control flow strictly downward through the component tree. A parent component passes data to its slots, which render child components, which may have their own slots for further nesting. This creates a clear hierarchy: parent → slot → child → slot → grandchild, with no ability for children to reach upward and modify ancestors.
 
-Template-based rendering with Vue.js:
+### Decision: No Template Override System
 
-```javascript
-class StorefrontRenderer {
-    constructor() {
-        this.templates = new Map();
-        this.registerTemplates();
-    }
-    
-    render(element) {
-        const template = this.templates.get(element.component);
-        
-        if (template) {
-            // Use registered template
-            return template({
-                props: element.properties,
-                data: element.data,
-                slots: this.processSlots(element.slots)
-            });
-        }
-        
-        // Fallback to recursive
-        return this.renderDefault(element);
-    }
-    
-    processSlots(slots) {
-        // Convert slots to rendered content
-        const processed = {};
-        for (const [name, content] of Object.entries(slots || {})) {
-            if (name !== '_default') {  // Skip _default in template mode
-                processed[name] = content.map(c => this.render(c));
-            }
-        }
-        return processed;
-    }
-    
-    renderDefault(element) {
-        // Recursive fallback for unknown components
-        const children = element.slots?._default || [];
-        return children.map(child => this.render(child)).join('');
-    }
-}
-```
+**Status**: Accepted  
+**Context**: Many CMS and e-commerce platforms (including Shopware) allow templates to be overridden with extensions. This creates hidden complexity where merchants cannot see what has been modified, updates break customizations, and debugging becomes difficult when multiple extensions override the same template. The question arose whether the new content system should support template overrides for existing element types.  
+**Decision**: Element type templates cannot be overridden. Each type maps to exactly one template. Extensions must create new element types rather than modifying existing ones.  
+**Consequences**:
+- ✅ Predictable behavior - "product-box" always renders the same way
+- ✅ Explicit merchant choice - admin UI shows all available element types
+- ✅ Stable updates - core changes don't break customizations
+- ✅ Clear ownership - each element type has one responsible party
+- ✅ Better performance - direct type-to-template mapping without cascade resolution
+- ✅ Encourages innovation - developers create new experiences rather than patching
+- ⚠️ More element types in the system (but provides clarity)
+- ⚠️ No quick patches for core element bugs (must wait for updates or create alternatives)
+- ⚠️ Developers must learn to extend through composition rather than modification
 
-### Example 3: Admin Preview Consumer
-
-Debug mode showing all content:
-
-```javascript
-class PreviewRenderer {
-    render(element, depth = 0) {
-        const indent = '  '.repeat(depth);
-        let html = `${indent}<div class="preview-element" 
-                         data-component="${element.component}">\n`;
-        
-        // Show component info
-        html += `${indent}  <div class="component-header">
-            ${element.component}
-        </div>\n`;
-        
-        // Render ALL slots (both named and _default)
-        if (element.slots) {
-            for (const [slotName, content] of Object.entries(element.slots)) {
-                html += `${indent}  <div class="slot" data-slot="${slotName}">\n`;
-                html += `${indent}    <span class="slot-name">${slotName}:</span>\n`;
-                
-                for (const child of content) {
-                    html += this.render(child, depth + 2);
-                }
-                
-                html += `${indent}  </div>\n`;
-            }
-        }
-        
-        html += `${indent}</div>\n`;
-        return html;
-    }
-}
-```
-
-## Consumer Selection Strategy
-
-Different consumers for different contexts:
-
-| Consumer Type | Rendering Mode | Use Case |
-|--------------|---------------|----------|
-| Mobile App | Recursive | Simple, performant display |
-| Web Storefront | Template | Rich, branded experience |
-| Admin UI | Hybrid | Flexible editing interface |
-| Email Generator | Template | Consistent formatting |
-| Search Indexer | Recursive | Extract all content |
-| Debug Tool | All slots | Development inspection |
-
-## Key Principles
-
-1. **API Agnostic**: The API doesn't dictate rendering strategy
-2. **Complete Data**: All rendering modes get full data
-3. **Consumer Choice**: Each consumer decides approach
-4. **Progressive Enhancement**: Start simple, add complexity
-5. **Graceful Degradation**: Unknown types still render
-6. **Flexibility First**: Support any rendering strategy
-
-## Benefits of Type-Only API
-
-Removing components from the API enables:
-- **Clean Separation**: Data independent of UI frameworks
-- **Future-Proof**: New technologies don't require API changes  
-- **Multi-Platform**: Each platform uses appropriate components
-- **Team Autonomy**: Frontend teams refactor freely
-- **Simplicity**: API focused only on data
-
-The API provides **what** (types and data), consumers decide **how** (components and rendering).
-
-## Migration Path
-
-For existing consumers:
-
-```javascript
-// Old format
-if (element.elements) {
-    // Process elements array
-}
-
-// New format
-if (element.slots?._default) {
-    // Process _default slot (same content)
-}
-
-// Or use a compatibility layer
-function getChildren(element) {
-    return element.elements || element.slots?._default || [];
-}
-```
-
-## Performance Considerations
-
-- **Recursive**: Fastest for simple rendering
-- **Template**: Overhead of template lookup/compilation
-- **Hybrid**: Balance based on known components
-- **Caching**: Cache rendered templates, not recursive output
-- **Lazy Loading**: Respect `lazyLoad` flag in all modes
-
-## Extensibility
-
-Consumers can extend the system without modifying the API:
-
-1. **Register new templates** for known components
-2. **Add custom renderers** for specific categories
-3. **Override slot handling** for special cases
-4. **Implement custom fallbacks** for unknown components
-5. **Layer additional processing** (animations, transitions)
-
-This architecture ensures maximum flexibility while maintaining a clean, consistent API structure.
+**Alternatives Considered**:
+1. Priority-based override system (rejected: hidden complexity, debugging nightmares)
+2. Explicit override registry (rejected: still creates unpredictability for merchants)
+3. Theme-only overrides (rejected: doesn't solve the core problems)
+4. Inheritance-based templates (rejected: violates composition principles)

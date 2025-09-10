@@ -126,6 +126,23 @@ CREATE TABLE content_element_{entity} (
 
 Applied to: product, category, media, manufacturer, order, customer
 
+#### Decision: Base + Extension Pattern
+
+**Status**: Accepted  
+**Context**: Need flexibility for element types while maintaining referential integrity  
+**Decision**: Use base table with type-specific extension tables  
+**Consequences**:
+- ✅ Native DAL associations
+- ✅ Foreign key constraints
+- ✅ Type safety
+- ⚠️ Additional joins required
+- ⚠️ More complex schema
+
+**Alternatives Considered**:
+1. Single table with JSON (rejected: no FK constraints)
+2. Separate tables per type (rejected: too complex)
+3. EAV pattern (rejected: poor performance)
+
 ### Element Type System
 
 #### Element Type Categories
@@ -142,7 +159,7 @@ Store all content directly in the `config` JSON field, requiring no additional q
 Maintain associations to domain entities through extension tables (e.g., `content_element_product`). All associated entities are loaded together with the template in a single query through DAL associations, eliminating the need for separate queries or additional caching layers. Supports lazy loading for deferred data fetching. Examples: product-box, category-navigation, media-image, manufacturer-logo.
 
 ##### Service Elements
-Load data from services in Phase 3 for user-specific or session-dependent content. Service calls are batched where possible (e.g., all cart elements share one cart service call), with limited or user-specific caching. Supports lazy loading to defer expensive service calls. Examples: cart displays, wishlist, user-menu, currency-switcher.
+Load data from services in Phase 3 for user-specific or session-dependent content, with limited or user-specific caching. Supports lazy loading to defer expensive service calls. Examples: cart displays, wishlist, user-menu, currency-switcher.
 
 #### Processing Flow by Category
 
@@ -193,6 +210,17 @@ CREATE TABLE content_element_type (
 );
 ```
 
+#### Decision: Type Registry System
+
+**Status**: Accepted  
+**Context**: Need versioning and discovery for element types  
+**Decision**: Implement type registry with version management  
+**Consequences**:
+- ✅ Type validation
+- ✅ Version control
+- ✅ Plugin extensibility
+- ⚠️ Additional complexity
+
 ### Hydration Algorithm
 
 ```
@@ -224,11 +252,22 @@ FUNCTION hydrate(templateId, context):
     
     // Phase 3: Load service data only (skip lazy-loaded)
     IF deferredElements.notEmpty:
-        serviceData = batchLoadServices(deferredElements, context)
+        serviceData = loadServiceData(deferredElements, context)
         applyServiceData(deferredElements, serviceData)
     
     RETURN elements
 ```
+
+#### Decision: Three-Phase Hydration
+
+**Status**: Accepted  
+**Context**: Different element types have different loading requirements  
+**Decision**: Implement phased hydration (entity → static → service)  
+**Consequences**:
+- ✅ Optimized queries per type
+- ✅ Clear separation of concerns
+- ✅ Extensible via events
+- ⚠️ More complex implementation
 
 ### API Response Structure
 
@@ -267,47 +306,6 @@ interface Element {
     };
 }
 ```
-
-## Architecture Decisions
-
-### ADR-001: Base + Extension Pattern
-
-**Status**: Accepted  
-**Context**: Need flexibility for element types while maintaining referential integrity  
-**Decision**: Use base table with type-specific extension tables  
-**Consequences**:
-- ✅ Native DAL associations
-- ✅ Foreign key constraints
-- ✅ Type safety
-- ⚠️ Additional joins required
-- ⚠️ More complex schema
-
-**Alternatives Considered**:
-1. Single table with JSON (rejected: no FK constraints)
-2. Separate tables per type (rejected: too complex)
-3. EAV pattern (rejected: poor performance)
-
-### ADR-002: Three-Phase Hydration
-
-**Status**: Accepted  
-**Context**: Different element types have different loading requirements  
-**Decision**: Implement phased hydration (entity → static → service)  
-**Consequences**:
-- ✅ Optimized queries per type
-- ✅ Clear separation of concerns
-- ✅ Extensible via events
-- ⚠️ More complex implementation
-
-### ADR-003: Type Registry System
-
-**Status**: Accepted  
-**Context**: Need versioning and discovery for element types  
-**Decision**: Implement type registry with version management  
-**Consequences**:
-- ✅ Type validation
-- ✅ Version control
-- ✅ Plugin extensibility
-- ⚠️ Additional complexity
 
 ## System Extensibility
 
@@ -407,8 +405,8 @@ class RecommendationSubscriber implements EventSubscriberInterface
             ->filter(fn($e) => !$e->isLazyLoad());
         
         if ($elements->count() > 0) {
-            $data = $this->recommendationService->loadBatch(
-                $elements->getIds(), 
+            $data = $this->recommendationService->load(
+                $elements, 
                 $event->getContext()
             );
             

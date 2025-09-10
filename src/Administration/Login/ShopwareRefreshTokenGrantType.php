@@ -38,6 +38,9 @@ class ShopwareRefreshTokenGrantType extends RefreshTokenGrant
         if (\is_string($ssoRefreshToken)) {
             $newSsoTokenResult = $this->tokenService->getUserTokenByRefreshToken($ssoRefreshToken);
             $this->userService->updateUserToken($userId, $newSsoTokenResult);
+
+            // take the shorter token TTL to avoid that the external token gets invalid
+            $accessTokenTTL = TokenTimeToLive::getLowerTTL($accessTokenTTL, new \DateInterval('PT' . $newSsoTokenResult->expiresIn . 'S'));
         }
 
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);

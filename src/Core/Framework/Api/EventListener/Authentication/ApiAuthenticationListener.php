@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
-use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Administration\Login\ShopwareGrantType;

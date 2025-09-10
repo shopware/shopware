@@ -40,11 +40,14 @@ class ShopwareGrantType extends AbstractGrant
         $client = $this->getClientEntityOrFail('administration', $request);
         $scopes = $this->validateScopes($this->getRequestParameter('scope', $request, $this->defaultScope));
 
-        $userIdentifier = $this->validateUser($request)->getIdentifier();
-
+        $user = $this->validateUser($request);
+        $userIdentifier = $user->getIdentifier();
         $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $userIdentifier);
 
-        $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $userIdentifier, $finalizedScopes); // Maybe we should take the ORY TTL or compare and use the shorter time
+        // take the shorter token TTL to avoid that the external token gets invalid
+        $lowerTTL = TokenTimeToLive::getLowerTTL($accessTokenTTL, (new \DateTimeImmutable())->diff($user->expiry));
+
+        $accessToken = $this->issueAccessToken($lowerTTL, $client, $userIdentifier, $finalizedScopes);
         $this->getEmitter()->emit(new RequestAccessTokenEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request, $accessToken));
         $responseType->setAccessToken($accessToken);
 

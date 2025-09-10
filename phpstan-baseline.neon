@@ -2497,7 +2497,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/CloneBehavior.php
 
-        -
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\ChangeSet\\:\\:__construct\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/Command/ChangeSet.php

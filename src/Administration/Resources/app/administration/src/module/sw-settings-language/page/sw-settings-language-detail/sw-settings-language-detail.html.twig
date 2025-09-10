@@ -44,6 +44,18 @@
     {% block sw_settings_language_detail_content %}
     <template #content>
         <sw-card-view>
+            <div class="sw-settings-language-detail__snippet-link-wrapper">
+                <router-link
+                    class="sw-settings-language-detail__snippet-link"
+                    :to="{ name: 'sw.settings.snippet.index' }"
+                >
+                    {{ $tc('sw-settings-language.list.manageSnippets') }}
+                    <mt-icon
+                        name="long-arrow-right"
+                        size="12"
+                    />
+                </router-link>
+            </div>
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>

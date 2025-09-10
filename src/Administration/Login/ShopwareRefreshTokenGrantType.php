@@ -7,6 +7,8 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Administration\Login\TokenService\ExternalTokenService;
+use Shopware\Administration\Login\UserService\ExternalAuthUser;
+use Shopware\Administration\Login\UserService\Token;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Log\Package;
 
@@ -34,10 +36,11 @@ class ShopwareRefreshTokenGrantType extends RefreshTokenGrant
 
         $userId = $oldRefreshToken['user_id'];
 
-        $ssoRefreshToken = $this->userService->getRefreshToken($userId);
-        if (\is_string($ssoRefreshToken)) {
-            $newSsoTokenResult = $this->tokenService->getUserTokenByRefreshToken($ssoRefreshToken);
-            $this->userService->updateUserToken($userId, $newSsoTokenResult);
+        $oAuthUser = $this->userService->searchOAuthUserByUserId($userId);
+        if ($oAuthUser instanceof ExternalAuthUser && $oAuthUser->token instanceof Token) {
+            $newSsoTokenResult = $this->tokenService->getUserTokenByRefreshToken($oAuthUser->token->refreshToken);
+            $oAuthUser = $this->userService->updateOAuthUserWithNewToken($oAuthUser, $newSsoTokenResult);
+            $this->userService->saveOAuthUser($oAuthUser);
 
             // take the shorter token TTL to avoid that the external token gets invalid
             $accessTokenTTL = TokenTimeToLive::getLowerTTL($accessTokenTTL, new \DateInterval('PT' . $newSsoTokenResult->expiresIn . 'S'));

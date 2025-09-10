@@ -70,7 +70,7 @@ class ShopwareGrantType extends AbstractGrant
 
         try {
             $token = $this->tokenService->getUserToken($code);
-            $user = $this->userService->getAndUpdateUser($token);
+            $user = $this->userService->getAndUpdateUserByExternalToken($token);
         } catch (\Throwable $exception) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
 

@@ -26,7 +26,6 @@ class LoginException extends HttpException
     final public const LOGIN_INVALID_PUBLIC_KEY = 'LOGIN__INVALID_PUBLIC_KEY';
     final public const LOGIN_NEGATIVE_TIME_TO_LIVE = 'LOGIN__NEGATIVE_TIME_TO_LIVE';
 
-
     private ?string $email;
 
     public function __construct(

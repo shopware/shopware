@@ -27,7 +27,7 @@ class ShopwarePasswordGrantType extends PasswordGrant
         $client = $this->validateClient($request);
         $user = $this->validateUser($request, $client);
 
-        $this->userTokenService->removeToken($user->getIdentifier());
+        $this->userTokenService->removeExternalToken($user->getIdentifier());
 
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
     }

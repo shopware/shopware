@@ -28,10 +28,15 @@ We will implement a best-effort app requirements validation system that allows a
 ### Key Components
 
 **1. Manifest Requirements Declaration**
-Apps can declare requirements using a new `<requirements>` element in their manifest XML with boolean attributes:
+Apps can declare requirements using a new `<requirements>` element in their manifest XML by adding empty child elements. Presence means the requirement is enabled:
 
 ```xml
-<requirements requires-public-access="true" />
+<requirements>
+    <public-access/>
+    <!-- add further requirements as empty elements -->
+    <!-- <another-requirement/> -->
+    
+</requirements>
 ```
 
 **2. Requirement Interface**

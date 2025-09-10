@@ -317,7 +317,7 @@ class AppLifecycleTest extends TestCase
             ->method('validate')
             ->with($manifest)
             ->willReturn([
-                new UnmetRequirement('test', 'requires-public-access', 'APP_URL must be publicly reachable'),
+                new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
             ]);
 
         /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
@@ -337,8 +337,10 @@ class AppLifecycleTest extends TestCase
             $validator
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app requirements are not met');
+        $expected = AppException::requirementsNotMet(
+            new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+        );
+        $this->expectExceptionObject($expected);
         $appLifecycle->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 
@@ -351,7 +353,7 @@ class AppLifecycleTest extends TestCase
             ->method('validate')
             ->with($manifest)
             ->willReturn([
-                new UnmetRequirement('test', 'requires-public-access', 'APP_URL must be publicly reachable'),
+                new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
             ]);
 
         /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
@@ -371,8 +373,10 @@ class AppLifecycleTest extends TestCase
             $validator
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app requirements are not met');
+        $expected = AppException::requirementsNotMet(
+            new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+        );
+        $this->expectExceptionObject($expected);
         $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
     }
 

@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Requirements\RequiresPublicAccess;
+use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
 use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -21,12 +21,12 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 /**
  * @internal
  */
-#[CoversClass(RequiresPublicAccess::class)]
-class RequiresPublicAccessTest extends TestCase
+#[CoversClass(PublicAccess::class)]
+class PublicAccessTest extends TestCase
 {
     use EnvTestBehaviour;
 
-    private RequiresPublicAccess $requirement;
+    private PublicAccess $requirement;
 
     private MockHandler $mockHandler;
 
@@ -39,7 +39,7 @@ class RequiresPublicAccessTest extends TestCase
         $this->mockHandler = new MockHandler();
         $this->guzzle = new Client(['handler' => HandlerStack::create($this->mockHandler)]);
         $this->secureUrlValidator = new SecureUrlValidator();
-        $this->requirement = new RequiresPublicAccess($this->secureUrlValidator, $this->guzzle);
+        $this->requirement = new PublicAccess($this->secureUrlValidator, $this->guzzle);
     }
 
     public function testSatisfiedReturnsFalseWhenAppUrlNotSet(): void

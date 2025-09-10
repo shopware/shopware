@@ -349,12 +349,15 @@ class Manifest
             return [];
         }
 
-        $attributes = [];
-        foreach ($requirementsElement->attributes ?? [] as $attribute) {
-            \assert($attribute instanceof \DOMAttr);
-            $attributes[$attribute->name] = XmlUtils::phpize($attribute->value);
+        $requirements = [];
+
+        // Presence of child elements indicates the requirement is enabled
+        foreach ($requirementsElement->childNodes as $node) {
+            if ($node instanceof \DOMElement) {
+                $requirements[$node->tagName] = true;
+            }
         }
 
-        return $attributes;
+        return $requirements;
     }
 }

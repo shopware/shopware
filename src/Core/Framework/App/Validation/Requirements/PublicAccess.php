@@ -15,7 +15,7 @@ use Symfony\Contracts\Service\ResetInterface;
  * @internal
  */
 #[Package('framework')]
-class RequiresPublicAccess extends AbstractRequirement implements ResetInterface
+class PublicAccess extends AbstractRequirement implements ResetInterface
 {
     private ?bool $isMet = null;
 
@@ -63,7 +63,7 @@ class RequiresPublicAccess extends AbstractRequirement implements ResetInterface
 
     public static function name(): string
     {
-        return 'requires-public-access';
+        return 'public-access';
     }
 
     public static function actionableResolution(): string

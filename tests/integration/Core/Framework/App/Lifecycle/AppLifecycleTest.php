@@ -40,6 +40,8 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
+use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -1714,8 +1716,10 @@ class AppLifecycleTest extends TestCase
         // Queue a failing response for the health-check call used by RequiresPublicAccess
         $this->appendNewResponse(new Response(500));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app requirements are not met');
+        $expected = AppException::requirementsNotMet(
+            new UnmetRequirement('withRequirements', PublicAccess::name(), PublicAccess::actionableResolution())
+        );
+        $this->expectExceptionObject($expected);
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
     }
 
@@ -1725,8 +1729,10 @@ class AppLifecycleTest extends TestCase
         // Queue a failing response for the health-check call used by RequiresPublicAccess
         $this->appendNewResponse(new Response(500));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app requirements are not met');
+        $expected = AppException::requirementsNotMet(
+            new UnmetRequirement('withRequirements', PublicAccess::name(), PublicAccess::actionableResolution())
+        );
+        $this->expectExceptionObject($expected);
         $this->appLifecycle->update(
             $manifest,
             new AppUpdateParameters(),

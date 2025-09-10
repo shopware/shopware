@@ -69,7 +69,7 @@
         <service id="Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator">
         </service>
 
-        <service id="Shopware\Core\Framework\App\Validation\Requirements\RequiresPublicAccess">
+        <service id="Shopware\Core\Framework\App\Validation\Requirements\PublicAccess">
             <argument type="service" id="Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator"/>
             <argument type="service" id="shopware.app_system.guzzle"/>
             <tag name="app.requirements_validator"/>

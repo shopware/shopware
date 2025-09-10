@@ -610,6 +610,9 @@
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="requirements">
-        <xs:anyAttribute processContents="lax"/>
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <!-- Allow any requirement element; presence means enabled -->
+            <xs:any processContents="lax"/>
+        </xs:choice>
     </xs:complexType>
 </xs:schema>

@@ -17,6 +17,7 @@
             <function>trigger_deprecation</function>
             <method>Doctrine\Deprecations\Deprecation::trigger</method>
             <method>Doctrine\Deprecations\Deprecation::delegateTriggerToBackend</method>
+            <method>Doctrine\Deprecations\Deprecation::triggerIfCalledFromOutside</method>
         </deprecationTrigger>
         <include>
             <directory suffix=".php">src</directory>

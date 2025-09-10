@@ -50,6 +50,7 @@
 
             {% block sw_settings_payment_overview_sorting_modal_card %}
             <mt-card
+                v-if="!isEmpty"
                 class="sw-settings-payment-overview__sorting_modal_card"
                 position-identifier="sw-settings-payment-overview-sorting-modal-card"
             >

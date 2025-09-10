@@ -87,6 +87,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should have all fields disabled', async () => {
         const wrapper = await createWrapper();
+        await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -101,6 +102,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         const wrapper = await createWrapper([
             'shipping.editor',
         ]);
+        await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -117,6 +119,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
             'shipping.editor',
             'shipping.deleter',
         ]);
+        await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -133,6 +136,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
             'shipping.deleter',
             'shipping.creator',
         ]);
+        await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');

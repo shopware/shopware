@@ -47,7 +47,6 @@
         {% block sw_product_detail_variants_sw_card_empty_state %}
         <mt-empty-state
             v-if="!isLoading && !propertiesAvailable"
-            class="sw-product-detail-variants__generated-variants-empty-state"
             :icon="$route.meta.$module.icon"
             :headline="$tc('sw-product.variations.emptyStatePropertyTitle')"
             :description="$tc('sw-product.variations.emptyStatePropertyDescription')"
@@ -90,7 +89,6 @@
         {% block sw_product_detail_variants_sw_card_empty_state_variant %}
         <mt-empty-state
             v-if="!isLoading && propertiesAvailable && variants.length === 0"
-            class="sw-product-detail-variants__generated-variants-empty-state"
             :icon="$route.meta.$module.icon"
             :headline="$tc('sw-product.variations.emptyStateTitle')"
             :description="$tc('sw-product.variations.emptyStateDescription')"

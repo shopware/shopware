@@ -30,7 +30,7 @@ Module.register('sw-settings-payment', {
     title: 'sw-settings-payment.general.mainMenuItemGeneral',
     description: 'Payment section in the settings module',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'payment_method',
 

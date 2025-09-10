@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveRuleIdsExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,7 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 readonly class ContextAwareCacheHeadersService
 {
     public function __construct(
-        private EntityCacheKeyGenerator $cacheKeyGenerator
+        private EntityCacheKeyGenerator $cacheKeyGenerator,
+        private ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -25,16 +29,23 @@ readonly class ContextAwareCacheHeadersService
         // Add context headers to response
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
-        $response->headers->set(PlatformRequest::HEADER_CONTEXT_HASH, $this->generateContextHash($context));
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_HASH, $this->generateContextHash($context, $request));
 
         // Add vary headers for caching
         $this->addVaryHeaders($response);
     }
 
-    private function generateContextHash(SalesChannelContext $context): string
+    private function generateContextHash(SalesChannelContext $context, Request $request): string
     {
-        $areaRuleIds = $context->getAreaRuleIds();
-        $ruleAreas = array_keys($areaRuleIds);
+        $ruleIdsExtension = new ResolveRuleIdsExtension($request, [RuleAreas::PRODUCT_AREA], $context);
+
+        $ruleAreas = $this->extensions->publish(
+            name: ResolveRuleIdsExtension::NAME,
+            extension: $ruleIdsExtension,
+            function: function (Request $request, array $ruleAreas, SalesChannelContext $salesChannelContext): array {
+                return $ruleAreas;
+            },
+        );
 
         return $this->cacheKeyGenerator->getSalesChannelContextHash($context, $ruleAreas);
     }

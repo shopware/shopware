@@ -734,6 +734,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersSubscriber">

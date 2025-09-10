@@ -3,6 +3,6 @@ title: Fix customer profile account type forced to commercial with company signu
 author: Dang Ng
 ---
 # Storefront
-* Changed `component/address/address-personal.html.twig` to fix an issue where customers with private account type were incorrectly shown as commercial when "Company signup form" was enabled for customer groups
-* Removed the automatic forcing of commercial account type when `onlyCompanyRegistration` is enabled, allowing customers to maintain their correct account type (private/business)
-* Removed the disabled state and hidden input field that was overriding the account type selection on the profile edit page
+* Changed `page/account/profile/index.html.twig` to fix an issue where logged-in customers couldn't change their account type when "Company signup form" (`onlyCompanyRegistration`) was enabled for their customer group
+* Added logic to override `onlyCompanyRegistration` to `false` when a customer is logged in and editing their profile, allowing them to freely switch between private and business account types
+* The `onlyCompanyRegistration` setting now only applies to registration forms, not to logged-in customers editing their profile

@@ -309,6 +309,117 @@ interface Element {
 - ✅ Plugin extensibility
 - ⚠️ Additional complexity
 
+## System Extensibility
+
+The Content System is designed for progressive enhancement, allowing extensions at different complexity levels without modifying core code. The type registry (`content_element_type`) serves as the foundation—once a type is registered, the system recognizes and processes it according to its category.
+
+### No-Code Extensions
+
+Container and Static elements can be added purely through database entries, requiring no PHP code or plugins. Simply register the element type and create elements with appropriate configuration.
+
+**Example: Custom Hero Banner (Static Element)**
+```sql
+-- Register the element type
+INSERT INTO content_element_type (id, type_key, category, version, is_live) 
+VALUES (UUID(), 'hero-banner', 'static', '1.0.0', true);
+
+-- Create an element instance
+INSERT INTO content_element (id, type, version, template_id, config) 
+VALUES (UUID(), 'hero-banner', '1.0.0', @templateId, JSON_OBJECT(
+    'title', 'Summer Sale',
+    'subtitle', 'Up to 50% off',
+    'backgroundImage', '/media/banner.jpg',
+    'ctaText', 'Shop Now',
+    'ctaUrl', '/sale'
+));
+```
+
+### Entity Element Extensions
+
+For elements using existing Shopware entities, use the event system to add associations without modifying core files. This approach works when you need to display existing entities in new ways or add the loading of a entity extension.
+
+**Example: Brand Showcase using Manufacturer Entity**
+```php
+class BrandShowcaseSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array {
+        return [ContentElementAssociationEvent::class => 'onAssociation'];
+    }
+    
+    public function onAssociation(ContentElementAssociationEvent $event): void {
+        if ($event->hasType('brand-showcase')) {
+            $event->addAssociation('manufacturerElement.manufacturer.media');
+            $event->addAssociation('manufacturerElement.manufacturer.products');
+        }
+    }
+}
+```
+
+### Custom Entity Types
+
+For completely new entity types, create an extension table following the established pattern, then register associations through the DAL system.
+
+**Example: FAQ Element with Custom Entity**
+```sql
+-- Extension table for FAQ elements
+CREATE TABLE content_element_faq (
+    element_id  BINARY(16)  PRIMARY KEY REFERENCES content_element(id),
+    faq_id      BINARY(16)  NOT NULL REFERENCES custom_faq(id),
+    INDEX idx_faq (faq_id)
+);
+```
+
+```php
+class ContentElementFaqDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'content_element_faq';
+    
+    protected function defineFields(): FieldCollection {
+        return new FieldCollection([
+            (new FkField('element_id', 'elementId', ContentElementDefinition::class))
+                ->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('faq_id', 'faqId', FaqDefinition::class))
+                ->addFlags(new Required()),
+            new OneToOneAssociationField('element', 'element_id', 'id', ContentElementDefinition::class),
+            new ManyToOneAssociationField('faq', 'faq_id', FaqDefinition::class),
+        ]);
+    }
+}
+```
+
+### Service Element Extensions
+
+Service elements require custom hydration logic for runtime data loading. Use the hydration event to inject your service data during Phase 3.
+
+**Example: Recommendation Engine Element**
+```php
+class RecommendationSubscriber implements EventSubscriberInterface
+{
+    public function __construct(private RecommendationService $recommendationService) {}
+    
+    public static function getSubscribedEvents(): array {
+        return [ContentElementHydrationEvent::class => 'onHydration'];
+    }
+    
+    public function onHydration(ContentElementHydrationEvent $event): void {
+        $elements = $event->getElements()
+            ->filterByType('recommendations')
+            ->filter(fn($e) => !$e->isLazyLoad());
+        
+        if ($elements->count() > 0) {
+            $data = $this->recommendationService->loadBatch(
+                $elements->getIds(), 
+                $event->getContext()
+            );
+            
+            foreach ($data as $id => $recommendations) {
+                $elements->get($id)->setData($recommendations);
+            }
+        }
+    }
+}
+```
+
 ## Code Examples
 
 ### Entity Definition Pattern

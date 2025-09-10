@@ -58,19 +58,16 @@ final readonly class ExternalAuthUser implements UserEntityInterface
     /**
      * @param array<string, mixed> $data
      */
-    public static function createFromDatabaseQuery(array $data, string $accessToken, string $refreshToken): self
+    public static function createFromDatabaseQuery(array $data, string $accessToken, string $refreshToken, \DateTimeImmutable $expiry): self
     {
         $data['is_new'] = false;
         $data['id'] = Uuid::fromBytesToHex($data['id']);
         $data['user_id'] = Uuid::fromBytesToHex($data['user_id']);
+        $data['expiry'] = $expiry;
         $data['token'] = [
             'token' => $accessToken,
             'refreshToken' => $refreshToken,
         ];
-
-        if ($data['expiry'] !== null) {
-            $data['expiry'] = new \DateTimeImmutable($data['expiry']);
-        }
 
         return self::create($data);
     }

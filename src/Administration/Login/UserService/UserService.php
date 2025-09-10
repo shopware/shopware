@@ -7,6 +7,7 @@ use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\TokenService\IdTokenParser;
 use Shopware\Administration\Login\TokenService\ParsedIdToken;
 use Shopware\Administration\Login\TokenService\TokenResult;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -57,6 +58,54 @@ final readonly class UserService
         return $userSearchResult;
     }
 
+    public function getRefreshToken(string $userId): ?string
+    {
+        $tokenString = $this->connection->createQueryBuilder()
+            ->select('oauth_user.token')
+            ->from('oauth_user', 'oauth_user')
+            ->where('oauth_user.user_id = :userId')
+            ->setParameter('userId', Uuid::fromHexToBytes($userId))
+            ->executeQuery()
+            ->fetchOne();
+
+        if (!\is_string($tokenString)) {
+            return null;
+        }
+
+        $token = \json_decode($tokenString, true);
+        if (!\is_array($token) || !\array_key_exists('refreshToken', $token)) {
+            return null;
+        }
+
+        return $token['refreshToken'];
+    }
+
+    public function updateUserToken(string $userId, TokenResult $tokenResult): void
+    {
+        $expiry = (new \DateTimeImmutable())->add(new \DateInterval('PT' . $tokenResult->expiresIn . 'S'));
+
+        $this->connection->update(
+            'oauth_user',
+            [
+                'token' => json_encode(['token' => $tokenResult->accessToken, 'refreshToken' => $tokenResult->refreshToken]),
+                'expiry' => $expiry->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            ['user_id' => Uuid::fromHexToBytes($userId)]
+        );
+    }
+
+    public function removeToken(string $userId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->update('oauth_user')
+            ->set('token', ':token')
+            ->where('user_id = :userId')
+            ->setParameter('userId', Uuid::fromHexToBytes($userId))
+            ->setParameter('token', null)
+            ->executeQuery();
+    }
+
     private function searchUser(Context $context, ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
     {
         $userSearchResult = $this->searchBySub($parsedToken, $tokenResult);
@@ -82,7 +131,9 @@ final readonly class UserService
             return null;
         }
 
-        return ExternalAuthUser::createFromDatabaseQuery($tokenUserData, $tokenResult->accessToken, $tokenResult->refreshToken);
+        $expiry = (new \DateTimeImmutable())->add(new \DateInterval('PT' . $tokenResult->expiresIn . 'S'));
+
+        return ExternalAuthUser::createFromDatabaseQuery($tokenUserData, $tokenResult->accessToken, $tokenResult->refreshToken, $expiry);
     }
 
     private function searchByEmail(Context $context, ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
@@ -106,6 +157,8 @@ final readonly class UserService
             return null;
         }
 
+        $expiry = (new \DateTimeImmutable())->add(new \DateInterval('PT' . $tokenResult->expiresIn . 'S'));
+
         return ExternalAuthUser::create([
             'id' => Uuid::randomHex(),
             'user_id' => $user->getId(),
@@ -114,7 +167,7 @@ final readonly class UserService
                 'token' => $tokenResult->accessToken,
                 'refreshToken' => $tokenResult->refreshToken,
             ],
-            'expiry' => $parsedToken->expiry,
+            'expiry' => $expiry,
             'email' => $user->getEmail(),
             'is_new' => true,
         ]);
@@ -142,8 +195,8 @@ final readonly class UserService
                     'user_id' => Uuid::fromHexToBytes($userSearchResult->userId),
                     'user_sub' => $userSearchResult->sub,
                     'token' => \json_encode($userSearchResult->token, \JSON_THROW_ON_ERROR),
-                    'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
-                    'created_at' => (new \DateTime())->format(\DATE_RFC3339),
+                    'expiry' => $userSearchResult->expiry?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'updated_at' => null,
                 ],
             );
@@ -155,8 +208,8 @@ final readonly class UserService
             'oauth_user',
             [
                 'token' => \json_encode($userSearchResult->token, \JSON_THROW_ON_ERROR),
-                'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
-                'updated_at' => (new \DateTime())->format(\DATE_RFC3339),
+                'expiry' => $userSearchResult->expiry?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
             ['id' => Uuid::fromHexToBytes($userSearchResult->id)]
         );

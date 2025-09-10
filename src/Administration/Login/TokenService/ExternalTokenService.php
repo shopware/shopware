@@ -40,4 +40,24 @@ final readonly class ExternalTokenService
 
         return TokenResult::createFromResponse($tokenResponse->getContent());
     }
+
+    public function getUserTokenByRefreshToken(string $refreshToken): TokenResult
+    {
+        $loginConfig = $this->loginConfigService->getConfig();
+        if (!$loginConfig instanceof LoginConfig) {
+            throw LoginException::configurationNotFound();
+        }
+
+        $refreshTokenResponse = $this->client->request('POST', $loginConfig->baseUrl . $loginConfig->tokenPath, [
+            'body' => [
+                'grant_type' => 'refresh_token',
+                'scope' => $loginConfig->scope,
+                'client_id' => $loginConfig->clientId,
+                'client_secret' => $loginConfig->clientSecret,
+                'refresh_token' => $refreshToken,
+            ],
+        ]);
+
+        return TokenResult::createFromResponse($refreshTokenResponse->getContent());
+    }
 }

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test ('As a customer, I can request a new password with existing customer email address.', { tag: '@Account @Password' }, async ({
+test ('As a customer, I can request a new password with existing customer email address.', { tag: ['@Account', '@Password', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccountRecover,
@@ -24,7 +24,7 @@ test ('As a customer, I can request a new password with existing customer email 
     });
 });
 
-test ('As a customer, I can request a new password without existing customer email address.', { tag: '@Account @Password' }, async ({
+test ('As a customer, I can request a new password without existing customer email address.', { tag: ['@Account', '@Password', '@Storefront'] }, async ({
    ShopCustomer,
    StorefrontAccountLogin,
    StorefrontAccountRecover,
@@ -47,7 +47,7 @@ test ('As a customer, I can request a new password without existing customer ema
     });
 });
 
-test ('As a customer, I can reset my password using the password recovery process for an existing account and successfully log in with the new password.', { tag: '@Account @Password' }, async ({
+test ('As a customer, I can reset my password using the password recovery process for an existing account and successfully log in with the new password.', { tag: ['@Account', '@Password', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccountRecover,

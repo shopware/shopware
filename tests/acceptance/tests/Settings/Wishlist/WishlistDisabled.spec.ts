@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customer is able to verify that wishlist icons disappear when it is disabled.', { tag: '@Wishlist' }, async ({
+test('Customer is able to verify that wishlist icons disappear when it is disabled.', { tag: ['@Wishlist', '@Storefront'] }, async ({
     TestDataService,
     ShopCustomer,
     StorefrontHome,

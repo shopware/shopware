@@ -1,6 +1,6 @@
 import { getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest';
 
-test('Shop customers should be able to view products in different languages.', { tag: '@Languages' }, async ({
+test('Shop customers should be able to view products in different languages.', { tag: ['@Languages', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,

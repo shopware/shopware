@@ -1,6 +1,6 @@
 import { test, expect, getOrderTransactionId } from '@fixtures/AcceptanceTest';
 
-test('Registered shop customer should be able to buy a digital product.', { tag: ['@Checkout', '@DigitalProduct'] }, async ({
+test('Registered shop customer should be able to buy a digital product.', { tag: ['@Checkout', '@DigitalProduct', '@Storefront'] }, async ({
     ShopCustomer,
     AdminApiContext,
     TestDataService,

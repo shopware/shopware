@@ -2,7 +2,7 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to fill out and submit the contact form.',
-    { tag: '@form @contact' },
+    { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel }) => {
 
         await test.step('Open the contact form modal on home page.', async () => {
@@ -38,7 +38,7 @@ test(
 
 test(
     'As a customer, I forgot to fill out some fields and should be informed about the missing ones.',
-    { tag: '@form @contact' },
+    { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, InstanceMeta }) => {
 
         await test.step('Open the contact form modal on home page.', async () => {

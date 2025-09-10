@@ -3,7 +3,7 @@ import { test, PropertyGroup } from '@fixtures/AcceptanceTest';
 test(
     'As a customer, I should see the correct listing price and normal price for variant products with differing prices.',
     {
-        tag: ['@Product, @Variant'],
+        tag: ['@Product, @Variant', '@Storefront'],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail }) => {
         const currency = await TestDataService.getCurrency('EUR');

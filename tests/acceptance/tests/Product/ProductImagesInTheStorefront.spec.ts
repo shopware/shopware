@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Shop customer should be able to see the product image in the Storefront.', { tag: '@Product' }, async ({
+test('Shop customer should be able to see the product image in the Storefront.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,

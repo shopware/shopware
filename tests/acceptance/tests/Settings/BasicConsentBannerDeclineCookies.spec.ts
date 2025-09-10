@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test(
-    'As a shop customer, I want to continue shopping without accepting the cookies in the storefront.', { tag: '@Settings' }, async ({
+    'As a shop customer, I want to continue shopping without accepting the cookies in the storefront.', { tag: ['@Settings', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a customer, I must be able to change my email via account.', { tag: '@Account' }, async ({
+test('As a customer, I must be able to change my email via account.', { tag: ['@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccount,
@@ -68,7 +68,7 @@ test('As a customer, I must be able to change my email via account.', { tag: '@A
     });
 });
 
-test('As a customer, I must be able to change my password via account.', { tag: '@Account' }, async ({
+test('As a customer, I must be able to change my password via account.', { tag: ['@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccount,

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('New customers can register as commercial customers in the Storefront.', { tag: '@Registration' }, async ({
+test('New customers can register as commercial customers in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccount,
@@ -28,7 +28,7 @@ test('New customers can register as commercial customers in the Storefront.', { 
 
 });
 
-test('New customers cannot register as commercial customers without a VAT Reg.No.', { tag: '@Registration' }, async ({
+test('New customers cannot register as commercial customers without a VAT Reg.No.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     Register,
@@ -57,7 +57,7 @@ test('New customers cannot register as commercial customers without a VAT Reg.No
 
 });
 
-test('New customers cannot register as commercial customers with an invalid VAT Reg.No.', { tag: '@Registration' }, async ({
+test('New customers cannot register as commercial customers with an invalid VAT Reg.No.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     IdProvider,

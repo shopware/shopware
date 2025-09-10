@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 
 
 test('As a shop customer, I want to see reviews of a product.', {
-    tag: ['@Product', '@Reviews'],
+    tag: ['@Product', '@Reviews', '@Storefront'],
 }, async ({
     ShopCustomer,
     TestDataService,
@@ -24,7 +24,7 @@ test('As a shop customer, I want to see reviews of a product.', {
 });
 
 test('As a shop customer, I want to submit a review, so that I can share my experience with the product', {
-    tag: ['@Product', '@Reviews'],
+    tag: ['@Product', '@Reviews', '@Storefront'],
 }, async ({
     ShopCustomer,
     TestDataService,
@@ -111,7 +111,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
 });
 
 test('As a shop customer, I want to filter reviews, so that I can find the content of a specific rating', {
-    tag: ['@Product', '@Reviews'],
+    tag: ['@Product', '@Reviews', '@Storefront'],
 }, async ({
     ShopCustomer,
     TestDataService,

@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to see 404 layout when I navigate to a non-existing page.',
-    { tag: '@Categories' },
+    { tag: ['@Categories', '@Storefront'] },
     async ({ ShopCustomer, StorefrontPageNotFound, StorefrontHome }) => {
         await ShopCustomer.goesTo(StorefrontPageNotFound.url());
 

@@ -38,7 +38,7 @@ test('Shop administrator should be able to create product variants.', { tag: '@P
     ShopAdmin.expects(validateVariants).toBeTruthy();
 });
 
-test('Customer should be able to see a new property displayed on the product detail page', async ({
+test('Customer should be able to see a new property displayed on the product detail page', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,

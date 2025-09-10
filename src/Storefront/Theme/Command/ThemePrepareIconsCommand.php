@@ -47,7 +47,6 @@ class ThemePrepareIconsCommand extends Command
         $fillrule = $input->getOption('fillrule');
         $verbose = $input->getOption('verbose');
 
-
         if (
             !empty($input->getOption('cleanup'))
             && $input->getOption('cleanup') !== 'true'
@@ -88,7 +87,7 @@ class ThemePrepareIconsCommand extends Command
         foreach ($files as $file) {
             $svg = $file->getContents();
 
-            if (!\is_string($svg) || empty($svg)) {
+            if (empty($svg)) {
                 $this->io->warning('Could not read ' . $file . '.You have to handle this file by hand.');
 
                 continue;
@@ -182,6 +181,9 @@ class ThemePrepareIconsCommand extends Command
         }
     }
 
+    /**
+     * @return array<SVGNode>
+     */
     private function getChildren(SVGNodeContainer $fragment): array
     {
         $children = [];

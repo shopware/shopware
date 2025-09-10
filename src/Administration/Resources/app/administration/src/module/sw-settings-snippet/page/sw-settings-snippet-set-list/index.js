@@ -67,6 +67,9 @@ export default {
             return this.acl.can('snippet.editor') ? this.$t('global.default.edit') : this.$t('global.default.view');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -121,8 +124,9 @@ export default {
 
         loadBaseFiles() {
             return this.snippetSetService.getBaseFiles().then((response) => {
-                this.baseFiles = Object.values(response.items ?? {});
-                this.baseFiles.sort((a, b) => a.name.localeCompare(b.name));
+                this.baseFiles = Object.values(response.items ?? {})
+                    .filter((file, index, self) => index === self.findIndex((other) => other.name === file.name))
+                    .sort((a, b) => a.name.localeCompare(b.name));
             });
         },
 

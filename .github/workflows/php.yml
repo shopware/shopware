@@ -29,7 +29,7 @@ jobs:
           cat composer.json
           composer validate --no-check-publish --no-check-lock
 
-      - uses: ramsey/composer-install@a2636af0004d1c0499ffca16ac0b4cc94df70565 # 3.1.0
+      - uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # 3.1.1
         with:
           custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
           working-directory: ""
@@ -41,12 +41,15 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache CS Fixer
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
         with:
           path: ./var/cache/cs_fixer
           key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
           restore-keys: |
             ${{ runner.os }}-cs-fixer-
+
+      - name: Lint composer.json files
+        run: bin/console sync:composer:version --dry-run
 
       - name: Code Style
         run: composer run ecs
@@ -71,7 +74,7 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: "Restore result cache"
-        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: var/cache/phpstan
           key: "phpstan-result-cache-${{ github.run_id }}"
@@ -82,7 +85,7 @@ jobs:
         run: composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
-        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         if: always()
         with:
           path: var/cache/phpstan
@@ -121,7 +124,7 @@ jobs:
   openapi-lint:
     runs-on: ubuntu-24.04
     env:
-      APP_ENV: test
+      APP_ENV: prod
       APP_URL: http://localhost:8000
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       DATABASE_HOST: "127.0.0.1"
@@ -132,6 +135,12 @@ jobs:
           install: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+
+      - name: Cache npm packages
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
+        with:
+          path: ${{ github.workspace }}/var/cache/npm
+          key: change-me-on-shopware-api-gen-update
 
       - name: Prepare schema lint
         env:
@@ -145,16 +154,20 @@ jobs:
           echo -e "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
           cat .env
 
-      - name: Generate OpenApi StoreAPI schema
+      - name: Load OpenApi StoreAPI schema from the instance
         run: |
-          api-gen loadSchema --apiType=store && api-gen generate --apiType=store
+          api-gen loadSchema --apiType=store
 
       - name: Upload OpenApi StoreAPI schema
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4.6.2
         with:
           name: storeApiSchema.json
           path: ./api-types/storeApiSchema.json
           retention-days: 1
+
+      - name: Generate StoreAPI schema
+        run: |
+          api-gen generate --apiType=store
 
       - name: Lint OpenApi StoreAPI schema
         run: |
@@ -166,7 +179,7 @@ jobs:
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
       - name: Upload OpenApi AdminAPI schema
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4.6.2
         with:
           name: adminApiSchema.json
           path: ./api-types/adminApiSchema.json
@@ -197,10 +210,11 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:2' || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
 
@@ -211,11 +225,6 @@ jobs:
           php-version: 8.4
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-
-      # do not remove
-      # This is required for the test `tests/unit/Core/Checkout/Cart/Error/ErrorTest.php` to work properly
-      - name: Dump composer autoloader
-        run: php vendor/bin/composer dump-autoload -o
 
       - name: Start Webserver
         run: symfony server:start -d
@@ -233,7 +242,7 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -242,7 +251,7 @@ jobs:
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706 # 1
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # 1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -271,12 +280,30 @@ jobs:
           php-version: "8.2"
 
       - name: Install Dependencies
-        run: |
-          composer install
+        run: composer install
 
       - name: Composer audit
-        run: |
-          composer audit
+        run: composer audit
+
+  composer-prefer-lowest:
+    runs-on: ubuntu-24.04
+    name: "Smoke test with lowest dependencies"
+    if: inputs.nightly == 'true'
+    steps:
+        - name: Setup Shopware
+          uses: shopware/setup-shopware@main
+          with:
+              shopware-version: ${{ github.ref }}
+              shopware-repository: ${{ github.repository }}
+
+        - name: Install lowest dependencies
+          run: composer update --prefer-lowest
+
+        - name: Generate Schema
+          run: composer run framework:schema:dump
+
+        - name: Run PHPStan as smoke test
+          run: composer phpstan
 
   php-check:
     if: always()

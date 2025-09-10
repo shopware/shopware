@@ -33,9 +33,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Storefront\Theme\ThemeCollection;
 
 /**
- * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool}}
+ * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool, 'arPlacement': string}}
  */
 #[Package('discovery')]
 class MediaEntity extends Entity
@@ -80,6 +81,8 @@ class MediaEntity extends Entity
     protected ?MediaTranslationCollection $translations = null;
 
     protected ?CategoryCollection $categories = null;
+
+    protected ?ThemeCollection $themes = null;
 
     protected ?ProductManufacturerCollection $productManufacturers = null;
 
@@ -128,6 +131,8 @@ class MediaEntity extends Entity
 
     protected ?DocumentCollection $documents = null;
 
+    protected ?DocumentCollection $a11yDocuments = null;
+
     protected ?AppPaymentMethodCollection $appPaymentMethods = null;
 
     /**
@@ -144,7 +149,7 @@ class MediaEntity extends Entity
      *
      * @var MediaConfig|null
      */
-    protected ?array $config;
+    protected ?array $config = null;
 
     /**
      * @internal
@@ -284,6 +289,16 @@ class MediaEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getThemes(): ?ThemeCollection
+    {
+        return $this->themes;
+    }
+
+    public function setThemes(ThemeCollection $themes): void
+    {
+        $this->themes = $themes;
     }
 
     public function getProductManufacturers(): ?ProductManufacturerCollection
@@ -568,6 +583,16 @@ class MediaEntity extends Entity
     public function setDocuments(DocumentCollection $documents): void
     {
         $this->documents = $documents;
+    }
+
+    public function getA11yDocuments(): ?DocumentCollection
+    {
+        return $this->a11yDocuments;
+    }
+
+    public function setA11yDocuments(DocumentCollection $a11yDocuments): void
+    {
+        $this->a11yDocuments = $a11yDocuments;
     }
 
     public function getAppPaymentMethods(): ?AppPaymentMethodCollection

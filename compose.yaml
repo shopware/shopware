@@ -1,6 +1,6 @@
 services:
     web:
-        image: ghcr.io/shopwarelabs/devcontainer/base-slim:8.3
+        image: ghcr.io/shopware/docker-dev:php8.4-node24-caddy
         ports:
             - 8000:8000
             - 5173:5173
@@ -22,6 +22,8 @@ services:
 
     database:
         image: mariadb:latest
+        ports:
+            - 3306:3306
         environment:
             MARIADB_ROOT_PASSWORD: root
             MARIADB_DATABASE: shopware
@@ -67,7 +69,7 @@ services:
             - '8025:8025'
 
     opensearch:
-        image: opensearchproject/opensearch:latest
+        image: opensearchproject/opensearch:2
         environment:
             OPENSEARCH_INITIAL_ADMIN_PASSWORD: 'c3o_ZPHo!'
             discovery.type: single-node

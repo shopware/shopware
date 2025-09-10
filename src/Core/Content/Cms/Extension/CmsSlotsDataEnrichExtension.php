@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms\Extension;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\Extension;
@@ -17,8 +18,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @description This event allows interception of the enrichment process,
  * during which CMS slots used in a rendered CMS page are populated with data loaded by the respective CMS resolver from the search results.
- *
- * @template TEntityCollection of EntityCollection
  *
  * @codeCoverageIgnore
  *
@@ -52,7 +51,7 @@ final class CmsSlotsDataEnrichExtension extends Extension
          *
          * @description The fetched slot data which was searched by the identifiers
          *
-         * @var array<EntitySearchResult<TEntityCollection>>
+         * @var array<EntitySearchResult<covariant EntityCollection<covariant Entity>>>
          */
         public readonly array $identifierResult,
         /**
@@ -60,7 +59,7 @@ final class CmsSlotsDataEnrichExtension extends Extension
          *
          * @description The fetched slot data which was searched by the criteria list
          *
-         * @var array<array<string, EntitySearchResult<TEntityCollection>>>
+         * @var array<array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>>
          */
         public readonly array $criteriaResult,
         /**

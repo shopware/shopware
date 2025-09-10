@@ -6,15 +6,13 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('discovery')]
 class SalesChannelException extends HttpException
 {
@@ -30,7 +28,7 @@ class SalesChannelException extends HttpException
     final public const NO_CONTEXT_DATA_EXCEPTION = 'SYSTEM__NO_CONTEXT_DATA_EXCEPTION';
     final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
     final public const SALES_CHANNEL_DOMAIN_IN_USE = 'SYSTEM__SALES_CHANNEL_DOMAIN_IN_USE';
-    public const INVALID_TYPE = 'FRAMEWORK__INVALID_TYPE';
+    final public const INVALID_TYPE = 'FRAMEWORK__INVALID_TYPE';
     final public const CURRENCY_INVALID_EXCEPTION = 'SYSTEM__CURRENCY_INVALID_EXCEPTION';
     final public const COUNTRY_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_INVALID_EXCEPTION';
     final public const COUNTRY_STATE_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_STATE_INVALID_EXCEPTION';
@@ -149,8 +147,21 @@ class SalesChannelException extends HttpException
         return PaymentException::unknownPaymentMethodById($paymentMethodId);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, as the exception is no longer needed, use RestrictDeleteViolationException instead
+     */
     public static function salesChannelDomainInUse(?\Throwable $previous = null): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                __CLASS__,
+                __METHOD__,
+                'v6.8.0.0',
+                RestrictDeleteViolationException::class
+            )
+        );
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_DOMAIN_IN_USE,

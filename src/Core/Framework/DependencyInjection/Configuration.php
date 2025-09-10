@@ -53,6 +53,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createSsoLoginSection())
             ->end();
 
         return $treeBuilder;
@@ -127,6 +128,11 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('private_local_path_prefix')
                     ->defaultValue('')
                     ->info('Path prefix to be prepended to the path when using a local download strategy')
+                ->end()
+                ->integerNode('batch_write_size')
+                    ->defaultValue(250)
+                    ->min(1)
+                    ->info('Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter')
                 ->end()
             ->end();
 
@@ -405,6 +411,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
                 ->arrayNode('invalidation')
                     ->children()
+                        ->booleanNode('delay_enabled')
+                            ->defaultTrue()
+                        ->end()
                         ->arrayNode('delay_options')
                             ->children()
                                 ->scalarNode('storage')
@@ -548,6 +557,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('compress')->defaultFalse()->end()
                 ->scalarNode('compression_method')->defaultValue('gzip')->end()
+                ->variableNode('serialization_max_mb_size')->defaultNull()->end()
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
@@ -872,6 +882,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
+                ->scalarNode('soft_purge')->defaultValue(false)->end()
                 ->arrayNode('cookies')
                     ->performNoDeepMerging()
                     ->scalarPrototype()->end()
@@ -928,6 +939,11 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
+                ->arrayNode('scheduled_task')
+                    ->children()
+                        ->integerNode('requeue_timeout')->defaultValue(12)->end()
+                    ->end()
+                ->end()
                 ->arrayNode('stats')
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
@@ -1034,6 +1050,31 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSsoLoginSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('admin_login');
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('use_default')->defaultTrue()->end();
+
+        $rootNode
+            ->children()
+                ->booleanNode('use_default')->isRequired()->end()
+                ->scalarNode('client_id')->isRequired()->end()
+                ->scalarNode('client_secret')->isRequired()->end()
+                ->scalarNode('redirect_uri')->isRequired()->end()
+                ->scalarNode('base_url')->isRequired()->end()
+                ->scalarNode('authorize_path')->isRequired()->end()
+                ->scalarNode('token_path')->isRequired()->end()
+                ->scalarNode('jwks_path')->isRequired()->end()
+                ->scalarNode('scope')->isRequired()->end()
+                ->scalarNode('register_url')->isRequired()->end()
             ->end();
 
         return $rootNode;

@@ -10,13 +10,15 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -178,7 +180,7 @@ class AppRegistrationServiceTest extends TestCase
         $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
     }
 
-    public function testRegistrationFailsIfAppUrlChangeWasDetected(): void
+    public function testRegistrationFailsIfShopIdFingerprintsHaveChanged(): void
     {
         $id = Uuid::randomHex();
         $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
@@ -213,7 +215,7 @@ class AppRegistrationServiceTest extends TestCase
         $shopIdMock = $this->createMock(ShopIdProvider::class);
         $shopIdMock->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new AppUrlChangeDetectedException('https://test.com', 'https://new.com', $shopId));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2($shopId), new FingerprintComparisonResult([], [], 75)));
 
         $registrator = new AppRegistrationService(
             $handshakeFactory,
@@ -285,6 +287,7 @@ class AppRegistrationServiceTest extends TestCase
     {
         $roleId = Uuid::randomHex();
 
+        $context = Context::createDefaultContext();
         $this->appRepository->create([[
             'id' => $id,
             'name' => 'SwagApp',
@@ -306,7 +309,7 @@ class AppRegistrationServiceTest extends TestCase
                 'id' => $roleId,
                 'name' => 'SwagApp',
             ],
-        ]], Context::createDefaultContext());
+        ]], $context);
 
         $permissionPersister = static::getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
@@ -315,7 +318,7 @@ class AppRegistrationServiceTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
     }
 
     private function buildAppResponse(Manifest $manifest, string $appSecret, ?string $shopId = null): string

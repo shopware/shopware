@@ -97,6 +97,7 @@ async function createWrapper(props) {
                     'mt-checkbox': true,
                     'sw-product-variant-info': true,
                     'sw-app-action-button': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -625,14 +626,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         Shopware.Utils.debounce = (fn) => {
             return fn;
         };
-    });
-
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper({
-            entity: {},
-            sets: [],
-        });
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should inherit the value from parent entity', async () => {

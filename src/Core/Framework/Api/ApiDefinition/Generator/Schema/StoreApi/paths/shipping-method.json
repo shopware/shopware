@@ -21,6 +21,14 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "name": "onlyAvailable",
+                        "in": "query",
+                        "description": "List only available shipping methods. This filters shipping methods methods which can not be used in the actual context because of their availability rule.",
+                        "schema": {
+                            "type": "boolean"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -73,6 +81,40 @@
                                 }
                             }
                         }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Payment & Shipping",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch shipping methods",
+                "description": "Perform a filtered search for shipping methods.",
+                "operationId": "readShippingMethodGet",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ShippingMethodListResponse"
                     }
                 },
                 "security": [

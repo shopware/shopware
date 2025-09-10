@@ -90,6 +90,9 @@ export default {
             return this.mailTemplateId === null || this.subject.length <= 0 || this.recipient.length <= 0;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },

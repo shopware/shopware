@@ -44,10 +44,6 @@ describe('src/app/mixin/position.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return a new position value using the current max position +1 starting with 1', async () => {
         const productRepositoryMock = {
             search: () =>

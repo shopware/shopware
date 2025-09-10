@@ -53,6 +53,7 @@ jest.mock('@shopware-ag/dive/ar', () => ({
 const arViewerOptions = {
     spatialArId: "1",
     modelUrl: "testurl",
+    arPlacement: 'horizontal',
     snippets: {
         arErrors: {
             desktopNotSupported: {
@@ -135,7 +136,7 @@ describe('SpatialArViewerPlugin', () => {
             modelUrl: "testurl"
         });
         SpatialArViewerPluginObject.arSystem = arSystem;
-        SpatialArViewerPluginObject.options = arViewerOptions;
+        SpatialArViewerPluginObject.options = {...arViewerOptions};
         SpatialArViewerPluginObject.launchingAR = false;
         SpatialArViewerPluginObject.qrModalAutostartAR = null;
         SpatialArViewerPluginObject.model = "1";
@@ -178,7 +179,9 @@ describe('SpatialArViewerPlugin', () => {
             expect(consoleErrorSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Error));
         });
 
-        test('calls ARSystem.launch with correct args, set the ar button text, should not set the qrModalAutostartAR button text', async () => {
+        test('calls ARSystem.launch with horizontal arPlacement if parameter is null, set the ar button text, should not set the qrModalAutostartAR button text', async () => {
+            SpatialArViewerPluginObject.options.arPlacement = null;
+
             expect(SpatialArViewerPluginObject.autostartArModalButton).toBeNull();
 
             const arButton = document.querySelector('.ar-button');
@@ -233,6 +236,126 @@ describe('SpatialArViewerPlugin', () => {
             expect(launchSpy).toHaveBeenCalledWith(
                 'testurl',
                 expect.objectContaining({ arPlacement: 'horizontal', arScale: 'auto' })
+            );
+        });
+
+        test('calls ARSystem.launch with vertical arPlacement if parameter is vertical, set the ar button text, should not set the qrModalAutostartAR button text', async () => {
+            SpatialArViewerPluginObject.options.arPlacement = 'horizontal';
+
+            expect(SpatialArViewerPluginObject.autostartArModalButton).toBeNull();
+
+            const arButton = document.querySelector('.ar-button');
+            expect(arButton).toBeDefined();
+
+            SpatialArViewerPluginObject.el = arButton;
+
+            // find the ar button text
+            const arButtonText = arButton.querySelector('#ar-button-text');
+            expect(arButtonText).toBeDefined();
+
+            // we want to make sure this remains untouched while launching ar because we don't come from autostartAr!
+            const autostartArModalButtonText = document.querySelector('.ar-qr-modal-open-session').querySelector('#ar-btn-open-session-text');
+            expect(autostartArModalButtonText).toBeDefined();
+
+            // create a promise for the arSystem.launch method that can be resolved by the test
+            let resolveLaunchPromise;
+            const launchPromise = new Promise((resolve) => {
+                resolveLaunchPromise = resolve;
+            });
+
+            // make the ar launch return our custom promise
+            const launchSpy = jest.spyOn(SpatialArViewerPluginObject.arSystem, 'launch').mockResolvedValue(launchPromise);
+
+            // check the ar button text is the default text
+            expect(arButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(autostartArModalButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(SpatialArViewerPluginObject.launchingAR).toBe(false);
+
+            // start the ar view
+            const startARViewAsyncPromise = SpatialArViewerPluginObject.startARViewAsync();
+
+            // check the ar button text while launching ar to be the launching text
+            expect(arButtonText.textContent).toBe(arViewerOptions.snippets.launchingArView);
+
+            // should NOT change the text of the autostartArModalButtonText
+            expect(autostartArModalButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(SpatialArViewerPluginObject.launchingAR).toBe(true);
+
+            // resolve the launch promise
+            resolveLaunchPromise();
+
+            await startARViewAsyncPromise;
+
+            expect(arButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(autostartArModalButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(SpatialArViewerPluginObject.launchingAR).toBe(false);
+
+            // check the ar button text is the default text after the launch promise is resolved
+            expect(arButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+
+            expect(launchSpy).toHaveBeenCalledWith(
+                'testurl',
+                expect.objectContaining({ arPlacement: 'horizontal', arScale: 'auto' })
+            );
+        });
+
+        test('calls ARSystem.launch with vertical arPlacement if parameter is vertical, set the ar button text, should not set the qrModalAutostartAR button text', async () => {
+            SpatialArViewerPluginObject.options.arPlacement = 'vertical';
+
+            expect(SpatialArViewerPluginObject.autostartArModalButton).toBeNull();
+
+            const arButton = document.querySelector('.ar-button');
+            expect(arButton).toBeDefined();
+
+            SpatialArViewerPluginObject.el = arButton;
+
+            // find the ar button text
+            const arButtonText = arButton.querySelector('#ar-button-text');
+            expect(arButtonText).toBeDefined();
+
+            // we want to make sure this remains untouched while launching ar because we don't come from autostartAr!
+            const autostartArModalButtonText = document.querySelector('.ar-qr-modal-open-session').querySelector('#ar-btn-open-session-text');
+            expect(autostartArModalButtonText).toBeDefined();
+
+            // create a promise for the arSystem.launch method that can be resolved by the test
+            let resolveLaunchPromise;
+            const launchPromise = new Promise((resolve) => {
+                resolveLaunchPromise = resolve;
+            });
+
+            // make the ar launch return our custom promise
+            const launchSpy = jest.spyOn(SpatialArViewerPluginObject.arSystem, 'launch').mockResolvedValue(launchPromise);
+
+            // check the ar button text is the default text
+            expect(arButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(autostartArModalButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(SpatialArViewerPluginObject.launchingAR).toBe(false);
+
+            // start the ar view
+            const startARViewAsyncPromise = SpatialArViewerPluginObject.startARViewAsync();
+
+            // check the ar button text while launching ar to be the launching text
+            expect(arButtonText.textContent).toBe(arViewerOptions.snippets.launchingArView);
+
+            // should NOT change the text of the autostartArModalButtonText
+            expect(autostartArModalButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(SpatialArViewerPluginObject.launchingAR).toBe(true);
+
+            // resolve the launch promise
+            resolveLaunchPromise();
+
+            await startARViewAsyncPromise;
+
+            expect(arButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(autostartArModalButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+            expect(SpatialArViewerPluginObject.launchingAR).toBe(false);
+
+            // check the ar button text is the default text after the launch promise is resolved
+            expect(arButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
+
+            expect(launchSpy).toHaveBeenCalledWith(
+                'testurl',
+                expect.objectContaining({ arPlacement: 'vertical', arScale: 'auto' })
             );
         });
 
@@ -451,6 +574,7 @@ describe('SpatialArViewerPlugin', () => {
 
             window.location.search = '?autostartAr=1';
             SpatialArViewerPluginObject.spatialArId = '1';
+            SpatialArViewerPluginObject.options = {...arViewerOptions};
             window.autostartingARView = null;
         });
 
@@ -659,6 +783,8 @@ describe('SpatialArViewerPlugin', () => {
 
             expect(autostartArModalButtonText.textContent).toBe(arViewerOptions.snippets.openArView);
             expect(SpatialArViewerPluginObject.launchingAR).toBe(false);
+
+            expect(SpatialArViewerPluginObject.options.arPlacement).toBe('horizontal');
 
             expect(launchSpy).toHaveBeenCalledWith(
                 'testurl',

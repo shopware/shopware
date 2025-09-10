@@ -10,9 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
@@ -23,6 +24,8 @@ class UserGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,
@@ -58,6 +61,7 @@ class UserGenerator implements DemodataGeneratorInterface
                 'email' => $id . $context->getFaker()->format('safeEmail'),
                 'password' => 'shopware',
                 'localeId' => $this->getLocaleId($context->getContext()),
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
 
             $payload[] = $user;
@@ -89,8 +93,8 @@ class UserGenerator implements DemodataGeneratorInterface
 
     private function getLocaleId(Context $context): string
     {
-        /** @var LanguageEntity $first */
-        $first = $this->languageRepository->search(new Criteria([Defaults::LANGUAGE_SYSTEM]), $context)->first();
+        $first = $this->languageRepository->search(new Criteria([Defaults::LANGUAGE_SYSTEM]), $context)->getEntities()->first();
+        \assert($first !== null);
 
         return $first->getLocaleId();
     }

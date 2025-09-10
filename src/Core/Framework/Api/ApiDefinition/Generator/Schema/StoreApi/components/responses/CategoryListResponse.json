@@ -1,0 +1,34 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "CategoryListResponse": {
+                "description": "Entity search result containing categories.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "elements": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Category"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "$ref": "#/components/schemas/EntitySearchResult"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+} 

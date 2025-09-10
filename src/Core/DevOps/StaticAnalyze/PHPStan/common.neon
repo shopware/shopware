@@ -1,5 +1,5 @@
 includes:
-    - ../../../../../vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
     - extension.neon
     - rules.neon
 
@@ -11,6 +11,7 @@ parameters:
     reportUnmatchedIgnoredErrors: true
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
+    reportAnyTypeWideningInVarTag: true
 
     # Would otherwise flag usage of internal classes from different namespaces
     featureToggles:
@@ -18,29 +19,17 @@ parameters:
 
     # For stricter testing those should be set to true at some point
     reportMaybesInMethodSignatures: false
-    reportWrongPhpDocTypeInVarTag: false
 
     # For stricter testing those should be set to true at some point
     strictRules:
-        disallowedLooseComparison: false
         booleansInConditions: false
         booleansInLoopConditions: false
-        uselessCast: false
         requireParentConstructorCall: false
-        disallowedBacktick: false
         disallowedEmpty: false
-        disallowedImplicitArrayCreation: false
         disallowedShortTernary: false
-        overwriteVariablesWithLoop: false
-        closureUsesThis: false
-        matchingInheritedMethodNames: false
         numericOperandsInArithmeticOperators: false
-        strictFunctionCalls: false
         dynamicCallOnStaticMethod: false
-        switchConditionsMatchingType: false
-        noVariableVariables: false
         strictArrayFilter: false
-        illegalConstructorMethodCall: false
 
     type_perfect:
         no_mixed_property: true
@@ -62,9 +51,9 @@ rules:
 
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
 
-    # complexity rules
-    - Symplify\PHPStanRules\Rules\NoDynamicNameRule
-
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
+
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
+

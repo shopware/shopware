@@ -1,0 +1,99 @@
+{
+  "global": {
+    "error-codes": {
+      "DUPLICATED_SNIPPET_KEY": "Snippets already exists for \"{key}\". Please choose a new name."
+    }
+  },
+  "sw-settings-snippet": {
+    "general": {
+      "mainMenuItemGeneral": "Snippets",
+      "description": "Manage snippets here.",
+      "copyName": "copy",
+      "errorBackRoutingTitle": "Invalid page request",
+      "errorBackRoutingMessage": "The requested page could not be loaded. You will be redirected.",
+      "placeholderSearchBarSets": "Search snippet sets...",
+      "placeholderSearchBarSnippets": "Search snippets...",
+      "placeholderValue": "Define content...",
+      "searchBarTitleSets": "Snippet sets",
+      "searchBarTitleSnippets": "Snippets"
+    },
+    "detail": {
+      "buttonSave": "Save",
+      "cardGeneralTitle": "Information",
+      "cardSnippetSetsTitle": "Translations",
+      "labelContent": "Snippet set: {name}",
+      "labelName": "Name",
+      "labelNamePlaceholder": "Add name...",
+      "labelNamespace": "Section",
+      "labelNamespacePlaceholder": "Select section",
+      "messageSaveError": "Snippets for \"{key}\" could not be saved.",
+      "messageSaveErrorNumericKey": "Exclusively numeric snippet keys are not allowed.",
+      "messageSaveSuccess": "Snippet for \"{key}\" has been saved.",
+      "textHeadline": "New snippet"
+    },
+    "list": {
+      "identifier": "{setName} | Snippet set comparison",
+      "buttonAdd": "New snippet",
+      "buttonDelete": "Delete",
+      "buttonEmpty": "Back to standard snippets",
+      "columnKey": "Name",
+      "columnValue": "Value",
+      "contextMenuDelete": "Delete | Reset",
+      "contextMenuEdit": "Edit",
+      "columnHeaderGridColumnTitleSet": "Snippet set",
+      "columnHeaderResetTo": "Original",
+      "checkboxDeleteAll": "Delete for all snippet sets | Reset for all snippet sets",
+      "emptyStateHeadLine": "No snippets yet.",
+      "messageDeleteSuccess": "Snippet \"{key}\" has been reset.",
+      "messageSaveError": "Snippet \"{key}\" could not be saved. | Snippets for \"{key}\" could not be saved.",
+      "messageSaveSuccess": "Snippet \"{key}\" has been saved. | Snippets for \"{key}\" have been saved.",
+      "textDeleteConfirm": "Are you sure you want to delete the snippets for \"{key}\"?",
+      "textResetConfirm": "Are you sure you want to reset the snippet \"{key}\" for this set? | Are you sure you want to reset the snippet \"{key}\" for the selected sets?",
+      "textSnippetList": "Snippets of \"{setName}\" | Snippets",
+      "resetErrorMessage": "Snippet \"{key}\" could not be reset. | Snippet \"{key}\" could not be deleted.",
+      "resetSuccessMessage": "Snippet \"{key}\" has been reset to it's default value. | Snippet \"{key}\" has been deleted.",
+      "titleSidebarCustomItems": "Custom snippets",
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemFilter": "Filter"
+    },
+    "setList": {
+      "cardTitle": "Snippet sets",
+      "buttonAddSet": "Add snippet set",
+      "buttonClone": "Copy",
+      "buttonImport": "Import",
+      "newSnippetName": "# New snippet set",
+      "cloneErrorMessage": "Error while copying a snippet set.",
+      "cloneSuccessMessage": "Snippet set has been copied.",
+      "columnBaseFile": "Base file",
+      "columnIso": "Locale",
+      "columnChangedAt": "Last updated",
+      "columnName": "Name",
+      "contextMenuClone": "Duplicate",
+      "contextMenuDelete": "Delete",
+      "contextMenuEdit": "Edit",
+      "deleteNoteErrorMessage": "Could not delete snippet set.",
+      "deleteNoteSuccessMessage": "Snippet set has been deleted.",
+      "inlineEditErrorMessage": "Snippet set could not be saved | Snippet set \"{name}\" could not be saved.",
+      "inlineEditSuccessMessage": "Snippet set \"{name}\" has been saved.",
+      "modalTitleClone": "Copy snippet set",
+      "notEditableNoteErrorMessage": "An error occurred while editing snippet sets.",
+      "placeholderName": "Enter snippet set name...",
+      "placeholderBaseFile": "Select base file...",
+      "textDeleteConfirm": "Are you sure you want to delete the snippet set \"{name}\"?"
+    },
+    "filter": {
+      "showOnlyEmpty": "Show empty snippets only",
+      "showOnlyCustom": "Show edited snippets only",
+      "showOnlyAdded": "Show added snippets only",
+      "author": "Author",
+      "more": "More filters"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "snippet": {
+        "label": "Snippets"
+      }
+    }
+  }
+}

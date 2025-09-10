@@ -13,6 +13,7 @@
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="parameter_bag"/>
+            <argument>%shopware.messenger.scheduled_task.requeue_timeout%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry">
@@ -71,6 +72,18 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Command\RunSingleScheduledTaskCommand">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Command\DeactivateScheduledTaskCommand">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Command\ScheduleScheduledTaskCommand">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
 
             <tag name="console.command"/>
         </service>

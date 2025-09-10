@@ -39,6 +39,9 @@ async function createWrapper() {
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
                     },
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
                 },
             },
         },
@@ -279,5 +282,20 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
             message: 'sw-promotion-v2.list.deleteDisabledToolTip',
             disabled: true,
         });
+    });
+
+    it('should disable bulk delete with undeletable promotions', async () => {
+        const wrapper = await createWrapper();
+
+        const promotionWithOrders = { orderCount: 1 };
+        const promotionWithoutOrders = { orderCount: 0 };
+
+        wrapper.vm.updateSelection({ 0: promotionWithoutOrders });
+        await flushPromises();
+        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBe('true');
+
+        wrapper.vm.updateSelection({ 0: promotionWithoutOrders, 1: promotionWithOrders });
+        await flushPromises();
+        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBe('false');
     });
 });

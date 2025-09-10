@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 #[Package('framework')]
 class SalesChannelContextService implements SalesChannelContextServiceInterface
@@ -47,6 +49,16 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     final public const IMITATING_USER_ID = 'imitatingUserId';
 
     /**
+     * @internal do not rely on this externally, use the rules from the context instead
+     */
+    final public const RULE_IDS = 'sw-rule-ids';
+
+    /**
+     * @internal do not rely on this externally, use the rules from the context instead
+     */
+    final public const AREA_RULE_IDS = 'sw-rule-area-ids';
+
+    /**
      * @internal
      */
     public function __construct(
@@ -54,7 +66,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
         private readonly CartRuleLoader $ruleLoader,
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly CartService $cartService,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly RequestStack $requestStack
     ) {
     }
 
@@ -94,18 +107,34 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             }
 
             $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
-            $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
-            if (Feature::isActive('DEFERRED_CART_ERRORS')) {
-                $result = $context->withPermissions(
-                    [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
-                    fn (SalesChannelContext $context) => $this->ruleLoader->loadByToken($context, $token),
-                );
-            } else {
-                $result = $this->ruleLoader->loadByToken($context, $token);
+            if ($parameters->getOriginalContext()?->hasState(ElasticsearchEntitySearcher::EXPLAIN_MODE)) {
+                $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
             }
 
-            $this->cartService->setCart($result->getCart());
+            $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
+
+            $currentRequest = $this->requestStack->getCurrentRequest();
+            $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
+
+            // skip cart calculation on ESI sub-requests if it has already been done.
+            $esiRequest = $currentRequest?->attributes->has('_sw_esi') ?? false;
+            if (!$this->cartService->hasCart($token) || !$esiRequest) {
+                // @deprecated tag:v6.8.0 - Permission will always be true
+                $result = $context->withPermissions(
+                    [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => Feature::isActive('DEFERRED_CART_ERRORS')],
+                    fn (SalesChannelContext $context) => $this->ruleLoader->loadByToken($context, $token),
+                );
+
+                $this->cartService->setCart($result->getCart());
+
+                // the rule loader updates the rules in the context, save them to the session for later reuse
+                $requestSession?->set(self::RULE_IDS, $context->getRuleIds());
+                $requestSession?->set(self::AREA_RULE_IDS, $context->getAreaRuleIds());
+            } else {
+                $context->setRuleIds($requestSession?->get(self::RULE_IDS) ?? []);
+                $context->setAreaRuleIds($requestSession?->get(self::AREA_RULE_IDS) ?? []);
+            }
 
             return $context;
         });

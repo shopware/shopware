@@ -43,7 +43,6 @@ class SystemConfigValidator
             // If sales channel is defined, nulls are valid values, as they are used to remove custom values in child configuration
             $allowNulls = $saleChannelId !== 'null';
 
-            /** @var string[] $allKeys */
             $allKeys = array_keys($inputValues);
 
             $domains = array_map(fn (string $key) => implode('.', explode('.', $key, -1)), $allKeys);
@@ -78,7 +77,6 @@ class SystemConfigValidator
      */
     private function prepareValidationConstraints(array $formConfig, array $inputConfigKeys, bool $allowNulls): array
     {
-        /** @var array<string, Constraint[]> $constraints */
         $constraints = [];
 
         foreach ($formConfig as $card) {
@@ -107,10 +105,10 @@ class SystemConfigValidator
     {
         /** @var array<string, callable(mixed): Constraint> $constraints */
         $constraints = [
-            'minLength' => fn (mixed $ruleValue) => new Assert\Length(['min' => $ruleValue]),
-            'maxLength' => fn (mixed $ruleValue) => new Assert\Length(['max' => $ruleValue]),
-            'min' => fn (mixed $ruleValue) => new Assert\Range(['min' => $ruleValue]),
-            'max' => fn (mixed $ruleValue) => new Assert\Range(['max' => $ruleValue]),
+            'minLength' => fn (mixed $ruleValue) => new Assert\Length(min: $ruleValue),
+            'maxLength' => fn (mixed $ruleValue) => new Assert\Length(max: $ruleValue),
+            'min' => fn (mixed $ruleValue) => new Assert\Range(min: $ruleValue),
+            'max' => fn (mixed $ruleValue) => new Assert\Range(max: $ruleValue),
             'dataType' => fn (mixed $ruleValue) => new Assert\Type($ruleValue),
             'required' => fn (mixed $ruleValue) => new Assert\NotBlank(null, null, $allowNulls),
         ];
@@ -137,7 +135,7 @@ class SystemConfigValidator
     {
         try {
             return $this->configurationService->getConfiguration($domain, $context);
-        } catch (BundleConfigNotFoundException $e) {
+        } catch (BundleConfigNotFoundException) {
             return [];
         }
     }

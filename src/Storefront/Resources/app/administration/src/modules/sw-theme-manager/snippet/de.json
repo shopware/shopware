@@ -1,0 +1,224 @@
+{
+  "sw-theme": {
+    "Storefront": {
+      "default": {
+        "themeColors": {
+          "label": "Theme-Farben",
+          "default": {
+            "sw-color-brand-primary": {
+              "label": "Primärfarbe"
+            },
+            "sw-color-brand-secondary": {
+              "label": "Sekundärfarbe"
+            },
+            "sw-border-color": {
+              "label": "Rahmen"
+            },
+            "sw-background-color": {
+              "label": "Hintergrund"
+            }
+          }
+        },
+        "statusColors": {
+          "label": "Status-Benachrichtigungen",
+          "default": {
+            "sw-color-success": {
+              "label": "Erfolg"
+            },
+            "sw-color-danger": {
+              "label": "Fehler"
+            },
+            "sw-color-warning": {
+              "label": "Hinweis"
+            },
+            "sw-color-info": {
+              "label": "Information"
+            }
+          }
+        },
+        "typography": {
+          "label": "Typografie",
+          "default": {
+            "sw-font-family-base": {
+              "label": "Fließtext-Schriftart"
+            },
+            "sw-text-color": {
+              "label": "Fließtextfarbe"
+            },
+            "sw-font-family-headline": {
+              "label": "Überschrift-Schriftart"
+            },
+            "sw-headline-color": {
+              "label": "Überschriftfarbe"
+            }
+          }
+        },
+        "eCommerce": {
+          "label": "E-Commerce",
+          "default": {
+            "sw-color-price": {
+              "label": "Preis"
+            },
+            "sw-color-buy-button": {
+              "label": "Kauf-Button"
+            },
+            "sw-color-buy-button-text": {
+              "label": "Kauf-Button-Farbe"
+            }
+          }
+        },
+        "media": {
+          "label": "Medien",
+          "default": {
+            "sw-logo-desktop": {
+              "label": "Desktop",
+              "helpText": "Wird bei Viewports über 991px angezeigt und allen kleineren Viewports, falls für diese kein eigenes Logo verfügbar ist."
+            },
+            "sw-logo-tablet": {
+              "label": "Tablet",
+              "helpText": "Wird bei Viewports zwischen 767px und 991px angezeigt."
+            },
+            "sw-logo-mobile": {
+              "label": "Mobile",
+              "helpText": "Wird bei Viewports von bis zu 767px angezeigt."
+            },
+            "sw-logo-share": {
+              "label": "App- & Share-Icon"
+            },
+            "sw-logo-favicon": {
+              "label": "Favicon"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sw-theme-manager": {
+    "general": {
+      "mainMenuItemGeneral": "Themes",
+      "placeholderSearchBar": "Suche nach verfügbaren Themes ...",
+      "descriptionTextModule": "Verwaltung von Themes",
+      "mainMenuHeader": "Deine Themes",
+      "captionMediaUpload": "Lade ein Bild hoch",
+      "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden.",
+      "titleError": "Fehler",
+      "messageSaveError": "Theme konnte dem Verkaufskanal nicht zugewiesen werden",
+      "defaultTab": "Allgemein"
+    },
+    "sorting": {
+      "labelSort": "Sortieren nach:",
+      "labelSortByCreatedAsc": "Erstelldatum, aufsteigend",
+      "labelSortByCreatedDsc": "Erstelldatum, absteigend",
+      "labelSortByUpdatedAsc": "Bearbeitungsdatum, aufsteigend",
+      "labelSortByUpdatedDsc": "Bearbeitungsdatum, absteigend"
+    },
+    "themeListItem": {
+      "rename": "Umbenennen",
+      "duplicate": "Duplizieren",
+      "emptyText": "Kein Theme zugewiesen",
+      "addPreviewImage": "Vorschau hinzufügen",
+      "removePreviewImage": "Vorschau entfernen",
+      "notificationDeleteErrorTitle": "Fehler",
+      "notificationDeleteErrorMessage": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen."
+    },
+    "modal": {
+      "textDeleteInfo": "Möchtest Du das Theme \"{themeName}\" wirklich löschen?",
+      "errorModalTitle": "Theme kann nicht kompiliert werden",
+      "modalTitleDuplicate": "Duplikat erstellen",
+      "labelDuplicateThemeName": "Name des Duplikates",
+      "placeholderDuplicateThemeName": "Namen eintragen",
+      "textDuplicateInfo": "Wenn Du ein Duplikat erstellst, kannst Du das Theme mit einer anderen Farbkonfiguration für weitere Verkaufskanäle nutzen.",
+      "modalTitleRename": "Umbenennen",
+      "textRenameInfo": "Gib einen neuen Namen für das Theme an.",
+      "labelRenameThemeName": "Neuer Theme Name",
+      "placeholderRenameThemeName": "Namen eintragen",
+      "modalTextResetInfo": "Bist du sicher, dass du das Theme auf die Standardeinstellungen zurücksetzen möchtest?",
+      "modalTextResetAssigned": "Dies kann das Aussehen Deines Shops verändern.",
+      "modalTitleReset": "Theme zurücksetzen",
+      "modalTitleSave": "Theme speichern",
+      "textSaveInfo": "Möchtest du die Änderungen wirklich speichern? Dies wird das Aussehen Deiner Shops verändern.",
+      "addToMediaLabel": "Zu {name} hinzufügen",
+      "salesChannelAlreadyAssignedModal": {
+        "descriptionSingle": "Der von Dir gewählte Verkaufskanal ist bereits einem Theme zugewiesen. Wenn du fortfährst und speicherst, wird diese Theme-Zuweisung ersetzt durch <b>{newThemeName}</b>:",
+        "descriptionMultiple": "Einige der von Dir gewählten Verkaufskanäle sind bereits einem Theme zugewiesen. Wenn du fortfährst und speicherst, werden die folgenden Theme-Zuweisungen ersetzt durch <b>{newThemeName}</b>:"
+      },
+      "salesChannelRemovedModal": {
+        "descriptionSingle": "Du hast eine Theme-Zuweisung entfernt. Wenn du fortfährst und speicherst, wird diese Theme-Zuweisung ersetzt durch <b>{defaultThemeName}</b>:",
+        "descriptionMultiple": "Du hast einige Theme-Zuweisungen entfernt. Wenn du fortfährst und speicherst, werden die folgenden Theme-Zuweisungen ersetzt durch <b>{defaultThemeName}</b>:"
+      }
+    },
+    "list": {
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "textThemeOverview": "Themes",
+      "gridHeaderName": "Name",
+      "gridHeaderCreated": "Erstellt",
+      "gridHeaderAssignment": "Zugewiesene Verkaufskanäle"
+    },
+    "actions": {
+      "saveClean": "Bereinigen",
+      "saveCleanToolTip": "Die aktuellen Werte werden komplett neu gespeichert. Zu nutzen, wenn Felder gelöscht wurden oder ihren Typ geändert haben.",
+      "validate": "Validieren",
+      "validateToolTip": "Die gesamte Konfiguration validieren. Die Änderungen werden noch nicht gespeichert!",
+      "rename": "Umbenennen",
+      "useImageAs": "Benutze Bild als",
+      "buttonReset": "Theme zurücksetzen",
+      "buttonUseTheme": "Theme benutzen",
+      "deleteDisabledToolTip": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen."
+    },
+    "detail": {
+      "description": "Beschreibung",
+      "salesChannel": "Folgenden Verkaufskanälen zugewiesen",
+      "inheritanceInfo": "Dieses Theme wird abgeleitet vom \"{parentThemeName}\" Theme.",
+      "showFullError": "Kompletten Fehler anzeigen",
+      "salesChannelHelpText": "Es ist nicht möglich, diese Zuordnungen hier zu entfernen. Wenn du das Theme eines Verkaufskanals ändern möchtest, besuche die Einstellungen des jeweiligen Verkaufskanals.",
+      "validate": {
+        "success": "Validierung erfolgreich",
+        "successMessage": "Die Konfiguration wurde erfolgreich validiert. Die Änderungen können nun gespeichert werden.",
+        "failed": "Validierung fehlgeschlagen",
+        "failedMessage": "Die Konfiguration ist fehlerhaft. Die Änderungen können so nicht gespeichert werden."
+      },
+      "label": {
+        "media": "Media",
+        "colors": "Farben",
+        "generalColors": "Generelle Farben",
+        "moreColors": "Mehr Farben",
+        "fonts": "Schriftarten",
+        "links": "Links",
+        "textcolor": "Textfarbe",
+        "surface": "Oberfläche",
+        "frame": "Rahmen",
+        "text": "Text",
+        "headlines": "Überschriften",
+        "socialMediaLinks": "Social Media Links",
+        "favicon": "Favicon",
+        "shopLogo": "Shop Logo"
+      },
+      "placeholder": {
+        "selectSalesChannel": "Verkaufskanal auswählen ..."
+      },
+      "error": {
+        "themeCompile": {
+          "title": "Das Theme konnte nicht kompiliert werden",
+          "message": "Das Theme konnte nicht kompiliert werden. Bitte prüfen Sie die vollständige Fehlermeldung, um dieses Problem zu beheben."
+        },
+        "invalidConfiguration": {
+          "title": "Ungültige Konfiguration",
+          "message": "Die Konfiguration ist fehlerhaft. Das Theme kann nicht gespeichert werden."
+        }
+      }
+    },
+    "themeModal": {
+      "actionConfirm": "Theme ändern",
+      "modalTitle": "Theme auswählen",
+      "modalSubtitle": "Das Theme zu ändern, kann die Darstellung Deines Shops ändern.",
+      "headline": "Vorhandene Themes"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "theme": {
+        "label": "Themes"
+      }
+    }
+  }
+}

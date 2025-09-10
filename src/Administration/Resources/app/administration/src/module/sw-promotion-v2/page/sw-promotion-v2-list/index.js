@@ -66,6 +66,10 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        allowBulkDelete() {
+            return !this.selectionArray.some((item) => item.orderCount > 0);
+        },
     },
 
     methods: {

@@ -204,10 +204,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Store.get('session').languageId = '';
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain all fields', async () => {
         await wrapper.setData({ isLoading: false });
         await flushPromises();
@@ -562,6 +558,18 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     it('should not update the auth token if user password is not changed', async () => {
         Shopware.Application.$container.resetProviders();
         Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
+    });
+
+    it('should not update the auth token if user a different user then the currently logged in user is changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        wrapper.vm.user.password = 'newPassword';
+        wrapper.vm.user.id = 'randomId';
         await wrapper.vm.saveUser();
         await flushPromises();
 

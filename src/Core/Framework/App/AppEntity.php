@@ -156,6 +156,11 @@ class AppEntity extends Entity
 
     protected bool $selfManaged = false;
 
+    /**
+     * @var list<string>
+     */
+    protected array $requestedPrivileges = [];
+
     public function getName(): string
     {
         return $this->name;
@@ -454,7 +459,7 @@ class AppEntity extends Entity
     /**
      * @internal
      */
-    public function setAppSecret(?string $appSecret): void
+    public function setAppSecret(#[\SensitiveParameter] ?string $appSecret): void
     {
         $this->appSecret = $appSecret;
     }
@@ -697,5 +702,21 @@ class AppEntity extends Entity
     public function setSelfManaged(bool $selfManaged): void
     {
         $this->selfManaged = $selfManaged;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getRequestedPrivileges(): array
+    {
+        return $this->requestedPrivileges;
+    }
+
+    /**
+     * @param list<string> $requestedPrivileges
+     */
+    public function setRequestedPrivileges(array $requestedPrivileges): void
+    {
+        $this->requestedPrivileges = $requestedPrivileges;
     }
 }

@@ -1,0 +1,224 @@
+{
+  "sw-theme": {
+    "Storefront": {
+      "default": {
+        "themeColors": {
+          "label": "Theme colours",
+          "default": {
+            "sw-color-brand-primary": {
+              "label": "Primary colour"
+            },
+            "sw-color-brand-secondary": {
+              "label": "Secondary colour"
+            },
+            "sw-border-color": {
+              "label": "Border"
+            },
+            "sw-background-color": {
+              "label": "Background"
+            }
+          }
+        },
+        "statusColors": {
+          "label": "Status messages",
+          "default": {
+            "sw-color-success": {
+              "label": "Success"
+            },
+            "sw-color-danger": {
+              "label": "Error"
+            },
+            "sw-color-warning": {
+              "label": "Notice"
+            },
+            "sw-color-info": {
+              "label": "Information"
+            }
+          }
+        },
+        "typography": {
+          "label": "Typography",
+          "default": {
+            "sw-font-family-base": {
+              "label": "Body text font"
+            },
+            "sw-text-color": {
+              "label": "Text colour"
+            },
+            "sw-font-family-headline": {
+              "label": "Headline font"
+            },
+            "sw-headline-color": {
+              "label": "Headline color"
+            }
+          }
+        },
+        "eCommerce": {
+          "label": "E-Commerce",
+          "default": {
+            "sw-color-price": {
+              "label": "Price"
+            },
+            "sw-color-buy-button": {
+              "label": "Buy button"
+            },
+            "sw-color-buy-button-text": {
+              "label": "Buy button text"
+            }
+          }
+        },
+        "media": {
+          "label": "Media",
+          "default": {
+            "sw-logo-desktop": {
+              "label": "Desktop",
+              "helpText": "Displayed on viewports above 991px and as a fallback on smaller viewports, if no other logo is set."
+            },
+            "sw-logo-tablet": {
+              "label": "Tablet",
+              "helpText": "Displayed on viewports between 767px and 991px."
+            },
+            "sw-logo-mobile": {
+              "label": "Mobile",
+              "helpText": "Displayed on viewports up to 767px."
+            },
+            "sw-logo-share": {
+              "label": "App & share icon"
+            },
+            "sw-logo-favicon": {
+              "label": "Favicon"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sw-theme-manager": {
+    "general": {
+      "mainMenuItemGeneral": "Themes",
+      "placeholderSearchBar": "Search for available themes...",
+      "descriptionTextModule": "Manage themes here.",
+      "mainMenuHeader": "Your themes",
+      "captionMediaUpload": "Upload an image",
+      "lockedToolTip": "Themes installed via plugin are locked and can not be deleted",
+      "titleError": "Error",
+      "messageSaveError": "Theme could not be assigned to Sales Channel.",
+      "defaultTab": "General"
+    },
+    "sorting": {
+      "labelSort": "Sort by:",
+      "labelSortByCreatedAsc": "Creation date, ascending",
+      "labelSortByCreatedDsc": "Creation date, descending",
+      "labelSortByUpdatedAsc": "Modification date, ascending",
+      "labelSortByUpdatedDsc": "Modification date, descending"
+    },
+    "themeListItem": {
+      "rename": "Rename",
+      "duplicate": "Duplicate",
+      "emptyText": "No theme assigned",
+      "addPreviewImage": "Add preview",
+      "removePreviewImage": "Remove preview",
+      "notificationDeleteErrorTitle": "Error",
+      "notificationDeleteErrorMessage": "The theme you want to delete is still allocated to at least one Sales Channel."
+    },
+    "modal": {
+      "textDeleteInfo": "Are you sure you really want to delete the theme \"{themeName}\"?",
+      "errorModalTitle": "Unable to compile theme",
+      "modalTitleDuplicate": "Create duplicate",
+      "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different colour configuration for additional Sales Channels.",
+      "labelDuplicateThemeName": "Name of the duplicate",
+      "placeholderDuplicateThemeName": "Enter name",
+      "modalTitleRename": "Rename",
+      "textRenameInfo": "Enter a new name for the theme.",
+      "labelRenameThemeName": "New theme name",
+      "placeholderRenameThemeName": "Enter name",
+      "modalTitleReset": "Reset theme",
+      "modalTextResetInfo": "Are you sure you want to reset the theme to the default settings?",
+      "modalTextResetAssigned": "This will change the appearance of your shop.",
+      "modalTitleSave": "Save theme",
+      "textSaveInfo": "Do you really want to save the changes? This will change the appearance of your shops.",
+      "addToMediaLabel": "Add to {name}",
+      "salesChannelAlreadyAssignedModal": {
+        "descriptionSingle": "This Sales Channel is already assigned to a theme. If you go on and save, the theme assignment will be replaced with <b>{newThemeName}</b>:",
+        "descriptionMultiple": "Some of your chosen Sales Channels are already assigned to a theme. If you go on and save, the following theme assignments will be replaced with <b>{newThemeName}</b>:"
+      },
+      "salesChannelRemovedModal": {
+        "descriptionSingle": "You have removed a theme assignment. If you go on and save, the theme assignment will be replaced with <b>{defaultThemeName}</b>:",
+        "descriptionMultiple": "You have removed some of your theme assignments. If you go on and save, the following theme assignments will be replaced with <b>{defaultThemeName}</b>:"
+      }
+    },
+    "list": {
+      "titleSidebarItemRefresh": "Refresh",
+      "textThemeOverview": "Themes",
+      "gridHeaderName": "Name",
+      "gridHeaderCreated": "Created",
+      "gridHeaderAssignment": "Assigned Sales Channels"
+    },
+    "actions": {
+      "saveClean": "Clean Save",
+      "saveCleanToolTip": "The current values will be rewritten completely. Use this to make a clean entry after fields were deleted or changed its types.",
+      "validate": "Validate",
+      "validateToolTip": "Validate the whole configuration. Changes will stay unsaved!",
+      "rename": "Rename",
+      "useImageAs": "Use image as",
+      "buttonReset": "Reset to default",
+      "buttonUseTheme": "Use theme",
+      "deleteDisabledToolTip": "Theme is still assigned to a Sales Channel."
+    },
+    "detail": {
+      "description": "Description",
+      "salesChannel": "Assigned to the following Sales Channels",
+      "inheritanceInfo": "This theme is derived from the \"{parentThemeName}\" theme.",
+      "showFullError": "Show full error",
+      "salesChannelHelpText": "It is not possible to remove these assignments here. If you want to change a Sales Channel's theme, visit the respective Sales Channel's settings.",
+      "validate": {
+        "success": "Validation successful",
+        "successMessage": "The configuration was successfully validated. You can save the changes now.",
+        "failed": "Validation failed",
+        "failedMessage": "The configuration is faulty. The changes can not be saved."
+      },
+      "label": {
+        "media": "Media",
+        "colors": "Colours",
+        "generalColors": "General colours",
+        "moreColors": "More colours",
+        "fonts": "Fonts",
+        "links": "Links",
+        "textcolor": "Text colour",
+        "surface": "Surface",
+        "frame": "Frame",
+        "text": "Text",
+        "headlines": "Headlines",
+        "socialMediaLinks": "Social media links",
+        "favicon": "Favicon",
+        "shopLogo": "Shop logo"
+      },
+      "placeholder": {
+        "selectSalesChannel": "Select Sales Channel..."
+      },
+      "error": {
+        "themeCompile": {
+          "title": "Error compiling theme",
+          "message": "The theme could not be compiled. Please check the full error message to resolve this issue."
+        },
+        "invalidConfiguration": {
+          "title": "Invalid configuration",
+          "message": "The configuration is faulty. The theme cannot be saved."
+        }
+      }
+    },
+    "themeModal": {
+      "actionConfirm": "Change theme",
+      "modalTitle": "Select theme",
+      "modalSubtitle": "Changing your theme may alter the visualisation of your shop.",
+      "headline": "Available themes"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "theme": {
+        "label": "Themes"
+      }
+    }
+  }
+}

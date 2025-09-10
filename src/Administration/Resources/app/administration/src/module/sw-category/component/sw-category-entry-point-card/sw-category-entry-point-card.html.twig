@@ -60,10 +60,10 @@
 
     {% block sw_category_entry_point_card_button_configure_home %}
     <mt-button
+        v-if="selectedEntryPoint === 'navigationSalesChannels' && category.navigationSalesChannels.length > 0"
         class="sw-category-entry-point-card__button-configure-home"
         ghost
         size="small"
-        :disabled="selectedEntryPoint !== 'navigationSalesChannels' || category.navigationSalesChannels.length === 0"
         variant="secondary"
         @click="openConfigureHomeModal"
     >

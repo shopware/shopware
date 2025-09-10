@@ -71,6 +71,10 @@
                             Register custom-fields your app needs.
                         </xs:documentation>
                     </xs:annotation>
+                    <xs:unique name="uniqueCustomFieldSetName">
+                        <xs:selector xpath="custom-field-set"/>
+                        <xs:field xpath="name"/>
+                    </xs:unique>
                 </xs:element>
                 <xs:element name="webhooks" type="webhooks" minOccurs="0">
                     <xs:annotation>
@@ -136,6 +140,11 @@
                 </xs:element>
                 <xs:element name="gateways" type="gateways" minOccurs="0"/>
             </xs:all>
+            <xs:attribute name="validates-permissions" use="optional">
+                <xs:simpleType>
+                    <xs:restriction base="xs:boolean"/>
+                </xs:simpleType>
+            </xs:attribute>
         </xs:complexType>
     </xs:element>
     <xs:complexType name="meta">
@@ -204,6 +213,7 @@
             <xs:element name="create" maxOccurs="unbounded" type="xs:string"/>
             <xs:element name="update" maxOccurs="unbounded" type="xs:string"/>
             <xs:element name="delete" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element name="crud" maxOccurs="unbounded" type="xs:string"/>
             <xs:element name="permission" maxOccurs="unbounded" type="xs:string"/>
         </xs:choice>
     </xs:complexType>
@@ -437,6 +447,8 @@
             <xs:element name="salutation" type="empty" minOccurs="0"/>
             <xs:element name="shipping_method" type="empty" minOccurs="0"/>
             <xs:element name="tax" type="empty" minOccurs="0"/>
+            <xs:element name="unit" type="empty" minOccurs="0"/>
+            <xs:element name="newsletter_recipient" type="empty" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="empty">

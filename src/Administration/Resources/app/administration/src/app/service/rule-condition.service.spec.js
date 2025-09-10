@@ -510,4 +510,202 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         expect(result).toStrictEqual(['personaPromotions']);
     });
+
+    it.each([
+        {
+            componentName: 'sw-entity-single-select',
+            expected: [
+                'equals',
+                'notEquals',
+            ],
+        },
+        {
+            componentName: 'sw-single-select',
+            expected: [
+                'equals',
+                'notEquals',
+            ],
+        },
+        {
+            componentName: 'sw-multi-select',
+            expected: [
+                'isOneOf',
+                'isNoneOf',
+            ],
+        },
+        {
+            componentName: 'sw-text-editor',
+            expected: [
+                'equals',
+                'notEquals',
+            ],
+        },
+    ])('should get operators for a given component: $componentName', async ({ componentName, expected }) => {
+        const ruleConditionService = new RuleConditionService();
+
+        const operators = ruleConditionService.getOperatorSetByComponent({
+            type: 'undefined-type',
+            config: {
+                componentName,
+            },
+        });
+
+        expect(operators).toHaveLength(expected.length);
+        operators.forEach((operator, index) => {
+            expect(operator.label.endsWith(expected[index])).toBe(true);
+        });
+    });
+
+    it.each([
+        {
+            type: 'text',
+            expected: [
+                'equals',
+                'notEquals',
+            ],
+        },
+        {
+            type: 'number',
+            expected: [
+                'equals',
+                'notEquals',
+                'greaterThanEquals',
+                'lowerThanEquals',
+            ],
+        },
+        { type: 'bool', expected: ['equals'] },
+    ])('should get operators for a given type: $type', async ({ type, expected }) => {
+        const ruleConditionService = new RuleConditionService();
+
+        const operators = ruleConditionService.getOperatorSetByComponent({
+            type,
+            config: {
+                componentName: 'sw-undefined-component',
+            },
+        });
+
+        expect(operators).toHaveLength(expected.length);
+        operators.forEach((operator, index) => {
+            expect(operator.label.endsWith(expected[index])).toBe(true);
+        });
+    });
+
+    it('should get default operators if no operators are defined for a given type or component', async () => {
+        const ruleConditionService = new RuleConditionService();
+
+        const operators = ruleConditionService.getOperatorSetByComponent({
+            type: 'undefined-type',
+            config: {
+                componentName: 'sw-undefined-component',
+            },
+        });
+
+        const expected = [
+            'equals',
+            'notEquals',
+            'greaterThanEquals',
+            'lowerThanEquals',
+        ];
+
+        expect(operators).toHaveLength(expected.length);
+        operators.forEach((operator, index) => {
+            expect(operator.label.endsWith(expected[index])).toBe(true);
+        });
+    });
+
+    it.each([
+        { name: 'checkbox', config: { type: 'switch', doNotOverride: 'test' } },
+        { name: 'switch', config: { type: 'switch', doNotOverride: 'test' } },
+    ])('should transform custom field condition config for: $name', async ({ config }) => {
+        jest.spyOn(Shopware.Store, 'get').mockReturnValueOnce({
+            currentLocale: 'some-locale',
+        });
+
+        const ruleConditionService = new RuleConditionService();
+
+        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(config);
+
+        expect(transformedConfig).toStrictEqual({
+            ...config,
+            options: [
+                {
+                    label: {
+                        'some-locale': 'global.default.yes',
+                    },
+                    value: true,
+                },
+                {
+                    label: {
+                        'some-locale': 'global.default.no',
+                    },
+                    value: false,
+                },
+            ],
+            componentName: 'sw-single-select',
+            customFieldType: 'select',
+        });
+    });
+
+    it('should transform custom field condition config for textEditor', async () => {
+        const ruleConditionService = new RuleConditionService();
+
+        const config = {
+            doNotOverride: 'test',
+            type: 'textEditor',
+            componentName: 'sw-text-editor',
+            customFieldType: 'textEditor',
+        };
+
+        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(config);
+
+        expect(transformedConfig).toStrictEqual({
+            ...config,
+            componentName: 'sw-field',
+            customFieldType: 'text',
+            type: 'text',
+        });
+    });
+
+    it('should not transform custom field condition empty config', async () => {
+        const ruleConditionService = new RuleConditionService();
+
+        expect(ruleConditionService.getTransformedCustomFieldConditionConfig(null, jest.fn())).toBeNull();
+    });
+
+    it('should use en-GB as fallback locale for custom field condition config', async () => {
+        const ruleConditionService = new RuleConditionService();
+
+        jest.spyOn(Shopware.Store, 'get').mockReturnValueOnce({
+            currentLocale: '',
+        });
+
+        const config = {
+            doNotOverride: 'test',
+            componentName: 'sw-checkbox',
+            customFieldType: 'checkbox',
+            type: 'checkbox',
+        };
+
+        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(config);
+
+        expect(transformedConfig).toStrictEqual({
+            ...config,
+            componentName: 'sw-single-select',
+            customFieldType: 'select',
+            options: [
+                {
+                    label: {
+                        'en-GB': 'global.default.yes',
+                    },
+                    value: true,
+                },
+                {
+                    label: {
+                        'en-GB': 'global.default.no',
+                    },
+                    value: false,
+                },
+            ],
+        });
+    });
 });

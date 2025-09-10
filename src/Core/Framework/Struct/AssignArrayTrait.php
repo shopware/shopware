@@ -22,8 +22,9 @@ trait AssignArrayTrait
             }
 
             try {
+                // @phpstan-ignore property.dynamicName (We allow dynamic assignment of all properties)
                 $this->$key = $value;
-            } catch (\Error|\Exception $error) {
+            } catch (\Error|\Exception) {
                 // nth
             }
         }

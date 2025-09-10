@@ -135,7 +135,7 @@ export default {
                     label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionLeft'),
                 },
                 {
-                    value: 'right',
+                    value: 'underneath',
                     label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionUnderneath'),
                 },
             ];
@@ -361,6 +361,12 @@ export default {
             ) {
                 this.element.config.verticalAlign.value = null;
             }
+
+            this.$emit('element-update', this.element);
+        },
+
+        onChangeUseFetchPriorityOnFirstItem(value) {
+            this.element.config.useFetchPriorityOnFirstItem.value = value;
 
             this.$emit('element-update', this.element);
         },

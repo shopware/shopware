@@ -100,8 +100,9 @@ class Framework extends Bundle
             $loader->load('app_test.xml');
         }
 
+        /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */
+        $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 99);
         // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority
-        $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new EntityCompilerPass());
         $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());

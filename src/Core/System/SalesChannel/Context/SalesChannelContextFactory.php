@@ -108,11 +108,15 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $itemRounding
         );
 
+        $salesChannel = $base->getSalesChannel();
+
+        $domainId = \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null;
+
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
-            \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null,
-            $base->getSalesChannel(),
+            $domainId,
+            $salesChannel,
             $base->getCurrency(),
             $customerGroup,
             $taxRules,
@@ -124,6 +128,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $totalRounding,
             $base->getLanguageInfo(),
         );
+
+        $salesChannelContext->setMeasurementSystem($base->getMeasurementSystemInfo());
 
         if (\is_array($options[SalesChannelContextService::PERMISSIONS] ?? null)) {
             $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
@@ -236,8 +242,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
         ]));
 
-        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
-        if (!$customer) {
+        $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
+        // active check here instead of DAL filter due to no DB index
+        if (!$customer?->getActive()) {
             return null;
         }
 

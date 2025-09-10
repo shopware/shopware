@@ -1,13 +1,6 @@
 @import "~scss/variables";
 
-$sw-settings-language-list-color-success: $color-emerald-500;
-$sw-settings-language-list-color-border-collapse: $color-gray-300;
-
 .sw-settings-language-list {
-    .is--default {
-        color: $sw-settings-language-list-color-success;
-    }
-
     .sw-settings-language-list__collapse-title {
         font-size: $font-size-s;
         font-weight: normal;
@@ -21,7 +14,7 @@ $sw-settings-language-list-color-border-collapse: $color-gray-300;
         cursor: pointer;
         padding-bottom: 16px;
         color: #607182;
-        border-bottom: 1px solid $sw-settings-language-list-color-border-collapse;
+        border-bottom: 1px solid var(--color-gray-300);
 
         .sw-media-collapse__button {
             margin-right: 32px;
@@ -30,5 +23,55 @@ $sw-settings-language-list-color-border-collapse: $color-gray-300;
 
     .sw-settings-language-list__filterField.sw-field--switch {
         margin: 16px 0 0 16px;
+    }
+
+    .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
+        .sw-data-grid__cell-content {
+            .is--inactive {
+                width: 16px;
+                height: 16px;
+                color: var(--color-crimson-500);
+                padding: 3px;
+            }
+
+            .is--active {
+                width: 16px;
+                height: 16px;
+                color: var(--color-emerald-500);
+                padding: 4px 2px 3px;
+            }
+        }
+    }
+
+    .sw-settings-language-list__default-label {
+        display: inline-flex;
+        align-items: center;
+        vertical-align: middle;
+        margin-left: 8px;
+    }
+
+    .sw-settings-language-list__snippet-link-wrapper {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 8px;
+        max-width: $content-width;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .sw-settings-language-list__card-title-wrapper {
+        margin-bottom: 8px;
+    }
+
+    .sw-settings-language-list__card-title {
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: 4px;
+    }
+
+    .sw-settings-language-list__card-subtitle {
+        font-size: $font-size-xs;
+        color: var(--color-gray-800);
+        margin-bottom: 8px;
     }
 }

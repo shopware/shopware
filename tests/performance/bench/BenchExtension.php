@@ -47,7 +47,7 @@ class BenchExtension implements ExtensionInterface
         $symfonyContainer = KernelLifecycleManager::getKernel()->getContainer();
         $container->register('symfony-container', fn () => $symfonyContainer);
         $runGroup = $this->getRunGroup();
-        $originalClasses = get_declared_classes();
+
         foreach ($this->findFixtures($fixturePath) as $fixtureFile) {
             require $fixtureFile;
             $declared = get_declared_classes();

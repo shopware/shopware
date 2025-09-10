@@ -38,12 +38,12 @@ $sw-select-result-list-transition: all ease-in-out 0.2s;
     max-height: 250px;
     overflow-x: hidden;
     overflow-y: auto;
-    border: 1px solid $color-gray-100;
-    box-shadow: 0 3px 6px 0 $color-gray-300;
-    background-color: $color-white;
-    font-size: $font-size-xs;
-    padding: 8px;
-    border-radius: 4px;
+    border: 1px solid var(--color-border-primary-default);
+    box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
+    background-color: var(--color-elevation-surface-overlay);
+    font-size: var(--font-size-xs);
+    padding: var(--scale-size-8);
+    border-radius: var(--border-radius-overlay);
 
     .sw-select-result-list__item-list {
         list-style: none;
@@ -51,6 +51,10 @@ $sw-select-result-list-transition: all ease-in-out 0.2s;
 
     .sw-select-result-list__empty {
         padding: 10px 16px;
+        color: var(--color-text-primary-default);
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-12);
     }
 }
 

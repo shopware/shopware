@@ -10,7 +10,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -38,7 +38,7 @@ class AppRegistrationService
     ) {
     }
 
-    public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void
+    public function registerApp(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): void
     {
         if (!$manifest->getSetup()) {
             return;
@@ -85,7 +85,7 @@ class AppRegistrationService
         return $this->parseResponse($manifest->getMetadata()->getName(), $handshake, $response);
     }
 
-    private function saveAppSecret(string $id, Context $context, string $secret): void
+    private function saveAppSecret(string $id, Context $context, #[\SensitiveParameter] string $secret): void
     {
         $update = ['id' => $id, 'appSecret' => $secret];
 
@@ -97,7 +97,9 @@ class AppRegistrationService
     private function confirmRegistration(
         string $id,
         Context $context,
+        #[\SensitiveParameter]
         string $secret,
+        #[\SensitiveParameter]
         string $secretAccessKey,
         string $confirmationUrl
     ): void {
@@ -149,16 +151,16 @@ class AppRegistrationService
     /**
      * @return array<string, string>
      */
-    private function getConfirmationPayload(string $id, string $secretAccessKey, Context $context): array
+    private function getConfirmationPayload(string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): array
     {
         $app = $this->getApp($id, $context);
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException) {
+        } catch (ShopIdChangeSuggestedException $e) {
             throw AppRegistrationException::registrationFailed(
                 $app->getName(),
-                'The app url changed. Please resolve how the apps should handle this change.'
+                $e->getMessage(),
             );
         }
 
@@ -179,9 +181,9 @@ class AppRegistrationService
     /**
      * @param array<string, string> $body
      */
-    private function signPayload(array $body, string $secret): string
+    private function signPayload(array $body, #[\SensitiveParameter] string $secret): string
     {
-        return hash_hmac('sha256', (string) json_encode($body, \JSON_THROW_ON_ERROR), $secret);
+        return hash_hmac('sha256', json_encode($body, \JSON_THROW_ON_ERROR), $secret);
     }
 
     private function getApp(string $id, Context $context): AppEntity

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
+import dictionary from 'src/module/sw-dashboard/snippet/en.json';
 
 const snippetPathGreeting = 'sw-dashboard.introduction.daytimeHeadline';
 
@@ -16,6 +16,7 @@ async function createWrapper(privileges = []) {
                 'sw-extension-component-section': true,
                 'sw-search-bar': true,
                 'sw-app-topbar-button': true,
+                'sw-app-topbar-sidebar': true,
                 'sw-notification-center': true,
                 'sw-help-center-v2': true,
                 'router-link': true,
@@ -23,16 +24,17 @@ async function createWrapper(privileges = []) {
                 'sw-error-summary': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
+                'sw-settings-services-dashboard-banner': true,
             },
             mocks: {
                 $tc: jest.fn().mockImplementation((snippetPath, placeholders) => {
                     return `${snippetPathGreeting}, ${placeholders?.greetingName || ''}`;
                 }),
                 $i18n: {
-                    locale: 'en-GB',
-                    fallbackLocale: { value: 'en-GB' },
+                    locale: 'en',
+                    fallbackLocale: { value: 'en' },
                     messages: {
-                        value: { 'en-GB': dictionary },
+                        value: { en: dictionary },
                     },
                 },
                 $route: {

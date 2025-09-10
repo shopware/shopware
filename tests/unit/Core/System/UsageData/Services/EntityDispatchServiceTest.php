@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigEntity;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
@@ -697,13 +698,14 @@ class EntityDispatchServiceTest extends TestCase
     private function createConsentService(bool $isApprovalGiven, ?\DateTimeImmutable $lastConsentDate, \DateTimeImmutable $now = new \DateTimeImmutable()): ConsentService
     {
         $systemConfigEntity = new SystemConfigEntity();
+        $systemConfigEntity->setId('test-id');
         if ($lastConsentDate) {
             $systemConfigEntity->setUpdatedAt($lastConsentDate);
         }
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->method('first')
-            ->willReturn($systemConfigEntity);
+        $entitySearchResult->method('getEntities')
+            ->willReturn(new SystemConfigCollection([$systemConfigEntity]));
 
         $systemConfigRepository = $this->createMock(EntityRepository::class);
         $systemConfigRepository->method('search')

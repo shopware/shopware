@@ -79,7 +79,7 @@ class ElasticsearchFieldBuilder
     {
         return array_merge([
             'type' => 'date',
-            'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+            'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
             'ignore_malformed' => true,
         ], $override);
     }
@@ -116,7 +116,6 @@ class ElasticsearchFieldBuilder
         ];
 
         foreach ($fieldMapping as $name => $type) {
-            /** @var array<mixed> $esType */
             $esType = CustomFieldUpdater::getTypeFromCustomFieldType($type);
 
             $mapping['properties'][$name] = $esType;

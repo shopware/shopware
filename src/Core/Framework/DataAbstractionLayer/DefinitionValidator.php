@@ -103,6 +103,8 @@ class DefinitionValidator
         'one_time_tasks',
         'invalidation_tags',
         'subscription_cart',
+        'oauth_user',
+        'theme_runtime_config',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [
@@ -202,6 +204,7 @@ class DefinitionValidator
                 );
             }
 
+            // @phpstan-ignore variable.implicitArray (The `notices` were accidentally omitted during a refactor of the class, we should add them back later to the output)
             $notices[$definitionClass] = array_merge_recursive(
                 $violations[$definitionClass],
                 $this->validateDataFieldNotPrefixedByEntityName($definition)
@@ -346,7 +349,7 @@ class DefinitionValidator
             if ($field instanceof BoolField) {
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
-                $getterMethods[] = 'has' . (string) preg_replace('/^has/', '', $propertyName);
+                $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
             }
 
             $hasGetter = false;
@@ -1125,8 +1128,8 @@ class DefinitionValidator
             $fks = $manager->listTableForeignKeys($reference->getEntityName());
 
             foreach ($fks as $fk) {
-                if ($fk->getForeignTableName() !== $definition->getEntityName()
-                    || !\in_array($association->getReferenceField(), $fk->getLocalColumns(), true)
+                if ($fk->getReferencedTableName()->toString() !== $definition->getEntityName()
+                    || !\in_array($association->getReferenceField(), $fk->getReferencingColumnNames(), true)
                 ) {
                     continue;
                 }
@@ -1139,7 +1142,7 @@ class DefinitionValidator
                     continue;
                 }
 
-                if (\in_array($fk->onDelete(), self::DELETE_FLAG_TO_ACTION_MAPPING[$deleteFlag::class], true)) {
+                if (\in_array($fk->getOnDeleteAction()->value, self::DELETE_FLAG_TO_ACTION_MAPPING[$deleteFlag::class], true)) {
                     continue;
                 }
 
@@ -1152,7 +1155,7 @@ class DefinitionValidator
                     $association->getPropertyName(),
                     $definition->getEntityName(),
                     $deleteFlag::class,
-                    $fk->onDelete()
+                    $fk->getOnDeleteAction()->value
                 );
             }
         }

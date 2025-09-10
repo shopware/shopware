@@ -55,7 +55,7 @@ trait ElasticsearchTestTestBehaviour
     {
         $this->getDiContainer()->get(Client::class)
             ->indices()
-            ->refresh(['index' => '_all']);
+            ->refresh(['index' => '*']);
     }
 
     protected function createEntityAggregator(): ElasticsearchEntityAggregator

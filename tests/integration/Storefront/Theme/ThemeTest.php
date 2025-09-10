@@ -22,6 +22,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -29,6 +30,8 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
@@ -39,8 +42,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-
-use function Symfony\Component\String\u;
 
 /**
  * @internal
@@ -193,8 +194,8 @@ class ThemeTest extends TestCase
         $technicalName = $childTheme->getTechnicalName();
         static::assertIsString($technicalName);
         static::assertSame(
-            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 
@@ -245,8 +246,8 @@ class ThemeTest extends TestCase
 
         $childThemeFields = $this->themeService->getThemeConfigurationFieldStructure($childTheme->getId(), $this->context);
         static::assertSame(
-            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 
@@ -515,7 +516,7 @@ class ThemeTest extends TestCase
             static::assertTrue($themeCompiled);
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
                 throw $e;
             }
         }
@@ -555,6 +556,8 @@ class ThemeTest extends TestCase
                     return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor;
                 })
             );
+
+        $scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
 
         $kernel = new class(static::getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;
@@ -662,6 +665,7 @@ class ThemeTest extends TestCase
             static::getContainer()->get('theme.repository'),
             static::getContainer()->get('theme_sales_channel.repository'),
             $themeCompilerMock,
+            $scssCompilerMock,
             static::getContainer()->get('event_dispatcher'),
             new DatabaseConfigLoader(
                 static::getContainer()->get('theme.repository'),
@@ -675,7 +679,9 @@ class ThemeTest extends TestCase
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get('messenger.default_bus'),
-            static::getContainer()->get(NotificationService::class)
+            static::getContainer()->get(NotificationService::class),
+            static::getContainer()->get(ThemeMergedConfigBuilder::class),
+            static::getContainer()->get(ThemeRuntimeConfigService::class),
         );
         $themeService->updateTheme(
             $childTheme->getId(),
@@ -768,11 +774,6 @@ class ThemeTest extends TestCase
             $this->themeService->updateTheme(
                 $childTheme->getId(),
                 [
-                    'fields' => [
-                        'some-custom' => [
-                            'editable' => true,
-                        ],
-                    ],
                     'test' => [
                         'value' => [false],
                     ],
@@ -782,7 +783,7 @@ class ThemeTest extends TestCase
             );
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
                 throw $e;
             }
         }
@@ -795,11 +796,6 @@ class ThemeTest extends TestCase
 
         static::assertEquals(
             [
-                'fields' => [
-                    'some-custom' => [
-                        'editable' => true,
-                    ],
-                ],
                 'test' => [
                     'value' => [false],
                 ],

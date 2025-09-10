@@ -10,6 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Event\NewServicesInstalledEvent;
+use Shopware\Core\Service\Message\InstallServicesMessage;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -17,38 +23,28 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AllServiceInstaller
 {
-    public const AUTO_ENABLED = 'auto';
-
     /**
      * @internal
      *
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly string $enabled,
-        private readonly string $appEnv,
-        private readonly ServiceRegistryClient $serviceRegistryClient,
+        private readonly Client $serviceRegistryClient,
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly EntityRepository $appRepository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
     /**
+     * This is a low-level class that is responsible for installing all services.
+     * It should only be called from a higher-level with 'state' awareness class, Specifically: Shopware\Core\Service\LifecycleManager
+     *
      * @return array<string> The newly installed services
      */
     public function install(Context $context): array
     {
-        // auto means not explicitly enabled, then we enable it based on the app environment
-        if ($this->enabled === self::AUTO_ENABLED) {
-            $enabled = $this->appEnv === 'prod';
-        } else {
-            $enabled = filter_var($this->enabled, \FILTER_VALIDATE_BOOLEAN);
-        }
-
-        if (!$enabled) {
-            return [];
-        }
-
         $existingServices = $this->appRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('selfManaged', true)),
             $context
@@ -64,13 +60,22 @@ class AllServiceInstaller
             }
         }
 
+        if (!empty($installedServices)) {
+            $this->eventDispatcher->dispatch(new NewServicesInstalledEvent());
+        }
+
         return $installedServices;
+    }
+
+    public function scheduleInstall(): void
+    {
+        $this->messageBus->dispatch(new InstallServicesMessage());
     }
 
     /**
      * @param EntitySearchResult<AppCollection> $installedServices
      *
-     * @return array<ServiceRegistryEntry>
+     * @return array<ServiceEntry>
      */
     private function getNewServices(EntitySearchResult $installedServices): array
     {
@@ -78,7 +83,7 @@ class AllServiceInstaller
 
         return array_filter(
             $this->serviceRegistryClient->getAll(),
-            static fn (ServiceRegistryEntry $service) => !\in_array($service->name, $names, true)
+            static fn (ServiceEntry $service) => !\in_array($service->name, $names, true)
         );
     }
 }

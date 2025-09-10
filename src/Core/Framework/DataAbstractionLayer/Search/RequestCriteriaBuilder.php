@@ -48,7 +48,7 @@ class RequestCriteriaBuilder
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
-        if ($request->getMethod() === Request::METHOD_GET) {
+        if ($request->isMethod(Request::METHOD_GET)) {
             $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
         } else {
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
@@ -134,6 +134,16 @@ class RequestCriteriaBuilder
                 );
             }
             $criteria->setIncludes($payload['includes']);
+        }
+
+        if (isset($payload['excludes'])) {
+            if (!\is_array($payload['excludes'])) {
+                throw DataAbstractionLayerException::expectedArrayWithType(
+                    'excludes',
+                    \gettype($payload['excludes'])
+                );
+            }
+            $criteria->setExcludes($payload['excludes']);
         }
 
         if (isset($payload['filter'])) {

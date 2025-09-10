@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector;
+use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -69,6 +70,8 @@ class AdministrationControllerTest extends TestCase
 
     private string $shopwareCoreDir;
 
+    private string $serviceRegistryUrl;
+
     private string $refreshTokenTtl;
 
     protected function setUp(): void
@@ -82,6 +85,7 @@ class AdministrationControllerTest extends TestCase
         $this->htmlSanitizer = $this->createMock(HtmlSanitizer::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
+        $this->serviceRegistryUrl = 'https://registry.services.shopware.io';
         $this->refreshTokenTtl = 'P1W';
     }
 
@@ -111,6 +115,7 @@ class AdministrationControllerTest extends TestCase
                     'cspNonce' => null,
                     'adminEsEnable' => true,
                     'storefrontEsEnable' => true,
+                    'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
                 ]
             );
@@ -488,6 +493,19 @@ class AdministrationControllerTest extends TestCase
                 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
             ]),
             $this->fileSystemOperator,
+            $this->serviceRegistryUrl,
+            new LoginConfigService([
+                'use_default' => true,
+                'client_id' => 'clientId',
+                'client_secret' => 'clientSecret',
+                'redirect_uri' => 'redirectUri',
+                'base_url' => 'baseUrl',
+                'authorize_path' => '/authorize',
+                'token_path' => '/token',
+                'jwks_path' => '/jwks',
+                'scope' => 'scope',
+                'register_url' => 'https://register.url',
+            ], '', ''),
             $this->refreshTokenTtl,
         );
     }

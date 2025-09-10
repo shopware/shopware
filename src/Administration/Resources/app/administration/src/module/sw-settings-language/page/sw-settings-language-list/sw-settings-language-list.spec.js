@@ -54,7 +54,11 @@ async function createWrapper(privileges = []) {
                         return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
                     },
 
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -105,6 +109,9 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-text-field': true,
                     'router-link': true,
+                    'sw-card-view': true,
+                    'sw-card': true,
+                    'sw-label': true,
                 },
             },
         },
@@ -112,13 +119,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new language', async () => {
         const wrapper = await createWrapper([
             'language.creator',
@@ -227,5 +227,14 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
                 ]),
             }),
         );
+    });
+
+    it('should show a link to the snippets page', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const snippetLink = wrapper.find('.sw-settings-language-list__snippet-link');
+        expect(snippetLink.exists()).toBe(true);
+        expect(snippetLink.text()).toContain('manageSnippets');
     });
 });

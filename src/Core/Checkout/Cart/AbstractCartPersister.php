@@ -4,13 +4,17 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('checkout')]
 abstract class AbstractCartPersister
 {
-    public const PERSIST_CART_ERROR_PERMISSION = 'persist-cart-errors';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::PERSIST_CART_ERROR}
+     */
+    public const PERSIST_CART_ERROR_PERMISSION = CheckoutPermissions::PERSIST_CART_ERRORS;
 
     abstract public function getDecorated(): AbstractCartPersister;
 
@@ -32,11 +36,12 @@ abstract class AbstractCartPersister
 
     protected function shouldPersist(Cart $cart): bool
     {
-        return $cart->getLineItems()->count() > 0
-            || ($cart->getErrors()->count() > 0 && $cart->getBehavior()?->hasPermission(static::PERSIST_CART_ERROR_PERMISSION))
+        return ($cart->getLineItems()->count() > 0
+            || ($cart->getErrors()->count() > 0 && $cart->getBehavior()?->hasPermission(CheckoutPermissions::PERSIST_CART_ERRORS))
             || $cart->getAffiliateCode() !== null
             || $cart->getCampaignCode() !== null
             || $cart->getCustomerComment() !== null
-            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice;
+            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice)
+            && !$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE);
     }
 }

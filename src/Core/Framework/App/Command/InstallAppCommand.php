@@ -66,7 +66,7 @@ class InstallAppCommand extends Command
                     $this->checkPermissions($manifest, $io);
 
                     $this->appPrinter->checkHosts($manifest, $io);
-                } catch (UserAbortedCommandException $e) {
+                } catch (UserAbortedCommandException) {
                     $io->error('Aborting due to user input.');
 
                     return self::FAILURE;
@@ -86,10 +86,9 @@ class InstallAppCommand extends Command
             }
 
             try {
-                // in the future: if it was forced then it counts as not accepted
                 $this->appLifecycle->install(
                     $manifest,
-                    new AppInstallParameters(activate: $input->getOption('activate')),
+                    new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: true),
                     $context
                 );
             } catch (AppAlreadyInstalledException) {
@@ -101,7 +100,7 @@ class InstallAppCommand extends Command
             $io->success(\sprintf('App %s has been successfully installed.', $name));
         }
 
-        return (int) $success;
+        return $success;
     }
 
     protected function configure(): void

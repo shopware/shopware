@@ -47,7 +47,6 @@ Shopware.Component.register(
     'sw-promotion-v2-empty-state-hero',
     () => import('./component/sw-promotion-v2-empty-state-hero'),
 );
-Shopware.Component.register('sw-promotion-v2-rule-select', () => import('./component/sw-promotion-v2-rule-select'));
 Shopware.Component.register(
     'sw-promotion-v2-sales-channel-select',
     () => import('./component/sw-promotion-v2-sales-channel-select'),

@@ -41,6 +41,9 @@
                     "salesChannel": {
                         "$ref": "#/components/schemas/SalesChannel"
                     },
+                    "measurementSystem": {
+                        "$ref": "#/components/schemas/ContextMeasurementSystemInfo"
+                    },
                     "taxRules": {
                         "type": "array",
                         "description": "Currently active tax rules and/or rates",

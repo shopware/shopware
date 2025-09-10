@@ -51,7 +51,7 @@ class AdminSearcher
 
             try {
                 $indexer = $this->registry->getIndexer($entityName);
-            } catch (ElasticsearchException $e) {
+            } catch (ElasticsearchException) {
                 continue;
             }
 
@@ -93,13 +93,13 @@ class AdminSearcher
         }
 
         $mapped = [];
-        foreach ($result as $index => $values) {
+        foreach ($result as $idx => $values) {
             $entityName = $values['hits'][0]['entityName'];
             $indexer = $this->registry->getIndexer($entityName);
 
             $data = $indexer->globalData($values, $context);
             $data['indexer'] = $indexer->getName();
-            $data['index'] = (string) $index;
+            $data['index'] = (string) $idx;
 
             $mapped[$indexer->getEntity()] = $data;
         }

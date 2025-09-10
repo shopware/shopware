@@ -82,6 +82,13 @@ class SCSSValidatorTest extends TestCase
             ],
             '"Inter", Sans-serif',
         ];
+        yield 'text correct' => [
+            [
+                'type' => 'text',
+                'value' => '2px solid #000',
+            ],
+            '2px solid #000',
+        ];
         yield 'color correct hex 4' => [
             [
                 'type' => 'color',
@@ -190,6 +197,13 @@ class SCSSValidatorTest extends TestCase
         yield 'font family empty' => [
             [
                 'type' => 'fontFamily',
+                'value' => '',
+            ],
+            null,
+        ];
+        yield 'text empty' => [
+            [
+                'type' => 'text',
                 'value' => '',
             ],
             null,
@@ -330,6 +344,13 @@ class SCSSValidatorTest extends TestCase
             ],
             'inherit',
         ];
+        yield 'text incorrect and sanitized name' => [
+            [
+                'type' => 'text',
+                'value' => '"§"$/)(!"§&)=}[];"{',
+            ],
+            'inherit',
+        ];
         yield 'col incorrect and sanitized' => [
             [
                 'type' => 'color',
@@ -376,6 +397,13 @@ class SCSSValidatorTest extends TestCase
                 'value' => '\'Inter\', Sans-serif',
             ],
             '"Inter", Sans-serif',
+        ];
+        yield 'text correct' => [
+            [
+                'type' => 'text',
+                'value' => '2px solid #000',
+            ],
+            '2px solid #000',
         ];
         yield 'color correct hex 4' => [
             [
@@ -594,6 +622,13 @@ class SCSSValidatorTest extends TestCase
             ],
             null,
         ];
+        yield 'text empty' => [
+            [
+                'type' => 'text',
+                'value' => '',
+            ],
+            null,
+        ];
         // Zero values
         yield 'color with "0" value is not valid' => [
             [
@@ -618,7 +653,7 @@ class SCSSValidatorTest extends TestCase
             ],
             '0',
         ];
-        // Incorrect and sanitized
+        // Incorrect and throws exception
         yield 'color incorrect name' => [
             [
                 'type' => 'color',
@@ -639,6 +674,14 @@ class SCSSValidatorTest extends TestCase
             [
                 'type' => 'fontFamily',
                 'value' => 'Arial%&$',
+            ],
+            '',
+            true,
+        ];
+        yield 'text incorrect' => [
+            [
+                'type' => 'text',
+                'value' => '"§"$/)(!"§&)=}[];"{',
             ],
             '',
             true,

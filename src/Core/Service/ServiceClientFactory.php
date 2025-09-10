@@ -5,12 +5,13 @@ namespace Shopware\Core\Service;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Filesystem\Filesystem;
+use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -28,7 +29,7 @@ class ServiceClientFactory
     ) {
     }
 
-    public function newFor(ServiceRegistryEntry $entry): ServiceClient
+    public function newFor(ServiceEntry $entry): ServiceClient
     {
         return new ServiceClient(
             $this->client->withOptions([
@@ -36,14 +37,13 @@ class ServiceClientFactory
             ]),
             $this->shopwareVersion,
             $entry,
-            new Filesystem()
         );
     }
 
     /**
-     * @throws AppUrlChangeDetectedException
+     * @throws ShopIdChangeSuggestedException
      */
-    public function newAuthenticatedFor(ServiceRegistryEntry $entry, AppEntity $app, Context $context): AuthenticatedServiceClient
+    public function newAuthenticatedFor(ServiceEntry $entry, AppEntity $app, Context $context): AuthenticatedServiceClient
     {
         if (!$app->getAppSecret()) {
             throw ServiceException::missingAppSecretInfo($app->getId());

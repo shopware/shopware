@@ -116,7 +116,7 @@ class ThemeDumpCommand extends Command
             true
         );
 
-        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
+        $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
 
         $domainUrl = $input->getArgument('domain-url');
         if ($input->isInteractive()) {

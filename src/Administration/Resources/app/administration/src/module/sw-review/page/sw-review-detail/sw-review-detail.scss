@@ -1,22 +1,21 @@
 @import "~scss/variables";
 
-$sw-review-detail-base-color-text: $color-darkgray-200;
-
 .sw-review-detail {
     .sw-review-detail__container {
-        margin-bottom: 16px;
+        margin-bottom: var(--scale-size-16);
     }
 
     .sw-review-detail__metadata-review-stars {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        margin-right: 2px;
+        flex-direction: column;
+        gap: var(--scale-size-2);
+        margin-right: var(--scale-size-2);
     }
 
     .star-count-description {
-        font-weight: $font-weight-bold;
-        font-size: $font-size-s;
+        font-weight: var(--font-weight-bold);
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
         margin-top: -8px;
     }
 
@@ -43,22 +42,22 @@ $sw-review-detail-base-color-text: $color-darkgray-200;
     }
 
     .sw-review-detail__metadata-review-title {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-m;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-weight-m);
         margin-bottom: 1px;
         word-break: break-word;
     }
 
     .sw-review-base-info {
-        color: $sw-review-detail-base-color-text;
-        font-size: $font-size-xs;
-        margin-bottom: 16px;
+        font-size: var(--font-size-xs);
+        line-height: var(--line-height-xs);
+        margin-bottom: var(--scale-size-16);
 
         .sw-review-base-info-columns {
             word-break: break-word;
 
             dt {
-                padding: 21px 4px 4px;
+                padding: 21px var(--scale-size-4) var(--scale-size-4);
             }
 
             dd {

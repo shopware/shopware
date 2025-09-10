@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Service;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppExtractor;
@@ -10,28 +9,26 @@ use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\Source;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Util\Filesystem;
-use Shopware\Core\Service\Event\ServiceOutdatedEvent;
+use Shopware\Core\Service\ServiceRegistry\Client;
 use Symfony\Component\Filesystem\Filesystem as Io;
 use Symfony\Component\Filesystem\Path;
 
 /**
  * @internal
  *
- * @phpstan-type ServiceSourceConfig array{version: string, hash: string, revision: string, zip-url: string}
+ * @phpstan-type ServiceSourceConfig array{version: string, hash: string, revision: string, zip-url: string, hash-algorithm: ?string, min-shop-supported-version: ?string}
  */
 #[Package('framework')]
 class ServiceSourceResolver implements Source
 {
     public function __construct(
+        private readonly Client $client,
         private readonly TemporaryDirectoryFactory $temporaryDirectoryFactory,
-        private readonly ServiceClientFactory $serviceClientFactory,
         private readonly AppExtractor $appExtractor,
-        private readonly Io $io,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly Io $io
     ) {
     }
 
@@ -42,11 +39,7 @@ class ServiceSourceResolver implements Source
 
     public function filesystemForVersion(AppInfo $appInfo): Filesystem
     {
-        return new Filesystem($this->downloadVersion(
-            $this->serviceClientFactory->fromName($appInfo->name),
-            $appInfo->name,
-            $appInfo->zipUrl
-        ));
+        return new Filesystem($this->downloadVersion($appInfo->name, $appInfo->zipUrl));
     }
 
     public function supports(Manifest|AppEntity $app): bool
@@ -64,55 +57,41 @@ class ServiceSourceResolver implements Source
         $name = $app instanceof Manifest ? $app->getMetadata()->getName() : $app->getName();
 
         // app is already on the filesystem, use that
-        if ($this->io->exists(Path::join($temporaryDirectory, $name))) {
-            return new Filesystem(Path::join($temporaryDirectory, $name));
+        $appPath = Path::join($temporaryDirectory, $name);
+        if ($this->io->exists($appPath)) {
+            return new Filesystem($appPath);
         }
 
         /** @var ServiceSourceConfig $sourceConfig */
         $sourceConfig = $app->getSourceConfig();
+        $appInfo = AppInfo::fromNameAndSourceConfig($name, $sourceConfig);
 
-        return new Filesystem($this->checkVersionAndDownloadAppZip($name, $sourceConfig));
+        return $this->filesystemForVersion($appInfo);
     }
 
     public function reset(array $filesystems): void
     {
     }
 
-    /**
-     * @param ServiceSourceConfig $sourceConfig
-     */
-    private function checkVersionAndDownloadAppZip(string $serviceName, array $sourceConfig): string
-    {
-        $client = $this->serviceClientFactory->fromName($serviceName);
-
-        $latestAppInfo = $client->latestAppInfo();
-
-        if (!$this->isLatestVersionInstalled($latestAppInfo, $sourceConfig)) {
-            // the app revision has changed in the service, so we must update the app
-            // this can happen if the system attempts to download the app, before a service update rollout has completed
-            $this->eventDispatcher->dispatch(new ServiceOutdatedEvent($serviceName, Context::createDefaultContext()));
-
-            // the update process will download and extract the app, so we can assume it's present on the FS now
-            return Path::join($this->temporaryDirectoryFactory->path(), $serviceName);
-        }
-
-        return $this->downloadVersion($client, $serviceName, $sourceConfig['zip-url']);
-    }
-
     private function downloadVersion(
-        ServiceClient $client,
         string $serviceName,
         string $zipUrl,
     ): string {
         $destination = Path::join($this->temporaryDirectoryFactory->path(), $serviceName);
         $localZipLocation = Path::join($destination, $serviceName . '.zip');
 
-        $this->io->mkdir($destination);
-
         try {
-            $client->downloadAppZipForVersion($zipUrl, $localZipLocation);
-        } catch (ServiceException $e) {
-            throw AppException::cannotMountAppFilesystem($serviceName, $e); // @phpstan-ignore shopware.domainException
+            $zipData = $this->client->fetchServiceZip($zipUrl);
+            $this->io->mkdir($destination);
+            foreach ($zipData as $chunk) {
+                $this->io->appendToFile($localZipLocation, $chunk->getContent());
+            }
+        } catch (\Exception $e) {
+            $this->io->remove($destination); // corrupted download, remove partially written data
+            throw AppException::cannotMountAppFilesystem( // @phpstan-ignore shopware.domainException
+                $serviceName,
+                ServiceException::cannotWriteAppToDestination($destination, $e)
+            );
         }
 
         try {
@@ -128,13 +107,5 @@ class ServiceSourceResolver implements Source
         }
 
         return $destination;
-    }
-
-    /**
-     * @param array{revision: string} $sourceConfig
-     */
-    private function isLatestVersionInstalled(AppInfo $latestAppInfo, array $sourceConfig): bool
-    {
-        return $latestAppInfo->revision === $sourceConfig['revision'];
     }
 }

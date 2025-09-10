@@ -160,7 +160,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition" />
 
-            <tag name="shopware.demodata_generator" option-name="users" option-default="0"/>
+            <tag name="shopware.demodata_generator" option-name="sales-channel-domain" option-default="1"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\UserGenerator">

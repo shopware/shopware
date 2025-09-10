@@ -121,7 +121,7 @@ class DemodataCommand extends Command
 
         $request->add(MailTemplateDefinition::class, $this->getCount($input, 'mail-template'));
         $request->add(MailHeaderFooterDefinition::class, $this->getCount($input, 'mail-header-footer'));
-        $request->add(SalesChannelDomainDefinition::class, 1);
+        $request->add(SalesChannelDomainDefinition::class, $this->getCount($input, 'sales-channel-domain'));
 
         $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context, $input));
 

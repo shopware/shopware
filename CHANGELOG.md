@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.2.1
+*  [GHSA-9v82-vcjx-m76j - Properly escape active route params](./changelog/release-6-7-2-1/2025-09-04-properly-escape-active-route-params.md)
+*  [#12363 - Fix missing promotion product rule select](./changelog/release-6-7-2-1/2025-09-08-fix-missing-promotion-rule-select.md)
+
 ## 6.7.2.0
 *  [#10491 - Implemented a command to download and install translation](./changelog/release-6-7-2-0/2025-07-18-implemented-a-command-to-download-and-install-translation.md)
 *  [#10528 - Remove superfluous vat-id block from `address-form.html.twig`](./changelog/release-6-7-2-0/2025-06-14-remove-superfluous-vat-id-block-from-address-form-html-twig.md) @aragon999

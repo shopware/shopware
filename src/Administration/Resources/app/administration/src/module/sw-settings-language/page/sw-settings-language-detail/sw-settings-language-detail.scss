@@ -1,3 +1,5 @@
+@import "~scss/variables";
+
 .sw-settings-language-detail {
     .sw-settings-language--alert-change-parent {
         margin-top: 30px;
@@ -12,5 +14,14 @@
             top: 38px;
             right: 18px;
         }
+    }
+
+    .sw-settings-language-detail__snippet-link-wrapper {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 8px;
+        max-width: $content-width;
+        margin-left: auto;
+        margin-right: auto;
     }
 }

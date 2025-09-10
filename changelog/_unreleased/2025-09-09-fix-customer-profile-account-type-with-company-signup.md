@@ -5,4 +5,3 @@ author: Dang Ng
 # Storefront
 * Changed `page/account/profile/index.html.twig` to fix an issue where logged-in customers couldn't change their account type when "Company signup form" (`onlyCompanyRegistration`) was enabled for their customer group
 * Added logic to override `onlyCompanyRegistration` to `false` when a customer is logged in and editing their profile, allowing them to freely switch between private and business account types
-* The `onlyCompanyRegistration` setting now only applies to registration forms, not to logged-in customers editing their profile

@@ -28,7 +28,7 @@ class TranslationController extends InstallerController
 
         return $this->renderInstaller('@Installer/installer/translation.html.twig', [
             'locales' => $locales,
-            'total'   => \count($locales),
+            'total' => \count($locales),
             'supportedLanguages' => [], // disable language switch during translation step
         ]);
     }
@@ -47,21 +47,8 @@ class TranslationController extends InstallerController
             $locales = (array) $session->get('installer.locales', []);
         }
 
-        $total = \count($locales);
-
-        if ($total === 0) {
-            return new JsonResponse([
-                'offset'     => 0,
-                'total'      => 0,
-                'isFinished' => true,
-                'message'    => 'No locales selected',
-                'skipped'    => false,
-                'failures'   => [],
-            ]);
-        }
-
         $projectRoot = \dirname(__DIR__, 4);
-        $console     = $projectRoot . '/bin/console';
+        $console = $projectRoot . '/bin/console';
 
         $proc = new Process(
             [$console, 'translation:install', '--locales=' . implode(',', $locales), '--no-interaction'],
@@ -71,40 +58,19 @@ class TranslationController extends InstallerController
         $proc->run();
 
         if (!$proc->isSuccessful()) {
-            $err = trim($proc->getErrorOutput() ?: $proc->getOutput());
-            $cleanError = $this->cleanErrorOutput($err, implode(',', $locales));
-
-            $failures = [['locales' => $locales, 'error' => $cleanError]];
-            $session->set('TRANSLATION_FAILED', $failures);
+            $session->set('TRANSLATION_FAILED', [['error' => 'Something went wrong during translation installation']]);
 
             return new JsonResponse([
-                'offset'     => $total,
-                'total'      => $total,
                 'isFinished' => true,
-                'message'    => 'Installation failed',
-                'skipped'    => true,
-                'error'      => $cleanError,
-                'failures'   => $failures,
+                'skipped' => true,
+                'failures' => [['error' => 'Something went wrong during translation installation']],
             ], 200);
         }
 
         return new JsonResponse([
-            'offset'     => $total,
-            'total'      => $total,
             'isFinished' => true,
-            'message'    => 'All languages installed successfully',
-            'skipped'    => false,
-            'failures'   => [],
+            'skipped' => false,
+            'failures' => [],
         ]);
-    }
-
-    /**
-     * Clean up error output
-     */
-    private function cleanErrorOutput(string $error, string $locale): string
-    {
-        if (strpos($error, 'Invalid locale codes:') !== false) {
-            return "Invalid locale code";
-        }
     }
 }

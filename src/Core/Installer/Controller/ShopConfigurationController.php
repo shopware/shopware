@@ -80,13 +80,14 @@ class ShopConfigurationController extends InstallerController
                 if (preg_match('/^[a-z]{2}-[A-Z]{2}$/', $iso)) {
                     return $iso;
                 }
+
                 return $this->getAllAvailableLanguages()[$iso]['id'] ?? $iso;
             }, $selectedLanguages);
 
             // Filter out default languages that are already installed
             $defaultLanguages = ['en-GB', 'de-DE'];
-            $selectedLanguages = array_filter($selectedLanguages, function($locale) use ($defaultLanguages) {
-                return !in_array($locale, $defaultLanguages, true);
+            $selectedLanguages = array_filter($selectedLanguages, function ($locale) use ($defaultLanguages) {
+                return !\in_array($locale, $defaultLanguages, true);
             });
 
             $selectedLanguages = array_unique($selectedLanguages);
@@ -131,10 +132,10 @@ class ShopConfigurationController extends InstallerController
                 if (empty($selectedLanguages)) {
                     // No languages selected, go directly to finish page
                     return $this->redirectToRoute('installer.finish', ['show' => 'true']);
-                } else {
-                    // Languages selected, go to translation step
-                    return $this->redirectToRoute('installer.translation');
                 }
+
+                // Languages selected, go to translation step
+                return $this->redirectToRoute('installer.translation');
             } catch (\Exception $e) {
                 $error = $e->getMessage();
             }
@@ -210,7 +211,7 @@ class ShopConfigurationController extends InstallerController
 
                 $languages[$locale] = [
                     'id' => $locale,
-                    'label' => $name
+                    'label' => $name,
                 ];
             }
 

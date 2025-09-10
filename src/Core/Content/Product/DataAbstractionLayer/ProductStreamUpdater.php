@@ -83,7 +83,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         if ($criteria === null) {
             return;
         }
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $considerInheritance = $message->getContext()->considerInheritance();
         $message->getContext()->setConsiderInheritance(true);
@@ -96,32 +95,40 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             ['id' => $binaryStreamId],
         );
 
-        RetryableTransaction::retryable($this->connection, function () use ($binaryStreamId): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
-                ['id' => $binaryStreamId],
-            );
-        });
-
         /** @var list<string> $matches */
         $matches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
 
         $insert = new MultiInsertQueryQueue($this->connection, 250, false, false);
 
+        $foundIds = [];
+        $addedIds = [];
         foreach ($matches as $id) {
-            $ids[] = $id;
+            if (\in_array($id, $ids, true)) {
+                $foundIds[] = $id;
+                continue;
+            }
+
             $insert->addInsert('product_stream_mapping', [
                 'product_id' => Uuid::fromHexToBytes($id),
                 'product_version_id' => $version,
                 'product_stream_id' => $binaryStreamId,
             ]);
+            $addedIds[] = $id;
         }
 
         $insert->execute();
 
+        $idsToDelete = array_diff($ids, $foundIds);
+        RetryableTransaction::retryable($this->connection, function () use ($idsToDelete): void {
+            $this->connection->executeStatement(
+                'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
+                ['ids' => Uuid::fromHexToBytesList($idsToDelete)],
+            );
+        });
+
         $message->getContext()->setConsiderInheritance($considerInheritance);
 
-        $ids = array_unique($ids);
+        $ids = array_unique([...$addedIds, ...$idsToDelete]);
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(
@@ -244,6 +251,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $criteria = new Criteria();
         $criteria->addFilter(...$parsed);
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         if ($ids !== null) {
             $criteria->addFilter(new EqualsAnyFilter('id', $ids));

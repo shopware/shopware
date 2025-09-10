@@ -2,7 +2,7 @@ repository-url: https://raw.githubusercontent.com/shopware/translations/main/tra
 metadata-url: https://raw.githubusercontent.com/shopware/translations/main/crowdin-metadata.json
 
 locales: [
-    'bs-BA', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-GB', 'en-US',
+    'de-DE', 'en-GB', 'bs-BA', 'bg-BG', 'cs-CZ', 'da-DK', 'el-GR', 'en-US',
     'es-ES', 'fi-FI', 'fr-FR', 'hi-IN', 'hr-HR', 'hu-HU', 'id-ID', 'it-IT',
     'ko-KR', 'lv-LV', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-PT', 'ro-RO', 'ru-RU',
     'sk-SK', 'sl-SI', 'sr-RS', 'sv-SE', 'tr-TR', 'uk-UA', 'vi-VN',
@@ -25,6 +25,10 @@ plugin-mapping:
     name: 'PluginPublisher'
 
 languages:
+  - name: 'Deutsch'
+    locale: 'de-DE'
+  - name: 'English'
+    locale: 'en-GB'
   - name: 'Bosanski'
     locale: 'bs-BA'
   - name: 'български език'
@@ -33,12 +37,8 @@ languages:
     locale: 'cs-CZ'
   - name: 'Dansk'
     locale: 'da-DK'
-  - name: 'Deutsch'
-    locale: 'de-DE'
   - name: 'Ελληνικά'
     locale: 'el-GR'
-  - name: 'English'
-    locale: 'en-GB'
   - name: 'English (US)'
     locale: 'en-US'
   - name: 'Español'

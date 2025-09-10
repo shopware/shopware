@@ -143,3 +143,19 @@ shopware.installer:
         <p>
             God fornøjelse med din nye online shop!
         </p>"
+    menuitem_translation: 'Sprogdownload'
+    configuration_admin_shop_headline: 'Shopdata'
+    configuration_admin_language_headline: 'Sprog'
+    configuration_admin_language_select_all: 'Vælg alle'
+    configuration_admin_language_clear_all: 'Ryd alle'
+    configuration_admin_user_headline: 'Administrator brugerdata'
+    configuration_admin_language_text: 'Tilføj flere sprog til din Shopware shop. Hvis du vil tilføje eller fjerne sprog senere, kan du gøre det når som helst i administrationen.'
+    configuration_admin_language_search_placeholder: 'Søg sprog...'
+    translations_header: 'Sprogdownload'
+    translations_import_install_label: 'Downloader og installerer yderligere sprog.'
+    translations_install_duration_info: 'Dette kan tage et par minutter.'
+    finish_title: 'Opsætningen af din Shopware shop er færdig.'
+    finish_subtitle: 'Klik på "Fortsæt til shop" for at åbne administrationen af din shop og begynde at bygge drømmeshoppen.'
+    finish_continue: 'Fortsæt til shop'
+    translations_install_error_message: 'Noget gik galt under oversættelsesinstallationen.'
+    translations_install_retry_link: 'Klik her for at prøve igen'

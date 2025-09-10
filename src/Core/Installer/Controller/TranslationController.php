@@ -18,19 +18,7 @@ class TranslationController extends InstallerController
     #[Route(path: '/installer/translation', name: 'installer.translation', methods: ['GET'])]
     public function translations(Request $request): Response
     {
-        $session = $request->getSession();
-
-        /** @var list<string> $locales */
-        $locales = (array) $session->get('SELECTED_LANGUAGES', []);
-        if (!$locales) {
-            $locales = (array) $session->get('installer.locales', []);
-        }
-
-        return $this->renderInstaller('@Installer/installer/translation.html.twig', [
-            'locales' => $locales,
-            'total' => \count($locales),
-            'supportedLanguages' => [], // disable language switch during translation step
-        ]);
+        return $this->renderInstaller('@Installer/installer/translation.html.twig');
     }
 
     #[Route(path: '/installer/translation/run', name: 'installer.translation-run', methods: ['POST'])]
@@ -38,13 +26,14 @@ class TranslationController extends InstallerController
     {
         $session = $request->getSession();
 
-        // Clear old failures when starting a new translation run
-        $session->remove('TRANSLATION_FAILED');
-
         /** @var list<string> $locales */
         $locales = (array) $session->get('SELECTED_LANGUAGES', []);
-        if (!$locales) {
-            $locales = (array) $session->get('installer.locales', []);
+
+        if (empty($locales)) {
+            return new JsonResponse([
+                'isFinished' => true,
+                'failed' => false,
+            ]);
         }
 
         $projectRoot = \dirname(__DIR__, 4);
@@ -58,19 +47,15 @@ class TranslationController extends InstallerController
         $proc->run();
 
         if (!$proc->isSuccessful()) {
-            $session->set('TRANSLATION_FAILED', [['error' => 'Something went wrong during translation installation']]);
-
             return new JsonResponse([
                 'isFinished' => true,
-                'skipped' => true,
-                'failures' => [['error' => 'Something went wrong during translation installation']],
+                'failed' => true,
             ], 200);
         }
 
         return new JsonResponse([
             'isFinished' => true,
-            'skipped' => false,
-            'failures' => [],
+            'failed' => false,
         ]);
     }
 }

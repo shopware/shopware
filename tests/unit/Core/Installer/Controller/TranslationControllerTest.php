@@ -32,66 +32,13 @@ class TranslationControllerTest extends TestCase
         $this->controller->setContainer($this->getInstallerContainer($this->twig));
     }
 
-    public function testTranslationsRouteWithSelectedLanguages(): void
+    public function testTranslationsRoute(): void
     {
         $this->twig->expects($this->once())->method('render')
-            ->with(
-                '@Installer/installer/translation.html.twig',
-                array_merge($this->getDefaultViewParams(), [
-                    'locales' => ['en-GB', 'de-DE'],
-                    'total' => 2,
-                    'supportedLanguages' => [],
-                ])
-            )
+            ->with('@Installer/installer/translation.html.twig', $this->getDefaultViewParams())
             ->willReturn('translation page');
 
-        $session = new Session(new MockArraySessionStorage());
-        $session->set('SELECTED_LANGUAGES', ['en-GB', 'de-DE']);
         $request = Request::create('/installer/translation');
-        $request->setSession($session);
-
-        $response = $this->controller->translations($request);
-        static::assertSame('translation page', $response->getContent());
-    }
-
-    public function testTranslationsRouteWithInstallerLocales(): void
-    {
-        $this->twig->expects($this->once())->method('render')
-            ->with(
-                '@Installer/installer/translation.html.twig',
-                array_merge($this->getDefaultViewParams(), [
-                    'locales' => ['ro-RO', 'en-GB'],
-                    'total' => 2,
-                    'supportedLanguages' => [],
-                ])
-            )
-            ->willReturn('translation page');
-
-        $session = new Session(new MockArraySessionStorage());
-        $session->set('installer.locales', ['ro-RO', 'en-GB']);
-        $request = Request::create('/installer/translation');
-        $request->setSession($session);
-
-        $response = $this->controller->translations($request);
-        static::assertSame('translation page', $response->getContent());
-    }
-
-    public function testTranslationsRouteWithEmptyLocales(): void
-    {
-        $this->twig->expects($this->once())->method('render')
-            ->with(
-                '@Installer/installer/translation.html.twig',
-                array_merge($this->getDefaultViewParams(), [
-                    'locales' => [],
-                    'total' => 0,
-                    'supportedLanguages' => [],
-                ])
-            )
-            ->willReturn('translation page');
-
-        $session = new Session(new MockArraySessionStorage());
-        $request = Request::create('/installer/translation');
-        $request->setSession($session);
 
         $response = $this->controller->translations($request);
         static::assertSame('translation page', $response->getContent());
@@ -114,27 +61,10 @@ class TranslationControllerTest extends TestCase
         static::assertIsArray($decodedContent);
 
         static::assertArrayHasKey('isFinished', $decodedContent);
-        static::assertArrayHasKey('skipped', $decodedContent);
-        static::assertArrayHasKey('failures', $decodedContent);
+        static::assertArrayHasKey('failed', $decodedContent);
 
         static::assertIsBool($decodedContent['isFinished']);
-        static::assertIsBool($decodedContent['skipped']);
-        static::assertIsArray($decodedContent['failures']);
-    }
-
-    public function testRunClearsOldFailures(): void
-    {
-        $session = new Session(new MockArraySessionStorage());
-        $session->set('SELECTED_LANGUAGES', ['en-GB']);
-        $session->set('TRANSLATION_FAILED', [['error' => 'old error']]);
-        $request = Request::create('/installer/translation/run', 'POST');
-        $request->setSession($session);
-
-        static::assertTrue($session->has('TRANSLATION_FAILED'));
-
-        $response = $this->controller->run($request);
-
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertIsBool($decodedContent['failed']);
     }
 
     public function testRunResponseStructure(): void
@@ -152,12 +82,10 @@ class TranslationControllerTest extends TestCase
         static::assertIsArray($decodedContent);
 
         static::assertArrayHasKey('isFinished', $decodedContent);
-        static::assertArrayHasKey('skipped', $decodedContent);
-        static::assertArrayHasKey('failures', $decodedContent);
+        static::assertArrayHasKey('failed', $decodedContent);
 
         static::assertIsBool($decodedContent['isFinished']);
-        static::assertIsBool($decodedContent['skipped']);
-        static::assertIsArray($decodedContent['failures']);
+        static::assertIsBool($decodedContent['failed']);
     }
 
     public function testRunSessionHandling(): void
@@ -173,5 +101,28 @@ class TranslationControllerTest extends TestCase
 
         static::assertTrue($session->has('SELECTED_LANGUAGES'));
         static::assertSame(['en-GB', 'de-DE', 'fr-FR'], $session->get('SELECTED_LANGUAGES'));
+    }
+
+    public function testRunWithEmptyLocales(): void
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('SELECTED_LANGUAGES', []);
+        $request = Request::create('/installer/translation/run', 'POST');
+        $request->setSession($session);
+
+        $response = $this->controller->run($request);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $decodedContent = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($decodedContent);
+
+        static::assertArrayHasKey('isFinished', $decodedContent);
+        static::assertArrayHasKey('failed', $decodedContent);
+
+        static::assertTrue($decodedContent['isFinished']);
+        static::assertIsBool($decodedContent['failed']);
     }
 }

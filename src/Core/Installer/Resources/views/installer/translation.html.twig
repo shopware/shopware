@@ -2,20 +2,19 @@
 
 {% block base_content %}
     <div class="card__title">
-        <h2>{{ "shopware.installer.translations_header"|trans|default('Install languages') }}</h2>
+        <h2>{{ "shopware.installer.translations_header"|trans }}</h2>
     </div>
 
     <div class="card__body translations-import">
         <div id="import-container" class="translations-import-container">
-            <p class="database-import-text">
-                {{ "shopware.installer.translations_info_text"|trans|default('We will download and install the selected translations.') }}
-            </p>
-            <div class="language-import-count">
-                {{ "shopware.installer.translations_import_install_label"|trans }}
-            </div>
-
-            <div id="progress" class="progress active">
-                <div id="progress-bar" class="progress-bar" style="width:0%"></div>
+            <div id="spinner-container" class="spinner-container">
+                <div class="spinner"></div>
+                <p class="spinner-text">
+                    {{ "shopware.installer.translations_import_install_label"|trans }}
+                </p>
+                <p class="spinner-subtext">
+                    {{ "shopware.installer.translations_install_duration_info"|trans }}
+                </p>
             </div>
         </div>
     </div>
@@ -33,29 +32,17 @@
             {{ "shopware.installer.forward"|trans }}
         </a>
     </div>
-
     <script>
         window.addEventListener('beforeunload', preventPageLeave);
 
         // Start the installation process
         startInstallation();
 
-        function importFinished() {
-            document.getElementById('next').classList.remove('disabled');
-            document.getElementById('progress').classList.remove('active');
-            window.removeEventListener('beforeunload', preventPageLeave);
-
-            const nextButton = document.getElementById('next');
-            nextButton.href = '{{ url('installer.finish') }}?show=true';
-        }
-
         function preventPageLeave(event) {
             event.preventDefault();
         }
 
         async function startInstallation() {
-            document.getElementById('progress-bar').style.width = '10%';
-
             try {
                 const response = await fetch('{{ url('installer.translation-run') }}', {
                     method: 'POST',
@@ -66,16 +53,37 @@
                 const data = await response.json();
 
                 if (data.isFinished) {
-                    document.getElementById('progress-bar').style.width = '100%';
-
-                    if (data.failures && data.failures.length > 0) {
-                        //TODO render failures
+                    window.removeEventListener('beforeunload', preventPageLeave);
+                    
+                    if (data.failed) {
+                        showError();
+                    } else {
+                        // Success - redirect to finish page
+                        window.location.href = '{{ url('installer.finish') }}?show=true';
                     }
-                    importFinished();
                 }
             } catch (error) {
-                document.getElementById('progress-bar').style.width = '100%';
+                showError();
             }
+        }
+
+        function showError() {
+            const spinnerContainer = document.getElementById('spinner-container');
+            spinnerContainer.innerHTML = `
+                <div class="error-container">
+                    <div class="error-message-box">
+                        <div class="error-icon">!</div>
+                        <div class="error-text">{{ "shopware.installer.translations_install_error_message"|trans }}</div>
+                    </div>
+                    <a href="javascript:location.reload()" class="retry-link">
+                        {{ "shopware.installer.translations_install_retry_link"|trans }}
+                    </a>
+                </div>
+            `;
+
+            const nextButton = document.getElementById('next');
+            nextButton.classList.remove('disabled');
+            nextButton.href = '{{ url('installer.finish') }}?show=true';
         }
     </script>
 {% endblock %}

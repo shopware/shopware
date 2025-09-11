@@ -11,6 +11,9 @@ ___
 * Added `<requirements>` child elements to `manifest-3.0.xsd` (e.g. `<public-access/>`). Presence enables the requirement.
 ___
 # Upgrade Information
+
+## Optional manifest changes and public-access check
+
 * Declare requirements in the manifest, e.g.:
   ```xml
   <requirements>

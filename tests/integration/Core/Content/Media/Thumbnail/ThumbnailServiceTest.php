@@ -47,8 +47,14 @@ class ThumbnailServiceTest extends TestCase
 
     private ThumbnailService $thumbnailService;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
+    /**
+     * @var EntityRepository<MediaThumbnailCollection>
+     */
     private EntityRepository $thumbnailRepository;
 
     private bool $remoteThumbnailsEnable = false;

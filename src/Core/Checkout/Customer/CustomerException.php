@@ -17,6 +17,8 @@ use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -28,6 +30,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[Package('checkout')]
 class CustomerException extends HttpException
@@ -445,5 +449,25 @@ class CustomerException extends HttpException
             'Customer with id "{{ customerId }}" is not a guest',
             ['customerId' => $customerId],
         );
+    }
+
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
+    {
+        return new GuestNotAuthenticatedException();
+    }
+
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
+    {
+        return new WrongGuestCredentialsException();
+    }
+
+    public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
+    {
+        return new UnexpectedTypeException($constraint, $expectedType);
+    }
+
+    public static function unexpectedConstraintValue(mixed $value, string $expectedType): ValidatorException
+    {
+        return new UnexpectedValueException($value, $expectedType);
     }
 }

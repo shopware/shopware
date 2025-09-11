@@ -139,24 +139,6 @@ parameters:
         - identifier: staticMethod.alreadyNarrowedType
           path: tests/devops/Core/DefaultsTest.php
 
-        - # Classes that are allowed to use dynamic property name access
-            message: '#Use explicit names over dynamic ones#'
-            paths:
-                - src/Core/Checkout/Cart/LineItem/LineItem.php
-                - src/Core/Checkout/Document/DocumentConfiguration.php
-                - src/Core/Content/Product/Hook/Pricing/ProductProxy.php
-                - src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-                - src/Core/Framework/Struct/AssignArrayTrait.php
-                - src/Core/Framework/Struct/CloneTrait.php
-                - src/Core/Framework/Struct/CreateFromTrait.php
-                - src/Core/Framework/App/Manifest/Xml/XmlElement.php
-                - src/Core/Framework/App/Manifest/Xml/CustomField/CustomFieldTypes/SingleEntitySelectField.php
-                - src/Core/Framework/App/Manifest/Xml/CustomField/CustomFieldTypes/SingleSelectField.php
-                - src/Core/Framework/App/Payment/Response/AbstractResponse.php
-                - src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-                - src/Core/Framework/DataAbstractionLayer/Entity.php
-                - src/Core/Framework/DataAbstractionLayer/Util/AfterSort.php
-
         - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'
             path: src/Core/Framework/DataAbstractionLayer/Field/Field.php
@@ -170,11 +152,6 @@ parameters:
                 - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
                 - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
                 - tests/integration/Core/Framework/Plugin/_fixtures/*
-
-        - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
-            message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
-            paths:
-                - tests/integration/Core/Content/**
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
@@ -203,3 +180,8 @@ parameters:
             identifier: argument.type
             path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
+        - # With the active `reportWrongPhpDocTypeInVarTag` phpstan parameter we should resolve this issue per area
+            message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
+            paths:
+                - src/Core/**
+                - tests/**

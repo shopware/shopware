@@ -79,7 +79,9 @@ class TranslationLoaderTest extends TestCase
             ['es-ES'],
             ['SwagPublisher'],
             new LanguageDtoCollection([new Language('es-ES', 'Español')]),
-            new PluginMappingCollection()
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
         $this->initClient();
     }
@@ -196,6 +198,7 @@ class TranslationLoaderTest extends TestCase
         static::assertIsArray($language);
         static::assertSame('Español', $language['name']);
         static::assertSame($this->ids->get('locale'), $language['localeId']);
+        static::assertTrue($language['active']);
 
         $createdSnippetSets = array_shift($this->snippetSetRepository->creates);
         static::assertIsArray($createdSnippetSets);
@@ -257,7 +260,9 @@ class TranslationLoaderTest extends TestCase
             ['es-ES'],
             ['SwagPaypal'],
             new LanguageDtoCollection([new Language('es-ES', 'Español')]),
-            $pluginMapping
+            $pluginMapping,
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
         $loader = $this->getTranslationLoader();
 
@@ -269,6 +274,25 @@ class TranslationLoaderTest extends TestCase
 
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/MappedName');
         static::assertTrue($loader->pluginTranslationExists($mappedNamePlugin));
+    }
+
+    public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void
+    {
+        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('es-ES', $this->context, false); // activate = false
+
+        $createdLanguages = array_shift($this->languageRepository->creates);
+        static::assertIsArray($createdLanguages);
+        static::assertCount(1, $createdLanguages);
+
+        $language = array_shift($createdLanguages);
+        static::assertIsArray($language);
+        static::assertSame('Español', $language['name']);
+        static::assertSame($this->ids->get('locale'), $language['localeId']);
+        static::assertFalse($language['active']);
     }
 
     private function getTranslationLoader(): TranslationLoader

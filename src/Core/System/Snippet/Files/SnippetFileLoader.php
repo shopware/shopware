@@ -22,11 +22,10 @@ use Symfony\Component\Finder\Finder;
 #[Package('discovery')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
+    public const SCOPE_PLATFORM = 'Platform';
+
+    public const SCOPE_PLUGINS = 'Plugins';
     private const ADMINISTRATION_BUNDLE_NAME = 'Administration';
-
-    private const SCOPE_PLATFORM = 'Platform';
-
-    private const SCOPE_PLUGINS = 'Plugins';
 
     /**
      * @internal
@@ -44,13 +43,15 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
     {
-        $this->loadCoreSnippets($snippetFileCollection);
-        // Legacy snippets must be loaded here to ensure their availability, as the locale cannot be checked at this point, and they might otherwise be missing.
-        $this->loadLegacySnippets($snippetFileCollection);
+        // Load snippets from private translation system
+        $this->loadTranslationSnippets($snippetFileCollection);
+        // Load snippets from Shopware bundles and plugins
+        $this->loadShippedSnippets($snippetFileCollection);
+        // Load snippets from active apps
         $this->loadAppSnippets($snippetFileCollection);
     }
 
-    private function loadCoreSnippets(SnippetFileCollection $snippetFileCollection): void
+    private function loadTranslationSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         $exclude = $this->getInactivePluginNames();
 
@@ -60,10 +61,16 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         $translationPathRegexpTemplate = '#^/?'
             . Path::join($localesBasePath, '(?P<locale>[a-zA-Z-0-9-_]+)', '(?P<component>%s)', '(?P<plugin>%s)')
             . '.*$#';
+
         $excludedPathsRegexp = array_map(
-            fn (string $path) => \sprintf($translationPathRegexpTemplate, 'Plugins', $path),
+            fn (string $path) => \sprintf($translationPathRegexpTemplate, self::SCOPE_PLUGINS, $path),
             $exclude
         );
+
+        $excludedLocalesPattern = $this->getExcludedLocalesPatternFromConfig($localesBasePath);
+        if ($excludedLocalesPattern !== null) {
+            $excludedPathsRegexp[] = $excludedLocalesPattern;
+        }
 
         $translationFiles = $this->translationReader
             ->listContents($localesBasePath, true)
@@ -82,7 +89,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             }
 
             $technicalName = self::SCOPE_PLATFORM;
-            if ($pathComponents['component'] === 'Plugins') {
+            if ($pathComponents['component'] === self::SCOPE_PLUGINS) {
                 $technicalName = self::SCOPE_PLUGINS;
             }
 
@@ -122,7 +129,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         return array_diff($this->config->plugins, $activeNames);
     }
 
-    private function loadLegacySnippets(SnippetFileCollection $snippetFileCollection): void
+    private function loadShippedSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         try {
             /** @var array<string, string> $authors */
@@ -234,5 +241,18 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         }
 
         return $authors[$bundle::class] ?? '';
+    }
+
+    private function getExcludedLocalesPatternFromConfig(string $path): ?string
+    {
+        $excludedLocales = $this->config->excludedLocales;
+
+        if (empty($excludedLocales)) {
+            return null;
+        }
+
+        $localePattern = implode('|', $excludedLocales);
+
+        return '#^/?' . Path::join($path, '(' . $localePattern . ')', '*') . '.*$#';
     }
 }

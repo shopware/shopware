@@ -43,7 +43,6 @@ class SystemConfigValidator
             // If sales channel is defined, nulls are valid values, as they are used to remove custom values in child configuration
             $allowNulls = $saleChannelId !== 'null';
 
-            /** @var string[] $allKeys */
             $allKeys = array_keys($inputValues);
 
             $domains = array_map(fn (string $key) => implode('.', explode('.', $key, -1)), $allKeys);
@@ -78,7 +77,6 @@ class SystemConfigValidator
      */
     private function prepareValidationConstraints(array $formConfig, array $inputConfigKeys, bool $allowNulls): array
     {
-        /** @var array<string, Constraint[]> $constraints */
         $constraints = [];
 
         foreach ($formConfig as $card) {

@@ -30,7 +30,6 @@ class InstallerLocaleListener implements EventSubscriberInterface
         /* Map languages to lowercase keys for easier comparison against Symfony's request language detection.
          * Ensure that the fallback language is the first language, as Symfony's `getPreferredLanguage()` returns the
          * first array value if no accepted language matches any in the array */
-        /** @var array<string, string> $mappedLanguages */
         $mappedLanguages = [
             self::FALLBACK_LOCALE => self::FALLBACK_LOCALE,
         ];

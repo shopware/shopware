@@ -91,6 +91,7 @@ class DataAbstractionLayerException extends HttpException
     public const UNSUPPORTED_QUERY_FILTER = 'FRAMEWORK__UNSUPPORTED_QUERY_FILTER';
     public const INVALID_SORT_DIRECTION = 'FRAMEWORK__INVALID_SORT_DIRECTION';
     public const PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND = 'FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND';
+    public const INVALID_CRITERIA_PARAMETER = 'FRAMEWORK__INVALID_CRITERIA_PARAMETER';
 
     public const DBAL_UNMAPPED_FIELD = 'FRAMEWORK__DBAL_UNMAPPED_FIELD';
 
@@ -962,5 +963,15 @@ class DataAbstractionLayerException extends HttpException
     public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
     {
         return new UnexpectedTypeException($constraint, $expectedType);
+    }
+
+    public static function invalidCriteriaParameter(string $message): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_CRITERIA_PARAMETER,
+            'Invalid _criteria parameter: {{ message }}',
+            ['message' => $message]
+        );
     }
 }

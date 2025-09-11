@@ -35,6 +35,8 @@ class RequestCriteriaBuilder
         'next-pages' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
     ];
 
+    private const MAX_GET_CRITERIA_LENGTH = 1024 * 128; // 128kb
+
     /**
      * @internal
      */
@@ -49,6 +51,12 @@ class RequestCriteriaBuilder
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         if ($request->isMethod(Request::METHOD_GET)) {
+            // Check for _criteria parameter first
+            if ($request->query->has('_criteria')) {
+                $payload = $this->decodeCriteriaParameter((string) $request->query->get('_criteria'));
+
+                return $this->fromArray($payload, $criteria, $definition, $context);
+            }
             $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
         } else {
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
@@ -493,5 +501,60 @@ class RequestCriteriaBuilder
         }
 
         return $fieldName;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeCriteriaParameter(string $encodedCriteria): array
+    {
+        try {
+            // Hard limit to avoid overloading
+            if (\strlen($encodedCriteria) > self::MAX_GET_CRITERIA_LENGTH) {
+                throw DataAbstractionLayerException::invalidCriteriaParameter('The _criteria parameter is too long');
+            }
+
+            // Decode base64url
+            $gzippedData = $this->base64urlDecode($encodedCriteria);
+            if ($gzippedData === false) {
+                throw DataAbstractionLayerException::invalidCriteriaParameter('Unable to decode base64 data');
+            }
+
+            // Decompress gzipped data
+            // Limit the decompressed size for additional safety
+            // Function throws a warning on failure, suppressing it as result is validated afterwards
+            $jsonData = @gzdecode($gzippedData, self::MAX_GET_CRITERIA_LENGTH * 20);
+
+            if ($jsonData === false) {
+                throw DataAbstractionLayerException::invalidCriteriaParameter('Unable to decompress gzipped data');
+            }
+
+            // Decode JSON
+            $criteriaData = json_decode($jsonData, true, 512, \JSON_THROW_ON_ERROR);
+
+            if (!\is_array($criteriaData)) {
+                throw DataAbstractionLayerException::invalidCriteriaParameter('Criteria data must be an array');
+            }
+
+            return $criteriaData;
+        } catch (\JsonException $e) {
+            throw DataAbstractionLayerException::invalidCriteriaParameter('Invalid JSON data: ' . $e->getMessage());
+        } catch (DataAbstractionLayerException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            throw DataAbstractionLayerException::invalidCriteriaParameter('Unable to decode or decompress criteria data: ' . $e->getMessage());
+        }
+    }
+
+    private function base64urlDecode(string $data): string|false
+    {
+        $b64 = strtr($data, '-_', '+/');
+
+        $padLen = (4 - (\strlen($b64) % 4)) % 4;
+        if ($padLen) {
+            $b64 .= str_repeat('=', $padLen);
+        }
+
+        return base64_decode($b64, true);
     }
 }

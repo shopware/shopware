@@ -786,6 +786,7 @@ class SeoUrlPersisterTest extends TestCase
 
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
+     *
      * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
      */
     private function getAllSeoUrlsForProduct(string $productId, EntityRepository $seoUrlRepository): array
@@ -795,8 +796,8 @@ class SeoUrlPersisterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('routeName', ProductPageSeoUrlRoute::ROUTE_NAME));
         $criteria->addFilter(new EqualsAnyFilter('languageId', self::LANGUAGE_IDS));
 
-        /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
@@ -808,6 +809,7 @@ class SeoUrlPersisterTest extends TestCase
 
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
+     *
      * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
      */
     private function getCurrentCanonicalSeoUrls(string $productId, EntityRepository $seoUrlRepository): array
@@ -819,8 +821,8 @@ class SeoUrlPersisterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('isDeleted', false));
         $criteria->addFilter(new EqualsAnyFilter('languageId', self::LANGUAGE_IDS));
 
-        /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
@@ -832,6 +834,7 @@ class SeoUrlPersisterTest extends TestCase
 
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
+     *
      * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
      */
     private function getObsoleteSeoUrls(string $productId, EntityRepository $seoUrlRepository): array
@@ -842,8 +845,8 @@ class SeoUrlPersisterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('isCanonical', null));
         $criteria->addFilter(new EqualsAnyFilter('languageId', self::LANGUAGE_IDS));
 
-        /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),

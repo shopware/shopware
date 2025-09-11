@@ -74,13 +74,14 @@ class TranslationController extends InstallerController
      * Sanitize and validate locales
      *
      * @param list<string> $locales
+     *
      * @return list<string>
      */
     private function sanitizeLocales(array $locales): array
     {
         return array_values(array_unique(array_filter(
             $locales,
-            static function (mixed $locale): bool {
+            static function (string $locale): bool {
                 return \preg_match(self::LOCALE_PATTERN, $locale) === 1;
             }
         )));

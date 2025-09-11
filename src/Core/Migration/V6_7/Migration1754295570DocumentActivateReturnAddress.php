@@ -25,6 +25,7 @@ class Migration1754295570DocumentActivateReturnAddress extends MigrationStep
             if (!\array_key_exists('config', $arr) || !\is_string($arr['config'])) {
                 $arr['config'] = [];
                 $arr['config']['displayReturnAddress'] = true;
+                $arr['config'] = json_encode($arr['config']);
 
                 return $arr;
             }

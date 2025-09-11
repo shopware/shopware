@@ -25,6 +25,7 @@ class Migration1754295570DocumentActivateReturnAddressTest extends TestCase
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->connection->update('document_base_config', ['config' => '{}']);
+        $this->connection->update('document_base_config', ['config' => null], ['name' => 'cancellation_invoice']);
     }
 
     public function testMigration(): void

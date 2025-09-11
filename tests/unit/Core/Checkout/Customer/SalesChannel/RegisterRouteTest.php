@@ -966,4 +966,236 @@ class RegisterRouteTest extends TestCase
             static::assertNotEmpty($violation->getMessage());
         }
     }
+
+    public function testRegisterValidatesNameLengthConstraintsAreConfigured(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
+
+        $accountValidation = new DataValidationDefinition('customer.create');
+        $accountValidation->add('firstName', new NotBlank(), new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME));
+        $accountValidation->add('lastName', new NotBlank(), new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
+        $accountValidation->add('email', new NotBlank());
+        $accountValidation->add('salutationId', new NotBlank());
+
+        $accountValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $accountValidationFactory->method('create')->willReturn($accountValidation);
+
+        $addressValidation = new DataValidationDefinition('address.create');
+        $addressValidation->add('countryId', new NotBlank());
+
+        $addressValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $addressValidationFactory->method('create')->willReturn($addressValidation);
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturnCallback(function (array $data, DataValidationDefinition $definition) {
+                $firstNameConstraints = $definition->getProperties()['firstName'] ?? [];
+                $lastNameConstraints = $definition->getProperties()['lastName'] ?? [];
+
+                $hasFirstNameLengthConstraint = false;
+                $hasLastNameLengthConstraint = false;
+
+                foreach ($firstNameConstraints as $constraint) {
+                    if ($constraint instanceof Length && $constraint->max === CustomerDefinition::MAX_LENGTH_FIRST_NAME) {
+                        $hasFirstNameLengthConstraint = true;
+                    }
+                }
+
+                foreach ($lastNameConstraints as $constraint) {
+                    if ($constraint instanceof Length && $constraint->max === CustomerDefinition::MAX_LENGTH_LAST_NAME) {
+                        $hasLastNameLengthConstraint = true;
+                    }
+                }
+
+                static::assertTrue($hasFirstNameLengthConstraint, 'firstName should have Length constraint with max=255');
+                static::assertTrue($hasLastNameLengthConstraint, 'lastName should have Length constraint with max=255');
+
+                return new ConstraintViolationList();
+            });
+
+        $register = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $accountValidationFactory,
+            $addressValidationFactory,
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $data = [
+            'email' => 'test@example.com',
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'salutationId' => Uuid::randomHex(),
+            'billingAddress' => [
+                'firstName' => 'John',
+                'lastName' => 'Doe',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ];
+
+        $register->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testRegisterAcceptsMaximumNameLengths(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList());
+
+        $register = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $maxLengthData = [
+            'email' => 'max-length@example.com',
+            'firstName' => str_repeat('M', CustomerDefinition::MAX_LENGTH_FIRST_NAME),
+            'lastName' => str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME),
+            'salutationId' => Uuid::randomHex(),
+            'billingAddress' => [
+                'firstName' => str_repeat('M', CustomerDefinition::MAX_LENGTH_FIRST_NAME),
+                'lastName' => str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME),
+                'countryId' => Uuid::randomHex(),
+            ],
+        ];
+
+        $register->register(new RequestDataBag($maxLengthData), $salesChannelContext, false);
+    }
+
+    public function testRegisterRejectsExcessiveNameLengths(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
+
+        $violations = new ConstraintViolationList();
+        $violations->add(new ConstraintViolation(
+            'This value is too long. It should have 255 characters or less.',
+            null,
+            [],
+            'root',
+            'firstName',
+            str_repeat('T', 256)
+        ));
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturn($violations);
+
+        $register = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $tooLongData = [
+            'email' => 'too-long@example.com',
+            'firstName' => str_repeat('T', CustomerDefinition::MAX_LENGTH_FIRST_NAME + 1),
+            'lastName' => str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME + 1),
+            'salutationId' => Uuid::randomHex(),
+            'billingAddress' => [
+                'firstName' => str_repeat('T', CustomerDefinition::MAX_LENGTH_FIRST_NAME + 1),
+                'lastName' => str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME + 1),
+                'countryId' => Uuid::randomHex(),
+            ],
+        ];
+
+        static::expectException(ConstraintViolationException::class);
+        $register->register(new RequestDataBag($tooLongData), $salesChannelContext, false);
+    }
 }

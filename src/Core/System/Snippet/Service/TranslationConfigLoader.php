@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Service;
 use GuzzleHttp\Psr7\Exception\MalformedUriException;
 use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
@@ -20,7 +21,7 @@ use Symfony\Component\Yaml\Yaml;
  * @internal
  */
 #[Package('discovery')]
-class TranslationConfigLoader
+class TranslationConfigLoader extends AbstractTranslationConfigLoader
 {
     private const REPOSITORY_URL = 'repository-url';
 
@@ -29,6 +30,11 @@ class TranslationConfigLoader
     public function __construct(
         private readonly Filesystem $configReader,
     ) {
+    }
+
+    public function getDecorated(): AbstractTranslationConfigLoader
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function load(): TranslationConfig

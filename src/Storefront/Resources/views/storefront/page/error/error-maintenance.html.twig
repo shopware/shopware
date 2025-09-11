@@ -117,7 +117,7 @@
                         'xxl': theme_config('breakpoint.xxl')
                     } %}
 
-                    window.breakpoints = {{ breakpoint|json_encode()|raw }};
+                    window.breakpoints = JSON.parse('{{ breakpoint|json_encode|escape('js') }}');
                 </script>
             {% endblock %}
             {% block error_maintenance_script_reload %}

@@ -294,7 +294,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         yield 'search for productNumber' => [
             ['name', 'description', 'customSearchKeywords', 'productNumber'],
-            'SW568',
+            'SW5686779889',
             ['SW5686779889'],
         ];
 

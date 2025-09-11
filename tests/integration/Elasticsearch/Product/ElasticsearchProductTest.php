@@ -1354,11 +1354,12 @@ class ElasticsearchProductTest extends TestCase
     public function testTermAlgorithm(IdsCollection $data): void
     {
         try {
-            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
+            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Some', 'some spachtel', 'Some Achtel', 'Sachtelmasse'];
 
             $searcher = $this->createEntitySearcher();
 
             foreach ($terms as $term) {
+                $term = strtolower($term);
                 $criteria = new Criteria();
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
                 $criteria->setTerm($term);

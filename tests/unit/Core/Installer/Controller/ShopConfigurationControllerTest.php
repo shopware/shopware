@@ -18,7 +18,7 @@ use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
-use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,7 +50,7 @@ class ShopConfigurationControllerTest extends TestCase
 
     private MockObject&AdminConfigurationService $adminConfigService;
 
-    private MockObject&TranslationConfigLoader $translationConfigLoader;
+    private MockObject&AbstractTranslationConfigLoader $translationConfigLoader;
 
     private ShopConfigurationController $controller;
 
@@ -72,7 +72,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->shopConfigService = $this->createMock(ShopConfigurationService::class);
         $this->adminConfigService = $this->createMock(AdminConfigurationService::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
-        $this->translationConfigLoader = $this->createMock(TranslationConfigLoader::class);
+        $this->translationConfigLoader = $this->createMock(AbstractTranslationConfigLoader::class);
 
         $this->translationConfigLoader->method('load')->willReturn(
             new TranslationConfig(
@@ -82,6 +82,7 @@ class ShopConfigurationControllerTest extends TestCase
                 new LanguageCollection([]),
                 new PluginMappingCollection(),
                 new Uri('http://localhost:8000/metadata.json'),
+                [],
             )
         );
         $this->controller = new ShopConfigurationController(

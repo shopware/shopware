@@ -69,7 +69,7 @@ class ThemePrepareIconsCommandTest extends TestCase
 . '<use xlink:href="#icons-default-align-center" />'
 . '</svg>';
 
-        static::assertSame($expectedIcon, file_get_contents($this->testDir . 'processed/valid.svg'));
+        static::assertSame($expectedIcon, (new Filesystem())->readFile($this->testDir . 'processed/valid.svg'));
         static::assertFileDoesNotExist($this->testDir . 'processed/invalid.svg');
         static::assertFileDoesNotExist($this->testDir . 'processed/null.svg');
     }
@@ -91,7 +91,7 @@ class ThemePrepareIconsCommandTest extends TestCase
             . '<use xlink:href="#icons-default-valid" />'
             . '</svg>';
 
-        static::assertSame($expectedIcon, file_get_contents($this->testDir . 'processed/valid.svg'));
+        static::assertSame($expectedIcon, (new Filesystem())->readFile($this->testDir . 'processed/valid.svg'));
         static::assertFileDoesNotExist($this->testDir . 'processed/invalid.svg');
         static::assertFileDoesNotExist($this->testDir . 'processed/null.svg');
     }

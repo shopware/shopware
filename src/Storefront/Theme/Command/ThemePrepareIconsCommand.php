@@ -154,8 +154,7 @@ class ThemePrepareIconsCommand extends Command
                 $this->removeStyles($svg->getDocument());
             }
 
-            $fs->touch($path . 'processed/' . $file->getBasename());
-            $fs->appendToFile($path . 'processed/' . $file->getBasename(), $svg->toXMLString(false));
+            $fs->dumpFile($path . 'processed/' . $file->getBasename(), $svg->toXMLString(false));
 
             if ($verbose) {
                 $this->io->writeln('Icon ' . $file . ' processed');
@@ -182,7 +181,7 @@ class ThemePrepareIconsCommand extends Command
     }
 
     /**
-     * @return array<SVGNode>
+     * @return list<SVGNode>
      */
     private function getChildren(SVGNodeContainer $fragment): array
     {

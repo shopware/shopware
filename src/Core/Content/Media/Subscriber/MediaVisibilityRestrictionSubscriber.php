@@ -112,14 +112,19 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
 
     private function getMediaRestriction(): MultiFilter
     {
-        return new MultiFilter('OR', [
-            new EqualsFilter('private', false),
-            new MultiFilter('AND', [
-                new EqualsFilter('private', true),
-                new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
+        return new MultiFilter('AND', [
+            new MultiFilter('OR', [
+                new EqualsFilter('private', false),
+                new MultiFilter('AND', [
+                    new EqualsFilter('private', true),
+                    new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
+                ]),
             ]),
-        ]);
-    }
+            new MultiFilter('OR', [
+                new EqualsFilter('mediaFolder.configuration.private', false),
+                new EqualsFilter('mediaFolder.configuration.private', null),
+            ]),
+        ]);    }
 
     private function getMediaFolderRestriction(): MultiFilter
     {

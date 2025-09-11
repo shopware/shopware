@@ -1,5 +1,5 @@
 ---
-title: Fix missing filters for aggregated media queries
+title: Improve restrictions for private media
 author: Dominik Grothaus
 ---
 # Core
@@ -7,3 +7,5 @@ author: Dominik Grothaus
   `EntityRepository` executes an aggregation query.
 * Changed `Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber` to subscribe to the new
   `BeforeEntityAggregationEvent` and add private media restrictions to aggregation events.
+* Changed `Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber` to better restrict media files
+  in private folders. Public media files in private folders are now excluded from search results.

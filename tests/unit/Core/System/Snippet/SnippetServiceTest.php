@@ -138,6 +138,7 @@ class SnippetServiceTest extends TestCase
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['en-GB'],
         );
 
         $loader = $this->getTranslationLoader($config);

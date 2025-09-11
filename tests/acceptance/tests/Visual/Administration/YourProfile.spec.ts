@@ -1,5 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
-import {replaceElements, setViewport} from '@shopware-ag/acceptance-test-suite';
+import { test, assertScreenshot, replaceElements, setViewport } from '@fixtures/AcceptanceTest';
 
 test('Visual: Administration your profile page', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -18,7 +17,7 @@ test('Visual: Administration your profile page', { tag: '@Visual' }, async ({
             AdminYourProfile.emailField,
             ]
         );
-        await expect(AdminYourProfile.contentView).toHaveScreenshot('Your-Profile-General-Tab.png');
+        await assertScreenshot(AdminYourProfile.page, 'Your-Profile-General-Tab.png');
     });
 
     await test.step('Creates a screenshot of the search preferences tab.', async () => {
@@ -26,6 +25,6 @@ test('Visual: Administration your profile page', { tag: '@Visual' }, async ({
         await setViewport(AdminYourProfile.page, {
             waitForSelector: AdminYourProfile.deselectAllButton,
         });
-        await expect(AdminYourProfile.contentView).toHaveScreenshot('Your-Profile-Search-Preferences-Tab.png');
+        await assertScreenshot(AdminYourProfile.page, 'Your-Profile-Search-Preferences-Tab.png');
     });
 });

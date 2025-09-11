@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 use Nyholm\Psr7\Response as Psr7Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\ShopwarePasswordGrantType;
 use Shopware\Administration\Login\UserService\UserService;
@@ -15,17 +16,22 @@ use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ScopeRepository;
 use Shopware\Core\Framework\Api\OAuth\UserRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeUserInstaller;
-use Shopware\Tests\Integration\Administration\Login\Helper\ValidUserServiceCreator;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(ShopwarePasswordGrantType::class)]
 class ShopwarePasswordGrantTypeTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -126,7 +132,7 @@ class ShopwarePasswordGrantTypeTest extends TestCase
         $shopwarePasswordGrantType = new ShopwarePasswordGrantType(
             $this->getContainer()->get(UserRepository::class),
             new RefreshTokenRepository($this->getContainer()->get(Connection::class)),
-            $this->createUserService()
+            $this->getContainer()->get(UserService::class)
         );
 
         $shopwarePasswordGrantType->setClientRepository($this->getContainer()->get(ClientRepository::class));
@@ -137,10 +143,5 @@ class ShopwarePasswordGrantTypeTest extends TestCase
         $shopwarePasswordGrantType->setDefaultScope('');
 
         return $shopwarePasswordGrantType;
-    }
-
-    private function createUserService(): UserService
-    {
-        return (new ValidUserServiceCreator(static::class))->create();
     }
 }

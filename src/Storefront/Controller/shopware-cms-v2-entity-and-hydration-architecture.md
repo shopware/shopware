@@ -82,6 +82,9 @@ CREATE TABLE content_element (
     slot_name   VARCHAR(255)    NOT NULL DEFAULT '_default',  -- Slot in parent
     position    INT             NOT NULL,  -- Order within slot
     config      JSON,                      -- All properties/configuration
+    provides_context JSON,                 -- Data this element provides to children
+    accepts_context JSON,                  -- Data this element accepts from parents
+    data_source ENUM('self', 'parent', 'hybrid') DEFAULT 'self', -- How element obtains data
     lazy_load   BOOLEAN         DEFAULT FALSE,
     created_at  DATETIME        NOT NULL,
     updated_at  DATETIME,
@@ -89,6 +92,7 @@ CREATE TABLE content_element (
     INDEX idx_parent_slot (parent_id, slot_name, position),
     INDEX idx_template (template_id),
     INDEX idx_type (type),
+    INDEX idx_data_source (data_source),
     
     FOREIGN KEY (type) REFERENCES content_element_type(type_key)
 );
@@ -150,17 +154,25 @@ graph LR
     E[Element] --> T{Type Category?}
     T -->|Container| C[Pass Through<br/>No Processing]
     T -->|Static| S[Extract from Config<br/>Immediate]
-    T -->|Entity| EN[Already Loaded<br/>via Associations]
+    T -->|Entity| EN[Entity Processing]
     T -->|Service| SE[Load via Service<br/>Phase 3]
+    
+    EN --> DC{Data Context<br/>Available?}
+    DC -->|Yes<br/>Parent Provides| IH[Use Inherited Data<br/>No Query]
+    DC -->|No<br/>Self Load| AL[Already Loaded<br/>via Associations]
     
     C --> R[Response]
     S --> R
-    EN --> R
+    IH --> R
+    AL --> R
     SE --> R
     
     style C fill:#e8f5e9
     style S fill:#e1f5fe
     style EN fill:#fff3e0
+    style DC fill:#f0f0f0
+    style IH fill:#d4edda
+    style AL fill:#fff3e0
     style SE fill:#fce4ec
 ```
 
@@ -211,6 +223,10 @@ FUNCTION hydrate(templateId, context):
     elements = loadTemplateWithAssociations(templateId, context, 
                                            excludeLazy: true)
     
+    // Phase 1.5: Resolve data contexts (parent-child data flow)
+    // This is an internal optimization - not visible in API response
+    resolveDataContexts(elements)
+    
     // Phase 2: Process loaded data by component category
     FOR EACH element IN elements:
         IF element.lazy_load == true:
@@ -225,7 +241,11 @@ FUNCTION hydrate(templateId, context):
             CASE 'Static':
                 element.data = extractFromProperties(element.properties)
             CASE 'Entity':
-                element.data = already loaded via association
+                // Data either from own association or inherited from parent
+                IF element.hasInheritedData():
+                    element.data = element.inheritedData
+                ELSE:
+                    element.data = already loaded via association
             CASE 'Service':
                 deferredElements.add(element)
             CASE 'Container':
@@ -239,15 +259,161 @@ FUNCTION hydrate(templateId, context):
     RETURN elements
 ```
 
-#### Decision: Three-Phase Hydration
+#### Data Context Resolution (Phase 1.5)
 
-**Context**: Different element types have different loading requirements  
-**Decision**: Implement phased hydration (entity → static → service)  
+```
+FUNCTION resolveDataContexts(elements):
+    contextStack = new DataContextStack()
+    traverseAndDistribute(elements, contextStack)
+
+FUNCTION traverseAndDistribute(elements, contextStack):
+    FOR EACH element IN elements:
+        // Provider: Push data to context stack
+        IF element.providesContext:
+            providedData = extractProvidedData(element)
+            strategy = element.providesContext.distribution  // indexed|keyed|broadcast
+            contextStack.push(element.type, providedData, strategy)
+        
+        // Consumer: Pull data from context stack
+        IF element.acceptsContext AND element.dataSource != 'self':
+            acceptedData = contextStack.match(element.acceptsContext)
+            IF acceptedData != null:
+                element.inheritedData = acceptedData
+                element.skipOwnLoading = true
+        
+        // Recurse into slots with context
+        FOR EACH slot IN element.slots:
+            slotContext = contextStack.forSlot(slot.name)
+            traverseAndDistribute(slot.elements, slotContext)
+        
+        // Clean up context on exit
+        IF element.providesContext:
+            contextStack.pop()
+```
+
+**Resolution Rules**:
+1. Nearest parent priority
+2. Type matching required
+3. Optional inheritance (fallback to self)
+4. Association preservation
+
+#### Decision: Three-Phase Hydration with Data Context
+
+**Context**: Different element types have different loading requirements, and parent elements often load data that children also need  
+**Decision**: Implement phased hydration (entity → data context → static → service)  
 **Consequences**:
 - ✅ Optimized queries per type
 - ✅ Clear separation of concerns
 - ✅ Extensible via events
+- ✅ Eliminates N+1 query problems through data inheritance
+- ✅ Maintains clean API without exposing internal optimizations
 - ⚠️ More complex implementation
+
+### Data Context System
+
+Internal optimization enabling parent elements to share data with children, eliminating N+1 queries. Transparent to API consumers.
+
+#### Data Source Modes
+
+| Mode | Behavior | Use Case |
+|------|----------|----------|
+| `self` | Always loads own data | Standalone elements |
+| `parent` | Only uses parent data | Lightweight children |
+| `hybrid` | Parent data if available, else own | Flexible components |
+
+#### Distribution Strategies
+
+**Indexed**: Distributes array items by position
+```php
+foreach ($children as $index => $child) {
+    if (isset($products[$index])) {
+        $child->setData($products[$index]);
+    }
+}
+```
+
+**Keyed**: Distributes by explicit keys
+```php
+foreach ($children as $child) {
+    $key = $child->config['dataKey'];
+    if ($key && isset($data[$key])) {
+        $child->setData($data[$key]);
+    }
+}
+```
+
+**Broadcast**: Shares same data with all accepting children
+```php
+foreach ($children as $child) {
+    if ($child->acceptsContext()) {
+        $child->setData($sharedData);
+    }
+}
+```
+
+#### Context Configuration
+
+```json
+// Provider (product-listing)
+{
+  "provides_context": {
+    "products": {
+      "type": "array",
+      "entity": "product",
+      "distribution": "indexed"
+    }
+  }
+}
+
+// Consumer (product-box)
+{
+  "accepts_context": {
+    "product": {
+      "type": "single",
+      "entity": "product"
+    }
+  },
+  "data_source": "hybrid"
+}
+```
+
+#### Example: Product Grid with Data Distribution
+
+```php
+$productGrid = [
+    'type' => 'product-grid',
+    'provides_context' => [
+        'products' => ['type' => 'array', 'distribution' => 'indexed']
+    ],
+    'slots' => [
+        '_default' => [
+            // Each child receives data without querying
+            ['type' => 'product-box', 'accepts_context' => ['product' => 'single']],
+            ['type' => 'product-box', 'accepts_context' => ['product' => 'single']],
+            ['type' => 'product-box', 'accepts_context' => ['product' => 'single']]
+        ]
+    ]
+];
+```
+
+#### Example: Hybrid Product Box
+
+```php
+// Standalone: loads own data
+$standalone = [
+    'type' => 'product-box',
+    'data_source' => 'self',
+    'product_id' => 'abc123'
+];
+
+// In grid: accepts parent data, fallback to own
+$hybrid = [
+    'type' => 'product-box',
+    'data_source' => 'hybrid',
+    'accepts_context' => ['product' => 'single'],
+    'product_id' => 'abc123'  // Fallback if no parent data
+];
+```
 
 ### API Response Structure
 

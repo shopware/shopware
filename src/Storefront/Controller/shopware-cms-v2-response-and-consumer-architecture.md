@@ -25,8 +25,8 @@ The content system architecture maintains strict separation between data and pre
 interface Element {
     id: string;
     type: string;                // Immutable type identifier
-    properties?: object;          // All configuration (merged data + style)
-    data?: object | null;         // Runtime/hydrated data
+    properties?: object;         // All configuration
+    data?: object | null;        // Runtime/hydrated data
     lazyLoad?: boolean;          // Deferred loading flag
     slots?: {                    // All content areas
         [key: string]: Element[];
@@ -38,9 +38,9 @@ interface Element {
 
 ```typescript
 interface ContentResponse {
-    storeTemplate?: Template;     // Optional store frame
-    pageTemplate: Template;       // Required page content
-    context: ContextInfo;         // Request context
+    storeTemplate?: Template;    // Optional store frame
+    pageTemplate: Template;      // Required page content
+    context: ContextInfo;        // Request context
     seo: SeoMetadata;            // SEO information
     apiVersion: string;
     timestamp: string;
@@ -52,8 +52,8 @@ interface Template {
     version: string;             // Template version (semantic)
     name: string;
     properties?: object;         // Template-level configuration
-    data?: object;              // Template-level runtime data
-    slots: {                    // Root content slots
+    data?: object;               // Template-level runtime data
+    slots: {                     // Root content slots
         [key: string]: Element[];
     };
 }

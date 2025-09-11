@@ -8,7 +8,9 @@ use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -44,6 +46,9 @@ class ProductSearchRouteTest extends TestCase
 
     private string $productSearchConfigId;
 
+    /**
+     * @var EntityRepository<ProductSearchConfigCollection>
+     */
     private EntityRepository $productSearchConfigRepository;
 
     private SearchKeywordUpdater $searchKeywordUpdater;
@@ -93,7 +98,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
         static::assertIsString($browser->getResponse()->getContent());
-        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(15, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -664,7 +669,7 @@ class ProductSearchRouteTest extends TestCase
 
     private function setupProductsForImplementSearch(IdsCollection $ids): void
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productIds = [];
         $productsNames = [

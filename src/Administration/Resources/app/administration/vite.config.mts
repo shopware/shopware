@@ -82,6 +82,7 @@ export default defineConfig(({ command }) => {
                 },
                 ...viteExtensionServerMapping.proxy,
             },
+            allowedHosts: true,
         },
 
         // IIFE to return different plugins for dev and  prod

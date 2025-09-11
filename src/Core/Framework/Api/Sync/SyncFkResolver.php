@@ -43,8 +43,8 @@ class SyncFkResolver
             return $payload;
         }
 
-        foreach ($map as $key => &$values) {
-            $values = $this->getResolver($key)->resolve($values);
+        foreach ($map as $fkKey => &$values) {
+            $values = $this->getResolver($fkKey)->resolve($values);
         }
 
         $exceptions = [];

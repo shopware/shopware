@@ -103,8 +103,8 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
 
-        $id1 = Uuid::randomHex();
-        $id2 = Uuid::randomHex();
+        $id1 = Uuid::randomBytes();
+        $id2 = Uuid::randomBytes();
         $expectedIds = [$id1, $id2];
 
         $this->connection->expects($this->once())
@@ -134,7 +134,7 @@ class SeoUrlPersisterTest extends TestCase
             ->method('executeStatement')
             ->with(
                 'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($expectedIds)],
+                ['ids' => $expectedIds],
                 ['ids' => ArrayParameterType::BINARY]
             );
 

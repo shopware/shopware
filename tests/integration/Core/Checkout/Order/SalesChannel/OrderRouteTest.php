@@ -404,12 +404,11 @@ class OrderRouteTest extends TestCase
         }
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -444,12 +443,11 @@ class OrderRouteTest extends TestCase
     public function testSetSamePaymentMethodToOrder(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);

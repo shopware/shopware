@@ -10,13 +10,14 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1657173907DownloadMailTemplate extends MigrationStep
 {
     use UpdateMailTrait;
@@ -45,12 +46,14 @@ class Migration1657173907DownloadMailTemplate extends MigrationStep
 
     private function updateMailTemplateContent(Connection $connection): void
     {
+        $filesystem = new Filesystem();
+
         $update = new MailUpdate(
             MailTemplateTypes::MAILTYPE_DOWNLOADS_DELIVERY,
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/downloads_delivery/en-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/downloads_delivery/en-html.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/downloads_delivery/de-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/downloads_delivery/de-html.html.twig')
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/downloads_delivery/en-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/downloads_delivery/en-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/downloads_delivery/de-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/downloads_delivery/de-html.html.twig')
         );
 
         $this->updateMail($update, $connection);
@@ -58,32 +61,34 @@ class Migration1657173907DownloadMailTemplate extends MigrationStep
 
     private function updateExistingMailTemplateContent(Connection $connection): void
     {
+        $filesystem = new Filesystem();
+
         $update = new MailUpdate(
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM,
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_confirmation_mail/en-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_confirmation_mail/en-html.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_confirmation_mail/de-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_confirmation_mail/de-html.html.twig')
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_confirmation_mail/en-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_confirmation_mail/en-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_confirmation_mail/de-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_confirmation_mail/de-html.html.twig')
         );
 
         $this->updateMail($update, $connection);
 
         $update = new MailUpdate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID,
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.paid/en-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.paid/en-html.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.paid/de-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.paid/de-html.html.twig')
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.paid/en-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.paid/en-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.paid/de-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.paid/de-html.html.twig')
         );
 
         $this->updateMail($update, $connection);
 
         $update = new MailUpdate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED,
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.cancelled/en-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.cancelled/en-html.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.cancelled/de-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.cancelled/de-html.html.twig')
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.cancelled/en-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.cancelled/en-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.cancelled/de-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.cancelled/de-html.html.twig')
         );
 
         $this->updateMail($update, $connection);

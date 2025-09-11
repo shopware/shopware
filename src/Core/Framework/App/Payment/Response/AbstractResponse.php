@@ -38,18 +38,4 @@ abstract class AbstractResponse extends Struct
 
         return $response;
     }
-
-    /**
-     * @param array<string, mixed> $options
-     */
-    public function assign(array $options): static
-    {
-        foreach ($options as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
-
-        return $this;
-    }
 }

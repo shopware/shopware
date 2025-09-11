@@ -341,6 +341,20 @@
                             "default": 300
                         }
                     }
+                },
+                "scheduled_task": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "requeue_timeout": {
+                            "type": "integer",
+                            "title": "The timeout in hours after which a scheduled task is considered to be stuck and will be re-queued",
+                            "default": 12
+                        }
+                    }
                 }
             }
         },

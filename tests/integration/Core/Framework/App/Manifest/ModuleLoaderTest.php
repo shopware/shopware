@@ -101,7 +101,7 @@ class ModuleLoaderTest extends TestCase
         ], $loadedModules);
     }
 
-    public function testLoadModulesReturnsNothingIfAppUrlChangeWasDetected(): void
+    public function testLoadModulesReturnsNothingIfShopIdFingerprintsHaveChanged(): void
     {
         $this->registerAppsWithModules();
 

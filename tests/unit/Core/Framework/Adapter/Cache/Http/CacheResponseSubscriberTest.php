@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -220,10 +219,12 @@ class CacheResponseSubscriberTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $salesChannelContext->expects($this->once())
-            ->method('getRuleIdsByAreas')
-            ->with([RuleAreas::PRODUCT_AREA])
-            ->willReturn([Uuid::randomHex()]);
+        if ($customer !== null) {
+            $salesChannelContext->expects($this->once())
+                ->method('getRuleIdsByAreas')
+                ->with([RuleAreas::PRODUCT_AREA])
+                ->willReturn(['matched-rule']);
+        }
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);

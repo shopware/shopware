@@ -39,11 +39,21 @@ class VariantStruct extends StoreStruct
 
     protected float $netPricePerMonth;
 
-    protected bool $trialPhaseIncluded = false;
+    /**
+     * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     */
+    protected $trialPhaseIncluded = false;
 
     protected int $duration;
 
-    protected ?DiscountCampaignStruct $discountCampaign = null;
+    /**
+     * @var DiscountCampaignStruct|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     */
+    protected $discountCampaign;
 
     /**
      * @return VariantStruct

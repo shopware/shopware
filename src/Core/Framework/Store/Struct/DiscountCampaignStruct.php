@@ -47,7 +47,12 @@ class DiscountCampaignStruct extends StoreStruct
 
     protected float $discountedPricePerMonth;
 
-    protected ?int $discountAppliesForMonths = null;
+    /**
+     * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     */
+    protected $discountAppliesForMonths;
 
     /**
      * @return DiscountCampaignStruct

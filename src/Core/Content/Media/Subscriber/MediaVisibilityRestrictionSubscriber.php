@@ -124,7 +124,8 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
                 new EqualsFilter('mediaFolder.configuration.private', false),
                 new EqualsFilter('mediaFolder.configuration.private', null),
             ]),
-        ]);    }
+        ]);
+    }
 
     private function getMediaFolderRestriction(): MultiFilter
     {

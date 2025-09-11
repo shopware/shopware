@@ -5,10 +5,12 @@ namespace Shopware\Administration\Snippet;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPath;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPathCollection;
+use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
@@ -102,9 +104,9 @@ class SnippetFinder implements SnippetFinderInterface
 
     private function addInstalledPlatformPaths(SnippetPathCollection $paths, string $locale): void
     {
-        $path = Path::join($this->translationLoader->getLocalePath($locale), 'Platform');
+        $path = $this->getValidatedLocalePath($locale);
 
-        if (!$this->translationReader->directoryExists($path)) {
+        if ($path === null) {
             return;
         }
 
@@ -116,11 +118,9 @@ class SnippetFinder implements SnippetFinderInterface
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
 
         foreach ($activePlugins as $plugin) {
-            $name = $this->translationConfig->getMappedPluginName($plugin);
-            $path = Path::join($this->translationLoader->getLocalePath($locale), 'Plugins', $name);
+            $path = $this->getValidatedLocalePath($locale, $plugin);
 
-            // add the path of the installed plugin translation if it exists
-            if ($this->translationReader->directoryExists($path)) {
+            if ($path !== null) {
                 $paths->add(new SnippetPath($path));
 
                 continue;
@@ -138,6 +138,32 @@ class SnippetFinder implements SnippetFinderInterface
                 $paths->add(new SnippetPath($meteorPluginPath, true));
             }
         }
+    }
+
+    private function getValidatedLocalePath(string $locale, ?Plugin $plugin = null): ?string
+    {
+        if (\in_array($locale, $this->translationConfig->excludedLocales, true)) {
+            return null;
+        }
+
+        $path = $this->buildLocalePath($locale, $plugin);
+
+        if (!$this->translationReader->directoryExists($path)) {
+            return null;
+        }
+
+        return $path;
+    }
+
+    private function buildLocalePath(string $locale, ?Plugin $plugin = null): string
+    {
+        if ($plugin === null) {
+            return Path::join($this->translationLoader->getLocalePath($locale), SnippetFileLoader::SCOPE_PLATFORM);
+        }
+
+        $name = $this->translationConfig->getMappedPluginName($plugin);
+
+        return Path::join($this->translationLoader->getLocalePath($locale), SnippetFileLoader::SCOPE_PLUGINS, $name);
     }
 
     private function addMeteorBundlePaths(SnippetPathCollection $paths): void

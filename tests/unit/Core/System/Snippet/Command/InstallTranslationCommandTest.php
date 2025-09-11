@@ -43,6 +43,7 @@ class InstallTranslationCommandTest extends TestCase
             new LanguageCollection(),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
     }
 

@@ -16,7 +16,6 @@ use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
-use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -28,7 +27,6 @@ use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -42,6 +40,13 @@ class SeoUrlPersisterTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use StorefrontSalesChannelTestHelper;
+
+    private const LANGUAGE_IDS = [
+        'en' => '1a2b3c4d5e6f708090a1b2c3d4e5f607',
+        'de' => '2b3c4d5e6f708090a1b2c3d4e5f60708',
+    ];
+
+    private IdsCollection $ids;
 
     /**
      * @var EntityRepository<SeoUrlCollection>
@@ -487,33 +492,28 @@ class SeoUrlPersisterTest extends TestCase
         }
     }
 
-    // probably we should add asserts etc to this test case,
-    // right now its just checking that its not crashing in the multilingual case.
     public function testMultilingualIsolationCase(): void
     {
         /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
-        /** @var EntityRepository<LanguageCollection> $languageRepository */
-        $languageRepository = static::getContainer()->get('language.repository');
-
-        $languageCriteria = (new Criteria())->setLimit(2);
-        $languageIds = $languageRepository->searchIds($languageCriteria, Context::createDefaultContext())->getIds();
-
-        if (\count($languageIds) !== 2) {
-            static::markTestSkipped('At least two languages are required');
-        }
-
-        static::assertContainsOnlyString($languageIds);
-
-        $product = (new ProductBuilder(new IdsCollection(), 'test'))
-            ->name('test a')
-            ->price(69)
-            ->build();
+        /** @var EntityRepository<SeoUrlCollection> $seoUrlRepository */
+        $seoUrlRepository = static::getContainer()->get('seo_url.repository');
 
         $context = Context::createDefaultContext();
+        $this->ids = new IdsCollection();
+
+        $this->createLanguages($context);
+        $languageIds = [self::LANGUAGE_IDS['en'], self::LANGUAGE_IDS['de']];
+
+        $product = (new ProductBuilder($this->ids, 'test'))
+            ->name('test a')
+            ->price(69)
+            ->visibility($this->salesChannel->getId())
+            ->build();
         $productRepository->create([$product], $context);
 
         $seoUrlTemplate = '{{ product.translated.name }}/{{ product.productNumber }}';
+
         foreach ($languageIds as $languageId) {
             $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]);
             $languageContext->setConsiderInheritance(true);
@@ -523,13 +523,30 @@ class SeoUrlPersisterTest extends TestCase
                 'name' => 'test a',
             ]], $languageContext);
 
+            // Generate SEO URLs with correct context and sales channel
+            $seoUrls = $this->seoUrlGenerator->generate(
+                [$product['id']],
+                $seoUrlTemplate,
+                static::getContainer()->get(ProductPageSeoUrlRoute::class),
+                $languageContext,
+                $this->salesChannel
+            );
+
             $this->seoUrlPersister->updateSeoUrls(
                 $languageContext,
                 ProductPageSeoUrlRoute::ROUTE_NAME,
                 [$product['id']],
-                $this->generateProductSeoUrls($product['id'], $seoUrlTemplate, $languageId),
+                $seoUrls,
                 $this->salesChannel
             );
+        }
+
+        $seoUrlsAfterFirstLoop = $this->getAllSeoUrlsForProduct($product['id'], $seoUrlRepository);
+        static::assertCount(\count($languageIds), $seoUrlsAfterFirstLoop, 'SEO URL should be created for each language');
+
+        foreach ($seoUrlsAfterFirstLoop as $seoUrl) {
+            static::assertStringContainsString('test-a', $seoUrl['seoPathInfo'], 'SEO URL should contain "test-a" from first loop');
+            static::assertTrue($seoUrl['isCanonical'], 'SEO URLs should be canonical after first loop');
         }
 
         foreach ($languageIds as $languageId) {
@@ -541,14 +558,302 @@ class SeoUrlPersisterTest extends TestCase
                 'name' => 'test b',
             ]], $languageContext);
 
+            // Generate SEO URLs with correct context and sales channel
+            $seoUrls = $this->seoUrlGenerator->generate(
+                [$product['id']],
+                $seoUrlTemplate,
+                static::getContainer()->get(ProductPageSeoUrlRoute::class),
+                $languageContext,
+                $this->salesChannel
+            );
+
             $this->seoUrlPersister->updateSeoUrls(
                 $languageContext,
                 ProductPageSeoUrlRoute::ROUTE_NAME,
                 [$product['id']],
-                $this->generateProductSeoUrls($product['id'], $seoUrlTemplate, $languageId),
+                $seoUrls,
                 $this->salesChannel
             );
         }
+
+        $currentCanonicalUrls = $this->getCurrentCanonicalSeoUrls($product['id'], $seoUrlRepository);
+        static::assertCount(\count($languageIds), $currentCanonicalUrls, 'New canonical SEO URLs should be created for each language');
+
+        foreach ($currentCanonicalUrls as $seoUrl) {
+            static::assertStringContainsString('test-b', $seoUrl['seoPathInfo'], 'New SEO URL should contain "test-b" from second loop');
+            static::assertTrue($seoUrl['isCanonical'], 'New SEO URLs should be canonical');
+        }
+
+        $obsoleteUrls = $this->getObsoleteSeoUrls($product['id'], $seoUrlRepository);
+        static::assertGreaterThanOrEqual(\count($languageIds), \count($obsoleteUrls), 'Old "test a" URLs should be marked as obsolete');
+
+        foreach ($obsoleteUrls as $obsoleteUrl) {
+            static::assertStringContainsString('test-a', $obsoleteUrl['seoPathInfo'], 'Obsolete URLs should be the old "test-a" ones');
+            static::assertNull($obsoleteUrl['isCanonical'], 'Obsolete URLs should not be canonical');
+        }
+
+        $languageRepository = static::getContainer()->get('language.repository');
+        $languageRepository->delete([
+            ['id' => self::LANGUAGE_IDS['en']],
+            ['id' => self::LANGUAGE_IDS['de']],
+        ], $context);
+    }
+
+    public function testSeoUrlConflictResolution(): void
+    {
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+        /** @var EntityRepository<SeoUrlCollection> $seoUrlRepository */
+        $seoUrlRepository = static::getContainer()->get('seo_url.repository');
+
+        $context = Context::createDefaultContext();
+        $this->ids = new IdsCollection();
+
+        $this->createLanguages($context);
+        $languageId = self::LANGUAGE_IDS['en'];
+
+        $product1 = (new ProductBuilder($this->ids, 'product1'))
+            ->name('Awesome Product')
+            ->price(99)
+            ->visibility($this->salesChannel->getId())
+            ->build();
+
+        $product2 = (new ProductBuilder($this->ids, 'product2'))
+            ->name('Different Product')
+            ->price(49)
+            ->visibility($this->salesChannel->getId())
+            ->build();
+
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]);
+        $languageContext->setConsiderInheritance(true);
+
+        $productRepository->create([$product1, $product2], $context);
+
+        $productRepository->update([[
+            'id' => $product1['id'],
+            'name' => 'Awesome Product',
+        ]], $languageContext);
+
+        $productRepository->update([[
+            'id' => $product2['id'],
+            'name' => 'Different Product',
+        ]], $languageContext);
+
+        $seoUrlTemplate = '{{ product.translated.name }}/test';
+
+        $seoUrls = $this->seoUrlGenerator->generate(
+            [$product1['id']],
+            $seoUrlTemplate,
+            static::getContainer()->get(ProductPageSeoUrlRoute::class),
+            $languageContext,
+            $this->salesChannel
+        );
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $languageContext,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$product1['id']],
+            $seoUrls,
+            $this->salesChannel
+        );
+
+        $productRepository->update([[
+            'id' => $product1['id'],
+            'name' => 'Awesome Product Updated', // Creates new canonical, old becomes obsolete
+        ]], $languageContext);
+
+        $updatedSeoUrls = $this->seoUrlGenerator->generate(
+            [$product1['id']],
+            $seoUrlTemplate,
+            static::getContainer()->get(ProductPageSeoUrlRoute::class),
+            $languageContext,
+            $this->salesChannel
+        );
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $languageContext,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$product1['id']],
+            $updatedSeoUrls,
+            $this->salesChannel
+        );
+
+        $product1SeoUrls = $this->getAllSeoUrlsForProduct($product1['id'], $seoUrlRepository);
+        static::assertCount(2, $product1SeoUrls, 'Product 1 should have 2 SEO URLs (canonical + obsolete)');
+
+        $product1CanonicalUrl = null;
+        $product1ObsoleteUrl = null;
+        foreach ($product1SeoUrls as $seoUrl) {
+            if ($seoUrl['isCanonical']) {
+                $product1CanonicalUrl = $seoUrl;
+            } else {
+                $product1ObsoleteUrl = $seoUrl;
+            }
+        }
+
+        static::assertNotNull($product1CanonicalUrl, 'Product 1 should have a canonical URL');
+        static::assertNotNull($product1ObsoleteUrl, 'Product 1 should have an obsolete URL');
+        static::assertStringContainsString('Awesome-Product-Updated', $product1CanonicalUrl['seoPathInfo']);
+        static::assertStringContainsString('Awesome-Product', $product1ObsoleteUrl['seoPathInfo']);
+
+        $productRepository->update([[
+            'id' => $product2['id'],
+            'name' => 'Awesome Product Updated', // Same name = same SEO path
+        ]], $languageContext);
+
+        $product2SeoUrls = $this->seoUrlGenerator->generate(
+            [$product2['id']],
+            $seoUrlTemplate,
+            static::getContainer()->get(ProductPageSeoUrlRoute::class),
+            $languageContext,
+            $this->salesChannel
+        );
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $languageContext,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$product2['id']],
+            $product2SeoUrls,
+            $this->salesChannel
+        );
+
+        $product1SeoUrlsAfterConflict = $this->getAllSeoUrlsForProduct($product1['id'], $seoUrlRepository);
+        $product2SeoUrlsAfterConflict = $this->getAllSeoUrlsForProduct($product2['id'], $seoUrlRepository);
+
+        $product1NewCanonical = null;
+        $product1ObsoleteUrls = [];
+        foreach ($product1SeoUrlsAfterConflict as $seoUrl) {
+            if ($seoUrl['isCanonical']) {
+                $product1NewCanonical = $seoUrl;
+            } else {
+                $product1ObsoleteUrls[] = $seoUrl;
+            }
+        }
+
+        static::assertNotNull($product1NewCanonical, 'Product 1 should have a canonical URL');
+        static::assertStringContainsString('Awesome-Product', $product1NewCanonical['seoPathInfo']);
+        static::assertEmpty($product1ObsoleteUrls);
+
+        $product2Canonical = null;
+        foreach ($product2SeoUrlsAfterConflict as $seoUrl) {
+            if ($seoUrl['isCanonical']) {
+                $product2Canonical = $seoUrl;
+            }
+        }
+
+        static::assertNotNull($product2Canonical, 'Product 2 should have a canonical URL');
+        static::assertStringContainsString(
+            'Awesome-Product-Updated',
+            $product2Canonical['seoPathInfo'],
+            'Product 2 should have taken over the conflicting path'
+        );
+
+        $languageRepository = static::getContainer()->get('language.repository');
+        $languageRepository->delete([
+            ['id' => self::LANGUAGE_IDS['en']],
+            ['id' => self::LANGUAGE_IDS['de']],
+        ], $context);
+    }
+
+    private function createLanguages(Context $context): void
+    {
+        $languages = [[
+            'id' => self::LANGUAGE_IDS['en'],
+            'name' => 'TestEnglish',
+            'locale' => [
+                'id' => $this->ids->create('locale-en'),
+                'name' => 'TestEnglish',
+                'territory' => 'TestEngland',
+                'code' => 'en-GB-test',
+            ],
+            'active' => true,
+            'translationCodeId' => $this->ids->get('locale-en'),
+        ], [
+            'id' => self::LANGUAGE_IDS['de'],
+            'name' => 'TestGerman',
+            'locale' => [
+                'id' => $this->ids->create('locale-de'),
+                'name' => 'TestGerman',
+                'territory' => 'TestGermany',
+                'code' => 'de-DE-test',
+            ],
+            'active' => true,
+            'translationCodeId' => $this->ids->get('locale-de'),
+        ]];
+
+        $this->getContainer()->get('language.repository')->create($languages, $context);
+    }
+
+    /**
+     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
+     *
+     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     */
+    private function getAllSeoUrlsForProduct(string $productId, EntityRepository $seoUrlRepository): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $productId));
+        $criteria->addFilter(new EqualsFilter('routeName', ProductPageSeoUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsAnyFilter('languageId', self::LANGUAGE_IDS));
+
+        $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+
+        return $seoUrls->map(fn (SeoUrlEntity $url) => [
+            'seoPathInfo' => $url->getSeoPathInfo(),
+            'isCanonical' => $url->getIsCanonical(),
+            'isDeleted' => $url->getIsDeleted(),
+            'languageId' => $url->getLanguageId(),
+        ]);
+    }
+
+    /**
+     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
+     *
+     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     */
+    private function getCurrentCanonicalSeoUrls(string $productId, EntityRepository $seoUrlRepository): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $productId));
+        $criteria->addFilter(new EqualsFilter('routeName', ProductPageSeoUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsFilter('isCanonical', true));
+        $criteria->addFilter(new EqualsFilter('isDeleted', false));
+        $criteria->addFilter(new EqualsAnyFilter('languageId', self::LANGUAGE_IDS));
+
+        $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+
+        return $seoUrls->map(fn (SeoUrlEntity $url) => [
+            'seoPathInfo' => $url->getSeoPathInfo(),
+            'isCanonical' => $url->getIsCanonical(),
+            'isDeleted' => $url->getIsDeleted(),
+            'languageId' => $url->getLanguageId(),
+        ]);
+    }
+
+    /**
+     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
+     *
+     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     */
+    private function getObsoleteSeoUrls(string $productId, EntityRepository $seoUrlRepository): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $productId));
+        $criteria->addFilter(new EqualsFilter('routeName', ProductPageSeoUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsFilter('isCanonical', null));
+        $criteria->addFilter(new EqualsAnyFilter('languageId', self::LANGUAGE_IDS));
+
+        $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+
+        return $seoUrls->map(fn (SeoUrlEntity $url) => [
+            'seoPathInfo' => $url->getSeoPathInfo(),
+            'isCanonical' => $url->getIsCanonical(),
+            'isDeleted' => $url->getIsDeleted(),
+            'languageId' => $url->getLanguageId(),
+        ]);
     }
 
     private function createCategory(bool $active): CategoryEntity
@@ -626,29 +931,6 @@ class SeoUrlPersisterTest extends TestCase
             'mytemplate',
             $navigation,
             Context::createDefaultContext(),
-            $salesChannel
-        );
-    }
-
-    /**
-     * @return iterable<SeoUrlEntity>
-     */
-    private function generateProductSeoUrls(string $productId, string $template = 'mytemplate', ?string $languageId = null): iterable
-    {
-        $languageId = $languageId ?? $this->getDeDeLanguageId();
-        $salesChannel = $this->findRandomSalesChannel();
-
-        $navigation = static::getContainer()->get(TestProductSeoUrlRoute::class);
-        static::assertInstanceOf(SeoUrlRouteInterface::class, $navigation);
-
-        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]);
-        $languageContext->setConsiderInheritance(true);
-
-        return $this->seoUrlGenerator->generate(
-            [$productId],
-            $template,
-            $navigation,
-            $languageContext,
             $salesChannel
         );
     }

@@ -42,7 +42,7 @@ class Manifest
         private string $path,
         private readonly bool $validatesPermissions,
         /**
-         * @var array<string, bool> list of requirements
+         * @var array<string, true> list of requirements
          */
         private readonly array $requirements,
         private readonly Metadata $metadata,
@@ -114,7 +114,10 @@ class Manifest
     }
 
     /**
-     * @return array<string, bool> list of requirements
+     * Keys are the requirement names, values are always true, presence of a key indicates the requirement is needed
+     *
+     * @return array<string, true> list of requirements.
+     *
      */
     public function getRequirements(): array
     {
@@ -340,7 +343,7 @@ class Manifest
     }
 
     /**
-     * @return array<string, bool> list of requirements
+     * @return array<string, true> list of requirements
      */
     private static function buildRequirements(\DOMDocument $doc): array
     {

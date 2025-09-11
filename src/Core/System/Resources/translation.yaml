@@ -20,10 +20,6 @@ plugin-mapping:
     name: 'PluginPublisher'
 
 languages:
-  - name: 'Deutsch'
-    locale: 'de-DE'
-  - name: 'English'
-    locale: 'en-GB'
   - name: 'Bosanski'
     locale: 'bs-BA'
   - name: 'български език'

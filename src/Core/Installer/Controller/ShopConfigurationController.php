@@ -27,8 +27,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[Package('framework')]
 class ShopConfigurationController extends InstallerController
 {
-    private const DEFAULT_LANGUAGES = ['en-GB', 'de-DE'];
-
     /**
      * @param SupportedLanguages $supportedLanguages
      * @param list<string> $supportedCurrencies
@@ -86,13 +84,6 @@ class ShopConfigurationController extends InstallerController
 
                 return isset($availableLanguages[$iso]['id']) ? $availableLanguages[$iso]['id'] : null;
             }, $selectedLanguages);
-
-            // Filter out null values and default languages
-            $selectedLanguages = array_filter($selectedLanguages, function ($locale) {
-                return $locale !== null && !\in_array($locale, self::DEFAULT_LANGUAGES, true);
-            });
-
-            $selectedLanguages = array_unique($selectedLanguages);
 
             $schema = 'http';
             // This is for supporting Apache 2.2
@@ -201,9 +192,20 @@ class ShopConfigurationController extends InstallerController
      */
     private function getAllAvailableLanguages(): array
     {
+        // Always include default languages for the UI
+        $languages = [
+            'de-DE' => [
+                'id' => 'de-DE',
+                'label' => 'Deutsch',
+            ],
+            'en-GB' => [
+                'id' => 'en-GB',
+                'label' => 'English',
+            ],
+        ];
+
         try {
             $config = $this->translationConfigLoader->load();
-            $languages = [];
 
             foreach ($config->languages as $language) {
                 $languages[$language->locale] = [

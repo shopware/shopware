@@ -28,7 +28,7 @@ class ValidUserServiceCreator extends TestCase
 
     public function create(): UserService
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = self::getContainer()->get(Connection::class);
 
         $publicKeyLoader = new PublicKeyLoader(
             $this->createClient(),
@@ -52,7 +52,7 @@ class ValidUserServiceCreator extends TestCase
         $validatorProperty->setAccessible(true);
         $validatorProperty->setValue($idTokenParser, $validator);
 
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = self::getContainer()->get('user.repository');
 
         return new UserService($connection, $idTokenParser, $userRepository, $this->createExternalTokenService());
     }

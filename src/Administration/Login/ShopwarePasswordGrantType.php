@@ -19,7 +19,7 @@ class ShopwarePasswordGrantType extends PasswordGrant
     public function __construct(
         UserRepositoryInterface $userRepository,
         RefreshTokenRepositoryInterface $refreshTokenRepository,
-        private readonly UserService $userTokenService,
+        private readonly UserService $userService,
     ) {
         parent::__construct($userRepository, $refreshTokenRepository);
     }
@@ -32,7 +32,7 @@ class ShopwarePasswordGrantType extends PasswordGrant
         $client = $this->validateClient($request);
         $user = $this->validateUser($request, $client);
 
-        $this->userTokenService->removeExternalToken($user->getIdentifier());
+        $this->userService->removeExternalToken($user->getIdentifier());
 
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
     }

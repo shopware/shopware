@@ -609,7 +609,7 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeBillingAddress ?? $this->defaultBillingAddress;
     }
 
-    public function setActiveBillingAddress(CustomerAddressEntity $activeBillingAddress): void
+    public function setActiveBillingAddress(?CustomerAddressEntity $activeBillingAddress): void
     {
         $this->activeBillingAddress = $activeBillingAddress;
     }
@@ -619,7 +619,7 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeShippingAddress ?? $this->defaultShippingAddress;
     }
 
-    public function setActiveShippingAddress(CustomerAddressEntity $activeShippingAddress): void
+    public function setActiveShippingAddress(?CustomerAddressEntity $activeShippingAddress): void
     {
         $this->activeShippingAddress = $activeShippingAddress;
     }

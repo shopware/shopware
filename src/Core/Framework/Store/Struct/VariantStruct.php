@@ -13,6 +13,8 @@ class VariantStruct extends StoreStruct
     final public const TYPE_RENT = 'rent';
     final public const TYPE_BUY = 'buy';
     final public const TYPE_FREE = 'free';
+    final public const RENT_DURATION_MONTHLY = 1;
+    final public const RENT_DURATION_YEARLY = 12;
 
     /**
      * @var int
@@ -35,26 +37,26 @@ class VariantStruct extends StoreStruct
      */
     protected $netPrice;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $trialPhaseIncluded = false;
+    protected float $netPricePerMonth;
 
-    /**
-     * @var DiscountCampaignStruct|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $discountCampaign;
+    protected bool $trialPhaseIncluded = false;
+
+    protected int $duration;
+
+    protected ?DiscountCampaignStruct $discountCampaign = null;
 
     /**
      * @return VariantStruct
      */
     public static function fromArray(array $data): StoreStruct
     {
-        return (new self())->assign($data);
+        $variant = (new self())->assign($data);
+
+        if (isset($data['discountCampaign']) && \is_array($data['discountCampaign'])) {
+            $variant->setDiscountCampaign(DiscountCampaignStruct::fromArray($data['discountCampaign']));
+        }
+
+        return $variant;
     }
 
     public function getId(): int
@@ -70,6 +72,16 @@ class VariantStruct extends StoreStruct
     public function getNetPrice(): float
     {
         return $this->netPrice;
+    }
+
+    public function getNetPricePerMonth(): float
+    {
+        return $this->netPricePerMonth;
+    }
+
+    public function getDuration(): int
+    {
+        return $this->duration;
     }
 
     public function isTrialPhaseIncluded(): bool

@@ -11,9 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
  * @extends Extension<array<string>>
  */
 #[Package('framework')]
-final class ResolveRuleIdsExtension extends Extension
+final class ResolveCacheRelevantRuleIdsExtension extends Extension
 {
-    public const NAME = 'cache-response.resolve-rule-ids';
+    public const NAME = 'cache-response.resolve-rule-areas';
 
     /**
      * @internal Shopware owns the __constructor, but the properties are public API

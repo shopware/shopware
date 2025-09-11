@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -31,7 +32,10 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
     protected function setUp(): void
     {
         $entityCacheKeyGenerator = new EntityCacheKeyGenerator();
-        $this->contextAwareCacheService = new ContextAwareCacheHeadersService($entityCacheKeyGenerator, new ExtensionDispatcher(new EventDispatcher()));
+        $this->contextAwareCacheService = new ContextAwareCacheHeadersService(
+            $entityCacheKeyGenerator,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher(new EventDispatcher()))
+        );
     }
 
     /**

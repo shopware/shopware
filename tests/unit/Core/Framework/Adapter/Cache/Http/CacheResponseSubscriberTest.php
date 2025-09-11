@@ -12,10 +12,13 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -71,7 +74,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $customer = new CustomerEntity();
@@ -109,7 +112,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -142,7 +145,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -175,7 +178,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -212,11 +215,15 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
+        $salesChannelContext->expects($this->once())
+            ->method('getRuleIdsByAreas')
+            ->with([RuleAreas::PRODUCT_AREA])
+            ->willReturn([Uuid::randomHex()]);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
@@ -297,7 +304,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $customer = new CustomerEntity();
@@ -348,7 +355,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -405,7 +412,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -452,7 +459,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -488,7 +495,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $response = new Response();
@@ -532,7 +539,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         if (!$response) {
@@ -590,7 +597,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -630,7 +637,7 @@ class CacheResponseSubscriberTest extends TestCase
             '5',
             '6',
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -718,7 +725,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);
@@ -779,7 +786,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $eventDispatcher,
-            new ExtensionDispatcher($eventDispatcher),
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $subscriber->onCustomerLogout($event);

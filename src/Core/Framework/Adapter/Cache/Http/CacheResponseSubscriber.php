@@ -8,9 +8,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
-use Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveRuleIdsExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
@@ -32,7 +29,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[Package('framework')]
-class CacheResponseSubscriber implements EventSubscriberInterface
+readonly class CacheResponseSubscriber implements EventSubscriberInterface
 {
     /**
      * @param array<string> $cookies
@@ -40,16 +37,16 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly array $cookies,
-        private readonly CartService $cartService,
-        private readonly int $defaultTtl,
-        private readonly bool $httpCacheEnabled,
-        private readonly MaintenanceModeResolver $maintenanceResolver,
-        private readonly RequestStack $requestStack,
-        private readonly ?string $staleWhileRevalidate,
-        private readonly ?string $staleIfError,
-        private readonly EventDispatcherInterface $dispatcher,
-        private readonly ExtensionDispatcher $extensions,
+        private array $cookies,
+        private CartService $cartService,
+        private int $defaultTtl,
+        private bool $httpCacheEnabled,
+        private MaintenanceModeResolver $maintenanceResolver,
+        private RequestStack $requestStack,
+        private ?string $staleWhileRevalidate,
+        private ?string $staleIfError,
+        private EventDispatcherInterface $dispatcher,
+        private CacheRelevantRulesResolver $ruleResolver,
     ) {
     }
 
@@ -215,19 +212,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string
     {
-        $ruleIdsExtension = new ResolveRuleIdsExtension($request, [RuleAreas::PRODUCT_AREA], $context);
+        $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
 
-        $ruleIds = $this->extensions->publish(
-            name: ResolveRuleIdsExtension::NAME,
-            extension: $ruleIdsExtension,
-            function: function (Request $request, array $ruleAreas, SalesChannelContext $salesChannelContext): array {
-                if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
-                    return $salesChannelContext->getRuleIdsByAreas($ruleAreas);
-                }
-
-                return $salesChannelContext->getRuleIds();
-            },
-        );
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            $ruleIds = $context->getRuleIdsByAreas($ruleAreas);
+        } else {
+            $ruleIds = $context->getRuleIds();
+        }
 
         $ruleIds = array_unique($ruleIds);
         sort($ruleIds);

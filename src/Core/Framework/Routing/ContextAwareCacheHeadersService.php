@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveRuleIdsExtension;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,7 +18,7 @@ readonly class ContextAwareCacheHeadersService
 {
     public function __construct(
         private EntityCacheKeyGenerator $cacheKeyGenerator,
-        private ExtensionDispatcher $extensions,
+        private CacheRelevantRulesResolver $rulesResolver,
     ) {
     }
 
@@ -37,15 +35,7 @@ readonly class ContextAwareCacheHeadersService
 
     private function generateContextHash(SalesChannelContext $context, Request $request): string
     {
-        $ruleIdsExtension = new ResolveRuleIdsExtension($request, [RuleAreas::PRODUCT_AREA], $context);
-
-        $ruleAreas = $this->extensions->publish(
-            name: ResolveRuleIdsExtension::NAME,
-            extension: $ruleIdsExtension,
-            function: function (Request $request, array $ruleAreas, SalesChannelContext $salesChannelContext): array {
-                return $ruleAreas;
-            },
-        );
+        $ruleAreas = $this->rulesResolver->resolveRuleAreas($request, $context);
 
         return $this->cacheKeyGenerator->getSalesChannelContextHash($context, $ruleAreas);
     }

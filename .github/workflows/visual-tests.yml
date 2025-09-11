@@ -1,5 +1,8 @@
 name: Visual Tests
 
+permissions:
+  id-token: write
+
 # Once proven stable, this workflow can be integrated into the integration workflow
 # by adding "Visual" to the "name" matrix element.
 on:

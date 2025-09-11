@@ -2,6 +2,12 @@
 
 namespace Shopware\Administration\Login;
 
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
 class TokenTimeToLive
 {
     public static function getLowerTTL(\DateInterval $one, \DateInterval $two): \DateInterval

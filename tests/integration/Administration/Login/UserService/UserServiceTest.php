@@ -54,8 +54,7 @@ class UserServiceTest extends TestCase
 
         $externalAuthUser = $this->createUserService()->getAndUpdateUserByExternalToken($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
-        static::assertTrue($externalAuthUser->isNew);
+        static::assertSame($refreshToken, $externalAuthUser->token?->refreshToken);
         static::assertSame($email, $externalAuthUser->email);
 
         // ensure data is created and updated
@@ -99,9 +98,8 @@ class UserServiceTest extends TestCase
 
         $externalAuthUser = $this->createUserService()->getAndUpdateUserByExternalToken($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($token, $externalAuthUser->token->token);
+        static::assertSame($token, $externalAuthUser->token?->token);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
-        static::assertFalse($externalAuthUser->isNew);
         static::assertSame($email, $externalAuthUser->email);
 
         $tokenUserData = $this->getTokenUserData($subject);
@@ -154,9 +152,8 @@ class UserServiceTest extends TestCase
 
         $externalAuthUser = $this->createUserService()->getAndUpdateUserByExternalToken($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($token, $externalAuthUser->token->token);
+        static::assertSame($token, $externalAuthUser->token?->token);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
-        static::assertFalse($externalAuthUser->isNew);
         static::assertSame($localeEmail, $externalAuthUser->email);
 
         $user = $this->getContainer()->get('user.repository')->search(new Criteria([$userId]), Context::createDefaultContext())->first();

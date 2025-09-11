@@ -8,7 +8,12 @@ use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Administration\Login\UserService\UserService;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
+#[Package('framework')]
 class ShopwarePasswordGrantType extends PasswordGrant
 {
     public function __construct(

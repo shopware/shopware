@@ -195,14 +195,13 @@ class ExternalAuthUserTest extends TestCase
             'email' => 'test@test.com',
         ];
 
-        $externalAuthUser = ExternalAuthUser::createFromDatabaseQuery($data, $token, $refreshToken, new \DateTimeImmutable());
+        $externalAuthUser = ExternalAuthUser::createFromDatabaseQuery($data);
 
         static::assertSame($id, $externalAuthUser->id);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($userSub, $externalAuthUser->sub);
-        static::assertSame($token, $externalAuthUser->token->token);
+        static::assertSame($token, $externalAuthUser->token?->token);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
-        static::assertSame($expiry, $externalAuthUser->expiry?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
-        static::assertFalse($externalAuthUser->isNew);
+        static::assertSame($expiry, $externalAuthUser->expiry->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 }

@@ -12,5 +12,14 @@
             <helpText>This option affects all entities whose name can change. If deactivated, one of the possible URLs is tagged as canonical. If activated, redirects to the most recent URL are performed directly via HTTP 301.</helpText>
             <helpText lang="de-DE">Diese Option betrifft alle Entitäten, deren Name sich ändern kann. Wenn deaktiviert, wird eine der möglichen URLs als canonical markiert. Wenn aktiviert, wird direkt über HTTP 301 auf die aktuellste URL weitergeleitet.</helpText>
         </input-field>
+
+        <input-field type="bool">
+            <name>generateOnlyDefaultLanguage</name>
+            <label>Generate SEO URLs only for the system default language</label>
+            <label lang="de-DE">SEO-URLs nur für die System-Standardsprache generieren</label>
+            <helpText>When enabled, canonical SEO URLs are generated only for the system default language per sales channel. Other languages fall back to the default language at runtime. Default is off to preserve existing per-language generation.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, werden kanonische SEO-URLs pro Verkaufskanal nur für die System-Standardsprache generiert. Andere Sprachen fallen zur Laufzeit auf die Standardsprache zurück. Standardmäßig deaktiviert, um die bisherige Generierung pro Sprache beizubehalten.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
     </card>
 </config>

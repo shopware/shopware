@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -193,5 +194,67 @@ class SeoUrlUpdaterTest extends TestCase
                 'pathInfo' => self::DEFAULT,
             ],
         ];
+    }
+
+    public function testGenerateOnlyDefaultLanguageCreatesOnlyDefaultEntry(): void
+    {
+        // Enable optimization: generate only default language SEO URLs
+        static::getContainer()->get(SystemConfigService::class)->set('core.seo.generateOnlyDefaultLanguage', true);
+
+        // Register a default SEO URL template for the test route
+        static::getContainer()->get(Connection::class)->insert('seo_url_template', [
+            'id' => Uuid::randomBytes(),
+            'route_name' => TestProductSeoUrlRoute::ROUTE_NAME,
+            'entity_name' => ProductDefinition::ENTITY_NAME,
+            'template' => '{{ product.translated.name }}',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        // Create a product with translations in default, parent and child languages
+        $productBuilder = (new ProductBuilder($this->ids, 'p2'))
+            ->price(200)
+            ->name(self::DEFAULT)
+            ->translation($this->ids->get(self::PARENT), 'name', self::PARENT)
+            ->translation($this->ids->get(self::CHILD), 'name', self::CHILD);
+
+        static::getContainer()->get('product.repository')->create([
+            $productBuilder->build(),
+        ], Context::createDefaultContext());
+
+        // Trigger update for the product
+        static::getContainer()->get(SeoUrlUpdater::class)->update(
+            TestProductSeoUrlRoute::ROUTE_NAME,
+            [$this->ids->get('p2')]
+        );
+
+        // Verify: exactly one SEO URL was created for the storefront sales channel
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $this->ids->get('p2')));
+        $criteria->addFilter(new EqualsFilter('routeName', TestProductSeoUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $this->storefrontSalesChannel['id']));
+
+        $result = static::getContainer()->get('seo_url.repository')->search($criteria, Context::createDefaultContext());
+        static::assertCount(1, $result->getEntities(), 'Exactly one SEO URL should be generated for storefront.');
+
+        /** @var SeoUrlEntity $seoUrl */
+        $seoUrl = $result->first();
+        static::assertNotNull($seoUrl);
+        // It must use the system default language and its translation
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $seoUrl->getLanguageId());
+        static::assertStringStartsWith(self::DEFAULT, $seoUrl->getSeoPathInfo());
+
+        // Verify: headless sales channel still receives no SEO URLs
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('routeName', TestProductSeoUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $this->headlessSalesChannel['id']));
+        $headlessSeoUrl = static::getContainer()->get('seo_url.repository')->search(
+            $criteria,
+            Context::createDefaultContext()
+        )->first();
+
+        static::assertNull($headlessSeoUrl);
+
+        // Reset config to avoid leaking into other tests
+        static::getContainer()->get(SystemConfigService::class)->set('core.seo.generateOnlyDefaultLanguage', null);
     }
 }

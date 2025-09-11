@@ -305,4 +305,37 @@ class SeoResolverTest extends TestCase
         $salesChannelResponse = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, Uuid::randomHex(), 'awesome-product');
         static::assertSame('/default', $salesChannelResponse['pathInfo']);
     }
+
+    public function testResolveFallsBackToSystemDefaultLanguage(): void
+    {
+        $salesChannelDeId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext(
+            $salesChannelDeId,
+            'de',
+            $this->deLanguageId,
+            [Defaults::LANGUAGE_SYSTEM, $this->deLanguageId]
+        );
+
+        $enId = Uuid::randomHex();
+
+        // Only default language has a canonical SEO URL
+        $this->seoUrlRepository->create([
+            [
+                'id' => $enId,
+                'salesChannelId' => $salesChannelDeId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/1234',
+                'seoPathInfo' => 'awesome-product-en',
+                'isCanonical' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        // Resolve using DE language; should fall back to default language entry
+        $actual = $this->seoResolver->resolve($this->deLanguageId, $salesChannelDeId, 'awesome-product-en');
+        static::assertArrayHasKey('id', $actual);
+        static::assertSame($enId, Uuid::fromBytesToHex($actual['id']));
+        static::assertTrue((bool) $actual['isCanonical']);
+        static::assertSame('/detail/1234', $actual['pathInfo']);
+    }
 }

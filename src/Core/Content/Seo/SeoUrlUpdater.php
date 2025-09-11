@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * This class can be used to regenerate the seo urls for a route and an offset at ids.
@@ -34,7 +35,8 @@ class SeoUrlUpdater
         private readonly SeoUrlGenerator $seoUrlGenerator,
         private readonly SeoUrlPersister $seoUrlPersister,
         private readonly Connection $connection,
-        private readonly EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -43,14 +45,35 @@ class SeoUrlUpdater
      */
     public function update(string $routeName, array $ids): void
     {
+        /** @var list<array{salesChannelId: string, languageId: string, template: string}> $templates */
         $templates = $routeName !== '' ? $this->loadUrlTemplate($routeName) : [];
+        $generateOnlyDefaultLang = (bool) ($this->systemConfigService->get('core.seo.generateOnlyDefaultLanguage') ?? false);
+
+        if ($generateOnlyDefaultLang) {
+            // Collapse to a single language (Defaults::LANGUAGE_SYSTEM) per sales channel
+            /** @var array<string, array{salesChannelId: string, languageId: string, template: string}> $bySalesChannel */
+            $bySalesChannel = [];
+            foreach ($templates as $config) {
+                $scId = $config['salesChannelId'];
+                // Take the first template found for this sales channel; template value already respects SC override
+                if (!isset($bySalesChannel[$scId])) {
+                    $bySalesChannel[$scId] = [
+                        'salesChannelId' => $scId,
+                        'languageId' => Defaults::LANGUAGE_SYSTEM,
+                        'template' => $config['template'],
+                    ];
+                }
+            }
+            $templates = array_values($bySalesChannel);
+        }
+
         if (empty($templates)) {
             return;
         }
 
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
         if ($route === null) {
-            throw new \RuntimeException(\sprintf('Route by name %s not found', $routeName));
+            throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
         $context = Context::createDefaultContext();
@@ -106,12 +129,14 @@ class SeoUrlUpdater
         $query .= ' AND sales_channel.type_id != :apiTypeId';
         $parameters['apiTypeId'] = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
 
+        /** @var list<array{salesChannelId: string, languageId: string}> $domains */
         $domains = $this->connection->fetchAllAssociative($query, $parameters);
 
         if ($domains === []) {
             return [];
         }
 
+        /** @var array<string, string> $salesChannelTemplates */
         $salesChannelTemplates = $this->connection->fetchAllKeyValue(
             'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, template
              FROM seo_url_template
@@ -120,7 +145,7 @@ class SeoUrlUpdater
         );
 
         if (!\array_key_exists('', $salesChannelTemplates)) {
-            throw new \RuntimeException('Default templates not configured');
+            throw SeoException::invalidTemplate('Default templates not configured');
         }
 
         $default = (string) $salesChannelTemplates[''];

@@ -18,6 +18,7 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
@@ -77,8 +78,7 @@ class SeoUrlUpdaterTest extends TestCase
 
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Default templates not configured');
+        $this->expectException(\Shopware\Core\Content\Seo\Exception\InvalidTemplateException::class);
         $seoUrlUpdater->update('test', []);
     }
 
@@ -100,8 +100,7 @@ class SeoUrlUpdaterTest extends TestCase
         );
 
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Route by name test not found');
+        $this->expectException(\Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException::class);
 
         $seoUrlUpdater->update('test', []);
     }
@@ -201,7 +200,8 @@ class SeoUrlUpdaterTest extends TestCase
             $this->seoUrlGenerator,
             $this->seoUrlPersister,
             $this->connection,
-            $this->salesChannelRepository
+            $this->salesChannelRepository,
+            $this->createMock(SystemConfigService::class)
         );
     }
 }

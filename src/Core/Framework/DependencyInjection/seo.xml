@@ -115,6 +115,11 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\Content\Seo\Command\SeoUrlDeduplicateCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Content\Seo\SalesChannel\SeoUrlRoute" public="true">
             <argument type="service" id="sales_channel.seo_url.repository"/>
         </service>
@@ -134,6 +139,7 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension">

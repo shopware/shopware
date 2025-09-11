@@ -143,7 +143,10 @@ class ShopConfigurationControllerTest extends TestCase
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
                     ],
-                    'allAvailableLanguages' => [],
+                    'allAvailableLanguages' => [
+                        'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-GB' => ['id' => 'en-GB', 'label' => 'English'],
+                    ],
                     'parameters' => [
                         'config_shop_language' => $expectedShopLanguage,
                         'config_shop_currency' => $expectedPresetCurrency,
@@ -291,7 +294,10 @@ class ShopConfigurationControllerTest extends TestCase
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
                     ],
-                    'allAvailableLanguages' => [],
+                    'allAvailableLanguages' => [
+                        'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-GB' => ['id' => 'en-GB', 'label' => 'English'],
+                    ],
                     'parameters' => [
                         'config_shop_language' => 'de-DE',
                         'config_shop_currency' => 'EUR',

@@ -16,8 +16,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class TranslationController extends InstallerController
 {
     private const TRANSLATION_TIMEOUT_SECONDS = 1200;
+    private const LOCALE_PATTERN = '/^[a-z]{2}(-[A-Z]{2})?$/';
 
-    public function __construct(private readonly string $projectDir) {}
+    public function __construct(private readonly string $projectDir)
+    {
+    }
 
     #[Route(path: '/installer/translation', name: 'installer.translation', methods: ['GET'])]
     public function translations(Request $request): Response
@@ -42,6 +45,9 @@ class TranslationController extends InstallerController
             ]);
         }
 
+        // Validate locales to prevent command injection
+        $locales = $this->sanitizeLocales($locales);
+
         $console = $this->projectDir . '/bin/console';
 
         $proc = new Process(
@@ -62,5 +68,21 @@ class TranslationController extends InstallerController
             'isFinished' => true,
             'failed' => false,
         ]);
+    }
+
+    /**
+     * Sanitize and validate locales
+     *
+     * @param list<string> $locales
+     * @return list<string>
+     */
+    private function sanitizeLocales(array $locales): array
+    {
+        return array_values(array_unique(array_filter(
+            $locales,
+            static function (mixed $locale): bool {
+                return \preg_match(self::LOCALE_PATTERN, $locale) === 1;
+            }
+        )));
     }
 }

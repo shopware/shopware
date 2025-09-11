@@ -77,18 +77,19 @@ class ShopConfigurationController extends InstallerController
             $selectedLanguages = $request->request->all('selected_languages') ?: [];
 
             // Use all available languages from TranslationConfigLoader
-            $selectedLanguages = array_map(function (string $iso) {
+            $availableLanguages = $this->getAllAvailableLanguages();
+            $selectedLanguages = array_map(function (string $iso) use ($availableLanguages) {
                 // already a full locale like xx-XX?
                 if (preg_match('/^[a-z]{2}-[A-Z]{2}$/', $iso)) {
                     return $iso;
                 }
 
-                return $this->getAllAvailableLanguages()[$iso]['id'] ?? $iso;
+                return isset($availableLanguages[$iso]['id']) ? $availableLanguages[$iso]['id'] : null;
             }, $selectedLanguages);
 
-            // Filter out default languages that are already installed
+            // Filter out null values and default languages
             $selectedLanguages = array_filter($selectedLanguages, function ($locale) {
-                return !\in_array($locale, self::DEFAULT_LANGUAGES, true);
+                return $locale !== null && !\in_array($locale, self::DEFAULT_LANGUAGES, true);
             });
 
             $selectedLanguages = array_unique($selectedLanguages);

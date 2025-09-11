@@ -8,7 +8,7 @@ if [[ -n "${TEST_WEB_INSTALLER:-}" ]]; then
     echo "Testing web installer"
 
     bin/ci asset:install
-    rm install.lock || true
+    rm var/install.lock install.lock || true
 else
     /setup
 fi

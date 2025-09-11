@@ -104,7 +104,7 @@ class SnippetFinder implements SnippetFinderInterface
 
     private function addInstalledPlatformPaths(SnippetPathCollection $paths, string $locale): void
     {
-        $path = $this->getValidatedRemotePath($locale);
+        $path = $this->getValidatedLocalePath($locale);
 
         if ($path === null) {
             return;
@@ -118,10 +118,10 @@ class SnippetFinder implements SnippetFinderInterface
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
 
         foreach ($activePlugins as $plugin) {
-            $remotePath = $this->getValidatedRemotePath($locale, $plugin);
+            $path = $this->getValidatedLocalePath($locale, $plugin);
 
-            if ($remotePath !== null) {
-                $paths->add(new SnippetPath($remotePath));
+            if ($path !== null) {
+                $paths->add(new SnippetPath($path));
 
                 continue;
             }
@@ -140,13 +140,13 @@ class SnippetFinder implements SnippetFinderInterface
         }
     }
 
-    private function getValidatedRemotePath(string $locale, ?Plugin $plugin = null): ?string
+    private function getValidatedLocalePath(string $locale, ?Plugin $plugin = null): ?string
     {
         if (\in_array($locale, $this->translationConfig->excludedLocales, true)) {
             return null;
         }
 
-        $path = $this->buildRemotePath($locale, $plugin);
+        $path = $this->buildLocalePath($locale, $plugin);
 
         if (!$this->translationReader->directoryExists($path)) {
             return null;
@@ -155,7 +155,7 @@ class SnippetFinder implements SnippetFinderInterface
         return $path;
     }
 
-    private function buildRemotePath(string $locale, ?Plugin $plugin = null): string
+    private function buildLocalePath(string $locale, ?Plugin $plugin = null): string
     {
         if ($plugin === null) {
             return Path::join($this->translationLoader->getLocalePath($locale), SnippetFileLoader::SCOPE_PLATFORM);

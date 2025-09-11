@@ -43,15 +43,15 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
     {
-        // Load snippets from remote translation system
-        $this->loadRemoteSnippets($snippetFileCollection);
-        // Load snippets from local bundle and plugin files
-        $this->loadLocalSnippets($snippetFileCollection);
+        // Load snippets from private translation system
+        $this->loadTranslationSnippets($snippetFileCollection);
+        // Load snippets from Shopware bundles and plugins
+        $this->loadShippedSnippets($snippetFileCollection);
         // Load snippets from active apps
         $this->loadAppSnippets($snippetFileCollection);
     }
 
-    private function loadRemoteSnippets(SnippetFileCollection $snippetFileCollection): void
+    private function loadTranslationSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         $exclude = $this->getInactivePluginNames();
 
@@ -129,7 +129,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         return array_diff($this->config->plugins, $activeNames);
     }
 
-    private function loadLocalSnippets(SnippetFileCollection $snippetFileCollection): void
+    private function loadShippedSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         try {
             /** @var array<string, string> $authors */

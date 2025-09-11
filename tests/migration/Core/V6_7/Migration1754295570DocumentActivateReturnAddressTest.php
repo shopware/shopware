@@ -34,10 +34,12 @@ class Migration1754295570DocumentActivateReturnAddressTest extends TestCase
         $migration->update($this->connection);
 
         $documentConfig = $this->connection->executeQuery('SELECT config FROM document_base_config;')->fetchAllAssociative();
+
         array_walk(
             $documentConfig,
             function (array $arr): void {
                 $arr['config'] = json_decode($arr['config'], true, 512, \JSON_THROW_ON_ERROR);
+
                 static::assertTrue($arr['config']['displayReturnAddress']);
             }
         );

@@ -15,6 +15,6 @@ abstract class AbstractRequirement implements Requirement
 {
     public function required(Manifest $manifest): bool
     {
-        return \array_key_exists(static::name(), $manifest->getRequirements());
+        return \in_array(static::name(), $manifest->getRequirements(), true);
     }
 }

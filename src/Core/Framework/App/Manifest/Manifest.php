@@ -42,7 +42,7 @@ class Manifest
         private string $path,
         private readonly bool $validatesPermissions,
         /**
-         * @var array<string, true> list of requirements
+         * @var array<string> list of requirements
          */
         private readonly array $requirements,
         private readonly Metadata $metadata,
@@ -114,10 +114,7 @@ class Manifest
     }
 
     /**
-     * Keys are the requirement names, values are always true, presence of a key indicates the requirement is needed
-     *
-     * @return array<string, true> list of requirements.
-     *
+     * @return array<string> list of requirements.
      */
     public function getRequirements(): array
     {
@@ -343,7 +340,7 @@ class Manifest
     }
 
     /**
-     * @return array<string, true> list of requirements
+     * @return array<string> list of requirements
      */
     private static function buildRequirements(\DOMDocument $doc): array
     {
@@ -357,7 +354,7 @@ class Manifest
         // Presence of child elements indicates the requirement is enabled
         foreach ($requirementsElement->childNodes as $node) {
             if ($node instanceof \DOMElement) {
-                $requirements[$node->tagName] = true;
+                $requirements[] = $node->tagName;
             }
         }
 

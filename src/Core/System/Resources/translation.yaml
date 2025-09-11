@@ -20,6 +20,8 @@ plugins: [
     'SwagSocialShopping',
 ]
 
+excluded-locales: ['de-DE', 'en-GB']
+
 plugin-mapping:
   - plugin: 'SwagPublisher'
     name: 'PluginPublisher'

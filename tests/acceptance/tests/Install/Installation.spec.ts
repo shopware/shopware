@@ -42,7 +42,7 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ InstallPa
     await page.getByRole('button', { name: 'Next' }).click();
 
     // Wait for translation step to complete
-    await expect(page.getByText('Downloading and installing additional languages.')).toBeVisible({
+    await expect(page.getByText('Languages Download')).toBeVisible({
         timeout: 10000,
     });
 

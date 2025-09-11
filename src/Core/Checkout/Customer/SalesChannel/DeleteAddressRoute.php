@@ -51,17 +51,15 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
             throw CustomerException::cannotDeleteDefaultAddress($addressId);
         }
 
-        $activeBillingAddress = $customer->getActiveBillingAddress();
-        $activeShippingAddress = $customer->getActiveShippingAddress();
+        $this->addressRepository->delete([['id' => $addressId]], $context->getContext());
 
-        if (
-            ($activeBillingAddress && $addressId === $activeBillingAddress->getId())
-            || ($activeShippingAddress && $addressId === $activeShippingAddress->getId())
-        ) {
-            throw CustomerException::cannotDeleteActiveAddress($addressId);
+        if ($addressId === $customer->getActiveBillingAddress()?->getId()) {
+            $customer->setActiveBillingAddress($customer->getDefaultBillingAddress());
         }
 
-        $this->addressRepository->delete([['id' => $addressId]], $context->getContext());
+        if ($addressId === $customer->getActiveShippingAddress()?->getId()) {
+            $customer->setActiveShippingAddress($customer->getDefaultShippingAddress());
+        }
 
         return new NoContentResponse();
     }

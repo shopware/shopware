@@ -34,6 +34,8 @@ class SystemInstallCommandTest extends TestCase
         $fs = new Filesystem();
         $fs->remove([
             __DIR__ . '/install.lock',
+            __DIR__ . '/var/install.lock',
+            __DIR__ . '/var',
             __DIR__ . '/config',
         ]);
     }
@@ -44,7 +46,8 @@ class SystemInstallCommandTest extends TestCase
     #[DataProvider('dataProviderTestExecuteWhenInstallLockExists')]
     public function testExecuteWhenInstallLockExists(array $mockInputValues): void
     {
-        touch(__DIR__ . '/install.lock');
+        mkdir(__DIR__ . '/var', 0777, true);
+        touch(__DIR__ . '/var/install.lock');
 
         $systemInstallCmd = $this->prepareCommandInstance();
 
@@ -74,20 +77,63 @@ class SystemInstallCommandTest extends TestCase
         ];
     }
 
+    public function testExecuteWhenLegacyInstallLockExists(): void
+    {
+        touch(__DIR__ . '/install.lock');
+
+        $systemInstallCmd = $this->prepareCommandInstance();
+
+        $refMethod = ReflectionHelper::getMethod(SystemInstallCommand::class, 'execute');
+
+        $mockInputValues = ['force' => false];
+        $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), $this->createMock(OutputInterface::class));
+
+        static::assertSame(Command::FAILURE, $result);
+    }
+
+    public function testExecuteWhenBothLockFilesExist(): void
+    {
+        mkdir(__DIR__ . '/var', 0777, true);
+        touch(__DIR__ . '/var/install.lock');
+        touch(__DIR__ . '/install.lock');
+
+        $systemInstallCmd = $this->prepareCommandInstance();
+
+        $refMethod = ReflectionHelper::getMethod(SystemInstallCommand::class, 'execute');
+
+        $mockInputValues = ['force' => false];
+        $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), $this->createMock(OutputInterface::class));
+
+        static::assertSame(Command::FAILURE, $result);
+    }
+
+    public function testForceOptionBypassesBothLockFiles(): void
+    {
+        mkdir(__DIR__ . '/var', 0777, true);
+        touch(__DIR__ . '/var/install.lock');
+        touch(__DIR__ . '/install.lock');
+
+        $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $result = $systemInstallCmd->run(new ArrayInput(['--force' => true]), new BufferedOutput());
+
+        static::assertSame(Command::SUCCESS, $result);
+    }
+
+    public function testInstallCreatesLock(): void
+    {
+        $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertFileExists(__DIR__ . '/var/install.lock');
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+    }
+
     public function testDefaultInstallFlow(): void
     {
-        $command = $this->prepareCommandInstance([
-            'database:migrate',
-            'database:migrate-destructive',
-            'system:configure-shop',
-            'dal:refresh:index',
-            'scheduled-task:register',
-            'plugin:refresh',
-            'theme:refresh',
-            'theme:compile',
-            'assets:install',
-            'cache:clear',
-        ]);
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
 
         $result = $command->run(new ArrayInput([]), new BufferedOutput());
 
@@ -97,20 +143,11 @@ class SystemInstallCommandTest extends TestCase
 
     public function testBasicSetupFlow(): void
     {
-        $command = $this->prepareCommandInstance([
-            'database:migrate',
-            'database:migrate-destructive',
-            'system:configure-shop',
-            'dal:refresh:index',
-            'scheduled-task:register',
-            'plugin:refresh',
-            'theme:refresh',
-            'theme:compile',
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands([
             'user:create',
             'sales-channel:create:storefront',
             'theme:change',
             'assets:install',
-            'cache:clear',
         ]);
 
         $result = $command->run(new ArrayInput(['--basic-setup' => true]), new BufferedOutput());
@@ -120,17 +157,7 @@ class SystemInstallCommandTest extends TestCase
 
     public function testAssetsInstallCanBeSkipped(): void
     {
-        $command = $this->prepareCommandInstance([
-            'database:migrate',
-            'database:migrate-destructive',
-            'system:configure-shop',
-            'dal:refresh:index',
-            'scheduled-task:register',
-            'plugin:refresh',
-            'theme:refresh',
-            'theme:compile',
-            'cache:clear',
-        ]);
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands();
 
         $result = $command->run(new ArrayInput(['--skip-assets-install' => true]), new BufferedOutput());
 
@@ -139,18 +166,9 @@ class SystemInstallCommandTest extends TestCase
 
     public function testSkipFirstRunWizardOption(): void
     {
-        $command = $this->prepareCommandInstance([
-            'database:migrate',
-            'database:migrate-destructive',
-            'system:configure-shop',
-            'dal:refresh:index',
-            'scheduled-task:register',
-            'plugin:refresh',
-            'theme:refresh',
-            'theme:compile',
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands([
             'assets:install',
             'system:config:set',
-            'cache:clear',
         ]);
 
         $result = $command->run(new ArrayInput(['--skip-first-run-wizard' => true]), new BufferedOutput());
@@ -266,7 +284,30 @@ class SystemInstallCommandTest extends TestCase
         return $systemInstallCmd;
     }
 
-    private function getMockInput(mixed $mockInputValues): InputInterface
+    /**
+     * @param array<string> $additionalCommands
+     */
+    private function prepareCommandInstanceWithDefaultInstallCommands(array $additionalCommands = []): SystemInstallCommand
+    {
+        $defaultCommands = [
+            'database:migrate',
+            'database:migrate-destructive',
+            'system:configure-shop',
+            'dal:refresh:index',
+            'scheduled-task:register',
+            'plugin:refresh',
+            'theme:refresh',
+            'theme:compile',
+            'cache:clear',
+        ];
+
+        return $this->prepareCommandInstance(array_merge($defaultCommands, $additionalCommands));
+    }
+
+    /**
+     * @param array<string, mixed> $mockInputValues
+     */
+    private function getMockInput(array $mockInputValues): InputInterface
     {
         $input = $this->createMock(InputInterface::class);
         $input->method('getOption')

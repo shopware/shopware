@@ -16,6 +16,11 @@ class SystemLocker
 
     public function lock(): void
     {
-        file_put_contents($this->projectDir . '/install.lock', date('YmdHi'));
+        // Ensure var directory exists
+        if (!is_dir($this->projectDir . '/var')) {
+            mkdir($this->projectDir . '/var', 0777, true);
+        }
+
+        file_put_contents($this->projectDir . '/var/install.lock', date('YmdHi'));
     }
 }

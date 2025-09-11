@@ -50,6 +50,7 @@ class TranslationMetadataLoaderTest extends TestCase
             ]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
         );
     }
 

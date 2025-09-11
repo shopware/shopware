@@ -44,18 +44,18 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
         $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
         $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
 
-        /** @var list<string> $locales */
-        $locales = $config['locales'];
-        \assert(\is_array($locales), 'The locales in the translation config must be an array.');
-
         /** @var list<string> $plugins */
         $plugins = $config['plugins'];
         \assert(\is_array($plugins), 'The plugins in the translation config must be an array.');
 
         $languages = $config['languages'] ?? [];
+        $excludedLocales = $config['excluded-locales'] ?? [];
 
+        $locales = [];
         $languageData = [];
+
         foreach ($languages as $language) {
+            $locales[] = $language['locale'];
             $languageData[] = new Language($language['locale'], $language['name']);
         }
 
@@ -67,7 +67,8 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             $plugins,
             new LanguageCollection($languageData),
             $pluginMapping,
-            $metadataUrl
+            $metadataUrl,
+            $excludedLocales,
         );
     }
 

@@ -81,6 +81,7 @@ class TranslationLoaderTest extends TestCase
             new LanguageDtoCollection([new Language('es-ES', 'Español')]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
         $this->initClient();
     }
@@ -261,6 +262,7 @@ class TranslationLoaderTest extends TestCase
             new LanguageDtoCollection([new Language('es-ES', 'Español')]),
             $pluginMapping,
             new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
         $loader = $this->getTranslationLoader();
 

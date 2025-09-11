@@ -199,7 +199,8 @@ runs:
         add-paths: |
           .gitignore
           tests/acceptance/tests/**/*-snapshots/*.png
-        branch: update-ats-snapshots-${{ github.run_id }}
+        branch: update-ats-snapshots
+        branch-suffix: short-commit-hash
         labels: |
           domain/quality-ops
         commit-message: "chore(ci): update acceptance test snapshots"

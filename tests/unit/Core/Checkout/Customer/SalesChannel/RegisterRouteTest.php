@@ -92,13 +92,8 @@ class RegisterRouteTest extends TestCase
             });
 
         $register = $this->createRegisterRoute(
-            null,
-            null,
-            null,
-            null,
-            null,
-            $systemConfigService,
-            $customerRepository
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -156,13 +151,11 @@ class RegisterRouteTest extends TestCase
         });
 
         $register = $this->createRegisterRoute(
-            new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            $dispatcher,
-            $addressValidation,
-            null,
-            null,
-            $systemConfigService,
-            $customerRepository
+            dataValidator: new DataValidator(Validation::createValidatorBuilder()->getValidator()),
+            eventDispatcher: $dispatcher,
+            addressValidationFactory: $addressValidation,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -226,13 +219,10 @@ class RegisterRouteTest extends TestCase
         });
 
         $register = $this->createRegisterRoute(
-            null,
-            $dispatcher,
-            $addressValidation,
-            null,
-            null,
-            $systemConfigService,
-            $customerRepository
+            eventDispatcher: $dispatcher,
+            addressValidationFactory: $addressValidation,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -292,13 +282,10 @@ class RegisterRouteTest extends TestCase
         });
 
         $register = $this->createRegisterRoute(
-            null,
-            $dispatcher,
-            $addressValidation,
-            null,
-            null,
-            $systemConfigService,
-            $customerRepository
+            eventDispatcher: $dispatcher,
+            addressValidationFactory: $addressValidation,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -353,13 +340,9 @@ class RegisterRouteTest extends TestCase
         ]);
 
         $register = $this->createRegisterRoute(
-            null,
-            null,
-            null,
-            $customFieldMapper,
-            null,
-            $systemConfigService,
-            $customerRepository
+            customFieldMapper: $customFieldMapper,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -413,13 +396,9 @@ class RegisterRouteTest extends TestCase
             });
 
         $register = $this->createRegisterRoute(
-            null,
-            null,
-            null,
-            null,
-            $salutationRepository,
-            $systemConfigService,
-            $customerRepository
+            salutationRepository: $salutationRepository,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -479,13 +458,9 @@ class RegisterRouteTest extends TestCase
             );
 
         $register = $this->createRegisterRoute(
-            null,
-            $eventDispatcher,
-            null,
-            null,
-            null,
-            $systemConfigService,
-            $customerRepository
+            eventDispatcher: $eventDispatcher,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -546,13 +521,9 @@ class RegisterRouteTest extends TestCase
             );
 
         $register = $this->createRegisterRoute(
-            null,
-            $eventDispatcher,
-            null,
-            null,
-            null,
-            $systemConfigService,
-            $customerRepository
+            eventDispatcher: $eventDispatcher,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -911,7 +882,7 @@ class RegisterRouteTest extends TestCase
             ->method('getViolations')
             ->willReturn(new ConstraintViolationList());
 
-        $registerRoute = $this->createRegisterRoute($dataValidator);
+        $registerRoute = $this->createRegisterRoute(dataValidator: $dataValidator);
 
         $maxLengthFirstName = str_repeat('M', CustomerDefinition::MAX_LENGTH_FIRST_NAME);
         $maxLengthLastName = str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME);
@@ -952,7 +923,7 @@ class RegisterRouteTest extends TestCase
             ->method('getViolations')
             ->willReturn($violations);
 
-        $registerRoute = $this->createRegisterRoute($dataValidator);
+        $registerRoute = $this->createRegisterRoute(dataValidator: $dataValidator);
 
         $tooLongFirstName = str_repeat('T', CustomerDefinition::MAX_LENGTH_FIRST_NAME + 1);
         $tooLongLastName = str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME + 1);

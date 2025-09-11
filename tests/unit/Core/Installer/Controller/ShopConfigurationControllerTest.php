@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -15,7 +16,10 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -70,6 +74,16 @@ class ShopConfigurationControllerTest extends TestCase
         $this->translator = $this->createMock(TranslatorInterface::class);
         $this->translationConfigLoader = $this->createMock(TranslationConfigLoader::class);
 
+        $this->translationConfigLoader->method('load')->willReturn(
+            new TranslationConfig(
+                new Uri('http://localhost:8000'),
+                [],
+                [],
+                new LanguageCollection([]),
+                new PluginMappingCollection(),
+                new Uri('http://localhost:8000/metadata.json'),
+            )
+        );
         $this->controller = new ShopConfigurationController(
             $connectionFactory,
             $this->envConfigWriter,
@@ -111,7 +125,6 @@ class ShopConfigurationControllerTest extends TestCase
             ]);
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
-        $this->translationConfigLoader->method('load')->willReturn((object) ['languages' => []]);
 
         $this->twig->expects($this->once())->method('render')
             ->with(
@@ -220,14 +233,14 @@ class ShopConfigurationControllerTest extends TestCase
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
 
         $this->router->expects($this->once())->method('generate')
-            ->with('installer.finish', [], UrlGeneratorInterface::ABSOLUTE_PATH)
-            ->willReturn('/installer/finish');
+            ->with('installer.finish', ['show' => 'true'], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturn('/installer/finish?show=true');
 
         $this->twig->expects($this->never())->method('render');
 
         $response = $this->controller->shopConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/installer/finish', $response->getTargetUrl());
+        static::assertSame('/installer/finish?show=true', $response->getTargetUrl());
 
         static::assertFalse($session->has(DatabaseConnectionInformation::class));
         static::assertSame($expectedAdmin, $session->get('ADMIN_USER'));
@@ -260,7 +273,6 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
-        $this->translationConfigLoader->method('load')->willReturn((object) ['languages' => []]);
 
         $this->twig->expects($this->once())->method('render')
             ->with(
@@ -332,7 +344,6 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $translations[$key]);
-        $this->translationConfigLoader->method('load')->willReturn((object) ['languages' => []]);
 
         $this->twig->expects($this->once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
             static::assertSame('@Installer/installer/shop-configuration.html.twig', $view);

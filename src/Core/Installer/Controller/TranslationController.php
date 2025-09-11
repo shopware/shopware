@@ -18,7 +18,9 @@ class TranslationController extends InstallerController
     #[Route(path: '/installer/translation', name: 'installer.translation', methods: ['GET'])]
     public function translations(Request $request): Response
     {
-        return $this->renderInstaller('@Installer/installer/translation.html.twig');
+        return $this->renderInstaller('@Installer/installer/translation.html.twig', [
+            'supportedLanguages' => [], // disable language switch during translation step
+        ]);
     }
 
     #[Route(path: '/installer/translation/run', name: 'installer.translation-run', methods: ['POST'])]

@@ -41,6 +41,30 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ InstallPa
 
     await page.getByRole('button', { name: 'Next' }).click();
 
+    // Wait for translation step to complete
+    await expect(page.getByText('Downloading and installing additional languages.')).toBeVisible({
+        timeout: 10000,
+    });
+
+    // Wait for translation to finish (success or error)
+    await expect(page.locator('#spinner-container, .error-container')).toBeVisible({
+        timeout: 300000,
+    });
+
+    // If there's an error, click retry or next
+    const errorContainer = page.locator('.error-container');
+    if (await errorContainer.isVisible()) {
+        // Click retry link if error occurred
+        await page.getByRole('link', { name: 'Click here to retry' }).click();
+        // Wait for retry to complete
+        await expect(page.locator('#spinner-container, .error-container')).toBeVisible({
+            timeout: 300000,
+        });
+    }
+
+    // Click next to proceed to finish page
+    await page.getByRole('button', { name: 'Next' }).click();
+
     // test admin login
 
     // Wait until the page is loaded

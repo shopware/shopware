@@ -211,7 +211,7 @@ class SCSSValidatorTest extends TestCase
         // Boolean values
         yield 'checkbox true' => [
             [
-                'type' => 'boolean',
+                'type' => 'checkbox',
                 'value' => true,
             ],
             true,
@@ -225,7 +225,7 @@ class SCSSValidatorTest extends TestCase
         ];
         yield 'checkbox false' => [
             [
-                'type' => 'boolean',
+                'type' => 'checkbox',
                 'value' => false,
             ],
             false,
@@ -633,7 +633,7 @@ class SCSSValidatorTest extends TestCase
         // Boolean values
         yield 'checkbox true' => [
             [
-                'type' => 'boolean',
+                'type' => 'checkbox',
                 'value' => true,
             ],
             true,
@@ -641,13 +641,13 @@ class SCSSValidatorTest extends TestCase
         yield 'switch true' => [
             [
                 'type' => 'switch',
-                'value' => false,
+                'value' => true,
             ],
-            false,
+            true,
         ];
         yield 'checkbox false' => [
             [
-                'type' => 'boolean',
+                'type' => 'checkbox',
                 'value' => false,
             ],
             false,

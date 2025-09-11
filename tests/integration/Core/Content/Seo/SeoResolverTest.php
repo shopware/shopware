@@ -305,4 +305,65 @@ class SeoResolverTest extends TestCase
         $salesChannelResponse = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, Uuid::randomHex(), 'awesome-product');
         static::assertSame('/default', $salesChannelResponse['pathInfo']);
     }
+
+    public function testResolveSeoPathWithCanonicalContainingQueryString(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/12345',
+                'seoPathInfo' => 'Main-product/SWDEMO10001?test=123',
+                'isCanonical' => true,
+            ],
+        ], $context);
+
+        // When the canonical entry includes a query string, resolving with the same query string
+        // should return the canonical path directly (no canonicalPathInfo set)
+        /** @phpstan-ignore-next-line parameter $queryString will be added in v6.8 */
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'Main-product/SWDEMO10001', 'test=123');
+
+        static::assertSame('/detail/12345', $resolved['pathInfo']);
+        static::assertTrue((bool) $resolved['isCanonical']);
+        static::assertArrayNotHasKey('canonicalPathInfo', $resolved);
+    }
+
+    public function testResolveWithoutQueryFallsBackWhenCanonicalContainsQueryString(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/12345',
+                'seoPathInfo' => 'Main-product/SWDEMO10001?test=123',
+                'isCanonical' => true,
+            ],
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/12345',
+                'seoPathInfo' => 'Main-product/SWDEMO10001',
+                'isCanonical' => false,
+            ],
+        ], $context);
+
+        // Without the query part, resolver should not find the exact canonical entry, but
+        // should return a non-canonical match with canonicalPathInfo populated.
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'Main-product/SWDEMO10001');
+
+        static::assertSame('/detail/12345', $resolved['pathInfo']);
+        static::assertTrue((bool) $resolved['isCanonical']);
+        static::assertArrayNotHasKey('canonicalPathInfo', $resolved);
+    }
 }

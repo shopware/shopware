@@ -27,32 +27,52 @@ class SeoResolver extends AbstractSeoResolver
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $queryString will be added
+     *
      * @return ResolvedSeoUrl
      */
-    public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
+    public function resolve(string $languageId, string $salesChannelId, string $pathInfo/* , ?string $queryString = null */): array
     {
+        $queryString = \func_num_args() === 4 ? func_get_arg(3) : null;
+
         $seoPathInfo = trim($pathInfo, '/');
 
         $query = (new QueryBuilder($this->connection))
             ->select('id', 'path_info pathInfo', 'is_canonical isCanonical', 'sales_channel_id salesChannelId')
             ->from('seo_url')
             ->where('language_id = :language_id')
-            ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)')
-            ->andWhere('(seo_path_info = :seoPath OR seo_path_info = :seoPathWithSlash)')
-            ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
+            ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)');
+
+        $seoPathConditions = [
+            'seo_path_info = :seoPath',
+            'seo_path_info = :seoPathWithSlash',
+            'IF(LOCATE(\'?\', seo_path_info) > 0, LEFT(seo_path_info, LOCATE(\'?\', seo_path_info) - 1), seo_path_info) = :seoPath',
+            'IF(LOCATE(\'?\', seo_path_info) > 0, LEFT(seo_path_info, LOCATE(\'?\', seo_path_info) - 1), seo_path_info) = :seoPathWithSlash',
+        ];
+
+        $query->setParameter('language_id', Uuid::fromHexToBytes($languageId))
             ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
             ->setParameter('seoPath', $seoPathInfo)
             ->setParameter('seoPathWithSlash', $seoPathInfo . '/');
 
+        if ($queryString !== null) {
+            $seoPathConditions[] = 'seo_path_info = :seoPathWithQuery';
+            $seoPathConditions[] = 'seo_path_info = :seoPathWithSlashAndQuery';
+            $query->setParameter('seoPathWithQuery', $seoPathInfo . '?' . $queryString)
+                ->setParameter('seoPathWithSlashAndQuery', $seoPathInfo . '/?' . $queryString);
+        }
+
+        $query->andWhere('(' . implode(' OR ', $seoPathConditions) . ')');
+
         $query->setTitle('seo-url::resolve');
 
         $seoPaths = $query->executeQuery()->fetchAllAssociative();
-
         // sort seoPaths by filled salesChannelId and isCanonical, save file sort on SQL server
         usort($seoPaths, static function ($a, $b) {
             if ($a['isCanonical'] === null) {
                 return 1;
             }
+
             if ($b['isCanonical'] === null) {
                 return -1;
             }
@@ -60,6 +80,7 @@ class SeoResolver extends AbstractSeoResolver
             if ($a['salesChannelId'] === null) {
                 return 1;
             }
+
             if ($b['salesChannelId'] === null) {
                 return -1;
             }
@@ -67,7 +88,14 @@ class SeoResolver extends AbstractSeoResolver
             return 0;
         });
 
-        $seoPath = $seoPaths[0] ?? ['pathInfo' => $seoPathInfo, 'isCanonical' => false];
+        $seoPath = ['pathInfo' => $seoPathInfo, 'isCanonical' => false];
+
+        foreach ($seoPaths as $path) {
+            $seoPath = $path;
+            if ($path['isCanonical']) {
+                break;
+            }
+        }
 
         if (!$seoPath['isCanonical']) {
             $query = (new QueryBuilder($this->connection))

@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -57,8 +57,62 @@ class RequestTransformerTest extends TestCase
 
         $originalRequest = Request::create('http://shopware.com/api');
 
-        static::expectException(SalesChannelMappingException::class);
+        static::expectException(RoutingException::class);
         $requestTransformer->transform($originalRequest);
+    }
+
+    public function testResolverReceivesQueryStringForExactMatching(): void
+    {
+        $decorated = $this->createMock(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(fn ($request) => $request);
+
+        $languageId = bin2hex(random_bytes(16));
+        $salesChannelId = bin2hex(random_bytes(16));
+
+        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver
+            ->expects($this->once())
+            ->method('resolve')
+            ->with(
+                $languageId,
+                $salesChannelId,
+                'Main-product/SWDEMO10001',
+                'test=123'
+            )
+            ->willReturn([
+                'pathInfo' => '/detail/123',
+                'isCanonical' => true,
+            ]);
+
+        $domainLoader = $this->createMock(AbstractDomainLoader::class);
+        $domainLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn([
+                // keys are normalized with trailing slash in RequestTransformer
+                'http://shopware.com/' => [
+                    'url' => 'http://shopware.com',
+                    'id' => bin2hex(random_bytes(16)),
+                    'salesChannelId' => $salesChannelId,
+                    'typeId' => bin2hex(random_bytes(16)),
+                    'snippetSetId' => bin2hex(random_bytes(16)),
+                    'currencyId' => bin2hex(random_bytes(16)),
+                    'languageId' => $languageId,
+                    'themeId' => bin2hex(random_bytes(16)),
+                    'maintenance' => '0',
+                    'maintenanceIpWhitelist' => '',
+                    'locale' => 'en-GB',
+                    'themeName' => 'Storefront',
+                    'parentThemeName' => '',
+                ],
+            ]);
+
+        $requestTransformer = new RequestTransformer($decorated, $resolver, [], $domainLoader);
+
+        $originalRequest = Request::create('http://shopware.com/Main-product/SWDEMO10001?test=123');
+        $transformedRequest = $requestTransformer->transform($originalRequest);
+
+        static::assertSame('/detail/123', $transformedRequest->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
     }
 
     /**

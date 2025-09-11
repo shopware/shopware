@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -107,7 +107,7 @@ class RequestTransformer implements RequestTransformerInterface
         if ($salesChannel === null) {
             // this class and therefore the "isSalesChannelRequired" method is currently not extendable
             // which can cause problems when adding custom paths
-            throw new SalesChannelMappingException($request->getUri());
+            throw RoutingException::invalidSalesChannelMapping($request->getUri());
         }
 
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
@@ -308,13 +308,21 @@ class RequestTransformer implements RequestTransformerInterface
         // without leading slash, detail would be stripped
         $baseUrl = rtrim($baseUrl, '/') . '/';
 
+        // Include query string in resolving so SEO URLs stored with query parameters
+        // (e.g., "awesome-product?test=123") are matched exactly when present.
+        $queryString = null;
+        if (!empty($request->getQueryString())) {
+            $queryString = $request->getQueryString();
+        }
+
         if ($this->equalsBaseUrl($seoPathInfo, $baseUrl)) {
             $seoPathInfo = '';
         } elseif ($this->containsBaseUrl($seoPathInfo, $baseUrl)) {
             $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
-        $resolved = $this->resolver->resolve($languageId, $salesChannelId, $seoPathInfo);
+        /** @phpstan-ignore-next-line parameter $queryString will be added in v6.8 */
+        $resolved = $this->resolver->resolve($languageId, $salesChannelId, $seoPathInfo, $queryString);
 
         $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
 

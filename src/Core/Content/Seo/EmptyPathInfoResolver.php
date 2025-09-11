@@ -23,15 +23,20 @@ class EmptyPathInfoResolver extends AbstractSeoResolver
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $queryString will be added
+     *
      * @return ResolvedSeoUrl
      */
-    public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
+    public function resolve(string $languageId, string $salesChannelId, string $pathInfo/* , ?string $queryString = null */): array
     {
+        $queryString = \func_num_args() === 4 ? func_get_arg(3) : null;
+
         $seoPathInfo = ltrim($pathInfo, '/');
         if ($seoPathInfo === '') {
             return ['pathInfo' => '/', 'isCanonical' => false];
         }
 
-        return $this->getDecorated()->resolve($languageId, $salesChannelId, $pathInfo);
+        /** @phpstan-ignore-next-line parameter $queryString will be added in v6.8 */
+        return $this->getDecorated()->resolve($languageId, $salesChannelId, $pathInfo, $queryString);
     }
 }

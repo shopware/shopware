@@ -20,6 +20,7 @@ class RoutingException extends HttpException
     public const ACCESS_DENIED_FOR_XML_HTTP_REQUEST = 'FRAMEWORK__ACCESS_DENIED_FOR_XML_HTTP_REQUEST';
     public const CURRENCY_NOT_FOUND = 'FRAMEWORK__ROUTING_CURRENCY_NOT_FOUND';
     public const MISSING_PRIVILEGE = 'FRAMEWORK__ROUTING_MISSING_PRIVILEGE';
+    public const INVALID_SALES_CHANNEL_MAPPING = 'FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -92,6 +93,16 @@ class RoutingException extends HttpException
             self::CURRENCY_NOT_FOUND,
             'Currency with id "{{ currencyId }}" not found.',
             ['currencyId' => $currencyId]
+        );
+    }
+
+    public static function invalidSalesChannelMapping(string $url): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::INVALID_SALES_CHANNEL_MAPPING,
+            'Unable to find a matching sales channel for the request: "{{ url }}". Please make sure the domain mapping is correct.',
+            ['url' => $url]
         );
     }
 

@@ -27,27 +27,28 @@ class Migration1756068712FixOrderAddressLastNameLengthTest extends TestCase
         static::assertSame(1756068712, $migration->getCreationTimestamp());
     }
 
-    public function testUpdateChangesLastNameColumnLength(): void
+    public function testMigrationChangesColumnLengthAndIsIdempotent(): void
     {
         $migration = new Migration1756068712FixOrderAddressLastNameLength();
+
+        // Set column to original size to test the migration properly, as test DB may already have VARCHAR(255)
+        $this->connection->executeStatement('
+            ALTER TABLE `order_address`
+            MODIFY COLUMN `last_name` VARCHAR(60) COLLATE utf8mb4_unicode_ci NOT NULL
+        ');
+
+        $columns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `order_address`');
+        static::assertStringContainsString('varchar(60)', $columns['last_name']['Type']);
 
         $migration->update($this->connection);
 
         $columns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `order_address`');
-
         static::assertStringContainsString('varchar(255)', $columns['last_name']['Type']);
         static::assertSame('NO', $columns['last_name']['Null']);
-    }
 
-    public function testUpdateIsIdempotent(): void
-    {
-        $migration = new Migration1756068712FixOrderAddressLastNameLength();
-
-        $migration->update($this->connection);
         $migration->update($this->connection);
 
         $columns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `order_address`');
-
         static::assertStringContainsString('varchar(255)', $columns['last_name']['Type']);
         static::assertSame('NO', $columns['last_name']['Null']);
     }

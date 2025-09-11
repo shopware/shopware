@@ -117,6 +117,8 @@
     "VIOLATION::LAST_NAME_IS_TOO_LONG": "Input too long. Please enter a shorter form of your last name.",
     "VIOLATION::TITLE_IS_TOO_LONG": "Input too long. Please enter only your main title or use abbreviations.",
     "VIOLATION::ZIPCODE_IS_TOO_LONG": "Input too long. Please enter a valid zip code.",
+    "VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR": "The billing address must be a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
+    "VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR": "The shipping address must be either null or a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::PASSWORD_IS_TOO_LONG": "The chosen password is too long.",
     "message-default": "Unfortunately, something went wrong.",
     "message-404": "The requested page cannot be found.",

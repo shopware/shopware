@@ -1279,6 +1279,74 @@ class RegisterRouteTest extends TestCase
         static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
     }
 
+    public function testRegistrationWithNonArrayBillingAddressAndWithEmptyShippingAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['billingAddress'] = 'Max Mustermanns Address';
+        unset($registrationData['shippingAddress']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotEmpty($response['errors']);
+        static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $response['errors'][0]['code']);
+        static::assertSame('associative_array', $response['errors'][0]['meta']['parameters']['{{ type }}']);
+        static::assertSame('/billingAddress', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testRegistrationWithBillingAddressAndWithNonArrayShippingAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['shippingAddress'] = 'Max Mustermanns Address';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotEmpty($response['errors']);
+        static::assertSame('VIOLATION::AT_LEAST_ONE_OF_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/shippingAddress', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testRegistrationWithBillingAddressAndEmptyShippingAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['shippingAddress']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+    }
+
     public function testRegistrationWithExistingNotSpecifiedSalutation(): void
     {
         $connection = static::getContainer()->get(Connection::class);

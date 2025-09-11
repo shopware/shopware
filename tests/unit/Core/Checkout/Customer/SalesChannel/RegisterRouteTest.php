@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
@@ -38,13 +39,17 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -817,7 +822,7 @@ class RegisterRouteTest extends TestCase
 
                 $billingAddressDefinition = $subs['billingAddress'];
 
-                static::assertCount(4, $billingAddressDefinition->getProperties());
+                static::assertCount(6, $billingAddressDefinition->getProperties());
                 static::assertArrayNotHasKey('vatIds', $billingAddressDefinition->getProperties());
 
                 return true;
@@ -849,5 +854,116 @@ class RegisterRouteTest extends TestCase
         $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testRegisterWithNonArrayBillingAddressViolation(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(true);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $customerEntity->setEmail('test@test.de');
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition(),
+        );
+
+        $countryId = Uuid::randomHex();
+
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $country->setVatIdRequired(true);
+
+        /** @var StaticSalesChannelRepository<CountryCollection> $countryRepository */
+        $countryRepository = new StaticSalesChannelRepository([new CountryCollection([$country])]);
+
+        $salutationId = Uuid::randomHex();
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => 'Max Mustermanns Address',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'salutationId' => $salutationId,
+            'lastName' => 'Mustermann',
+            'firstName' => 'Max',
+            'vatIds' => ['123'],
+            'storefrontUrl' => 'foo',
+        ];
+
+        $dataValidator = $this->createMock(DataValidator::class);
+
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation(
+                'This value should be of type associative_array.',
+                'This value should be of type {{ type }}.',
+                ['{{ type }}' => 'associative_array'],
+                'billingAddress',
+                'billingAddress',
+                'Max Mustermanns Address'
+            ),
+        ]);
+
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+                $subs = $definition->getSubDefinitions();
+
+                static::assertArrayNotHasKey('billingAddress', $subs);
+
+                $billingAddressConstraints = $definition->getProperty('billingAddress');
+                static::assertCount(1, $billingAddressConstraints);
+
+                $billingAddressConstraint = $billingAddressConstraints[0];
+                static::assertInstanceOf(Type::class, $billingAddressConstraint);
+                static::assertSame('associative_array', $billingAddressConstraint->type);
+
+                return true;
+            }))
+            ->willReturn($violations);
+
+        $definitionFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $definitionFactory
+            ->method('create')
+            ->willReturn(new DataValidationDefinition());
+
+        $registerRoute = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $definitionFactory,
+            $definitionFactory,
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $countryRepository,
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+            $definitionFactory,
+        );
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        try {
+            $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+            static::fail('Expected ConstraintViolationException to be thrown');
+        } catch (ConstraintViolationException $e) {
+            static::assertCount(1, $e->getViolations());
+            $violation = $e->getViolations()->get(0);
+            static::assertSame('billingAddress', $violation->getPropertyPath());
+            static::assertNotEmpty($violation->getMessage());
+        }
     }
 }

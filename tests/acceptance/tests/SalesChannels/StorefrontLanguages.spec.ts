@@ -1,6 +1,6 @@
 import { getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest';
 
-test('Shop customers should be able to view products in different languages.', { tag: '@Languages' }, async ({
+test('Shop customers should be able to view products in different languages.', { tag: ['@Storefront', '@Languages', '@SalesChannels'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -30,8 +30,8 @@ test('Shop customers should be able to view products in different languages.', {
     });
 
     await test.step('Customer can select a different language', async () => {
-        await StorefrontHome.languagesDropdown.click();
-        await StorefrontHome.languagesMenuOptions.getByText('Deutsch').click();
+        await ShopCustomer.presses(StorefrontHome.languagesDropdown, 'Space');
+        await ShopCustomer.presses(StorefrontHome.languagesMenuOptions.getByText('Deutsch'), 'Enter');
         await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('Deutsch');
         await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
     });

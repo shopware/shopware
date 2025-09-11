@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customers can update the payment method for an existing order in the storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers can update the payment method for an existing order in the storefront account.', { tag: ['@Storefront','@Order','@Account'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     StorefrontCheckoutOrderEdit,
@@ -22,9 +22,14 @@ test('Customers can update the payment method for an existing order in the store
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText('Invoice');
 
-    await orderItemLocators.orderActionsButton.click();
-    await orderItemLocators.orderChangePaymentMethodButton.click();
+    //await orderItemLocators.orderActionsButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton, 'Enter');
 
+    
+    //await orderItemLocators.orderChangePaymentMethodButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton, 'Enter');
+
+    /*
     const invoiceInputValue = await StorefrontCheckoutOrderEdit.getPaymentMethodButton('Invoice').getAttribute('value');
     await StorefrontCheckoutOrderEdit.getPaymentMethodButton(newPaymentMethod.name).click();
 
@@ -34,8 +39,15 @@ test('Customers can update the payment method for an existing order in the store
     // for some reason checking the state of the inputs actually changes the state of the inputs
     await ShopCustomer.expects(StorefrontCheckoutOrderEdit.getPaymentMethodButton('Invoice')).not.toBeChecked();
     await ShopCustomer.expects(StorefrontCheckoutOrderEdit.getPaymentMethodButton(newPaymentMethod.name)).toBeChecked();
+    */
+    
+    //invoice isn't selected by default for some reason?
+    await ShopCustomer.selectsValue(StorefrontCheckoutOrderEdit.paymentMethod, 'Invoice');
+    await ShopCustomer.selectsValue(StorefrontCheckoutOrderEdit.paymentMethod, newPaymentMethod.name);
 
-    await StorefrontCheckoutOrderEdit.completePaymentButton.click();
+    //await StorefrontCheckoutOrderEdit.completePaymentButton.click();
+    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.completePaymentButton, 'Enter');
+
 
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText(newPaymentMethod.name);

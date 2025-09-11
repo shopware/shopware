@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want use a basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
+test('As a shop customer, I want use a basic cookie consent banner in the storefront.', { tag: ['@Storefront', '@Settings'] }, async ({
     ShopCustomer,
     StorefrontHome,
 }) => {
@@ -21,10 +21,10 @@ test('As a shop customer, I want use a basic cookie consent banner in the storef
     });
 
     await test.step('Configure cookie settings', async () => {
-        await StorefrontHome.consentConfigureButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentConfigureButton, 'Enter');
         await ShopCustomer.expects(StorefrontHome.consentDialogTechnicallyRequiredCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontHome.consentDialog.getByRole('checkbox')).toHaveCount(2);
-        await StorefrontHome.consentDialogSaveButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentDialogSaveButton, 'Enter');
     });
 
     await test.step('Verify cookies after saving consent settings', async () => {

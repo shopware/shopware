@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want breadcrumb to update when I select a category to understand my location on the site.',
-    { tag: '@Categories' },
+    { tag: ['@Storefront', '@Categories'] },
     async ({ ShopCustomer, StorefrontHome, TestDataService }) => {
         
         const category1 = await TestDataService.createCategory({ type: 'folder' });
@@ -23,7 +23,7 @@ test(
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).not.toBeVisible();
 
-            await subCategoryLocators.menuNavigationItem.click();
+            await ShopCustomer.presses(subCategoryLocators.menuNavigationItem, 'Enter');
 
             await ShopCustomer.expects(mainCategoryLocators.breadcrumbNavigationItem).toHaveText(category1.name);
             await ShopCustomer.expects(mainCategoryLocators.breadcrumbNavigationLinkItem).not.toBeVisible();
@@ -44,7 +44,7 @@ test(
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).toBeVisible();
 
-            await subCategoryLocators.menuNavigationItem.click();
+            await ShopCustomer.presses(subCategoryLocators.menuNavigationItem, 'Enter');
 
             await ShopCustomer.expects(mainCategoryLocators.breadcrumbNavigationItem).toHaveText(category2.name);
             await ShopCustomer.expects(mainCategoryLocators.breadcrumbNavigationLinkItem).toBeVisible();
@@ -65,7 +65,7 @@ test(
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).not.toBeVisible();
 
-            await subCategoryLocators.menuNavigationItem.click();
+            await ShopCustomer.presses(subCategoryLocators.menuNavigationItem, 'Enter');
 
             await ShopCustomer.expects(mainCategoryLocators.breadcrumbNavigationItem).toHaveText(category3.name);
             await ShopCustomer.expects(mainCategoryLocators.breadcrumbNavigationLinkItem).toBeVisible();

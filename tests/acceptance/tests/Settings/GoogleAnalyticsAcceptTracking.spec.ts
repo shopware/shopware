@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want to accept Google Analytics tracking via the basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
+test('As a shop customer, I want to accept Google Analytics tracking via the basic cookie consent banner in the storefront.', { tag: ['@Storefront', '@Settings'] }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,
@@ -16,10 +16,10 @@ test('As a shop customer, I want to accept Google Analytics tracking via the bas
     });
 
     await test.step('Enable Google Analytics and marketing tracking via cookie settings', async () => {
-        await StorefrontHome.consentConfigureButton.click();
-        await StorefrontHome.consentDialogStatisticsCheckbox.click();
-        await StorefrontHome.consentDialogMarketingdCheckbox.click();
-        await StorefrontHome.consentDialogSaveButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentConfigureButton, 'Enter');
+        await ShopCustomer.presses(StorefrontHome.consentDialogStatisticsCheckbox, 'Space');
+        await ShopCustomer.presses(StorefrontHome.consentDialogMarketingdCheckbox, 'Space');
+        await ShopCustomer.presses(StorefrontHome.consentDialogSaveButton, 'Enter');
     });
 
     await test.step('Verify tracking cookies are set correctly after consent', async () => {

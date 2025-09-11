@@ -1,10 +1,11 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
-test(
-    'Customers is able to to register an account and selects a non-shippable country for their billing address.',
-    { tag: '@Account @Address' },
-    async ({
+test.describe('@Storefront', {
+  tag: ['@Account', '@Address'],
+}, () => {
+
+    test('Customers is able to to register an account and selects a non-shippable country for their billing address.', async ({
         StorefrontAccountLogin,
         StorefrontAccount,
         IdProvider,
@@ -31,45 +32,47 @@ test(
 
         await test.step('Customer cannot select non-shippable country for shipping address during registration', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+            await ShopCustomer.presses(StorefrontAccountLogin.countryInput, 'Space');
             await StorefrontAccountLogin.countryInput.selectOption({ label: registrationData.country });
             await ShopCustomer.expects(
-                await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country)
+            await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country)
             ).toBeDisabled();
         });
 
         await test.step('Customer submits the registration form successfully with a shippable country', async () => {
+            await ShopCustomer.presses(StorefrontAccountLogin.salutationSelect, 'Space');
             await StorefrontAccountLogin.salutationSelect.selectOption(registrationData.salutation);
-            await StorefrontAccountLogin.firstNameInput.fill(registrationData.firstName);
-            await StorefrontAccountLogin.lastNameInput.fill(registrationData.lastName);
-            await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
-            await StorefrontAccountLogin.registerPasswordInput.fill(registrationData.password);
-            await StorefrontAccountLogin.streetAddressInput.fill(registrationData.street);
-            await StorefrontAccountLogin.postalCodeInput.fill(registrationData.postalCode);
-            await StorefrontAccountLogin.cityInput.fill(registrationData.city);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.firstNameInput, registrationData.firstName);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.lastNameInput, registrationData.lastName);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.registerEmailInput, customer.email);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.registerPasswordInput, registrationData.password);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.streetAddressInput, registrationData.street);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.postalCodeInput, registrationData.postalCode);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.cityInput, registrationData.city);
+            await ShopCustomer.presses(StorefrontAccountLogin.countryInput, 'Space');
             await StorefrontAccountLogin.countryInput.selectOption({ label: shippableCountry.name });
-            await StorefrontAccountLogin.differentShippingAddressCheckbox.check();
+            await ShopCustomer.presses(StorefrontAccountLogin.differentShippingAddressCheckbox, 'Space');
+            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressSalutationSelect, 'Space');
             await StorefrontAccountLogin.shippingAddressSalutationSelect.selectOption(
                 registrationData.salutation
             );
-            await StorefrontAccountLogin.shippingAddressFirstNameInput.fill(registrationData.firstName);
-            await StorefrontAccountLogin.shippingAddressLastNameInput.fill(registrationData.lastName);
-            await StorefrontAccountLogin.shippingAddressStreetAddressInput.fill(registrationData.street);
-            await StorefrontAccountLogin.shippingAddressPostalCodeInput.fill(registrationData.postalCode);
-            await StorefrontAccountLogin.shippingAddressCityInput.fill(registrationData.city);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressFirstNameInput, registrationData.firstName);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressLastNameInput, registrationData.lastName);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressStreetAddressInput, registrationData.street);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressPostalCodeInput, registrationData.postalCode);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressCityInput, registrationData.city);
+            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressCountryInput, 'Space');
             await StorefrontAccountLogin.shippingAddressCountryInput.selectOption({ label: shippableCountry.name });
+            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressStateInput, 'Space');
             await StorefrontAccountLogin.shippingAddressStateInput.selectOption({ label: registrationData.state });
-            await StorefrontAccountLogin.registerButton.click();
+            await ShopCustomer.presses(StorefrontAccountLogin.registerButton, 'Enter');
             const customerId = (await TestDataService.getCustomerByEmail(customer.email)).id;
             TestDataService.addCreatedRecord('customer', customerId);
             await ShopCustomer.expects(StorefrontAccount.headline).toBeVisible();
         });
-    }
-);
+    });
 
-test(
-    'Customers is not able to set new shipping address with a non-shippable country.',
-    { tag: '@Account @Address' },
-    async ({
+    test('Customers is not able to set new shipping address with a non-shippable country.', async ({
         IdProvider,
         ShopCustomer,
         TestDataService,
@@ -137,5 +140,5 @@ test(
             }
 
         });
-    }
-);
+    });
+});

@@ -1,7 +1,7 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
 test('Customer gets a special product price depending on rules.', {
-    tag: ['@Product', '@Prices', '@Rules'],
+    tag: ['@Storefront', '@Product', '@Prices', '@Rules'],
 }, async ({
     ShopCustomer,
     TestDataService,

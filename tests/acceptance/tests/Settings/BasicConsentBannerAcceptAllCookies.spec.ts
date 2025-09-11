@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want to use an "Accept All Cookies" button in the basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
+test('As a shop customer, I want to use an "Accept All Cookies" button in the basic cookie consent banner in the storefront.', { tag: ['@Storefront', '@Settings'] }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,
@@ -19,7 +19,7 @@ test('As a shop customer, I want to use an "Accept All Cookies" button in the ba
     });
 
     await test.step('Click "Accept All Cookies" and verify initial cookies', async () => {
-        await StorefrontHome.consentAcceptAllCookiesButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentAcceptAllCookiesButton, 'Enter');
         const allCookies = await StorefrontHome.page.context().cookies();
         ShopCustomer.expects(allCookies.length).toEqual(2);
     });

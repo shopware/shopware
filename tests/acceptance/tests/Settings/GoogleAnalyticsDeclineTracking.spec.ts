@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want to accept only the technically required cookies without activating Google Analytics tracking via the basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
+test('As a shop customer, I want to accept only the technically required cookies without activating Google Analytics tracking via the basic cookie consent banner in the storefront.', { tag: ['@Storefront', '@Settings'] }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,
@@ -16,12 +16,12 @@ test('As a shop customer, I want to accept only the technically required cookies
     });
 
     await test.step('Verify default cookie consent settings', async () => {
-        await StorefrontHome.consentConfigureButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentConfigureButton, 'Enter');
         await ShopCustomer.expects(StorefrontHome.consentDialogTechnicallyRequiredCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontHome.consentDialogStatisticsCheckbox).not.toBeChecked();
         await ShopCustomer.expects(StorefrontHome.consentDialogMarketingdCheckbox).not.toBeChecked();
         await ShopCustomer.expects(StorefrontHome.consentDialog.getByRole('checkbox')).toHaveCount(4);
-        await StorefrontHome.consentDialogSaveButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentDialogSaveButton, 'Enter');
     });
 
     await test.step('Verify cookies after saving default consent settings', async () => {

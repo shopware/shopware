@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test('Customer gets a special product price depending on the amount of products bought.', {
-    tag: ['@Product', '@Checkout'],
+    tag: ['@Storefront', '@Product', '@Checkout'],
 }, async ({
     ShopCustomer,
     TestDataService,

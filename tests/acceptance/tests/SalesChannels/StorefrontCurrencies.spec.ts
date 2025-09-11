@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Shop customers should be able to view products in different currencies.', { tag: '@Currencies' }, async ({
+test('Shop customers should be able to view products in different currencies.', { tag: ['@Storefront', '@Currencies', '@SalesChannels'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -24,8 +24,8 @@ test('Shop customers should be able to view products in different currencies.', 
     });
 
     await test.step('Customer can select a different currency', async () => {
-        await StorefrontHome.currenciesDropdown.click();
-        await StorefrontHome.currenciesMenuOptions.getByText(currency.symbol).click();
+        await ShopCustomer.presses(StorefrontHome.currenciesDropdown, 'Space');
+        await ShopCustomer.presses(StorefrontHome.currenciesMenuOptions.getByText(currency.symbol), 'Enter');
         await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText(currency.name);
         await ShopCustomer.expects(productListing.productPrice).toContainText(currency.isoCode);
     });

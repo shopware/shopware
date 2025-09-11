@@ -15,6 +15,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class TranslationController extends InstallerController
 {
+    private const TRANSLATION_TIMEOUT_SECONDS = 1200;
+
+    public function __construct(private readonly string $projectDir) {}
+
     #[Route(path: '/installer/translation', name: 'installer.translation', methods: ['GET'])]
     public function translations(Request $request): Response
     {
@@ -38,14 +42,13 @@ class TranslationController extends InstallerController
             ]);
         }
 
-        $projectRoot = \dirname(__DIR__, 4);
-        $console = $projectRoot . '/bin/console';
+        $console = $this->projectDir . '/bin/console';
 
         $proc = new Process(
             [$console, 'translation:install', '--locales=' . implode(',', $locales), '--no-interaction'],
-            $projectRoot
+            $this->projectDir
         );
-        $proc->setTimeout(1200);
+        $proc->setTimeout(self::TRANSLATION_TIMEOUT_SECONDS);
         $proc->run();
 
         if (!$proc->isSuccessful()) {

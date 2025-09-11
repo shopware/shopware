@@ -59,7 +59,7 @@
                         showError();
                     } else {
                         // Success - redirect to finish page
-                        window.location.href = '{{ url('installer.finish') }}?show=true';
+                        window.location.href = '{{ url('installer.finish', {'completed': true}) }}';
                     }
                 }
             } catch (error) {
@@ -83,7 +83,7 @@
 
             const nextButton = document.getElementById('next');
             nextButton.classList.remove('disabled');
-            nextButton.href = '{{ url('installer.finish') }}?show=true';
+            nextButton.href = '{{ url('installer.finish', {'completed': true}) }}';
         }
     </script>
 {% endblock %}

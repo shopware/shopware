@@ -46,7 +46,7 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ InstallPa
     });
 
     // Click "Continue to shop" button
-    await page.getByRole('button', { name: 'Continue to shop' }).click();
+    await page.getByRole('link', { name: 'Continue to shop' }).click();
 
     // test admin login
 

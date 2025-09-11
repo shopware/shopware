@@ -2,7 +2,7 @@
 
 {% block base_content %}
     <div class="card__title">
-        <h2>{{ "shopware.installer.finish_header"|trans|default('Setup Complete') }}</h2>
+        <h2>{{ "shopware.installer.finish_header"|trans }}</h2>
     </div>
 
     <div class="card__body">
@@ -28,7 +28,7 @@
         <a href="{{ url('installer.finish') }}"
            id="next"
            class="btn btn-primary flex-item flex-right">
-            {{ "shopware.installer.finish_continue"|trans|default('Continue to shop') }}
+            {{ "shopware.installer.finish_continue"|trans }}
         </a>
     </div>
 {% endblock %}

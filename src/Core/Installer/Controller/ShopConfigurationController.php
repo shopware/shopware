@@ -130,7 +130,7 @@ class ShopConfigurationController extends InstallerController
                 // Check if user selected any languages
                 if (empty($selectedLanguages)) {
                     // No languages selected, go directly to finish page
-                    return $this->redirectToRoute('installer.finish', ['show' => 'true']);
+                    return $this->redirectToRoute('installer.finish', ['completed' => true]);
                 }
 
                 // Languages selected, go to translation step

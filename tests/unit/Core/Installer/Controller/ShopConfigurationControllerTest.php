@@ -234,14 +234,14 @@ class ShopConfigurationControllerTest extends TestCase
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
 
         $this->router->expects($this->once())->method('generate')
-            ->with('installer.finish', ['show' => 'true'], UrlGeneratorInterface::ABSOLUTE_PATH)
-            ->willReturn('/installer/finish?show=true');
+            ->with('installer.finish', ['completed' => true], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturn('/installer/finish?completed=1');
 
         $this->twig->expects($this->never())->method('render');
 
         $response = $this->controller->shopConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/installer/finish?show=true', $response->getTargetUrl());
+        static::assertSame('/installer/finish?completed=1', $response->getTargetUrl());
 
         static::assertFalse($session->has(DatabaseConnectionInformation::class));
         static::assertSame($expectedAdmin, $session->get('ADMIN_USER'));

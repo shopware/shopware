@@ -144,7 +144,7 @@ class SalesChannelContextPersister
         $now = new \DateTimeImmutable();
         if ($expiredTime < $now) {
             // context is expired
-            if (!empty($customerId)) {
+            if ($customerId !== null) {
                 $payload['expired'] = true;
             } else {
                 $payload = ['expired' => true];

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
@@ -118,5 +119,11 @@ class TranslationConfigLoaderTest extends TestCase
         static::expectException(SnippetException::class);
         static::expectExceptionMessage('Translation configuration file exists, but is empty: "translation_empty.yaml".');
         $this->translationConfigLoader->load();
+    }
+
+    public function testGetDecoratedThrowsException(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->translationConfigLoader->getDecorated();
     }
 }

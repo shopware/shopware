@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -42,72 +41,17 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
      */
     private EntityRepository $mediaFolderRepository;
 
-    /**
-     * @var EntityRepository<TagCollection>
-     */
-    private EntityRepository $tagRepository;
-
     private Context $salesChannelContext;
 
     private IdsCollection $ids;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $createdMediaIds = [];
-
-    /**
-     * @var array<string, string>
-     */
-    private array $createdMediaFolderIds = [];
-
-    private string $textTagName = 'test-media-visibility';
-
-    private ?string $testTagId = null;
 
     protected function setUp(): void
     {
         $this->mediaRepository = static::getContainer()->get('media.repository');
         $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
-        $this->tagRepository = static::getContainer()->get('tag.repository');
         $this->ids = new IdsCollection();
 
         $this->salesChannelContext = Context::createDefaultContext(new SalesChannelApiSource($this->ids->get('sales-channel')));
-
-        $this->testTagId = $this->ids->get('tag.test');
-        $this->tagRepository->create(
-            [
-                ['id' => $this->testTagId, 'name' => $this->textTagName],
-            ],
-            $this->salesChannelContext
-        );
-    }
-
-    protected function tearDown(): void
-    {
-        if (\count($this->createdMediaIds) > 0) {
-            $this->mediaRepository->delete(
-                array_map(
-                    fn ($id) => ['id' => $id],
-                    \array_values($this->createdMediaIds)
-                ),
-                $this->salesChannelContext
-            );
-        }
-
-        if (\count($this->createdMediaFolderIds) > 0) {
-            $this->mediaFolderRepository->delete(
-                array_map(
-                    fn ($id) => ['id' => $id],
-                    \array_values($this->createdMediaFolderIds)
-                ),
-                $this->salesChannelContext
-            );
-        }
-
-        $this->tagRepository->delete([
-            ['id' => $this->testTagId],
-        ], $this->salesChannelContext);
     }
 
     public function testSearchPublicMediaIsFound(): void
@@ -124,7 +68,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $publicMediaId,
             $publicMediaInPrivateFolder,
         ]);
-        $criteria->addFilter(new EqualsFilter('tags.id', $this->testTagId));
         $criteria->addFilter(new EqualsFilter('private', false));
         $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
         $mediaIds = array_map(fn ($media) => $media->getId(), $result->getEntities()->getElements());
@@ -147,7 +90,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $publicMediaId,
             $publicMediaInPrivateFolder,
         ]);
-        $criteria->addFilter(new EqualsFilter('tags.id', $this->testTagId));
         $criteria->addFilter(new EqualsFilter('private', true));
         $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
         $mediaIds = array_map(fn ($media) => $media->getId(), $result->getEntities()->getElements());
@@ -203,7 +145,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $publicMediaId,
             $publicMediaInPrivateFolder,
         ]);
-        $criteria->addFilter(new EqualsFilter('tags.id', $this->testTagId));
         $criteria->addAggregation(
             new FilterAggregation(
                 'private-media',
@@ -231,7 +172,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $publicMediaId,
             $publicMediaInPrivateFolder,
         ]);
-        $criteria->addFilter(new EqualsFilter('tags.id', $this->testTagId));
         $criteria->addAggregation(
             new FilterAggregation(
                 'private-media',
@@ -259,7 +199,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $publicMediaId,
             $publicMediaInPrivateFolder,
         ]);
-        $criteria->addFilter(new EqualsFilter('tags.id', $this->testTagId));
         $criteria->addAggregation(
             new TermsAggregation(
                 'private-media-terms',
@@ -294,7 +233,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
                 ],
             ],
         ], $this->salesChannelContext);
-        $this->createdMediaFolderIds[$id] = $id;
 
         return $id;
     }
@@ -310,10 +248,8 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
                 'fileName' => $fileName,
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
-                'tags' => [['id' => $this->testTagId]],
             ],
         ], $this->salesChannelContext);
-        $this->createdMediaIds[$id] = $id;
 
         return $id;
     }

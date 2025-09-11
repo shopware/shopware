@@ -1,30 +1,72 @@
-name: Update Specific Snapshot
+name: Update Specific Snapshot (PR)
+
 on:
   workflow_dispatch:
     inputs:
       testName:
-        description: 'Name of the test to update (e.g., specific page visual test)'
+        description: "Name of the test to update (e.g., specific page visual test)"
         required: true
       snapshotName:
-        description: 'Snapshot file name (e.g., specific-snapshot.png)'
+        description: "Snapshot file name (e.g., specific-snapshot.png)"
         required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   update-snapshot:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
+
       - name: Install dependencies
         run: npm ci
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Run Playwright to update specific snapshot
-        run: npx playwright test --grep "${{ github.event.inputs.testName }}" --update-snapshots
-      - name: Commit updated snapshot
-        uses: stefanzweifel/git-auto-commit-action@v5
+
+      - name: Update specific snapshot with Playwright
+        run: |
+          npx playwright test --grep "${{ github.event.inputs.testName }}" --update-snapshots
+
+      # Optionally fail early if nothing changed (helps avoid "empty PRs")
+      - name: Detect changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Pull Request with updated snapshot
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
         with:
-          commit_message: 'Update snapshot ${{ github.event.inputs.snapshotName }}'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: >
+            test(snapshots): update ${{ github.event.inputs.snapshotName }}
+            for "${{ github.event.inputs.testName }}"
+          branch: chore/update-snapshot-${{ github.event.inputs.snapshotName }}-${{ github.run_id }}
+          title: "Update snapshot: ${{ github.event.inputs.snapshotName }}"
+          body: |
+            This PR updates the snapshot **${{ github.event.inputs.snapshotName }}** for the following test filter:
+
+            ```
+            ${{ github.event.inputs.testName }}
+            ```
+
+            Triggered by `${{ github.actor }}` via workflow dispatch on `${{ github.ref }}`.
+          add-paths: |
+            **/${{ github.event.inputs.snapshotName }}
+
+      - name: No changes found
+        if: steps.changes.outputs.changed != 'true'
+        run: echo "No snapshot updates detected; no PR created."

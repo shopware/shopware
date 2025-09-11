@@ -66,7 +66,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # main
+    - uses: octo-sts/action@e480437973a6f6ac2e9caa40ecabedc870d76395 # v1.0.1
       id: create-pr-token
       with:
         scope: shopware

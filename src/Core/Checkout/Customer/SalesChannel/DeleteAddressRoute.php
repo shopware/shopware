@@ -62,7 +62,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
         if ($addressId === $customer->getActiveShippingAddress()?->getId()) {
             /** @deprecated tag:v6.8.0 - Use setter instead */
             $customer->assign(['activeShippingAddress' => $customer->getDefaultShippingAddress()]);
-            // $customer->setActiveBillingAddress($customer->getDefaultBillingAddress());
+            // $customer->setActiveShippingAddress($customer->getDefaultShippingAddress());
         }
 
         return new NoContentResponse();

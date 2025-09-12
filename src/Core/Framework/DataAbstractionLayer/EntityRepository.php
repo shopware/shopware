@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidEntityUuidException;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -178,7 +179,7 @@ class EntityRepository
 
         $newId ??= Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
-            throw DataAbstractionLayerException::invalidUuid($newId);
+            throw new InvalidEntityUuidException($newId);
         }
 
         $affected = $this->versionManager->clone(

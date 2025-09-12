@@ -12,10 +12,10 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidEntityUuidException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -197,7 +197,7 @@ class AccountOrderController extends StorefrontController
     {
         try {
             $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
-        } catch (InvalidUuidException) {
+        } catch (InvalidEntityUuidException) {
             $order = null;
         }
 

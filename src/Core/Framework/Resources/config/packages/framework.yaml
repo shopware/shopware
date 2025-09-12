@@ -24,9 +24,9 @@ framework:
     serializer: { enabled: true }
     secret: "%env(APP_SECRET)%"
     profiler:
-        with_constructor_extractor: false
+        enabled: false
     property_info:
-        enabled: true
+        with_constructor_extractor: true
     validation:
         enable_attributes: true
         email_validation_mode: html5

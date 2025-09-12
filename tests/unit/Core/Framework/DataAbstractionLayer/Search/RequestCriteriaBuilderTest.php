@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -822,9 +823,7 @@ class RequestCriteriaBuilderTest extends TestCase
 
         // Compress and encode the criteria data
         $jsonData = json_encode($criteriaData, \JSON_THROW_ON_ERROR);
-        $gzippedData = gzencode($jsonData);
-        static::assertNotFalse($gzippedData, 'Gzip compressing failed');
-        $encodedCriteria = $this->base64UrlEncode($gzippedData);
+        $encodedCriteria = self::gzipAndBase64UrlEncode($jsonData);
 
         $request = new Request(['_criteria' => $encodedCriteria]);
         $request->setMethod(Request::METHOD_GET);
@@ -855,9 +854,7 @@ class RequestCriteriaBuilderTest extends TestCase
 
         // Compress and encode the criteria data
         $jsonData = json_encode($criteriaData, \JSON_THROW_ON_ERROR);
-        $gzippedData = gzencode($jsonData);
-        static::assertNotFalse($gzippedData, 'Gzip compressing failed');
-        $encodedCriteria = $this->base64UrlEncode($gzippedData);
+        $encodedCriteria = self::gzipAndBase64UrlEncode($jsonData);
 
         // Add conflicting individual parameters
         $request = new Request([
@@ -887,33 +884,37 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertSame(['product.active'], $filter->getFields());
     }
 
-    public function testInvalidCriteriaParameterThrowsException(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function invalidCriteriaParameterProvider(): iterable
     {
-        $request = new Request(['_criteria' => 'invalid_base64_data?']);
-        $request->setMethod(Request::METHOD_GET);
+        yield 'invalid base64 data' => [
+            'invalid_base64_data',
+            'Unable to decompress gzipped data',
+        ];
 
-        $this->expectExceptionObject(DataAbstractionLayerException::invalidCriteriaParameter('Unable to decode base64 data'));
+        yield 'invalid base64 format' => [
+            'invalid-base64-format-with-special-chars!@#$%',
+            'Unable to decode base64 data',
+        ];
 
-        $this->requestCriteriaBuilder->handleRequest(
-            $request,
-            new Criteria(),
-            $this->staticDefinitionRegistry->get(ProductDefinition::class),
-            Context::createDefaultContext()
-        );
+        // Create invalid JSON data, compress and encode it
+        $encodedInvalidJson = self::gzipAndBase64UrlEncode('{"limit": 25, "invalid": }');
+        yield 'invalid JSON data' => [
+            $encodedInvalidJson,
+            'Invalid JSON data',
+        ];
     }
 
-    public function testInvalidJsonInCriteriaParameterThrowsException(): void
+    #[DataProvider('invalidCriteriaParameterProvider')]
+    #[WithoutErrorHandler]
+    public function testInvalidCriteriaParameterThrowsException(string $encodedCriteria, string $expectedMessage): void
     {
-        // Create invalid JSON data
-        $invalidJson = '{"limit": 25, "invalid": }';
-        $gzippedData = gzencode($invalidJson);
-        static::assertNotFalse($gzippedData, 'Gzip compressing failed');
-        $encodedCriteria = $this->base64UrlEncode($gzippedData);
-
         $request = new Request(['_criteria' => $encodedCriteria]);
         $request->setMethod(Request::METHOD_GET);
 
-        $this->expectExceptionObject(DataAbstractionLayerException::invalidCriteriaParameter('Invalid JSON data'));
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidCriteriaParameter($expectedMessage));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,
@@ -958,8 +959,19 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertContains('height', $includes['media']);
     }
 
-    private function base64UrlEncode(string $data): string
+    /**
+     * We would like to support base64 URL encoding without padding as described in RFC 4648.
+     */
+    private static function base64UrlEncode(string $data): string
     {
-        return strtr(base64_encode($data), '+/', '-_');
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    private static function gzipAndBase64UrlEncode(string $data): string
+    {
+        $gzippedData = gzencode($data);
+        static::assertNotFalse($gzippedData, 'Gzip compressing failed');
+
+        return self::base64UrlEncode($gzippedData);
     }
 }

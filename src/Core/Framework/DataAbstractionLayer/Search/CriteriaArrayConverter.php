@@ -52,6 +52,11 @@ class CriteriaArrayConverter
         }
 
         /** @var array<string, mixed> $array */
+        if ($criteria->getExcludes()) {
+            $array['excludes'] = $criteria->getExcludes();
+        }
+
+        /** @var array<string, mixed> $array */
         if (\count($criteria->getIds())) {
             $array['ids'] = $criteria->getIds();
         }

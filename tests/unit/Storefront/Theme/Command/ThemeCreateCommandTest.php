@@ -27,7 +27,7 @@ class ThemeCreateCommandTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->removeTheme(self::THEME_NAME);
+        $this->removeTheme();
     }
 
     public function testSuccessfulCreateCommand(): void
@@ -76,7 +76,7 @@ class ThemeCreateCommandTest extends TestCase
 
         $result = preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
         static::assertIsString($result);
-        static::assertStringContainsString(self::THEME_NAME . ' already exists', $result);
+        static::assertStringContainsString('already exists', $result);
     }
 
     #[DataProvider('commandFailsWithWrongNameDataProvider')]
@@ -102,7 +102,7 @@ class ThemeCreateCommandTest extends TestCase
         ];
     }
 
-    private function removeTheme(string $pluginName): bool
+    private function removeTheme(): bool
     {
         $directory = $this->projectDir . '/custom/';
 

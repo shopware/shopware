@@ -50,7 +50,7 @@
           "help": "A structure category is not callable by itself, but is only used for outlining purposes.",
           "helpText": {
             "page": "A page / list has associated products and can be accessed directly with the assigned layout.",
-            "folder": "A structuring element / entry point will only be displayed in the structure and is not directly accessible except it is assigned as an entry point of a Sales Channel.",
+            "folder": "A structuring element / entry point will only be displayed in the structure if it has children and is not directly accessible except it is assigned as an entry point of a Sales Channel.",
             "link": "A link allows for reference to a product, another category, a landing page or an external site."
           }
         }

@@ -16,6 +16,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 #[AsCommand(
     name: 'theme:prepare-icons',
@@ -68,21 +70,24 @@ class ThemePrepareIconsCommand extends Command
 
         $this->io->writeln('Start Icon preparation');
         $svgReader = new SVGReader();
-        @mkdir($path . 'processed/');
+
+        $fs = new Filesystem();
+        $fs->mkdir($path . 'processed/');
         $this->io->writeln('Created sub directory "processed" in working directory ' . str_replace(__DIR__, '', $path) . '.');
         $this->io->writeln('The processed icons will be written in the "processed" sub directory.');
 
-        $files = glob($path . '*.svg');
+        $files = (new Finder())->files()->in($path)->name('*.svg')->exclude('processed');
         $processedCount = 0;
-        if (!\is_array($files)) {
+        if ($files->count() === 0) {
             $this->io->warning('No svg files found in ' . $path);
 
             return self::SUCCESS;
         }
-        foreach ($files as $file) {
-            $svg = file_get_contents($file);
 
-            if (!\is_string($svg)) {
+        foreach ($files as $file) {
+            $svg = $file->getContents();
+
+            if (empty($svg)) {
                 $this->io->warning('Could not read ' . $file . '.You have to handle this file by hand.');
 
                 continue;
@@ -114,7 +119,7 @@ class ThemePrepareIconsCommand extends Command
             $child = $defs->getChild(0);
 
             if ($child->getAttribute('id') === null || $cleanup) {
-                $id = 'icons-' . $package . '-' . self::toKebabCase(basename($file, '.svg'));
+                $id = 'icons-' . $package . '-' . self::toKebabCase($file->getBasename('.svg'));
                 $child->setAttribute('id', $id);
             } else {
                 $id = $child->getAttribute('id');
@@ -149,7 +154,7 @@ class ThemePrepareIconsCommand extends Command
                 $this->removeStyles($svg->getDocument());
             }
 
-            file_put_contents($path . 'processed/' . basename($file), $svg->toXMLString(false));
+            $fs->dumpFile($path . 'processed/' . $file->getBasename(), $svg->toXMLString(false));
 
             if ($verbose) {
                 $this->io->writeln('Icon ' . $file . ' processed');
@@ -175,6 +180,9 @@ class ThemePrepareIconsCommand extends Command
         }
     }
 
+    /**
+     * @return list<SVGNode>
+     */
     private function getChildren(SVGNodeContainer $fragment): array
     {
         $children = [];

@@ -123,29 +123,14 @@ class Kernel extends HttpKernel
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
-        $this->boot();
+        $this->preInitializePlugins();
 
-        return $this->getHttpKernel()->handle($request, $type, $catch);
+        return parent::handle($request, $type, $catch);
     }
 
     public function boot(): void
     {
-        if (!$this->booted) {
-            if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
-                putenv('SHELL_VERBOSITY=1');
-                $_ENV['SHELL_VERBOSITY'] = 1;
-                $_SERVER['SHELL_VERBOSITY'] = 1;
-            }
-
-            try {
-                // initialize plugins before booting
-                $this->pluginLoader->initializePlugins($this->getProjectDir());
-            } catch (DBALException $e) {
-                if (\defined('\STDERR')) {
-                    fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
-                }
-            }
-        }
+        $this->preInitializePlugins();
 
         parent::boot();
     }
@@ -396,5 +381,32 @@ PHP;
     {
         return \array_key_exists($bundle->getName(), $instantiatedBundleNames)
             || \array_key_exists($bundle->getName(), $this->bundles);
+    }
+
+    /**
+     * Initializes Shopware plugins and environment settings before Symfony's
+     * container/bundles are initialized. Safe to call multiple times.
+     */
+    private function preInitializePlugins(): void
+    {
+        if ($this->booted) {
+            return;
+        }
+
+        if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
+            putenv('SHELL_VERBOSITY=1');
+            $_ENV['SHELL_VERBOSITY'] = 1;
+            $_SERVER['SHELL_VERBOSITY'] = 1;
+        }
+
+        try {
+            // Initialize plugins before Symfony preBoot() runs so that bundles
+            // provided by plugins are registered during initializeBundles().
+            $this->pluginLoader->initializePlugins($this->getProjectDir());
+        } catch (DBALException $e) {
+            if (\defined('\STDERR')) {
+                fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
+            }
+        }
     }
 }

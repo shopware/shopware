@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -29,6 +30,8 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(SystemInstallCommand::class)]
 class SystemInstallCommandTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     protected function tearDown(): void
     {
         $fs = new Filesystem();
@@ -138,6 +141,35 @@ class SystemInstallCommandTest extends TestCase
         $result = $command->run(new ArrayInput(['--skip-first-run-wizard' => true]), new BufferedOutput());
 
         static::assertSame(0, $result);
+    }
+
+    public function testSkipWebInstallerEnvironmentVariable(): void
+    {
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $output = new BufferedOutput();
+        $result = $command->run(new ArrayInput([]), $output);
+
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertStringContainsString('Skipping install.lock creation', $output->fetch());
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+    }
+
+    public function testSkipWebInstallerDoesNotBypassCliSafety(): void
+    {
+        // Create install.lock file
+        touch(__DIR__ . '/install.lock');
+
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+
+        $command = $this->prepareCommandInstance();
+
+        // Should still fail because install.lock exists (env var doesn't bypass CLI safety)
+        $result = $command->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertSame(Command::FAILURE, $result);
     }
 
     public function testInstallLockNotCreatedOnFailure(): void

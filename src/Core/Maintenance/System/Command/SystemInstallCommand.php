@@ -175,7 +175,11 @@ class SystemInstallCommand extends Command
         }
 
         if ($result === self::SUCCESS) {
-            touch($this->projectDir . '/install.lock');
+            if (EnvironmentHelper::getVariable('SHOPWARE_SKIP_WEBINSTALLER', false)) {
+                $output->comment('Skipping install.lock creation (SHOPWARE_SKIP_WEBINSTALLER is set)');
+            } else {
+                touch($this->projectDir . '/install.lock');
+            }
         }
 
         return $result;

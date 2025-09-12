@@ -13,10 +13,13 @@ author_github: @SpiGAndromeda
 ___
 # Upgrade Information
 ## Environment Variable for PaaS Deployments
-For deployments on platforms with read-only filesystems (such as Shopware PaaS), you can now set the `SHOPWARE_SKIP_WEBINSTALLER` environment variable to bypass the web installer and install.lock file checks:
+For deployments on platforms with read-only filesystems (such as Shopware PaaS), you can now set the `SHOPWARE_SKIP_WEBINSTALLER` environment variable to bypass the web installer and install.lock file checks.
 
+Any non-empty value will activate this feature:
 ```bash
 SHOPWARE_SKIP_WEBINSTALLER=1
+SHOPWARE_SKIP_WEBINSTALLER=true
+SHOPWARE_SKIP_WEBINSTALLER=enabled
 ```
 
 This allows Shopware to run without requiring write access to create the `install.lock` file in the project root.

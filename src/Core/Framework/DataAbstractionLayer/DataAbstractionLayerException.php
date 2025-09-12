@@ -29,7 +29,6 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Hook;
-use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -83,7 +82,6 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_DATE_FORMAT = 'FRAMEWORK__INVALID_DATE_FORMAT';
     public const INVALID_DATE_HISTOGRAM_INTERVAL = 'FRAMEWORK__INVALID_DATE_HISTOGRAM_INTERVAL';
     public const INVALID_TIMEZONE = 'FRAMEWORK__INVALID_TIMEZONE';
-    public const INVALID_UUID = 'FRAMEWORK__INVALID_UUID';
     public const INVALID_ENUM_FIELD = 'FRAMEWORK__INVALID_ENUM_FIELD';
     public const CANNOT_FIND_PARENT_STORAGE_FIELD = 'FRAMEWORK__CAN_NOT_FIND_PARENT_STORAGE_FIELD';
     public const INVALID_PARENT_ASSOCIATION_EXCEPTION = 'FRAMEWORK__INVALID_PARENT_ASSOCIATION_EXCEPTION';
@@ -786,17 +784,6 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_TIMEZONE,
             'Given "{{ timeZone }}" is not a valid timezone',
             ['timeZone' => $timeZone]
-        );
-    }
-
-    public static function invalidUuid(string $uuid): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::INVALID_UUID,
-            'Value is not a valid UUID: {{ uuid }}',
-            ['uuid' => $uuid],
-            UuidException::invalidUuid($uuid)
         );
     }
 

@@ -22,9 +22,9 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRouteResponse;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidEntityUuidException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -99,7 +99,7 @@ class AccountOrderControllerTest extends TestCase
     public function testEditOrderInvalidUuid(): void
     {
         // Ensure invalid uuid exception is thrown
-        $this->orderRouteMock->method('load')->willThrowException(new InvalidUuidException('invalid-id'));
+        $this->orderRouteMock->method('load')->willThrowException(new InvalidEntityUuidException('invalid-id'));
 
         $response = $this->controller->editOrder('invalid-id', new Request(), Generator::generateSalesChannelContext());
 

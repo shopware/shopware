@@ -1,21 +1,20 @@
 /**
  * @sw-package framework
  */
+import type SnippetApiService from 'src/core/service/api/snippet.api.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default async function initializeLocaleService() {
     const factoryContainer = Shopware.Application.getContainer('factory');
     const localeFactory = factoryContainer.locale;
 
-    // Register default snippets
-    localeFactory.register('de-DE', {});
-    localeFactory.register('en-GB', {});
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const snippetService = Shopware.Service('snippetService');
-
+    const snippetService = Shopware.Service('snippetService') as SnippetApiService;
     if (snippetService) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        const locales = await snippetService.getLocales();
+        Array.from(locales).forEach((locale) => {
+            localeFactory.register(locale, {});
+        });
+
         await snippetService.getSnippets(localeFactory);
     }
 

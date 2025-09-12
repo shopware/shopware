@@ -31,9 +31,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\DataAbstractionLayer\TestEntityDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -71,7 +75,14 @@ class AdministrationControllerTest extends TestCase
 
     private string $serviceRegistryUrl;
 
+    /**
+     * @var MockObject&EntityRepository<LanguageCollection>
+     */
+    private MockObject&EntityRepository $languageRepository;
+
     private string $refreshTokenTtl;
+
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
@@ -85,7 +96,10 @@ class AdministrationControllerTest extends TestCase
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
         $this->serviceRegistryUrl = 'https://registry.services.shopware.io';
+        $this->languageRepository = $this->createMock(EntityRepository::class);
         $this->refreshTokenTtl = 'P1W';
+
+        $this->ids = new IdsCollection();
     }
 
     public function testIndexPerformsOnSearchOfCurrency(): void
@@ -440,6 +454,46 @@ class AdministrationControllerTest extends TestCase
         static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
     }
 
+    public function testGetAllActivatedLanguagesLocales(): void
+    {
+        $expectedLocales = [
+            $this->ids->create('de-DE') => 'de-DE',
+            $this->ids->create('en-GB') => 'en-GB',
+            $this->ids->create('jp-JP') => 'jp-JP',
+        ];
+
+        $languages = \array_map(static function (string $locale, string $languageId) {
+            $localeEntity = new LocaleEntity();
+            $localeEntity->setCode($locale);
+
+            $languageEntity = new LanguageEntity();
+            $languageEntity->setId($languageId);
+            $languageEntity->setLocale($localeEntity);
+
+            return $languageEntity;
+        }, $expectedLocales, \array_keys($expectedLocales));
+
+        $context = Context::createDefaultContext();
+        $languageRepository = $this->createMock(EntityRepository::class);
+        $languageRepository->method('search')
+            ->willReturn(new EntitySearchResult(
+                'language',
+                2,
+                new LanguageCollection($languages),
+                null,
+                new Criteria(),
+                $context,
+            ));
+        $controller = $this->createAdministrationController(null, false, $languageRepository);
+
+        $jsonResponse = $controller->getLocales(new Request(), $context);
+        static::assertInstanceOf(JsonResponse::class, $jsonResponse);
+        static::assertSame(Response::HTTP_OK, $jsonResponse->getStatusCode());
+
+        $actualLocales = \json_decode($jsonResponse->getContent(), true);
+        static::assertEquals($expectedLocales, $actualLocales);
+    }
+
     public static function excludedTerms(): \Generator
     {
         $languageId = Uuid::fromStringToHex('languageId');
@@ -468,7 +522,8 @@ class AdministrationControllerTest extends TestCase
 
     protected function createAdministrationController(
         ?CustomerCollection $collection = null,
-        bool $isCustomerBoundToSalesChannel = false
+        bool $isCustomerBoundToSalesChannel = false,
+        ?EntityRepository $languageRepository = null,
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
@@ -494,6 +549,7 @@ class AdministrationControllerTest extends TestCase
             ]),
             $this->fileSystemOperator,
             $this->serviceRegistryUrl,
+            $languageRepository ?? $this->languageRepository,
             $this->refreshTokenTtl,
         );
     }

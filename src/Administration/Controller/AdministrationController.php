@@ -30,6 +30,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -57,6 +59,7 @@ class AdministrationController extends AbstractController
      * @param array<int, int> $supportedApiVersions
      * @param EntityRepository<CustomerCollection> $customerRepository
      * @param EntityRepository<CurrencyCollection> $currencyRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly TemplateFinderInterface $finder,
@@ -75,6 +78,8 @@ class AdministrationController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
+        private readonly LoginConfigService $loginConfigService,
+        private readonly EntityRepository $languageRepository,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -129,6 +134,25 @@ class AdministrationController extends AbstractController
         }
 
         return new JsonResponse($snippets);
+    }
+
+    #[Route(path: '/api/_admin/locales', name: 'api.admin.locales', methods: ['GET'])]
+    public function getLocales(Request $request, Context $context): Response
+    {
+        $criteria = (new Criteria())->addAssociation('locale');
+
+        $languages = $this->languageRepository->search($criteria, $context);
+        /** @var array<string, string> $installedLocales */
+        $installedLocales = $languages->reduce(static function (array $accumulator, LanguageEntity $language) {
+            $locale = $language->getLocale();
+            if ($locale !== null) {
+                $accumulator[$language->getId()] = $locale->getCode();
+            }
+
+            return $accumulator;
+        }, []);
+
+        return new JsonResponse($installedLocales);
     }
 
     #[Route(path: '/api/_admin/known-ips', name: 'api.admin.known-ips', methods: ['GET'])]

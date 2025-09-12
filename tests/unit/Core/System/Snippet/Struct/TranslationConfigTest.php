@@ -30,6 +30,8 @@ class TranslationConfigTest extends TestCase
             new Language('de-DE', 'Deutsch'),
         ]);
 
+        $excludedLocales = ['fr-FR', 'es-ES'];
+
         $pluginMapping = new PluginMappingCollection([
             new PluginMapping('PluginA', 'plugin-a'),
             new PluginMapping('PluginB', 'plugin-b'),
@@ -44,6 +46,7 @@ class TranslationConfigTest extends TestCase
             $languages,
             $pluginMapping,
             $metadataUrl,
+            $excludedLocales,
         );
 
         static::assertSame($repositoryUrl, $config->repositoryUrl);
@@ -52,6 +55,7 @@ class TranslationConfigTest extends TestCase
         static::assertSame($languages, $config->languages);
         static::assertSame($pluginMapping, $config->pluginMapping);
         static::assertSame($metadataUrl, $config->metadataUrl);
+        static::assertSame($excludedLocales, $config->excludedLocales);
     }
 
     public function testGetMappedPluginName(): void
@@ -70,6 +74,7 @@ class TranslationConfigTest extends TestCase
             new LanguageCollection(),
             $pluginMapping,
             new Uri('http://localhost:8000/metadata.json'),
+            [],
         );
 
         $pluginWithoutMapping = new TestPlugin(true, 'path/to/plugin');

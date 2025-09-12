@@ -19,13 +19,24 @@ class Migration1754295570DocumentActivateReturnAddress extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $documentConfigData = $connection->executeQuery('SELECT `id`, `config` FROM `document_base_config`;')->fetchAllAssociative();
+
         $documentConfig = array_map(function ($arr): array {
+            if (!\array_key_exists('config', $arr) || !\is_string($arr['config'])) {
+                $arr['config'] = [];
+                $arr['config']['displayReturnAddress'] = true;
+                $arr['config'] = json_encode($arr['config']);
+
+                return $arr;
+            }
+
             $arr['config'] = json_decode($arr['config'], true, 512, \JSON_THROW_ON_ERROR);
             $arr['config']['displayReturnAddress'] = true;
             $arr['config'] = json_encode($arr['config']);
 
             return $arr;
-        }, $connection->executeQuery('SELECT id, config FROM document_base_config;')->fetchAllAssociative());
+        }, $documentConfigData);
+
         array_walk(
             $documentConfig,
             function (array $arr) use ($connection): void {

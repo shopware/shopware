@@ -1,5 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
-import { replaceElements, hideElements, setViewport, assertScreenshot } from '@shopware-ag/acceptance-test-suite';
+import { test, replaceElements, hideElements, setViewport, assertScreenshot } from '@fixtures/AcceptanceTest';
 
 test('Administration dashboard', { tag: '@Visual' }, async ({
     ShopAdmin,

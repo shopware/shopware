@@ -115,6 +115,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Service\GuestAuthenticator" />
+
         <service id="Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber">
             <argument type="service" id="Shopware\Core\Checkout\Customer\Service\ProductReviewCountService"/>
 

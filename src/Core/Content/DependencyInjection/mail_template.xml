@@ -124,5 +124,11 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Content\Mail\SystemCheck\MailServiceHealthCheck">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Transport\MailerTransportLoader"/>
+            <tag name="shopware.system_check"/>
+        </service>
     </services>
 </container>

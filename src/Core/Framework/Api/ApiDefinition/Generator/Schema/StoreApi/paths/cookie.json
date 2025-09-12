@@ -10,18 +10,6 @@
         "summary": "Fetch all cookie groups",
         "description": "Fetch all cookie groups available in the system.",
         "operationId": "readCookieGroups",
-        "parameters": [
-          {
-            "name": "translate",
-            "in": "query",
-            "description": "Instructs Shopware to translate the name and description of the cookie groups and their entries",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": true
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful response with a collection of cookie groups.",

@@ -17,8 +17,8 @@ ___
 * Deprecated `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface`. Use `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead.
 * Deprecated `\Shopware\Storefront\Framework\Cookie\CookieProvider`
 * Deprecated `\Shopware\Storefront\Framework\Cookie\AppCookieProvider`
-* Deprecated usage of `snippet_name` on cookies in Twig templates. Use `snippetKeyName` instead.
-* Deprecated usage of `snippet_description` on cookies in Twig templates. Use `snippetKeyDescription` instead.
+* Deprecated usage of `snippet_name` on cookies in Twig templates. Use `name` instead.
+* Deprecated usage of `snippet_description` on cookies in Twig templates. Use `description` instead.
 
 ___
 
@@ -43,7 +43,7 @@ To register new cookie groups and cookie entries, the new `\Shopware\Core\Conten
 The way apps are registering cookies has not changed.
 
 Additionally, the `snippet_name` and `snippet_description` properties on cookies in Twig templates have been deprecated.
-Use `snippetKeyName` and `snippetKeyDescription` instead.
+Use `name` and `description` instead. The `snippetKeyName` and `snippetKeyDescription` properties are only used internally for translations, and the value of this snippet key is not exposed via the Store API or Twig templates.
 
 Adding new cookies before:
 ```php
@@ -102,4 +102,4 @@ ___
 The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
 Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
 The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
-Use `snippetKeyName` and `snippetKeyDescription` instead.
+Use `name` and `description` instead.

@@ -18,11 +18,11 @@ class CookieGroup extends Struct
 {
     public bool $isRequired = false;
 
-    public ?string $translatedName;
+    public ?string $name;
 
     public ?string $snippetKeyDescription;
 
-    public ?string $translatedDescription;
+    public ?string $description;
 
     public ?string $value;
 

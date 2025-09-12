@@ -16,16 +16,10 @@
           "expiration": {
             "type": "integer"
           },
-          "snippetKeyName": {
+          "name": {
             "type": "string"
           },
-          "translatedName": {
-            "type": "string"
-          },
-          "snippetKeyDescription": {
-            "type": "string"
-          },
-          "translatedDescription": {
+          "description": {
             "type": "string"
           },
           "hidden": {

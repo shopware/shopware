@@ -17,11 +17,11 @@ class CookieEntry extends Struct
 
     public ?string $snippetKeyName;
 
-    public ?string $translatedName;
+    public ?string $name;
 
     public ?string $snippetKeyDescription;
 
-    public ?string $translatedDescription;
+    public ?string $description;
 
     public bool $hidden = false;
 

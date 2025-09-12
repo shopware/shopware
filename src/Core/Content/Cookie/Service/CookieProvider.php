@@ -43,7 +43,7 @@ class CookieProvider
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
-    public function getCookieGroups(SalesChannelContext $salesChannelContext, bool $translate = false): CookieGroupCollection
+    public function getCookieGroups(SalesChannelContext $salesChannelContext): CookieGroupCollection
     {
         $cookieGroups = new CookieGroupCollection();
 
@@ -61,10 +61,7 @@ class CookieProvider
 
         foreach ($cookieGroups as $cookieGroup) {
             $this->removeCookieGroupsWithoutCookies($cookieGroups, $cookieGroup);
-
-            if ($translate) {
-                $this->translateCookieGroupsAndTheirEntries($cookieGroup);
-            }
+            $this->translateCookieSnippetsAndUnsetSnippetKeys($cookieGroup);
         }
 
         return $cookieGroups;
@@ -163,23 +160,27 @@ class CookieProvider
         }
     }
 
-    private function translateCookieGroupsAndTheirEntries(CookieGroup $cookieGroup): void
+    private function translateCookieSnippetsAndUnsetSnippetKeys(CookieGroup $cookieGroup): void
     {
-        $cookieGroup->translatedName = $this->translator->trans($cookieGroup->snippetKeyName);
+        $cookieGroup->name = $this->translator->trans($cookieGroup->snippetKeyName);
+        unset($cookieGroup->snippetKeyName);
 
         if (isset($cookieGroup->snippetKeyDescription)) {
-            $cookieGroup->translatedDescription = $this->translator->trans($cookieGroup->snippetKeyDescription);
+            $cookieGroup->description = $this->translator->trans($cookieGroup->snippetKeyDescription);
+            unset($cookieGroup->snippetKeyDescription);
         }
 
         $entries = $cookieGroup->getEntries();
         if ($entries !== null) {
             foreach ($entries as $entry) {
                 if (isset($entry->snippetKeyName)) {
-                    $entry->translatedName = $this->translator->trans($entry->snippetKeyName);
+                    $entry->name = $this->translator->trans($entry->snippetKeyName);
+                    unset($entry->snippetKeyName);
                 }
 
                 if (isset($entry->snippetKeyDescription)) {
-                    $entry->translatedDescription = $this->translator->trans($entry->snippetKeyDescription);
+                    $entry->description = $this->translator->trans($entry->snippetKeyDescription);
+                    unset($entry->snippetKeyDescription);
                 }
             }
         }

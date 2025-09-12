@@ -31,9 +31,7 @@ class CookieRoute extends AbstractCookieRoute
     #[Route(path: '/store-api/cookie-groups', name: 'store-api.cookie.groups', methods: [Request::METHOD_GET])]
     public function getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieRouteResponse
     {
-        $translate = $request->query->getBoolean('translate', true); // Default to true for Store API consumers
-
-        $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext, $translate);
+        $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext);
 
         return new CookieRouteResponse($cookieGroups);
     }

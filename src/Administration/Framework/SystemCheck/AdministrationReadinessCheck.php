@@ -55,9 +55,9 @@ class AdministrationReadinessCheck extends BaseCheck
         $indexResponseTime = microtime(true) - $indexRequestStart;
 
         // Looks for JS modules injected in the body
-        $indexContent = $indexResponse->getContent() ?? '';
+        $indexContent = \is_string($indexResponse->getContent()) ? $indexResponse->getContent() : '';
         $indexPageJsBundlesFound = preg_match_all('/type="module" src="(.+?)"/', $indexContent, $matches);
-        $indexPageJsBundles = $matches[1] ?? [];
+        $indexPageJsBundles = $matches[1];
 
         // check js build artifacts entrypoints
         $missingJsBundles = $this->checkForMissingAdministrationBundles();

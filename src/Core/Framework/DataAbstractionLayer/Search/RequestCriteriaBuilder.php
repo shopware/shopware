@@ -36,6 +36,7 @@ class RequestCriteriaBuilder
     ];
 
     private const MAX_GET_CRITERIA_LENGTH = 1024 * 128; // 128kb
+    private const MAX_GET_CRITERIA_UNCOMPRESSED_LENGTH = self::MAX_GET_CRITERIA_LENGTH * 20; // using compression factor of 20 which is optimistic
 
     /**
      * @internal
@@ -521,9 +522,9 @@ class RequestCriteriaBuilder
             }
 
             // Decompress gzipped data
-            // Limit the decompressed size for additional safety
-            // Function throws a warning on failure, suppressing it as result is validated afterwards
-            $jsonData = @gzdecode($gzippedData, self::MAX_GET_CRITERIA_LENGTH * 20);
+            // Limit the decompressed size for additional safety from malicious input.
+            // Function throws a warning on failure, suppressing it as result is validated afterwards.
+            $jsonData = @gzdecode($gzippedData, self::MAX_GET_CRITERIA_UNCOMPRESSED_LENGTH);
 
             if ($jsonData === false) {
                 throw DataAbstractionLayerException::invalidCriteriaParameter('Unable to decompress gzipped data');
@@ -541,20 +542,20 @@ class RequestCriteriaBuilder
             throw DataAbstractionLayerException::invalidCriteriaParameter('Invalid JSON data: ' . $e->getMessage());
         } catch (DataAbstractionLayerException $e) {
             throw $e;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw DataAbstractionLayerException::invalidCriteriaParameter('Unable to decode or decompress criteria data: ' . $e->getMessage());
         }
     }
 
+    // The standard base64 alphabet contains + and / which are not URL safe.
+    // Base64url encoding replaces + with - and / with _
+    // (see RFC 4648, Section 5 https://datatracker.ietf.org/doc/html/rfc4648#section-5).
+    // Padding restoration is unnecessary, as base64_decode handles it correctly.
     private function base64urlDecode(string $data): string|false
     {
-        $b64 = strtr($data, '-_', '+/');
-
-        $padLen = (4 - (\strlen($b64) % 4)) % 4;
-        if ($padLen) {
-            $b64 .= str_repeat('=', $padLen);
-        }
-
-        return base64_decode($b64, true);
+        return base64_decode(
+            strtr($data, '-_', '+/'),
+            true,
+        );
     }
 }

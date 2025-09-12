@@ -63,7 +63,7 @@ class SystemInstallCommand extends Command
         $_ENV['BLUE_GREEN_DEPLOYMENT'] = $isBlueGreen;
         putenv('BLUE_GREEN_DEPLOYMENT=' . $isBlueGreen);
 
-        if (!$input->getOption('force') && (\is_file($this->projectDir . '/var/install.lock') || \is_file($this->projectDir . '/install.lock'))) {
+        if (!$input->getOption('force') && \is_file($this->projectDir . '/install.lock')) {
             $output->comment('install.lock already exists. Delete it or pass --force to do it anyway.');
 
             return self::FAILURE;
@@ -175,11 +175,7 @@ class SystemInstallCommand extends Command
         }
 
         if ($result === self::SUCCESS) {
-            if (!\is_dir($this->projectDir . '/var')) {
-                mkdir($this->projectDir . '/var', 0777, true);
-            }
-
-            touch($this->projectDir . '/var/install.lock');
+            touch($this->projectDir . '/install.lock');
         }
 
         return $result;

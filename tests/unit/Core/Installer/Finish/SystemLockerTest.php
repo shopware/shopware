@@ -16,10 +16,7 @@ class SystemLockerTest extends TestCase
     protected function tearDown(): void
     {
         $fs = new Filesystem();
-        $fs->remove([
-            __DIR__ . '/var/install.lock',
-            __DIR__ . '/var',
-        ]);
+        $fs->remove(__DIR__ . '/install.lock');
     }
 
     public function testLock(): void
@@ -27,33 +24,7 @@ class SystemLockerTest extends TestCase
         $locker = new SystemLocker(__DIR__);
         $locker->lock();
 
-        static::assertFileExists(__DIR__ . '/var/install.lock');
-        static::assertDirectoryExists(__DIR__ . '/var');
-    }
-
-    public function testLockCreatesVarDirectory(): void
-    {
-        $fs = new Filesystem();
-        $fs->remove(__DIR__ . '/var');
-
-        static::assertDirectoryDoesNotExist(__DIR__ . '/var');
-
-        $locker = new SystemLocker(__DIR__);
-        $locker->lock();
-
-        static::assertDirectoryExists(__DIR__ . '/var');
-        static::assertFileExists(__DIR__ . '/var/install.lock');
-    }
-
-    public function testLockWithExistingVarDirectory(): void
-    {
-        mkdir(__DIR__ . '/var', 0777, true);
-
-        $locker = new SystemLocker(__DIR__);
-        $locker->lock();
-
-        static::assertDirectoryExists(__DIR__ . '/var');
-        static::assertFileExists(__DIR__ . '/var/install.lock');
+        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testLockFileContainsTimestamp(): void
@@ -61,7 +32,7 @@ class SystemLockerTest extends TestCase
         $locker = new SystemLocker(__DIR__);
         $locker->lock();
 
-        $content = file_get_contents(__DIR__ . '/var/install.lock');
+        $content = file_get_contents(__DIR__ . '/install.lock');
         static::assertNotEmpty($content);
         // The file should contain a timestamp in YmdHi format
         static::assertMatchesRegularExpression('/^\d{12}$/', $content);

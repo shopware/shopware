@@ -141,7 +141,6 @@ custom
 !/custom/scripts/boot
 !/custom/scripts/examples
 files/*
-/var/install.lock
 install.lock
 
 vendor-bin/**/vendor

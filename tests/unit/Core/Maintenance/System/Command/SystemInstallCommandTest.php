@@ -34,8 +34,6 @@ class SystemInstallCommandTest extends TestCase
         $fs = new Filesystem();
         $fs->remove([
             __DIR__ . '/install.lock',
-            __DIR__ . '/var/install.lock',
-            __DIR__ . '/var',
             __DIR__ . '/config',
         ]);
     }
@@ -46,8 +44,7 @@ class SystemInstallCommandTest extends TestCase
     #[DataProvider('dataProviderTestExecuteWhenInstallLockExists')]
     public function testExecuteWhenInstallLockExists(array $mockInputValues): void
     {
-        mkdir(__DIR__ . '/var', 0777, true);
-        touch(__DIR__ . '/var/install.lock');
+        touch(__DIR__ . '/install.lock');
 
         $systemInstallCmd = $this->prepareCommandInstance();
 
@@ -77,40 +74,8 @@ class SystemInstallCommandTest extends TestCase
         ];
     }
 
-    public function testExecuteWhenLegacyInstallLockExists(): void
+    public function testForceOptionBypassesLockFile(): void
     {
-        touch(__DIR__ . '/install.lock');
-
-        $systemInstallCmd = $this->prepareCommandInstance();
-
-        $refMethod = ReflectionHelper::getMethod(SystemInstallCommand::class, 'execute');
-
-        $mockInputValues = ['force' => false];
-        $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), $this->createMock(OutputInterface::class));
-
-        static::assertSame(Command::FAILURE, $result);
-    }
-
-    public function testExecuteWhenBothLockFilesExist(): void
-    {
-        mkdir(__DIR__ . '/var', 0777, true);
-        touch(__DIR__ . '/var/install.lock');
-        touch(__DIR__ . '/install.lock');
-
-        $systemInstallCmd = $this->prepareCommandInstance();
-
-        $refMethod = ReflectionHelper::getMethod(SystemInstallCommand::class, 'execute');
-
-        $mockInputValues = ['force' => false];
-        $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), $this->createMock(OutputInterface::class));
-
-        static::assertSame(Command::FAILURE, $result);
-    }
-
-    public function testForceOptionBypassesBothLockFiles(): void
-    {
-        mkdir(__DIR__ . '/var', 0777, true);
-        touch(__DIR__ . '/var/install.lock');
         touch(__DIR__ . '/install.lock');
 
         $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
@@ -127,8 +92,7 @@ class SystemInstallCommandTest extends TestCase
         $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
 
         static::assertSame(Command::SUCCESS, $result);
-        static::assertFileExists(__DIR__ . '/var/install.lock');
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testDefaultInstallFlow(): void

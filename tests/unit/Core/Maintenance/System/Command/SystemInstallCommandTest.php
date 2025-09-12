@@ -143,9 +143,10 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(0, $result);
     }
 
-    public function testSkipWebInstallerEnvironmentVariable(): void
+    #[DataProvider('truthyEnvironmentVariableProvider')]
+    public function testSkipWebInstallerWithTruthyEnvironmentVariable(string $envValue): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => $envValue]);
 
         $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
 
@@ -153,23 +154,78 @@ class SystemInstallCommandTest extends TestCase
         $result = $command->run(new ArrayInput([]), $output);
 
         static::assertSame(Command::SUCCESS, $result);
-        static::assertStringContainsString('Skipping install.lock creation', $output->fetch());
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+
+        $outputContent = $output->fetch();
+        static::assertStringContainsString('Skipping install.lock creation', $outputContent, \sprintf('Should skip lock creation when env var is "%s"', $envValue));
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock', \sprintf('Lock file should not exist when env var is "%s"', $envValue));
     }
 
-    public function testSkipWebInstallerDoesNotBypassCliSafety(): void
+    public static function truthyEnvironmentVariableProvider(): \Generator
     {
-        // Create install.lock file
+        yield 'string 1' => ['envValue' => '1'];
+        yield 'string true' => ['envValue' => 'true'];
+        yield 'string TRUE' => ['envValue' => 'TRUE'];
+        yield 'string yes' => ['envValue' => 'yes'];
+        yield 'string YES' => ['envValue' => 'YES'];
+        yield 'string on' => ['envValue' => 'on'];
+        yield 'string enabled' => ['envValue' => 'enabled'];
+
+        yield 'string false (evaluates to true!)' => ['envValue' => 'false'];
+        yield 'string FALSE' => ['envValue' => 'FALSE'];
+        yield 'string no (evaluates to true!)' => ['envValue' => 'no'];
+        yield 'string off (evaluates to true!)' => ['envValue' => 'off'];
+        yield 'any non-empty string' => ['envValue' => 'anything'];
+        yield 'string 2' => ['envValue' => '2'];
+        yield 'spaces only' => ['envValue' => '   '];
+    }
+
+    #[DataProvider('falsyEnvironmentVariableProvider')]
+    public function testCreateLockWithFalsyEnvironmentVariable(?string $envValue): void
+    {
+        if ($envValue !== null) {
+            $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => $envValue]);
+        }
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $output = new BufferedOutput();
+        $result = $command->run(new ArrayInput([]), $output);
+
+        static::assertSame(Command::SUCCESS, $result);
+
+        $outputContent = $output->fetch();
+        static::assertStringNotContainsString('Skipping install.lock creation', $outputContent, \sprintf('Should not skip lock creation when env var is "%s"', $envValue ?? 'null'));
+        static::assertFileExists(__DIR__ . '/install.lock', \sprintf('Lock file should exist when env var is "%s"', $envValue ?? 'null'));
+    }
+
+    public static function falsyEnvironmentVariableProvider(): \Generator
+    {
+        yield 'string 0' => ['envValue' => '0'];
+        yield 'empty string' => ['envValue' => ''];
+        yield 'null (not set)' => ['envValue' => null];
+    }
+
+    #[DataProvider('allEnvironmentVariableProvider')]
+    public function testSkipWebInstallerNeverBypassesCliSafety(?string $envValue): void
+    {
         touch(__DIR__ . '/install.lock');
 
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+        if ($envValue !== null) {
+            $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => $envValue]);
+        }
 
         $command = $this->prepareCommandInstance();
 
-        // Should still fail because install.lock exists (env var doesn't bypass CLI safety)
+        // Should always fail when install.lock exists, regardless of env var
         $result = $command->run(new ArrayInput([]), new BufferedOutput());
 
-        static::assertSame(Command::FAILURE, $result);
+        static::assertSame(Command::FAILURE, $result, \sprintf('Should fail with existing lock file regardless of env var "%s"', $envValue ?? 'null'));
+    }
+
+    public static function allEnvironmentVariableProvider(): \Generator
+    {
+        yield from self::truthyEnvironmentVariableProvider();
+        yield from self::falsyEnvironmentVariableProvider();
     }
 
     public function testInstallLockNotCreatedOnFailure(): void

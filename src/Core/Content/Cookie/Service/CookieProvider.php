@@ -61,7 +61,7 @@ class CookieProvider
 
         foreach ($cookieGroups as $cookieGroup) {
             $this->removeCookieGroupsWithoutCookies($cookieGroups, $cookieGroup);
-            $this->translateCookieSnippetsAndUnsetSnippetKeys($cookieGroup);
+            $this->translateCookieGroupAndEntries($cookieGroup);
         }
 
         return $cookieGroups;
@@ -70,7 +70,7 @@ class CookieProvider
     private function getCookieGroupRequiredEntries(): CookieGroup
     {
         $cookieGroupRequired = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
-        $cookieGroupRequired->snippetKeyDescription = 'cookie.groupRequiredDescription';
+        $cookieGroupRequired->description = 'cookie.groupRequiredDescription';
         $cookieGroupRequired->setEntries(new CookieEntryCollection([
             $this->getRequiredSessionEntry(),
             $this->getRequiredTimezoneEntry(),
@@ -84,7 +84,7 @@ class CookieProvider
     private function getRequiredSessionEntry(): CookieEntry
     {
         $entryRequiredSession = new CookieEntry($this->sessionName);
-        $entryRequiredSession->snippetKeyName = 'cookie.groupRequiredSession';
+        $entryRequiredSession->name = 'cookie.groupRequiredSession';
 
         return $entryRequiredSession;
     }
@@ -92,7 +92,7 @@ class CookieProvider
     private function getRequiredTimezoneEntry(): CookieEntry
     {
         $entryRequiredTimezone = new CookieEntry('timezone');
-        $entryRequiredTimezone->snippetKeyName = 'cookie.groupRequiredTimezone';
+        $entryRequiredTimezone->name = 'cookie.groupRequiredTimezone';
 
         return $entryRequiredTimezone;
     }
@@ -100,7 +100,7 @@ class CookieProvider
     private function getRequiredAcceptedEntry(): CookieEntry
     {
         $entryRequiredAccepted = new CookieEntry('cookie-preference');
-        $entryRequiredAccepted->snippetKeyName = 'cookie.groupRequiredAccepted';
+        $entryRequiredAccepted->name = 'cookie.groupRequiredAccepted';
         $entryRequiredAccepted->value = '1';
         $entryRequiredAccepted->expiration = 30;
         $entryRequiredAccepted->hidden = true;
@@ -112,7 +112,7 @@ class CookieProvider
     {
         $cookieGroupStatistical = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
         $cookieGroupStatistical->setEntries(new CookieEntryCollection([]));
-        $cookieGroupStatistical->snippetKeyDescription = 'cookie.groupStatisticalDescription';
+        $cookieGroupStatistical->description = 'cookie.groupStatisticalDescription';
 
         return $cookieGroupStatistical;
     }
@@ -130,7 +130,7 @@ class CookieProvider
     private function getYoutubeVideoEntry(): CookieEntry
     {
         $entryYoutubeVideo = new CookieEntry('youtube-video');
-        $entryYoutubeVideo->snippetKeyName = 'cookie.groupComfortFeaturesYoutubeVideo';
+        $entryYoutubeVideo->name = 'cookie.groupComfortFeaturesYoutubeVideo';
         $entryYoutubeVideo->value = '1';
         $entryYoutubeVideo->expiration = 30;
 
@@ -140,7 +140,7 @@ class CookieProvider
     private function getCookieGroupMarketing(): CookieGroup
     {
         $cookieGroupMarketing = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
-        $cookieGroupMarketing->snippetKeyDescription = 'cookie.groupMarketingDescription';
+        $cookieGroupMarketing->description = 'cookie.groupMarketingDescription';
         $cookieGroupMarketing->setEntries(new CookieEntryCollection([]));
 
         return $cookieGroupMarketing;
@@ -156,31 +156,27 @@ class CookieProvider
         $entries = $cookieGroup->getEntries();
         if ($entries === null || $entries->count() === 0) {
             // Cookie groups without cookie entries should not be shown to the user
-            $cookieGroups->remove($cookieGroup->snippetKeyName);
+            $cookieGroups->remove($cookieGroup->name);
         }
     }
 
-    private function translateCookieSnippetsAndUnsetSnippetKeys(CookieGroup $cookieGroup): void
+    private function translateCookieGroupAndEntries(CookieGroup $cookieGroup): void
     {
-        $cookieGroup->name = $this->translator->trans($cookieGroup->snippetKeyName);
-        unset($cookieGroup->snippetKeyName);
+        $cookieGroup->name = $this->translator->trans($cookieGroup->name);
 
-        if (isset($cookieGroup->snippetKeyDescription)) {
-            $cookieGroup->description = $this->translator->trans($cookieGroup->snippetKeyDescription);
-            unset($cookieGroup->snippetKeyDescription);
+        if (isset($cookieGroup->description)) {
+            $cookieGroup->description = $this->translator->trans($cookieGroup->description);
         }
 
         $entries = $cookieGroup->getEntries();
         if ($entries !== null) {
             foreach ($entries as $entry) {
-                if (isset($entry->snippetKeyName)) {
-                    $entry->name = $this->translator->trans($entry->snippetKeyName);
-                    unset($entry->snippetKeyName);
+                if (isset($entry->name)) {
+                    $entry->name = $this->translator->trans($entry->name);
                 }
 
-                if (isset($entry->snippetKeyDescription)) {
-                    $entry->description = $this->translator->trans($entry->snippetKeyDescription);
-                    unset($entry->snippetKeyDescription);
+                if (isset($entry->description)) {
+                    $entry->description = $this->translator->trans($entry->description);
                 }
             }
         }
@@ -204,7 +200,7 @@ class CookieProvider
             }
 
             if (\array_key_exists('snippet_description', $legacyCookieGroup)) {
-                $cookieGroup->snippetKeyDescription = $legacyCookieGroup['snippet_description'];
+                $cookieGroup->description = $legacyCookieGroup['snippet_description'];
             }
 
             if (\array_key_exists('cookie', $legacyCookieGroup)) {
@@ -238,11 +234,11 @@ class CookieProvider
                     $cookieEntry = new CookieEntry($entry['cookie']);
 
                     if (\array_key_exists('snippet_name', $entry)) {
-                        $cookieEntry->snippetKeyName = $entry['snippet_name'];
+                        $cookieEntry->name = $entry['snippet_name'];
                     }
 
                     if (\array_key_exists('snippet_description', $entry)) {
-                        $cookieEntry->snippetKeyDescription = $entry['snippet_description'];
+                        $cookieEntry->description = $entry['snippet_description'];
                     }
 
                     if (\array_key_exists('value', $entry)) {

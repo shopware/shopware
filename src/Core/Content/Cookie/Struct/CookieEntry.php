@@ -15,11 +15,7 @@ class CookieEntry extends Struct
 
     public ?int $expiration;
 
-    public ?string $snippetKeyName;
-
     public ?string $name;
-
-    public ?string $snippetKeyDescription;
 
     public ?string $description;
 

@@ -7,7 +7,7 @@ author_github: BrocksiNet, mitelg
 
 # Core
 
-* Added `\Shopware\Core\Content\Cookie\SalesChannel\CookieRoute` as new service to retrieve all registered cookie groups and their cookie entries.
+* Added `\Shopware\Core\Content\Cookie\SalesChannel\CookieRoute` as a new service to retrieve all registered cookie groups and their entries. This experimental Store API endpoint is already used by the Twig storefront (backward compatibility will be maintained), but future changes may be introduced for custom/composable frontends.
 * Added `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` as new extension point to provide additional cookie groups and/or cookie entries.
 
 ___
@@ -43,7 +43,7 @@ To register new cookie groups and cookie entries, the new `\Shopware\Core\Conten
 The way apps are registering cookies has not changed.
 
 Additionally, the `snippet_name` and `snippet_description` properties on cookies in Twig templates have been deprecated.
-Use `name` and `description` instead. The `snippetKeyName` and `snippetKeyDescription` properties are only used internally for translations, and the value of this snippet key is not exposed via the Store API or Twig templates.
+Use `name` and `description` instead; these properties now serve both as snippet keys (before translation) and as translated strings (after translation), depending on the context in which they are accessed.
 
 Adding new cookies before:
 ```php

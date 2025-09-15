@@ -69,11 +69,11 @@ class CookieProviderTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(CookieGroupCollectEvent::class, static function (CookieGroupCollectEvent $event): void {
             $cookieGroupEntry = new CookieEntry('test-cookie');
-            $cookieGroupEntry->snippetKeyName = 'cookie.entry.test';
-            $cookieGroupEntry->snippetKeyDescription = 'cookie.entry.test.description';
+            $cookieGroupEntry->name = 'cookie.entry.test';
+            $cookieGroupEntry->description = 'cookie.entry.test.description';
 
             $newGroup = new CookieGroup('cookie.group.test');
-            $newGroup->snippetKeyDescription = 'cookie.group.test.description';
+            $newGroup->description = 'cookie.group.test.description';
             $newGroup->setEntries(new CookieEntryCollection([$cookieGroupEntry]));
             $event->cookieGroupCollection->add($newGroup);
         });
@@ -92,10 +92,6 @@ class CookieProviderTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $group);
         static::assertSame('Translated: cookie.group.test', $group->name);
         static::assertSame('Translated: cookie.group.test.description', $group->description);
-        $groupNameProp = new \ReflectionProperty(CookieGroup::class, 'snippetKeyName');
-        static::assertFalse($groupNameProp->isInitialized($group));
-        $groupDescProp = new \ReflectionProperty(CookieGroup::class, 'snippetKeyDescription');
-        static::assertFalse($groupDescProp->isInitialized($group));
         $entries = $group->getEntries();
         static::assertNotNull($entries);
         static::assertCount(1, $entries);
@@ -172,8 +168,6 @@ class CookieProviderTest extends TestCase
         static::assertCount(1, $testGroup2->getEntries());
         $testGroup2Entry = $testGroup2->getEntries()->get('test-cookie-2');
         static::assertNotNull($testGroup2Entry);
-        $groupNameProp = new \ReflectionProperty(CookieEntry::class, 'snippetKeyDescription');
-        static::assertFalse($groupNameProp->isInitialized($testGroup2Entry));
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

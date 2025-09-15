@@ -41,7 +41,7 @@ class WishlistCookieCollectListener
         }
 
         $entryWishlist = new CookieEntry('wishlist-enabled');
-        $entryWishlist->snippetKeyName = 'cookie.groupComfortFeaturesWishlist';
+        $entryWishlist->name = 'cookie.groupComfortFeaturesWishlist';
         $entryWishlist->value = '1';
         $entryWishlist->expiration = 30;
 

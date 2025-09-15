@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
-use Swag\SaasRufus\Core\Framework\Sbp\SaasSbpException;
-
 
 /**
  * @internal

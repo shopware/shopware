@@ -21,7 +21,6 @@ use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeUserInstaller;
 use Shopware\Tests\Integration\Administration\Login\Helper\ValidUserServiceCreator;
 use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
-use Swag\SaasRufus\Core\Framework\Sbp\SaasSbpException;
 
 /**
  * @internal

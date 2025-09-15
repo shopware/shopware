@@ -36,7 +36,7 @@ test('Visual: Customer Detail Page', { tag: '@Visual' }, async ({
         },
     });
 
-    await test.step('Creates a screenshot of the customer listing page in its empty state.', async () => {
+    await test.step('Creates a screenshot of the customer listing page.', async () => {
         await ShopAdmin.goesTo(AdminCustomerListing.url());
         await setViewport(AdminCustomerListing.page, {
             waitForSelector: AdminCustomerListing.addCustomerButton,
@@ -44,26 +44,18 @@ test('Visual: Customer Detail Page', { tag: '@Visual' }, async ({
             width: 2400,
         });
 
-        //change the default customer data to have consistent screenshots
+        //hide the first dynamic customer
         const customer1 = await AdminCustomerListing.getCustomerByEmail(DefaultSalesChannel.customer.email);
-        const customerNewData = {
-            name: 'Max, Mustermann',
-            street: 'Ebbinghoff 10',
-            postalCode: '48624',
-            city: 'Schöppingen',
-            number: '10001',
-            email: 'm.mustermann@shopware.com',
-            group: 'Standard customer group',
-        };
-
-        await replaceElementsIndividually(AdminCustomerListing.page, [
-            { selector: customer1.customerName, replaceWith: customerNewData.name },
-            { selector: customer1.customerStreet, replaceWith: customerNewData.street },
-            { selector: customer1.customerPostalCode, replaceWith: customerNewData.postalCode },
-            { selector: customer1.customerCity, replaceWith: customerNewData.city },
-            { selector: customer1.customerNumber, replaceWith: customerNewData.number },
-            { selector: customer1.customerGroup, replaceWith: customerNewData.group },
-            { selector: customer1.customerEmailAddress, replaceWith: customerNewData.email },
+        hideElements(AdminCustomerListing.page, [
+            customer1.customerName,
+            customer1.customerStreet,
+            customer1.customerPostalCode,
+            customer1.customerCity,
+            customer1.customerNumber,
+            customer1.customerGroup, 
+            customer1.customerEmailAddress,
+            customer1.customerCreatedTime,
+            customer1.customerAvatar,
         ]);
 
         await assertScreenshot(AdminCustomerListing.page, 'Listing-With-Customer.png');

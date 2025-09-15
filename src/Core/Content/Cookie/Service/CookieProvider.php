@@ -61,7 +61,7 @@ class CookieProvider
 
         foreach ($cookieGroups as $cookieGroup) {
             $this->removeCookieGroupsWithoutCookies($cookieGroups, $cookieGroup);
-            $this->translateCookieGroupAndEntries($cookieGroup);
+            $this->translateCookieGroupsAndTheirEntries($cookieGroup);
         }
 
         return $cookieGroups;
@@ -160,7 +160,7 @@ class CookieProvider
         }
     }
 
-    private function translateCookieGroupAndEntries(CookieGroup $cookieGroup): void
+    private function translateCookieGroupsAndTheirEntries(CookieGroup $cookieGroup): void
     {
         $cookieGroup->name = $this->translator->trans($cookieGroup->name);
 

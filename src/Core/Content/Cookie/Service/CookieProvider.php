@@ -156,7 +156,7 @@ class CookieProvider
         $entries = $cookieGroup->getEntries();
         if ($entries === null || $entries->count() === 0) {
             // Cookie groups without cookie entries should not be shown to the user
-            $cookieGroups->remove($cookieGroup->name);
+            $cookieGroups->remove($cookieGroup->getTechnicalName());
         }
     }
 

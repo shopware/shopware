@@ -24,18 +24,26 @@ class CookieGroup extends Struct
 
     public ?int $expiration;
 
+    public string $name;
+
     protected ?string $cookie;
 
     protected ?CookieEntryCollection $entries;
 
     public function __construct(
-        public string $name,
+        private readonly string $technicalName,
     ) {
+        $this->name = $technicalName;
     }
 
     public function getApiAlias(): string
     {
         return 'cookie_group';
+    }
+
+    public function getTechnicalName(): string
+    {
+        return $this->technicalName;
     }
 
     public function getCookie(): ?string

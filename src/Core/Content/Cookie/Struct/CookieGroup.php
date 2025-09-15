@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Struct\Struct;
  * If a group is a cookie itself (the "cookie" property is set), it is not allowed to have "entries", and vice versa.
  * It would lead to unexpected UI behavior otherwise.
  *
+ * TechnicalName should be a snippet key, @see \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED for an example.
+ * TechnicalName is also used as name and will be translated. Description can be provided as snippet keys or directly translated text.
+ *
  * @codeCoverageIgnore
  */
 #[Package('framework')]

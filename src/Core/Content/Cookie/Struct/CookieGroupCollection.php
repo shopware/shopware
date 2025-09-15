@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ *  Collection of {@see CookieGroup} indexed by the group's technicalName
+ *
  * @extends Collection<CookieGroup>
  */
 #[Package('framework')]

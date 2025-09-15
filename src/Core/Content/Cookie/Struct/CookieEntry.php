@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
+ *
+ * Name and description can be provided as snippet keys or directly translated text.
  */
 #[Package('framework')]
 class CookieEntry extends Struct

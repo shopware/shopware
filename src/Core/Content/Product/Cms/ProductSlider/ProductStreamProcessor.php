@@ -172,14 +172,15 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
     private function addRandomSort(Criteria $criteria): void
     {
+        // these fields should be compatible with Elasticsearch mapped fields for sorting, see: \Shopware\Elasticsearch\Product\ElasticsearchProductDefinition::getMapping
         $fields = [
             'id',
             'stock',
             'releaseDate',
-            'manufacturer.id',
-            'unit.id',
-            'tax.id',
-            'cover.id',
+            'manufacturerId',
+            'deliveryTimeId',
+            'taxId',
+            'coverId',
         ];
         shuffle($fields);
         $fields = \array_slice($fields, 0, 2);

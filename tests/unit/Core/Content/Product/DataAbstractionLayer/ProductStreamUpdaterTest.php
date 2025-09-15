@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -85,6 +86,9 @@ class ProductStreamUpdaterTest extends TestCase
         /** @var StaticEntityRepository<ProductCollection> */
         $repository = new StaticEntityRepository([
             function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
+                static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
                 static::assertEquals($criteria, $actualCriteria);
                 static::assertEquals($context, $actualContext);
 
@@ -127,29 +131,169 @@ class ProductStreamUpdaterTest extends TestCase
             ->method('fetchFirstColumn')
             ->willReturn($ids);
 
-        // 1 time to insert the new mapping, 1 time to update the product table with the new stream ids
         $connection
             ->expects($this->exactly(2))
             ->method('transactional')
             ->withAnyParameters();
 
         $definition = new ProductDefinition();
+        $newMatches = [Uuid::randomHex(), Uuid::randomHex()];
         /** @var StaticEntityRepository<ProductCollection> */
         $repository = new StaticEntityRepository([
-            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
+            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $newMatches): array {
+                static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
                 static::assertEquals($criteria, $actualCriteria);
                 static::assertEquals($context, $actualContext);
 
-                return $ids;
+                return $newMatches;
             },
             fn () => [],
         ], $definition);
 
         $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+
+        $ids = [...$newMatches, ...$ids];
         $manyToManyFieldUpdater
             ->expects($this->once())
             ->method('update')
             ->with($definition->getEntityName(), $ids, Context::createDefaultContext(), 'streamIds');
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            $this->createMock(MessageBusInterface::class),
+            $manyToManyFieldUpdater,
+            true
+        );
+
+        $updater->handle($message);
+    }
+
+    /**
+     * @param string[] $oldMatches
+     * @param string[] $newMatches
+     * @param string[] $manyToManyUpdatedIds
+     */
+    #[DataProvider('transactionalProvider')]
+    public function testTransactionalHandle(array $oldMatches, array $newMatches, array $manyToManyUpdatedIds, int $numOfTransactional): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
+
+        $filters = json_encode([[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn($filters);
+
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn($oldMatches);
+
+        $connection
+            ->expects($this->exactly($numOfTransactional))
+            ->method('transactional')
+            ->withAnyParameters();
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('product.active', true));
+
+        $definition = new ProductDefinition();
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository([
+            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $newMatches): array {
+                static::assertEquals($criteria, $actualCriteria);
+                static::assertEquals($context, $actualContext);
+
+                return $newMatches;
+            },
+            fn () => [],
+        ], $definition);
+
+        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+
+        $manyToManyFieldUpdater
+            ->expects(empty($manyToManyUpdatedIds) ? $this->never() : $this->once())
+            ->method('update')
+            ->with($definition->getEntityName(), $manyToManyUpdatedIds, Context::createDefaultContext(), 'streamIds');
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            $this->createMock(MessageBusInterface::class),
+            $manyToManyFieldUpdater,
+            true
+        );
+
+        $updater->handle($message);
+    }
+
+    public function testInvalidFilter(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
+
+        $filters = json_encode([[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn($filters);
+
+        $oldMatches = [Uuid::randomHex(), Uuid::randomHex()];
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn($oldMatches);
+
+        $connection
+            ->expects($this->exactly(1)) // delete only
+            ->method('transactional')
+            ->withAnyParameters();
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('product.active', true));
+
+        $definition = new ProductDefinition();
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository([
+            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context): array {
+                static::assertEquals($criteria, $actualCriteria);
+                static::assertEquals($context, $actualContext);
+
+                throw new UnmappedFieldException('non-existing-field', $this->createMock(ProductDefinition::class));
+            },
+            fn () => [],
+        ], $definition);
+
+        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+
+        $manyToManyFieldUpdater
+            ->expects($this->once())
+            ->method('update')
+            ->with($definition->getEntityName(), $oldMatches, Context::createDefaultContext(), 'streamIds');
 
         $updater = new ProductStreamUpdater(
             $connection,
@@ -263,6 +407,60 @@ class ProductStreamUpdaterTest extends TestCase
                     ]),
                 ]),
             ),
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{oldMatches: list<string>, newMatches: list<string>, numOfTransactional: int, manyToManyUpdatedIds: list<string>}>
+     */
+    public static function transactionalProvider(): iterable
+    {
+        $productId1 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
+        $productId3 = Uuid::randomHex();
+        $productId4 = Uuid::randomHex();
+        $productId5 = Uuid::randomHex();
+
+        yield 'Both empty old and new matches' => [
+            'oldMatches' => [],
+            'newMatches' => [],
+            'numOfTransactional' => 0, // no change
+            'manyToManyUpdatedIds' => [],
+        ];
+
+        yield 'Empty old matches' => [
+            'oldMatches' => [],
+            'newMatches' => [$productId3, $productId4, $productId5],
+            'numOfTransactional' => 1, // only add,
+            'manyToManyUpdatedIds' => [$productId3, $productId4, $productId5],
+        ];
+
+        yield 'Empty new matches' => [
+            'oldMatches' => [$productId1, $productId2],
+            'newMatches' => [],
+            'numOfTransactional' => 1, // only delete,
+            'manyToManyUpdatedIds' => [$productId1, $productId2],
+        ];
+
+        yield 'Same old and new matches' => [
+            'oldMatches' => [$productId1, $productId2],
+            'newMatches' => [$productId1, $productId2],
+            'numOfTransactional' => 0, // no change
+            'manyToManyUpdatedIds' => [],
+        ];
+
+        yield 'Some old and new matches' => [
+            'oldMatches' => [$productId1, $productId2],
+            'newMatches' => [$productId2, $productId3],
+            'numOfTransactional' => 2, // add and delete
+            'manyToManyUpdatedIds' => [$productId3, $productId1],
+        ];
+
+        yield 'All different old and new matches' => [
+            'oldMatches' => [$productId1, $productId2],
+            'newMatches' => [$productId3, $productId4, $productId5],
+            'numOfTransactional' => 2, // add and delete
+            'manyToManyUpdatedIds' => [$productId3, $productId4, $productId5, $productId1, $productId2],
         ];
     }
 }

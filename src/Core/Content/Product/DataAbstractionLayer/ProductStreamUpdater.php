@@ -89,46 +89,51 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
-        /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn(
+        /** @var list<string> $oldMatches */
+        $oldMatches = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
             ['id' => $binaryStreamId],
         );
 
-        /** @var list<string> $matches */
-        $matches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
+        try {
+            /** @var list<string> $newMatches */
+            $newMatches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
+        } catch (UnmappedFieldException) {
+            // invalid filter, remove all mappings
+            $newMatches = [];
+        }
+
+        $toBeAdded = array_values(array_diff($newMatches, $oldMatches));
+        $toBeDeleted = array_values(array_diff($oldMatches, $newMatches));
 
         $insert = new MultiInsertQueryQueue($this->connection, 250, false, false);
 
-        $foundIds = [];
-        $addedIds = [];
-        foreach ($matches as $id) {
-            if (\in_array($id, $ids, true)) {
-                $foundIds[] = $id;
-                continue;
-            }
-
+        foreach ($toBeAdded as $id) {
             $insert->addInsert('product_stream_mapping', [
                 'product_id' => Uuid::fromHexToBytes($id),
                 'product_version_id' => $version,
                 'product_stream_id' => $binaryStreamId,
             ]);
-            $addedIds[] = $id;
         }
 
         $insert->execute();
 
-        $idsToDelete = array_diff($ids, $foundIds);
-        RetryableTransaction::retryable($this->connection, function () use ($idsToDelete): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($idsToDelete)],
-            );
-        });
+        if (!empty($toBeDeleted)) {
+            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $binaryStreamId): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($toBeDeleted),
+                        'streamId' => $binaryStreamId,
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+            });
+        }
 
         $message->getContext()->setConsiderInheritance($considerInheritance);
 
-        $ids = array_unique([...$addedIds, ...$idsToDelete]);
+        $ids = array_unique([...$toBeAdded, ...$toBeDeleted]);
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(

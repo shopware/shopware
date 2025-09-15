@@ -432,7 +432,7 @@
       "labelDocumentNumber": "Number",
       "labelDocumentStornoNumber": "Cancellation number",
       "labelInvoiceNumber": "Invoice number",
-      "selectInvoiceNumber": "Select invoice number",
+      "selectInvoiceNumber": "Select invoice",
       "labelDeliveryNoteNumber": "Delivery note number",
       "labelDocumentComment": "Comment",
       "labelCreateDownloadPdf": "Create and download PDF",

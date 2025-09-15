@@ -81,9 +81,9 @@ class Kernel extends HttpKernel
 
     public function __clone()
     {
-        parent::__clone();
         $this->requestStackSize = 0;
         $this->resetServices = false;
+        parent::__clone();
     }
 
     public function registerBundles(): iterable

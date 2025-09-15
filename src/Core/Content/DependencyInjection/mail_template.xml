@@ -124,5 +124,12 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\SystemCheck\MailTemplateCompilationCheck">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="mail_template.repository"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
     </services>
 </container>

@@ -78,7 +78,6 @@ class MediaHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        /** @var MediaEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(MediaEntity::class, $first);
@@ -119,7 +118,6 @@ class MediaHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        /** @var MediaEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(MediaEntity::class, $first);

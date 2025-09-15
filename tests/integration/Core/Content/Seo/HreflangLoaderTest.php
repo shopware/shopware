@@ -330,7 +330,7 @@ class HreflangLoaderTest extends TestCase
         static::assertInstanceOf(LocaleEntity::class, $last->getLocale());
 
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === mb_substr((string) $first->getLocale()->getCode(), 0, 2)) {
+            if ($element->getLocale() === mb_substr($first->getLocale()->getCode(), 0, 2)) {
                 static::assertSame('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }

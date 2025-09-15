@@ -110,6 +110,7 @@
                     :error="productMarkAsTopsellerError"
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
+                    :inherited-value="parentProduct.markAsTopseller"
                     :help-text="highlightHelpText"
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="props.isInherited || !allowEdit"

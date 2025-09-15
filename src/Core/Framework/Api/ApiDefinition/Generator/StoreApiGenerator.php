@@ -193,6 +193,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         foreach ($openApi->paths as $path) {
             foreach (self::OPERATION_KEYS as $key) {
+                // @phpstan-ignore property.dynamicName (We check the keys via OPERATION_KEYS)
                 $operation = $path->$key;
 
                 if (!$operation instanceof Operation) {

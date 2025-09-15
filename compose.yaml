@@ -1,6 +1,6 @@
 services:
     web:
-        image: ghcr.io/shopwarelabs/devcontainer/base-slim:8.3
+        image: ghcr.io/shopware/docker-dev:php8.4-node24-caddy
         ports:
             - 8000:8000
             - 5173:5173

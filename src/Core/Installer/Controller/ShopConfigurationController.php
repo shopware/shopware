@@ -10,7 +10,7 @@ use Shopware\Core\Installer\Configuration\ShopConfigurationService;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
-use Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -37,7 +37,7 @@ class ShopConfigurationController extends InstallerController
         private readonly ShopConfigurationService $shopConfigurationService,
         private readonly AdminConfigurationService $adminConfigurationService,
         private readonly TranslatorInterface $translator,
-        private readonly AbstractTranslationConfigLoader $translationConfigLoader,
+        private readonly TranslationConfig $translationConfig,
         private readonly array $supportedLanguages,
         private readonly array $supportedCurrencies
     ) {
@@ -204,19 +204,13 @@ class ShopConfigurationController extends InstallerController
             ],
         ];
 
-        try {
-            $config = $this->translationConfigLoader->load();
-
-            foreach ($config->languages as $language) {
-                $languages[$language->locale] = [
-                    'id' => $language->locale,
-                    'label' => $language->name,
-                ];
-            }
-
-            return $languages;
-        } catch (\Exception) {
-            return [];
+        foreach ($this->translationConfig->languages as $language) {
+            $languages[$language->locale] = [
+                'id' => $language->locale,
+                'label' => $language->name,
+            ];
         }
+
+        return $languages;
     }
 }

@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class TranslationController extends InstallerController
 {
-    private const TRANSLATION_TIMEOUT_SECONDS = 1200;
+    private const TRANSLATION_TIMEOUT_SECONDS = 300;
     private const LOCALE_PATTERN = '/^[a-z]{2}(-[A-Z]{2})?$/';
 
     public function __construct(private readonly string $projectDir)

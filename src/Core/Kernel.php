@@ -52,6 +52,9 @@ class Kernel extends HttpKernel
 
     private string $cacheRootDir;
 
+    private int $requestStackSize = 0;
+    private bool $resetServices = false;
+
     /**
      * @internal
      */
@@ -74,6 +77,13 @@ class Kernel extends HttpKernel
         $this->shopwareVersionRevision = $versionArray['revision'];
 
         $this->cacheRootDir = EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()) . '/var/cache';
+    }
+
+    public function __clone()
+    {
+        parent::__clone();
+        $this->requestStackSize = 0;
+        $this->resetServices = false;
     }
 
     public function registerBundles(): iterable
@@ -123,14 +133,50 @@ class Kernel extends HttpKernel
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
-        $this->preInitializePlugins();
+        $this->boot();
 
-        return parent::handle($request, $type, $catch);
+        ++$this->requestStackSize;
+        $this->resetServices = true;
+
+        try {
+            return $this->getHttpKernel()->handle($request, $type, $catch);
+        } finally {
+            --$this->requestStackSize;
+        }
     }
 
     public function boot(): void
     {
-        $this->preInitializePlugins();
+        if (false === $this->booted) {
+            if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
+                putenv('SHELL_VERBOSITY=1');
+                $_ENV['SHELL_VERBOSITY'] = 1;
+                $_SERVER['SHELL_VERBOSITY'] = 1;
+            }
+
+            try {
+                // initialize plugins before booting
+                $this->pluginLoader->initializePlugins($this->getProjectDir());
+            } catch (DBALException $e) {
+                if (\defined('\STDERR')) {
+                    fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
+                }
+            }
+        }
+
+        if (true === $this->booted) {
+            if (!$this->requestStackSize && $this->resetServices) {
+                if ($this->container->has('services_resetter')) {
+                    $this->container->get('services_resetter')->reset();
+                }
+                $this->resetServices = false;
+                if ($this->debug) {
+                    $this->startTime = microtime(true);
+                }
+            }
+
+            return;
+        }
 
         parent::boot();
     }
@@ -185,6 +231,9 @@ class Kernel extends HttpKernel
         if (!$this->rebooting) {
             self::$connection = null;
         }
+
+        $this->requestStackSize = 0;
+        $this->resetServices = false;
 
         parent::shutdown();
     }
@@ -381,32 +430,5 @@ PHP;
     {
         return \array_key_exists($bundle->getName(), $instantiatedBundleNames)
             || \array_key_exists($bundle->getName(), $this->bundles);
-    }
-
-    /**
-     * Initializes Shopware plugins and environment settings before Symfony's
-     * container/bundles are initialized. Safe to call multiple times.
-     */
-    private function preInitializePlugins(): void
-    {
-        if ($this->booted) {
-            return;
-        }
-
-        if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
-            putenv('SHELL_VERBOSITY=1');
-            $_ENV['SHELL_VERBOSITY'] = 1;
-            $_SERVER['SHELL_VERBOSITY'] = 1;
-        }
-
-        try {
-            // Initialize plugins before Symfony preBoot() runs so that bundles
-            // provided by plugins are registered during initializeBundles().
-            $this->pluginLoader->initializePlugins($this->getProjectDir());
-        } catch (DBALException $e) {
-            if (\defined('\STDERR')) {
-                fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
-            }
-        }
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Administration\Controller;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
@@ -13,6 +14,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
+use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -47,6 +49,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class AdministrationController extends AbstractController
 {
+    private const UNAUTHENTICATED_SNIPPET_NAMESPACES = [
+        'sw-login',
+        'global',
+    ];
+
     private readonly bool $esAdministrationEnabled;
 
     private readonly bool $esStorefrontEnabled;
@@ -78,8 +85,8 @@ class AdministrationController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
-        private readonly LoginConfigService $loginConfigService,
         private readonly EntityRepository $languageRepository,
+        private readonly SymfonyBearerTokenValidator $tokenValidator,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -122,21 +129,23 @@ class AdministrationController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_admin/snippets', name: 'api.admin.snippets', methods: ['GET'])]
+    #[Route(path: '/api/_admin/snippets', name: 'api.admin.snippets', defaults: ['auth_required' => false], methods: ['GET'])]
     public function snippets(Request $request): Response
     {
         $snippets = [];
-        $locale = $request->query->get('locale', 'en-GB');
-        $snippets[$locale] = $this->snippetFinder->findSnippets((string) $locale);
+        $locale = (string) $request->query->get('locale', 'en-GB');
+        $snippets[$locale] = $this->snippetFinder->findSnippets($locale);
 
         if ($locale !== 'en-GB') {
             $snippets['en-GB'] = $this->snippetFinder->findSnippets('en-GB');
         }
 
+        $snippets = $this->filterByAuthentication($request, $snippets, $locale);
+
         return new JsonResponse($snippets);
     }
 
-    #[Route(path: '/api/_admin/locales', name: 'api.admin.locales', methods: ['GET'])]
+    #[Route(path: '/api/_admin/locales', name: 'api.admin.locales', defaults: ['auth_required' => false], methods: ['GET'])]
     public function getLocales(Request $request, Context $context): Response
     {
         $criteria = (new Criteria())->addAssociation('locale');
@@ -361,5 +370,25 @@ class AdministrationController extends AbstractController
         ]));
 
         return $this->customerRepository->search($criteria, $context)->getEntities()->first();
+    }
+
+    /**
+     * @param array<string, mixed> $snippets
+     *
+     * @return array<string, mixed>
+     */
+    public function filterByAuthentication(Request $request, array $snippets, string $locale): array
+    {
+        try {
+            $this->tokenValidator->validateAuthorization($request);
+        } catch (OAuthServerException) {
+            $snippets[$locale] = \array_filter(
+                $snippets[$locale],
+                static fn(string $key) => \in_array($key, self::UNAUTHENTICATED_SNIPPET_NAMESPACES, true),
+                ARRAY_FILTER_USE_KEY
+            );
+        }
+
+        return $snippets;
     }
 }

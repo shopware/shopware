@@ -168,6 +168,7 @@ class CookieProviderTest extends TestCase
         static::assertCount(1, $testGroup2->getEntries());
         $testGroup2Entry = $testGroup2->getEntries()->get('test-cookie-2');
         static::assertNotNull($testGroup2Entry);
+        static::assertSame('test-description', $testGroup2Entry->description);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

@@ -1,5 +1,5 @@
 ---
-title: Caching Strategy for StoreAPI
+title: Caching Strategy for Store API
 date: 2025-09-15
 area: framework
 tags: [caching, store-api, performance, core]
@@ -10,8 +10,9 @@ tags: [caching, store-api, performance, core]
 Store API performance is critical for all headless installations. Currently, Store API responses are not
 cached by default, which leads to unnecessary server load and reduced performance for end users.
 
-At the same time, Storefront already has a caching mechanism in place and Shopware provides a reference configuration 
-for reverse proxies like Varnish, that supports Storefront caching.
+At the same time, Storefront (classical Shopware frontend based on twig templates, mentioned here and further in
+this doc only for context and strategy alignment) already has a caching mechanism in place and Shopware provides
+a reference configuration for reverse proxies like Varnish, that supports Storefront caching.
 
 The goal is to introduce a caching strategy for Store API, while reusing existing approaches and keeping required changes
 on the client and infrastructure side to a minimum.
@@ -21,8 +22,12 @@ Important details:
   - Storefront uses cookies to track differences in the contexts.
   - Storefront marks cacheable routes via the `'_httpCache' => true` route defaults attribute. If this attribute is
     present (and other conditions are met), `CacheResponseSubscriber` adds `Cache-Control: public, s-maxage=7200` header
-    to the response.
-  - Several non-mutating StoreAPI endpoints that return non-sensitive data use `POST` to support larger payloads
+    to the response (TTL is controlled via configuration).
+  - Storefront's `Cache-Control` header is prepared for reverse-proxy (only when reverse proxy is enabled
+    in the configuration). Client-side caching remains `no-cache, private` as we lack the ability to invalidate client
+    caches, unlike reverse proxies.
+  - Storefront caches may be invalidated via cache tags (x-tag in Varnish).
+  - Several non-mutating Store API endpoints that return non-sensitive data use `POST` to support larger payloads
     (see Criteria object). Some of them already support both `POST` and `GET`.
   - `RequestCriteriaBuilder` supports building Criteria from separate query parameters for `GET`
     requests (`filter`, `grouping`, `fields`, `page`, `limit`, etc). Criteria as a separate parameters leads
@@ -46,15 +51,16 @@ Important details:
       based on these headers.
     - Use `sw-context-hash` to differentiate other context aspects (e.g. logged in customer, active rules, etc). Use the
       same algorithm as for storefront context hash cookie.
-    - All three headers must be returned in the StoreAPI responses. If clients want to utilize caching, they should
-      send these headers in subsequent requests.
+    - All three headers must be returned in the Store API responses. If clients want to utilize caching, they should
+      send these headers in subsequent requests. When client sends these headers, reverse proxy uses them to detect
+      the cache bucket. Additionally, the language and currency headers change the currency and language in the context when sent.
     - `Vary` header should include all three headers, so reverse proxies and CDNs can differentiate cache entries.
 4. Mark cacheable routes
-   - Use `'_httpCache'` route default attribute to mark cacheable StoreAPI routes.
-   - Extend `CacheResponseSubscriber` to add `Cache-Control` header to StoreAPI requests similar to Storefront
-     requests, but ignoring cookies (relying on headers + `Vary` instead).
+   - Use `'_httpCache'` route default attribute to mark cacheable Store API routes.
+   - Extend `CacheResponseSubscriber` to add `Cache-Control: public, s-maxage=7200` header to Store API requests similar
+     to Storefront requests (configurable TTL), but ignoring cookies (relying on headers + `Vary` instead).
 5. Invalidation strategy
-   - Reuse existing cache tags implementation to invalidate cached StoreAPI responses.
+   - Reuse existing cache tags implementation to invalidate cached Store API responses.
 
 ## Consequences
 
@@ -67,8 +73,9 @@ Important details:
 - Clients
    - No changes required if caching is not desired.
    - To utilize caching, clients should adopt the updated SDK or implement the same strategy.
+   - Client should beware that `sw-currency-id`, `sw-language-id` may mutate the context if different from the current one.
 - Extensions 
-   - Custom Store API endpoints can opt into caching using the same flags route flags.
+   - Custom Store API endpoints can opt into caching using the same route flags.
 - Trade-offs
    - Using serialized `_criteria` reduces request readability and makes debugging and logging harder.
    - Without canonicalization, serialized `_criteria` parameter may lead to a decreased cache hit ratio.

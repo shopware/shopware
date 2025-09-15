@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
+use Shopware\Core\Content\Flow\Events\MailRecipientsModifyEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
@@ -125,6 +126,16 @@ class SendMailAction extends FlowAction implements DelayableAction
             $mailStruct->getRecipients(),
             $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
         );
+
+        $event = new MailRecipientsModifyEvent(
+            $recipients,
+            $eventConfig,
+            $flow
+        );
+
+        $this->eventDispatcher->dispatch($event);
+
+        $recipients = $event->getRecipients();
 
         if (empty($recipients)) {
             return;

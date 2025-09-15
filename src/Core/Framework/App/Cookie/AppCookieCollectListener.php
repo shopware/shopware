@@ -61,7 +61,7 @@ class AppCookieCollectListener
             }
 
             if (\array_key_exists('snippet_description', $cookie)) {
-                $cookieGroup->snippetKeyDescription = $cookie['snippet_description'];
+                $cookieGroup->description = $cookie['snippet_description'];
             }
 
             if (\array_key_exists('cookie', $cookie)) {
@@ -87,11 +87,11 @@ class AppCookieCollectListener
                     $cookieEntry = new CookieEntry($entry['cookie']);
 
                     if (\array_key_exists('snippet_name', $entry)) {
-                        $cookieEntry->snippetKeyName = $entry['snippet_name'];
+                        $cookieEntry->name = $entry['snippet_name'];
                     }
 
                     if (\array_key_exists('snippet_description', $entry)) {
-                        $cookieEntry->snippetKeyDescription = $entry['snippet_description'];
+                        $cookieEntry->description = $entry['snippet_description'];
                     }
 
                     if (\array_key_exists('value', $entry)) {

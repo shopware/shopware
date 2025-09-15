@@ -67,7 +67,7 @@ class AnalyticsCookieCollectListener
         }
 
         $entryGoogleAnalytics = new CookieEntry('google-analytics-enabled');
-        $entryGoogleAnalytics->snippetKeyName = 'cookie.groupStatisticalGoogleAnalytics';
+        $entryGoogleAnalytics->name = 'cookie.groupStatisticalGoogleAnalytics';
         $entryGoogleAnalytics->value = '1';
         $entryGoogleAnalytics->expiration = 30;
 
@@ -88,7 +88,7 @@ class AnalyticsCookieCollectListener
         }
 
         $entryGoogleAds = new CookieEntry('google-ads-enabled');
-        $entryGoogleAds->snippetKeyName = 'cookie.groupMarketingAdConsent';
+        $entryGoogleAds->name = 'cookie.groupMarketingAdConsent';
         $entryGoogleAds->value = '1';
         $entryGoogleAds->expiration = 30;
 

@@ -15,14 +15,14 @@ class CookieGroupCollection extends Collection
 {
     public function set($key, $element): void
     {
-        parent::set($element->snippetKeyName, $element);
+        parent::set($element->name, $element);
     }
 
     public function add($element): void
     {
         $this->validateType($element);
 
-        parent::set($element->snippetKeyName, $element);
+        parent::set($element->name, $element);
     }
 
     public function getApiAlias(): string

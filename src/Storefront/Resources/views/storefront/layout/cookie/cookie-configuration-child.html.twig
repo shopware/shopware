@@ -2,10 +2,10 @@
 
 {% if child.cookie is not empty and child.hidden is not same as(true) %}
     {% set cookie = child.cookie %}
-    {# @deprecated tag:v6.8.0 - Use `child.snippetKeyName` instead of `child.snippet_name`. Support for `child.snippet_name` will be removed. #}
-    {% set snippetKeyName = child.snippet_name ?? child.snippetKeyName %}
-    {# @deprecated tag:v6.8.0 - Use `child.snippetKeyDescription` instead of `child.snippet_description`. Support for `child.snippet_description` will be removed. #}
-    {% set snippetKeyDescription = child.snippet_description ?? child.snippetKeyDescription %}
+    {# @deprecated tag:v6.8.0 - Use `child.name` instead of `child.snippet_name`. Support for `child.snippet_name` will be removed. #}
+    {% set childName = child.snippet_name ?? child.name %}
+    {# @deprecated tag:v6.8.0 - Use `child.description` instead of `child.snippet_description`. Support for `child.snippet_description` will be removed. #}
+    {% set childDescription = child.snippet_description ?? child.description %}
     <div class="offcanvas-cookie-entry form-check">
         <input
             type="checkbox"
@@ -28,11 +28,11 @@
         <label
             for="cookie_{{ cookie }}"
             class="custom-control-label">
-            {{ snippetKeyName ? snippetKeyName|trans|sw_sanitize : cookie }}
+            {{ childName ? childName|trans|sw_sanitize : cookie }}
         </label>
 
-        {% if snippetKeyDescription %}
-            <p>{{ snippetKeyDescription|trans|sw_sanitize }}</p>
+        {% if childDescription %}
+            <p>{{ childDescription|trans|sw_sanitize }}</p>
         {% endif %}
     </div>
 {% endif %}

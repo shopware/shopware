@@ -5,23 +5,12 @@
     "/cookie-groups": {
       "get": {
         "tags": [
+          "Experimental",
           "Cookies"
         ],
         "summary": "Fetch all cookie groups",
-        "description": "Fetch all cookie groups available in the system.",
+        "description": "Fetch all cookie groups available in the system. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "readCookieGroups",
-        "parameters": [
-          {
-            "name": "translate",
-            "in": "query",
-            "description": "Instructs Shopware to translate the name and description of the cookie groups and their entries",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": true
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful response with a collection of cookie groups.",

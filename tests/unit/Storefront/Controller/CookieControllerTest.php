@@ -24,7 +24,7 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup('test.group');
-        $cookieGroup->snippetKeyDescription = 'Test Group';
+        $cookieGroup->description = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -55,7 +55,7 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup('test.group');
-        $cookieGroup->snippetKeyDescription = 'Test Group';
+        $cookieGroup->description = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -129,9 +129,9 @@ class CookieControllerTest extends TestCase
         $group = $transformedGroups->first();
         static::assertNotNull($group);
 
-        static::assertObjectHasProperty('snippetKeyName', $group);
+        static::assertObjectHasProperty('name', $group);
         static::assertObjectNotHasProperty('snippet_name', $group);
-        static::assertObjectHasProperty('snippetKeyDescription', $group);
+        static::assertObjectHasProperty('description', $group);
         static::assertObjectNotHasProperty('snippet_description', $group);
         static::assertObjectHasProperty('cookie', $group);
         static::assertObjectHasProperty('value', $group);

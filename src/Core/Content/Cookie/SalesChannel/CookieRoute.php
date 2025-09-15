@@ -11,6 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
+ */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
 class CookieRoute extends AbstractCookieRoute
@@ -31,9 +34,7 @@ class CookieRoute extends AbstractCookieRoute
     #[Route(path: '/store-api/cookie-groups', name: 'store-api.cookie.groups', methods: [Request::METHOD_GET])]
     public function getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieRouteResponse
     {
-        $translate = $request->query->getBoolean('translate', true); // Default to true for Store API consumers
-
-        $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext, $translate);
+        $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext);
 
         return new CookieRouteResponse($cookieGroups);
     }

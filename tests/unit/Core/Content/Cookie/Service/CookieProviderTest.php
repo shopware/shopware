@@ -69,11 +69,11 @@ class CookieProviderTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(CookieGroupCollectEvent::class, static function (CookieGroupCollectEvent $event): void {
             $cookieGroupEntry = new CookieEntry('test-cookie');
-            $cookieGroupEntry->snippetKeyName = 'cookie.entry.test';
-            $cookieGroupEntry->snippetKeyDescription = 'cookie.entry.test.description';
+            $cookieGroupEntry->name = 'cookie.entry.test';
+            $cookieGroupEntry->description = 'cookie.entry.test.description';
 
             $newGroup = new CookieGroup('cookie.group.test');
-            $newGroup->snippetKeyDescription = 'cookie.group.test.description';
+            $newGroup->description = 'cookie.group.test.description';
             $newGroup->setEntries(new CookieEntryCollection([$cookieGroupEntry]));
             $event->cookieGroupCollection->add($newGroup);
         });
@@ -85,24 +85,20 @@ class CookieProviderTest extends TestCase
             $translator,
             ['name' => 'test-session-name-']
         )
-        )->getCookieGroups(Generator::generateSalesChannelContext(), true);
+        )->getCookieGroups(Generator::generateSalesChannelContext());
 
         static::assertCount(3, $cookieGroups);
         $group = $cookieGroups->get('cookie.group.test');
         static::assertInstanceOf(CookieGroup::class, $group);
-        static::assertSame('cookie.group.test', $group->snippetKeyName);
-        static::assertSame('Translated: cookie.group.test', $group->translatedName);
-        static::assertSame('cookie.group.test.description', $group->snippetKeyDescription);
-        static::assertSame('Translated: cookie.group.test.description', $group->translatedDescription);
+        static::assertSame('Translated: cookie.group.test', $group->name);
+        static::assertSame('Translated: cookie.group.test.description', $group->description);
         $entries = $group->getEntries();
         static::assertNotNull($entries);
         static::assertCount(1, $entries);
         $entry = $entries->get('test-cookie');
         static::assertNotNull($entry);
-        static::assertSame('cookie.entry.test', $entry->snippetKeyName);
-        static::assertSame('Translated: cookie.entry.test', $entry->translatedName);
-        static::assertSame('cookie.entry.test.description', $entry->snippetKeyDescription);
-        static::assertSame('Translated: cookie.entry.test.description', $entry->translatedDescription);
+        static::assertSame('Translated: cookie.entry.test', $entry->name);
+        static::assertSame('Translated: cookie.entry.test.description', $entry->description);
         static::assertSame('test-cookie', $entry->cookie);
     }
 
@@ -172,7 +168,7 @@ class CookieProviderTest extends TestCase
         static::assertCount(1, $testGroup2->getEntries());
         $testGroup2Entry = $testGroup2->getEntries()->get('test-cookie-2');
         static::assertNotNull($testGroup2Entry);
-        static::assertSame('test-description', $testGroup2Entry->snippetKeyDescription);
+        static::assertSame('test-description', $testGroup2Entry->description);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

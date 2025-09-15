@@ -49,7 +49,7 @@ class CaptchaCookieCollectListener
         }
 
         $entryRequiredCaptcha = new CookieEntry('_GRECAPTCHA');
-        $entryRequiredCaptcha->snippetKeyName = 'cookie.groupRequiredCaptcha';
+        $entryRequiredCaptcha->name = 'cookie.groupRequiredCaptcha';
         $entryRequiredCaptcha->value = '1';
 
         $entries->add($entryRequiredCaptcha);

@@ -729,7 +729,7 @@ Component.register('sw-theme-manager-detail', {
                 return fieldName;
             }
 
-            return `${label} (${fieldName})`;
+            return label;
         },
 
         /**

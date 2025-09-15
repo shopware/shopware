@@ -31,7 +31,7 @@ class RedisMultiWrapper extends \Redis
      */
     private function doCall(string $name, array $arguments)
     {
-        // @phpstan-ignore symplify.noDynamicName
+        // @phpstan-ignore method.dynamicName (We allow dynamic method calls to proxy all Redis methods)
         $this->results[] = $this->redis->$name(...$arguments);
 
         return $this;

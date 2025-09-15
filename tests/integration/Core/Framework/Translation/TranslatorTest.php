@@ -57,7 +57,7 @@ class TranslatorTest extends TestCase
         $this->translator->warmUp('');
     }
 
-    public function testPassthru(): void
+    public function testPassthrough(): void
     {
         $snippetFile = new UnitTest_SnippetFile();
         static::getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
@@ -154,9 +154,10 @@ class TranslatorTest extends TestCase
         $catalogue = $this->translator->getCatalogue('de-DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertSame('en', $fallback->getLocale());
+        static::assertSame('de', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
         static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+
         $this->translator->reset();
     }
 
@@ -176,12 +177,11 @@ class TranslatorTest extends TestCase
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
+
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertSame('de', $fallback->getLocale());
+        static::assertSame('en', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
         static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
-        static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
-        static::assertSame('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de');
@@ -210,6 +210,7 @@ class TranslatorTest extends TestCase
         static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
         static::assertSame('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
+
         $this->translator->reset();
     }
 

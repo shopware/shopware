@@ -186,12 +186,12 @@ class UnusedMediaPurger
         }
 
         while (!empty($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds())) {
-            /** @var array<string> $ids */
+            /** @var non-empty-array<string> $ids */
             $unusedIds = $this->dispatchEvent($ids);
 
             yield $unusedIds;
 
-            $criteria->setOffset($criteria->getOffset() + $limit);
+            $criteria->setOffset((int) $criteria->getOffset() + $limit);
         }
     }
 

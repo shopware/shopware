@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\SsoUser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
@@ -19,14 +18,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleCollection;
-use Shopware\Core\System\Locale\LocaleDefinition;
-use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @internal
@@ -43,23 +40,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->exactly(2))->method('get')
             ->willReturnOnConsecutiveCalls('ShopName', 'sender@name.foo');
-
-        $loginConfigService = new LoginConfigService(
-            [
-                'use_default' => false,
-                'client_id' => 'c6a7ab8a-5c0c-4353-a38a-1b42479ef090',
-                'client_secret' => '42fec3f9-a19b-4796-bce9-cb395a28da9f',
-                'redirect_uri' => 'https://redirect.to',
-                'base_url' => 'https://base.url',
-                'authorize_path' => '/authorize',
-                'token_path' => '/token',
-                'jwks_path' => '/jwks.json',
-                'scope' => 'scope',
-                'register_url' => 'https://register.url',
-            ],
-            'local.host',
-            '/admin'
-        );
 
         $mailTemplateEntity = new MailTemplateEntity();
         $mailTemplateEntity->setUniqueIdentifier(Uuid::randomHex());
@@ -96,23 +76,18 @@ class SsoUserInvitationMailServiceTest extends TestCase
             new LanguageCollection([$languageEntity]),
         ], new LanguageDefinition());
 
-        $localeEntity = new LocaleEntity();
-        $localeEntity->setUniqueIdentifier(Uuid::randomHex());
-        $localeEntity->setCode('de-DE');
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
-        $localeRepository = new StaticEntityRepository([
-            new LocaleCollection([$localeEntity]),
-        ], new LocaleDefinition());
+        $routerMock = $this->createMock(UrlGeneratorInterface::class);
+        $routerMock->expects($this->once())->method('generate')->willReturn('/admin');
 
         $ssoUserInvitationMailService = new SsoUserInvitationMailService(
             $abstractMailService,
             $systemConfigService,
-            $loginConfigService,
             $mailTemplateRepository,
             $mailTemplateTypeRepository,
             $userRepository,
             $languageRepository,
-            $localeRepository
+            $routerMock,
+            'app.url'
         );
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), null));

@@ -170,12 +170,25 @@ describe('NavbarPlugin', () => {
 
     test('_toggleNavbar should set _isMouseOver to true on mouseenter', () => {
         const mockEventEnter = {type: 'mouseenter'};
+        const mockDropdown = {_menu: {classList: {contains: jest.fn().mockReturnValue(false)}}};
+        window.bootstrap = {
+            Dropdown: {
+                getOrCreateInstance: jest.fn().mockReturnValue(mockDropdown),
+            },
+        };
+
         navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
         expect(navbarPlugin._isMouseOver).toBe(true);
     });
 
     test('_toggleNavbar should call _debounce on mouseenter', () => {
         const mockEventEnter = {type: 'mouseenter'};
+        const mockDropdown = {_menu: {classList: {contains: jest.fn().mockReturnValue(false)}}};
+        window.bootstrap = {
+            Dropdown: {
+                getOrCreateInstance: jest.fn().mockReturnValue(mockDropdown),
+            },
+        };
         navbarPlugin._debounce = jest.fn();
         navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
         expect(navbarPlugin._debounce).toHaveBeenCalled();
@@ -183,7 +196,11 @@ describe('NavbarPlugin', () => {
 
     test('_closeAllDropdowns should call hide on dropdowns with show class', () => {
         const mockDropdown = {hide: jest.fn(), _menu: {classList: {contains: jest.fn().mockReturnValue(true)}}};
-        window.bootstrap.Dropdown.getInstance.mockReturnValue(mockDropdown);
+        window.bootstrap = {
+            Dropdown: {
+                getInstance: jest.fn().mockReturnValue(mockDropdown),
+            },
+        };
         navbarPlugin._topLevelLinks = [mockLink];
         navbarPlugin._closeAllDropdowns();
         expect(mockDropdown.hide).toHaveBeenCalled();
@@ -255,5 +272,75 @@ describe('NavbarPlugin', () => {
         navbarPlugin._restoreFocusAfterBtnClose(mockEvent);
 
         expect(mockLink.focus).not.toHaveBeenCalled();
+    });
+
+    test('_toggleNavbar should close all dropdowns on mouseenter nav item without dropdown', () => {
+        jest.useFakeTimers();
+
+        const mockEventEnter = {type: 'mouseenter'};
+        const mockLinkNoDropdown = mockLink.cloneNode();
+        mockLinkNoDropdown.noDropdown = true;
+        navbarPlugin._topLevelLinks.push(mockLinkNoDropdown);
+        const mockDropdown = {
+            show: jest.fn(),
+            hide: jest.fn(),
+            _menu: {classList: {contains: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true)}},
+        };
+        const mockNoDropdown = {
+            show: jest.fn(),
+            hide: jest.fn(),
+            _menu: null, // simulate no dropdown menu
+        };
+        window.bootstrap = {
+            Dropdown: {
+                getOrCreateInstance: (link) => link.noDropdown ? mockNoDropdown : mockDropdown,
+                getInstance: (link) => link.noDropdown ? mockNoDropdown : mockDropdown,
+            },
+        };
+        jest.spyOn(navbarPlugin, '_closeAllDropdowns');
+
+        // toggle link with dropdown
+        navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
+
+        jest.runAllTimers();
+
+        expect(navbarPlugin._closeAllDropdowns).toHaveBeenCalled();
+        expect(mockDropdown.show).toHaveBeenCalled();
+
+        // reset _closeAllDropdowns call count
+        navbarPlugin._closeAllDropdowns.mockClear();
+
+        // toggle link without dropdown
+        navbarPlugin._toggleNavbar(mockLinkNoDropdown, mockEventEnter);
+
+        jest.runAllTimers();
+
+        expect(navbarPlugin._closeAllDropdowns).toHaveBeenCalled();
+        expect(mockDropdown.hide).toHaveBeenCalled();
+        expect(mockNoDropdown.show).not.toHaveBeenCalled();
+    });
+
+    test('_toggleNavbar should blur top level link on mouseenter', () => {
+        jest.useFakeTimers();
+
+        const mockEventEnter = {type: 'mouseenter'};
+        const mockDropdown = {
+            show: jest.fn(),
+            hide: jest.fn(),
+            _menu: {classList: {contains: jest.fn().mockReturnValue(false)}},
+        };
+        window.bootstrap = {
+            Dropdown: {
+                getOrCreateInstance: jest.fn().mockReturnValue(mockDropdown),
+                getInstance: jest.fn().mockReturnValue(mockDropdown),
+            },
+        };
+        mockLink.blur = jest.fn();
+
+        navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
+
+        jest.runAllTimers();
+
+        expect(mockLink.blur).toHaveBeenCalled();
     });
 });

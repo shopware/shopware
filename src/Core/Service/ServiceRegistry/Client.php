@@ -5,8 +5,11 @@ namespace Shopware\Core\Service\ServiceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\ChunkInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -40,6 +43,28 @@ class Client implements ResetInterface
         }
 
         throw ServiceException::notFound('name', $name);
+    }
+
+    /**
+     * @return \Generator<ChunkInterface>
+     */
+    public function fetchServiceZip(string $zipUrl): \Generator
+    {
+        $response = $this->client->request('GET', $zipUrl, [
+            'headers' => [
+                'Accept' => 'application/zip',
+            ],
+        ]);
+
+        $this->checkResponse($response);
+        $contentType = $response->getHeaders()['content-type'] ?? [];
+        if (!\in_array('application/zip', $contentType, true)) {
+            throw ServiceException::requestFailed($response);
+        }
+
+        foreach ($this->client->stream($response) as $chunk) {
+            yield $chunk;
+        }
     }
 
     /**
@@ -117,6 +142,17 @@ class Client implements ResetInterface
             }
         } catch (ExceptionInterface $e) {
             throw ServiceException::consentRevokeFailed($e->getMessage());
+        }
+    }
+
+    private function checkResponse(ResponseInterface $response): void
+    {
+        try {
+            if ($response->getStatusCode() !== 200) {
+                throw ServiceException::requestFailed($response);
+            }
+        } catch (TransportExceptionInterface $exception) {
+            throw ServiceException::requestTransportError($exception);
         }
     }
 

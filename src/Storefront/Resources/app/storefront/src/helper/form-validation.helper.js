@@ -91,10 +91,11 @@ export default class FormValidation {
      * @private
      */
     _initDefaultValidators() {
-        this.addValidator('required', this.validateRequired, window.validationMessages['required']);
-        this.addValidator('email', this.validateEmail, window.validationMessages['email']);
-        this.addValidator('confirmation', this.validateConfirmation, window.validationMessages['confirmation']);
-        this.addValidator('minLength', this.validateMinLength, window.validationMessages['minLength']);
+        const validationMessages = window.validationMessages;
+        this.addValidator('required', this.validateRequired, validationMessages['required']);
+        this.addValidator('email', this.validateEmail, validationMessages['email']);
+        this.addValidator('confirmation', this.validateConfirmation, validationMessages['confirmation']);
+        this.addValidator('minLength', this.validateMinLength, validationMessages['minLength']);
     }
 
     /**

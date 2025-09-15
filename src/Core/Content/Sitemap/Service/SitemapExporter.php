@@ -10,7 +10,6 @@ use Shopware\Core\Content\Sitemap\Event\SitemapGenerationStartEvent;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
-use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -167,7 +166,6 @@ class SitemapExporter implements SitemapExporterInterface
     {
         /** @var SitemapHandle $sitemapHandle */
         foreach ($this->sitemapHandles as $host => $sitemapHandle) {
-            /** @var Url[] $urls */
             $urls = [];
 
             foreach ($result->getUrls() as $url) {

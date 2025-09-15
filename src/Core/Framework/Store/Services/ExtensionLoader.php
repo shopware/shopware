@@ -195,7 +195,7 @@ class ExtensionLoader
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
-            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomDirectory(),
+            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),
             'managedByComposer' => $plugin->getManagedByComposer(),
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];

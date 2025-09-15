@@ -19,6 +19,7 @@ use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Swag\SaasRufus\Core\Framework\Sbp\SaasSbpException;
 
+
 /**
  * @internal
  */
@@ -88,7 +89,7 @@ final readonly class UserService
         $oAuthUser = $this->searchOAuthUserByUserId($userId);
 
         if (!$oAuthUser instanceof ExternalAuthUser || !$oAuthUser->token instanceof Token) {
-            throw SaasSbpException::tokenNotFound();
+            throw LoginException::tokenNotFound();
         }
 
         if ($oAuthUser->expiry >= new \DateTimeImmutable()) {

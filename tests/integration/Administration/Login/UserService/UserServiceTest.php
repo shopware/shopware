@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Administration\Login\UserService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\TokenService\TokenResult;
 use Shopware\Administration\Login\UserService\ExternalAuthUser;
 use Shopware\Administration\Login\UserService\Token;
@@ -167,7 +168,7 @@ class UserServiceTest extends TestCase
     {
         $userService = $this->createUserService();
 
-        $this->expectExceptionObject(SaasSbpException::tokenNotFound());
+        $this->expectExceptionObject(LoginException::tokenNotFound());
 
         $userService->getRefreshedExternalTokenForUser(Uuid::randomHex());
     }
@@ -184,7 +185,7 @@ class UserServiceTest extends TestCase
 
         $userService = $this->createUserService();
 
-        $this->expectExceptionObject(SaasSbpException::tokenNotFound());
+        $this->expectExceptionObject(LoginException::tokenNotFound());
 
         $userService->getRefreshedExternalTokenForUser($userId);
     }

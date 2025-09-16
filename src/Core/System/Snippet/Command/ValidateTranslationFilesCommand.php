@@ -1,0 +1,261 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\System\Snippet\Command;
+
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileValidator;
+use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileOptions;
+use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileStruct;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+
+/**
+ * @internal
+ */
+#[AsCommand(
+    name: 'translation:validate-filenames',
+    description: 'Ensures translations have a country agnostic translation file as a base',
+)]
+#[Package('discovery')]
+class ValidateTranslationFilesCommand extends Command
+{
+    protected function configure(): void
+    {
+        $this->addOption(
+            'fix',
+            null,
+            InputOption::VALUE_NONE,
+            'Renames filenames to their agnostic equivalents. If more than one country-specific candidate exists for a single agnostic file, one has to be selected.'
+        );
+
+        $this->addOption(
+            'all',
+            null,
+            InputOption::VALUE_NONE,
+            'Includes the "custom" directory in the check for faulty filenames. The "extensions" option is ignored if specified.'
+        );
+
+        $this->addOption(
+            'extensions',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Restricts the search to the given extensions, if specified.',
+            '',
+        );
+
+        $this->addOption(
+            'ignore',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Excludes the specified paths relative to "src", "custom", or, if specified, the provided bundles. Values are comma-separated.',
+            '',
+        );
+
+        $this->addOption(
+            'dir',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Searches only a specific directory for translation files.',
+            '',
+        );
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $options = ValidatedTranslationFileOptions::fromInputInterface($input);
+        $fileValidator = new CountryAgnosticFileValidator();
+
+        $validatedFileStruct = $fileValidator->checkTranslationFiles($options);
+
+        if ($options->isFix() && $validatedFileStruct->getFixableFileCount() > 0) {
+            $validatedFileStruct = $this->hydrateFixingCollection($input, $output, $validatedFileStruct);
+            $fileValidator->fixFilenames($validatedFileStruct);
+        }
+
+        return $this->renderOutput($input, $output, $validatedFileStruct, $options);
+    }
+
+    private function hydrateFixingCollection(
+        InputInterface $input,
+        OutputInterface $output,
+        ValidatedTranslationFileStruct $validatedFileStruct,
+    ): ValidatedTranslationFileStruct {
+        $io = new ShopwareStyle($input, $output);
+
+        foreach ($validatedFileStruct->getFixableFiles() as $targetPath => $fileOptions) {
+            $selection = array_key_first($fileOptions);
+
+            if (\count($fileOptions) > 1) {
+                $selection = $io->askQuestion(new ChoiceQuestion(
+                    \sprintf(
+                        'Found multiple country-specific candidates for "%s". Select the file to rename',
+                        $targetPath,
+                    ),
+                    \array_map(static fn ($file) => $file->getFullPath(), $fileOptions),
+                ));
+            }
+
+            $validatedFileStruct->addToFixingCollection($fileOptions[$selection]);
+        }
+
+        return $validatedFileStruct;
+    }
+
+    private function renderOutput(
+        InputInterface $input,
+        OutputInterface $output,
+        ValidatedTranslationFileStruct $validatedFileStruct,
+        ValidatedTranslationFileOptions $validatedFileOptions,
+    ): int {
+        $io = new ShopwareStyle($input, $output);
+
+        if (!$validatedFileOptions->isFix()) {
+            foreach (CountryAgnosticFileValidator::CORE_DOMAINS as $domain => $label) {
+                $this->renderDomainTable($input, $output, $domain, $validatedFileStruct);
+            }
+        }
+
+        $this->renderIssuesTable($input, $output, $validatedFileStruct);
+
+        if ($validatedFileStruct->getFixableFileCount() < 1) {
+            $io->success(\sprintf(
+                'All translation files are named correctly.%s',
+                $validatedFileOptions->isFix() ? ' Nothing to fix.' : '',
+            ));
+
+            return self::SUCCESS;
+        }
+
+        if ($validatedFileOptions->isFix()) {
+            $this->renderFixedTable($input, $output, $validatedFileStruct);
+
+            return self::SUCCESS;
+        }
+
+        $io->error('Every country-specific translation file must have a corresponding agnostic file. Example: `messages.de-DE.json` requires `messages.de.json`'); // ToDo: Replace with docs
+
+        return self::FAILURE;
+    }
+
+    private function renderDomainTable(
+        InputInterface $input,
+        OutputInterface $output,
+        string $domain,
+        ValidatedTranslationFileStruct $validatedFileStruct
+    ): void {
+        $io = new ShopwareStyle($input, $output);
+        $domainCollection = $validatedFileStruct->getDomainCollection($domain);
+
+        if ($domainCollection->count() < 1) {
+            $io->note(\sprintf(
+                'No %s files found',
+                CountryAgnosticFileValidator::CORE_DOMAINS[$domain],
+            ));
+
+            return;
+        }
+
+        $headers = ['File name', 'Domain', 'Locale', 'Language', 'Script', 'Region', 'Path'];
+        if ($domain !== 'administration') {
+            $headers[] = 'Base';
+        }
+
+        $domainTable = (new Table($output))
+            ->setHeaderTitle(CountryAgnosticFileValidator::CORE_DOMAINS[$domain] . ' files')
+            ->setHeaders($headers)
+            ->setStyle('box-double');
+
+        foreach ($validatedFileStruct->getDomainCollection($domain) as $translationFile) {
+            $row = [
+                $translationFile->getFilename(),
+                $translationFile->getPath(),
+                $translationFile->getDomain(),
+                $translationFile->getLocale(),
+                $translationFile->getLanguage(),
+                $translationFile->getScript() ?? '-',
+                $translationFile->getRegion() ?? '-',
+            ];
+
+            if ($domain !== 'administration') {
+                $row[] = $translationFile->isBase() ? 'true' : 'false';
+            }
+
+            $domainTable->addRow($row);
+        }
+
+        $domainTable->render();
+
+        $io->text(\sprintf(
+            '%s files found: %s',
+            CountryAgnosticFileValidator::CORE_DOMAINS[$domain],
+            $validatedFileStruct->getDomainCount($domain)
+        ));
+        $io->newLine();
+    }
+
+    private function renderIssuesTable(
+        InputInterface $input,
+        OutputInterface $output,
+        ValidatedTranslationFileStruct $validatedFileStruct
+    ): void {
+        $io = new ShopwareStyle($input, $output);
+        $issuesCollection = $validatedFileStruct->getIssues();
+        $issuesCount = \count($issuesCollection);
+
+        if ($issuesCount < 1) {
+            return;
+        }
+
+        $issuesTable = (new Table($output))
+            ->setHeaderTitle('Problems')
+            ->setHeaders(['File name', 'Locale', 'Missing file', 'Path'])
+            ->setStyle('box-double');
+
+        foreach ($issuesCollection as $translationFile) {
+            $issuesTable->addRow([
+                $translationFile->getFilename(),
+                $translationFile->getLocale(),
+                $translationFile->getAgnosticFilename(),
+                $translationFile->getPath(),
+            ]);
+        }
+
+        $issuesTable->render();
+
+        $io->text(\sprintf('Errors found: %s', $issuesCount));
+        $io->newLine();
+    }
+
+    private function renderFixedTable(
+        InputInterface $input,
+        OutputInterface $output,
+        ValidatedTranslationFileStruct $validatedFileStruct
+    ): void {
+        $io = new ShopwareStyle($input, $output);
+
+        $fixedTable = (new Table($output))
+            ->setHeaderTitle('Fixed files')
+            ->setHeaders(['Old filename', 'New filename', 'Path'])
+            ->setStyle('box-double');
+
+        foreach ($validatedFileStruct->getFixingCollection() as $translationFile) {
+            $fixedTable->addRow([
+                $translationFile->getFilename(),
+                $translationFile->getAgnosticFilename(),
+                $translationFile->getPath(),
+            ]);
+        }
+
+        $fixedTable->render();
+
+        $io->text(\sprintf('Files fixed: %s', $validatedFileStruct->getFixingCollection()->count()));
+        $io->success('All faulty files have been fixed.');
+        $io->newLine();
+    }
+}

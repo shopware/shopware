@@ -36,9 +36,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\System\Snippet\Command\CheckAgnosticTranslationFilesCommand">
-            <argument type="service" id="shopware.filesystem.private"/>
-
+        <service id="Shopware\Core\System\Snippet\Command\ValidateTranslationFilesCommand">
             <tag name="console.command"/>
         </service>
 

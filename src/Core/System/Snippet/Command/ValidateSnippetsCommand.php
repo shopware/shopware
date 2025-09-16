@@ -21,6 +21,7 @@ use Symfony\Component\Console\Question\Question;
 #[AsCommand(
     name: 'translation:validate',
     description: 'Validates completeness and correct pluralization of snippets',
+    aliases: ['snippets:validate'],
 )]
 #[Package('discovery')]
 class ValidateSnippetsCommand extends Command

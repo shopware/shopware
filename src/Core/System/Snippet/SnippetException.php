@@ -47,6 +47,8 @@ class SnippetException extends HttpException
 
     final public const SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL = 'SYSTEM__SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL';
 
+    final public const SNIPPET_COUNTRY_AGNOSTIC_FILE_VALIDATOR_INVALID_EXTENSION = 'SYSTEM__SNIPPET_COUNTRY_AGNOSTIC_FILE_VALIDATOR_INVALID_EXTENSION';
+
     public static function invalidFilterName(): self
     {
         return new self(
@@ -233,6 +235,16 @@ class SnippetException extends HttpException
                 'message' => $previous->getMessage(),
             ],
             $previous
+        );
+    }
+
+    public static function invalidExtension(string $extensionName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_COUNTRY_AGNOSTIC_FILE_VALIDATOR_INVALID_EXTENSION,
+            'Specified argument "{{ extensionName }}" is not a valid extension.',
+            ['extensionName' => $extensionName],
         );
     }
 }

@@ -134,7 +134,7 @@
                                        id="lang_{{ locale|lower|replace({'-': '_'}) }}"
                                        name="selected_languages[]"
                                        value="{{ locale }}"
-                                       {% if locale in ['en-GB','de-DE'] %}checked disabled{% endif %}
+                                       {% if locale in ['en-GB','de-DE'] %}checked disabled data-default-locales{% elseif locale in selectedLanguages %}checked{% endif %}
                                        onclick="event.target.classList.add('toggled')" />
                                 <label for="lang_{{ locale|lower|replace({'-': '_'}) }}">
                                     {{ language.label }}
@@ -314,13 +314,12 @@
             // Uncheck previous language if different
             if (previousDefaultLanguage && previousDefaultLanguage !== selectedLanguage) {
                 const previousLanguage = document.querySelector(`input[name="selected_languages[]"][value="${previousDefaultLanguage}"]`);
-                if (previousLanguage && !previousLanguage.disabled) {
+                if (previousLanguage && !previousLanguage.hasAttribute('data-default-locales')) {
                     previousLanguage.checked = false;
                     previousLanguage.disabled = false;
                 }
             }
 
-            // Check and disable current language (unless it's already disabled)
             if (current && !current.disabled) {
                 current.checked = true;
                 current.disabled = true;

@@ -16,7 +16,7 @@ shopware.installer:
     forward: Další
     start: Spustit
     start_installation: 'Spustit instalaci'
-    select_language_cs: Český
+    select_language_cs: Čeština
     select_language_da-DK: Dánština
     select_language_de: Německy
     select_language_en-US: Anglicky (Spojené státy americké)

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
@@ -117,33 +116,12 @@ class EditOrderPageTest extends TestCase
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
 
+        // Get digital products rule
+        $ruleCriteria = new Criteria();
+        $ruleCriteria->addFilter(new EqualsFilter('name', 'Shopping cart / Order with digital products'));
+
         /** @var EntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = static::getContainer()->get('rule.repository');
-
-        $connection = static::getContainer()->get(Connection::class);
-        $usaCountryId = $connection->executeQuery('SELECT LOWER(HEX(id)) FROM country WHERE iso3 = "USA"')->fetchOne();
-
-        // Create customer from USA rule
-        $ruleRepository->create([
-            [
-                'id' => Uuid::randomHex(),
-                'name' => 'Customers from USA',
-                'priority' => 100,
-                'conditions' => [
-                    [
-                        'type' => 'customerBillingCountry',
-                        'value' => [
-                            'operator' => '=',
-                            'countryIds' => [$usaCountryId],
-                        ],
-                    ],
-                ],
-            ],
-        ], $context->getContext());
-
-        // Get customer from USA rule
-        $ruleCriteria = new Criteria();
-        $ruleCriteria->addFilter(new EqualsFilter('name', 'Customers from USA'));
 
         $ruleId = $ruleRepository->search($ruleCriteria, $context->getContext())->getEntities()->first()?->getId();
         static::assertNotNull($ruleId);

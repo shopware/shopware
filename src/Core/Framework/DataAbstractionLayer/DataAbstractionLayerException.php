@@ -27,7 +27,6 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -808,10 +807,10 @@ class DataAbstractionLayerException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
-    public static function configNotFound(): self|ElasticsearchProductException
+    public static function configNotFound(): self|\Shopware\Elasticsearch\Product\ElasticsearchProductException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            throw ElasticsearchProductException::configNotFound();
+        if (!Feature::isActive('v6.8.0.0') && class_exists('\Shopware\Elasticsearch\Product\ElasticsearchProductException')) {
+            return \Shopware\Elasticsearch\Product\ElasticsearchProductException::configNotFound();
         }
 
         return new self(

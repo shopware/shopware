@@ -96,6 +96,12 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\System\Snippet\Struct\TranslationConfig#$pluginMapping changed from array to Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection', '/'),
         preg_quote('ADDED: Parameter previous was added to Method translationConfigurationFileDoesNotExist() of class Shopware\Core\System\Snippet\SnippetException', '/'),
 
+        // The constants were not aligned with the max length constants from the customer definition.
+        preg_quote('CHANGED: Value of constant Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition::MAX_LENGTH_FIRST_NAME changed from 50 to 255', '/'),
+        preg_quote('CHANGED: Value of constant Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition::MAX_LENGTH_LAST_NAME changed from 60 to 255', '/'),
+        preg_quote('CHANGED: Value of constant Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME changed from 50 to 255', '/'),
+        preg_quote('CHANGED: Value of constant Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition::MAX_LENGTH_LAST_NAME changed from 60 to 255', '/'),
+
         preg_quote('Shopware\Core\Framework\App\AppException', '/'),
         preg_quote('Shopware\Core\Service\ServiceException', '/')
     ],

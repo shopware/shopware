@@ -191,7 +191,7 @@ class UnusedMediaPurger
 
             yield $unusedIds;
 
-            $criteria->setOffset($criteria->getOffset() + $limit);
+            $criteria->setOffset((int) $criteria->getOffset() + $limit);
         }
     }
 

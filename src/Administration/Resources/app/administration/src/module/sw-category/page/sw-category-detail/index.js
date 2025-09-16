@@ -794,6 +794,47 @@ export default {
             });
         },
 
+        extractSlotOverrides(origin, changes) {
+            const slotOverrides = {};
+            if (changes === null) {
+                return slotOverrides;
+            }
+
+            if (type.isArray(changes.sections)) {
+                changes.sections.forEach((section) => {
+                    const originSection = origin?.sections?.find((oSection) => oSection.id === section.id);
+
+                    if (type.isArray(section.blocks)) {
+                        section.blocks.forEach((block) => {
+                            const originBlock = originSection?.blocks?.find((oBlock) => oBlock.id === block.id);
+
+                            if (type.isArray(block.slots)) {
+                                block.slots.forEach((slot) => {
+                                    const originSlot = originBlock?.slots?.find((oSlot) => oSlot.id === slot.id);
+                                    const originSlotConfig = originSlot?.config;
+
+                                    if (slot.config && originSlotConfig) {
+                                        Object.keys(slot.config).forEach((key) => {
+                                            if (slot.config[key].value !== originSlotConfig[key].value) {
+                                                if (!slotOverrides[slot.id]) {
+                                                    slotOverrides[slot.id] = {};
+                                                }
+                                                slotOverrides[slot.id][key] = slot.config[key];
+                                            }
+                                        });
+                                    } else if (slot.config) {
+                                        slotOverrides[slot.id] = slot.config;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            return slotOverrides;
+        },
+
         getCmsPageOverrides() {
             if (this.cmsPage === null) {
                 return null;
@@ -802,25 +843,8 @@ export default {
             this.deleteSpecifcKeys(this.cmsPage.sections);
 
             const { changes } = this.changesetGenerator.generate(this.cmsPage);
-
-            const slotOverrides = {};
-            if (changes === null) {
-                return slotOverrides;
-            }
-
-            if (type.isArray(changes.sections)) {
-                changes.sections.forEach((section) => {
-                    if (type.isArray(section.blocks)) {
-                        section.blocks.forEach((block) => {
-                            if (type.isArray(block.slots)) {
-                                block.slots.forEach((slot) => {
-                                    slotOverrides[slot.id] = slot.config;
-                                });
-                            }
-                        });
-                    }
-                });
-            }
+            const origin = this.cmsPage.getOrigin();
+            const slotOverrides = this.extractSlotOverrides(origin, changes);
 
             return slotOverrides;
         },

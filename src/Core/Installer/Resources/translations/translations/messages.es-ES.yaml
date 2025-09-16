@@ -116,7 +116,7 @@ shopware.installer:
     configuration_admin_mail: 'Dirección de correo electrónico del administrador:'
     configuration_admin_firstName: 'Nombre del administrador:'
     configuration_admin_lastName: 'Apellido(s) del administrador:'
-    configuration_defaults_warning: '.El idioma estándar y la moneda estándar del sistema no se podrán modificar posteriormente:'
+    configuration_defaults_warning: 'El idioma estándar y la moneda estándar del sistema no se podrán modificar posteriormente.'
     configuration_email_help_text: 'Esta dirección de correo electrónico se utilizará para los correos electrónicos salientes de la tienda.'
     configuration_admin_currency_headline: 'Monedas disponibles'
     configuration_admin_currency_text: 'Añade más monedas a tu tienda de Shopware. Si quieres añadir monedas después, puedes hacerlo en cualquier momento en la administración.'

@@ -20,11 +20,6 @@
     </div>
 
     <div class="card__footer flex-container">
-        <a href="{{ url('installer.configuration') }}"
-           id="back"
-           class="btn btn-default flex-item">
-            {{ "shopware.installer.back"|trans }}
-        </a>
         <a href="{{ url('installer.finish') }}"
            id="next"
            class="btn btn-primary flex-item flex-right disabled"
@@ -54,7 +49,7 @@
 
                 if (data.isFinished) {
                     window.removeEventListener('beforeunload', preventPageLeave);
-                    
+
                     if (data.failed) {
                         showError();
                     } else {

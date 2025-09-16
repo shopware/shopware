@@ -74,6 +74,12 @@ class ShopConfigurationController extends InstallerController
             /** @var list<string> $selectedLanguages */
             $selectedLanguages = $request->request->all('selected_languages') ?: [];
 
+            // Always include the selected shop language
+            $shopLanguage = (string) $request->request->get('config_shop_language');
+            if (!\in_array($shopLanguage, $selectedLanguages, true) && !\in_array($shopLanguage, ['de-DE', 'en-GB'], true)) {
+                $selectedLanguages[] = $shopLanguage;
+            }
+
             // Use all available languages from TranslationConfigLoader
             $availableLanguages = $this->getAllAvailableLanguages();
             $selectedLanguages = array_map(function (string $iso) use ($availableLanguages) {

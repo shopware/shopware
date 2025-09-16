@@ -7,7 +7,7 @@
         <parameter key="shopware.installer.supportedLanguages" type="collection">
             <parameter key="cs" type="collection">
                 <parameter key="id">cs-CZ</parameter>
-                <parameter key="label">Český</parameter>
+                <parameter key="label">Čeština</parameter>
             </parameter>
             <parameter key="da-DK" type="collection">
                 <parameter key="id">da-DK</parameter>
@@ -42,7 +42,7 @@
                 <parameter key="label">Nederlands</parameter>
             </parameter>
             <parameter key="no" type="collection">
-                <parameter key="id">no-NO</parameter>
+                <parameter key="id">nn-NO</parameter>
                 <parameter key="label">Norsk</parameter>
             </parameter>
             <parameter key="pl" type="collection">

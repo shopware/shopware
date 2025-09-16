@@ -50,7 +50,7 @@
                 <div class="input-group">
                     <label for="config_shop_language">{{ "shopware.installer.configuration_sconfig_language"|trans }}</label>
                     <div class="select-wrapper">
-                        <select name="config_shop_language" id="config_shop_language">
+                        <select name="config_shop_language" id="config_shop_language" onchange="syncDefaultLanguage()">
                             {% for iso, language in languageIsos %}
                                 <option value="{{ language.id }}" {% if parameters.config_shop_language == language.id %}selected{% endif %}>
                                     {{ ("shopware.installer.select_language_" ~ iso) |trans }}
@@ -233,7 +233,10 @@
     </form>
 
     <script>
+        let previousDefaultLanguage = null;
+
         toggleDefaultCurrency();
+        syncDefaultLanguage();
         function toggleDefaultCurrency() {
             const toggles = document.getElementsByClassName('currency-toggle');
             for (let toggle of toggles) {
@@ -302,6 +305,28 @@
 
         function setLastActivity() {
             localStorage.setItem('lastActivity', `${Date.now()}`);
+        }
+
+        function syncDefaultLanguage() {
+            const selectedLanguage = document.getElementById('config_shop_language').value;
+            const current = document.querySelector(`input[name="selected_languages[]"][value="${selectedLanguage}"]`);
+
+            // Uncheck previous language if different
+            if (previousDefaultLanguage && previousDefaultLanguage !== selectedLanguage) {
+                const previousLanguage = document.querySelector(`input[name="selected_languages[]"][value="${previousDefaultLanguage}"]`);
+                if (previousLanguage && !previousLanguage.disabled) {
+                    previousLanguage.checked = false;
+                    previousLanguage.disabled = false;
+                }
+            }
+
+            // Check and disable current language (unless it's already disabled)
+            if (current && !current.disabled) {
+                current.checked = true;
+                current.disabled = true;
+            }
+
+            previousDefaultLanguage = selectedLanguage;
         }
     </script>
 {% endblock %}

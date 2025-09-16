@@ -348,6 +348,33 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
+## Only rules relevant for product prices are considered in the `sw-cache-hash`
+In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
+
+If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
+
+```php
+class ResolveRuleIds implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ResolveCacheRelevantRuleIdsExtension::NAME . '.pre' => 'onResolveRuleAreas',
+        ];
+    }
+
+    public function onResolveRuleAreas(ResolveCacheRelevantRuleIdsExtension $extension): void
+    {
+        $extension->ruleAreas[] = RuleExtension::MY_CUSTOM_RULE_AREA;
+    }
+}
+```
+
+If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
+
+## Removed unused `RuleAreas` constants
+The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
+
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
 * Changed twig filter `encodeMediaUrl` in `Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php` will now return the URL in its already encoded form and is basically the same as `$media->getUrl()` with some extra checks.

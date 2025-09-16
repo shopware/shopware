@@ -42,11 +42,17 @@ export default class FormAjaxSubmitPlugin extends Plugin {
          */
         redirectTo: false,
 
-        /*+
+        /**
          * route which should be forwarded to
          * when submitted
          */
         forwardTo: false,
+
+        /**
+         * whether or not the form should be submitted without validation
+         * @type bool
+         */
+        noValidate: false,
     };
 
     init() {
@@ -117,7 +123,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     /**
      * on submit callback for the form
      *
-     * @param event
+     * @param {Event} event
      *
      * @private
      */
@@ -127,8 +133,10 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             event.preventDefault();
         }
 
+        const submitter = event.submitter || event.currentTarget;
+
         // checks form validity before submit
-        if (this._form.checkValidity() === false) {
+        if (!this.options.noValidate && !submitter?.hasAttribute('formNoValidate') && !this._form.checkValidity()) {
             return;
         }
 
@@ -143,32 +151,47 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             const target = event.currentTarget;
             this.options.submitOnChange.some(selector => {
                 if (target.matches(selector)) {
-                    this._fireRequest();
+                    this._fireRequest(event);
                     return true;
                 }
             });
         } else {
-            this._fireRequest();
+            this._fireRequest(event);
         }
     }
 
     /**
      * fire the ajax request for the form
      *
+     * @param {Event} event
+     *
      * @private
      */
-    _fireRequest() {
+    _fireRequest(event) {
         this._createLoadingIndicators();
         this.$emitter.publish('beforeSubmit');
 
         if (!this.formSubmittedByCaptcha) {
-            this.sendAjaxFormSubmit();
+            this.sendAjaxFormSubmit(event);
         }
     }
 
-    sendAjaxFormSubmit() {
-        const action = this._form.getAttribute('action');
-        const method = this._form.getAttribute('method');
+    /**
+     * submits the form via ajax
+     *
+     * @param {Event|undefined} event
+     */
+    sendAjaxFormSubmit(event) {
+        let action = this._form.getAttribute('action');
+        let method = this._form.getAttribute('method');
+
+        const submitter = event?.submitter || event?.currentTarget;
+        if (submitter?.hasAttribute('formAction')) {
+            action = submitter.getAttribute('formAction');
+        }
+        if (submitter?.hasAttribute('formMethod')) {
+            method = submitter.getAttribute('formMethod').toLowerCase();
+        }
 
         if (method === 'get') {
             fetch(action, {
@@ -178,7 +201,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
                 .then(response => this._onAfterAjaxSubmit(response));
         } else {
             fetch(action, {
-                method: 'POST',
+                method: method ?? 'post',
                 body: this._getFormData(),
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
             })

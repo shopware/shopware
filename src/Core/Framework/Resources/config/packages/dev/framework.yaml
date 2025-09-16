@@ -1,3 +1,5 @@
 framework:
+    profiler:
+        enabled: true
     cache:
         app: cache.adapter.array

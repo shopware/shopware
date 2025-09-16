@@ -244,12 +244,12 @@
         <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
-            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="mail_template_type.repository"/>
             <argument type="service" id="user.repository"/>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="locale.repository"/>
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument>%APP_URL%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Sso\SsoService">

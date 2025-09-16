@@ -13,25 +13,16 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('framework')]
 class CookieGroupCollection extends Collection
 {
-    public function __construct(iterable $elements = [])
+    public function set($key, $element): void
     {
-        parent::__construct([]);
-
-        foreach ($elements as $element) {
-            $this->add($element);
-        }
-
-        $this->sort(fn (CookieGroup $a, CookieGroup $b) => $a->getTechnicalName() <=> $b->getTechnicalName());
+        parent::set($element->getTechnicalName(), $element);
     }
 
-    /**
-     * @param CookieGroup $element
-     */
     public function add($element): void
     {
         $this->validateType($element);
 
-        $this->set($element->getTechnicalName(), $element);
+        parent::set($element->getTechnicalName(), $element);
     }
 
     public function getApiAlias(): string
@@ -39,7 +30,7 @@ class CookieGroupCollection extends Collection
         return 'cookie_group_collection';
     }
 
-    protected function getExpectedClass(): ?string
+    protected function getExpectedClass(): string
     {
         return CookieGroup::class;
     }

@@ -9,6 +9,35 @@ $sw-prefix: 'sw-';
     --#{$prefix}card-cap-padding-x: 1rem;
     --#{$prefix}card-cap-bg: none;
     --#{$sw-prefix}product-card-media-height: 200px;
+
+    // Add css animation
+    transition: all 0.3s ease-in-out;
+
+    &.is--divider {
+        --#{$prefix}card-spacer-y: 0;
+        --#{$prefix}card-spacer-x: 0;
+        --#{$prefix}card-cap-padding-y: 0;
+        --#{$prefix}card-cap-padding-x: 0;
+        --#{$prefix}card-border-color: transparent;
+
+        .product-card-header {
+            margin: 0;
+        }
+
+        .product-card-body {
+            padding-top: 1rem;
+        }
+
+        border-bottom-color: var(--#{$prefix}border-color);
+        padding-bottom: $spacer;
+    }
+}
+
+.product-card-body,
+.product-card-footer,
+.product-card-header {
+    // Add css animation
+    transition: all 0.3s ease-in-out;
 }
 
 .product-card-title {
@@ -18,6 +47,10 @@ $sw-prefix: 'sw-';
     padding-bottom: 0;
     font-weight: 600;
 }
+
+//.product-card-header {
+//    margin: $spacer-sm;
+//}
 
 .product-card-title-link {
     color: var(--#{$prefix}body-color);
@@ -71,15 +104,15 @@ $sw-prefix: 'sw-';
     }
 }
 
-.product-card-media {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: scale(100%);
-}
+//.product-card-media {
+//    transition: opacity 0.3s ease, transform 0.3s ease;
+//    transform: scale(100%);
+//}
 
 // Using wild has selector here because hovering the image is blocked by the stretched link.
-.product-card-header:has(+ .product-card-body .product-card-title-link:hover) {
-    .product-card-media {
-        opacity: 0.7;
-        transform: scale(105%);
-    }
-}
+//.product-card-header:has(+ .product-card-body .product-card-title-link:hover) {
+//    .product-card-media {
+//        opacity: 0.7;
+//        transform: scale(105%);
+//    }
+//}

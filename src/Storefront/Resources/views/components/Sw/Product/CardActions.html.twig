@@ -1,9 +1,10 @@
 {% props
     product,
     addToCartExtraFormData = {},
+    horizontal = false,
 %}
 
-<div class="product-card-actions d-grid">
+<div class="product-card-actions{% if not horizontal %} d-grid{% endif %}">
     {% set id = product.id %}
     {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
     {% set displayFrom = product.calculatedPrices.count > 1 %}
@@ -30,7 +31,7 @@
         <form
             action="{{ path('frontend.checkout.line-item.add') }}"
             method="post"
-            class="buy-widget d-grid"
+            class="buy-widget{% if not horizontal %} d-grid{% endif %}"
             data-add-to-cart="true"
         >
             {% for name, value in formData %}

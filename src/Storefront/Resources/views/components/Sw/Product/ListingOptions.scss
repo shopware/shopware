@@ -1,0 +1,10 @@
+.sw-listing-options__horizontal-toggle {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-hover-border-color: var(--bs-border-color);
+    --bs-btn-active-border-color: var(--bs-border-color);
+
+    &.is--active {
+        color: blue;
+    }
+}

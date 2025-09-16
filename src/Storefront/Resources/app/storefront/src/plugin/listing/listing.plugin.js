@@ -200,8 +200,8 @@ export default class ListingPlugin extends Plugin {
             mapped[paramKey] = paramValue;
         });
 
-        let query = new URLSearchParams(mapped).toString();
-        this.sendDataRequest(query);
+        let queryParams = new URLSearchParams(mapped);
+        this.sendDataRequest(queryParams);
 
         delete mapped['slots'];
         delete mapped['no-aggregations'];
@@ -233,6 +233,7 @@ export default class ListingPlugin extends Plugin {
 
     /**
      * @private
+     * @returns {URLSearchParams} 
      */
     _getDisabledFiltersParamsFromParams(params) {
         const filterParams = Object.assign({}, {'only-aggregations': 1, 'reduce-aggregations': 1}, params);
@@ -240,7 +241,7 @@ export default class ListingPlugin extends Plugin {
         delete filterParams['order'];
         delete filterParams['no-aggregations'];
 
-        return filterParams;
+        return new URLSearchParams(filterParams);
     }
 
     _updateHistory(query) {
@@ -401,7 +402,7 @@ export default class ListingPlugin extends Plugin {
     /**
      * Send request to get filtered product data.
      *
-     * @param {String} filterParams - active filters as querystring
+     * @param {URLSearchParams} filterParams - active filters as querystring
      */
     sendDataRequest(filterParams) {
         if (this._filterPanelActive) {
@@ -416,7 +417,15 @@ export default class ListingPlugin extends Plugin {
             this.sendDisabledFiltersRequest();
         }
 
-        fetch(`${this.options.dataUrl}?${filterParams}`, {
+        const url = new URL(this.options.dataUrl, window.location.origin);
+
+        if (filterParams.size > 0) {
+            for (const [key, value] of filterParams) {
+                url.searchParams.append(key, value);
+            }
+        }
+
+        fetch(url.toString(), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then((response) => response.text())
@@ -450,9 +459,15 @@ export default class ListingPlugin extends Plugin {
         this._allFiltersInitializedDebounce = () => {};
 
         const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
-        const paramsString = new URLSearchParams(filterParams).toString();
+        const url = new URL(this.options.filterUrl, window.location.origin);
 
-        fetch(`${this.options.filterUrl}?${paramsString}`, {
+        if (filterParams.size > 0) {
+            for (const [key, value] of filterParams) {
+                url.searchParams.append(key, value);
+            }
+        }
+
+        fetch(url.toString(), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => response.json())

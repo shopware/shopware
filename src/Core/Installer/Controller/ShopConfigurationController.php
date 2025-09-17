@@ -121,7 +121,6 @@ class ShopConfigurationController extends InstallerController
                 $this->adminConfigurationService->createAdmin($adminUser, $connection);
                 $this->shopConfigurationService->updateShop($shop, $connection);
 
-                $session->remove(DatabaseConnectionInformation::class);
                 $session->set('ADMIN_USER', $adminUser);
                 $session->set('SELECTED_LANGUAGES', $selectedLanguages);
 

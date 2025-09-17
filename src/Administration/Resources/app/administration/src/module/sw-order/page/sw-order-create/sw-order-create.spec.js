@@ -210,4 +210,18 @@ describe('src/module/sw-order/page/sw-order-create', () => {
 
         expect(Shopware.Store.get('context').api.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
     });
+
+    it('should NOT set isSaveSuccessful immediately after save order, only after modal interaction', async () => {
+        await wrapper.find('.sw-button-process').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.showRemindPaymentModal).toBe(true);
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+
+        const modal = wrapper.find('.sw-modal');
+        await findByText(modal, 'button', 'global.default.no').trigger('click');
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.showRemindPaymentModal).toBe(false);
+    });
 });

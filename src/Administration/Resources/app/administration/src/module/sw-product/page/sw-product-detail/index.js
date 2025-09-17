@@ -248,7 +248,6 @@ export default {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
-                .addAssociation('featureSet')
                 .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer').addAssociation('media');
@@ -743,6 +742,7 @@ export default {
                         const propertyCriteria = new Criteria(1, null);
                         propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
                         propertyCriteria.setIds(product.propertyIds);
+                        propertyCriteria.addFilter(Criteria.equals('productProperties.id', product.id));
 
                         const result = await this.propertyRepository.search(propertyCriteria);
                         result.source = product.properties.source;
@@ -1150,12 +1150,6 @@ export default {
                         this.updateSeoPromises.push(this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId));
                     });
                 }
-            }
-
-            if (this.product.media) {
-                this.product.media.forEach((medium, index) => {
-                    medium.position = index;
-                });
             }
 
             return new Promise((resolve) => {

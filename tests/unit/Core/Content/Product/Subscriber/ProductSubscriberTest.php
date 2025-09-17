@@ -284,10 +284,10 @@ class ProductSubscriberTest extends TestCase
                 // For the sake of this example, we will just double the value
 
                 $converted = new ConvertedUnitSet();
-                $converted->addUnit(ProductMeasurementEnum::WEIGHT->value, new ConvertedUnit($product->getWeight() * 2.0, $to));
-                $converted->addUnit(ProductMeasurementEnum::WIDTH->value, new ConvertedUnit($product->getWidth() * 2.0, $to));
-                $converted->addUnit(ProductMeasurementEnum::LENGTH->value, new ConvertedUnit($product->getLength() * 2.0, $to));
-                $converted->addUnit(ProductMeasurementEnum::HEIGHT->value, new ConvertedUnit($product->getHeight() * 2.0, $to));
+                $converted->addUnit(ProductMeasurementEnum::WEIGHT->value, new ConvertedUnit((float) $product->getWeight() * 2.0, $to));
+                $converted->addUnit(ProductMeasurementEnum::WIDTH->value, new ConvertedUnit((float) $product->getWidth() * 2.0, $to));
+                $converted->addUnit(ProductMeasurementEnum::LENGTH->value, new ConvertedUnit((float) $product->getLength() * 2.0, $to));
+                $converted->addUnit(ProductMeasurementEnum::HEIGHT->value, new ConvertedUnit((float) $product->getHeight() * 2.0, $to));
 
                 return $converted;
             });
@@ -392,10 +392,10 @@ class ProductSubscriberTest extends TestCase
                     // For the sake of this example, we will just double the value
 
                     $converted = new ConvertedUnitSet();
-                    $converted->addUnit(ProductMeasurementEnum::WEIGHT->value, new ConvertedUnit($product->getWeight() * 2.0, $to));
-                    $converted->addUnit(ProductMeasurementEnum::WIDTH->value, new ConvertedUnit($product->getWidth() * 2.0, $to));
-                    $converted->addUnit(ProductMeasurementEnum::LENGTH->value, new ConvertedUnit($product->getLength() * 2.0, $to));
-                    $converted->addUnit(ProductMeasurementEnum::HEIGHT->value, new ConvertedUnit($product->getHeight() * 2.0, $to));
+                    $converted->addUnit(ProductMeasurementEnum::WEIGHT->value, new ConvertedUnit((float) $product->getWeight() * 2.0, $to));
+                    $converted->addUnit(ProductMeasurementEnum::WIDTH->value, new ConvertedUnit((float) $product->getWidth() * 2.0, $to));
+                    $converted->addUnit(ProductMeasurementEnum::LENGTH->value, new ConvertedUnit((float) $product->getLength() * 2.0, $to));
+                    $converted->addUnit(ProductMeasurementEnum::HEIGHT->value, new ConvertedUnit((float) $product->getHeight() * 2.0, $to));
 
                     return $converted;
                 });

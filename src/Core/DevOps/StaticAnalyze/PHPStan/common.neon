@@ -1,5 +1,5 @@
 includes:
-    - ../../../../../vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
     - extension.neon
     - rules.neon
 
@@ -19,7 +19,6 @@ parameters:
 
     # For stricter testing those should be set to true at some point
     reportMaybesInMethodSignatures: false
-    reportWrongPhpDocTypeInVarTag: false
 
     # For stricter testing those should be set to true at some point
     strictRules:
@@ -28,10 +27,7 @@ parameters:
         requireParentConstructorCall: false
         disallowedEmpty: false
         disallowedShortTernary: false
-        closureUsesThis: false
-        numericOperandsInArithmeticOperators: false
         dynamicCallOnStaticMethod: false
-        noVariableVariables: false
         strictArrayFilter: false
 
     type_perfect:
@@ -53,9 +49,6 @@ rules:
     - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
 
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
-
-    # complexity rules
-    - Symplify\PHPStanRules\Rules\NoDynamicNameRule
 
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule

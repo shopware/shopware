@@ -148,22 +148,12 @@
                 {% endblock %}
 
                 {% block sw_order_list_grid_columns_delivery_address %}
-                <template #column-deliveries.id="{ item }">
-                    <template v-if="getDelivery(item) && getDelivery(item).shippingOrderAddress">
-                        <div
-                            v-tooltip="{
-                                showDelay: 300,
-                                width: 400,
-                                disabled: item.deliveries.length <= 1,
-                                message: deliveryTooltip(item.deliveries)
-                            }"
-                            class="sw-order-list__delivery_address"
-                        >
-                            <span v-if="getDelivery(item).shippingOrderAddress.company">{{ getDelivery(item).shippingOrderAddress.company }}<span v-if="getDelivery(item).shippingOrderAddress.department"> - {{ getDelivery(item).shippingOrderAddress.department }}</span>,</span>
-                            {{ getDelivery(item).shippingOrderAddress.street }},
-                            {{ getDelivery(item).shippingOrderAddress.zipcode }}
-                            {{ getDelivery(item).shippingOrderAddress.city }}
-                        </div>
+                <template #column-primaryOrderDelivery.shippingOrderAddress.street="{ item }">
+                    <template v-if="item.primaryOrderDelivery?.shippingOrderAddress">
+                        <span v-if="item.primaryOrderDelivery.shippingOrderAddress.company">{{ item.primaryOrderDelivery.shippingOrderAddress.company }}<span v-if="item.primaryOrderDelivery.shippingOrderAddress.department"> - {{ item.primaryOrderDelivery.shippingOrderAddress.department }}</span>,</span>
+                        {{ item.primaryOrderDelivery.shippingOrderAddress.street }},
+                        {{ item.primaryOrderDelivery.shippingOrderAddress.zipcode }}
+                        {{ item.primaryOrderDelivery.shippingOrderAddress.city }}
                     </template>
 
                 </template>
@@ -191,35 +181,33 @@
                 {% endblock %}
 
                 {% block sw_order_list_grid_columns_transaction_state %}
-                <template #column-transactions.last().stateMachineState.name="{ item }">
+                <template #column-primaryOrderTransaction.stateMachineState.name="{ item }">
                     <div
-                        v-if="item.transactions && item.transactions[0]"
+                        v-if="item.primaryOrderTransaction?.stateMachineState"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
-                            v-if="item.transactions && item.transactions[0]"
                             :color="getVariantFromPaymentState(item)"
                             rounded
                         />
 
-                        {{ transaction(item).stateMachineState.translated.name }}
+                        {{ item.primaryOrderTransaction.stateMachineState.translated.name }}
                     </div>
                 </template>
                 {% endblock %}
 
                 {% block sw_order_list_grid_columns_delivery_state %}
-                <template #column-deliveries[0].stateMachineState.name="{ item }">
+                <template #column-primaryOrderDelivery.stateMachineState.name="{ item }">
                     <div
-                        v-if="getDelivery(item)"
+                        v-if="item.primaryOrderDelivery?.stateMachineState"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
-                            v-if="getDelivery(item)"
                             :color="getVariantFromDeliveryState(item)"
                             rounded
                         />
 
-                        {{ getDelivery(item).stateMachineState.translated.name }}
+                        {{ item.primaryOrderDelivery.stateMachineState.translated.name }}
                     </div>
                 </template>
                 {% endblock %}
@@ -402,25 +390,25 @@
                         {% endblock %}
 
                         {% block sw_order_list_bulk_edit_grid_columns_transaction_state %}
-                        <template #column-transactions.last().stateMachineState.name="{ item }">
+                        <template #column-primaryOrderTransaction.stateMachineState.name="{ item }">
                             <sw-label
-                                v-if="item.transactions && item.transactions[0]"
+                                v-if="item.primaryOrderTransaction?.stateMachineState"
                                 :variant="getVariantFromPaymentState(item)"
                                 appearance="pill"
                             >
-                                {{ transaction(item).stateMachineState.translated.name }}
+                                {{ item.primaryOrderTransaction.stateMachineState.translated.name }}
                             </sw-label>
                         </template>
                         {% endblock %}
 
                         {% block sw_order_list_bulk_edit_grid_columns_delivery_state %}
-                        <template #column-getDelivery(item).stateMachineState.name="{ item }">
+                        <template #column-primaryOrderDelivery.stateMachineState.name="{ item }">
                             <sw-label
-                                v-if="getDelivery(item)"
+                                v-if="item.primaryOrderDelivery?.stateMachineState"
                                 :variant="getVariantFromDeliveryState(item)"
                                 appearance="pill"
                             >
-                                {{ getDelivery(item).stateMachineState.translated.name }}
+                                {{ item.primaryOrderDelivery.stateMachineState.translated.name }}
                             </sw-label>
                         </template>
                         {% endblock %}

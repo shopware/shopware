@@ -110,9 +110,7 @@ Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-
 
 #### Contribution setup
 
-There are multiple ways to get an installation running, the way with the fewest steps involved is using the docker image from [dockware](https://dockware.io/),
-a community maintained docker setup by the Shopware agency [dasistweb](https://www.dasistweb.de/en/).
-More on this in the [documentation](https://developer.shopware.com/docs/guides/installation/community/dockware.html).
+For Contributing setup see [CONTRIBUTING.md](CONTRIBUTING.md), if you want to run Shopware locally for extension / theme / project development checkout the [development environment setup](https://developer.shopware.com/docs/guides/installation/setups/docker.html).
 
 ## The Shopware CLA
 

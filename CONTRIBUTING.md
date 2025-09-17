@@ -21,7 +21,7 @@ To run the Administration Watcher you can use:
 docker compose exec web composer watch:admin
 ```
 
-and the Watcher is available at [http://localhost:5773](http://localhost:5773).
+and the Watcher is available at [http://localhost:5173](http://localhost:5173).
 
 To run the Storefront Watcher you can use:
 

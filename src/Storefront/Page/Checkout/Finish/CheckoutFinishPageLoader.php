@@ -10,12 +10,12 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidEntityUuidException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -142,7 +142,7 @@ class CheckoutFinishPageLoader
             $searchResult = $this->orderRoute
                 ->load($request->duplicate(), $salesChannelContext, $criteria)
                 ->getOrders();
-        } catch (InvalidEntityUuidException) {
+        } catch (InvalidUuidException) {
             throw OrderException::orderNotFound($orderId);
         }
 

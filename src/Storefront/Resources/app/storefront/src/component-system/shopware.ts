@@ -14,7 +14,7 @@ type ComponentRegistryEntry = {
 }
 
 type InterceptionRegistryEntry = {
-    callback: (...args: any[]) => any[];
+    callback: (data: Record<string, any>) => Record<string, any>;
     priority?: number;
 }
 
@@ -219,7 +219,7 @@ class Shopware extends EventEmitter {
      * @param callback - The callback function.
      * @param priority - The priority of the event.
      */
-    public intercept(eventName: string, callback: (...args: any[]) => any[], priority = 0): void {
+    public intercept(eventName: string, callback: (data: Record<string, any>) => Record<string, any>, priority = 0): void {
         if (!this.interceptionRegistry.has(eventName)) {
             this.interceptionRegistry.set(eventName, []);
         }
@@ -231,21 +231,21 @@ class Shopware extends EventEmitter {
      * Emit an interceptable event by its registered name.
      *
      * @param eventName - The name of the event.
-     * @param args - The arguments.
+     * @param data - The event data passed via the event.
      * @returns The arguments.
      */
-    public emitInterception(eventName: string, ...args: any[]): any[] {
+    public emitInterception(eventName: string, data: Record<string, any>): Record<string, any> {
         const interceptors = this.interceptionRegistry.get(eventName);
         if (!interceptors) {
-            return args;
+            return data;
         }
 
         interceptors.sort((a, b) => (b.priority || 0) - (a.priority || 0));
         interceptors.forEach(interceptor => {
-            args = interceptor.callback(...args);
+            data = interceptor.callback(data);
         });
 
-        return args;
+        return data;
     }
 
     /**

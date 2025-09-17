@@ -33,7 +33,7 @@ class BuyButton extends ShopwareComponent {
         let requestUrl = this.el.getAttribute('action');
         let formData = window.Shopware.serializeForm(this.el);
 
-        [ requestUrl, formData ] = window.Shopware.emitInterception(`${this.componentName}:PreSubmit`, requestUrl, formData);
+        ({ requestUrl, formData } = window.Shopware.emitInterception(`${this.componentName}:PreSubmit`, { requestUrl, formData }));
 
         window.Shopware.emit(`${this.componentName}:Submit`, requestUrl, formData);
 

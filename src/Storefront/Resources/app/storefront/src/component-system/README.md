@@ -41,7 +41,6 @@ The `Shopware` class acts as a singleton that:
 - Handles automatic component discovery and initialization.
 - Provides methods for component communication.
 - Provices a central event system for cross component communication.
-- Provides some compatibility layer to the old plugin system.
 
 ## Creating Components
 
@@ -249,7 +248,7 @@ class BuyButton extends ShopwareComponent {
         let requestUrl = this.el.getAttribute('action');
         let formData = window.Shopware.serializeForm(this.el);
 
-        [ requestUrl, formData ] = window.Shopware.emitInterception('BuyButton:PreSubmit', requestUrl, formData);
+        ({ requestUrl, formData } = window.Shopware.emitInterception(`${this.componentName}:PreSubmit`, { requestUrl, formData }));
 
         window.Shopware.emit('BuyButton:Submit', requestUrl, formData);
 
@@ -258,30 +257,30 @@ class BuyButton extends ShopwareComponent {
 }
 ```
 
-You can see that the event `BuyButton:PreSubmit` offers the opportunity to manipulate the `formData` before it gets sent. From any other script you can intercept this event and work with the parameters from the event.
+You can see that the event `BuyButton:PreSubmit` offers the opportunity to manipulate the `formData` before it gets sent. From any other script you can intercept this event and work with the arguments send via the event.
 
 ```javascript
 // Intercept the buy button event
-window.Shopware.intercept('BuyButton:PreSubmit', (requestUrl, formData) => {
-    
-    formData.append('foo', 'bar');
+window.Shopware.intercept('BuyButton:PreSubmit', (data) => {
 
-    return [ requestUrl, formData ];
+    data.formData.append('foo', 'bar');
+
+    return data;
 });
 ```
 
-Don't forget to return the passed parameters in the same order, so the component logic can work with it. 
+Don't forget to return the data again, so the component logic can work with it. 
 
 There can be multiple subscribers to a single event. They will all be executed in the order as they are registered. You can change the order by passing a priority parameter as an optional third option, when registering an event. By default all subscribers have the priority `0`. The higher the priority the earlier the subscriber is called in the chain. Also negative values are possible to move a subscriber further down the chain.
 
 ```javascript
 // Another interceptor to the buy button event
-window.Shopware.intercept('BuyButton:PreSubmit', (requestUrl, formData) => {
+window.Shopware.intercept('BuyButton:PreSubmit', (data) => {
     
-    formData.delete('foo');
-    formData.append('bar', 'baz')
+    data.formData.delete('foo');
+    data.formData.append('bar', 'baz')
 
-    return [ requestUrl, formData ];
+    return data;
 }, -10);
 ```
 
@@ -376,4 +375,3 @@ class ReactiveComponent extends ShopwareComponent {
 | `intercept(eventName, callback, priority)` | Intercept an interception event |
 | `emitInterception(eventName, ...args)` | Emit an interceptable event |
 | `callMethod(name, methodName, ...args)` | Call a method on all instances of a component |
-| `callPluginMethod(name, methodName, ...args)` | Call a method on all plugin instances from the old plugin system |

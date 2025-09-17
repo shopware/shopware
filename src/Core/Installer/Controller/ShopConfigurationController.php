@@ -128,6 +128,7 @@ class ShopConfigurationController extends InstallerController
                 if (empty($selectedLanguages)) {
                     // No languages selected, go directly to finish page
                     $session->remove(DatabaseConnectionInformation::class);
+
                     return $this->redirectToRoute('installer.finish', ['completed' => true]);
                 }
 

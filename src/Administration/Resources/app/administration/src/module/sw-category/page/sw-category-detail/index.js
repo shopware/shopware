@@ -844,9 +844,7 @@ export default {
 
             const { changes } = this.changesetGenerator.generate(this.cmsPage);
             const origin = this.cmsPage.getOrigin();
-            const slotOverrides = this.extractSlotOverrides(origin, changes);
-
-            return slotOverrides;
+            return this.extractSlotOverrides(origin, changes);
         },
 
         deleteSpecifcKeys(sections) {

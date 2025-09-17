@@ -31,7 +31,6 @@ class InvalidEntityUuidExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__INVALID_UUID', $exception->getErrorCode());
     }
 
-
     public function testExceptionMessage(): void
     {
         $exception = new InvalidEntityUuidException('invalid-uuid');

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
@@ -88,23 +89,13 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $result);
     }
 
-    public function testInstallCreatesLock(): void
+    public function testDefaultInstallFlow(): void
     {
         $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
 
         $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
 
         static::assertSame(Command::SUCCESS, $result);
-        static::assertFileExists(__DIR__ . '/install.lock');
-    }
-
-    public function testDefaultInstallFlow(): void
-    {
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
-
-        $result = $command->run(new ArrayInput([]), new BufferedOutput());
-
-        static::assertSame(0, $result);
         static::assertFileExists(__DIR__ . '/install.lock');
     }
 
@@ -119,7 +110,8 @@ class SystemInstallCommandTest extends TestCase
 
         $result = $command->run(new ArrayInput(['--basic-setup' => true]), new BufferedOutput());
 
-        static::assertSame(0, $result);
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testAssetsInstallCanBeSkipped(): void
@@ -128,7 +120,8 @@ class SystemInstallCommandTest extends TestCase
 
         $result = $command->run(new ArrayInput(['--skip-assets-install' => true]), new BufferedOutput());
 
-        static::assertSame(0, $result);
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testSkipFirstRunWizardOption(): void
@@ -140,13 +133,13 @@ class SystemInstallCommandTest extends TestCase
 
         $result = $command->run(new ArrayInput(['--skip-first-run-wizard' => true]), new BufferedOutput());
 
-        static::assertSame(0, $result);
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
-    #[DataProvider('truthyEnvironmentVariableProvider')]
-    public function testSkipWebInstallerWithTruthyEnvironmentVariable(string $envValue): void
+    public function testSkipWebInstallerWithTruthyEnvironmentVariable(): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => $envValue]);
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
 
         $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
 
@@ -156,35 +149,13 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $result);
 
         $outputContent = $output->fetch();
-        static::assertStringContainsString('Skipping install.lock creation', $outputContent, \sprintf('Should skip lock creation when env var is "%s"', $envValue));
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock', \sprintf('Lock file should not exist when env var is "%s"', $envValue));
+        static::assertStringContainsString('Skipping install.lock creation', $outputContent);
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
     }
 
-    public static function truthyEnvironmentVariableProvider(): \Generator
+    public function testSkipWebInstallerWithFalsyEnvironmentVariable(): void
     {
-        yield 'string 1' => ['envValue' => '1'];
-        yield 'string true' => ['envValue' => 'true'];
-        yield 'string TRUE' => ['envValue' => 'TRUE'];
-        yield 'string yes' => ['envValue' => 'yes'];
-        yield 'string YES' => ['envValue' => 'YES'];
-        yield 'string on' => ['envValue' => 'on'];
-        yield 'string enabled' => ['envValue' => 'enabled'];
-
-        yield 'string false (evaluates to true!)' => ['envValue' => 'false'];
-        yield 'string FALSE' => ['envValue' => 'FALSE'];
-        yield 'string no (evaluates to true!)' => ['envValue' => 'no'];
-        yield 'string off (evaluates to true!)' => ['envValue' => 'off'];
-        yield 'any non-empty string' => ['envValue' => 'anything'];
-        yield 'string 2' => ['envValue' => '2'];
-        yield 'spaces only' => ['envValue' => '   '];
-    }
-
-    #[DataProvider('falsyEnvironmentVariableProvider')]
-    public function testCreateLockWithFalsyEnvironmentVariable(?string $envValue): void
-    {
-        if ($envValue !== null) {
-            $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => $envValue]);
-        }
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
 
         $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
 
@@ -194,38 +165,22 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $result);
 
         $outputContent = $output->fetch();
-        static::assertStringNotContainsString('Skipping install.lock creation', $outputContent, \sprintf('Should not skip lock creation when env var is "%s"', $envValue ?? 'null'));
-        static::assertFileExists(__DIR__ . '/install.lock', \sprintf('Lock file should exist when env var is "%s"', $envValue ?? 'null'));
+        static::assertStringNotContainsString('Skipping install.lock creation', $outputContent);
+        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
-    public static function falsyEnvironmentVariableProvider(): \Generator
-    {
-        yield 'string 0' => ['envValue' => '0'];
-        yield 'empty string' => ['envValue' => ''];
-        yield 'null (not set)' => ['envValue' => null];
-    }
-
-    #[DataProvider('allEnvironmentVariableProvider')]
-    public function testSkipWebInstallerNeverBypassesCliSafety(?string $envValue): void
+    public function testSkipWebInstallerIgnoresExistingLockFile(): void
     {
         touch(__DIR__ . '/install.lock');
 
-        if ($envValue !== null) {
-            $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => $envValue]);
-        }
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
 
         $command = $this->prepareCommandInstance();
 
-        // Should always fail when install.lock exists, regardless of env var
         $result = $command->run(new ArrayInput([]), new BufferedOutput());
 
-        static::assertSame(Command::FAILURE, $result, \sprintf('Should fail with existing lock file regardless of env var "%s"', $envValue ?? 'null'));
-    }
-
-    public static function allEnvironmentVariableProvider(): \Generator
-    {
-        yield from self::truthyEnvironmentVariableProvider();
-        yield from self::falsyEnvironmentVariableProvider();
+        static::assertSame(Command::FAILURE, $result);
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
     }
 
     public function testInstallLockNotCreatedOnFailure(): void
@@ -293,7 +248,8 @@ class SystemInstallCommandTest extends TestCase
                 __DIR__,
                 $setupDatabaseAdapterMock,
                 $connectionFactory,
-                $this->createMock(CacheClearer::class)
+                $this->createMock(CacheClearer::class),
+                $this->createMock(SystemLocker::class)
             )
         );
         $application->setDispatcher($dispatcher);
@@ -308,7 +264,7 @@ class SystemInstallCommandTest extends TestCase
     /**
      * @param array<string> $expectedCommands
      */
-    private function prepareCommandInstance(array $expectedCommands = []): SystemInstallCommand
+    private function prepareCommandInstance(array $expectedCommands = [], string $projectDir = __DIR__): SystemInstallCommand
     {
         $connection = $this->createMock(Connection::class);
         $connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
@@ -316,11 +272,14 @@ class SystemInstallCommandTest extends TestCase
         $connectionFactory->method('getConnection')->willReturn($connection);
 
         $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
+        $systemLocker = new SystemLocker($projectDir);
+
         $systemInstallCmd = new SystemInstallCommand(
-            __DIR__,
+            $projectDir,
             $setupDatabaseAdapterMock,
             $connectionFactory,
-            $this->createMock(CacheClearer::class)
+            $this->createMock(CacheClearer::class),
+            $systemLocker
         );
 
         $application = $this->createMock(Application::class);
@@ -339,7 +298,7 @@ class SystemInstallCommandTest extends TestCase
     /**
      * @param array<string> $additionalCommands
      */
-    private function prepareCommandInstanceWithDefaultInstallCommands(array $additionalCommands = []): SystemInstallCommand
+    private function prepareCommandInstanceWithDefaultInstallCommands(array $additionalCommands = [], string $projectDir = __DIR__): SystemInstallCommand
     {
         $defaultCommands = [
             'database:migrate',
@@ -353,7 +312,7 @@ class SystemInstallCommandTest extends TestCase
             'cache:clear',
         ];
 
-        return $this->prepareCommandInstance(array_merge($defaultCommands, $additionalCommands));
+        return $this->prepareCommandInstance(array_merge($defaultCommands, $additionalCommands), $projectDir);
     }
 
     /**

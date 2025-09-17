@@ -431,7 +431,7 @@
       "labelDeliveryDate": "Delivery date",
       "labelDocumentNumber": "Number",
       "labelDocumentStornoNumber": "Cancellation number",
-      "labelInvoiceNumber": "Invoice number",
+      "labelInvoiceNumber": "Invoice",
       "selectInvoiceNumber": "Select invoice",
       "labelDeliveryNoteNumber": "Delivery note number",
       "labelDocumentComment": "Comment",

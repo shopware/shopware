@@ -207,10 +207,10 @@ export default class ListingPlugin extends Plugin {
         delete mapped['no-aggregations'];
         delete mapped['reduce-aggregations'];
         delete mapped['only-aggregations'];
-        query = new URLSearchParams(mapped).toString();
+        queryParams = new URLSearchParams(mapped);
 
         if (pushHistory) {
-            this._updateHistory(query);
+            this._updateHistory(queryParams);
         }
 
         if (this.options.scrollTopListingWrapper) {
@@ -243,9 +243,15 @@ export default class ListingPlugin extends Plugin {
 
         return new URLSearchParams(filterParams);
     }
-
-    _updateHistory(query) {
-        window.history.pushState({}, '', `${window.location.pathname}?${query}`);
+    /**
+     * Update the browser history.
+     *
+     * @private
+     * @param {URLSearchParams} queryParams
+     */
+    _updateHistory(queryParams) {
+        const url = this._buildUrl(window.location.pathname, queryParams);
+        window.history.pushState({}, '', url);
     }
 
     /**
@@ -417,15 +423,9 @@ export default class ListingPlugin extends Plugin {
             this.sendDisabledFiltersRequest();
         }
 
-        const url = new URL(this.options.dataUrl, window.location.origin);
+        const url = this._buildUrl(this.options.dataUrl, filterParams);
 
-        if (filterParams.size > 0) {
-            for (const [key, value] of filterParams) {
-                url.searchParams.append(key, value);
-            }
-        }
-
-        fetch(url.toString(), {
+        fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then((response) => response.text())
@@ -458,16 +458,9 @@ export default class ListingPlugin extends Plugin {
         // unset the debounce function after first execution
         this._allFiltersInitializedDebounce = () => {};
 
-        const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
-        const url = new URL(this.options.filterUrl, window.location.origin);
+        const url = this._buildUrl(this.options.filterUrl, filterParams);
 
-        if (filterParams.size > 0) {
-            for (const [key, value] of filterParams) {
-                url.searchParams.append(key, value);
-            }
-        }
-
-        fetch(url.toString(), {
+        fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => response.json())
@@ -542,5 +535,23 @@ export default class ListingPlugin extends Plugin {
         }
 
         this.changeListing(false);
+    }
+    /**
+     * @private
+     * @param {string} pathname
+     * @param {URLSearchParams} queryParams
+     * @param {string} [base]
+     * @return {string}
+     */
+    _buildUrl(pathname, queryParams, base = window.location.origin) {
+        const url = new URL(pathname, base);
+
+        if (queryParams.size > 0) {
+            queryParams.forEach((value, key) => {
+                url.searchParams.append(key, value);
+            });
+        }
+
+        return url.toString();
     }
 }

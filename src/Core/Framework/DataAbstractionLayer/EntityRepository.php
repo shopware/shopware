@@ -179,7 +179,7 @@ class EntityRepository
 
         $newId ??= Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
-            throw new InvalidEntityUuidException($newId);
+            throw DataAbstractionLayerException::invalidEntityUuidException($newId);
         }
 
         $affected = $this->versionManager->clone(

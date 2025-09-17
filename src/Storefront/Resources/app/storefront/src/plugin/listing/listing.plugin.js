@@ -458,6 +458,7 @@ export default class ListingPlugin extends Plugin {
         // unset the debounce function after first execution
         this._allFiltersInitializedDebounce = () => {};
 
+        const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
         const url = this._buildUrl(this.options.filterUrl, filterParams);
 
         fetch(url, {

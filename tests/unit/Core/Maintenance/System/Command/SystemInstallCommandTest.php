@@ -78,17 +78,6 @@ class SystemInstallCommandTest extends TestCase
         ];
     }
 
-    public function testForceOptionBypassesLockFile(): void
-    {
-        touch(__DIR__ . '/install.lock');
-
-        $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
-
-        $result = $systemInstallCmd->run(new ArrayInput(['--force' => true]), new BufferedOutput());
-
-        static::assertSame(Command::SUCCESS, $result);
-    }
-
     public function testDefaultInstallFlow(): void
     {
         $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
@@ -137,6 +126,22 @@ class SystemInstallCommandTest extends TestCase
         static::assertFileExists(__DIR__ . '/install.lock');
     }
 
+    public function testSkipWebInstallerWithFalsyEnvironmentVariable(): void
+    {
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $output = new BufferedOutput();
+        $result = $command->run(new ArrayInput([]), $output);
+
+        static::assertSame(Command::SUCCESS, $result);
+
+        $outputContent = $output->fetch();
+        static::assertStringNotContainsString('Skipping install.lock creation', $outputContent);
+        static::assertFileExists(__DIR__ . '/install.lock');
+    }
+
     public function testSkipWebInstallerWithTruthyEnvironmentVariable(): void
     {
         $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
@@ -153,20 +158,15 @@ class SystemInstallCommandTest extends TestCase
         static::assertFileDoesNotExist(__DIR__ . '/install.lock');
     }
 
-    public function testSkipWebInstallerWithFalsyEnvironmentVariable(): void
+    public function testForceOptionBypassesLockFile(): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
+        touch(__DIR__ . '/install.lock');
 
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+        $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
 
-        $output = new BufferedOutput();
-        $result = $command->run(new ArrayInput([]), $output);
+        $result = $systemInstallCmd->run(new ArrayInput(['--force' => true]), new BufferedOutput());
 
         static::assertSame(Command::SUCCESS, $result);
-
-        $outputContent = $output->fetch();
-        static::assertStringNotContainsString('Skipping install.lock creation', $outputContent);
-        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testSkipWebInstallerIgnoresExistingLockFile(): void

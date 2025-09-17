@@ -154,7 +154,25 @@ views/
 
 To integrate the script with your corresponding Twig component you have to ensure that the desired element within your component template has the necessary data attributes.
 
-You can build the options individually from your Twig component properties and other data, or simply pass through the component properties to your JavaScript component.
+You can build the options individually from your Twig component properties and other data, or use a separate property for the JS options.
+
+```twig
+{# views/component/MyComponent.html.twig #}
+
+{% props
+    foo = "bar",
+    custom = true,
+    jsOptions = {},
+%}
+
+<div data-my-component 
+     data-my-component-options='{{ jsOptions|json_encode }}'>
+
+    {# Some component logic ... #}
+</div>
+```
+
+If you want to have an even more component-style approach, you can simply pass through the Twig component properties to your JavaScript component.
 
 ```twig
 {# views/component/MyComponent.html.twig #}

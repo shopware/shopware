@@ -33,12 +33,12 @@ class BuyButton extends ShopwareComponent {
         let requestUrl = this.el.getAttribute('action');
         let formData = window.Shopware.serializeForm(this.el);
 
-        [ requestUrl, formData ] = window.Shopware.emitInterception('BuyButton:PreSubmit', requestUrl, formData);
+        [ requestUrl, formData ] = window.Shopware.emitInterception(`${this.componentName}:PreSubmit`, requestUrl, formData);
 
-        window.Shopware.emit('BuyButton:Submit', requestUrl, formData);
+        window.Shopware.emit(`${this.componentName}:Submit`, requestUrl, formData);
 
-        window.Shopware.callPluginMethod('OffCanvasCart', 'openOffCanvas', requestUrl, formData);
+        window.PluginManager.callPluginMethod('OffCanvasCart', 'openOffCanvas', requestUrl, formData);
     }
 }
 
-window.Shopware.registerComponent('buy-button', BuyButton);
+window.Shopware.registerComponent('BuyButton', BuyButton);

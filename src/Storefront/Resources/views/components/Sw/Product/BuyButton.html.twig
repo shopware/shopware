@@ -47,11 +47,6 @@
     {% endblock %}
 
      {% block buy_button %}
-
-        <pre>
-            {{ this.props|json_encode }}
-        </pre>
-
         <twig:Slot name="buy-button">
             <button class="btn btn-primary">
                 {{ 'listing.boxAddProduct'|trans|sw_sanitize }}

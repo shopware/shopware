@@ -1,11 +1,9 @@
 import { EventEmitter } from 'events';
 import type ShopwareComponent from './component';
-import type Plugin from '../plugin-system/plugin.class';
 
 declare global {
     interface Window {
         Shopware: Shopware;
-        PluginManager: any;
     }
 }
 
@@ -264,23 +262,6 @@ class Shopware extends EventEmitter {
             if (instance[methodName as keyof ShopwareComponent] && 
                 typeof instance[methodName as keyof ShopwareComponent] === 'function') {
                 (instance[methodName as keyof ShopwareComponent] as Function).call(instance, ...args);
-            }
-        });
-    }
-
-    /**
-     * Call a method by its name on all plugin instances by their registered name.
-     *
-     * @param pluginName - The name of the plugin.
-     * @param methodName - The name of the method.
-     * @param args - The arguments.
-     */
-    public callPluginMethod(pluginName: string, methodName: string, ...args: any[]) {
-        const pluginInstances = window.PluginManager.getPluginInstances(pluginName);
-
-        pluginInstances.forEach((instance: Plugin) => {
-            if (instance[methodName as keyof Plugin] && typeof instance[methodName as keyof Plugin] === 'function') {
-                (instance[methodName as keyof Plugin] as Function).call(instance, ...args);
             }
         });
     }

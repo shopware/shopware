@@ -39,7 +39,7 @@ export default function initializeSettingItems(): void {
                 heading: settingsItemConfig.label,
                 locationId: settingsItemConfig.locationId,
                 displaySearchBar: settingsItemConfig.displaySearchBar!,
-                displaySmartBar: settingsItemConfig.displaySmartBar ?? true,
+                displaySmartBar: settingsItemConfig.displaySmartBar!,
                 baseUrl: extension.baseUrl,
             })
             .then((moduleId) => {

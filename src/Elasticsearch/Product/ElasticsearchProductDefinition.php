@@ -343,6 +343,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     {
         $languages = \array_keys($this->salesChannelLanguageLoader->loadLanguages());
 
+        // always add the system language to have a fallback
+        if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languages, true)) {
+            $languages[] = Defaults::LANGUAGE_SYSTEM;
+        }
+
         $baseSql = <<<'SQL'
 SELECT
     LOWER(HEX(p.id)) AS id,
@@ -638,7 +643,7 @@ SQL;
             if (!isset($salesChannelLanguages[$languageId])) {
                 continue;
             }
-            // If the has parent language, we add the parent language into the mapping
+            // If the language has parent language, we add the parent language into the mapping
             if (isset($language['parentId'])) {
                 $mapping[$language['parentId']] = Defaults::LANGUAGE_SYSTEM;
             }

@@ -68,7 +68,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $publicMediaId,
             $publicMediaInPrivateFolder,
         ]);
-        $criteria->addFilter(new EqualsFilter('private', false));
         $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
         $mediaIds = array_map(fn ($media) => $media->getId(), $result->getEntities()->getElements());
         static::assertNotContains($privateMediaId, $mediaIds, 'Private media should not be found');
@@ -107,7 +106,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $privateFolderId,
             $publicFolderId,
         ]);
-        $criteria->addFilter(new EqualsFilter('configuration.private', false));
         $result = $this->mediaFolderRepository->search($criteria, $this->salesChannelContext);
         $folderIds = array_map(fn ($folder) => $folder->getId(), $result->getEntities()->getElements());
         static::assertNotContains($privateFolderId, $folderIds, 'Private folder should not be found');

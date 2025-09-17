@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundExc
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidEntityUuidException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
@@ -785,6 +786,11 @@ class DataAbstractionLayerException extends HttpException
             'Given "{{ timeZone }}" is not a valid timezone',
             ['timeZone' => $timeZone]
         );
+    }
+
+    public static function invalidEntityUuidException(string $uuid): InvalidEntityUuidException
+    {
+        return new InvalidEntityUuidException($uuid);
     }
 
     public static function invalidEnumField(string $field, string $actualType): self

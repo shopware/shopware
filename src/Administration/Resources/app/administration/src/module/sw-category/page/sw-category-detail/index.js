@@ -811,7 +811,7 @@ export default {
                             if (type.isArray(block.slots)) {
                                 block.slots.forEach((slot) => {
                                     const originSlot = originBlock?.slots?.find((oSlot) => oSlot.id === slot.id);
-                                    const originSlotConfig = originSlot?.config;
+                                    const originSlotConfig = originSlot?.translated.config;
 
                                     if (slot.config && originSlotConfig) {
                                         Object.keys(slot.config).forEach((key) => {

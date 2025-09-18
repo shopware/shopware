@@ -243,8 +243,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                         {
                             id: 'block1',
                             slots: [
-                                { id: 'slot1', config: { key1: { value: 'value1' }, key2: { value: 'value2' } } },
-                                { id: 'slot2', config: { key1: { value: 'value1' } } },
+                                {
+                                    id: 'slot1',
+                                    translated: { config: { key1: { value: 'value1' }, key2: { value: 'value2' } } },
+                                },
+                                { id: 'slot2', translated: { config: { key1: { value: 'value1' } } } },
                             ],
                         },
                     ],

@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -218,6 +219,141 @@ class CookieProviderTest extends TestCase
             [],
             $legacyCookieProvider,
         ))->getCookieGroups(Generator::generateSalesChannelContext());
+    }
+
+    public function testGenerateCookieConfigurationHash(): void
+    {
+        $eventDispatcher = new EventDispatcher();
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        $cookieProvider = new CookieProvider(
+            $eventDispatcher,
+            $translator,
+            ['name' => 'test-session-name-']
+        );
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $cookieGroups = $cookieProvider->getCookieGroups($salesChannelContext);
+        $hash = $cookieProvider->generateCookieConfigurationHash($cookieGroups);
+
+        static::assertIsString($hash);
+        static::assertNotEmpty($hash);
+
+        // Hash should be consistent for same configuration
+        $hash2 = $cookieProvider->generateCookieConfigurationHash($cookieGroups);
+        static::assertSame($hash, $hash2);
+    }
+
+    public function testGenerateCookieConfigurationHashWithAdditionalCookies(): void
+    {
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(CookieGroupCollectEvent::class, static function (CookieGroupCollectEvent $event): void {
+            $newGroup = new CookieGroup('test-group');
+            $newGroup->setCookie('test-cookie');
+            $newGroup->value = 'test-value';
+            $newGroup->expiration = 30;
+            $event->cookieGroupCollection->add($newGroup);
+        });
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        $cookieProvider = new CookieProvider(
+            $eventDispatcher,
+            $translator,
+            ['name' => 'test-session-name-']
+        );
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $cookieGroupsWithExtra = $cookieProvider->getCookieGroups($salesChannelContext);
+        $hashWithAdditionalCookie = $cookieProvider->generateCookieConfigurationHash($cookieGroupsWithExtra);
+
+        // Create provider without additional cookies
+        $cookieProviderWithoutExtra = new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            ['name' => 'test-session-name-']
+        );
+
+        $cookieGroupsWithoutExtra = $cookieProviderWithoutExtra->getCookieGroups($salesChannelContext);
+        $hashWithoutAdditionalCookie = $cookieProviderWithoutExtra->generateCookieConfigurationHash($cookieGroupsWithoutExtra);
+
+        // Hashes should be different when cookie configuration changes
+        static::assertNotSame($hashWithAdditionalCookie, $hashWithoutAdditionalCookie);
+    }
+
+    public function testGenerateCookieConfigurationHashIncludesTranslations(): void
+    {
+        $eventDispatcher = new EventDispatcher();
+
+        // Create two providers with different translators
+        $translator1 = $this->createMock(TranslatorInterface::class);
+        $translator1->method('trans')->willReturnCallback(fn ($key) => 'English: ' . $key);
+
+        $translator2 = $this->createMock(TranslatorInterface::class);
+        $translator2->method('trans')->willReturnCallback(fn ($key) => 'Deutsch: ' . $key);
+
+        $cookieProvider1 = new CookieProvider(
+            $eventDispatcher,
+            $translator1,
+            ['name' => 'test-session-name-']
+        );
+
+        $cookieProvider2 = new CookieProvider(
+            $eventDispatcher,
+            $translator2,
+            ['name' => 'test-session-name-']
+        );
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $cookieGroups1 = $cookieProvider1->getCookieGroups($salesChannelContext);
+        $cookieGroups2 = $cookieProvider2->getCookieGroups($salesChannelContext);
+
+        $hash1 = $cookieProvider1->generateCookieConfigurationHash($cookieGroups1);
+        $hash2 = $cookieProvider2->generateCookieConfigurationHash($cookieGroups2);
+
+        // Hashes should be different when translations change because users need to review updated content
+        static::assertNotSame($hash1, $hash2);
+    }
+
+    public function testGenerateCookieConfigurationHashIsConsistentRegardlessOfOrder(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        // Create two groups that will be added in different orders
+        $group1 = new CookieGroup('test.group.a');
+        $group1->description = 'Group A';
+        $group1->setEntries(new CookieEntryCollection([
+            new CookieEntry('cookie-z'),
+            new CookieEntry('cookie-a'),
+        ]));
+
+        $group2 = new CookieGroup('test.group.b');
+        $group2->description = 'Group B';
+        $group2->setEntries(new CookieEntryCollection([
+            new CookieEntry('cookie-y'),
+            new CookieEntry('cookie-b'),
+        ]));
+
+        // Collection 1: A, B order
+        $collection1 = new CookieGroupCollection([$group1, $group2]);
+
+        // Collection 2: B, A order (different insertion order)
+        $collection2 = new CookieGroupCollection([$group2, $group1]);
+
+        $cookieProvider = new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            ['name' => 'test-session-name-']
+        );
+
+        $hash1 = $cookieProvider->generateCookieConfigurationHash($collection1);
+        $hash2 = $cookieProvider->generateCookieConfigurationHash($collection2);
+
+        // Hash should be the same regardless of collection order thanks to sorting
+        static::assertSame($hash1, $hash2, 'Hash should be the same regardless of collection order');
     }
 }
 

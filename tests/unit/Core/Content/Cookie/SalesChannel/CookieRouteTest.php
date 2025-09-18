@@ -35,15 +35,21 @@ class CookieRouteTest extends TestCase
         $cookieGroup = new CookieGroup('test.group');
         $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
+        $expectedHash = 'test-hash';
 
         $cookieProvider = $this->createMock(CookieProvider::class);
         $cookieProvider->expects($this->once())
             ->method('getCookieGroups')
             ->with($salesChannelContext)
             ->willReturn($expectedCookieGroups);
+        $cookieProvider->expects($this->once())
+            ->method('generateCookieConfigurationHash')
+            ->with($expectedCookieGroups)
+            ->willReturn($expectedHash);
 
         $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
 
         static::assertSame($expectedCookieGroups, $response->getCookieGroups());
+        static::assertSame($expectedHash, $response->getHash());
     }
 }

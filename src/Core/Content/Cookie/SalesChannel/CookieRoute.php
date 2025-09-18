@@ -35,7 +35,8 @@ class CookieRoute extends AbstractCookieRoute
     public function getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieRouteResponse
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext);
+        $hash = $this->cookieProvider->generateCookieConfigurationHash($cookieGroups);
 
-        return new CookieRouteResponse($cookieGroups);
+        return new CookieRouteResponse($cookieGroups, $hash);
     }
 }

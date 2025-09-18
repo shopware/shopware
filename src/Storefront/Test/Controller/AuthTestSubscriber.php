@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test\Stub\Storefront;
+namespace Shopware\Storefront\Test\Controller;
 
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Storefront\Event\StorefrontRenderEvent;

@@ -16,15 +16,15 @@
     </meta>
     <cookies>
         <group>
-            <snippet-name>cookie.groupRequired</snippet-name>
+            <snippet-name>app.cookie.group.name</snippet-name>
             <entries>
                 <cookie>
-                    <snippet-name>Something</snippet-name>
-                    <cookie>swag.app.something</cookie>
+                    <snippet-name>first.something</snippet-name>
+                    <cookie>swag-app-something</cookie>
                 </cookie>
                 <cookie>
-                    <snippet-name>Lorem ipsum</snippet-name>
-                    <cookie>swag.app.lorem-ipsum</cookie>
+                    <snippet-name>second.lorem.ipsum</snippet-name>
+                    <cookie>swag-app-lorem-ipsum</cookie>
                 </cookie>
             </entries>
         </group>

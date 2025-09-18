@@ -29,6 +29,11 @@ final readonly class TokenResult
     ) {
     }
 
+    public function getExpiryDateTime(): \DateTimeImmutable
+    {
+        return (new \DateTimeImmutable())->add(new \DateInterval('PT' . $this->expiresIn . 'S'));
+    }
+
     public static function createFromResponse(string $token): self
     {
         $response = json_decode($token, true);

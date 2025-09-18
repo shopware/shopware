@@ -16,7 +16,6 @@
         v-if="!isLoading && acl.can('product.editor')"
         variant="regular"
         :upload-tag="product.id"
-        :scroll-target="$parent.$el"
         :default-folder="product.getEntityName()"
         :file-accept="fileAccept"
         @media-upload-sidebar-open="onOpenMedia"

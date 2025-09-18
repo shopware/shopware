@@ -1,0 +1,37 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": {
+    "/cookie-groups": {
+      "get": {
+        "tags": [
+          "Experimental",
+          "Cookies"
+        ],
+        "summary": "Fetch all cookie groups",
+        "description": "Fetch all cookie groups available in the system. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+        "operationId": "readCookieGroups",
+        "responses": {
+          "200": {
+            "description": "Successful response with a collection of cookie groups.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CookieGroupCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

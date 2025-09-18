@@ -35,7 +35,7 @@
                                         {% set showVatIdField = true %}
 
                                         {# If customer is logged in (on profile page), they should be able to freely change their account type #}
-                                        {% if context.customer is defined and context.customer %}
+                                        {% if context.customer %}
                                             {% set onlyCompanyRegistration = false %}
                                         {% else %}
                                             {% set onlyCompanyRegistration = context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false %}

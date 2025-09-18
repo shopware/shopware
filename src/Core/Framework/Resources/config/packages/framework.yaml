@@ -24,7 +24,7 @@ framework:
     serializer: { enabled: true }
     secret: "%env(APP_SECRET)%"
     profiler:
-        collect_serializer_data: true
+        enabled: false
     property_info:
         with_constructor_extractor: true
     validation:

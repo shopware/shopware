@@ -68,7 +68,7 @@ final readonly class IterateEntityMessageHandler
                     )
                 );
 
-                $iterator->setFirstResult($iterator->getFirstResult() + $iterator->getMaxResults());
+                $iterator->setFirstResult($iterator->getFirstResult() + (int) $iterator->getMaxResults());
             }
         } catch (ConnectionException|UnrecoverableMessageHandlingException $e) {
             throw $e;

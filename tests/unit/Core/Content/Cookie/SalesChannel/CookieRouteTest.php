@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
@@ -35,21 +36,124 @@ class CookieRouteTest extends TestCase
         $cookieGroup = new CookieGroup('test.group');
         $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
-        $expectedHash = 'test-hash';
 
         $cookieProvider = $this->createMock(CookieProvider::class);
         $cookieProvider->expects($this->once())
             ->method('getCookieGroups')
             ->with($salesChannelContext)
             ->willReturn($expectedCookieGroups);
-        $cookieProvider->expects($this->once())
-            ->method('generateCookieConfigurationHash')
-            ->with($expectedCookieGroups)
-            ->willReturn($expectedHash);
 
         $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
 
         static::assertSame($expectedCookieGroups, $response->getCookieGroups());
-        static::assertSame($expectedHash, $response->getHash());
+        static::assertIsString($response->getHash());
+        static::assertNotEmpty($response->getHash());
+    }
+
+    public function testHashIsConsistentForSameConfiguration(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        $cookieRoute = new CookieRoute($cookieProvider);
+
+        $response1 = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
+
+        static::assertSame($response1->getHash(), $response2->getHash());
+    }
+
+    public function testHashChangesWithDifferentCookieConfiguration(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // First configuration
+        $cookieGroup1 = new CookieGroup('test.group.1');
+        $cookieGroup1->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie-1')]));
+        $cookieGroups1 = new CookieGroupCollection([$cookieGroup1]);
+
+        // Second configuration with different cookie
+        $cookieGroup2 = new CookieGroup('test.group.2');
+        $cookieGroup2->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie-2')]));
+        $cookieGroups2 = new CookieGroupCollection([$cookieGroup2]);
+
+        $cookieProvider1 = $this->createMock(CookieProvider::class);
+        $cookieProvider1->method('getCookieGroups')->willReturn($cookieGroups1);
+
+        $cookieProvider2 = $this->createMock(CookieProvider::class);
+        $cookieProvider2->method('getCookieGroups')->willReturn($cookieGroups2);
+
+        $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($cookieProvider2))->getCookieGroups(new Request(), $salesChannelContext);
+
+        static::assertNotSame($response1->getHash(), $response2->getHash());
+    }
+
+    public function testHashIsConsistentRegardlessOfOrder(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create two groups that will be added in different orders
+        $group1 = new CookieGroup('test.group.a');
+        $group1->setEntries(new CookieEntryCollection([
+            new CookieEntry('cookie-z'),
+            new CookieEntry('cookie-a'),
+        ]));
+
+        $group2 = new CookieGroup('test.group.b');
+        $group2->setEntries(new CookieEntryCollection([
+            new CookieEntry('cookie-y'),
+            new CookieEntry('cookie-b'),
+        ]));
+
+        // Collection 1: A, B order
+        $collection1 = new CookieGroupCollection([$group1, $group2]);
+
+        // Collection 2: B, A order (different insertion order)
+        $collection2 = new CookieGroupCollection([$group2, $group1]);
+
+        $cookieProvider1 = $this->createMock(CookieProvider::class);
+        $cookieProvider1->method('getCookieGroups')->willReturn($collection1);
+
+        $cookieProvider2 = $this->createMock(CookieProvider::class);
+        $cookieProvider2->method('getCookieGroups')->willReturn($collection2);
+
+        $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($cookieProvider2))->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Hash should be the same regardless of collection order thanks to internal sorting
+        static::assertSame($response1->getHash(), $response2->getHash(), 'Hash should be the same regardless of collection order');
+    }
+
+    public function testHashThrowsExceptionOnHashingFailure(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create a problematic cookie group that will cause hashing to fail
+        $cookieGroup = new class('test') extends CookieGroup {
+            public function jsonSerialize(): array
+            {
+                // Return something that will cause the Hasher to fail
+                return [
+                    'circular' => $this, // This will cause a circular reference error
+                ];
+            }
+        };
+
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        $this->expectException(CookieException::class);
+        $this->expectExceptionMessage('Failed to generate cookie configuration hash');
+
+        (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
     }
 }

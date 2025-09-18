@@ -93,7 +93,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $this->eventDispatcher->dispatch(new CreditNoteOrdersEvent($orders, $context, $operations));
 
-        $i = 0;
         foreach ($orders as $order) {
             $orderId = $order->getId();
 

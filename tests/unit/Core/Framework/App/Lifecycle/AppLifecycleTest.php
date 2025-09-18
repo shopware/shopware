@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -78,7 +77,7 @@ class AppLifecycleTest extends TestCase
         /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([]);
 
-        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, null, new StaticSourceResolver());
+        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, new StaticSourceResolver());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
@@ -96,7 +95,7 @@ class AppLifecycleTest extends TestCase
         /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([]);
 
-        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, null, new StaticSourceResolver());
+        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, new StaticSourceResolver());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
@@ -147,9 +146,6 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[2], [
-                'en-GB' => '{"snippetKey":"snippetTranslation"}',
-            ]),
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
@@ -196,7 +192,6 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[2]),
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
@@ -241,7 +236,6 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[1]),
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
@@ -294,9 +288,6 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[1], [
-                'en-GB' => '{"snippetKey":"snippetTranslation"}',
-            ]),
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
@@ -342,7 +333,6 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            null,
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
@@ -362,7 +352,6 @@ class AppLifecycleTest extends TestCase
     private function getAppLifecycle(
         EntityRepository $appRepository,
         EntityRepository $languageRepository,
-        ?AppAdministrationSnippetPersister $appAdministrationSnippetPersisterMock,
         StaticSourceResolver $appSourceResolver
     ): AppLifecycle {
         /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
@@ -393,7 +382,6 @@ class AppLifecycleTest extends TestCase
             __DIR__,
             $this->createMock(Connection::class),
             $this->createMock(FlowActionPersister::class),
-            $appAdministrationSnippetPersisterMock,
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(CustomEntityLifecycleService::class),
             '6.5.0.0',
@@ -469,24 +457,6 @@ class AppLifecycleTest extends TestCase
         }
 
         return new AppCollection($entities);
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $appEntities
-     * @param array<string, string> $expectedSnippets
-     */
-    private function getAppAdministrationSnippetPersisterMock(array $appEntities, array $expectedSnippets = []): AppAdministrationSnippetPersister
-    {
-        $appEntities = $this->getAppCollection($appEntities)->first();
-
-        $persister = $this->createMock(AppAdministrationSnippetPersister::class);
-
-        $persister
-            ->expects($this->once())
-            ->method('updateSnippets')
-            ->with($appEntities, $expectedSnippets, Context::createDefaultContext());
-
-        return $persister;
     }
 
     private function getSourceResolver(string $manifestPath): StaticSourceResolver

@@ -15,11 +15,19 @@
         <privacy>https://test.com/privacy</privacy>
     </meta>
     <cookies>
-        <cookie>
-            <snippet-name>Swoogle Analytics</snippet-name>
-            <cookie>swag.analytics</cookie>
-            <value></value>
-            <expiration>30</expiration>
-        </cookie>
+        <group>
+            <snippet-name>app.cookies.group</snippet-name>
+            <snippet-description>app.cookies.group.description</snippet-description>
+            <entries>
+                <cookie>
+                    <snippet-name>first.cookie</snippet-name>
+                    <cookie>swag-app-something</cookie>
+                </cookie>
+                <cookie>
+                    <snippet-name>second.cookie</snippet-name>
+                    <cookie>swag-app-lorem-ipsum</cookie>
+                </cookie>
+            </entries>
+        </group>
     </cookies>
 </manifest>

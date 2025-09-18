@@ -6,14 +6,12 @@
     :is-association="isAssociation"
     :disabled="disabled || undefined"
     :inherited-value="parentProduct.properties"
+    :class="{ 'is--disabled': disabled }"
 >
     <template #content="{ isInherited, updateCurrentValue, isInheritField, restoreInheritance, removeInheritance }">
         {% block sw_product_properties_card %}
         <mt-card
             class="sw-product-properties__card"
-            :class="{
-                'is--disabled': disabled,
-            }"
             position-identifier="sw-product-properties"
             :is-loading="isLoading"
         >

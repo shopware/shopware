@@ -314,8 +314,11 @@ export default {
                 'dragover',
                 'drop',
             ].forEach((event) => {
-                window.addEventListener(event, this.stopEventPropagation, false);
+                window.removeEventListener(event, this.stopEventPropagation, false);
             });
+            if (this.$refs.dropzone) {
+                this.$refs.dropzone.removeEventListener('drop', this.onDrop);
+            }
 
             window.removeEventListener('dragenter', this.onDragEnter);
             window.removeEventListener('dragleave', this.onDragLeave);

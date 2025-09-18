@@ -243,7 +243,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
         );
 
         $context = Context::createDefaultContext();
-        $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 

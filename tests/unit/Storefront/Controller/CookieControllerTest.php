@@ -4,15 +4,12 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
+use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Controller\CookieController;
-use Shopware\Storefront\Framework\Cookie\CookieProvider;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -21,147 +18,124 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CookieController::class)]
 class CookieControllerTest extends TestCase
 {
-    public function testResponseSessionCookieName(): void
+    public function testOffcanvasCallsRouteAndRendersTemplate(): void
     {
+        $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->description = 'Test Group';
 
-        // Test with fallback session cookie name
-        $controller = new CookieControllerTestClass(
-            new CookieProvider(),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $controller->offcanvas($salesChannelContext);
-        $cookieGroups = $controller->renderStorefrontParameters['cookieGroups'];
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $cookieRoute->expects($this->once())
+            ->method('getCookieGroups')
+            ->with(
+                static::callback(static function (Request $req) {
+                    return $req->query->getBoolean('translate') === false;
+                }),
+                $salesChannelContext
+            )
+            ->willReturn(new CookieRouteResponse($cookieGroups));
 
-        static::assertSame(PlatformRequest::FALLBACK_SESSION_NAME, $cookieGroups[0]['entries'][0]['cookie']);
+        $controller = new CookieControllerTestClass($cookieRoute);
 
-        // Test with a custom session cookie name
-        $controller = new CookieControllerTestClass(
-            new CookieProvider(['name' => 'test-session-cookie']),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
+        $response = $controller->offcanvas($request, $salesChannelContext);
 
-        $controller->offcanvas($salesChannelContext);
-        $cookieGroups = $controller->renderStorefrontParameters['cookieGroups'];
-
-        static::assertSame('test-session-cookie', $cookieGroups[0]['entries'][0]['cookie']);
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', $controller->renderStorefrontView);
+        static::assertArrayHasKey('cookieGroups', $controller->renderStorefrontParameters);
+        static::assertNotEmpty($controller->renderStorefrontParameters['cookieGroups']);
+        static::assertSame('noindex,follow', $response->headers->get('x-robots-tag'));
     }
 
-    public function testResponseDoesNotIncludeGoogleAnalyticsCookieByDefault(): void
+    public function testPermissionCallsRouteAndRendersTemplate(): void
     {
+        $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->description = 'Test Group';
 
-        $controller = new CookieControllerTestClass(
-            new CookieProvider(),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $controller->offcanvas($salesChannelContext);
-        $cookieGroups = $controller->renderStorefrontParameters['cookieGroups'];
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $cookieRoute->expects($this->once())
+            ->method('getCookieGroups')
+            ->with(
+                static::callback(static function (Request $req) {
+                    return $req->query->getBoolean('translate') === false;
+                }),
+                $salesChannelContext
+            )
+            ->willReturn(new CookieRouteResponse($cookieGroups));
 
-        $this->assertGoogleAnalyticsCookie(false, $cookieGroups);
+        $controller = new CookieControllerTestClass($cookieRoute);
+
+        $response = $controller->permission($request, $salesChannelContext);
+
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', $controller->renderStorefrontView);
+        static::assertArrayHasKey('cookieGroups', $controller->renderStorefrontParameters);
+        static::assertNotEmpty($controller->renderStorefrontParameters['cookieGroups']);
+        static::assertSame('noindex,follow', $response->headers->get('x-robots-tag'));
     }
 
-    public function testResponseIncludesGoogleAnalyticsCookieIfActive(): void
+    public function testHandlesExceptionFromCookieRoute(): void
     {
-        $analyticsId = Uuid::randomHex();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
-        $analytics = new SalesChannelAnalyticsEntity();
-        $analytics->setId($analyticsId);
-        $analytics->setActive(true);
-
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
-
-        $controller = new CookieControllerTestClass(
-            new CookieProvider(),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
-
-        $controller->offcanvas($salesChannelContext);
-        $cookieGroups = $controller->renderStorefrontParameters['cookieGroups'];
-
-        $this->assertGoogleAnalyticsCookie(true, $cookieGroups);
-    }
-
-    public function testResponseDoesNotIncludesGoogleAnalyticsCookieIfNotActive(): void
-    {
-        $analyticsId = Uuid::randomHex();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
-        $analytics = new SalesChannelAnalyticsEntity();
-        $analytics->setId($analyticsId);
-        $analytics->setActive(false);
-
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
-
-        $controller = new CookieControllerTestClass(
-            new CookieProvider(),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
-
-        $controller->offcanvas($salesChannelContext);
-        $cookieGroups = $controller->renderStorefrontParameters['cookieGroups'];
-
-        $this->assertGoogleAnalyticsCookie(false, $cookieGroups);
-    }
-
-    public function testCookieConsentOffcanvasRendersWithCorrectParameters(): void
-    {
+        $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $cookieRoute->expects($this->once())
+            ->method('getCookieGroups')
+            ->with(
+                static::callback(static function (Request $req) {
+                    return $req->query->getBoolean('translate') === false;
+                }),
+                $salesChannelContext
+            );
 
-        $controller = new CookieControllerTestClass(
-            new CookieProvider(),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
+        $controller = new CookieControllerTestClass($cookieRoute);
 
-        $request = new Request([
-            'featureName' => 'test-feature',
-            'cookieName' => 'test-cookie',
-        ]);
+        $controller->offcanvas($request, $salesChannelContext);
 
-        $controller->cookieConsentOffcanvas($request, $salesChannelContext);
-
-        static::assertStringContainsString('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->renderStorefrontView);
-        static::assertSame('test-feature', $controller->renderStorefrontParameters['featureName']);
-        static::assertSame('test-cookie', $controller->renderStorefrontParameters['cookieName']);
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', $controller->renderStorefrontView);
+        static::assertArrayHasKey('cookieGroups', $controller->renderStorefrontParameters);
+        static::assertEmpty($controller->renderStorefrontParameters['cookieGroups']);
     }
 
-    /**
-     * @param array<string, mixed> $cookieGroups
-     */
-    private function assertGoogleAnalyticsCookie(bool $expected, array $cookieGroups = []): void
+    public function testTransformCookieGroupForTwigSetsDefaultValues(): void
     {
-        $googleAnalyticsCookie = array_filter($cookieGroups, static function (array $cookieGroup) {
-            return \count(array_filter($cookieGroup['entries'], static function (array $cookie) {
-                return \in_array($cookie['cookie'], ['google-analytics-enabled', 'google-ads-enabled'], true);
-            })) > 0;
-        });
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
-        if ($expected) {
-            static::assertNotEmpty($googleAnalyticsCookie);
-            static::assertCount(2, $googleAnalyticsCookie);
-        } else {
-            static::assertEmpty($googleAnalyticsCookie);
-        }
+        // Create a cookie group without setting snippet values to test default handling
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $cookieRoute->method('getCookieGroups')
+            ->willReturn(new CookieRouteResponse($cookieGroups));
+
+        $controller = new CookieControllerTestClass($cookieRoute);
+
+        $controller->offcanvas($request, $salesChannelContext);
+
+        $transformedGroups = $controller->renderStorefrontParameters['cookieGroups'];
+        static::assertInstanceOf(CookieGroupCollection::class, $transformedGroups);
+        static::assertNotEmpty($transformedGroups);
+
+        // Check that default values are set
+        $group = $transformedGroups->first();
+        static::assertNotNull($group);
+
+        static::assertObjectHasProperty('name', $group);
+        static::assertObjectNotHasProperty('snippet_name', $group);
+        static::assertObjectHasProperty('description', $group);
+        static::assertObjectNotHasProperty('snippet_description', $group);
+        static::assertObjectHasProperty('cookie', $group);
+        static::assertObjectHasProperty('value', $group);
+        static::assertObjectHasProperty('expiration', $group);
     }
 }
 

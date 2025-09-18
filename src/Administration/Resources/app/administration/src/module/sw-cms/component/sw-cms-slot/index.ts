@@ -56,6 +56,14 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsServiceState.elementRegistry[this.element.type];
         },
 
+        elementModalTitle() {
+            const title = this.$t('sw-cms.detail.title.elementSettingsModal');
+            if (this.elementConfig?.label !== undefined) {
+                return `${title} (${this.$t(this.elementConfig.label)})`;
+            }
+            return title;
+        },
+
         cmsElements() {
             const currentPageType = Shopware.Store.get('cmsPage').currentPageType;
 

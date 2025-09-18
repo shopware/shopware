@@ -355,6 +355,66 @@ class CookieProviderTest extends TestCase
         // Hash should be the same regardless of collection order thanks to sorting
         static::assertSame($hash1, $hash2, 'Hash should be the same regardless of collection order');
     }
+
+    public function testGenerateCookieConfigurationHashThrowsExceptionOnSerializationFailure(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        $cookieProvider = new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            ['name' => 'test-session-name-']
+        );
+
+        // Create a problematic cookie group that will cause JSON encoding to fail
+        $cookieGroup = new class('test') extends CookieGroup {
+            public function jsonSerialize(): array
+            {
+                return [
+                    'name' => 'test',
+                    'resource' => fopen('php://memory', 'r'), // This will cause JSON encoding to fail
+                ];
+            }
+        };
+
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $this->expectException(CookieException::class);
+        $this->expectExceptionMessage('Failed to generate cookie configuration hash');
+
+        $cookieProvider->generateCookieConfigurationHash($cookieGroups);
+    }
+
+    public function testGenerateCookieConfigurationHashWithInfiniteRecursion(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        $cookieProvider = new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            ['name' => 'test-session-name-']
+        );
+
+        // Create a problematic cookie group that will cause circular reference
+        $cookieGroup = new class('test') extends CookieGroup {
+            public function jsonSerialize(): array
+            {
+                $data = [];
+                $data['self'] = &$data; // Create circular reference
+
+                return $data;
+            }
+        };
+
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $this->expectException(CookieException::class);
+        $this->expectExceptionMessage('Failed to generate cookie configuration hash');
+
+        $cookieProvider->generateCookieConfigurationHash($cookieGroups);
+    }
 }
 
 /**

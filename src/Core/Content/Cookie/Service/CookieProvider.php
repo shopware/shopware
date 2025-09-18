@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
@@ -70,14 +71,11 @@ class CookieProvider
 
     public function generateCookieConfigurationHash(CookieGroupCollection $cookieGroups): string
     {
-        $serializedData = json_encode($cookieGroups->jsonSerialize());
-        if ($serializedData === false) {
-            throw CookieException::hashGenerationFailed('Cookie groups serialization failed');
-        }
-
-        $data = json_decode($serializedData, true);
-        if ($data === null) {
-            throw CookieException::hashGenerationFailed('Cookie groups deserialization failed');
+        try {
+            $serializedData = Json::encode($cookieGroups->jsonSerialize());
+            $data = Json::decodeToList($serializedData);
+        } catch (\Exception $e) {
+            throw CookieException::hashGenerationFailed('Cookie configuration processing failed: ' . $e->getMessage());
         }
 
         usort($data, static function (array $a, array $b): int {

@@ -321,6 +321,7 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingProcessor">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%shopware.api.store.max_limit%</argument>
             <tag name="shopware.listing.processor"/>
         </service>
 

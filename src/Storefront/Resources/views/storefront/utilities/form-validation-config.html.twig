@@ -7,6 +7,6 @@
     } %}
 
     <script>
-        window.validationMessages = {{ validationMessages|json_encode|raw }};
+        window.validationMessages = JSON.parse('{{ validationMessages|json_encode|escape('js') }}');
     </script>
 {% endblock %}

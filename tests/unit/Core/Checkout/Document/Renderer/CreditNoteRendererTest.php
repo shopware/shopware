@@ -464,8 +464,10 @@ class CreditNoteRendererTest extends TestCase
 
         return new CreditNoteRenderer(
             $orderRepository,
-            new DocumentConfigLoader($this->createMock(
-                EntityRepository::class),
+            new DocumentConfigLoader(
+                $this->createMock(
+                    EntityRepository::class
+                ),
                 $this->createMock(EntityRepository::class)
             ),
             $this->createMock(EventDispatcherInterface::class),

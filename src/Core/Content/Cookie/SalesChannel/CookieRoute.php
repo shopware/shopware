@@ -48,12 +48,13 @@ class CookieRoute extends AbstractCookieRoute
 
     private function generateCookieConfigurationHash(CookieGroupCollection $cookieGroups): string
     {
-        $cookieGroups->sort(static function (CookieGroup $a, CookieGroup $b): int {
+        $cloneCookieGroups = clone $cookieGroups;
+        $cloneCookieGroups->sort(static function (CookieGroup $a, CookieGroup $b): int {
             return strcmp($a->getTechnicalName(), $b->getTechnicalName());
         });
 
-        foreach ($cookieGroups as $cookieGroup) {
-            $cookieEntries = $cookieGroup->getEntries();
+        foreach ($cloneCookieGroups as $cloneCookieGroup) {
+            $cookieEntries = $cloneCookieGroup->getEntries();
             if ($cookieEntries === null) {
                 continue;
             }
@@ -63,7 +64,7 @@ class CookieRoute extends AbstractCookieRoute
         }
 
         try {
-            return Hasher::hash($cookieGroups);
+            return Hasher::hash($cloneCookieGroups);
         } catch (UtilException $e) {
             throw CookieException::hashGenerationFailed('Cookie configuration processing failed: ' . $e->getMessage());
         }

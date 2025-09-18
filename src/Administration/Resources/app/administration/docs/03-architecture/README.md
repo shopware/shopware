@@ -18,6 +18,7 @@ This section provides a deep dive into the architectural patterns, design decisi
 
 - TODO: In-depth look at BottleJS container usage in Shopware context
 - TODO: Service registration patterns and naming conventions
+- TODO: Global Shopware object technical implementation and lifecycle
 - TODO: Circular dependency resolution and best practices
 - TODO: Testing with dependency injection
 - TODO: Performance implications and optimization strategies
@@ -58,6 +59,7 @@ This section provides a deep dive into the architectural patterns, design decisi
 
 - TODO: Plugin loading and initialization architecture
 - TODO: Hook system implementation details
+- TODO: Global object exposure to plugins - technical architecture
 - TODO: Plugin isolation and sandboxing
 - TODO: Asset and resource management for plugins
 - TODO: Plugin dependency resolution and conflict handling

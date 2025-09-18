@@ -19,6 +19,10 @@ This section covers the **essential architectural patterns** that enable 80% of 
 - TODO: **Essential**: Factory pattern and BottleJS dependency injection in practice
 - TODO: **Essential**: How services, components, and modules are registered and accessed
 - TODO: **Essential**: The global Shopware instance and application lifecycle
+- TODO: **Essential**: **WHY global Shopware object exists**: Plugin extensibility - allows plugins to access core services without imports
+- TODO: **Essential**: Global vs imports: Why window.Shopware instead of ES6 imports for plugin ecosystem
+- TODO: **Essential**: Plugin access patterns: How external plugins interact with core through global object
+- TODO: **Essential**: Browser console debugging with window.Shopware
 - TODO: **Essential**: Creating new services and components following established patterns
 
 #### `03-module-architecture.md`

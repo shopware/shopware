@@ -1,6 +1,6 @@
 # Shopware Administration Architecture Documentation
 
-Welcome to the **codebase architecture documentation** for Shopware's Administration interface. This documentation focuses on understanding the unique architectural patterns rather than generic setup tasks (which are covered in the main Shopware documentation).
+Welcome to the **codebase architecture documentation** for Shopware's Administration interface. This documentation focuses on understanding the unique architectural patterns.
 
 ## ⚡ What Makes Shopware Administration Special
 

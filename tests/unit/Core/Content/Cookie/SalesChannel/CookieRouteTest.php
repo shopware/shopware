@@ -191,40 +191,6 @@ class CookieRouteTest extends TestCase
         static::assertSame($statisticalGroup, $groupsArray[2], 'Statistical group should be third');
     }
 
-    public function testRequiredGroupStaysFirstEvenWithDifferentInputOrder(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        // Create groups where required is NOT first in input
-        $marketingGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
-        $marketingGroup->setEntries(new CookieEntryCollection([new CookieEntry('marketing')]));
-
-        $requiredGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
-        $requiredGroup->setEntries(new CookieEntryCollection([new CookieEntry('session')]));
-
-        $statisticalGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
-        $statisticalGroup->setEntries(new CookieEntryCollection([new CookieEntry('analytics')]));
-
-        // Add in different order: required is second
-        $mixedOrderGroups = new CookieGroupCollection([
-            $marketingGroup,
-            $requiredGroup,
-            $statisticalGroup,
-        ]);
-
-        $cookieProvider = $this->createMock(CookieProvider::class);
-        $cookieProvider->method('getCookieGroups')->willReturn($mixedOrderGroups);
-
-        $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
-        $returnedGroups = $response->getCookieGroups();
-
-        // Verify that the returned order preserves the input order (required should still be second)
-        $groupsArray = array_values($returnedGroups->getElements());
-        static::assertSame($marketingGroup, $groupsArray[0], 'Marketing group should be first as provided');
-        static::assertSame($requiredGroup, $groupsArray[1], 'Required group should be second as provided');
-        static::assertSame($statisticalGroup, $groupsArray[2], 'Statistical group should be third as provided');
-    }
-
     public function testHashConsistencyWithRequiredGroupPriority(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -251,7 +217,7 @@ class CookieRouteTest extends TestCase
         $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
         $response2 = (new CookieRoute($cookieProvider2))->getCookieGroups(new Request(), $salesChannelContext);
 
-        // Hash should be the same because internal sorting prioritizes required group
-        static::assertSame($response1->getHash(), $response2->getHash(), 'Hash should be consistent regardless of input order due to internal sorting');
+        // Hash should be the same because internal sorting uses alphabetical order by technical name
+        static::assertSame($response1->getHash(), $response2->getHash(), 'Hash should be consistent regardless of input order due to alphabetical sorting');
     }
 }

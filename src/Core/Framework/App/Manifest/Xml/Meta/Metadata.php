@@ -191,11 +191,11 @@ class Metadata extends XmlElement
          *      type: string,
          *      author: string,
          *      copyright: string,
-         *      license: ?string,
-         *      compatibility: ?string,
-         *      version: ?string,
-         *      icon: ?string,
-         *      privacy: ?string,
+         *      license?: string,
+         *      compatibility?: string,
+         *      version?: string,
+         *      icon?: string,
+         *      privacy?: string,
          *      privacyPolicyExtensions: array<string, string>,
          *  } $values
          */

@@ -51,7 +51,7 @@ class ManufacturerListingFilterHandler extends AbstractListingFilterHandler
             $ids = explode('|', $ids);
         }
 
-        /** @var list<string> $ids */
+        /** @var list<non-falsy-string> $ids */
         $ids = array_filter((array) $ids);
 
         return $ids;

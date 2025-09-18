@@ -9,12 +9,14 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
 #[Package('fundamentals@discovery')]
 class SalesChannelLanguageLoader implements ResetInterface
 {
     /**
-     * @var array<string, array<string>>|null
+     * @var LanguageData|null
      */
     private ?array $languages = null;
 
@@ -26,7 +28,7 @@ class SalesChannelLanguageLoader implements ResetInterface
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return LanguageData
      */
     public function loadLanguages(): array
     {
@@ -36,13 +38,14 @@ class SalesChannelLanguageLoader implements ResetInterface
 
         $result = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(`language_id`)), LOWER(HEX(`sales_channel_id`)) as salesChannelId FROM sales_channel_language');
 
-        /** @var array<string, array{ salesChannelId: string }> $grouped */
         $grouped = FetchModeHelper::group($result);
 
         foreach ($grouped as $languageId => $value) {
             $grouped[$languageId] = array_column($value, 'salesChannelId');
         }
 
+        /** @var LanguageData $grouped */
+        // @phpstan-ignore varTag.type (phpstan can't correctly detect the array_column usage here)
         return $this->languages = $grouped;
     }
 

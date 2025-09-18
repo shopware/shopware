@@ -169,7 +169,7 @@ class ShopConfigurationController extends InstallerController
      */
     private function getCountryIsos(Connection $connection, string $currentLocale): array
     {
-        /** @var array<int, array{iso3: string, iso: string}> $countries */
+        /** @var list<array{iso3: string, iso: string}> $countries */
         $countries = $connection->fetchAllAssociative('SELECT iso3, iso FROM country');
 
         // formatting string e.g. "en-GB" to "GB"

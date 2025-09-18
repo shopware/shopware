@@ -3,9 +3,6 @@
 namespace Shopware\Core\Content\Seo;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\LandingPage\LandingPageCollection;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -16,6 +13,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -72,7 +71,7 @@ class SeoUrlGenerator
 
             $criteria->setLimit(50);
 
-            /** @var RepositoryIterator<LandingPageCollection|CategoryCollection|ProductCollection> $iterator */
+            /** @var RepositoryIterator<EntityCollection<covariant Entity>> $iterator */
             $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
             while ($searchResult = $iterator->fetch()) {
@@ -82,7 +81,7 @@ class SeoUrlGenerator
     }
 
     /**
-     * @param EntitySearchResult<LandingPageCollection|CategoryCollection|ProductCollection> $searchResult
+     * @param EntitySearchResult<EntityCollection<covariant Entity>> $searchResult
      *
      * @return iterable<SeoUrlEntity>
      */

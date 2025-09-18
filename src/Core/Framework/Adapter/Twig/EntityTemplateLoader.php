@@ -105,7 +105,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         $path = $templateName['path'];
 
         if (empty($this->databaseTemplateCache)) {
-            /** @var array<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
+            /** @var list<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
             $templates = $this->connection->fetchAllAssociative('
                 SELECT
                     `app_template`.`path` AS `path`,

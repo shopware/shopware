@@ -80,9 +80,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
             ->addFilter(new EqualsFilter('active', true));
 
-        /**
-         * @var array<string>
-         */
+        /** @var list<string> */
         return $this->salesChannelRepository
             ->searchIds($criteria, Context::createCLIContext())
             ->getIds();

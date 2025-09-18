@@ -291,7 +291,7 @@ class CacheInvalidationSubscriber
 
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
-        /** @var array{'product_id':string, 'variant_id':string|null} $productIds */
+        /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
         $productIds = $this->connection->fetchAllAssociative(
             'SELECT
                     LOWER(HEX(pm.product_id)) as product_id,

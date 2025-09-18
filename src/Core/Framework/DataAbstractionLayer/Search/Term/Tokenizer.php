@@ -45,7 +45,7 @@ class Tokenizer implements TokenizerInterface
 
         $string = trim((string) preg_replace(\sprintf("/[^\pL%s0-9]/u", $allowChars), ' ', $string));
 
-        /** @var list<string> $tags */
+        /** @var list<non-falsy-string> $tags */
         $tags = array_filter(explode(' ', $string));
 
         $filtered = [];

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -140,7 +139,6 @@ class UpdateController extends AbstractController
 
     private function rebootKernelWithoutPlugins(): ContainerInterface
     {
-        /** @var Kernel $kernel */
         $kernel = $this->container->get('kernel');
 
         $classLoad = $kernel->getPluginLoader()->getClassLoader();

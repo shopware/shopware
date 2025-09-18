@@ -57,7 +57,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        /** @var array<array<string>> $rules $rules */
+        /** @var array<string, list<array<string, string>>> */
         $rules = FetchModeHelper::group($conditions);
 
         $update = new RetryableQuery(
@@ -113,7 +113,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $rules
+     * @param list<array<string, mixed>> $rules
      *
      * @return list<Rule>
      */

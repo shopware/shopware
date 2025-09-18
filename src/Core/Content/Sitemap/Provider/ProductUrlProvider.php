@@ -96,11 +96,11 @@ class ProductUrlProvider extends AbstractUrlProvider
             $urls[] = $newUrl;
         }
 
+        /** @var list<string> */
         $keys = array_keys($keys);
-        /** @var int|null $nextOffset */
         $nextOffset = array_pop($keys);
 
-        return new UrlResult($urls, $nextOffset);
+        return new UrlResult($urls, $nextOffset !== null ? (int) $nextOffset : null);
     }
 
     /**

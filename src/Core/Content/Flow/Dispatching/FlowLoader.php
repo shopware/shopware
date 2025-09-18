@@ -54,6 +54,7 @@ class FlowLoader extends AbstractFlowLoader
         $result = FetchModeHelper::group($flows);
 
         /** @var EventGroupedFlowHolders $result */
+        // @phpstan-ignore varTag.type (with the FetchModeHelper we lose the payload type information)
         return $result;
     }
 }

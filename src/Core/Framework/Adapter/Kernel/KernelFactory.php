@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Kernel;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Shopware\Core\Framework\Adapter\Kernel\KernelFactory
@@ -59,7 +58,6 @@ class KernelFactory
 
         $cacheId = (string) EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
 
-        /** @var KernelInterface $kernel */
         $kernel = new static::$kernelClass(
             $environment,
             $debug,
@@ -81,7 +79,7 @@ class KernelFactory
 
         $r = new \ReflectionClass(self::class);
 
-        /** @var string $dir */
+        /** @var non-empty-string $dir */
         $dir = $r->getFileName();
 
         $dir = $rootDir = \dirname($dir);

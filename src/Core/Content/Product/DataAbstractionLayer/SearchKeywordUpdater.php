@@ -286,7 +286,7 @@ class SearchKeywordUpdater implements ResetInterface
 
         $query->setParameter('languageIds', Uuid::fromHexToBytesList([$languageId, Defaults::LANGUAGE_SYSTEM]), ArrayParameterType::BINARY);
 
-        /** @var array<int, ConfigField> $all */
+        /** @var list<ConfigField> $all */
         $all = $query->executeQuery()->fetchAllAssociative();
 
         $fields = array_filter($all, fn (array $field) => $field['language_id'] === $languageId);

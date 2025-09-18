@@ -63,7 +63,7 @@ class MemorySizeCalculator
             $values[] = $maxSize;
         }
 
-        /** @var non-empty-array<int> $limits */
+        /** @var non-empty-array{0?: int<1, max>, 1?: int<1, max>, 2?: int<1, max>} $limits */
         $limits = array_filter($values, static fn (int $value) => $value > 0);
 
         return min($limits);

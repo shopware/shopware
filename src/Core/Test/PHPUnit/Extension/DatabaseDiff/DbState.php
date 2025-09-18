@@ -42,7 +42,7 @@ class DbState
     }
 
     /**
-     * @return array<string, array<int|string, int>>
+     * @return array<string, array<int|string, int|string>>
      */
     public function getDiff(): array
     {
@@ -52,13 +52,13 @@ class DbState
 
         $diff = [];
 
-        /** @var array<string, int> $addedTables */
+        /** @var array<int<0, max>, string> $addedTables */
         $addedTables = array_diff(array_keys($this->tableCounts), array_keys($previousCounts));
         if ($addedTables) {
             $diff['added'] = array_values($addedTables);
         }
 
-        /** @var array<string, int> $deletedTables */
+        /** @var array<int<0, max>, string> $deletedTables */
         $deletedTables = array_diff(array_keys($previousCounts), array_keys($this->tableCounts));
         if ($deletedTables) {
             $diff['deleted'] = array_values($deletedTables);

@@ -130,7 +130,7 @@ class ImportExportActionController extends AbstractController
     #[Route(path: '/api/_action/import-export/file/download', name: 'api.action.import_export.file.download', defaults: ['auth_required' => false], methods: ['GET'])]
     public function download(Request $request, Context $context): Response
     {
-        /** @var array<string> $params */
+        /** @var array<string, string> $params */
         $params = $request->query->all();
         $definition = new DataValidationDefinition();
         $definition->add('fileId', new NotBlank(), new Type('string'));

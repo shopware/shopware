@@ -132,6 +132,7 @@
             <mt-button
                 size="small"
                 variant="secondary"
+                :disabled="isLoadingDocument || isLoadingPreview"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}

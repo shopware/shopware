@@ -188,3 +188,6 @@ parameters:
             message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
             paths:
                 - tests/**
+
+        - # Will be fixed with https://github.com/shopware/shopware/issues/12220
+            message: '#should not depend on Shopware\\Administration\\Login#'

@@ -39,6 +39,7 @@ class CookieProvider
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly TranslatorInterface $translator,
         array $sessionOptions = [],
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable) */
         private readonly ?CookieProviderInterface $legacyCookieProvider = null,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;

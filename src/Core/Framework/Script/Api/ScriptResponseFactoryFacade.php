@@ -23,8 +23,9 @@ class ScriptResponseFactoryFacade
      */
     public function __construct(
         private readonly RouterInterface $router,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable) */
         private readonly ?ScriptController $scriptController,
-        private readonly ?SalesChannelContext $salesChannelContext
+        private readonly ?SalesChannelContext $salesChannelContext,
     ) {
     }
 

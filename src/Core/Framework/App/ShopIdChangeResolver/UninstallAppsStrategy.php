@@ -30,6 +30,7 @@ class UninstallAppsStrategy extends AbstractShopIdChangeStrategy
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly ShopIdProvider $shopIdProvider,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable) */
         private readonly ?ThemeAppLifecycleHandler $themeLifecycleHandler
     ) {
     }

@@ -24,3 +24,8 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessageHandlerFinalRule
         tags:
             - phpat.test
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RestrictNamespacesRule
+        tags:
+            - phpat.test

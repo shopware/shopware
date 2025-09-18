@@ -22,7 +22,9 @@ class AssetRegistrationCompilerPass implements CompilerPassInterface
         $assetService = $container->getDefinition('assets.packages');
         $assetService->addMethodCall('setDefaultPackage', [$assets['asset']]);
 
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage) */
         if ($container->hasDefinition(ThemeCompiler::class)) {
+            /** @phpstan-ignore phpat.restrictNamespacesInCore */
             $container->getDefinition(ThemeCompiler::class)->replaceArgument(7, $assets);
         }
     }

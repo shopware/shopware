@@ -18,6 +18,7 @@ class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
     public function __construct(
         private readonly RouterInterface $router,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable) */
         private readonly ?ScriptController $scriptController
     ) {
     }

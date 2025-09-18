@@ -59,6 +59,7 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Administration dependency is nullable) */
         private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
         private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,

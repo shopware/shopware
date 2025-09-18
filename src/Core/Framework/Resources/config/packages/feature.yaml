@@ -41,6 +41,11 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
+      - name: CACHE_CONTEXT_HASH_RULES_OPTIMIZATION
+        default: false
+        major: false
+        toggleable: true
+        description: "Only include rule ids which are relevant for different content in the HTTP cache context key."
       - name: DEFERRED_CART_ERRORS
         default: false
         major: false

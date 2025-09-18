@@ -3,11 +3,10 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension
-    -
-        factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
 
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper
+    -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
+
+    -   class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper
 
 parameters:
     shopware:

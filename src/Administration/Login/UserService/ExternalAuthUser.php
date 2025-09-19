@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validation;
 
@@ -25,10 +26,9 @@ final readonly class ExternalAuthUser implements UserEntityInterface
         public string $id,
         public string $userId,
         public string $sub,
-        public Token $token,
-        public ?\DateTimeInterface $expiry,
+        public ?Token $token,
+        public \DateTimeInterface $expiry,
         public string $email,
-        public bool $isNew,
     ) {
     }
 
@@ -48,28 +48,22 @@ final readonly class ExternalAuthUser implements UserEntityInterface
             $data['id'],
             $data['user_id'],
             $data['user_sub'],
-            Token::fromArray($data['token']),
+            \array_key_exists('token', $data) && \is_array($data['token']) ? Token::fromArray($data['token']) : null,
             $data['expiry'],
             $data['email'],
-            $data['is_new'],
         );
     }
 
     /**
      * @param array<string, mixed> $data
      */
-    public static function createFromDatabaseQuery(array $data, string $accessToken, string $refreshToken): self
+    public static function createFromDatabaseQuery(array $data): self
     {
-        $data['is_new'] = false;
         $data['id'] = Uuid::fromBytesToHex($data['id']);
         $data['user_id'] = Uuid::fromBytesToHex($data['user_id']);
-        $data['token'] = [
-            'token' => $accessToken,
-            'refreshToken' => $refreshToken,
-        ];
-
-        if ($data['expiry'] !== null) {
-            $data['expiry'] = new \DateTimeImmutable($data['expiry']);
+        $data['expiry'] = new \DateTimeImmutable($data['expiry']);
+        if (\array_key_exists('token', $data) && \is_string($data['token'])) {
+            $data['token'] = json_decode($data['token'], true);
         }
 
         return self::create($data);
@@ -108,7 +102,7 @@ final readonly class ExternalAuthUser implements UserEntityInterface
                 new NotBlank(null, 'is required'),
                 new Type('string', 'Needs to be a string'),
             ],
-            'token' => [
+            'token' => new Optional([
                 new Type('array', 'Needs to be an array'),
                 new Collection([
                     'token' => [
@@ -120,16 +114,13 @@ final readonly class ExternalAuthUser implements UserEntityInterface
                         new Type('string', 'Needs to be a string'),
                     ],
                 ]),
-            ],
+            ]),
             'expiry' => [
                 new Type('DateTimeInterface', 'Needs to be a DateTimeInterface'),
             ],
             'email' => [
                 new NotBlank(null, 'is required'),
                 new Email(null, 'Needs to be a valid email address'),
-            ],
-            'is_new' => [
-                new Type('bool', 'Needs to be a boolean'),
             ],
         ]);
     }

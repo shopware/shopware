@@ -203,8 +203,18 @@ class RemoteThumbnailLoaderTest extends TestCase
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
         $thumbnailSizes = [
-            ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '200', 'height' => '200'],
-            ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '400', 'height' => '400'],
+            [
+                'media_folder_id' => $ids->get('mediaFolderId'),
+                'width' => '200',
+                'height' => '200',
+                'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'),
+            ],
+            [
+                'media_folder_id' => $ids->get('mediaFolderId'),
+                'width' => '400',
+                'height' => '400',
+                'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'),
+            ],
         ];
 
         $connection = $this->createMock(Connection::class);

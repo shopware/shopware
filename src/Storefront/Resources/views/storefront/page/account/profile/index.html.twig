@@ -34,11 +34,18 @@
                                         {# @deprecated tag:v6.8.0 - Unused variable `showVatIdField` will be removed, use variable showCompanyFields instead #}
                                         {% set showVatIdField = true %}
 
+                                        {# If customer is logged in (on profile page), they should be able to freely change their account type #}
+                                        {% if context.customer %}
+                                            {% set onlyCompanyRegistration = false %}
+                                        {% else %}
+                                            {% set onlyCompanyRegistration = context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false %}
+                                        {% endif %}
+
                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                             prefix: '',
                                             showBirthdayField: config('core.loginRegistration.showBirthdayField'),
                                             data: context.customer,
-                                            onlyCompanyRegistration: context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false,
+                                            onlyCompanyRegistration: onlyCompanyRegistration,
                                             showCompanyFields: true,
                                         } %}
                                     {% endblock %}

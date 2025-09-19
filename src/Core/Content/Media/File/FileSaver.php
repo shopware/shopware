@@ -299,14 +299,9 @@ class FileSaver
             $this->mediaRepository->update([$data], $context);
         });
 
-        $criteria = new Criteria([$media->getId()]);
-        $criteria->addAssociation('mediaFolder');
-
         $this->eventDispatcher->dispatch(new UpdateMediaPathEvent([$media->getId()]));
 
-        $media = $this->findMediaById($media->getId(), $context);
-
-        return $media;
+        return $this->findMediaById($media->getId(), $context);
     }
 
     /**

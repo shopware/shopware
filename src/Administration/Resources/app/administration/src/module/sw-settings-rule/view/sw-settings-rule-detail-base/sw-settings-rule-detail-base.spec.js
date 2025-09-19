@@ -11,7 +11,7 @@ Shopware.Application.getContainer('init').httpClient = httpClient;
 Shopware.Service().register('loginService', () => {
     return {
         getToken: jest.fn(() => Promise.resolve('token')),
-    }
+    };
 });
 
 /**

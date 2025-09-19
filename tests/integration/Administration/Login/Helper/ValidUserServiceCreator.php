@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Validator as ValidatorInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfigService;
+use Shopware\Administration\Login\TokenService\ExternalTokenService;
 use Shopware\Administration\Login\TokenService\IdTokenParser;
 use Shopware\Administration\Login\TokenService\PublicKeyLoader;
 use Shopware\Administration\Login\UserService\UserService;
@@ -27,7 +28,7 @@ class ValidUserServiceCreator extends TestCase
 
     public function create(): UserService
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = self::getContainer()->get(Connection::class);
 
         $publicKeyLoader = new PublicKeyLoader(
             $this->createClient(),
@@ -51,9 +52,9 @@ class ValidUserServiceCreator extends TestCase
         $validatorProperty->setAccessible(true);
         $validatorProperty->setValue($idTokenParser, $validator);
 
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = self::getContainer()->get('user.repository');
 
-        return new UserService($connection, $idTokenParser, $userRepository);
+        return new UserService($connection, $idTokenParser, $userRepository, $this->createExternalTokenService());
     }
 
     private function createClient(): HttpClientInterface
@@ -88,5 +89,46 @@ class ValidUserServiceCreator extends TestCase
         ];
 
         return new LoginConfigService($rawConfig, 'local.host', '/admin');
+    }
+
+    private function createExternalTokenService(): ExternalTokenService
+    {
+        $token = (new FakeTokenGenerator())->generate();
+        $responseInterface = $this->createMock(ResponseInterface::class);
+        $responseInterface->expects($this->once())->method('getContent')->willReturn(
+            \json_encode(
+                [
+                    'id_token' => $token,
+                    'access_token' => 'access_token',
+                    'refresh_token' => 'refresh_token',
+                    'expires_in' => 3600,
+                    'token_type' => 'Bearer',
+                    'scope' => 'scope',
+                ]
+            )
+        );
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->expects($this->once())->method('request')->willReturn($responseInterface);
+
+        $loginConfigService = new LoginConfigService(
+            [
+                'use_default' => false,
+                'client_id' => 'client_id',
+                'client_secret' => 'client_secret',
+                'redirect_uri' => 'http://redirect.uri',
+                'base_url' => 'http://base.uri',
+                'session_key' => 'session_key',
+                'authorize_path' => '/authorize',
+                'token_path' => '/token',
+                'jwks_path' => '/json.json',
+                'scope' => 'scope',
+                'register_url' => 'https://register.url',
+            ],
+            '',
+            ''
+        );
+
+        return new ExternalTokenService($client, $loginConfigService);
     }
 }

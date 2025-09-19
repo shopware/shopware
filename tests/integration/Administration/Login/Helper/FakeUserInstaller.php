@@ -34,7 +34,7 @@ class FakeUserInstaller
         $userId = Uuid::fromHexToBytes($userId);
 
         $sql = 'INSERT INTO `oauth_user` (`id`, `user_id`, `user_sub`, `token`, `expiry`, `created_at`, `updated_at`) VALUES
-                (?, ?, ?, \'{"token": "invalid", "refresh_token": "invalid"}\', \'2024-01-01 08:00:00.000\', \'2024-01-01 08:00:00.000\', NULL);';
+                (?, ?, ?, \'{"token": "invalid", "refreshToken": "invalid"}\', \'2024-01-01 08:00:00.000\', \'2024-01-01 08:00:00.000\', NULL);';
         $this->connection->executeQuery($sql, [$id, $userId, $subject]);
     }
 }

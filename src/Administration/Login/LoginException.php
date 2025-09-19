@@ -24,6 +24,8 @@ class LoginException extends HttpException
     final public const LOGIN_PUBLIC_KEY_NOT_FOUND = 'LOGIN__PUBLIC_KEY_NOT_FOUND';
     final public const LOGIN_INVALID_ID_TOKEN = 'LOGIN__INVALID_ID_TOKEN';
     final public const LOGIN_INVALID_PUBLIC_KEY = 'LOGIN__INVALID_PUBLIC_KEY';
+    final public const LOGIN_NEGATIVE_TIME_TO_LIVE = 'LOGIN__NEGATIVE_TIME_TO_LIVE';
+    final public const LOGIN_TOKEN_NOT_FOUND = 'LOGIN__TOKEN_NOT_FOUND';
 
     private ?string $email;
 
@@ -186,6 +188,24 @@ class LoginException extends HttpException
             [
                 'response' => $response,
             ]
+        );
+    }
+
+    public static function negativeTimeToLive(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOGIN_NEGATIVE_TIME_TO_LIVE,
+            'Token time to live should not be negative',
+        );
+    }
+
+    public static function tokenNotFound(): self
+    {
+        return new self(
+            Response::HTTP_UNAUTHORIZED,
+            self::LOGIN_TOKEN_NOT_FOUND,
+            'Cannot get token from user.',
         );
     }
 }

@@ -519,6 +519,8 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        twig:
+            string_template_renderer_cache_dir: '%kernel.cache_dir%/twig/string-template-renderer'
         invalidation:
             delay_enabled: true
             delay_options:

@@ -36,7 +36,12 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/product-listing/{categoryId}',
+        name: 'store-api.product.listing',
+        methods: ['POST', 'GET'],
+        defaults: ['_entity' => 'product', '_httpCache' => true]
+    )]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
         $criteria->addState(self::STATE);

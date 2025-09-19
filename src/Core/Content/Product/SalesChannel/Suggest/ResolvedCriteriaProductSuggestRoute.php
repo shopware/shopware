@@ -42,8 +42,8 @@ class ResolvedCriteriaProductSuggestRoute extends AbstractProductSuggestRoute
     #[Route(
         path: '/store-api/search-suggest',
         name: 'store-api.search.suggest',
-        defaults: ['_entity' => 'product'],
-        methods: ['POST']
+        defaults: ['_entity' => 'product', '_httpCache' => true],
+        methods: ['POST', 'GET'],
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {

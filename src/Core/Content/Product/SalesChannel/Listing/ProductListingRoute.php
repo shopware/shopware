@@ -51,7 +51,12 @@ class ProductListingRoute extends AbstractProductListingRoute
         return 'product-listing-' . $categoryId;
     }
 
-    #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/product-listing/{categoryId}',
+        name: 'store-api.product.listing',
+        methods: ['POST', 'GET'],
+        defaults: ['_entity' => 'product', '_httpCache' => true]
+    )]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($categoryId));

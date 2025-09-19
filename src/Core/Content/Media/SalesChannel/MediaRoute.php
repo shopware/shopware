@@ -35,7 +35,12 @@ class MediaRoute extends AbstractMediaRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/media', name: 'store-api.media.detail', methods: ['POST'])]
+    #[Route(
+        path: '/store-api/media',
+        name: 'store-api.media.detail',
+        methods: ['POST', 'GET'],
+        defaults: ['_httpCache' => true]
+    )]
     public function load(Request $request, SalesChannelContext $context): MediaRouteResponse
     {
         $ids = $request->get('ids', []);

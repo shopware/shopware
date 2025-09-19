@@ -32,7 +32,12 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/search-suggest', name: 'store-api.search.suggest', methods: ['POST'], defaults: ['_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/search-suggest',
+        name: 'store-api.search.suggest',
+        methods: ['POST', 'GET'],
+        defaults: ['_entity' => 'product', '_httpCache' => true]
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {
         $result = $this->productListingLoader->load($criteria, $context);

@@ -304,4 +304,212 @@ describe('CookieConfiguration plugin tests', () => {
         expect(focusSpy).toHaveBeenCalled();
         document.body.removeChild(btn);
     });
+
+    describe('_handlePermission', () => {
+        let mockFetch;
+
+        beforeEach(() => {
+            mockFetch = jest.fn();
+            global.fetch = mockFetch;
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        test('calls storefront route and sets only technical required cookies', async () => {
+            const mockApiResponse = {
+                elements: [
+                    {
+                        technicalName: 'required-group',
+                        isRequired: true,
+                        entries: [
+                            {
+                                cookie: 'session-id',
+                                value: 'abc123',
+                                expiration: 30
+                            },
+                            {
+                                cookie: 'csrf-token',
+                                value: 'xyz789',
+                                expiration: 30
+                            }
+                        ]
+                    },
+                    {
+                        technicalName: 'marketing-group',
+                        isRequired: false,
+                        entries: [
+                            {
+                                cookie: 'analytics',
+                                value: '1',
+                                expiration: 365
+                            },
+                            {
+                                cookie: 'tracking',
+                                value: '1',
+                                expiration: 90
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            mockFetch.mockResolvedValueOnce({
+                json: () => Promise.resolve(mockApiResponse)
+            });
+
+            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
+            const closeOffCanvasSpy = jest.spyOn(plugin, 'closeOffCanvas');
+            const handleUpdateListenerSpy = jest.spyOn(plugin, '_handleUpdateListener');
+
+            const event = { preventDefault: jest.fn() };
+
+            await plugin._handlePermission(event);
+
+            // Verify API call
+            expect(mockFetch).toHaveBeenCalledWith('/cookie/groups', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            // Verify all cookies are removed
+            expect(removeItemSpy).toHaveBeenCalledWith('session-id');
+            expect(removeItemSpy).toHaveBeenCalledWith('csrf-token');
+            expect(removeItemSpy).toHaveBeenCalledWith('analytics');
+            expect(removeItemSpy).toHaveBeenCalledWith('tracking');
+
+            // Verify only required cookies are set
+            expect(setItemSpy).toHaveBeenCalledWith('session-id', 'abc123', 30);
+            expect(setItemSpy).toHaveBeenCalledWith('csrf-token', 'xyz789', 30);
+            expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', '30');
+
+            // Verify non-required cookies are NOT set
+            expect(setItemSpy).not.toHaveBeenCalledWith('analytics', '1', 365);
+            expect(setItemSpy).not.toHaveBeenCalledWith('tracking', '1', 90);
+
+            // Verify update listener called with correct parameters
+            expect(handleUpdateListenerSpy).toHaveBeenCalledWith(
+                ['session-id', 'csrf-token'], // active (required)
+                ['analytics', 'tracking'] // inactive (non-required)
+            );
+
+            // Verify offcanvas closes
+            expect(closeOffCanvasSpy).toHaveBeenCalled();
+
+            setItemSpy.mockRestore();
+            removeItemSpy.mockRestore();
+        });
+
+        test('handles standalone cookie groups correctly', async () => {
+            const mockApiResponse = {
+                elements: [
+                    {
+                        technicalName: 'session-cookie',
+                        isRequired: true,
+                        cookie: 'PHPSESSID',
+                        value: 'session123',
+                        expiration: 30
+                    },
+                    {
+                        technicalName: 'analytics-cookie',
+                        isRequired: false,
+                        cookie: 'ga_tracking',
+                        value: 'GA1.2.123456789',
+                        expiration: 365
+                    }
+                ]
+            };
+
+            mockFetch.mockResolvedValueOnce({
+                json: () => Promise.resolve(mockApiResponse)
+            });
+
+            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
+
+            const event = { preventDefault: jest.fn() };
+
+            await plugin._handlePermission(event);
+
+            // Verify all cookies are removed first
+            expect(removeItemSpy).toHaveBeenCalledWith('PHPSESSID');
+            expect(removeItemSpy).toHaveBeenCalledWith('ga_tracking');
+
+            // Verify only required standalone cookie is set
+            expect(setItemSpy).toHaveBeenCalledWith('PHPSESSID', 'session123', 30);
+            expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', '30');
+
+            // Verify non-required standalone cookie is NOT set
+            expect(setItemSpy).not.toHaveBeenCalledWith('ga_tracking', 'GA1.2.123456789', 365);
+
+            setItemSpy.mockRestore();
+            removeItemSpy.mockRestore();
+        });
+
+        test('handles empty cookie groups gracefully', async () => {
+            const mockApiResponse = { elements: [] };
+
+            mockFetch.mockResolvedValueOnce({
+                json: () => Promise.resolve(mockApiResponse)
+            });
+
+            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+            const closeOffCanvasSpy = jest.spyOn(plugin, 'closeOffCanvas');
+            const handleUpdateListenerSpy = jest.spyOn(plugin, '_handleUpdateListener');
+
+            const event = { preventDefault: jest.fn() };
+
+            await plugin._handlePermission(event);
+
+            // Verify preference cookie is still set
+            expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', '30');
+            expect(handleUpdateListenerSpy).toHaveBeenCalledWith([], []);
+            expect(closeOffCanvasSpy).toHaveBeenCalled();
+
+            setItemSpy.mockRestore();
+        });
+
+        test('skips setting cookies without values', async () => {
+            const mockApiResponse = {
+                elements: [
+                    {
+                        technicalName: 'required-group',
+                        isRequired: true,
+                        entries: [
+                            {
+                                cookie: 'valid-cookie',
+                                value: 'abc123',
+                                expiration: 30
+                            },
+                            {
+                                cookie: 'invalid-cookie',
+                                value: null, // No value
+                                expiration: 30
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            mockFetch.mockResolvedValueOnce({
+                json: () => Promise.resolve(mockApiResponse)
+            });
+
+            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+
+            const event = { preventDefault: jest.fn() };
+
+            await plugin._handlePermission(event);
+
+            // Verify only valid cookie is set
+            expect(setItemSpy).toHaveBeenCalledWith('valid-cookie', 'abc123', 30);
+            expect(setItemSpy).not.toHaveBeenCalledWith('invalid-cookie', null, 30);
+
+            setItemSpy.mockRestore();
+        });
+    });
 });

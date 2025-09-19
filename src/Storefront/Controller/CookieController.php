@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -66,6 +67,17 @@ class CookieController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', [
             'featureName' => $featureName,
             'cookieName' => $cookieName,
+        ]);
+    }
+
+    #[Route(path: '/cookie/groups', name: 'frontend.cookie.groups', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    public function groups(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
+    {
+        $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
+
+        return new JsonResponse([
+            'elements' => $cookieRouteResponse->getCookieGroups(),
+            'hash' => $cookieRouteResponse->getHash(),
         ]);
     }
 

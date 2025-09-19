@@ -242,7 +242,7 @@ class PromotionDeliveryCalculatorTest extends TestCase
 
         // The delivery discount should NOT be applied due to exclusion
         static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Shipping should still be 100 (not free) due to exclusion');
-        
+
         // Check for promotion not eligible error
         $hasNotEligibleError = false;
         foreach ($cart->getErrors() as $error) {

@@ -180,7 +180,6 @@ class SystemInstallCommandTest extends TestCase
         $result = $command->run(new ArrayInput([]), new BufferedOutput());
 
         static::assertSame(Command::FAILURE, $result);
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
     }
 
     public function testInstallLockNotCreatedOnFailure(): void
@@ -194,7 +193,8 @@ class SystemInstallCommandTest extends TestCase
             __DIR__,
             $setupDatabaseAdapterMock,
             $connectionFactory,
-            $this->createMock(CacheClearer::class)
+            $this->createMock(CacheClearer::class),
+            $this->createMock(SystemLocker::class)
         );
 
         $application = new class extends Application {

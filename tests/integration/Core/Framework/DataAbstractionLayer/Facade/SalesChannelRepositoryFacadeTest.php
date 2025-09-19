@@ -56,7 +56,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
      * @param array<string, array<int, mixed>> $criteria
      * @param callable(EntitySearchResult<EntityCollection<Entity>>): void $expectation
      */
-    #[DataProvider('testCases')]
+    #[DataProvider('cases')]
     public function testFacade(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
     {
         $this->ids = $ids;
@@ -75,7 +75,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public static function testCases(): array
+    public static function cases(): array
     {
         $ids = new IdsCollection();
 

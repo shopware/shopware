@@ -63,7 +63,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $result->addError(
                     $operation->getOrderId(),
                     DocumentException::generationError(
-                        'Credit notes can only be generated from the LIVE order context. Merge your draft changes first.'
+                        'Credit notes can only be generated from the LIVE order context.'
                     )
                 );
             }
@@ -350,7 +350,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
         ]);
 
-        return array_map(fn($id): string => Uuid::fromBytesToHex($id), $binaryIds);
+        return array_map(fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
     }
 
     /**
@@ -381,6 +381,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
         ]);
 
-        return array_map(fn($id): string => Uuid::fromBytesToHex($id), $binaryIds);
+        return array_map(fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
     }
 }

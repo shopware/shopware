@@ -455,10 +455,10 @@ class CreditNoteRendererTest extends TestCase
         $connection->method('fetchFirstColumn')
             ->willReturnCallback(function ($sql, $params) use ($invoiceCreditIds, $creditNoteCreditIds) {
                 if (\count($params) === 2) {
-                    return array_map(fn($hexIds) => Uuid::fromHexToBytes($hexIds),$invoiceCreditIds);
+                    return array_map(fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $invoiceCreditIds);
                 }
                 if (\count($params) === 3) {
-                    return array_map(fn($hexIds) => Uuid::fromHexToBytes($hexIds),$creditNoteCreditIds);
+                    return array_map(fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $creditNoteCreditIds);
                 }
 
                 return [];

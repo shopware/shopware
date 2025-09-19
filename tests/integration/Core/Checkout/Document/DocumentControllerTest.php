@@ -241,8 +241,7 @@ class DocumentControllerTest extends TestCase
         string $documentType,
         bool $requiresExistingInvoice,
         bool $requiresCreditItem,
-    ): void
-    {
+    ): void {
         static::assertNotNull($customer = $this->salesChannelContext->getCustomer());
 
         $orders = [];
@@ -254,25 +253,22 @@ class DocumentControllerTest extends TestCase
             $this->generateInvoice($orders);
         }
 
-        if($requiresCreditItem) {
+        if ($requiresCreditItem) {
             $this->createCreditItems($orders);
-
         }
 
-        $documentIds = [];
-
         $this->getBrowser()->jsonRequest(
-                'POST',
-                \sprintf('/api/_action/order/document/%s/create', $documentType),
+            'POST',
+            \sprintf('/api/_action/order/document/%s/create', $documentType),
+            [
                 [
-                    [
-                        'orderId' => $orders[0]->getId(),
-                    ],
-                    [
-                        'orderId' => $orders[1]->getId(),
-                    ],
-                ]
-            );
+                    'orderId' => $orders[0]->getId(),
+                ],
+                [
+                    'orderId' => $orders[1]->getId(),
+                ],
+            ]
+        );
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
@@ -592,10 +588,12 @@ class DocumentControllerTest extends TestCase
         return $collection;
     }
 
-
-    private function generateInvoice( array $orders ): void
+    /**
+     * @param array<int, OrderEntity> $orders
+     */
+    private function generateInvoice(array $orders): void
     {
-        foreach($orders as $index => $order) {
+        foreach ($orders as $index => $order) {
             static::assertInstanceOf(OrderEntity::class, $order);
 
             $invoiceConfig = new DocumentConfiguration();
@@ -617,6 +615,9 @@ class DocumentControllerTest extends TestCase
         }
     }
 
+    /**
+     * @param array<int, OrderEntity> $orders
+     */
     private function createCreditItems(array $orders): void
     {
         foreach ($orders as $order) {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Sso;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Sso\Exceptions\SsoUserNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -17,7 +18,7 @@ class SsoException extends HttpException
     public const SSO_USER_INVITATION_MAIL_TEMPLATE_NOT_FOUND = 'SSO_USER_INVITATION_MAIL_TEMPLATE_NOT_FOUND';
     public const SSO_LOGIN_CONFIG_NOT_FOUND = 'SSO_LOGIN_CONFIG__NOT_FOUND';
     public const SSO_LOGIN_CONFIG_INCOMPLETE_OR_MISCONFIGURED = 'SSO_LOGIN_CONFIG__INCOMPLETE_OR_MISCONFIGURED';
-    public const SSO_LOGIN_USER_NOT_FOUND = 'SSO_LOGIN__USER_NOT_FOUND';
+
     public const SSO_LOGIN_USER_INVALID = 'SSO_LOGIN__USER_INVALID';
     public const SSO_LOGIN_INVALID_LOGIN_STATE = 'SSO_LOGIN__INVALID_LOGIN_STATE';
     public const SSO_LOGIN_INVALID_TOKEN_RESPONSE = 'SSO_LOGIN__INVALID_TOKEN_RESPONSE';
@@ -30,26 +31,6 @@ class SsoException extends HttpException
     public const SSO_LOGIN_NEGATIVE_TIME_TO_LIVE = 'SSO_LOGIN__NEGATIVE_TIME_TO_LIVE';
     public const SSO_LOGIN_TOKEN_NOT_FOUND = 'SSO_LOGIN__TOKEN_NOT_FOUND';
     public const SSO_LOGIN_REFERER_NOT_FOUND = 'FRAMEWORK__SSO_LOGIN_REFERER_NOT_FOUND';
-
-    private ?string $email;
-
-    public function __construct(
-        protected int $statusCode,
-        protected string $errorCode,
-        string $message,
-        array $parameters = [],
-        ?\Throwable $previous = null,
-        ?string $email = null,
-    ) {
-        parent::__construct($statusCode, $errorCode, $message, $parameters, $previous);
-
-        $this->email = $email;
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
 
     public static function mailTemplateNotFound(): self
     {
@@ -84,16 +65,9 @@ class SsoException extends HttpException
         );
     }
 
-    public static function userNotFound(string $email): self
+    public static function userNotFound(string $email): SsoUserNotFoundException
     {
-        return new self(
-            Response::HTTP_UNAUTHORIZED,
-            self::SSO_LOGIN_USER_NOT_FOUND,
-            'User not found',
-            [],
-            null,
-            $email
-        );
+        return new SsoUserNotFoundException($email);
     }
 
     /**

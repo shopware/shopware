@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
+use Shopware\Core\Framework\Sso\Exceptions\SsoUserNotFoundException;
 use Shopware\Core\Framework\Sso\LoginResponseService;
 use Shopware\Core\Framework\Sso\SsoException;
 use Shopware\Core\Framework\Sso\SsoService;
@@ -61,12 +62,8 @@ class SsoController extends AbstractController
 
         try {
             $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
-            // @phpstan-ignore catch.neverThrown (LoginException is thrown inside an external library where we implemented an interface)
-        } catch (SsoException $ssoException) {
-            if ($ssoException->getErrorCode() !== SsoException::SSO_LOGIN_USER_NOT_FOUND) {
-                throw $ssoException;
-            }
-
+            // @phpstan-ignore catch.neverThrown (SsoUserNotFoundException is thrown inside an external library where we implemented an interface)
+        } catch (SsoUserNotFoundException $ssoException) {
             return $this->loginResponseService->createErrorResponse($ssoException->getEmail());
         }
 

@@ -475,7 +475,7 @@ class CreditNoteRendererTest extends TestCase
 
         static::assertSame(
             $errors[$orderId]->getMessage(),
-            'Unable to generate document. Credit notes can only be generated from the LIVE order context. Merge your draft changes first.'
+            'Unable to generate document. Credit notes can only be generated from the LIVE order context.'
         );
     }
 

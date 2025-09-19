@@ -1,6 +1,11 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.2.2
+*  [#12503 - fix: disable profiler in production](https://github.com/shopware/shopware/pull/12503)
+*  [#12434 - Fix deletion of active customer address](./changelog/release-6-7-2-2/2025-09-11-fix-deletion-of-active-customer-address.md)
+*  [#12472 - Fix type error when using named arguments in the Length validation constraint](./changelog/release-6-7-2-2/2025-09-10-fix-type-cast-system-config-validation.md) @grzegorzrolka
+
 ## 6.7.2.1
 *  [GHSA-9v82-vcjx-m76j - Properly escape active route params](./changelog/release-6-7-2-1/2025-09-04-properly-escape-active-route-params.md)
 *  [#12363 - Fix missing promotion product rule select](./changelog/release-6-7-2-1/2025-09-08-fix-missing-promotion-rule-select.md)

@@ -40,11 +40,14 @@ class ShopwareGrantType extends AbstractGrant
         $client = $this->getClientEntityOrFail('administration', $request);
         $scopes = $this->validateScopes($this->getRequestParameter('scope', $request, $this->defaultScope));
 
-        $userIdentifier = $this->validateUser($request)->getIdentifier();
-
+        $user = $this->validateUser($request);
+        $userIdentifier = $user->getIdentifier();
         $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $userIdentifier);
 
-        $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $userIdentifier, $finalizedScopes);
+        // take the shorter token TTL to avoid that the external token gets invalid
+        $lowerTTL = TokenTimeToLive::getLowerTTL($accessTokenTTL, (new \DateTimeImmutable())->diff($user->expiry));
+
+        $accessToken = $this->issueAccessToken($lowerTTL, $client, $userIdentifier, $finalizedScopes);
         $this->getEmitter()->emit(new RequestAccessTokenEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request, $accessToken));
         $responseType->setAccessToken($accessToken);
 
@@ -67,7 +70,7 @@ class ShopwareGrantType extends AbstractGrant
 
         try {
             $token = $this->tokenService->getUserToken($code);
-            $user = $this->userService->getAndUpdateUser($token);
+            $user = $this->userService->getAndUpdateUserByExternalToken($token);
         } catch (\Throwable $exception) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
 

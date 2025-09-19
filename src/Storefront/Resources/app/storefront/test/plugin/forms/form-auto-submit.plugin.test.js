@@ -173,4 +173,37 @@ describe('Form auto submit plugin', () => {
 
         expect(formAutoSubmitPlugin._createInputForRedirectParameter('name', 'value')).toStrictEqual(input.firstChild);
     });
+
+    test('form uses correct formAction & formMethod from submitter', async () => {
+        document.body.innerHTML = template;
+
+        const formElement = document.querySelector('form');
+
+        const formAutoSubmit = new FormAutoSubmitPlugin(formElement, { useAjax: true, ajaxContainerSelector: '#newsletterForm' });
+
+        global.fetch = jest.fn((url, options) => {
+            expect(url).toBe('/newsletter/configure/override');
+            expect(options).toStrictEqual({ headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+
+            return Promise.resolve({
+                text: () => Promise.resolve('<div class="replace-me"><div class="alert">Success</div></div>'),
+            });
+        });
+
+        formAutoSubmit.$emitter.publish = jest.fn();
+
+        window.PluginManager.initializePlugins = jest.fn();
+
+        const emailField = document.querySelector('.form-email');
+        emailField.setAttribute('formaction', '/newsletter/configure/override');
+        emailField.setAttribute('formmethod', 'get');
+
+        const event = new Event('change', { bubbles: true });
+        event.submitter = emailField;
+        emailField.dispatchEvent(event);
+
+        await new Promise(process.nextTick);
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
 });

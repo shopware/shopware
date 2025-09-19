@@ -168,14 +168,22 @@ export default {
             const linkFlyoutMenuRightBound = linkIconRightBound - linkIconWidth + flyoutLinkMenuWidth;
             const windowRightBound = this.$device.getViewportWidth();
 
-            const isOutOfRightBound = windowRightBound - linkFlyoutMenuRightBound;
+            const modalContainer = this.$el.closest('.mt-modal');
+            const containerRightBound = modalContainer ? modalContainer.getBoundingClientRect().right : windowRightBound;
+
+            const isOutOfRightBound = containerRightBound - linkFlyoutMenuRightBound;
 
             let flyoutLinkLeftOffset = 0;
             let arrowPosition = 10;
 
             if (isOutOfRightBound < 0) {
-                flyoutLinkLeftOffset = isOutOfRightBound - 50;
-                arrowPosition = Math.abs(flyoutLinkLeftOffset) + 10;
+                if (modalContainer) {
+                    flyoutLinkLeftOffset = -(flyoutLinkMenuWidth / 2) + linkIconWidth / 2;
+                    arrowPosition = flyoutLinkMenuWidth / 2;
+                } else {
+                    flyoutLinkLeftOffset = isOutOfRightBound - 50;
+                    arrowPosition = Math.abs(flyoutLinkLeftOffset) + 10;
+                }
             }
 
             flyoutLinkMenu.style.setProperty('--flyoutLinkLeftOffset', `${flyoutLinkLeftOffset}px`);

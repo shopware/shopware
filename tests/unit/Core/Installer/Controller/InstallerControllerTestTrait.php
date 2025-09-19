@@ -83,6 +83,11 @@ trait InstallerControllerTestTrait
                     'isCompleted' => false,
                 ],
                 [
+                    'label' => 'translation',
+                    'active' => false,
+                    'isCompleted' => false,
+                ],
+                [
                     'label' => 'finish',
                     'active' => false,
                     'isCompleted' => false,

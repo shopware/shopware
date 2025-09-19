@@ -255,9 +255,13 @@ export default {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountedComponent();
+    },
+
     methods: {
         createdComponent() {
-            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem.bind(this));
+            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem);
 
             this.refreshList();
 
@@ -270,6 +274,10 @@ export default {
             };
 
             this.handleMediaGridItemSelected = () => {};
+        },
+
+        beforeUnmountedComponent() {
+            Shopware.Utils.EventBus.off('sw-media-library-item-updated', this.refreshItem);
         },
 
         /*

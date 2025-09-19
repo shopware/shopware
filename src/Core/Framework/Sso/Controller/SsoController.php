@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\Controller;
+namespace Shopware\Core\Framework\Sso\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
-use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -81,7 +80,7 @@ class SsoController extends AbstractController
         if ($random === null) {
             $referer = $request->headers->get('referer');
             if ($referer === null) {
-                throw ApiException::refererNotFound();
+                throw SsoException::refererNotFound();
             }
 
             return $this->redirect($referer);

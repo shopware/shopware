@@ -29,6 +29,7 @@ class SsoException extends HttpException
     public const SSO_LOGIN_INVALID_PUBLIC_KEY = 'SSO_LOGIN__INVALID_PUBLIC_KEY';
     public const SSO_LOGIN_NEGATIVE_TIME_TO_LIVE = 'SSO_LOGIN__NEGATIVE_TIME_TO_LIVE';
     public const SSO_LOGIN_TOKEN_NOT_FOUND = 'SSO_LOGIN__TOKEN_NOT_FOUND';
+    public const SSO_LOGIN_REFERER_NOT_FOUND = 'FRAMEWORK__SSO_LOGIN_REFERER_NOT_FOUND';
 
     private ?string $email;
 
@@ -218,6 +219,15 @@ class SsoException extends HttpException
             Response::HTTP_UNAUTHORIZED,
             self::SSO_LOGIN_TOKEN_NOT_FOUND,
             'Cannot get token from user.',
+        );
+    }
+
+    public static function refererNotFound(): self
+    {
+        return new self(
+            Response::HTTP_UNAUTHORIZED,
+            self::SSO_LOGIN_REFERER_NOT_FOUND,
+            'Referrer not found. Cannot redirect.',
         );
     }
 }

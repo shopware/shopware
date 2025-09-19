@@ -67,8 +67,6 @@ class ApiException extends HttpException
 
     public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
 
-    public const API_SSO_LOGIN_REFERER_NOT_FOUND = 'FRAMEWORK__API_SSO_LOGIN_REFERER_NOT_FOUND';
-
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
      */
@@ -443,15 +441,6 @@ class ApiException extends HttpException
             self::API_DIRECTORY_NOT_CREATED,
             'Directory "{{ directory }}" was not created.',
             ['directory' => $directory]
-        );
-    }
-
-    public static function refererNotFound(): self
-    {
-        return new self(
-            Response::HTTP_UNAUTHORIZED,
-            self::API_SSO_LOGIN_REFERER_NOT_FOUND,
-            'Referrer not found. Cannot redirect.',
         );
     }
 }

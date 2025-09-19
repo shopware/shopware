@@ -17,6 +17,12 @@ ___
 
 The properties `mediaPath` and `mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` are deprecated and will be removed with the next major version. Set the values directly into the newly added `mediaEntity` property.
 
+## Deprecation of `media` and `thumbnail` in `MediaPathChangedEvent`
+
+The method `media` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` are deprecated and will be removed with the next major version. Use the newly added `mediaWithMimeType` method instead.
+
+The method `thumbnail` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` are deprecated and will be removed with the next major version. Use the newly added `thumbnailWithMimeType` method instead.
+
 ___
 
 # Next Major Version Changes

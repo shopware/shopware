@@ -108,7 +108,8 @@ class CreditNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertArrayHasKey($orderId, $success = $result->getSuccess());
+        $success = $result->getSuccess();
+        static::assertArrayHasKey($orderId, $success);
         static::assertCount(0, $result->getErrors());
         static::assertArrayHasKey($orderId, $success);
 
@@ -339,14 +340,15 @@ class CreditNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertCount(0, $result->getSuccess());
-        static::assertArrayHasKey($orderId, $result->getErrors());
+        $errors = $result->getErrors();
 
-        $error = $result->getErrors()[$orderId];
-        static::assertInstanceOf(DocumentException::class, $error);
+        static::assertCount(0, $result->getSuccess());
+        static::assertArrayHasKey($orderId, $errors);
+
+        static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertSame(
             'Unable to generate document. Can not generate credit note document because no credit line items exists. OrderId: ' . self::ORDER_ID,
-            $error->getMessage()
+            $errors[$orderId]->getMessage()
         );
     }
 
@@ -453,10 +455,10 @@ class CreditNoteRendererTest extends TestCase
         $connection->method('fetchFirstColumn')
             ->willReturnCallback(function ($sql, $params) use ($invoiceCreditIds, $creditNoteCreditIds) {
                 if (\count($params) === 2) {
-                    return $invoiceCreditIds;
+                    return array_map(fn($hexIds) => Uuid::fromHexToBytes($hexIds),$invoiceCreditIds);
                 }
                 if (\count($params) === 3) {
-                    return $creditNoteCreditIds;
+                    return array_map(fn($hexIds) => Uuid::fromHexToBytes($hexIds),$creditNoteCreditIds);
                 }
 
                 return [];

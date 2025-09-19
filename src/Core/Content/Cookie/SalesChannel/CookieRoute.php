@@ -41,29 +41,61 @@ class CookieRoute extends AbstractCookieRoute
     public function getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieRouteResponse
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups($salesChannelContext);
-        $hash = $this->generateCookieConfigurationHash(clone $cookieGroups);
+        $hash = $this->generateCookieConfigurationHash($cookieGroups);
 
         return new CookieRouteResponse($cookieGroups, $hash);
     }
 
+    /**
+     * We use explicit properties to make hash generation robust against object extensions.
+     */
     private function generateCookieConfigurationHash(CookieGroupCollection $cookieGroups): string
     {
-        $cookieGroups->sort(static function (CookieGroup $a, CookieGroup $b): int {
+        $hashData = [];
+
+        $groups = array_values($cookieGroups->getElements());
+        usort($groups, static function (CookieGroup $a, CookieGroup $b): int {
             return strcmp($a->getTechnicalName(), $b->getTechnicalName());
         });
 
-        foreach ($cookieGroups as $cookieGroup) {
+        foreach ($groups as $cookieGroup) {
+            $groupData = [
+                'technicalName' => $cookieGroup->getTechnicalName(),
+                'isRequired' => $cookieGroup->isRequired,
+                'description' => $cookieGroup->description ?? null,
+                'value' => $cookieGroup->value ?? null,
+                'expiration' => $cookieGroup->expiration ?? null,
+                'name' => $cookieGroup->name,
+                'cookie' => $cookieGroup->getCookie(),
+            ];
+
+            $groupData['entries'] = null;
             $cookieEntries = $cookieGroup->getEntries();
-            if ($cookieEntries === null) {
-                continue;
+            if ($cookieEntries !== null) {
+                $entries = array_values($cookieEntries->getElements());
+                usort($entries, static function (CookieEntry $a, CookieEntry $b): int {
+                    return strcmp($a->cookie, $b->cookie);
+                });
+
+                $entriesData = [];
+                foreach ($entries as $cookieEntry) {
+                    $entriesData[] = [
+                        'cookie' => $cookieEntry->cookie,
+                        'value' => $cookieEntry->value ?? null,
+                        'expiration' => $cookieEntry->expiration ?? null,
+                        'name' => $cookieEntry->name ?? null,
+                        'description' => $cookieEntry->description ?? null,
+                        'hidden' => $cookieEntry->hidden,
+                    ];
+                }
+                $groupData['entries'] = $entriesData;
             }
-            $cookieEntries->sort(static function (CookieEntry $a, CookieEntry $b): int {
-                return strcmp($a->cookie, $b->cookie);
-            });
+
+            $hashData[] = $groupData;
         }
 
         try {
-            return Hasher::hash($cookieGroups);
+            return Hasher::hash($hashData);
         } catch (UtilException $e) {
             throw CookieException::hashGenerationFailed('Cookie configuration processing failed: ' . $e->getMessage());
         }

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
@@ -38,34 +37,21 @@ class CookieRouteTest extends TestCase
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieProvider = $this->createMock(CookieProvider::class);
-        $cookieProvider->expects($this->once())
-            ->method('getCookieGroups')
+        $cookieProvider->method('getCookieGroups')
             ->with($salesChannelContext)
             ->willReturn($expectedCookieGroups);
-
-        $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
-
-        static::assertSame($expectedCookieGroups, $response->getCookieGroups());
-        static::assertIsString($response->getHash());
-        static::assertNotEmpty($response->getHash());
-    }
-
-    public function testHashIsConsistentForSameConfiguration(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        $cookieGroup = new CookieGroup('test.group');
-        $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
-        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
-
-        $cookieProvider = $this->createMock(CookieProvider::class);
-        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
         $cookieRoute = new CookieRoute($cookieProvider);
 
         $response1 = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
         $response2 = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
 
+        // Verify basic functionality
+        static::assertSame($expectedCookieGroups, $response1->getCookieGroups());
+        static::assertIsString($response1->getHash());
+        static::assertNotEmpty($response1->getHash());
+
+        // Verify hash consistency for same configuration
         static::assertSame($response1->getHash(), $response2->getHash());
     }
 
@@ -131,31 +117,6 @@ class CookieRouteTest extends TestCase
         static::assertSame($response1->getHash(), $response2->getHash(), 'Hash should be the same regardless of collection order');
     }
 
-    public function testHashThrowsExceptionOnHashingFailure(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        // Create a problematic cookie group that will cause hashing to fail
-        $cookieGroup = new class('test') extends CookieGroup {
-            public function jsonSerialize(): array
-            {
-                // Return something that will cause the Hasher to fail
-                return [
-                    'circular' => $this, // This will cause a circular reference error
-                ];
-            }
-        };
-
-        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
-
-        $cookieProvider = $this->createMock(CookieProvider::class);
-        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
-
-        $this->expectExceptionObject(CookieException::hashGenerationFailed('Cookie configuration processing failed: JSON is invalid'));
-
-        (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
-    }
-
     public function testOriginalCookieGroupOrderIsPreserved(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -188,5 +149,120 @@ class CookieRouteTest extends TestCase
         static::assertSame($requiredGroup, $groupsArray[0], 'Required group should be first');
         static::assertSame($marketingGroup, $groupsArray[1], 'Marketing group should be second');
         static::assertSame($statisticalGroup, $groupsArray[2], 'Statistical group should be third');
+    }
+
+    public function testHashIgnoresExtendedProperties(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create standard configuration
+        $standardEntry = new CookieEntry('test-cookie');
+        $standardGroup = new CookieGroup('test.group');
+        $standardGroup->setEntries(new CookieEntryCollection([$standardEntry]));
+        $standardGroups = new CookieGroupCollection([$standardGroup]);
+
+        // Create configuration with extended CookieGroup and CookieEntry objects
+        $extendedGroup = new class('test.group') extends CookieGroup {
+            public string $dynamicProperty = 'this-should-not-affect-hash';
+
+            public int $timestamp;
+
+            /**
+             * @var array<string, array<string, array<int, string>>>
+             */
+            public array $complexData = ['nested' => ['array' => ['structure']]];
+
+            public object $objectProperty;
+
+            public ?\Closure $callableProperty;
+
+            public function __construct(string $technicalName)
+            {
+                parent::__construct($technicalName);
+                $this->timestamp = time();
+                $this->objectProperty = new \stdClass();
+                $this->objectProperty->dynamic = random_int(1, 1000);
+                $this->callableProperty = fn () => 'dynamic';
+            }
+        };
+
+        $extendedEntry = new class('test-cookie') extends CookieEntry {
+            public string $extraData = 'this-should-not-affect-hash';
+
+            /**
+             * @var array<string, string>
+             */
+            public array $metadata = ['key' => 'value'];
+
+            public \DateTimeInterface $createdAt;
+
+            /**
+             * @var array<int, int>
+             */
+            public array $largeArray;
+
+            public function __construct(string $cookie)
+            {
+                parent::__construct($cookie);
+                $this->createdAt = new \DateTime();
+                $this->largeArray = range(1, 100);
+            }
+        };
+
+        $extendedGroup->setEntries(new CookieEntryCollection([$extendedEntry]));
+        $extendedGroups = new CookieGroupCollection([$extendedGroup]);
+
+        $standardProvider = $this->createMock(CookieProvider::class);
+        $standardProvider->method('getCookieGroups')->willReturn($standardGroups);
+
+        $extendedProvider = $this->createMock(CookieProvider::class);
+        $extendedProvider->method('getCookieGroups')->willReturn($extendedGroups);
+
+        $standardResponse = (new CookieRoute($standardProvider))->getCookieGroups(new Request(), $salesChannelContext);
+        $extendedResponse = (new CookieRoute($extendedProvider))->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Hash should be the same despite extended properties
+        static::assertSame(
+            $standardResponse->getHash(),
+            $extendedResponse->getHash(),
+            'Hash should be robust against extended object properties'
+        );
+    }
+
+    public function testHashChangesWhenDefinedPropertiesChange(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create base cookie group
+        $group1 = new CookieGroup('test.group');
+        $group1->description = 'Original description';
+        $entry1 = new CookieEntry('test-cookie');
+        $entry1->name = 'Original name';
+        $group1->setEntries(new CookieEntryCollection([$entry1]));
+        $groups1 = new CookieGroupCollection([$group1]);
+
+        // Create group with changed defined property
+        $group2 = new CookieGroup('test.group');
+        $group2->description = 'Modified description'; // Changed defined property
+        $entry2 = new CookieEntry('test-cookie');
+        $entry2->name = 'Original name';
+        $group2->setEntries(new CookieEntryCollection([$entry2]));
+        $groups2 = new CookieGroupCollection([$group2]);
+
+        $provider1 = $this->createMock(CookieProvider::class);
+        $provider1->method('getCookieGroups')->willReturn($groups1);
+
+        $provider2 = $this->createMock(CookieProvider::class);
+        $provider2->method('getCookieGroups')->willReturn($groups2);
+
+        $response1 = (new CookieRoute($provider1))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($provider2))->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Hash should be different when defined properties change
+        static::assertNotSame(
+            $response1->getHash(),
+            $response2->getHash(),
+            'Hash should change when defined properties are modified'
+        );
     }
 }

@@ -1,0 +1,24 @@
+# Plugins (Skeleton)
+
+- Definition: Backend-installed code extending runtime directly inside admin bundle
+- Injection lifecycle:
+  - Discovered via backend build / manifest
+  - Webpack (current) compilation merges plugin JS assets
+  - Runtime registration executes before root mount
+- Global `Shopware` object usage:
+  - Acts as registry: components, modules, state, services, filters, directives
+  - Reasons for existence (historical, plugin-friendly API surfacing)
+  - Limitations / planned reduction of surface
+- Component extension (current system):
+  - Twig.js block wrapping around Vue templates
+  - `Component.override`, `Component.extend`, `Component.register`
+  - Decorators for services / repositories
+- Drawbacks of current approach:
+  - Complex override chain debugging
+  - Template AST string-based manipulation
+  - Harder TypeScript adoption
+- Migration path to native blocks / composition API
+- Guidelines to document later:
+  - Avoid deep override nesting
+  - Prefer extension over replacement
+- Example placeholders (to fill later): simple component override, service decoration

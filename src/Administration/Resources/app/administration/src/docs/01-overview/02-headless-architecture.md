@@ -1,0 +1,31 @@
+# Headless Architecture (Skeleton)
+
+- Definition: Admin is a pure client-side SPA served via Twig shell; no server-driven HTML updates post initial load
+- Rendering model:
+  - Single index Twig template injects runtime config / contexts (`apiContext`, `appContext`)
+  - Vue mounts root app; subsequent navigation uses router (hash/history?)
+  - No SSR → SEO irrelevant; focus on perceived performance & caching
+- Communication channels:
+  - REST API (primary) via Repository pattern
+  - Websocket / long polling? (verify if used; note placeholder)
+  - postMessage bridge for App iframes (Admin Extension SDK)
+- Data retrieval:
+  - Repositories wrap entity schemas from DAL
+  - Criteria for filtering, associations, pagination
+  - Caching layers / identity map (to elaborate)
+- State & side-effects:
+  - State management: Pinia
+  - Global Shopware state modules (in `core` vs module-local)
+- Offline / resilience considerations (currently limited)
+- Security context:
+  - Auth token injected at boot & refreshed
+  - ACL evaluation client+server
+- Limitations of headless choice:
+  - Larger initial bundle (mitigate via code splitting)
+  - No server pre-render for faster FCP
+- Future exploration topics:
+  - Hydration-like partial SSR? (investigation status)
+  - Edge-cached static shell
+- Diagrams to add:
+  - Sequence: User load → Twig → Boot → API first request → Render module
+  - Component -> Repository -> API call flow

@@ -1,0 +1,30 @@
+# Future: Native Vue Blocks & Composition Extensions (Skeleton)
+
+- Motivation:
+  - Leverage standard Vue SFC slots & composition patterns
+  - Reduce custom template transformation layer
+  - Improve DX with TypeScript & IDE tooling
+- Key concepts:
+  - Named extension points as components / slots
+  - Composition API hooks for behavioral augmentation
+  - Provide/Inject for contextual extension
+- Differences vs current system:
+  - No Twig.js intermediate layer
+  - Source-level extension vs post-compile patching
+  - Better static typing & tree shaking
+- ADR references:
+  - Native block system ADR (2024-09-26)
+  - Composition API extension experimental doc
+- Migration strategy phases:
+  - Introduce dual-mode components
+  - Mark legacy blocks deprecated
+  - Replace high-traffic components first (List, Detail forms)
+  - Remove legacy scaffolding after % adoption threshold
+- Tooling needs:
+  - Codemods for overrides → slots
+  - Lint rules enforcing new patterns
+- Open questions (track here): dynamic ordering of contributed blocks, collision resolution
+- Success metrics:
+  - Reduced override defects
+  - Build time improvement
+  - Plugin code size reduction

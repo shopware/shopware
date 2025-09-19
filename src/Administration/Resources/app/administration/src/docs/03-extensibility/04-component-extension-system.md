@@ -1,0 +1,23 @@
+# Component Extension System (Current) (Skeleton)
+
+- Mechanism summary:
+  - Twig.js based template compilation layering blocks
+  - Component factory registration & override chain
+  - Mixins & slots interplay
+- Core APIs:
+  - `Component.register`
+  - `Component.extend`
+  - `Component.override`
+  - `Shopware.Component.build` (internal)
+- Template processing flow (placeholder for diagram):
+  - Load base template → apply block injections → compile to render fn
+- Strengths:
+  - Familiar to plugin devs migrating from Storefront Twig model
+  - Fine-grained override of markup regions
+- Weaknesses:
+  - Limited static analysis
+  - Fragile string-based operations
+  - Hard to optimize / tree-shake
+- Best practices (to elaborate): minimal override surface, prefer providing props/events
+- Deprecation signals: tie to ADR for native blocks adoption
+- Migration flags / feature toggles controlling new system (placeholder)

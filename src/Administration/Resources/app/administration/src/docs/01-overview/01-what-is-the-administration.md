@@ -1,0 +1,27 @@
+# What Is The Administration? (Skeleton)
+
+- Purpose: Merchant-facing back office UI for managing Shopware 6 commerce entities
+- Built with: Vue.js 3, composition API & modern build stack
+- Location: `src/Administration/Resources/app/administration`
+- Distinguish from: Storefront (customer-facing) & API Platform
+- Core responsibilities:
+  - CRUD operations across domains (products, orders, customers, content, settings)
+  - Configuration & feature toggling
+  - Extension host for plugins & apps
+  - Translation / multi-locale management
+  - Access control via ACL / roles & permissions
+- Key characteristics:
+  - Headless SPA (no SSR) embedded into Twig shell
+  - Highly extensible (plugins code injection + app iframe model)
+  - Reactive data layer via Repository pattern & Criteria
+  - Module isolation for business domains
+- High-level diagram placeholder: (Add later) system context (Browser ↔ Admin SPA ↔ API / Websocket / App Bridge)
+- Cross references to add later:
+  - Boot process
+  - Extensibility overview
+  - Data layer overview
+  - Meteor component library
+  - Module system
+- Open questions / to document:
+  - Release compatibility matrix
+  - Support boundaries (what is public vs internal API)

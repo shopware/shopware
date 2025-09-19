@@ -1,0 +1,21 @@
+# State Management (Skeleton)
+
+- Current implementation: Vuex modules (global + module-scoped)
+- Patterns used:
+  - Entity collections from repository results
+  - Normalization vs raw storage (current approach mostly raw)
+  - Caching & identity reuse
+- Common modules (examples: context, session, user, language, feature)
+- Mutation / action conventions (naming, error handling)
+- Interaction with Repository pattern (store updates vs local component state)
+- Pending migration considerations:
+  - Vue 3 Composition API stores / Pinia evaluation
+  - Type safety improvements (TS adoption status)
+- Performance concerns:
+  - Large reactive objects (entity collections)
+  - Over-fetching vs granular queries
+- Debugging / tooling (Vue devtools, custom logging)
+- Anti-patterns to avoid (direct deep mutation outside mutations, circular imports)
+- Future enhancements:
+  - Derived/computed global selectors
+  - Cache invalidation strategy doc

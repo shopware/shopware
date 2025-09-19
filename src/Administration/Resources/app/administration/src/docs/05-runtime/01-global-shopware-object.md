@@ -1,0 +1,21 @@
+# Global Shopware Object (Skeleton)
+
+- Purpose: Central registry + facade for core extensibility (historical design)
+- Contains registries for:
+  - Components
+  - Directives / Filters
+  - Services / Factories
+  - Mixin registry
+  - State (store modules)
+  - Feature flag accessor
+- Creation timing: during boot before root mount
+- Pros:
+  - Simple discoverability for plugin authors
+  - Consistent namespacing
+- Cons:
+  - Large global surface (risk of misuse)
+  - Harder tree-shaking / dead code elimination
+  - Tight coupling
+- Planned evolution: reduce to minimal adapter; promote ES module imports & composition utilities
+- Deprecation strategy placeholder: warnings for direct registry mutation
+- Security considerations: avoid leaking sensitive runtime config

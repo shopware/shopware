@@ -58,6 +58,19 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
     {
         $result = new RendererResult();
 
+        if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
+            foreach ($operations as $operation) {
+                $result->addError(
+                    $operation->getOrderId(),
+                    DocumentException::generationError(
+                        'Credit notes can only be generated from the LIVE order context. Merge your draft changes first.'
+                    )
+                );
+            }
+
+            return $result;
+        }
+
         $template = '@Framework/documents/credit_note.html.twig';
 
         $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
@@ -208,7 +221,11 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         Context $context,
         DocumentRendererConfig $rendererConfig
     ): OrderEntity {
-        ['language_id' => $languageId] = $this->getOrdersLanguageId([$operation->getOrderId()], $versionId, $this->connection)[0];
+        $languageId = $this->getOrdersLanguageId(
+            [$operation->getOrderId()],
+            $versionId,
+            $this->connection
+        )[0]['language_id'];
 
         $languageIdChain = array_values(
             array_unique(
@@ -319,7 +336,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $sql = '
             SELECT
-                LOWER(HEX(oli.id)) as id
+                oli.id AS id
             FROM
                 document AS d
                 INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
@@ -328,10 +345,12 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 AND oli.type = :creditType;
         ';
 
-        return $this->connection->fetchFirstColumn($sql, [
+        $binaryIds = $this->connection->fetchFirstColumn($sql, [
             'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
         ]);
+
+        return array_map(fn($id): string => Uuid::fromBytesToHex($id), $binaryIds);
     }
 
     /**
@@ -345,7 +364,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $sql = '
             SELECT
-                LOWER(HEX(oli.id)) as id
+                oli.id AS id
             FROM
                 document AS d
                 INNER JOIN document_type AS dt ON dt.id = d.document_type_id
@@ -356,10 +375,12 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 AND oli.type = :creditType;
         ';
 
-        return $this->connection->fetchFirstColumn($sql, [
+        $binaryIds = $this->connection->fetchFirstColumn($sql, [
             'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
             'creditTechnicalName' => self::TYPE,
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
         ]);
+
+        return array_map(fn($id): string => Uuid::fromBytesToHex($id), $binaryIds);
     }
 }

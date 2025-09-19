@@ -81,11 +81,11 @@ class BanMediaUrlTest extends TestCase
         $event = new MediaPathChangedEvent(Context::createDefaultContext());
         $ids = new IdsCollection();
 
-        $event->media(
+        $event->mediaWithMimeType(
             mediaId: $ids->get('media'),
             path: 'media.png'
         );
-        $event->thumbnail(
+        $event->thumbnailWithMimeType(
             mediaId: $ids->get('media'),
             thumbnailId: $ids->get('thumbnail'),
             path: 'thumbnail.png'

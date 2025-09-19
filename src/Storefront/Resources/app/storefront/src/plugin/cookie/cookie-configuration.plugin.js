@@ -41,6 +41,7 @@ export default class CookieConfiguration extends Plugin {
         offCanvasPosition: 'left',
         submitEvent: 'click',
         cookiePreference: 'cookie-preference',
+        cookieConfigHash: 'cookie-config-hash',
         cookieSelector: '[data-cookie]',
         buttonOpenSelector: '.js-cookie-configuration-button button',
         buttonSubmitSelector: '.js-offcanvas-cookie-submit',
@@ -70,6 +71,7 @@ export default class CookieConfiguration extends Plugin {
         this._httpClient = new HttpClient();
 
         this._registerEvents();
+        this._checkCookieConfigurationHash();
 
         document.$emitter.subscribe('CookieConfiguration/requestConsent', (payload) => {
             if (payload instanceof CustomEvent) {
@@ -145,6 +147,104 @@ export default class CookieConfiguration extends Plugin {
         this.openOffCanvas();
     }
 
+    /**
+     * Check if cookie configuration hash has changed and reset cookies if needed
+     * @private
+     */
+    async _checkCookieConfigurationHash() {
+        const { cookiePreference, cookieConfigHash } = this.options;
+        const hasPreference = CookieStorage.getItem(cookiePreference);
+        const storedHash = CookieStorage.getItem(cookieConfigHash);
+
+        // Skip if user hasn't made any choice yet (fresh user)
+        if (!hasPreference && !storedHash) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/cookie/groups', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            const data = await response.json();
+            const currentHash = data.hash;
+
+            // If no stored hash but user has preference, save current hash
+            if (!storedHash && hasPreference) {
+                CookieStorage.setItem(cookieConfigHash, currentHash, '30');
+                return;
+            }
+
+            // If hash has changed, reset cookie configuration
+            if (storedHash && storedHash !== currentHash) {
+                await this._resetCookieConfiguration(data);
+            }
+        } catch (error) {
+            console.warn('Failed to check cookie configuration hash:', error);
+        }
+    }
+
+    /**
+     * Reset cookie configuration when hash has changed
+     * @private
+     */
+    async _resetCookieConfiguration(data) {
+        const { cookieConfigHash } = this.options;
+        const allCookieNames = this._getAllCookieNamesFromGroups(data.elements || []);
+
+        // Remove all cookies (includes cookie-preference from API response)
+        this._removeAllCookies(allCookieNames);
+        // Remove hash cookie (not included in API response)
+        CookieStorage.removeItem(cookieConfigHash);
+
+        // Trigger cookie configuration update and show cookie bar again
+        this._handleUpdateListener([], allCookieNames);
+        this._checkAndShowCookieBarIfNeeded();
+    }
+
+    /**
+     * Extract all cookie names from cookie groups
+     * @private
+     */
+    _getAllCookieNamesFromGroups(cookieGroups) {
+        return cookieGroups
+            .flatMap(group => group.entries ? group.entries.map(entry => entry.cookie) : (group.cookie ? [group.cookie] : []))
+            .filter(cookieName => cookieName);
+    }
+
+    /**
+     * Remove all cookies from storage
+     * @private
+     */
+    _removeAllCookies(cookieNames) {
+        cookieNames.forEach(cookieName => {
+            CookieStorage.removeItem(cookieName);
+        });
+    }
+
+    /**
+     * Save current cookie configuration hash
+     * @private
+     */
+    async _saveCookieConfigurationHash() {
+        try {
+            const response = await fetch('/cookie/groups', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            const data = await response.json();
+            CookieStorage.setItem(this.options.cookieConfigHash, data.hash, '30');
+        } catch (error) {
+            console.warn('Failed to save cookie configuration hash:', error);
+        }
+    }
+
     async _handlePermission(event) {
         event.preventDefault();
 
@@ -158,13 +258,8 @@ export default class CookieConfiguration extends Plugin {
         const data = await response.json();
         const cookieGroups = data.elements || [];
 
-        const allCookieNames = cookieGroups
-            .flatMap(group => group.entries ? group.entries.map(entry => entry.cookie) : (group.cookie ? [group.cookie] : []))
-            .filter(cookieName => cookieName);
-
-        allCookieNames.forEach(cookieName => {
-            CookieStorage.removeItem(cookieName);
-        });
+        const allCookieNames = this._getAllCookieNamesFromGroups(cookieGroups);
+        this._removeAllCookies(allCookieNames);
 
         const requiredCookies = cookieGroups
             .filter(group => group.isRequired)
@@ -177,11 +272,13 @@ export default class CookieConfiguration extends Plugin {
         });
 
         CookieStorage.setItem(this.options.cookiePreference, '1', '30');
+        CookieStorage.setItem(this.options.cookieConfigHash, data.hash, '30');
 
         const requiredCookieNames = requiredCookies.map(cookie => cookie.cookie);
         const nonRequiredCookieNames = allCookieNames.filter(name => !requiredCookieNames.includes(name));
 
         this._handleUpdateListener(requiredCookieNames, nonRequiredCookieNames);
+        this._hideCookieBar();
         this.closeOffCanvas();
     }
 
@@ -550,6 +647,9 @@ export default class CookieConfiguration extends Plugin {
 
         CookieStorage.setItem(cookiePreference, '1', '30');
 
+        // Save current hash when user makes a choice
+        this._saveCookieConfigurationHash();
+
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
@@ -625,6 +725,9 @@ export default class CookieConfiguration extends Plugin {
         });
 
         CookieStorage.setItem(cookiePreference, '1', '30');
+
+        // Save current hash when user makes a choice
+        this._saveCookieConfigurationHash();
 
         this._handleUpdateListener(allCookies.map(({ cookie }) => cookie), []);
     }

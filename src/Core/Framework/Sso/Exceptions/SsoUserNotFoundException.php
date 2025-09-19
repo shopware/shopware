@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Sso\SsoException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
+ *
  * @codeCoverageIgnore
  */
 #[Package('framework')]

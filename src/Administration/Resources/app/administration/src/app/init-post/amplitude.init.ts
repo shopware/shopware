@@ -33,6 +33,8 @@ export default function (): Promise<void> {
         appVersion: Shopware.Store.get('context').app.config.version as string,
         trackingOptions: {
             ipAddress: false,
+            language: false,
+            platform: false,
         },
         // serverUrl: use proxy server url here, e.g. usage-data.shopware.io/product-analytics,
     });

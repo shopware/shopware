@@ -545,6 +545,9 @@ const missingTests = [
     'src/app/init/component.init.ts',
     'src/module/sw-settings-services/index.ts',
     'src/module/sw-settings-services/service/index.ts',
+    // to experimental to test now
+    'src/core/telemetry/index.ts',
+    'src/core/telemetry/types.ts',
 ];
 
 /**

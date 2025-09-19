@@ -50,7 +50,7 @@ class RemoteThumbnailLoader implements ResetInterface
      * Generates the thumbnails for the media entities according to the provided pattern and media thumbnail sizes.
      * The generated thumbnails will be assigned to the entities afterward.
      *
-     * @param iterable<Entity> $media
+     * @param iterable<MediaEntity|PartialEntity> $media
      */
     public function load(iterable $media): void
     {
@@ -65,7 +65,6 @@ class RemoteThumbnailLoader implements ResetInterface
         $mediaThumbnailSizes = $this->getMediaThumbnailSizes();
         $baseUrl = $this->getBaseUrl();
 
-        /** @var MediaEntity|PartialEntity $mediaEntity */
         foreach ($media as $mediaEntity) {
             if (!isset($urls[$mediaEntity->getUniqueIdentifier()])) {
                 continue;

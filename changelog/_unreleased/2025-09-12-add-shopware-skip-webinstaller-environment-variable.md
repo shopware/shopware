@@ -8,7 +8,7 @@ author_github: @SpiGAndromeda
 # Core
 * Added `SHOPWARE_SKIP_WEBINSTALLER` environment variable to bypass installer for read-only filesystems
 * Changed `public/index.php` to check environment variable before loading installer
-* Changed `Shopware\Core\Maintenance\System\Command\SystemInstallCommand` to skip install.lock creation when environment variable is set
+* Changed `Shopware\Core\Maintenance\System\Command\SystemInstallCommand` to skip install.lock and .htaccess file creation when environment variable is set
 * Changed `Shopware\Core\Installer\Finish\SystemLocker` to skip lock file creation when environment variable is set
 ___
 # Upgrade Information
@@ -22,4 +22,4 @@ SHOPWARE_SKIP_WEBINSTALLER=true
 SHOPWARE_SKIP_WEBINSTALLER=enabled
 ```
 
-This allows Shopware to run without requiring write access to create the `install.lock` file in the project root.
+This allows Shopware to run without requiring write access to create the `install.lock` file in the project root or the `.htaccess` file in the public directory.

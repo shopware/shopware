@@ -39,6 +39,9 @@ class SystemInstallCommandTest extends TestCase
         $fs->remove([
             __DIR__ . '/install.lock',
             __DIR__ . '/config',
+            __DIR__ . '/public/.htaccess',
+            __DIR__ . '/public/.htaccess.dist',
+            __DIR__ . '/public',
         ]);
     }
 
@@ -138,7 +141,7 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $result);
 
         $outputContent = $output->fetch();
-        static::assertStringNotContainsString('Skipping install.lock creation', $outputContent);
+        static::assertStringNotContainsString('Skipping install.lock and .htaccess creation', $outputContent);
         static::assertFileExists(__DIR__ . '/install.lock');
     }
 
@@ -154,7 +157,7 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $result);
 
         $outputContent = $output->fetch();
-        static::assertStringContainsString('Skipping install.lock creation', $outputContent);
+        static::assertStringContainsString('Skipping install.lock and .htaccess creation', $outputContent);
         static::assertFileDoesNotExist(__DIR__ . '/install.lock');
     }
 
@@ -214,6 +217,114 @@ class SystemInstallCommandTest extends TestCase
         $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
 
         static::assertSame(Command::FAILURE, $result);
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+    }
+
+    public function testHtaccessCreatedFromDistFile(): void
+    {
+        $this->createHtaccessDist('Test .htaccess content');
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $result = $command->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertFileExists(__DIR__ . '/public/.htaccess');
+        static::assertStringEqualsFile(__DIR__ . '/public/.htaccess', 'Test .htaccess content');
+    }
+
+    public function testExistingHtaccessPreserved(): void
+    {
+        $publicDir = __DIR__ . '/public';
+        if (!is_dir($publicDir)) {
+            mkdir($publicDir, 0755, true);
+        }
+        file_put_contents($publicDir . '/.htaccess', 'Custom .htaccess content');
+
+        // Create .htaccess.dist with different content
+        $this->createHtaccessDist();
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $result = $command->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertFileExists(__DIR__ . '/public/.htaccess');
+        static::assertStringEqualsFile(__DIR__ . '/public/.htaccess', 'Custom .htaccess content');
+    }
+
+    public function testHtaccessSkippedWithWebInstallerSkip(): void
+    {
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+        $this->createHtaccessDist('Test .htaccess content');
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $output = new BufferedOutput();
+        $result = $command->run(new ArrayInput([]), $output);
+
+        static::assertSame(Command::SUCCESS, $result);
+
+        $outputContent = $output->fetch();
+        static::assertStringContainsString('Skipping install.lock and .htaccess creation', $outputContent);
+        static::assertFileDoesNotExist(__DIR__ . '/public/.htaccess');
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+    }
+
+    public function testHtaccessCreatedWithWebInstallerNotSkipped(): void
+    {
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
+        $this->createHtaccessDist('Test .htaccess content');
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+
+        $output = new BufferedOutput();
+        $result = $command->run(new ArrayInput([]), $output);
+
+        static::assertSame(Command::SUCCESS, $result);
+
+        $outputContent = $output->fetch();
+        static::assertStringNotContainsString('Skipping install.lock and .htaccess creation', $outputContent);
+        static::assertFileExists(__DIR__ . '/public/.htaccess');
+        static::assertStringEqualsFile(__DIR__ . '/public/.htaccess', 'Test .htaccess content');
+        static::assertFileExists(__DIR__ . '/install.lock');
+    }
+
+    public function testHtaccessNotCreatedOnFailure(): void
+    {
+        $this->createHtaccessDist('Test .htaccess content');
+
+        $connection = $this->createMock(Connection::class);
+        $connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
+        $connectionFactory->method('getConnection')->willReturn($connection);
+        $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
+
+        $systemInstallCmd = new SystemInstallCommand(
+            __DIR__,
+            $setupDatabaseAdapterMock,
+            $connectionFactory,
+            $this->createMock(CacheClearer::class),
+            $this->createMock(SystemLocker::class)
+        );
+
+        $application = new class extends Application {
+            public function has(string $name): bool
+            {
+                return true;
+            }
+
+            public function doRun(InputInterface $input, OutputInterface $output): int
+            {
+                return Command::FAILURE;
+            }
+        };
+
+        $systemInstallCmd->setApplication($application);
+
+        $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertSame(Command::FAILURE, $result);
+        static::assertFileDoesNotExist(__DIR__ . '/public/.htaccess');
         static::assertFileDoesNotExist(__DIR__ . '/install.lock');
     }
 
@@ -325,5 +436,14 @@ class SystemInstallCommandTest extends TestCase
             ->willReturnOnConsecutiveCalls(...array_values($mockInputValues));
 
         return $input;
+    }
+
+    private function createHtaccessDist(string $content = 'Default .htaccess content'): void
+    {
+        $publicDir = __DIR__ . '/public';
+        if (!is_dir($publicDir)) {
+            mkdir($publicDir, 0755, true);
+        }
+        file_put_contents($publicDir . '/.htaccess.dist', $content);
     }
 }

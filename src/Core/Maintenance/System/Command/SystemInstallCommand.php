@@ -170,18 +170,18 @@ class SystemInstallCommand extends Command
 
         $result = $this->runCommands($commands, $output);
 
-        if (!\is_file($this->projectDir . '/public/.htaccess')
-            && \is_file($this->projectDir . '/public/.htaccess.dist')
-        ) {
-            copy($this->projectDir . '/public/.htaccess.dist', $this->projectDir . '/public/.htaccess');
+        if ($result !== self::SUCCESS) {
+            return $result;
         }
 
-        if ($result === self::SUCCESS) {
-            $this->systemLocker->lock();
-            if (EnvironmentHelper::getVariable('SHOPWARE_SKIP_WEBINSTALLER', false)) {
-                $output->comment('Skipping install.lock creation (SHOPWARE_SKIP_WEBINSTALLER is set)');
-            }
+        if ($this->shouldSkipFileOperations()) {
+            $output->comment('Skipping install.lock and .htaccess creation (SHOPWARE_SKIP_WEBINSTALLER is set)');
+
+            return $result;
         }
+
+        $this->ensureHtaccessExists();
+        $this->systemLocker->lock();
 
         return $result;
     }
@@ -253,5 +253,26 @@ class SystemInstallCommand extends Command
         }
 
         return $application;
+    }
+
+    private function shouldSkipFileOperations(): bool
+    {
+        return (bool) EnvironmentHelper::getVariable('SHOPWARE_SKIP_WEBINSTALLER', false);
+    }
+
+    private function ensureHtaccessExists(): void
+    {
+        $htaccessPath = $this->projectDir . '/public/.htaccess';
+        $htaccessDistPath = $this->projectDir . '/public/.htaccess.dist';
+
+        if (\is_file($htaccessPath)) {
+            return;
+        }
+
+        if (!\is_file($htaccessDistPath)) {
+            return;
+        }
+
+        copy($htaccessDistPath, $htaccessPath);
     }
 }

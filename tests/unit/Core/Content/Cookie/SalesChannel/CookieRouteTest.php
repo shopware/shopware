@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
@@ -261,5 +262,29 @@ class CookieRouteTest extends TestCase
             $response2->getHash(),
             'Hash should change when defined properties are modified'
         );
+    }
+
+    public function testThrowsCookieExceptionWhenHashGenerationFails(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create a cookie entry with malformed UTF-8 data that will cause json_encode to fail
+        $malformedEntry = new CookieEntry("test-cookie\xB1\x31"); // Invalid UTF-8 sequence
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->setEntries(new CookieEntryCollection([$malformedEntry]));
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')
+            ->with($salesChannelContext)
+            ->willReturn($cookieGroups);
+
+        $cookieRoute = new CookieRoute($cookieProvider);
+
+        $this->expectExceptionObject(
+            CookieException::hashGenerationFailed('Cookie configuration processing failed: JSON is invalid')
+        );
+
+        $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
     }
 }

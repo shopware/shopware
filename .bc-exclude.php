@@ -103,6 +103,10 @@ return [
         preg_quote('CHANGED: Value of constant Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition::MAX_LENGTH_LAST_NAME changed from 60 to 255', '/'),
 
         preg_quote('Shopware\Core\Framework\App\AppException', '/'),
-        preg_quote('Shopware\Core\Service\ServiceException', '/')
+        preg_quote('Shopware\Core\Service\ServiceException', '/'),
+
+        // Moved endpoint to Shopware\Core\Framework\Api\Controller\SsoController to not have a hard dependency between admin and core packages
+        // It was never intended to be used outside of SaaS in it's initial release (still marked experimental / internal everywhere else, only this one method was forgotten)
+        preg_quote('REMOVED: Method Shopware\Administration\Controller\AdministrationController#ssoAuth() was removed', '/'),
     ],
 ];

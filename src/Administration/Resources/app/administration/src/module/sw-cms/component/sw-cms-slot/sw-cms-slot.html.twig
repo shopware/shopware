@@ -108,7 +108,7 @@
         v-show="showElementSettings"
         class="sw-cms-slot__config-modal"
         :variant="modalVariant"
-        :title="$tc('sw-cms.detail.title.elementSettingsModal')"
+        :title="elementModalTitle"
         @modal-close="onCloseSettingsModal"
     >
         {% block sw_cms_slot_content_settings_modal_component %}

@@ -10,6 +10,7 @@ use Shopware\Core\Installer\Configuration\ShopConfigurationService;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -36,6 +37,7 @@ class ShopConfigurationController extends InstallerController
         private readonly ShopConfigurationService $shopConfigurationService,
         private readonly AdminConfigurationService $adminConfigurationService,
         private readonly TranslatorInterface $translator,
+        private readonly TranslationConfig $translationConfig,
         private readonly array $supportedLanguages,
         private readonly array $supportedCurrencies
     ) {
@@ -69,6 +71,26 @@ class ShopConfigurationController extends InstallerController
             /** @var list<string> $availableCurrencies */
             $availableCurrencies = $request->request->all('available_currencies');
 
+            /** @var list<string> $selectedLanguages */
+            $selectedLanguages = $request->request->all('selected_languages') ?: [];
+
+            // Always include the selected shop language
+            $shopLanguage = (string) $request->request->get('config_shop_language');
+            if (!\in_array($shopLanguage, $selectedLanguages, true) && !\in_array($shopLanguage, ['de-DE', 'en-GB'], true)) {
+                $selectedLanguages[] = $shopLanguage;
+            }
+
+            // Use all available languages from TranslationConfigLoader
+            $availableLanguages = $this->getAllAvailableLanguages();
+            $selectedLanguages = array_map(function (string $iso) use ($availableLanguages) {
+                // already a full locale like xx-XX?
+                if (preg_match('/^[a-z]{2}-[A-Z]{2}$/', $iso)) {
+                    return $iso;
+                }
+
+                return isset($availableLanguages[$iso]['id']) ? $availableLanguages[$iso]['id'] : null;
+            }, $selectedLanguages);
+
             $schema = 'http';
             // This is for supporting Apache 2.2
             if (\array_key_exists('HTTPS', $_SERVER) && mb_strtolower((string) $_SERVER['HTTPS']) === 'on') {
@@ -99,10 +121,19 @@ class ShopConfigurationController extends InstallerController
                 $this->adminConfigurationService->createAdmin($adminUser, $connection);
                 $this->shopConfigurationService->updateShop($shop, $connection);
 
-                $session->remove(DatabaseConnectionInformation::class);
                 $session->set('ADMIN_USER', $adminUser);
+                $session->set('SELECTED_LANGUAGES', $selectedLanguages);
 
-                return $this->redirectToRoute('installer.finish');
+                // Check if user selected any languages
+                if (empty($selectedLanguages)) {
+                    // No languages selected, go directly to finish page
+                    $session->remove(DatabaseConnectionInformation::class);
+
+                    return $this->redirectToRoute('installer.finish', ['completed' => true]);
+                }
+
+                // Languages selected, go to translation step
+                return $this->redirectToRoute('installer.translation');
             } catch (\Exception $e) {
                 $error = $e->getMessage();
             }
@@ -125,8 +156,10 @@ class ShopConfigurationController extends InstallerController
                 'error' => $error,
                 'countryIsos' => $this->getCountryIsos($connection, $locale),
                 'languageIsos' => $this->supportedLanguages,
+                'allAvailableLanguages' => $this->getAllAvailableLanguages(),
                 'currencyIsos' => $this->supportedCurrencies,
                 'parameters' => $parameters,
+                'selectedLanguages' => $request->request->all('selected_languages') ?: [],
             ]
         );
     }
@@ -157,5 +190,34 @@ class ShopConfigurationController extends InstallerController
          */ $countryIsos, fn (array $first, array $second) => strcmp($first['translated'], $second['translated']));
 
         return $countryIsos;
+    }
+
+    /**
+     * Get all available languages from TranslationConfigLoader
+     *
+     * @return array<string, array{id: string, label: string}>
+     */
+    private function getAllAvailableLanguages(): array
+    {
+        // Always include default languages for the UI
+        $languages = [
+            'de-DE' => [
+                'id' => 'de-DE',
+                'label' => 'Deutsch',
+            ],
+            'en-GB' => [
+                'id' => 'en-GB',
+                'label' => 'English',
+            ],
+        ];
+
+        foreach ($this->translationConfig->languages as $language) {
+            $languages[$language->locale] = [
+                'id' => $language->locale,
+                'label' => $language->name,
+            ];
+        }
+
+        return $languages;
     }
 }

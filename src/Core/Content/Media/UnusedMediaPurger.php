@@ -153,8 +153,8 @@ class UnusedMediaPurger
             return $mediaIds;
         }
 
-        $threeDaysAgo = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
-        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $threeDaysAgo->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $maxUploadedAt = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
+        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $maxUploadedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $criteria = new Criteria($mediaIds);
         $criteria->addFilter($rangeFilter);

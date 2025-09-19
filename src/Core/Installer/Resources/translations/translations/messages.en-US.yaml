@@ -396,4 +396,19 @@ shopware.installer:
         <p>
             Enjoy your new online shop!
         </p>"
-
+    menuitem_translation: 'Language Download'
+    configuration_admin_shop_headline: 'Shop data'
+    configuration_admin_language_headline: 'Languages'
+    configuration_admin_language_select_all: 'Select all'
+    configuration_admin_language_clear_all: 'Clear all'
+    configuration_admin_user_headline: 'Admin user data'
+    configuration_admin_language_text: 'Add more languages to your Shopware shop. If you want to add or remove languages afterwards, you can do so at any time in the administration.'
+    configuration_admin_language_search_placeholder: 'Search language...'
+    translations_header: 'Languages Download'
+    translations_import_install_label: 'Downloading and installing additional languages.'
+    translations_install_duration_info: 'This could take a few minutes.'
+    finish_title: 'The setup for your Shopware shop is done.'
+    finish_subtitle: 'Click “Continue to shop” to open your shop’s administration and start building your dream shop.'
+    finish_continue: 'Continue to shop'
+    translations_install_error_message: 'Something went wrong during the translation installation.'
+    translations_install_retry_link: 'Click here to retry'

@@ -28,28 +28,30 @@
     }
 
     &__title {
-        font-size: $font-size-m;
-        margin-bottom: 4px;
-        color: $color-darkgray-200;
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
+        margin-bottom: var(--scale-size-4);
+        color: var(--color-text-primary-default);
     }
 
     &__description {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     &__description-link {
         display: inline-block;
         cursor: pointer;
-        color: rgb(24, 158, 255);
+        color: var(--color-text-brand-default);
         text-decoration: underline;
     }
 
     &__icon {
-        margin-bottom: 24px;
+        margin-bottom: var(--scale-size-24);
     }
 
     &__actions {
-        margin-top: 16px;
+        margin-top: var(--scale-size-16);
     }
 }

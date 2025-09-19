@@ -4,10 +4,11 @@
          bootstrap="src/Core/TestBootstrap.php"
          cacheDirectory=".phpunit.cache"
          cacheResult="false"
-         executionOrder="random"
          displayDetailsOnPhpunitDeprecations="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
-         displayDetailsOnTestsThatTriggerDeprecations="true">
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         executionOrder="random"
+         failOnRisky="true">
     <coverage includeUncoveredFiles="true"/>
     <source ignoreSuppressionOfDeprecations="true"
             ignoreIndirectDeprecations="true"

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
@@ -28,6 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ProductReviewSaveRoute::class)]
 class ProductReviewSaveRouteTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<ProductReviewCollection> */
     private MockObject&EntityRepository $repository;
 
     private MockObject&DataValidator $validator;

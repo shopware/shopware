@@ -89,7 +89,7 @@ class CustomFieldSetGateway
      */
     public function fetchLanguageIds(): array
     {
-        /** @var array<string> $languageIds */
+        /** @var list<string> $languageIds */
         $languageIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language');
 
         return $languageIds;

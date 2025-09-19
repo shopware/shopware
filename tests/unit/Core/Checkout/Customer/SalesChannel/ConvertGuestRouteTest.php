@@ -99,7 +99,7 @@ class ConvertGuestRouteTest extends TestCase
                 static::assertSame('customer.guest.convert', $definition->getName());
                 static::assertEquals([
                     'password' => [new NotBlank()],
-                    'email' => [new CustomerEmailUnique(['salesChannelContext' => $this->salesChannelContext, 'context' => $this->salesChannelContext->getContext()])],
+                    'email' => [new CustomerEmailUnique(salesChannelContext: $this->salesChannelContext)],
                 ], $definition->getProperties());
 
                 return true;
@@ -149,7 +149,7 @@ class ConvertGuestRouteTest extends TestCase
                 static::assertSame('customer.guest.convert', $definition->getName());
                 static::assertEquals([
                     'password' => [new NotBlank()],
-                    'email' => [new CustomerEmailUnique(['salesChannelContext' => $this->salesChannelContext, 'context' => $this->salesChannelContext->getContext()])],
+                    'email' => [new CustomerEmailUnique(salesChannelContext: $this->salesChannelContext)],
                 ], $definition->getProperties());
 
                 return true;

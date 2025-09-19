@@ -292,50 +292,54 @@ export default {
         },
 
         onPriceGrossInputChange(value) {
-            if (this.priceForCurrency.linked) {
-                this.priceForCurrency.gross = value;
+            this.priceForCurrency.gross = value;
+
+            this.$emit('price-gross-change', value);
+            this.$emit('change', this.priceForCurrency);
+
+            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
                 this.onPriceGrossChangeDebounce();
             }
         },
 
         onPriceNetInputChange(value) {
-            if (this.priceForCurrency.linked) {
-                this.priceForCurrency.net = value;
+            this.priceForCurrency.net = value;
+
+            this.$emit('price-net-change', value);
+            this.$emit('change', this.priceForCurrency);
+
+            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
                 this.onPriceNetChangeDebounce();
             }
         },
 
         onPriceGrossChange(value) {
-            if (this.priceForCurrency.linked) {
-                this.$emit('price-calculate', true);
-                this.$emit('price-gross-change', value);
-                this.$emit('change', this.priceForCurrency);
+            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
                 this.convertGrossToNet(value);
             }
         },
 
         onPriceNetChange(value) {
-            if (this.priceForCurrency.linked) {
-                this.$emit('price-calculate', true);
-                this.$emit('price-net-change', value);
-                this.$emit('change', this.priceForCurrency);
+            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
                 this.convertNetToGross(value);
             }
         },
 
         convertNetToGross(value) {
-            if (Number.isNaN(value) || value === null) {
+            const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+
+            if (Number.isNaN(numericValue) || numericValue === null) {
                 this.priceForCurrency.gross = this.allowEmpty ? null : 0;
                 return false;
             }
 
-            if (!value) {
+            if (!numericValue) {
                 this.priceForCurrency.gross = 0;
                 return false;
             }
             this.$emit('price-calculate', true);
 
-            this.requestTaxValue(value, 'net').then((res) => {
+            this.requestTaxValue(numericValue, 'net').then((res) => {
                 const newValue = this.priceForCurrency.net + res;
                 this.priceForCurrency.gross = parseFloat(newValue.toPrecision(14));
             });
@@ -343,20 +347,22 @@ export default {
         },
 
         convertGrossToNet(value) {
-            if (Number.isNaN(value) || value === null) {
+            const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+
+            if (Number.isNaN(numericValue) || numericValue === null) {
                 this.priceForCurrency.net = this.allowEmpty ? null : 0;
                 this.$emit('calculating', false);
                 return false;
             }
 
-            if (!value) {
+            if (!numericValue) {
                 this.priceForCurrency.net = 0;
                 this.$emit('calculating', false);
                 return false;
             }
             this.$emit('price-calculate', true);
 
-            this.requestTaxValue(value, 'gross').then((res) => {
+            this.requestTaxValue(numericValue, 'gross').then((res) => {
                 const newValue = this.priceForCurrency.gross - res;
                 this.priceForCurrency.net = parseFloat(newValue.toPrecision(14));
             });

@@ -215,7 +215,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
     private function addConstraintsSalesChannelContext(DataValidationDefinition $definition, SalesChannelContext $context): void
     {
         $definition
-            ->add('salutationId', new EntityExists(['entity' => SalutationDefinition::ENTITY_NAME, 'context' => $context->getContext()]))
+            ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('accountType', new Choice($this->accountTypes))

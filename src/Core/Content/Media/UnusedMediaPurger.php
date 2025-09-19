@@ -153,8 +153,8 @@ class UnusedMediaPurger
             return $mediaIds;
         }
 
-        $threeDaysAgo = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
-        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $threeDaysAgo->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $maxUploadedAt = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
+        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $maxUploadedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $criteria = new Criteria($mediaIds);
         $criteria->addFilter($rangeFilter);
@@ -186,12 +186,12 @@ class UnusedMediaPurger
         }
 
         while (!empty($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds())) {
-            /** @var array<string> $ids */
+            /** @var non-empty-array<string> $ids */
             $unusedIds = $this->dispatchEvent($ids);
 
             yield $unusedIds;
 
-            $criteria->setOffset($criteria->getOffset() + $limit);
+            $criteria->setOffset((int) $criteria->getOffset() + $limit);
         }
     }
 

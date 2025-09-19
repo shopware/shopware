@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,6 +14,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
@@ -483,8 +483,8 @@ class SalesChannelContextTest extends TestCase
         static::assertNotSame($shippingMethodIdNoExits, $salesChannelContext->getSalesChannel()->getShippingMethodId());
     }
 
-    #[DataProvider('ensureLoginProvider')]
-    public function testEnsureLogin(bool $login, bool $isGuest, bool $allowGuest, bool $shouldThrow): void
+    #[DataProvider('ensureLoginExceptionProvider')]
+    public function testEnsureLoginShouldThrowAnException(bool $login, bool $isGuest, bool $allowGuest): void
     {
         $options = [];
 
@@ -497,13 +497,11 @@ class SalesChannelContextTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext([], $options);
 
-        if ($shouldThrow) {
-            $this->expectException(CustomerNotLoggedInException::class);
-        }
+        $this->expectExceptionObject(SalesChannelException::customerNotLoggedIn());
         $salesChannelContext->ensureLoggedIn($allowGuest);
     }
 
-    public static function ensureLoginProvider(): \Generator
+    public static function ensureLoginExceptionProvider(): \Generator
     {
         yield 'Not logged in' => [
             false,
@@ -518,24 +516,49 @@ class SalesChannelContextTest extends TestCase
             false,
             true,
         ];
+    }
 
+    #[DataProvider('ensureLoginPassProvider')]
+    public function testEnsureLoginShouldPass(bool $login, bool $isGuest, bool $allowGuest): void
+    {
+        $options = [];
+
+        if ($login) {
+            $customerId = Uuid::randomHex();
+            $this->createCustomer($customerId, null, null, [], $isGuest);
+
+            $options[SalesChannelContextService::CUSTOMER_ID] = $customerId;
+        }
+
+        $salesChannelContext = $this->createSalesChannelContext([], $options);
+
+        $error = null;
+        $message = '';
+        try {
+            $salesChannelContext->ensureLoggedIn($allowGuest);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
+    }
+
+    public static function ensureLoginPassProvider(): \Generator
+    {
         yield 'Logged in as guest and guest is allowed' => [
             true,
             true,
             true,
-            false,
         ];
 
         yield 'Logged in and guest is allowed' => [
             true,
             false,
             true,
-            false,
         ];
 
         yield 'Logged in and guest is not allowed' => [
             true,
-            false,
             false,
             false,
         ];

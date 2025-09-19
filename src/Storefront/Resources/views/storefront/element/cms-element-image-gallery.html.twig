@@ -175,7 +175,7 @@
                         data-magnifier="true"
                     {% endif %}
                     {% if magnifierOptions|length > 0 %}
-                        data-magnifier-options='{{ magnifierOptions|json_encode|raw }}'
+                        data-magnifier-options='{{ magnifierOptions|json_encode|escape('js') }}'
                     {% endif %}
                     {% if imageCount > 1 %}
                         data-gallery-slider="true"
@@ -307,7 +307,7 @@
                                                                                     {% endif %}
                                                                                 {% endif %}
 
-                                                                                {% if loop.first %}
+                                                                                {% if loop.first and sliderConfig.useFetchPriorityOnFirstItem.value is true %}
                                                                                     {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
                                                                                 {% endif %}
 

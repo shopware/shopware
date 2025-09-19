@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -100,7 +100,7 @@ class InfoController extends AbstractController
 
         return new JsonResponse(array_map(static fn (array $entry) => [
             'name' => $entry['key'],
-            'size' => (int) $entry['count'],
+            'size' => $entry['count'],
         ], array_values($entries)));
     }
 
@@ -295,10 +295,6 @@ class InfoController extends AbstractController
 
     private function getBaseUrl(Bundle $bundle): ?string
     {
-        if (!$bundle instanceof Plugin) {
-            return null;
-        }
-
         if ($bundle->getAdminBaseUrl()) {
             return $bundle->getAdminBaseUrl();
         }
@@ -312,7 +308,13 @@ class InfoController extends AbstractController
             return $this->router->generate(
                 'administration.plugin.index',
                 [
-                    'pluginName' => \mb_strtolower($bundle->getName()),
+                    /**
+                     * Adopted from symfony, as they also strip the bundle suffix:
+                     * https://github.com/symfony/symfony/blob/7.2/src/Symfony/Bundle/FrameworkBundle/Command/AssetsInstallCommand.php#L128
+                     *
+                     * @see Plugin\Util\AssetService::getTargetDirectory
+                     */
+                    'pluginName' => preg_replace('/bundle$/', '', mb_strtolower($bundle->getName())),
                 ],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
@@ -339,7 +341,7 @@ LEFT JOIN acl_role ar on app.acl_role_id = ar.id
 WHERE app.active = 1 AND app.base_app_url is not null');
 
         return array_map(static function (array $item) {
-            $privileges = $item['privileges'] ? json_decode((string) $item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
+            $privileges = $item['privileges'] ? json_decode($item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
             $item['privileges'] = [];
 
@@ -377,8 +379,8 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     {
         try {
             return $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
-            return $e->getShopId()->id;
+        } catch (ShopIdChangeSuggestedException $e) {
+            return $e->shopId->id;
         }
     }
 }

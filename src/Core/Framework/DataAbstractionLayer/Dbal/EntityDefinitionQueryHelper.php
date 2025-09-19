@@ -6,7 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -39,7 +39,7 @@ class EntityDefinitionQueryHelper
     public static function escape(string $string): string
     {
         if (mb_strpos($string, '`') !== false) {
-            throw new \InvalidArgumentException('Backtick not allowed in identifier');
+            throw DataAbstractionLayerException::invalidIdentifier($string);
         }
 
         return '`' . $string . '`';
@@ -191,12 +191,13 @@ class EntityDefinitionQueryHelper
         $isAssociation = mb_strpos($fieldName, '.') !== false;
 
         if (!$isAssociation && $fields->has($fieldName)) {
-            return $fields->get($fieldName);
-        }
-        $associationKey = explode('.', $fieldName);
-        $associationKey = array_shift($associationKey);
+            $field = $fields->get($fieldName);
+        } else {
+            $associationKey = explode('.', $fieldName);
+            $associationKey = array_shift($associationKey);
 
-        $field = $fields->get($associationKey);
+            $field = $fields->get($associationKey);
+        }
 
         if ($field instanceof TranslatedField && $resolveTranslated) {
             return self::getTranslatedField($definition, $field);
@@ -217,7 +218,8 @@ class EntityDefinitionQueryHelper
         return static::getField(
             $original,
             $referenceDefinition,
-            $root . '.' . $field->getPropertyName()
+            $root . '.' . $field->getPropertyName(),
+            $resolveTranslated
         );
     }
 
@@ -267,7 +269,7 @@ class EntityDefinitionQueryHelper
         }
 
         if (!\is_string($associationKey) || !$fields->has($associationKey)) {
-            throw new UnmappedFieldException($original, $definition);
+            throw DataAbstractionLayerException::unmappedField($original, $definition);
         }
 
         $field = $fields->get($associationKey);
@@ -278,7 +280,7 @@ class EntityDefinitionQueryHelper
         }
 
         if (!$field instanceof AssociationField) {
-            throw new \RuntimeException(\sprintf('Expected field "%s" to be instance of %s', $associationKey, AssociationField::class));
+            throw DataAbstractionLayerException::unexpectedFieldType($associationKey, AssociationField::class);
         }
 
         $referenceDefinition = $field->getReferenceDefinition();
@@ -346,7 +348,7 @@ class EntityDefinitionQueryHelper
             );
 
             if (!$versionIdField) {
-                throw new \RuntimeException('Missing `VersionField` in `' . $definition->getClass() . '`');
+                throw DataAbstractionLayerException::missingVersionField($definition->getClass());
             }
 
             $versionIdField = array_shift($versionIdField);
@@ -520,18 +522,15 @@ class EntityDefinitionQueryHelper
         $translationDefinition = $definition->getTranslationDefinition();
 
         if ($translationDefinition === null) {
-            throw new \RuntimeException(\sprintf('Entity %s has no translation definition', $definition->getEntityName()));
+            throw DataAbstractionLayerException::noTranslationDefinition($definition->getEntityName());
         }
 
         $field = $translationDefinition->getFields()->get($translatedField->getPropertyName());
 
         if (!$field instanceof StorageAware) {
-            throw new \RuntimeException(
-                \sprintf(
-                    'Missing translated storage aware property %s in %s',
-                    $translatedField->getPropertyName(),
-                    $translationDefinition->getEntityName()
-                )
+            throw DataAbstractionLayerException::missingTranslatedStorageAwareProperty(
+                $translatedField->getPropertyName(),
+                $translationDefinition->getEntityName()
             );
         }
 
@@ -586,7 +585,7 @@ class EntityDefinitionQueryHelper
             }
 
             if (!$primaryKeyField instanceof StorageAware) {
-                throw new \RuntimeException('Primary key fields has to be an instance of StorageAware');
+                throw DataAbstractionLayerException::primaryKeyNotStorageAware();
             }
 
             $query->andWhere(\sprintf(
@@ -648,11 +647,11 @@ class EntityDefinitionQueryHelper
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field) {
-                    throw new UnmappedFieldException($propertyName, $definition);
+                    throw DataAbstractionLayerException::unmappedField($propertyName, $definition);
                 }
 
                 if (!$field instanceof StorageAware) {
-                    throw new \RuntimeException('Only storage aware fields are supported in read condition');
+                    throw DataAbstractionLayerException::onlyStorageAwareFieldsInReadCondition();
                 }
 
                 if ($field instanceof IdField || $field instanceof FkField) {
@@ -682,7 +681,7 @@ class EntityDefinitionQueryHelper
     private function getTranslationFieldAccessor(Field $field, string $accessor, array $chain, Context $context): string
     {
         if (!$field instanceof StorageAware) {
-            throw new \RuntimeException('Only storage aware fields are supported as translated field');
+            throw DataAbstractionLayerException::onlyStorageAwareFieldsAsTranslated();
         }
 
         $selects = [];
@@ -741,13 +740,13 @@ class EntityDefinitionQueryHelper
     {
         $accessorBuilder = $field->getAccessorBuilder();
         if (!$accessorBuilder) {
-            throw new FieldAccessorBuilderNotFoundException($field->getPropertyName());
+            throw DataAbstractionLayerException::fieldAccessorBuilderNotFound($field->getPropertyName());
         }
 
         $accessor = $accessorBuilder->buildAccessor($root, $field, $context, $accessor);
 
         if (!$accessor) {
-            throw new \RuntimeException(\sprintf('Can not build accessor for field "%s" on root "%s"', $field->getPropertyName(), $root));
+            throw DataAbstractionLayerException::cannotBuildAccessor($field->getPropertyName(), $root);
         }
 
         return $accessor;

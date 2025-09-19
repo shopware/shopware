@@ -9,10 +9,14 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -36,6 +40,30 @@ class EntityDefinitionQueryHelperTest extends TestCase
         );
     }
 
+    #[DataProvider('provideTestGetField')]
+    public function testGetField(string $fieldName, bool $resolveTranslated, ?Field $expectedField): void
+    {
+        $definition = $this->getRegistry()->getByEntityName(ProductDefinition::ENTITY_NAME);
+        $actualField = EntityDefinitionQueryHelper::getField($fieldName, $definition, ProductDefinition::ENTITY_NAME, $resolveTranslated);
+
+        if ($expectedField === null) {
+            static::assertNull($actualField);
+
+            return;
+        }
+
+        static::assertNotNull($actualField);
+        static::assertSame(
+            $expectedField::class,
+            $actualField::class
+        );
+
+        static::assertSame(
+            $expectedField->getPropertyName(),
+            $actualField->getPropertyName()
+        );
+    }
+
     #[DataProvider('provideGetAssociatedDefinition')]
     public function testGetAssociatedDefinition(string $accessor, string $expectedEntity): void
     {
@@ -45,6 +73,57 @@ class EntityDefinitionQueryHelperTest extends TestCase
             $expectedEntity,
             EntityDefinitionQueryHelper::getAssociatedDefinition($definition, $accessor)->getEntityName()
         );
+    }
+
+    public static function provideTestGetField(): \Generator
+    {
+        yield 'unknown field' => [
+            'unknown.field',
+            true,
+            null,
+        ];
+
+        yield 'non translated field' => [
+            'manufacturerNumber',
+            true,
+            new StringField('manufacturer_number', 'manufacturerNumber'),
+        ];
+
+        yield 'resolve translated on non translated field' => [
+            'manufacturerNumber',
+            false,
+            new StringField('manufacturer_number', 'manufacturerNumber'),
+        ];
+
+        yield 'int field' => [
+            'manufacturerNumber',
+            false,
+            new StringField('manufacturer_number', 'manufacturerNumber'),
+        ];
+
+        yield 'translated field' => [
+            'name',
+            false,
+            new TranslatedField('name'),
+        ];
+
+        yield 'resolve translated field' => [
+            'name',
+            true,
+            new StringField('name', 'name'),
+        ];
+
+        yield 'association translated field' => [
+            'manufacturer.name',
+            false,
+            new TranslatedField('name'),
+        ];
+
+        yield 'resolve association translated field' => [
+            'manufacturer.name',
+            true,
+            new StringField('name', 'name'),
+        ];
     }
 
     public static function provideTestGetRoot(): \Generator
@@ -73,6 +152,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
                 CategoryTranslationDefinition::class,
                 CategoryDefinition::class,
                 ProductManufacturerDefinition::class,
+                ProductManufacturerTranslationDefinition::class,
                 ProductTranslationDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),

@@ -64,6 +64,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionRedemptionLocker">
+            <argument type="service" id="lock.factory"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- CART CALCULATORS -->
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
 
@@ -207,6 +212,12 @@
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionExclusionUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager"/>

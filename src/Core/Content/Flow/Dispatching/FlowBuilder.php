@@ -28,7 +28,6 @@ class FlowBuilder
             $sequences[] = $this->createNestedSequence($flowSequence, [], $flatBag);
         }
 
-        /** @var array<string, Sequence> $flat */
         $flat = $flatBag->all();
 
         return new Flow($id, $sequences, $flat);

@@ -2,17 +2,17 @@
 
 .sw-field {
     width: 100%;
-    margin-bottom: 32px;
+    margin-bottom: var(--scale-size-32);
 
     .sw-ai-copilot-badge {
-        height: 18px;
+        height: var(--scale-size-18);
     }
 
     .sw-field__label {
         display: flex;
-        line-height: 16px;
-        font-size: $font-size-xs;
-        margin-bottom: 8px;
+        line-height: var(--font-line-height-xs);
+        font-size: var(--font-size-xs);
+        margin-bottom: var(--scale-size-8);
         color: var(--color-text-primary-default);
 
         label {
@@ -22,16 +22,16 @@
 
     .sw-field__label .is--required::after {
         content: "*";
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
     }
 
     .sw-field__inheritance-icon {
-        margin-right: 8px;
+        margin-right: var(--scale-size-8);
     }
 
     .sw-field__button-restore {
-        color: $color-darkgray-200;
-        padding: 0 8px;
+        color: var(--color-text-primary-default);
+        padding: 0 var(--scale-size-8);
         border: none;
         background: none;
         outline: none;
@@ -46,23 +46,23 @@
 
     &.is--inherited {
         .sw-field__label {
-            color: $color-module-purple-900;
+            color: var(--color-text-accent-default);
         }
     }
 
     &.has--error {
-        margin-bottom: 12px;
+        margin-bottom: var(--scale-size-12);
 
         .sw-field__label {
-            color: $color-crimson-500;
+            color: var(--color-text-critical-default);
         }
     }
 
     &__hint {
-        margin-top: 4px;
-        font-size: $font-size-xxs;
+        margin-top: var(--scale-size-4);
+        font-size: var(--font-size-2xs);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--scale-size-8);
     }
 }

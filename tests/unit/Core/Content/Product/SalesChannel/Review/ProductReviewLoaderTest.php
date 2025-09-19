@@ -303,7 +303,7 @@ class ProductReviewLoaderTest extends TestCase
             $criteria->addAssociation('language.translationCode.code');
         }
 
-        $reviewFilters[] = new EqualsFilter('status', true);
+        $reviewFilters = [new EqualsFilter('status', true)];
 
         if ($context->getCustomer() !== null) {
             $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomerId());

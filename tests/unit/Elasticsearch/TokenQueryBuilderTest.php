@@ -30,7 +30,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\TokenQueryBuilder;
@@ -48,13 +49,16 @@ class TokenQueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
+        $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
+
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
             new CustomFieldServiceMock([
                 'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
-            ])
+            ]),
+            $storage
         );
     }
 
@@ -86,7 +90,7 @@ class TokenQueryBuilderTest extends TestCase
             'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
         ]);
 
-        $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
 
@@ -244,10 +248,7 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo',
             'expected' => self::bool([
-                self::disMax([
-                    self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false),
-                    self::textMatch('name', 'foo', 800, self::SECOND_LANGUAGE_ID, andSearch: false),
-                ]),
+                self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false),
                 self::nested('tags', self::textMatch('tags.name', 'foo', 500, andSearch: false)),
                 self::nested('categories', self::disMax([
                     self::textMatch('categories.name', 'foo', 200, Defaults::LANGUAGE_SYSTEM, andSearch: false),
@@ -265,10 +266,7 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo 2023',
             'expected' => self::bool([
-                self::disMax([
-                    self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                    self::textMatch('name', 'foo 2023', 800, self::SECOND_LANGUAGE_ID, false),
-                ]),
+                self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
                 self::textMatch('ean', 'foo 2023', 2000, null, false),
                 self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
             ]),

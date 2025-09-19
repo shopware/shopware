@@ -1,5 +1,126 @@
 # 6.8.0.0
 
+## Introduced in 6.7.2.0
+
+## Removal of `EntityDefinition` constructor
+
+The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:
+```diff
+ <?php declare(strict_types=1);
+
+ namespace MyCustomEntity\Content\Entity;
+
+ use Shopware\Core\Content\Media\MediaDefinition;
+ use Shopware\Core\Content\Product\ProductDefinition;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
+ class MyCustomEntity extends EntityDefinition
+ {
+     // snip
+ 
+     public function __construct(private readonly array $meta = [])
+     {
+-        parent::__construct();
+         // ...
+     }
+ 
+     // snip
+ }
+```
+
+## Updated By Field is cleared on API updates
+
+Now the `UpdatedBy` field will be cleared when an object is updated via the API.
+This change ensures that the `UpdatedBy` field reflects the user who last modified the object through the API, rather than retaining the previous value.
+
+## Remove FK delete exception handler
+
+All foreign key checks are now handled directly by the DAL, therefore the following exception handler did not any effect anymore and are removed:
+* `OrderExceptionHandler`
+* `NewsletterExceptionHandler`
+* `LanguageExceptionHandler`
+* `SalesChannelExceptionHandler`
+* `ThemeExceptionHandler`
+This also means that the following exceptions are not thrown anymore and were removed as well:
+* `LanguageOfOrderDeleteException`
+* `LanguageOfNewsletterDeleteException`
+* `LanguageForeignKeyDeleteException`
+* `ThemeException::themeMediaStillInUse`
+* `SalesChannelException::salesChannelDomainInUse`
+
+## Tax Calculation for percentage discounts / surcharges, e.g. promotions
+
+Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
+This prevents rounding errors when calculating taxes for percentage prices.
+
+## Removal of `CartBehavior::isRecalculation`
+
+`CartBehavior::isRecalculation` was removed.
+Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
+Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+
+## Removal of `NavigationRoute::buildName()`
+
+The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildName()` was removed, navigation routes are now only tagged with `NavigationRoute::ALL`.
+
+## Introduced in 6.7.1.2
+
+## Remove method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
+
+The method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was removed as it's no longer used because it only returns the first entity found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+A new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` was introduced which returns all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+If you use the method `get` in your code, you have to use the `getAll` method instead.
+
+Before
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+// Only a single entity is retrieved
+$entity = $data->get($definition, $url->getForeignKey());
+$seoUrls = $entity->getSeoUrls();
+$seoUrls->add($url);
+```
+
+After
+
+```php
+$url = 'https://example.com/cross-selling/product-123'; 
+$entities = $data->getAll($definition, $url->getForeignKey());
+
+// Now you have to loop through all entities to add the SEO URL
+foreach ($entities as $entity) {
+    $seoUrls = $entity->getSeoUrls();
+    $seoUrls->add($url);
+}
+```
+
+## Introduced in 6.7.1.0
+
+## Use orders primary delivery and primary transaction
+
+For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.
+If an extension modifies or adds new deliveries or transactions, this should be taken into account.
+To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
+
+* Replace delivery accesses like `order.deliveries.first()` or `order.deliveries[0]` with `order.primaryOrderDelivery`
+* Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`
+
+## Payment: Removal of Payment Method "Debit Payment"
+
+The payment method `DebitPayment` has been removed as it did not fulfill its purpose.
+If the payment method is and was not used, it will be removed.
+Otherwise, the payment method will be disabled.
+
+## Remove route `widgets.account.order.detail`:
+
+* Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
+
+## Removal of $tc function:
+
+* The `$tc` function will be completely removed
+* All translation calls should use `$t` instead
+
+
 ## Introduced in 6.7.0.0
 
 ## Settings Menu Structure was changed
@@ -29,6 +150,30 @@ New blocks have been added in `sw-settings-index.html.twig`:
 * `sw_settings_content_card_content_grid`
 * `sw_settings_content_card_view`
 * `sw_settings_content_card_view_header`
+
+## Removed translation of import/export profile label
+
+The translation of the import/export profile label has been removed.  
+Profiles are now identified and displayed only by their technical name.
+
+### Core
+- The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
+    - `getLabel()`
+    - `setLabel()`
+    - `getTranslations()`
+    - `setTranslations()`
+- The following classes have been removed:
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+- `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
+- `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
+
+### Administration
+- The following Twig blocks have been removed:
+    - `sw_import_export_edit_profile_general_container_name` (`sw-import-export-edit-profile-general.html.twig`)
+    - `sw_import_export_view_profile_profiles_listing_column_label` (`sw-import-export-view-profiles.html.twig`)
+    - `sw_import_export_language_switch` (`sw-import-export.html.twig`)
 
 ## ApiClient confidential flag
 
@@ -202,6 +347,33 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 ## Use `primaryOrderTransaction`
 
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
+
+## Only rules relevant for product prices are considered in the `sw-cache-hash`
+In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
+
+If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
+
+```php
+class ResolveRuleIds implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ResolveCacheRelevantRuleIdsExtension::NAME . '.pre' => 'onResolveRuleAreas',
+        ];
+    }
+
+    public function onResolveRuleAreas(ResolveCacheRelevantRuleIdsExtension $extension): void
+    {
+        $extension->ruleAreas[] = RuleExtension::MY_CUSTOM_RULE_AREA;
+    }
+}
+```
+
+If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
+
+## Removed unused `RuleAreas` constants
+The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
 
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.

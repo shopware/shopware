@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\BuyBoxStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
@@ -31,9 +33,12 @@ class BuyBoxCmsElementResolverTest extends TestCase
 {
     public function testGetType(): void
     {
+        /** @var StaticEntityRepository<ProductReviewCollection> */
+        $repository = new StaticEntityRepository([]);
+
         $resolver = new BuyBoxCmsElementResolver(
             $this->createMock(ProductConfiguratorLoader::class),
-            new StaticEntityRepository([])
+            $repository,
         );
 
         static::assertSame('buy-box', $resolver->getType());
@@ -42,6 +47,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
     public function testEnrichBuyBox(): void
     {
         $configurationLoader = $this->createMock(ProductConfiguratorLoader::class);
+        /** @var EntityRepository<ProductReviewCollection>&MockObject */
         $repository = $this->createMock(EntityRepository::class);
         $repository->method('aggregate')->willReturn(new AggregationResultCollection());
 
@@ -81,7 +87,11 @@ class BuyBoxCmsElementResolverTest extends TestCase
     public function testEnrichSetsEmptyBuyBoxWithoutConfig(): void
     {
         $configurationLoader = $this->createMock(ProductConfiguratorLoader::class);
-        $resolver = new BuyBoxCmsElementResolver($configurationLoader, new StaticEntityRepository([]));
+
+        /** @var StaticEntityRepository<ProductReviewCollection> */
+        $repository = new StaticEntityRepository([]);
+
+        $resolver = new BuyBoxCmsElementResolver($configurationLoader, $repository);
 
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');

@@ -84,7 +84,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         }
         $definition
             ->add('newPassword', new NotBlank(), new Length(min: $minPasswordLength), new EqualTo(propertyPath: 'newPasswordConfirm'))
-            ->add('password', new CustomerPasswordMatches(['salesChannelContext' => $context]));
+            ->add('password', new CustomerPasswordMatches(salesChannelContext: $context));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());
 
@@ -106,7 +106,6 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 
         $fieldValidations = $validations[$field];
 
-        /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
         foreach ($fieldValidations as $emailValidation) {

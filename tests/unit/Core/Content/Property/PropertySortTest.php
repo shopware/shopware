@@ -244,13 +244,13 @@ class PropertySortTest extends TestCase
         for ($x = 10; $x < 20; ++$x) {
             $propertyOption = new PropertyGroupOptionEntity();
             $propertyOption->setId(Uuid::randomHex());
-            $propertyOption->setPosition((int) $x);
+            $propertyOption->setPosition($x);
             $name = $letterArray[array_rand($letterArray)];
             $propertyOption->setName($name);
             $propertyOption->setTranslated([
                 'name' => $name,
                 'description' => '',
-                'position' => (int) $x,
+                'position' => $x,
                 'customFields' => [],
             ]);
             $propertyOptions[] = $propertyOption;

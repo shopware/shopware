@@ -234,20 +234,17 @@ class CookieRouteTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         // Create base cookie group
-        $group1 = new CookieGroup('test.group');
-        $group1->description = 'Original description';
-        $entry1 = new CookieEntry('test-cookie');
-        $entry1->name = 'Original name';
-        $group1->setEntries(new CookieEntryCollection([$entry1]));
-        $groups1 = new CookieGroupCollection([$group1]);
+        $baseGroup = new CookieGroup('test.group');
+        $baseGroup->description = 'Original description';
+        $baseEntry = new CookieEntry('test-cookie');
+        $baseEntry->name = 'Original name';
+        $baseGroup->setEntries(new CookieEntryCollection([$baseEntry]));
+        $groups1 = new CookieGroupCollection([$baseGroup]);
 
-        // Create group with changed defined property
-        $group2 = new CookieGroup('test.group');
-        $group2->description = 'Modified description'; // Changed defined property
-        $entry2 = new CookieEntry('test-cookie');
-        $entry2->name = 'Original name';
-        $group2->setEntries(new CookieEntryCollection([$entry2]));
-        $groups2 = new CookieGroupCollection([$group2]);
+        // Clone the group and change only one defined property
+        $modifiedGroup = clone $baseGroup;
+        $modifiedGroup->description = 'Modified description'; // Only change this property
+        $groups2 = new CookieGroupCollection([$modifiedGroup]);
 
         $provider1 = $this->createMock(CookieProvider::class);
         $provider1->method('getCookieGroups')->willReturn($groups1);

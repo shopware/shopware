@@ -170,6 +170,6 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $definition->addCodePromotions('100', [$promotion1]);
         $definition->addCodePromotions('test', [$promotion2]);
 
-        static::assertContainsOnlyString($definition->getAllCodes());
+        static::assertContainsOnly('string', $definition->getAllCodes());
     }
 }

@@ -17,6 +17,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class FinishController extends InstallerController
 {
+    private const COMPLETION_PARAMETER = 'completed';
+
     public function __construct(
         private readonly SystemLocker $systemLocker,
         private readonly Client $client,
@@ -27,6 +29,10 @@ class FinishController extends InstallerController
     #[Route(path: '/installer/finish', name: 'installer.finish', methods: ['GET'])]
     public function finish(Request $request): Response
     {
+        if ((bool) $request->query->get(self::COMPLETION_PARAMETER)) {
+            return $this->renderInstaller('@Installer/installer/finish.html.twig', []);
+        }
+
         $this->systemLocker->lock();
 
         $session = $request->getSession();

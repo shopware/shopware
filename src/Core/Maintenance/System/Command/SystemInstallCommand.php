@@ -174,7 +174,9 @@ class SystemInstallCommand extends Command
             copy($this->projectDir . '/public/.htaccess.dist', $this->projectDir . '/public/.htaccess');
         }
 
-        touch($this->projectDir . '/install.lock');
+        if ($result === self::SUCCESS) {
+            touch($this->projectDir . '/install.lock');
+        }
 
         return $result;
     }

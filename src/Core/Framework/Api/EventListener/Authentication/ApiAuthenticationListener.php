@@ -4,11 +4,11 @@ namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
-use League\OAuth2\Server\Grant\PasswordGrant;
-use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Administration\Login\ShopwareGrantType;
+use Shopware\Administration\Login\ShopwarePasswordGrantType;
+use Shopware\Administration\Login\ShopwareRefreshTokenGrantType;
 use Shopware\Administration\Login\TokenService\ExternalTokenService;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -68,10 +67,10 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $accessTokenInterval = new \DateInterval($this->accessTokenTtl);
         $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
 
-        $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
+        $passwordGrant = new ShopwarePasswordGrantType($this->userRepository, $this->refreshTokenRepository, $this->userService);
         $passwordGrant->setRefreshTokenTTL($refreshTokenInterval);
 
-        $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
+        $refreshTokenGrant = new ShopwareRefreshTokenGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService);
         $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         // At this point session is not set $event->getRequest()->getSession()

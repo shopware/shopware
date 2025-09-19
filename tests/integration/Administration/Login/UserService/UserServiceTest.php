@@ -5,7 +5,9 @@ namespace Shopware\Tests\Integration\Administration\Login\UserService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\TokenService\TokenResult;
+use Shopware\Administration\Login\UserService\ExternalAuthUser;
 use Shopware\Administration\Login\UserService\Token;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Context;
@@ -30,7 +32,7 @@ class UserServiceTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
-    public function testGetUserWithoutTokenUser(): void
+    public function testGetAndUpdateUserByExternalTokenWithoutTokenUser(): void
     {
         $userId = Uuid::randomHex();
         $email = 'test@email.com';
@@ -52,10 +54,9 @@ class UserServiceTest extends TestCase
             'scope' => 'any',
         ], \JSON_THROW_ON_ERROR));
 
-        $externalAuthUser = $this->createUserService()->getAndUpdateUser($tokenResult);
+        $externalAuthUser = $this->createUserService()->getAndUpdateUserByExternalToken($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
-        static::assertTrue($externalAuthUser->isNew);
+        static::assertSame($refreshToken, $externalAuthUser->token?->refreshToken);
         static::assertSame($email, $externalAuthUser->email);
 
         // ensure data is created and updated
@@ -72,9 +73,17 @@ class UserServiceTest extends TestCase
         static::assertSame($refreshToken, $tokenObject->refreshToken);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
+
+        // check user is activated
+        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$externalAuthUser->userId]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(UserEntity::class, $user);
+        static::assertTrue($user->getActive());
+        static::assertSame('given_name', $user->getFirstName());
+        static::assertSame('family_name', $user->getLastName());
+        static::assertSame('preferred_username', $user->getUsername());
     }
 
-    public function testGetUserWithTokenUser(): void
+    public function testGetAndUpdateUserByExternalTokenWithTokenUser(): void
     {
         $userId = Uuid::randomHex();
         $email = 'anotherFake@email.com';
@@ -97,11 +106,10 @@ class UserServiceTest extends TestCase
             'scope' => 'any',
         ], \JSON_THROW_ON_ERROR));
 
-        $externalAuthUser = $this->createUserService()->getAndUpdateUser($tokenResult);
+        $externalAuthUser = $this->createUserService()->getAndUpdateUserByExternalToken($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($token, $externalAuthUser->token->token);
+        static::assertSame($token, $externalAuthUser->token?->token);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
-        static::assertFalse($externalAuthUser->isNew);
         static::assertSame($email, $externalAuthUser->email);
 
         $tokenUserData = $this->getTokenUserData($subject);
@@ -117,14 +125,6 @@ class UserServiceTest extends TestCase
         static::assertSame($refreshToken, $tokenObject->refreshToken);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
-
-        // check user is activated
-        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$externalAuthUser->userId]), Context::createDefaultContext())->first();
-        static::assertInstanceOf(UserEntity::class, $user);
-        static::assertTrue($user->getActive());
-        static::assertSame('given_name', $user->getFirstName());
-        static::assertSame('family_name', $user->getLastName());
-        static::assertSame('preferred_username', $user->getUsername());
     }
 
     public function testUserEmailIsUpdated(): void
@@ -152,16 +152,182 @@ class UserServiceTest extends TestCase
             'scope' => 'any',
         ], \JSON_THROW_ON_ERROR));
 
-        $externalAuthUser = $this->createUserService()->getAndUpdateUser($tokenResult);
+        $externalAuthUser = $this->createUserService()->getAndUpdateUserByExternalToken($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($token, $externalAuthUser->token->token);
+        static::assertSame($token, $externalAuthUser->token?->token);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
-        static::assertFalse($externalAuthUser->isNew);
         static::assertSame($localeEmail, $externalAuthUser->email);
 
         $user = $this->getContainer()->get('user.repository')->search(new Criteria([$userId]), Context::createDefaultContext())->first();
         static::assertInstanceOf(UserEntity::class, $user);
         static::assertSame($tokenEmail, $user->getEmail());
+    }
+
+    public function testGetRefreshedExternalTokenForUserWithoutAuthUserShouldThrowException(): void
+    {
+        $userService = $this->createUserService();
+
+        $this->expectExceptionObject(LoginException::tokenNotFound());
+
+        $userService->getRefreshedExternalTokenForUser(Uuid::randomHex());
+    }
+
+    public function testGetRefreshedExternalTokenForUserWithoutTokenShouldThrowException(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $userId = Uuid::randomHex();
+        $fakeUserInstaller = new FakeUserInstaller($connection);
+        $fakeUserInstaller->installBaseUserData($userId, 'test@test.com');
+        $fakeUserInstaller->installTokenUser($userId, Uuid::randomHex());
+
+        $connection->update('oauth_user', ['token' => null], ['user_id' => Uuid::fromHexToBytes($userId)]);
+
+        $userService = $this->createUserService();
+
+        $this->expectExceptionObject(LoginException::tokenNotFound());
+
+        $userService->getRefreshedExternalTokenForUser($userId);
+    }
+
+    public function testGetRefreshedExternalTokenForUser(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $userId = Uuid::randomHex();
+        $fakeUserInstaller = new FakeUserInstaller($connection);
+        $fakeUserInstaller->installBaseUserData($userId, 'test@test.com');
+        $fakeUserInstaller->installTokenUser($userId, Uuid::randomHex());
+
+        $userService = $this->createUserService();
+
+        $result = $userService->getRefreshedExternalTokenForUser($userId);
+
+        static::assertSame('access_token', $result);
+    }
+
+    public function testRemoveExternalToken(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $userId = Uuid::randomHex();
+        $fakeUserInstaller = new FakeUserInstaller($connection);
+        $fakeUserInstaller->installBaseUserData($userId, 'test@test.com');
+        $fakeUserInstaller->installTokenUser($userId, Uuid::randomHex());
+
+        $testSQL = 'SELECT `token` FROM `oauth_user` WHERE `user_id` = ?;';
+
+        $check = $connection->executeQuery($testSQL, [Uuid::fromHexToBytes($userId)])->fetchOne();
+        static::assertSame('{"token": "invalid", "refreshToken": "invalid"}', $check);
+
+        $userService = $this->createUserService();
+        $userService->removeExternalToken($userId);
+
+        $result = $connection->executeQuery($testSQL, [Uuid::fromHexToBytes($userId)])->fetchOne();
+        static::assertNull($result);
+    }
+
+    public function testSearchOAuthUserByUserIdShouldBeNull(): void
+    {
+        $userService = $this->createUserService();
+
+        $result = $userService->searchOAuthUserByUserId(Uuid::randomHex());
+
+        static::assertNull($result);
+    }
+
+    public function testSearchOAuthUserByUserId(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $userId = Uuid::randomHex();
+        $fakeUserInstaller = new FakeUserInstaller($connection);
+        $fakeUserInstaller->installBaseUserData($userId, 'test@test.com');
+        $fakeUserInstaller->installTokenUser($userId, Uuid::randomHex());
+
+        $userService = $this->createUserService();
+
+        $result = $userService->searchOAuthUserByUserId($userId);
+
+        static::assertInstanceOf(ExternalAuthUser::class, $result);
+        static::assertSame($userId, $result->userId);
+    }
+
+    public function testUpdateOAuthUserWithNewToken(): void
+    {
+        $id = Uuid::randomHex();
+        $userId = Uuid::randomHex();
+        $userSub = Uuid::randomHex();
+        $email = 'test@example.com';
+        $expiryInPast = new \DateTimeImmutable('1970-01-01 00:00:00');
+
+        $baseUser = ExternalAuthUser::create([
+            'id' => $id,
+            'user_id' => $userId,
+            'user_sub' => $userSub,
+            'token' => [
+                'token' => 'any',
+                'refreshToken' => 'any',
+            ],
+            'expiry' => $expiryInPast,
+            'email' => $email,
+        ]);
+
+        $tokenResult = TokenResult::createFromResponse(json_encode([
+            'id_token' => 'newIdToken',
+            'access_token' => 'newAccessToken',
+            'refresh_token' => 'newRefreshToken',
+            'expires_in' => 3600,
+            'token_type' => 'Bearer',
+            'scope' => 'write',
+        ], \JSON_THROW_ON_ERROR));
+
+        $userService = $this->createUserService();
+        $result = $userService->updateOAuthUserWithNewToken($baseUser, $tokenResult);
+
+        static::assertSame($id, $result->id);
+        static::assertSame($userId, $result->userId);
+        static::assertSame($userSub, $result->sub);
+        static::assertInstanceOf(Token::class, $result->token);
+        static::assertSame('newAccessToken', $result->token->token);
+        static::assertSame('newRefreshToken', $result->token->refreshToken);
+        static::assertInstanceOf(\DateTimeImmutable::class, $result->expiry);
+        static::assertGreaterThan(new \DateTimeImmutable(), $result->expiry);
+    }
+
+    public function testSaveOAuthUser(): void
+    {
+        $userId = Uuid::randomHex();
+        $expiry = (new \DateTimeImmutable())->add(new \DateInterval('PT1H'));
+
+        $fakeUserInstaller = new FakeUserInstaller($this->getContainer()->get(Connection::class));
+        $fakeUserInstaller->installBaseUserData($userId, 'foo@bar.baz');
+        $fakeUserInstaller->installTokenUser($userId, Uuid::randomHex());
+
+        $userService = $this->createUserService();
+        $savedUser = $userService->searchOAuthUserByUserId($userId);
+        static::assertInstanceOf(ExternalAuthUser::class, $savedUser);
+
+        $user = ExternalAuthUser::create([
+            'id' => $savedUser->id,
+            'user_id' => $userId,
+            'user_sub' => Uuid::randomHex(),
+            'token' => [
+                'token' => 'newToken',
+                'refreshToken' => 'newRefreshToken',
+            ],
+            'expiry' => $expiry,
+            'email' => 'foo@bar.baz',
+        ]);
+
+        $userService = $this->createUserService();
+        $userService->saveOAuthUser($user);
+
+        $result = $userService->searchOAuthUserByUserId($userId);
+        static::assertInstanceOf(ExternalAuthUser::class, $result);
+        static::assertSame($user->id, $result->id);
+        static::assertSame($user->userId, $result->userId);
+        static::assertInstanceOf(Token::class, $result->token);
+        static::assertSame('newToken', $result->token->token);
+        static::assertSame('newRefreshToken', $result->token->refreshToken);
+        static::assertInstanceOf(\DateTimeImmutable::class, $result->expiry);
+        static::assertGreaterThan(new \DateTimeImmutable(), $result->expiry);
     }
 
     private function createUserService(): UserService

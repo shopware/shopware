@@ -206,6 +206,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Administration\Login\TokenService\IdTokenParser"/>
             <argument type="service" id="user.repository"/>
+            <argument type="service" id="Shopware\Administration\Login\TokenService\ExternalTokenService"/>
         </service>
 
         <service id="Shopware\Administration\Login\TokenService\ExternalTokenService">

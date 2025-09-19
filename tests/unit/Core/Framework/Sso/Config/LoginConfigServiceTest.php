@@ -394,7 +394,7 @@ class LoginConfigServiceTest extends TestCase
             return $name . '?' . \http_build_query($parameter);
         });
 
-        // @phpstan-ignore-next-line argument.type
+        // @phpstan-ignore argument.type (The LoginConfigService parameter1 expects a specific array which we were unable to provide for testing purposes)
         return new LoginConfigService($rawConfig, $router);
     }
 

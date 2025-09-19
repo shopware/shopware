@@ -223,7 +223,7 @@
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
 
-<div {{ attributes.defaults(attributeDefaults) }}
+<div
      class="{{ gridCVA.apply({ align, alignContent, justify, justifyContent, centered, columns, columnsSm, columnsMd, columnsLg, columnsXl, rows, rowsSm, rowsMd, rowsLg, rowsXl }, attributes.render('class')) }}"
      {% if gridStyle %} style="{{ gridStyle|trim }}"{% endif %}>
 

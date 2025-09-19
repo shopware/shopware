@@ -1,37 +1,45 @@
 class ListingOptions extends window.PluginBaseClass {
     static options = {
-        horizontalToggleSelector: '[data-layout-horizontal]',
+        horizontalToggleSelector: '[data-layout]',
         appearanceSelector: '[data-listing-appearance]',
-        listingCardSelector: '.product-card'
     }
 
     init() {
         /**
-         * @type {{divider: string, default: string, free: string, grid: string}}
          * @private
          */
         this._listingVariants = {
-            divider: 'is--divider',
-            default: 'is--default',
-            free: 'is--free',
-            grid: 'is--grid',
+            horizontal: 'is--layout-horizontal',
+            default: 'is--layout-default',
         }
 
         /**
          * @type {NodeListOf<HTMLElementTagNameMap[string|*]>}
          * @private
          */
-        this._listingCards = document.querySelectorAll(this.options.listingCardSelector);
+        this._listingCards = document.querySelectorAll('.product-card');
+
+        /**
+         * @type {Element}
+         * @private
+         */
+        this._listGrid = document.querySelector('.product-listing__grid');
+
+        /**
+         * @type {NodeListOf<HTMLButtonElement>}
+         * @private
+         */
+        this._layoutButtons = this.el.querySelectorAll('[data-layout]');
+
+        console.log('this._listGrid', this._listGrid);
 
         this._registerEvents();
     }
 
     _registerEvents() {
-        this.el.querySelectorAll(this.options.horizontalToggleSelector)?.forEach((toggleEl) => {
+        this._layoutButtons?.forEach((toggleEl) => {
             toggleEl.addEventListener('click', this._onToggleLayout.bind(this));
         });
-
-        this.el.querySelector(this.options.appearanceSelector)?.addEventListener('change', this._onToggleAppearance.bind(this));
     }
 
     /**
@@ -40,24 +48,28 @@ class ListingOptions extends window.PluginBaseClass {
      */
     _onToggleLayout(event) {
         const url = new URL(window.location);
-        url.searchParams.set('horizontal', event.currentTarget.getAttribute('data-layout-horizontal'))
-        history.pushState(null, '', url);
-        window.location.reload();
-    }
+        const layout = event.currentTarget.getAttribute('data-layout');
 
-    /**
-     * @param event
-     * @private
-     */
-    _onToggleAppearance(event) {
-        const variant = event.target?.value;
-
-        if (!variant) return;
+        this._layoutButtons?.forEach((button) => {
+            button.classList.remove('is--active');
+        });
 
         this._listingCards?.forEach((card) => {
             card.classList.remove(...Object.values(this._listingVariants));
-            card.classList.add(this._listingVariants[variant]);
+            card.classList.add(this._listingVariants[layout]);
+            event.currentTarget.classList.add('is--active');
         });
+
+        if (layout === 'horizontal') {
+            this._listGrid.classList.remove('columns-4');
+            this._listGrid.classList.add('columns-1');
+        } else if (layout === 'default') {
+            this._listGrid.classList.remove('columns-1');
+            this._listGrid.classList.add('columns-4');
+        }
+
+        url.searchParams.set('layout', layout);
+        history.pushState(null, '', url);
     }
 }
 

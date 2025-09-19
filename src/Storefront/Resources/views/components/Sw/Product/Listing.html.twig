@@ -10,17 +10,17 @@
 
 <div {{ attributes.defaults(attributeDefaults) }} class="{{ listingCVA.apply({}, attributes.render('class')) }}">
 
-    {% set horizontal = app.request.get('horizontal') == '1' ? true : false %}
+    {% set layout = app.request.get('layout') %}
+
     <twig:Sw:Product:ListingOptions :horizontal="horizontal" />
 
     {% block content %}
 
-        <twig:Sw:Grid:Container :columns="horizontal ? '1' : '4'"  :columnsXl="horizontal ? '1' : '3'" :columnsLg="horizontal ? '1' : '2'" :columnsSm="horizontal ? '1' : '2'">
+        <twig:Sw:Grid:Container class="product-listing__grid" :columns="horizontal ? '1' : '4'"  :columnsXl="horizontal ? '1' : '3'" :columnsLg="horizontal ? '1' : '2'" :columnsSm="horizontal ? '1' : '2'">
             {% for product in listing.elements %}
                 <twig:Sw:Product:Card
                     :product="product"
-                    :horizontal="horizontal"
-                    class="is--default is--grid is--free"
+                    :layout="layout ? layout : 'default'"
                 />
             {% endfor %}
         </twig:Sw:Grid:Container>

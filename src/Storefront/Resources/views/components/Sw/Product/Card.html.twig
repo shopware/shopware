@@ -1,120 +1,122 @@
 {% props
     product,
-    classes = {},
     mediaHeight = 240,
     defaultRoute = seoUrl('frontend.detail.page', { productId: product.id }),
     slots = [],
-    horizontal = false,
+    layout = 'default'
 %}
 
-{% set defaultClasses = {
-    root: 'card product-card h-100',
-    header: 'product-card-header m-2 position-relative overflow-hidden',
-    media: 'card-img-top product-card-media object-fit-cover',
-    body: 'product-card-body card-body pb-2',
-    title: 'product-card-title card-title fw-semibold',
-    titleLink: 'product-card-title-link stretched-link',
-    footer: 'product-card-footer card-footer border-0 pt-2'
-} %}
+{% set horizontal = (layout == 'horizontal') %}
 
-{% if classes %}
-    {% set defaultClasses = defaultClasses | merge(classes) %}
-{% endif %}
+{% set cardCVA = cva({
+    base: 'product-card card h-100',
+    variants: {
+        layout: {
+            default: 'is--layout-default',
+            horizontal: 'is--layout-horizontal',
+        },
+        mediaDisplay: {
+            cover: 'is--media-cover',
+            contain: 'is-media-contain'
+        }
+    }
+}) %}
+
+{#{{ dump(cardCVA) }}#}
 
 {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
-<div {{ attributes.defaults({ class: defaultClasses.root }) }}>
+<div class="{{ cardCVA.apply({ layout, mediaDisplay }, attributes.render('class')) }}">
 
-    {{ horizontal ? '<div class="row">' : '' }}
+    <div class="product-card__inner d-flex h-100">
 
-    <div {{ attributes.nested('header').defaults({ class: 'product-card-header position-relative overflow-hidden' ~ (horizontal ? ' col-3') }) }}>
+        <div {{ attributes.nested('header').defaults({ class: 'product-card-header position-relative overflow-hidden' }) }}>
 
-        <twig:Slot name="header-top"></twig:Slot>
+            <twig:Slot name="header-top"></twig:Slot>
 
-        {% block media %}
-            <twig:Slot name="media">
-                <twig:Sw:Media:Image
-                    {{ ...attributes.nested('media').defaults({
-                        media: product.cover.media,
-                        height: mediaHeight,
-                        class: defaultClasses.media,
-                        sizes: '800px',
-                        loading: 'lazy'
-                    }) }}
-                />
-            </twig:Slot>
-        {% endblock %}
-
-        {% block badges %}
-            <twig:Slot name="badges">
-                <twig:Sw:Product:Badges :product="product" />
-            </twig:Slot>
-        {% endblock %}
-
-        <twig:Slot name="header-bottom"></twig:Slot>
-    </div>
-
-    {{ horizontal ? '<div class="col-9 d-flex flex-column">' : '' }}
-    <div {{ attributes.nested('body').defaults({ class: defaultClasses.body }) }}>
-
-        <twig:Slot name="body-top"></twig:Slot>
-
-        {% block title %}
-            <twig:Slot name="title">
-                <h2 {{ attributes.nested('title').defaults({ class: defaultClasses.title }) }}>
-                    <a
-                        {{ attributes.nested('title-link').defaults({
-                            class: defaultClasses.titleLink,
-                            href: defaultRoute,
-                            style: "--sw-product-card-media-height: #{mediaHeight}px",
+            {% block media %}
+                <twig:Slot name="media">
+                    <twig:Sw:Media:Image
+                        {{ ...attributes.nested('media').defaults({
+                            media: product.cover.media,
+                            height: mediaHeight,
+                            class: 'card-img-top product-card-media object-fit-cover',
+                            sizes: '800px',
+                            loading: 'lazy'
                         }) }}
-                    >
-                        {{ product.translated.name }}
-                    </a>
-                </h2>
-            </twig:Slot>
-        {% endblock %}
+                    />
+                </twig:Slot>
+            {% endblock %}
 
-        {% if config('core.listing.showReview') and product.ratingAverage %}
-            <twig:Slot name="rating">
-                <twig:Sw:Rating:Stars :stars="product.ratingAverage" />
-            </twig:Slot>
-        {% endif %}
+            {% block badges %}
+                <twig:Slot name="badges">
+                    <twig:Sw:Product:Badges :product="product" />
+                </twig:Slot>
+            {% endblock %}
 
-        {% if not displayParent %}
-            <twig:Slot name="variants">
-                <twig:Sw:Product:Variants :variants="product.variation" />
-            </twig:Slot>
-        {% endif %}
+            <twig:Slot name="header-bottom"></twig:Slot>
+        </div>
 
-        <twig:Slot name="body-bottom"></twig:Slot>
+        <div class="sw-product-card__content d-flex flex-fill flex-column">
+
+            <div {{ attributes.nested('body').defaults({ class: 'product-card-body card-body' }) }}>
+
+                <twig:Slot name="body-top"></twig:Slot>
+
+                {% block title %}
+                    <twig:Slot name="title">
+                        <h2 {{ attributes.nested('title').defaults({ class: 'product-card-title card-title fw-semibold' }) }}>
+                            <a
+                                {{ attributes.nested('title-link').defaults({
+                                    class: 'product-card-title-link stretched-link',
+                                    href: defaultRoute,
+                                    style: "--sw-product-card-media-height: #{mediaHeight}px",
+                                }) }}
+                            >
+                                {{ product.translated.name }}
+                            </a>
+                        </h2>
+                    </twig:Slot>
+                {% endblock %}
+
+                {% if config('core.listing.showReview') and product.ratingAverage %}
+                    <twig:Slot name="rating">
+                        <twig:Sw:Rating:Stars :stars="product.ratingAverage" />
+                    </twig:Slot>
+                {% endif %}
+
+                {% if not displayParent %}
+                    <twig:Slot name="variants">
+                        <twig:Sw:Product:Variants :variants="product.variation" />
+                    </twig:Slot>
+                {% endif %}
+
+                <twig:Slot name="body-bottom"></twig:Slot>
+            </div>
+
+            <div {{ attributes.nested('footer').defaults({ class: 'product-card-footer card-footer border-0' }) }}>
+
+                <twig:Slot name="footer-top"></twig:Slot>
+
+                {% block price %}
+                    <twig:Slot name="price">
+                        <twig:Sw:Product:PriceDisplay :product="product" />
+                    </twig:Slot>
+                {% endblock %}
+
+                {% block actions %}
+                    <twig:Slot name="actions">
+                        <twig:Sw:Product:CardActions
+                            :product="product"
+                            :addToCartExtraFormData="{ 'foo': 'bar' }"
+                        />
+                    </twig:Slot>
+                {% endblock %}
+
+                <twig:Slot name="footer-bottom"></twig:Slot>
+            </div>
+        </div>
     </div>
-
-    <div {{ attributes.nested('footer').defaults({ class: defaultClasses.footer }) }}>
-
-        <twig:Slot name="footer-top"></twig:Slot>
-
-        {% block price %}
-            <twig:Slot name="price">
-                <twig:Sw:Product:PriceDisplay :product="product" />
-            </twig:Slot>
-        {% endblock %}
-
-        {% block actions %}
-            <twig:Slot name="actions">
-                <twig:Sw:Product:CardActions
-                    :product="product"
-                    :horizontal="horizontal"
-                    :addToCartExtraFormData="{ 'foo': 'bar' }"
-                />
-            </twig:Slot>
-        {% endblock %}
-
-        <twig:Slot name="footer-bottom"></twig:Slot>
-    </div>
-    {{ horizontal ? '</div>' : '' }}
-
-    {{ horizontal ? '</div>' : '' }}
 
     {% block loading_indicator %}
         <twig:Sw:Product:CardLoader />

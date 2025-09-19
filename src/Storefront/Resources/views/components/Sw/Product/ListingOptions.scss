@@ -1,10 +1,14 @@
 .sw-listing-options__horizontal-toggle {
     --bs-btn-color: var(--bs-body-color);
-    --bs-btn-border-color: var(--bs-border-color);
-    --bs-btn-hover-border-color: var(--bs-border-color);
-    --bs-btn-active-border-color: var(--bs-border-color);
+    --bs-btn-hover-color: var(--bs-primary);
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-border-color: transparent;
+    --bs-btn-bg: var(--bs-white);
+    --bs-btn-hover-bg: var(--bs-gray-200);
 
     &.is--active {
-        color: blue;
+        --bs-btn-color: var(--bs-primary);
+        --bs-btn-bg: var(--bs-gray-200);
     }
 }

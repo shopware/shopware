@@ -1,43 +1,12 @@
-$sw-prefix: 'sw-';
-
 .product-card {
     min-width: 100%;
-    --#{$prefix}card-spacer-y: 1rem;
-    --#{$prefix}card-spacer-x: 1rem;
-    --#{$prefix}card-border-color: var(--#{$prefix}border-color);
-    --#{$prefix}card-cap-padding-y: 1rem;
-    --#{$prefix}card-cap-padding-x: 1rem;
-    --#{$prefix}card-cap-bg: none;
-    --#{$sw-prefix}product-card-media-height: 200px;
-
-    // Add css animation
-    transition: all 0.3s ease-in-out;
-
-    &.is--divider {
-        --#{$prefix}card-spacer-y: 0;
-        --#{$prefix}card-spacer-x: 0;
-        --#{$prefix}card-cap-padding-y: 0;
-        --#{$prefix}card-cap-padding-x: 0;
-        --#{$prefix}card-border-color: transparent;
-
-        .product-card-header {
-            margin: 0;
-        }
-
-        .product-card-body {
-            padding-top: 1rem;
-        }
-
-        border-bottom-color: var(--#{$prefix}border-color);
-        padding-bottom: $spacer;
-    }
-}
-
-.product-card-body,
-.product-card-footer,
-.product-card-header {
-    // Add css animation
-    transition: all 0.3s ease-in-out;
+    --bs-card-spacer-y: 1rem;
+    --bs-card-spacer-x: 1rem;
+    --bs-card-border-color: var(--bs-border-color);
+    --bs-card-cap-padding-y: 1rem;
+    --bs-card-cap-padding-x: 1rem;
+    --bs-card-cap-bg: none;
+    --sw-product-card-media-height: 200px;
 }
 
 .product-card-title {
@@ -48,12 +17,8 @@ $sw-prefix: 'sw-';
     font-weight: 600;
 }
 
-//.product-card-header {
-//    margin: $spacer-sm;
-//}
-
 .product-card-title-link {
-    color: var(--#{$prefix}body-color);
+    color: var(--bs-body-color);
     text-decoration: none;
 
     &.stretched-link::after {
@@ -61,7 +26,8 @@ $sw-prefix: 'sw-';
     }
 
     &:hover {
-        text-decoration: none;
+        text-decoration: underline;
+        color: var(--bs-primary);
     }
 }
 
@@ -104,15 +70,32 @@ $sw-prefix: 'sw-';
     }
 }
 
-//.product-card-media {
-//    transition: opacity 0.3s ease, transform 0.3s ease;
-//    transform: scale(100%);
-//}
+.product-card.is--layout-default {
+    .product-card__inner {
+        flex-direction: column;
+    }
+}
 
-// Using wild has selector here because hovering the image is blocked by the stretched link.
-//.product-card-header:has(+ .product-card-body .product-card-title-link:hover) {
-//    .product-card-media {
-//        opacity: 0.7;
-//        transform: scale(105%);
-//    }
-//}
+.product-card.is--layout-horizontal {
+    // Apply .row styling
+    .product-card__inner {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: calc(-1 * var(--bs-gutter-y));
+        margin-right: calc(-.5 * var(--bs-gutter-x));
+        margin-left: calc(-.5 * var(--bs-gutter-x));
+    }
+
+    // Apply .col-3 styling
+    .product-card-header {
+        flex: 0 0 auto;
+        width: 25%;
+    }
+
+    // Apply .col-9 styling
+    .sw-product-card__content {
+        flex: 0 0 auto;
+        width: 75%;
+    }
+}
+

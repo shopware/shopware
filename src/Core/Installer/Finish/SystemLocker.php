@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Installer\Finish;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,10 +16,6 @@ class SystemLocker
 
     public function lock(): void
     {
-        if (EnvironmentHelper::getVariable('SHOPWARE_SKIP_WEBINSTALLER', false)) {
-            return;
-        }
-
         file_put_contents($this->projectDir . '/install.lock', date('YmdHi'));
     }
 }

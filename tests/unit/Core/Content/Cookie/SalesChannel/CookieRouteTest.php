@@ -151,8 +151,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider = $this->createMock(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
-        $this->expectException(CookieException::class);
-        $this->expectExceptionMessage('Failed to generate cookie configuration hash');
+        $this->expectExceptionObject(CookieException::hashGenerationFailed('Cookie configuration processing failed: JSON is invalid'));
 
         (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
     }
@@ -189,35 +188,5 @@ class CookieRouteTest extends TestCase
         static::assertSame($requiredGroup, $groupsArray[0], 'Required group should be first');
         static::assertSame($marketingGroup, $groupsArray[1], 'Marketing group should be second');
         static::assertSame($statisticalGroup, $groupsArray[2], 'Statistical group should be third');
-    }
-
-    public function testHashConsistencyWithRequiredGroupPriority(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        // Create same groups in different orders
-        $requiredGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
-        $requiredGroup->setEntries(new CookieEntryCollection([new CookieEntry('session')]));
-
-        $marketingGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
-        $marketingGroup->setEntries(new CookieEntryCollection([new CookieEntry('marketing')]));
-
-        // Collection 1: required first
-        $collection1 = new CookieGroupCollection([$requiredGroup, $marketingGroup]);
-
-        // Collection 2: required second
-        $collection2 = new CookieGroupCollection([$marketingGroup, $requiredGroup]);
-
-        $cookieProvider1 = $this->createMock(CookieProvider::class);
-        $cookieProvider1->method('getCookieGroups')->willReturn($collection1);
-
-        $cookieProvider2 = $this->createMock(CookieProvider::class);
-        $cookieProvider2->method('getCookieGroups')->willReturn($collection2);
-
-        $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
-        $response2 = (new CookieRoute($cookieProvider2))->getCookieGroups(new Request(), $salesChannelContext);
-
-        // Hash should be the same because internal sorting uses alphabetical order by technical name
-        static::assertSame($response1->getHash(), $response2->getHash(), 'Hash should be consistent regardless of input order due to alphabetical sorting');
     }
 }

@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -24,6 +26,10 @@ class MediaPathChangedEvent extends Event
      */
     public function media(string $mediaId, string $path): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The method MediaPathChangedEvent::media is deprecated and will be removed in v6.8.0. Use mediaWithMimeType instead.'
+        );
         $this->mediaWithMimeType($mediaId, $path);
     }
 
@@ -42,6 +48,10 @@ class MediaPathChangedEvent extends Event
      */
     public function thumbnail(string $mediaId, string $thumbnailId, string $path): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The method MediaPathChangedEvent::thumbnail is deprecated and will be removed in v6.8.0. Use thumbnailWithMimeType instead.'
+        );
         $this->thumbnailWithMimeType($mediaId, $thumbnailId, $path);
     }
 

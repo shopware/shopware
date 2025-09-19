@@ -145,12 +145,43 @@ export default class CookieConfiguration extends Plugin {
         this.openOffCanvas();
     }
 
-    _handlePermission(event) {
+    async _handlePermission(event) {
         event.preventDefault();
+
+        const response = await fetch('/cookie/groups', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        const data = await response.json();
+        const cookieGroups = data.elements || [];
+
+        const allCookieNames = cookieGroups
+            .flatMap(group => group.entries ? group.entries.map(entry => entry.cookie) : (group.cookie ? [group.cookie] : []))
+            .filter(cookieName => cookieName);
+
+        allCookieNames.forEach(cookieName => {
+            CookieStorage.removeItem(cookieName);
+        });
+
+        const requiredCookies = cookieGroups
+            .filter(group => group.isRequired)
+            .flatMap(group => group.entries ? group.entries : (group.cookie ? [group] : []));
+
+        requiredCookies.forEach(cookie => {
+            if (cookie.cookie && cookie.value) {
+                CookieStorage.setItem(cookie.cookie, cookie.value, cookie.expiration || 30);
+            }
+        });
 
         CookieStorage.setItem(this.options.cookiePreference, '1', '30');
 
-        this._handleUpdateListener([], []);
+        const requiredCookieNames = requiredCookies.map(cookie => cookie.cookie);
+        const nonRequiredCookieNames = allCookieNames.filter(name => !requiredCookieNames.includes(name));
+
+        this._handleUpdateListener(requiredCookieNames, nonRequiredCookieNames);
         this.closeOffCanvas();
     }
 

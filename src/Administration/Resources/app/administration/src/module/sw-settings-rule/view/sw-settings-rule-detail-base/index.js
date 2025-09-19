@@ -52,6 +52,7 @@ export default {
         return {
             currentConditions: null,
             customFieldSets: null,
+            productStreamIndexingEnabled: null,
         };
     },
 
@@ -78,6 +79,14 @@ export default {
         showCustomFields() {
             return this.rule && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        showProductStreamIndexingWarning() {
+            return (
+                this.productStreamIndexingEnabled === false &&
+                this.conditions &&
+                this.hasProductStreamConditions(this.conditions)
+            );
+        },
     },
 
     created() {
@@ -87,11 +96,44 @@ export default {
     methods: {
         createdComponent() {
             this.loadCustomFieldSets();
+            this.loadProductStreamIndexingConfig();
         },
 
         loadCustomFieldSets() {
             this.customFieldDataProviderService.getCustomFieldSets('rule').then((sets) => {
                 this.customFieldSets = sets;
+            });
+        },
+
+        loadProductStreamIndexingConfig() {
+            const httpClient = Shopware.Application.getContainer('init').httpClient;
+            const headers = {
+                headers: {
+                    Authorization: `Bearer ${Shopware.Service('loginService').getToken()}`,
+                },
+            };
+
+            httpClient
+                .get('/_admin/config-parameter/shopware.product_stream.indexing', headers)
+                .then((response) => {
+                    this.productStreamIndexingEnabled = response.data;
+                })
+                .catch(() => {
+                    this.productStreamIndexingEnabled = true;
+                });
+        },
+
+        hasProductStreamConditions(conditions) {
+            return conditions.some((condition) => {
+                if (condition.type === 'cartLineItemInProductStream') {
+                    return true;
+                }
+
+                return (
+                    condition.children &&
+                    Array.isArray(condition.children) &&
+                    this.hasProductStreamConditions(condition.children)
+                );
             });
         },
     },

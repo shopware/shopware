@@ -102,6 +102,25 @@
             />
         </template>
 
+        <mt-banner
+            v-if="showProductStreamIndexingWarning"
+            variant="attention"
+            :title="$tc('sw-settings-rule.detail.productStreamIndexingWarning.title')"
+            style="margin: 24px 24px 0 24px;"
+        >
+            <p>
+                {{ $tc('sw-settings-rule.detail.productStreamIndexingWarning.message') }}
+            </p>
+
+            <a
+                href="https://developer.shopware.com/docs/guides/hosting/performance/performance-tweaks.html#disable-product-stream-indexer"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                {{ $tc('sw-settings-rule.detail.productStreamIndexingWarning.action') }}
+            </a>
+        </mt-banner>
+
         <sw-condition-tree
             :initial-conditions="conditions"
             :condition-repository="conditionRepository"

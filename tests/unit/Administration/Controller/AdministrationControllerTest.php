@@ -440,6 +440,47 @@ class AdministrationControllerTest extends TestCase
         static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
     }
 
+    public function testGetConfigParameterReturnsParameterValue(): void
+    {
+        $parameterName = 'shopware.product_stream.indexing';
+
+        $this->parameterBag->method('get')->willReturn(true);
+
+        $controller = $this->createAdministrationController();
+        $response = $controller->getConfigParameter($parameterName);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotFalse($response->getContent());
+        static::assertJsonStringEqualsJsonString(
+            'true',
+            $response->getContent()
+        );
+    }
+
+    public function testGetConfigParameterReturnsEmptyJsonWhenParameterNotExists(): void
+    {
+        $parameterName = 'shopware.product_stream.indexing';
+
+        $controller = $this->createAdministrationController();
+        $response = $controller->getConfigParameter($parameterName);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotFalse($response->getContent());
+        static::assertJsonStringEqualsJsonString(
+            '{}',
+            $response->getContent()
+        );
+    }
+
+    public function testGetConfigParameterThrowsExceptionForInvalidParameter(): void
+    {
+        $this->expectException(RoutingException::class);
+        $this->expectExceptionMessage('The parameter "invalid.parameter" is invalid.');
+
+        $controller = $this->createAdministrationController();
+        $controller->getConfigParameter('invalid.parameter');
+    }
+
     public static function excludedTerms(): \Generator
     {
         $languageId = Uuid::fromStringToHex('languageId');

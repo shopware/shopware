@@ -2,6 +2,18 @@ import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 
+const httpClient = {
+    get: jest.fn().mockResolvedValue({}),
+};
+
+Shopware.Application.getContainer('init').httpClient = httpClient;
+
+Shopware.Service().register('loginService', () => {
+    return {
+        getToken: jest.fn(() => Promise.resolve('token')),
+    }
+});
+
 /**
  * @sw-package fundamentals@after-sales
  */
@@ -58,6 +70,7 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-field-error': true,
                 'sw-label': true,
                 'sw-extension-teaser-popover': true,
+                'mt-banner': true,
             },
             provide: {
                 ruleConditionDataProviderService: new RuleConditionService(),
@@ -204,6 +217,115 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await conditionTree.vm.$emit('initial-loading-done');
 
             expect(wrapper.emitted('tree-finished-loading')).toBeTruthy();
+        });
+
+        it('should show warning when indexing is disabled and rule contains product stream conditions', async () => {
+            httpClient.get.mockResolvedValue({
+                data: false,
+            });
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'cartLineItemInProductStream',
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            expect(wrapper.vm.productStreamIndexingEnabled).toBe(false);
+            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(true);
+            expect(wrapper.find('mt-banner-stub').exists()).toBe(true);
+            expect(wrapper.find('mt-banner-stub').attributes('variant')).toBe('attention');
+        });
+
+        it('should not show warning when indexing is enabled', async () => {
+            httpClient.get.mockResolvedValue({
+                data: true,
+            });
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'cartLineItemInProductStream',
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            expect(wrapper.vm.productStreamIndexingEnabled).toBe(true);
+            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(false);
+            expect(wrapper.find('mt-banner-stub').exists()).toBe(false);
+        });
+
+        it('should not show warning when no product stream conditions exist', async () => {
+            httpClient.get.mockResolvedValue({
+                data: false,
+            });
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'cartCartAmount',
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            expect(wrapper.vm.productStreamIndexingEnabled).toBe(false);
+            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(false);
+            expect(wrapper.find('mt-banner-stub').exists()).toBe(false);
+        });
+
+        it('should detect product stream conditions in nested children', async () => {
+            httpClient.get.mockResolvedValue({
+                data: false,
+            });
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'orContainer',
+                        children: [
+                            {
+                                type: 'andContainer',
+                                children: [
+                                    {
+                                        type: 'cartLineItemInProductStream',
+                                        children: [],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            expect(wrapper.vm.hasProductStreamConditions(wrapper.vm.conditions)).toBe(true);
+            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(true);
+        });
+
+        it('should handle HTTP error by assuming indexing is enabled', async () => {
+            httpClient.get.mockRejectedValue(new Error('API Error'));
+
+            const wrapper = await createWrapper(defaultProps);
+            await flushPromises();
+
+            expect(wrapper.vm.productStreamIndexingEnabled).toBe(true);
+            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(false);
         });
     });
 

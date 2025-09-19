@@ -98,6 +98,11 @@
       "messageSaveSuccess": "The rule \"{name}\" has been saved.",
       "ruleCard": "Condition",
       "messageSaveError": "An error occurred while saving rule",
+      "productStreamIndexingWarning": {
+        "title": "Dynamic Product Group indexing is disabled",
+        "message": "The \"Item in dynamic product group\" rule condition will always evaluate to false.",
+        "action": "Learn more in our documentation"
+      },
       "tabGeneral": "General",
       "tabAssignments": "Assignments",
       "buttonAddAssignment":  "Add assignment",

@@ -74,7 +74,7 @@ class AdministrationController extends AbstractController
         private readonly EntityRepository $currencyRepository,
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        ParameterBagInterface $params,
+        private readonly ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
@@ -313,6 +313,20 @@ class AdministrationController extends AbstractController
         return new JsonResponse(
             ['preview' => $this->htmlSanitizer->sanitize($html, [], false, $field)]
         );
+    }
+
+    #[Route(path: '/api/_admin/config-parameter/{parameterName}', name: 'api.admin.config-parameter', methods: ['GET'])]
+    public function getConfigParameter(string $parameterName): JsonResponse
+    {
+        $allowedParameters = [
+            'shopware.product_stream.indexing',
+        ];
+
+        if (!\in_array($parameterName, $allowedParameters, true)) {
+            throw RoutingException::invalidRequestParameter($parameterName);
+        }
+
+        return new JsonResponse($this->params->get($parameterName));
     }
 
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string

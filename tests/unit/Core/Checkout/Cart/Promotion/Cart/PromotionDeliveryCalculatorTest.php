@@ -185,6 +185,134 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertTrue($cart->getErrors()->has('promotion-not-eligible'));
     }
 
+    /**
+     * Test that fixed delivery discounts don't bypass exclusion checks
+     * This test reproduces the bug where a fixed delivery discount is applied
+     * even when excluded by a higher priority cart discount
+     */
+    public function testFixedDeliveryDiscountRespectsExclusion(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        // Higher priority cart discount that excludes the delivery discount
+        $cartDiscount = new LineItem('cart-promotion', PromotionProcessor::LINE_ITEM_TYPE);
+        $cartDiscount->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_CART);
+        $cartDiscount->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $cartDiscount->setPayloadValue('exclusions', ['delivery-promotion']);
+        $cartDiscount->setPayloadValue('promotionId', 'cart-promotion');
+        $cartDiscount->setPayloadValue('priority', 10); // Higher priority
+        $cartDiscount->setPayloadValue('code', 'CART50');
+        $cartDiscount->setReferencedId('cart-promotion');
+        $cartDiscount->setLabel('Cart Discount');
+
+        // Lower priority delivery discount with TYPE_FIXED_UNIT that should be excluded
+        $deliveryDiscount = $this->getDiscountItem('delivery-promotion')
+            ->setPayloadValue('code', 'FREESHIP')
+            ->setPayloadValue('exclusions', ['cart-promotion'])
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 0) // Free shipping
+            ->setPayloadValue('priority', 1) // Lower priority
+            ->setPriceDefinition(new AbsolutePriceDefinition(0));
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        // Add cart promotion first (to simulate it was already applied)
+        $cart->addLineItems(new LineItemCollection([$cartDiscount]));
+
+        // Calculate delivery promotions - the delivery discount should be excluded
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$cartDiscount, $deliveryDiscount]),
+            $cart,
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        // The delivery discount should NOT be applied due to exclusion
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Shipping should still be 100 (not free) due to exclusion');
+        
+        // Check for promotion not eligible error
+        $hasNotEligibleError = false;
+        foreach ($cart->getErrors() as $error) {
+            if ($error->getId() === 'promotion-not-eligible') {
+                $hasNotEligibleError = true;
+                break;
+            }
+        }
+        static::assertTrue($hasNotEligibleError, 'Delivery promotion should be marked as not eligible due to exclusion');
+    }
+
+    /**
+     * Test that when multiple fixed delivery discounts exist without exclusions,
+     * only the lowest one is applied (existing behavior should be preserved)
+     */
+    public function testMultipleFixedDeliveryDiscountsSelectsLowest(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        // First fixed delivery discount - sets shipping to 50
+        $firstFixedDiscount = $this->getDiscountItem('first-fixed')
+            ->setPayloadValue('code', 'SHIP50')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 50)
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new AbsolutePriceDefinition(50));
+
+        // Second fixed delivery discount - sets shipping to 20 (lower, should be selected)
+        $secondFixedDiscount = $this->getDiscountItem('second-fixed')
+            ->setPayloadValue('code', 'SHIP20')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 20)
+            ->setPayloadValue('priority', 2)
+            ->setPriceDefinition(new AbsolutePriceDefinition(20));
+
+        // Third fixed delivery discount - sets shipping to 30
+        $thirdFixedDiscount = $this->getDiscountItem('third-fixed')
+            ->setPayloadValue('code', 'SHIP30')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 30)
+            ->setPayloadValue('priority', 3)
+            ->setPriceDefinition(new AbsolutePriceDefinition(30));
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        // Calculate with all three fixed discounts
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$firstFixedDiscount, $secondFixedDiscount, $thirdFixedDiscount]),
+            $cart,
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        // Should apply the lowest fixed price (20), so shipping should be reduced by 80 (100 - 20)
+        static::assertSame(20.0, $cart->getShippingCosts()->getTotalPrice(), 'Should apply lowest fixed delivery discount (20)');
+    }
+
     private function getDiscountItem(string $promotionId): LineItem
     {
         $discountItemToBeExcluded = new LineItem($promotionId, PromotionProcessor::LINE_ITEM_TYPE);

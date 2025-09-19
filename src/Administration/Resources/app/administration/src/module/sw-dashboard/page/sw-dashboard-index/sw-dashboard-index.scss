@@ -116,39 +116,6 @@ $content-max-width: 960px;
         margin: var(--scale-size-14) 0 var(--scale-size-20);
     }
 
-    &__card-button {
-        padding: 9px var(--scale-size-24);
-        font-weight: var(--font-weight-semibold);
-        border-radius: var(--border-radius-button);
-        border: 1px solid var(--color-border-primary-default);
-        background-color: var(--color-interaction-secondary-default);
-        display: inline-flex;
-        align-items: center;
-
-        &:hover {
-            background-color: var(--color-interaction-secondary-hover);
-        }
-
-        &:focus-visible {
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
-            outline-offset: var(--scale-size-2);
-        }
-
-        &:link,
-        &:visited,
-        &:active,
-        &:hover,
-        &:focus {
-            color: var(--color-text-primary-default) !important;
-            text-decoration: none;
-            font-size: var(--font-size-xs);
-        }
-
-        .mt-icon {
-            margin-left: var(--scale-size-6);
-        }
-    }
-
     &__card-list {
         list-style: none;
         margin-bottom: var(--scale-size-32);

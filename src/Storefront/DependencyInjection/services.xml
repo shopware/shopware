@@ -444,50 +444,15 @@
             <tag name="console.command"/>
         </service>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider">
-            <argument>%session.storage.options%</argument>
+            <deprecated package="shopware/storefront" version="6.7.3.0">The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.</deprecated>
         </service>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <service id="Shopware\Storefront\Framework\Cookie\AppCookieProvider" decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
-            <argument type="service" id="Shopware\Storefront\Framework\Cookie\AppCookieProvider.inner"/>
-            <argument type="service" id="app.repository"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
-            <argument type="tagged_iterator" tag="shopware.storefront.captcha"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="service_container" />
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\HoneypotCaptcha">
-            <argument type="service" id="validator"/>
-
-            <tag name="shopware.storefront.captcha" priority="400"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha">
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-
-            <tag name="shopware.storefront.captcha" priority="300"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator"/>
-
-        <service id="shopware.captcha.client" class="GuzzleHttp\Client"/>
-
-        <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2">
-            <argument type="service" id="shopware.captcha.client"/>
-
-            <tag name="shopware.storefront.captcha" priority="200"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
-            <argument type="service" id="shopware.captcha.client"/>
-
-            <tag name="shopware.storefront.captcha" priority="100"/>
+            <argument type="service" id=".inner"/>
+            <deprecated package="shopware/storefront" version="6.7.3.0">The %service_id% service will be removed in v6.8.0.0 without replacement</deprecated>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\ResponseHeaderListener">

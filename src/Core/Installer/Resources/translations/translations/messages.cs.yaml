@@ -16,7 +16,7 @@ shopware.installer:
     forward: Další
     start: Spustit
     start_installation: 'Spustit instalaci'
-    select_language_cs: Český
+    select_language_cs: Čeština
     select_language_da-DK: Dánština
     select_language_de: Německy
     select_language_en-US: Anglicky (Spojené státy americké)
@@ -139,3 +139,19 @@ shopware.installer:
         <p>
             Přejeme hodně zábavy a úspěchů s vaším novým online obchodem!
         </p>"
+    menuitem_translation: 'Stažení jazyků'
+    configuration_admin_shop_headline: 'Data obchodu'
+    configuration_admin_language_headline: 'Jazyky'
+    configuration_admin_language_select_all: 'Vybrat vše'
+    configuration_admin_language_clear_all: 'Vymazat vše'
+    configuration_admin_user_headline: 'Data uživatele administrátora'
+    configuration_admin_language_text: 'Přidejte více jazyků do vašeho Shopware obchodu. Pokud chcete později přidat nebo odebrat jazyky, můžete to udělat kdykoli v administraci.'
+    configuration_admin_language_search_placeholder: 'Hledat jazyk...'
+    translations_header: 'Stažení jazyků'
+    translations_import_install_label: 'Stahování a instalace dalších jazyků.'
+    translations_install_duration_info: 'To může trvat několik minut.'
+    finish_title: 'Nastavení vašeho Shopware obchodu je dokončeno.'
+    finish_subtitle: 'Klikněte na "Pokračovat do obchodu" pro otevření administrace vašeho obchodu a začněte budovat obchod vašich snů.'
+    finish_continue: 'Pokračovat do obchodu'
+    translations_install_error_message: 'Při instalaci překladů se něco pokazilo.'
+    translations_install_retry_link: 'Klikněte zde pro opakování'

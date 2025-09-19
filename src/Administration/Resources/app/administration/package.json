@@ -63,7 +63,6 @@
     "@vueuse/core": "^11.0.3",
     "@vvo/tzdb": "6.158.0",
     "ace-builds": "1.37.4",
-    "analytics": "^0.8.19",
     "apexcharts": "4.4.0",
     "app-module-path": "2.2.0",
     "autoprefixer": "10.4.20",

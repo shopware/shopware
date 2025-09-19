@@ -2,6 +2,10 @@ import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 
+/**
+ * @sw-package fundamentals@after-sales
+ */
+
 const httpClient = {
     get: jest.fn().mockResolvedValue({}),
 };
@@ -13,10 +17,6 @@ Shopware.Service().register('loginService', () => {
         getToken: jest.fn(() => Promise.resolve('token')),
     };
 });
-
-/**
- * @sw-package fundamentals@after-sales
- */
 
 const swConditionTree = {
     props: ['initial-conditions'],

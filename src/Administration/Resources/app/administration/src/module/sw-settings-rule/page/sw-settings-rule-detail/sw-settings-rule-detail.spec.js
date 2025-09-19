@@ -9,6 +9,18 @@ import { createRouter, createWebHistory } from 'vue-router';
 const { EntityCollection, Criteria } = Shopware.Data;
 const { Context } = Shopware;
 
+const httpClient = {
+    get: jest.fn().mockResolvedValue({}),
+};
+
+Shopware.Application.getContainer('init').httpClient = httpClient;
+
+Shopware.Service().register('loginService', () => {
+    return {
+        getToken: jest.fn(() => Promise.resolve('token')),
+    };
+});
+
 const ruleMock = {
     id: 'uuid1',
     name: 'Test rule',

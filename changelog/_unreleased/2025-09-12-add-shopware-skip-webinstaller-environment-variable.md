@@ -9,7 +9,6 @@ author_github: @SpiGAndromeda
 * Added `SHOPWARE_SKIP_WEBINSTALLER` environment variable to bypass installer for read-only filesystems
 * Changed `public/index.php` to check environment variable before loading installer
 * Changed `Shopware\Core\Maintenance\System\Command\SystemInstallCommand` to skip install.lock and .htaccess file creation when environment variable is set
-* Changed `Shopware\Core\Maintenance\System\Command\SystemInstallCommand` to check environment variable before calling `SystemLocker::lock()`
 ___
 # Upgrade Information
 ## Environment Variable for PaaS Deployments

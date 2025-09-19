@@ -103,6 +103,14 @@ return [
         preg_quote('CHANGED: Value of constant Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition::MAX_LENGTH_LAST_NAME changed from 60 to 255', '/'),
 
         preg_quote('Shopware\Core\Framework\App\AppException', '/'),
-        preg_quote('Shopware\Core\Service\ServiceException', '/')
+        preg_quote('Shopware\Core\Service\ServiceException', '/'),
+
+        // The class has not been released
+        preg_quote('ADDED: Parameter cookieGroups was added to Method __construct() of class Shopware\Core\System\SalesChannel\StoreApiResponse', '/'),
+        preg_quote('ADDED: Parameter hash was added to Method __construct() of class Shopware\Core\System\SalesChannel\StoreApiResponse', '/'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() increased from 1 to 2', '/'),
+        preg_quote('CHANGED: The parameter $object of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed from Shopware\Core\Framework\Struct\Struct to a non-contravariant Shopware\Core\Content\Cookie\Struct\CookieGroupCollection', '/'),
+        preg_quote('CHANGED: The parameter $object of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed from Shopware\Core\Framework\Struct\Struct to Shopware\Core\Content\Cookie\Struct\CookieGroupCollection', '/'),
+        preg_quote('CHANGED: Parameter 0 of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed name from object to cookieGroups', '/'),
     ],
 ];

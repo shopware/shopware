@@ -47,15 +47,9 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
         /** @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead. */
         this.controllerName = window.controllerName;
-        if (this.controllerName !== undefined) {
-            console.warn('[DEPRECATED] tag:v6.8.0 - The global variable "window.controllerName" is deprecated and will be removed. Please use "window.activeRoute" instead.');
-        }
-        
+
         /** @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead. */
         this.actionName = window.actionName;
-        if (this.actionName !== undefined) {
-            console.warn('[DEPRECATED] tag:v6.8.0 - The global variable "window.actionName" is deprecated and will be removed. Please use "window.activeRoute" instead.');
-        }
         
         this.activeRoute = window.activeRoute;
         this.events = [];

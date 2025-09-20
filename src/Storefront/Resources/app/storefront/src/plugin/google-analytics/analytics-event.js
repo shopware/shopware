@@ -10,10 +10,6 @@ export default class AnalyticsEvent
      * @returns {boolean}
      */
     supports(controllerName, actionName, activeRoute) {
-        if (controllerName || actionName) {
-            console.warn('[DEPRECATED] tag:v6.8.0 - The parameters "controllerName" and "actionName" in the Google Analytics supports() method are deprecated and will be removed. Please use the "activeRoute" parameter instead.');
-        }
-
         console.warn('[Google Analytics Plugin] Method \'supports\' was not overridden by `' + this.constructor.name + '`. Default return set to false.');
         return false;
     }

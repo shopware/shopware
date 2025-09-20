@@ -92,6 +92,7 @@ class SystemInstallCommandTest extends TestCase
         $result = $command->run(new ArrayInput([]), new BufferedOutput());
 
         static::assertSame(0, $result);
+        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testBasicSetupFlow(): void
@@ -155,6 +156,40 @@ class SystemInstallCommandTest extends TestCase
         $result = $command->run(new ArrayInput(['--skip-first-run-wizard' => true]), new BufferedOutput());
 
         static::assertSame(0, $result);
+    }
+
+    public function testInstallLockNotCreatedOnFailure(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
+        $connectionFactory->method('getConnection')->willReturn($connection);
+        $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
+
+        $systemInstallCmd = new SystemInstallCommand(
+            __DIR__,
+            $setupDatabaseAdapterMock,
+            $connectionFactory,
+            $this->createMock(CacheClearer::class)
+        );
+
+        $application = new class extends Application {
+            public function has(string $name): bool
+            {
+                return true;
+            }
+
+            public function doRun(InputInterface $input, OutputInterface $output): int
+            {
+                return Command::FAILURE;
+            }
+        };
+
+        $systemInstallCmd->setApplication($application);
+
+        $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertSame(Command::FAILURE, $result);
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
     }
 
     /**

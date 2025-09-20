@@ -7,7 +7,7 @@
         <parameter key="shopware.installer.supportedLanguages" type="collection">
             <parameter key="cs" type="collection">
                 <parameter key="id">cs-CZ</parameter>
-                <parameter key="label">Český</parameter>
+                <parameter key="label">Čeština</parameter>
             </parameter>
             <parameter key="da-DK" type="collection">
                 <parameter key="id">da-DK</parameter>
@@ -42,7 +42,7 @@
                 <parameter key="label">Nederlands</parameter>
             </parameter>
             <parameter key="no" type="collection">
-                <parameter key="id">no-NO</parameter>
+                <parameter key="id">nn-NO</parameter>
                 <parameter key="label">Norsk</parameter>
             </parameter>
             <parameter key="pl" type="collection">
@@ -166,6 +166,16 @@
 
         <service id="shopware.installer.guzzle" class="GuzzleHttp\Client"/>
 
+        <service id="Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader"
+                 alias="Shopware\Core\System\Snippet\Service\TranslationConfigLoader"/>
+        <service id="Shopware\Core\System\Snippet\Service\TranslationConfigLoader">
+            <argument type="service" id="filesystem"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Struct\TranslationConfig" lazy="true" public="true">
+            <factory service="Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader" method="load"/>
+        </service>
+
         <service id="Shopware\Core\Installer\License\LicenseFetcher">
             <argument type="service" id="shopware.installer.guzzle"/>
             <argument>%shopware.installer.tosUrls%</argument>
@@ -221,6 +231,7 @@
             <argument type="service" id="Shopware\Core\Installer\Configuration\ShopConfigurationService"/>
             <argument type="service" id="Shopware\Core\Installer\Configuration\AdminConfigurationService"/>
             <argument type="service" id="translator"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
             <argument>%shopware.installer.supportedLanguages%</argument>
             <argument>%shopware.installer.supportedCurrencies%</argument>
 
@@ -274,6 +285,12 @@
             <argument type="string">%kernel.project_dir%</argument>
         </service>
 
+        <service id="Shopware\Core\Installer\Controller\TranslationController" public="true">
+            <argument type="string">%kernel.project_dir%</argument>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
         <service id="GuzzleHttp\Client"/>
     </services>
 </container>

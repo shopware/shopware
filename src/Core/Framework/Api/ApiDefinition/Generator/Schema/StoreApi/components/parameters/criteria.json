@@ -165,6 +165,28 @@
                 },
                 "style": "deepObject",
                 "explode": true
+            },
+            "CompressedCriteria": {
+                "name": "_criteria",
+                "in": "query",
+                "description": "Compressed and encoded criteria object. Format: base64url(gzip(json_encode(criteria))). This parameter allows passing complex criteria as a single encoded string instead of multiple query parameters. The criteria object should be JSON-encoded, then gzipped, and finally base64url-encoded. The criteria object structure is defined in the Criteria schema (see #/components/schemas/Criteria).",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "format": "base64url",
+                    "example": "H4sIAAAAAAAAA6tWykpNzFGyqlbKz8lPTSxRslJKSi0pzSsFAGcQr7sHAAAA"
+                }
+            },
+            "CompressedNoneFieldsCriteria": {
+                "name": "_criteria",
+                "in": "query",
+                "description": "Compressed and encoded criteria object. Format: base64url(gzip(json_encode(criteria))). This parameter allows passing complex criteria as a single encoded string instead of multiple query parameters. The criteria object should be JSON-encoded, then gzipped, and finally base64url-encoded. The criteria object structure is defined in the NoneFieldsCriteria schema (see #/components/schemas/NoneFieldsCriteria).",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "format": "base64url",
+                    "example": "H4sIAAAAAAAAA6tWykpNzFGyqlbKz8lPTSxRslJKSi0pzSsFAGcQr7sHAAAA"
+                }
             }
         },
         "x-parameter-groups": {
@@ -210,6 +232,9 @@
                 },
                 {
                     "$ref": "#/components/parameters/criteriaIncludes"
+                },
+                {
+                    "$ref": "#/components/parameters/CompressedCriteria"
                 }
             ],
             "noneFieldsCriteria": [
@@ -251,6 +276,9 @@
                 },
                 {
                     "$ref": "#/components/parameters/criteriaIncludes"
+                },
+                {
+                    "$ref": "#/components/parameters/CompressedNoneFieldsCriteria"
                 }
             ],
             "productListingCriteria": [

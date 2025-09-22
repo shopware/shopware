@@ -102,9 +102,11 @@
             />
         </template>
 
-        <div class="sw-settings-rule-detail-base__product-stream-warning">
+        <div
+            v-if="showProductStreamIndexingWarning"
+            class="sw-settings-rule-detail-base__product-stream-warning"
+        >
             <mt-banner
-                v-if="showProductStreamIndexingWarning"
                 variant="attention"
                 :title="$tc('sw-settings-rule.detail.productStreamIndexingWarning.title')"
             >

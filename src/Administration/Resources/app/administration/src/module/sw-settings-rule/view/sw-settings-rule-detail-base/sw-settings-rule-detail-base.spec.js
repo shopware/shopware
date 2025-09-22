@@ -243,7 +243,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(props);
             await flushPromises();
 
-            expect(wrapper.find('.sw-settings-rule-detail-base__product-stream-warning mt-banner-stub').exists()).toBe(false);
+            expect(wrapper.find('.sw-settings-rule-detail-base__product-stream-warning mt-banner-stub').exists()).toBe(
+                false,
+            );
         });
 
         it('should not show warning banner when no product stream conditions exist', async () => {
@@ -261,7 +263,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(props);
             await flushPromises();
 
-            expect(wrapper.find('.sw-settings-rule-detail-base__product-stream-warning mt-banner-stub').exists()).toBe(false);
+            expect(wrapper.find('.sw-settings-rule-detail-base__product-stream-warning mt-banner-stub').exists()).toBe(
+                false,
+            );
         });
 
         it('should show warning banner when product stream conditions exist in nested children', async () => {

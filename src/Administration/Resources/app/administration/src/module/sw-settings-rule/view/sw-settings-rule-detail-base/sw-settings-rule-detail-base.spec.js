@@ -6,18 +6,6 @@ import RuleConditionService from 'src/app/service/rule-condition.service';
  * @sw-package fundamentals@after-sales
  */
 
-const httpClient = {
-    get: jest.fn().mockResolvedValue({}),
-};
-
-Shopware.Application.getContainer('init').httpClient = httpClient;
-
-Shopware.Service().register('loginService', () => {
-    return {
-        getToken: jest.fn(() => Promise.resolve('token')),
-    };
-});
-
 const swConditionTree = {
     props: ['initial-conditions'],
     template: '<div class="sw-condition-tree"></div>',
@@ -220,9 +208,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
         });
 
         it('should show warning when indexing is disabled and rule contains product stream conditions', async () => {
-            httpClient.get.mockResolvedValue({
-                data: false,
-            });
+            Shopware.Context.app.productStreamIndexingEnabled = false;
 
             const props = {
                 ...defaultProps,
@@ -243,9 +229,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
         });
 
         it('should not show warning when indexing is enabled', async () => {
-            httpClient.get.mockResolvedValue({
-                data: true,
-            });
+            Shopware.Context.app.productStreamIndexingEnabled = true;
 
             const props = {
                 ...defaultProps,
@@ -265,9 +249,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
         });
 
         it('should not show warning when no product stream conditions exist', async () => {
-            httpClient.get.mockResolvedValue({
-                data: false,
-            });
+            Shopware.Context.app.productStreamIndexingEnabled = false;
 
             const props = {
                 ...defaultProps,
@@ -287,9 +269,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
         });
 
         it('should detect product stream conditions in nested children', async () => {
-            httpClient.get.mockResolvedValue({
-                data: false,
-            });
+            Shopware.Context.app.productStreamIndexingEnabled = false;
 
             const props = {
                 ...defaultProps,
@@ -316,16 +296,6 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
 
             expect(wrapper.vm.hasProductStreamConditions(wrapper.vm.conditions)).toBe(true);
             expect(wrapper.vm.showProductStreamIndexingWarning).toBe(true);
-        });
-
-        it('should handle HTTP error by assuming indexing is enabled', async () => {
-            httpClient.get.mockRejectedValue(new Error('API Error'));
-
-            const wrapper = await createWrapper(defaultProps);
-            await flushPromises();
-
-            expect(wrapper.vm.productStreamIndexingEnabled).toBe(true);
-            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(false);
         });
     });
 

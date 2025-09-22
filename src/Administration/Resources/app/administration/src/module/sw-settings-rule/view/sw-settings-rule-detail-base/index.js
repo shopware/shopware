@@ -52,7 +52,6 @@ export default {
         return {
             currentConditions: null,
             customFieldSets: null,
-            productStreamIndexingEnabled: null,
         };
     },
 
@@ -80,6 +79,10 @@ export default {
             return this.rule && this.customFieldSets && this.customFieldSets.length > 0;
         },
 
+        productStreamIndexingEnabled() {
+            return Shopware.Context.app.productStreamIndexingEnabled ?? true;
+        },
+
         showProductStreamIndexingWarning() {
             return (
                 this.productStreamIndexingEnabled === false &&
@@ -96,31 +99,12 @@ export default {
     methods: {
         createdComponent() {
             this.loadCustomFieldSets();
-            this.loadProductStreamIndexingConfig();
         },
 
         loadCustomFieldSets() {
             this.customFieldDataProviderService.getCustomFieldSets('rule').then((sets) => {
                 this.customFieldSets = sets;
             });
-        },
-
-        loadProductStreamIndexingConfig() {
-            const httpClient = Shopware.Application.getContainer('init').httpClient;
-            const headers = {
-                headers: {
-                    Authorization: `Bearer ${Shopware.Service('loginService').getToken()}`,
-                },
-            };
-
-            httpClient
-                .get('/_admin/config-parameter/shopware.product_stream.indexing', headers)
-                .then((response) => {
-                    this.productStreamIndexingEnabled = response.data;
-                })
-                .catch(() => {
-                    this.productStreamIndexingEnabled = true;
-                });
         },
 
         hasProductStreamConditions(conditions) {

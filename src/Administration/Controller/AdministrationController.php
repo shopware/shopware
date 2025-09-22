@@ -49,6 +49,8 @@ class AdministrationController extends AbstractController
 
     private readonly bool $esStorefrontEnabled;
 
+    private readonly bool $productStreamIndexingEnabled;
+
     /**
      * @internal
      *
@@ -69,7 +71,7 @@ class AdministrationController extends AbstractController
         private readonly EntityRepository $currencyRepository,
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        private readonly ParameterBagInterface $params,
+        ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
@@ -82,6 +84,9 @@ class AdministrationController extends AbstractController
         $this->esStorefrontEnabled = $params->has('elasticsearch.enabled')
             ? $params->get('elasticsearch.enabled')
             : false;
+        $this->productStreamIndexingEnabled = $params->has('shopware.product_stream.indexing')
+            ? $params->get('shopware.product_stream.indexing')
+            : true;
     }
 
     #[Route(path: '/%shopware_administration.path_name%', name: 'administration.index', defaults: ['auth_required' => false], methods: ['GET'])]
@@ -108,6 +113,7 @@ class AdministrationController extends AbstractController
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
+            'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
         ]);
     }
 
@@ -289,20 +295,6 @@ class AdministrationController extends AbstractController
         return new JsonResponse(
             ['preview' => $this->htmlSanitizer->sanitize($html, [], false, $field)]
         );
-    }
-
-    #[Route(path: '/api/_admin/config-parameter/{parameterName}', name: 'api.admin.config-parameter', methods: ['GET'])]
-    public function getConfigParameter(string $parameterName): JsonResponse
-    {
-        $allowedParameters = [
-            'shopware.product_stream.indexing',
-        ];
-
-        if (!\in_array($parameterName, $allowedParameters, true)) {
-            throw RoutingException::invalidRequestParameter($parameterName);
-        }
-
-        return new JsonResponse($this->params->get($parameterName));
     }
 
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string

@@ -25,6 +25,7 @@ abstract class InstallerController extends AbstractController
         'installer.database-configuration' => 'database-configuration',
         'installer.database-import' => 'database-import',
         'installer.configuration' => 'configuration',
+        'installer.translation' => 'translation',
         'installer.finish' => 'finish',
     ];
 

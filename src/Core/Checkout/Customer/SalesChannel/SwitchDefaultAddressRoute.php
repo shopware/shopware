@@ -54,7 +54,7 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
         defaults: ['type' => 'billing', '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
         methods: ['PATCH']
     )]
-    public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): SwitchDefaultAddressRouteResponse
+    public function swapWithResponse(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): SwitchDefaultAddressRouteResponse
     {
         $this->validateAddress($addressId, $context, $customer);
 

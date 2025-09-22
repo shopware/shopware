@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Sso;
 
-use Shopware\Administration\Login\Config\LoginConfig;
-use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Sso\Config\LoginConfig;
+use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 
 /**
  * @internal

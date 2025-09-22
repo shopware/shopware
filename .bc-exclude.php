@@ -104,5 +104,9 @@ return [
 
         preg_quote('Shopware\Core\Framework\App\AppException', '/'),
         preg_quote('Shopware\Core\Service\ServiceException', '/'),
+
+        // Moved endpoint to Shopware\Core\Framework\Sso\Controller\SsoController to not have a hard dependency between admin and core packages
+        // It was never intended to be used outside of SaaS in it's initial release (still marked experimental / internal everywhere else, only this one method was forgotten)
+        preg_quote('REMOVED: Method Shopware\Administration\Controller\AdministrationController#ssoAuth() was removed', '/'),
     ],
 ];

@@ -1,5 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport, replaceElements, hideElements } from '@shopware-ag/acceptance-test-suite';
+import { test, setViewport, replaceElements, hideElements, assertScreenshot } from '@fixtures/AcceptanceTest';
 
 test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -17,7 +16,7 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
             AdminRuleDetail.header,
             AdminRuleDetail.nameInput,
         ]);
-        await expect(AdminRuleDetail.contentView).toHaveScreenshot('Rule-Builder-General.png');
+        await assertScreenshot(AdminRuleDetail.page, 'Rule-Builder-General.png');
     });
     await test.step('Creates a screenshot of the Rule Builder assignments tab.', async () => {
         await ShopAdmin.goesTo(AdminRuleDetail.url(rule.id, 'assignments'));
@@ -27,8 +26,7 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
         await replaceElements(AdminRuleDetail.page, [
             AdminRuleDetail.header,
         ]);
-
-        await expect(AdminRuleDetail.contentView).toHaveScreenshot('Rule-Builder-Detail-Assignments.png');
+        await assertScreenshot(AdminRuleDetail.page, 'Rule-Builder-Detail-Assignments.png');
     });
     await test.step('Creates a screenshot of the Rule Builder add assignments modal.', async () => {
         await AdminRuleDetail.shippingMethodAvailabilityRulesCard.getByText('Add assignment').click();
@@ -43,6 +41,6 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
         await hideElements(AdminRuleDetail.page, [
             AdminRuleDetail.adminMenuAvatar,
         ])
-        await expect(AdminRuleDetail.assignmentModal).toHaveScreenshot('Rule-Builder-Detail-Assignments-Modal.png');
+        await assertScreenshot(AdminRuleDetail.page, 'Rule-Builder-Detail-Assignments-Modal.png', AdminRuleDetail.assignmentModal);
     });
 });

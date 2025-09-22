@@ -51,7 +51,16 @@ class RouteScopeListenerTest extends TestCase
         $profilerController = static::getContainer()->get('web_profiler.controller.profiler');
         $event->setController($profilerController->panelAction(...));
 
-        $listener->checkScope($event);
+        $error = null;
+        $message = '';
+
+        try {
+            $listener->checkScope($event);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     public function testRouteScopeListenerFailsHardWithoutAnnotation(): void
@@ -76,8 +85,16 @@ class RouteScopeListenerTest extends TestCase
 
         $stack->push($request);
         $event = $this->createEvent($request);
+        $error = null;
+        $message = '';
 
-        $listener->checkScope($event);
+        try {
+            $listener->checkScope($event);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     public function testRouteScopeListenerDeniesInvalidAdminRequest(): void
@@ -106,8 +123,16 @@ class RouteScopeListenerTest extends TestCase
         $stack->push($requestSub);
 
         $event = $this->createEvent($requestSub);
+        $error = null;
+        $message = '';
 
-        $listener->checkScope($event);
+        try {
+            $listener->checkScope($event);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     private function createEvent(Request $request): ControllerEvent

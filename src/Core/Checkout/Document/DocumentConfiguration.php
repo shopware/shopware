@@ -115,6 +115,7 @@ class DocumentConfiguration extends Struct
      */
     public function __set($name, $value): void
     {
+        // @phpstan-ignore property.dynamicName (We allow all dynamic properties in the document configuration)
         $this->$name = $value;
     }
 
@@ -125,6 +126,7 @@ class DocumentConfiguration extends Struct
      */
     public function __get($name)
     {
+        // @phpstan-ignore property.dynamicName (We allow all dynamic properties in the document configuration)
         return $this->$name;
     }
 

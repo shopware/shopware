@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Service;
 use GuzzleHttp\Psr7\Exception\MalformedUriException;
 use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
@@ -20,7 +21,7 @@ use Symfony\Component\Yaml\Yaml;
  * @internal
  */
 #[Package('discovery')]
-class TranslationConfigLoader
+class TranslationConfigLoader extends AbstractTranslationConfigLoader
 {
     private const REPOSITORY_URL = 'repository-url';
 
@@ -31,6 +32,11 @@ class TranslationConfigLoader
     ) {
     }
 
+    public function getDecorated(): AbstractTranslationConfigLoader
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     public function load(): TranslationConfig
     {
         $config = $this->parseConfig();
@@ -38,18 +44,18 @@ class TranslationConfigLoader
         $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
         $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
 
-        /** @var list<string> $locales */
-        $locales = $config['locales'];
-        \assert(\is_array($locales), 'The locales in the translation config must be an array.');
-
         /** @var list<string> $plugins */
         $plugins = $config['plugins'];
         \assert(\is_array($plugins), 'The plugins in the translation config must be an array.');
 
         $languages = $config['languages'] ?? [];
+        $excludedLocales = $config['excluded-locales'] ?? [];
 
+        $locales = [];
         $languageData = [];
+
         foreach ($languages as $language) {
+            $locales[] = $language['locale'];
             $languageData[] = new Language($language['locale'], $language['name']);
         }
 
@@ -61,7 +67,8 @@ class TranslationConfigLoader
             $plugins,
             new LanguageCollection($languageData),
             $pluginMapping,
-            $metadataUrl
+            $metadataUrl,
+            $excludedLocales,
         );
     }
 

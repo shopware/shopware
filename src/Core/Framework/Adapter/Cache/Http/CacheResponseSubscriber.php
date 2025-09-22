@@ -30,9 +30,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[Package('framework')]
-class CacheResponseSubscriber implements EventSubscriberInterface
+readonly class CacheResponseSubscriber implements EventSubscriberInterface
 {
-    private readonly ?int $storeApiDefaultTtl;
+    private ?int $storeApiDefaultTtl;
 
     /**
      * @param array<string> $cookies
@@ -40,18 +40,19 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly array $cookies,
-        private readonly CartService $cartService,
-        private readonly int $defaultTtl,
-        private readonly bool $httpCacheEnabled,
-        private readonly MaintenanceModeResolver $maintenanceResolver,
-        private readonly RequestStack $requestStack,
-        private readonly ?string $staleWhileRevalidate,
-        private readonly ?string $staleIfError,
-        private readonly EventDispatcherInterface $dispatcher,
+        private array $cookies,
+        private CartService $cartService,
+        private int $defaultTtl,
+        private bool $httpCacheEnabled,
+        private MaintenanceModeResolver $maintenanceResolver,
+        private RequestStack $requestStack,
+        private ?string $staleWhileRevalidate,
+        private ?string $staleIfError,
+        private EventDispatcherInterface $dispatcher,
+        private CacheRelevantRulesResolver $ruleResolver,
         ?int $storeApiDefaultTtl = null,
-        private readonly ?string $storeApiStaleWhileRevalidate = null,
-        private readonly ?string $storeApiStaleIfError = null,
+        private ?string $storeApiStaleWhileRevalidate = null,
+        private ?string $storeApiStaleIfError = null,
     ) {
         $this->storeApiDefaultTtl = $storeApiDefaultTtl ?? $defaultTtl;
     }
@@ -108,7 +109,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $route = $request->attributes->get('_route');
-
         if ($route === 'frontend.checkout.configure') {
             $this->setCurrencyCookie($request, $response);
         }
@@ -245,8 +245,19 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string
     {
+        $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            $ruleIds = $context->getRuleIdsByAreas($ruleAreas);
+        } else {
+            $ruleIds = $context->getRuleIds();
+        }
+
+        $ruleIds = array_unique($ruleIds);
+        sort($ruleIds);
+
         $parts = [
-            HttpCacheCookieEvent::RULE_IDS => $context->getRuleIds(),
+            HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),

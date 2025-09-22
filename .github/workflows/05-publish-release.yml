@@ -85,10 +85,10 @@ jobs:
           if: github.event.action == 'published'
           id: sts-production
           with:
-            scope: shopware/production
+            scope: shopware/template
             identity: release
 
-        - name: Trigger shopware/production build
+        - name: Trigger shopware/template build
           if: github.event.action == 'published'
           continue-on-error: true
           run: |
@@ -97,26 +97,7 @@ jobs:
             -H "Accept: application/vnd.github.everest-preview+json" \
             -H "Authorization: Bearer ${{ steps.sts-production.outputs.token }}" \
             -H "Content-Type: application/json" \
-            https://api.github.com/repos/shopware/production/actions/workflows/update.yml/dispatches \
-            -d '{"ref": "trunk"}'
-
-        - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
-          if: github.event.action == 'published'
-          id: sts-testenv-platform
-          with:
-            scope: shopwareLabs/testenv-platform
-            identity: release
-
-        - name: Trigger shopwareLabs/testenv-platform build
-          if: github.event.action == 'published'
-          continue-on-error: true
-          run: |
-            curl \
-            -X POST \
-            -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: Bearer ${{ steps.sts-testenv-platform.outputs.token }}" \
-            -H "Content-Type: application/json" \
-            https://api.github.com/repos/shopwareLabs/testenv-platform/actions/workflows/shopware.yml/dispatches \
+            https://api.github.com/repos/shopware/template/actions/workflows/update.yml/dispatches \
             -d '{"ref": "trunk"}'
   
   publish-sbp-release:

@@ -921,6 +921,11 @@ class RequestCriteriaBuilderTest extends TestCase
      */
     public static function invalidCriteriaParameterProvider(): iterable
     {
+        yield 'too long criteria string' => [
+            str_repeat('a', 1024 * 128 + 1),
+            'The _criteria parameter is too long',
+        ];
+
         yield 'invalid base64 data' => [
             'invalid_base64_data',
             'Unable to decompress gzipped data',
@@ -936,6 +941,11 @@ class RequestCriteriaBuilderTest extends TestCase
         yield 'invalid JSON data' => [
             $encodedInvalidJson,
             'Invalid JSON data',
+        ];
+
+        yield 'invalid criteria not array' => [
+            self::gzipAndBase64UrlEncode('"just a string"'),
+            'Criteria data must be an array',
         ];
     }
 

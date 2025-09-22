@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[Package('framework')]
 readonly class CacheResponseSubscriber implements EventSubscriberInterface
 {
-    private ?int $storeApiDefaultTtl;
+    private int $storeApiDefaultTtl;
 
     /**
      * @param array<string> $cookies

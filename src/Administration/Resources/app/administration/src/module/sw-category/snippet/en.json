@@ -148,7 +148,8 @@
         "type": {
           "internal": "Internal",
           "external": "External"
-        }
+        },
+        "linkHasProtocol": "Use protocol"
       },
       "products": {
         "productAssignmentHeadline": "Product assignment",

@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
+use Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -48,14 +48,15 @@ class SwitchDefaultAddressRouteTest extends TestCase
         $addressRepository->method('search')->willReturn($addresses);
         $addressRepository->method('searchIds')->willReturn($idSearchResult);
 
-        $customerRepository->expects(self::once())
+        $customerRepository->expects($this->once())
             ->method('update')
             ->with(
-                self::callback(function (array $payload) use ($customerId, $addressId) {
-                    if (count($payload) !== 1) {
+                static::callback(function (array $payload) use ($customerId, $addressId) {
+                    if (\count($payload) !== 1) {
                         return false;
                     }
                     $data = $payload[0];
+
                     return isset($data['id'], $data['defaultBillingAddressId'])
                         && $data['id'] === $customerId
                         && $data['defaultBillingAddressId'] === $addressId;
@@ -63,16 +64,16 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 $context
             );
 
-        $eventDispatcher->expects(self::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
-            ->with(self::isInstanceOf(CustomerSetDefaultBillingAddressEvent::class));
+            ->with(static::isInstanceOf(CustomerSetDefaultBillingAddressEvent::class));
 
         $route = new SwitchDefaultAddressRoute($addressRepository, $customerRepository, $eventDispatcher);
 
         $response = $route->swap($addressId, 'billing', $salesChannelContext, $customer);
 
         // ensure we get a collection back (concrete equality check)
-        self::assertSame($addressCollection, $response->getAddressCollection());
+        static::assertSame($addressCollection, $response->getAddressCollection());
     }
 
     public function testSwapSetsDefaultShippingAddressAndReturnsAddresses(): void
@@ -101,14 +102,15 @@ class SwitchDefaultAddressRouteTest extends TestCase
         $addressRepository->method('search')->willReturn($addresses);
         $addressRepository->method('searchIds')->willReturn($idSearchResult);
 
-        $customerRepository->expects(self::once())
+        $customerRepository->expects($this->once())
             ->method('update')
             ->with(
-                self::callback(function (array $payload) use ($customerId, $addressId) {
-                    if (count($payload) !== 1) {
+                static::callback(function (array $payload) use ($customerId, $addressId) {
+                    if (\count($payload) !== 1) {
                         return false;
                     }
                     $data = $payload[0];
+
                     return isset($data['id'], $data['defaultShippingAddressId'])
                         && $data['id'] === $customerId
                         && $data['defaultShippingAddressId'] === $addressId;
@@ -116,14 +118,14 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 $context
             );
 
-        $eventDispatcher->expects(self::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
-            ->with(self::isInstanceOf(CustomerSetDefaultShippingAddressEvent::class));
+            ->with(static::isInstanceOf(CustomerSetDefaultShippingAddressEvent::class));
 
         $route = new SwitchDefaultAddressRoute($addressRepository, $customerRepository, $eventDispatcher);
 
         $response = $route->swap($addressId, 'shipping', $salesChannelContext, $customer);
 
-        self::assertSame($addressCollection, $response->getAddressCollection());
+        static::assertSame($addressCollection, $response->getAddressCollection());
     }
 }

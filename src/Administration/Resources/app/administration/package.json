@@ -105,7 +105,7 @@
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-plugin-symfony": "^7.1.0",
     "vite-svg-loader": "^5.1.0",
-    "vue": "3.5.13",
+    "vue": "3.5.21",
     "vue-i18n": "10.0.5",
     "vue-router": "4.5.0",
     "vue3-apexcharts": "^1.8.0",
@@ -137,7 +137,7 @@
     "@types/uuid": "9.0.8",
     "@typescript-eslint/eslint-plugin": "8.21.0",
     "@typescript-eslint/parser": "8.21.0",
-    "@vue/compiler-dom": "3.5.13",
+    "@vue/compiler-dom": "3.5.21",
     "@vue/vue3-jest": "29.2.6",
     "axios-mock-adapter": "1.22.0",
     "babel-jest": "29.7.0",
@@ -210,7 +210,7 @@
     "vuex": "Vuex is deprecated and will be removed with Shopware 6.8.0"
   },
   "overrides": {
-    "vue": "3.5.13",
+    "vue": "3.5.21",
     "@typescript-eslint/eslint-plugin": "8.21.0"
   }
 }

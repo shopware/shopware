@@ -4,9 +4,10 @@ namespace Shopware\Tests\Unit\Core\Saas;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\SsoService;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -30,8 +31,7 @@ class SsoServiceTest extends TestCase
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
             ],
-            'local.host',
-            '/admin'
+            $this->createMock(RouterInterface::class)
         );
 
         $ssoService = new SsoService($loginConfigService);
@@ -42,7 +42,7 @@ class SsoServiceTest extends TestCase
     public function testIsSsoShouldReturnFalse(): void
     {
         // @phpstan-ignore argument.type (LoginConfigService expected an array with specific key-value pairs)
-        $loginConfigService = new LoginConfigService([], 'local.host', '/admin');
+        $loginConfigService = new LoginConfigService([], $this->createMock(RouterInterface::class));
 
         $ssoService = new SsoService($loginConfigService);
 

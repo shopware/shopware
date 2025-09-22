@@ -102,25 +102,26 @@
             />
         </template>
 
-        <mt-banner
-            v-if="showProductStreamIndexingWarning"
-            variant="attention"
-            :title="$tc('sw-settings-rule.detail.productStreamIndexingWarning.title')"
-            style="margin: 24px 24px 0 24px;"
-        >
-            <p>
-                {{ $tc('sw-settings-rule.detail.productStreamIndexingWarning.message') }}
-            </p>
-
-            <mt-link
-                type="external"
-                as="a"
-                href="https://developer.shopware.com/docs/guides/hosting/performance/performance-tweaks.html#disable-product-stream-indexer"
-                target="_blank"
+        <div class="sw-settings-rule-detail-base__product-stream-warning">
+            <mt-banner
+                v-if="showProductStreamIndexingWarning"
+                variant="attention"
+                :title="$tc('sw-settings-rule.detail.productStreamIndexingWarning.title')"
             >
-                {{ $tc('sw-settings-rule.detail.productStreamIndexingWarning.action') }}
-            </mt-link>
-        </mt-banner>
+                <p>
+                    {{ $tc('sw-settings-rule.detail.productStreamIndexingWarning.message') }}
+                </p>
+
+                <mt-link
+                    type="external"
+                    as="a"
+                    href="https://developer.shopware.com/docs/guides/hosting/performance/performance-tweaks.html#disable-product-stream-indexer"
+                    target="_blank"
+                >
+                    {{ $tc('sw-settings-rule.detail.productStreamIndexingWarning.action') }}
+                </mt-link>
+            </mt-banner>
+        </div>
 
         <sw-condition-tree
             :initial-conditions="conditions"

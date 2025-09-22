@@ -1,4 +1,5 @@
 import template from './sw-settings-rule-detail-base.html.twig';
+import './sw-settings-rule-detail-base.scss';
 
 /**
  * @private

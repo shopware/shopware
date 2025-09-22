@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Maintenance\Staging\Handler;
 
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppStateService;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
+use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 
 /**
@@ -19,75 +16,52 @@ use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 readonly class StagingExtensionHandler
 {
     /**
-     * @param EntityRepository<PluginCollection> $pluginRepository
-     * @param EntityRepository<AppCollection> $appRepository
      * @param list<string> $extensionsToDisable
      */
     public function __construct(
-        private EntityRepository $pluginRepository,
-        private PluginLifecycleService $pluginLifecycleService,
-        private EntityRepository $appRepository,
-        private AppStateService $appStateService,
+        private ExtensionDataProvider $extensionDataProvider,
+        private ExtensionLifecycleService $extensionLifecycleService,
         private array $extensionsToDisable = [],
     ) {
     }
 
     public function __invoke(SetupStagingEvent $event): void
     {
-        if ($this->extensionsToDisable === []) {
+        $extensionsToDisable = array_values(array_unique(array_filter(array_map(static fn ($v) => trim($v), $this->extensionsToDisable))));
+        if ($extensionsToDisable === []) {
             return;
         }
 
-        $names = array_values(array_unique(array_filter(array_map(static fn ($v) => trim($v), $this->extensionsToDisable))));
-        if ($names === []) {
-            return;
-        }
+        $event->io->info(
+            \sprintf('Staging: Checking %d extension(s) to disable: %s', \count($extensionsToDisable), implode(', ', $extensionsToDisable))
+        );
 
-        $event->io->info(\sprintf('Staging: Checking %d extension(s) to disable: %s', \count($names), implode(', ', $names)));
+        $extensionCriteria = new Criteria();
+        $extensionCriteria->addFilter(new EqualsAnyFilter('name', $extensionsToDisable));
 
-        $foundNames = [];
+        $extensions = $this->extensionDataProvider->getInstalledExtensions(
+            context: $event->context,
+            searchCriteria: $extensionCriteria,
+        );
 
-        $pluginCriteria = new Criteria();
-        $pluginCriteria->addFilter(new EqualsAnyFilter('name', $names));
-        $plugins = $this->pluginRepository->search($pluginCriteria, $event->context)->getEntities();
+        $foundExtensions = [];
+        foreach ($extensions as $extension) {
+            $foundExtensions[] = $extension->getName();
 
-        foreach ($plugins as $plugin) {
-            $foundNames[] = $plugin->getName();
-
-            if (!$plugin->getActive()) {
-                $event->io->comment(\sprintf('Plugin %s is already inactive.', $plugin->getName()));
+            if (!$extension->getActive()) {
+                $event->io->comment(\sprintf('Extension %s is already inactive.', $extension->getName()));
                 continue;
             }
 
             try {
-                $this->pluginLifecycleService->deactivatePlugin($plugin, $event->context);
-                $event->io->info(\sprintf('Deactivated plugin %s for staging.', $plugin->getName()));
+                $this->extensionLifecycleService->deactivate($extension->getType(), $extension->getName(), $event->context);
+                $event->io->info(\sprintf('Deactivated extension %s for staging.', $extension->getName()));
             } catch (\Throwable $e) {
-                $event->io->warning(\sprintf('Failed to deactivate plugin %s: %s', $plugin->getName(), $e->getMessage()));
+                $event->io->warning(\sprintf('Failed to deactivate extension %s: %s', $extension->getName(), $e->getMessage()));
             }
         }
 
-        $appCriteria = new Criteria();
-        $appCriteria->addFilter(new EqualsAnyFilter('name', $names));
-        $apps = $this->appRepository->search($appCriteria, $event->context)->getEntities();
-
-        foreach ($apps as $app) {
-            $foundNames[] = $app->getName();
-
-            if (!$app->isActive()) {
-                $event->io->comment(\sprintf('App %s is already inactive.', $app->getName()));
-                continue;
-            }
-
-            try {
-                $this->appStateService->deactivateApp($app->getId(), $event->context);
-                $event->io->info(\sprintf('Deactivated app %s for staging.', $app->getName()));
-            } catch (\Throwable $e) {
-                $event->io->warning(\sprintf('Failed to deactivate app %s: %s', $app->getName(), $e->getMessage()));
-            }
-        }
-
-        $missing = array_diff($names, array_unique($foundNames));
+        $missing = array_diff($extensionsToDisable, array_unique($foundExtensions));
         foreach ($missing as $miss) {
             $event->io->warning(\sprintf('Configured extension %s not found and could not be disabled.', $miss));
         }

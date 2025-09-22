@@ -1,6 +1,7 @@
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
+import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.constant';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -214,7 +215,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
                 ...defaultProps,
                 conditions: [
                     {
-                        type: 'cartLineItemInProductStream',
+                        type: PRODUCT_STREAM_CONDITIONS[0],
                     },
                 ],
             };
@@ -234,7 +235,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
                 ...defaultProps,
                 conditions: [
                     {
-                        type: 'cartLineItemInProductStream',
+                        type: PRODUCT_STREAM_CONDITIONS[0],
                     },
                 ],
             };
@@ -276,7 +277,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
                                 type: 'andContainer',
                                 children: [
                                     {
-                                        type: 'cartLineItemInProductStream',
+                                        type: PRODUCT_STREAM_CONDITIONS[0],
                                         children: [],
                                     },
                                 ],

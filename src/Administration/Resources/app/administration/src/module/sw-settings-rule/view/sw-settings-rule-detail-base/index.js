@@ -1,5 +1,6 @@
 import template from './sw-settings-rule-detail-base.html.twig';
 import './sw-settings-rule-detail-base.scss';
+import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.constant';
 
 /**
  * @private
@@ -110,7 +111,7 @@ export default {
 
         hasProductStreamConditions(conditions) {
             return conditions.some((condition) => {
-                if (condition.type === 'cartLineItemInProductStream') {
+                if (PRODUCT_STREAM_CONDITIONS.includes(condition.type)) {
                     return true;
                 }
 

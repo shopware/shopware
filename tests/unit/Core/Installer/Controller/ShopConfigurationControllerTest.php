@@ -121,7 +121,11 @@ class ShopConfigurationControllerTest extends TestCase
                 ['iso3' => 'USA', 'iso' => 'US'],
             ]);
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                return $this->getLanguageTranslations()[$key] ?? $key;
+            }
+        );
 
         $this->twig->expects($this->once())->method('render')
             ->with(
@@ -272,8 +276,11 @@ class ShopConfigurationControllerTest extends TestCase
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
-
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                return $this->getLanguageTranslations()[$key] ?? $key;
+            }
+        );
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
@@ -332,21 +339,22 @@ class ShopConfigurationControllerTest extends TestCase
             ['iso3' => 'DEU', 'iso' => 'DE'],
         ];
 
-        $translations = [
-            'shopware.installer.select_country_gbr' => 'Great Britain',
-            'shopware.installer.select_country_bgr' => 'Bulgaria',
-            'shopware.installer.select_country_est' => 'Estonia',
-            'shopware.installer.select_country_hrv' => 'Croatia',
-            'shopware.installer.select_country_deu' => 'Germany',
-        ];
-
         $this->connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($countries);
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $translations[$key]);
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                $allTranslations = array_merge(
+                    $this->getLanguageTranslations(),
+                    $this->getCountryTranslations()
+                );
+
+                return $allTranslations[$key] ?? $key;
+            }
+        );
 
         $this->twig->expects($this->once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
             static::assertSame('@Installer/installer/shop-configuration.html.twig', $view);
@@ -373,5 +381,30 @@ class ShopConfigurationControllerTest extends TestCase
         yield ['de', 'de-DE', 'EUR', 'DEU'];
         yield ['en-US', 'en-US', 'USD', 'USA'];
         yield ['en', 'en-GB', 'GBP', 'GBR'];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getLanguageTranslations(): array
+    {
+        return [
+            'shopware.installer.select_language_de-DE' => 'Deutsch',
+            'shopware.installer.select_language_en-GB' => 'English',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getCountryTranslations(): array
+    {
+        return [
+            'shopware.installer.select_country_gbr' => 'Great Britain',
+            'shopware.installer.select_country_bgr' => 'Bulgaria',
+            'shopware.installer.select_country_est' => 'Estonia',
+            'shopware.installer.select_country_hrv' => 'Croatia',
+            'shopware.installer.select_country_deu' => 'Germany',
+        ];
     }
 }

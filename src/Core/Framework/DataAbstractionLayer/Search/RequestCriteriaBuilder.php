@@ -145,6 +145,16 @@ class RequestCriteriaBuilder
             $criteria->setIncludes($payload['includes']);
         }
 
+        if (isset($payload['excludes'])) {
+            if (!\is_array($payload['excludes'])) {
+                throw DataAbstractionLayerException::expectedArrayWithType(
+                    'excludes',
+                    \gettype($payload['excludes'])
+                );
+            }
+            $criteria->setExcludes($payload['excludes']);
+        }
+
         if (isset($payload['filter'])) {
             $this->addFilter($definition, $payload, $criteria, $searchException);
         }

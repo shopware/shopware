@@ -1,9 +1,7 @@
 repository-url: https://raw.githubusercontent.com/shopware/translations/main/translations
 metadata-url: https://raw.githubusercontent.com/shopware/translations/main/crowdin-metadata.json
 
-locales: [
-    'da-DK', 'de-DE', 'en-GB', 'en-US', 'es-ES', 'fr-FR', 'hr-HR', 'hu-HU', 'id-ID',
-]
+excluded-locales: ['it-IT']
 
 plugins: [
     'PluginPublisher',

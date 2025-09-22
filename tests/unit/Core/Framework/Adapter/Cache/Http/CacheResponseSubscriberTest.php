@@ -12,8 +12,11 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -61,6 +64,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testNoHeadersAreSetIfCacheIsDisabled(): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -70,7 +74,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $customer = new CustomerEntity();
@@ -97,6 +102,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testNoAutoCacheControlHeader(): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -106,7 +112,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -128,6 +135,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testNoAutoCacheControlHeaderCacheDisabled(): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -137,7 +145,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -159,6 +168,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testNoAutoCacheControlHeaderNoHttpCacheRoute(): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -168,7 +178,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -193,6 +204,7 @@ class CacheResponseSubscriberTest extends TestCase
     {
         $service = $this->createMock(CartService::class);
         $service->method('getCart')->willReturn($cart);
+        $eventDispatcher = new EventDispatcher();
 
         $subscriber = new CacheResponseSubscriber(
             [],
@@ -203,11 +215,18 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
+        if ($customer !== null) {
+            $salesChannelContext->expects($this->once())
+                ->method('getRuleIdsByAreas')
+                ->with([RuleAreas::PRODUCT_AREA])
+                ->willReturn(['matched-rule']);
+        }
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
@@ -276,6 +295,7 @@ class CacheResponseSubscriberTest extends TestCase
     {
         $cartService = $this->createMock(CartService::class);
         $requestStack = new RequestStack();
+        $eventDispatcher = new EventDispatcher();
 
         $subscriber = new CacheResponseSubscriber(
             [],
@@ -286,7 +306,8 @@ class CacheResponseSubscriberTest extends TestCase
             $requestStack,
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $customer = new CustomerEntity();
@@ -325,6 +346,7 @@ class CacheResponseSubscriberTest extends TestCase
     public function testOnCustomerLogin(): void
     {
         $requestStack = new RequestStack();
+        $eventDispatcher = new EventDispatcher();
 
         $subscriber = new CacheResponseSubscriber(
             [],
@@ -335,7 +357,8 @@ class CacheResponseSubscriberTest extends TestCase
             $requestStack,
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -381,6 +404,7 @@ class CacheResponseSubscriberTest extends TestCase
     #[DataProvider('providerCurrencyChange')]
     public function testCurrencyChange(?string $currencyId): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -390,7 +414,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -426,6 +451,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testStatesGetDeletedOnEmptyState(): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -435,7 +461,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -460,6 +487,7 @@ class CacheResponseSubscriberTest extends TestCase
     #[DataProvider('notCacheableRequestProvider')]
     public function testNotCacheablePages(Request $request): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -469,7 +497,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $response = new Response();
@@ -502,6 +531,7 @@ class CacheResponseSubscriberTest extends TestCase
     #[DataProvider('cookiesUntouchedProvider')]
     public function testCookiesAreUntouched(Request $request, ?Response $response = null): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -511,7 +541,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         if (!$response) {
@@ -557,6 +588,7 @@ class CacheResponseSubscriberTest extends TestCase
         $cart = new Cart('test');
         $cart->add(new LineItem('test', 'test', 'test', 1));
         $cartService->method('getCart')->willReturn($cart);
+        $eventDispatcher = new EventDispatcher();
 
         $subscriber = new CacheResponseSubscriber(
             [],
@@ -567,7 +599,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -596,6 +629,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testMakeGetsCached(): void
     {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -605,7 +639,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             '5',
             '6',
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $request = new Request();
@@ -682,6 +717,7 @@ class CacheResponseSubscriberTest extends TestCase
         string $assertCountErrorMessage,
         string $assertEqualsErrorMessage
     ): void {
+        $eventDispatcher = new EventDispatcher();
         $subscriber = new CacheResponseSubscriber(
             [],
             static::createStub(CartService::class),
@@ -691,7 +727,8 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);
@@ -740,6 +777,8 @@ class CacheResponseSubscriberTest extends TestCase
 
         $requestStack->push($request);
 
+        $eventDispatcher = new EventDispatcher();
+
         $subscriber = new CacheResponseSubscriber(
             [],
             static::createStub(CartService::class),
@@ -749,7 +788,8 @@ class CacheResponseSubscriberTest extends TestCase
             $requestStack,
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
         );
 
         $subscriber->onCustomerLogout($event);
@@ -770,6 +810,8 @@ class CacheResponseSubscriberTest extends TestCase
         array $subscriberConfig,
         string $expectedCacheControl,
     ): void {
+        $eventDispatcher = new EventDispatcher();
+
         $subscriber = new CacheResponseSubscriber(
             [],
             $this->createMock(CartService::class),
@@ -779,7 +821,11 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             $subscriberConfig['staleWhileRevalidate'] ?? null,
             $subscriberConfig['staleIfError'] ?? null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
+            $subscriberConfig['storeApiDefaultTtl'] ?? null,
+            $subscriberConfig['storeApiStaleWhileRevalidate'] ?? null,
+            $subscriberConfig['storeApiStaleIfError'] ?? null,
         );
 
         $request = new Request();
@@ -827,9 +873,27 @@ class CacheResponseSubscriberTest extends TestCase
             'expectedCacheControl' => 'public, s-maxage=100',
         ];
 
-        yield 'Store API with custom subscriber config options' => [
+        yield 'Store API defaultTtl is used when no storeApiDefaultTtl' => [
+            'requestResponseOptions' => $baseRequestAttributes,
+            'subscriberConfig' => ['defaultTtl' => 200],
+            'expectedCacheControl' => 'public, s-maxage=200',
+        ];
+
+        yield 'Store API storeApiDefaultTtl option has priority over defaultTtl' => [
+            'requestResponseOptions' => $baseRequestAttributes,
+            'subscriberConfig' => ['defaultTtl' => 200, 'storeApiDefaultTtl' => 300],
+            'expectedCacheControl' => 'public, s-maxage=300',
+        ];
+
+        yield 'Store API staleWhileRevalidate, staleIfError ignored' => [
             'requestResponseOptions' => $baseRequestAttributes,
             'subscriberConfig' => ['defaultTtl' => 200, 'staleWhileRevalidate' => '5', 'staleIfError' => '6'],
+            'expectedCacheControl' => 'public, s-maxage=200',
+        ];
+
+        yield 'Store API storeApiStaleWhileRevalidate, storeApiStaleIfError used' => [
+            'requestResponseOptions' => $baseRequestAttributes,
+            'subscriberConfig' => ['defaultTtl' => 200, 'storeApiStaleWhileRevalidate' => '5', 'storeApiStaleIfError' => '6'],
             'expectedCacheControl' => 'public, s-maxage=200, stale-if-error=6, stale-while-revalidate=5',
         ];
 
@@ -880,6 +944,8 @@ class CacheResponseSubscriberTest extends TestCase
         $cart->add(new LineItem('test', 'test', 'test', 1));
         $cartService->method('getCart')->willReturn($cart);
 
+        $eventDispatcher = new EventDispatcher();
+
         $subscriber = new CacheResponseSubscriber(
             [],
             $cartService,
@@ -889,7 +955,11 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             '5',
             '6',
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
+            300,
+            '10',
+            '15',
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -929,16 +999,20 @@ class CacheResponseSubscriberTest extends TestCase
         $cart->add(new LineItem('test', 'test', 'test', 1));
         $cartService->method('getCart')->willReturn($cart);
 
+        $eventDispatcher = new EventDispatcher();
+
         $subscriber = new CacheResponseSubscriber(
             [],
             $cartService,
-            100,
+            200,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
+            100,
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -973,16 +1047,20 @@ class CacheResponseSubscriberTest extends TestCase
         $cart->add(new LineItem('test', 'test', 'test', 1));
         $cartService->method('getCart')->willReturn($cart);
 
+        $eventDispatcher = new EventDispatcher();
+
         $subscriber = new CacheResponseSubscriber(
             [],
             $cartService,
-            100,
+            200,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            $eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($eventDispatcher)),
+            100,
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

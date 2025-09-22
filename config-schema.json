@@ -341,6 +341,20 @@
                             "default": 300
                         }
                     }
+                },
+                "scheduled_task": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "requeue_timeout": {
+                            "type": "integer",
+                            "title": "The timeout in hours after which a scheduled task is considered to be stuck and will be re-queued",
+                            "default": 12
+                        }
+                    }
                 }
             }
         },
@@ -560,6 +574,15 @@
                 },
                 "tagging": {
                     "$ref": "#/definitions/cache_tags"
+                },
+                "twig": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "string_template_renderer_cache_dir": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Cache"
@@ -980,6 +1003,34 @@
                         }
                     },
                     "title": "Reverse proxy configuration"
+                },
+                "store_api": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "default_ttl": {
+                            "type": "integer",
+                            "default": 900,
+                            "title": "Default TTL for Store API cache responses in seconds"
+                        },
+                        "stale_while_revalidate": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "default": 3600,
+                            "title": "Stale while revalidate value for Store API cache responses in seconds"
+                        },
+                        "stale_if_error": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "default": 7200,
+                            "title": "Stale if error value for Store API cache responses in seconds"
+                        }
+                    },
+                    "title": "Store API cache configuration"
                 }
             }
         },

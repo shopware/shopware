@@ -33,17 +33,20 @@ class TranslationMetadataLoader
     }
 
     /**
-     * @param list<string> $locales
+     * @param list<string>|null $locales
+     *
+     * Updates the local metadata with the latest remote metadata and returns the updated collection.
+     * If locales are provided, only those locales will be updated; otherwise all installed locales will be updated.
      */
-    public function getUpdatedMetadata(array $locales): MetadataCollection
+    public function getUpdatedLocalMetadata(?array $locales = null): MetadataCollection
     {
-        $path = $this->getPath();
+        $localMetadata = $this->getLocalMetadata();
+        $remoteMetadata = $this->fetchRemoteMetadataArray();
 
-        $localMetadata = $this->getLocalMetadata($path);
-        $remoteMetadataArray = $this->fetchRemoteMetadataArray();
+        $locales = $locales ?? $localMetadata->getKeys();
 
         foreach ($locales as $locale) {
-            $remoteEntry = $remoteMetadataArray[$locale] ?? null;
+            $remoteEntry = $remoteMetadata[$locale] ?? null;
 
             if ($remoteEntry === null) {
                 continue;
@@ -90,8 +93,10 @@ class TranslationMetadataLoader
         return array_column($data, null, 'locale');
     }
 
-    private function getLocalMetadata(string $path): MetadataCollection
+    private function getLocalMetadata(): MetadataCollection
     {
+        $path = $this->getPath();
+
         try {
             $localMetadata = $this->filesystem->read($path);
         } catch (FilesystemException) {

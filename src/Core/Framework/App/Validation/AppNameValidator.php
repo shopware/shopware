@@ -18,7 +18,7 @@ class AppNameValidator extends AbstractManifestValidator
     {
         $errors = new ErrorCollection();
 
-        $appName = strtolower(substr($manifest->getPath(), strrpos($manifest->getPath(), '/') + 1));
+        $appName = strtolower(substr($manifest->getPath(), (int) strrpos($manifest->getPath(), '/') + 1));
 
         if ($appName !== strtolower($manifest->getMetadata()->getName())) {
             $errors->add(new AppNameError($manifest->getMetadata()->getName()));

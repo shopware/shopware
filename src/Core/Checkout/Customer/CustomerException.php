@@ -17,6 +17,8 @@ use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -44,6 +46,9 @@ class CustomerException extends HttpException
     public const PRODUCT_IDS_PARAMETER_IS_MISSING = 'CHECKOUT__PRODUCT_IDS_PARAMETER_IS_MISSING';
     public const CUSTOMER_ADDRESS_NOT_FOUND = 'CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND';
     public const CUSTOMER_AUTH_BAD_CREDENTIALS = 'CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public const CUSTOMER_ADDRESS_IS_ACTIVE = 'CHECKOUT__CUSTOMER_ADDRESS_IS_ACTIVE';
     public const CUSTOMER_ADDRESS_IS_DEFAULT = 'CHECKOUT__CUSTOMER_ADDRESS_IS_DEFAULT';
     public const CUSTOMER_IS_ALREADY_CONFIRMED = 'CHECKOUT__CUSTOMER_IS_ALREADY_CONFIRMED';
@@ -177,8 +182,13 @@ class CustomerException extends HttpException
         return new BadCredentialsException();
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public static function cannotDeleteActiveAddress(string $id): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0'));
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CUSTOMER_ADDRESS_IS_ACTIVE,
@@ -447,6 +457,16 @@ class CustomerException extends HttpException
             'Customer with id "{{ customerId }}" is not a guest',
             ['customerId' => $customerId],
         );
+    }
+
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
+    {
+        return new GuestNotAuthenticatedException();
+    }
+
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
+    {
+        return new WrongGuestCredentialsException();
     }
 
     public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException

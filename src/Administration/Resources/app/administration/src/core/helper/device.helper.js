@@ -4,6 +4,7 @@
  * @module core/helper/device
  */
 import utils from 'src/core/service/util.service';
+import { onBeforeUnmount } from 'vue';
 
 /**
  * The DeviceHelper provides methods to get device and browser information like the current viewport size.
@@ -41,7 +42,14 @@ DeviceHelper.prototype = Object.assign(DeviceHelper.prototype, {
         if (!scope) {
             scope = window;
         }
+
         this.listeners.push({ listener, scope, component });
+
+        // Automatic remove listener when component is unmounted
+        onBeforeUnmount(() => {
+            this.removeResizeListener(component);
+        });
+
         return this.listeners.length - 1;
     },
 

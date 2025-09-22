@@ -20,6 +20,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -215,7 +216,7 @@ class AppRegistrationServiceTest extends TestCase
         $shopIdMock = $this->createMock(ShopIdProvider::class);
         $shopIdMock->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2($shopId), new FingerprintComparisonResult([], [], 75)));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2($shopId, [], UrlVerificationStatus::newPending()), new FingerprintComparisonResult([], [], 75)));
 
         $registrator = new AppRegistrationService(
             $handshakeFactory,

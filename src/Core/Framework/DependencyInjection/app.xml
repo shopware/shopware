@@ -31,6 +31,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\FingerprintGenerator"/>
+            <argument type="string">%env(APP_URL)%</argument>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -709,6 +710,23 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\FingerprintGenerator"/>
 
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ShopId\ShopController" public="true">
+            <argument type="service" id="cache.app"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ShopId\AppUrlVerifier">
+            <argument type="service" id="cache.app"/>
+            <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ShopId\VerifyAppUrlListener">
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\AppUrlVerifier"/>
+
+            <tag name="kernel.event_listener"/>
         </service>
     </services>
 </container>

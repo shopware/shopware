@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\Service\ServiceRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Service\Message\LogPermissionToRegistryMessage;
 use Shopware\Core\Service\Permission\ConsentState;
 use Shopware\Core\Service\Permission\PermissionsConsent;
@@ -76,7 +78,7 @@ class PermissionLoggerTest extends TestCase
             grantedAt: new \DateTime('2025-06-13 12:00:00')
         );
 
-        $shopId = 'test-shop-id';
+        $shopId = ShopId::v2('test-shop-id', [], UrlVerificationStatus::newPending());
         $licenseHost = 'https://example.com';
 
         $this->shopIdProvider
@@ -96,7 +98,7 @@ class PermissionLoggerTest extends TestCase
             ->with(static::callback(function (SaveConsentRequest $request) use ($consent, $shopId, $licenseHost) {
                 return $request->identifier === $consent->identifier
                     && $request->consentingUserId === $consent->consentingUserId
-                    && $request->shopIdentifier === $shopId
+                    && $request->shopIdentifier === $shopId->id
                     && $request->consentDate === $consent->grantedAt->format(\DateTime::ATOM)
                     && $request->consentRevision === $consent->revision
                     && $request->licenseHost === $licenseHost;
@@ -139,7 +141,7 @@ class PermissionLoggerTest extends TestCase
             grantedAt: new \DateTime('2025-06-13 12:00:00')
         );
 
-        $shopId = 'test-shop-id';
+        $shopId = ShopId::v2('test-shop-id', [], UrlVerificationStatus::newPending());
 
         $this->shopIdProvider
             ->expects($this->once())
@@ -158,7 +160,7 @@ class PermissionLoggerTest extends TestCase
             ->with(static::callback(function (SaveConsentRequest $request) use ($consent, $shopId) {
                 return $request->identifier === $consent->identifier
                     && $request->consentingUserId === $consent->consentingUserId
-                    && $request->shopIdentifier === $shopId
+                    && $request->shopIdentifier === $shopId->id
                     && $request->consentDate === $consent->grantedAt->format(\DateTime::ATOM)
                     && $request->consentRevision === $consent->revision
                     && $request->licenseHost === '';

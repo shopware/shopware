@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\FingerprintMatch;
 use Shopware\Core\Framework\App\ShopId\FingerprintMismatch;
 use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -41,12 +42,12 @@ class ShopIdChangeSuggestedExceptionTest extends TestCase
             75,
         );
 
-        $e = new ShopIdChangeSuggestedException($shopId = ShopId::v2('123456789'), $result);
+        $e = new ShopIdChangeSuggestedException($shopId = ShopId::v2('123456789', [], UrlVerificationStatus::newPending()), $result);
 
         static::assertSame(500, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED', $e->getErrorCode());
         static::assertSame('Changes in your system were detected that suggest a change of the shop ID.', $e->getMessage());
-        static::assertSame($shopId, $e->shopId);
+        static::assertSame($shopId, $e->getShopId());
         static::assertSame($result, $e->comparisonResult);
     }
 }

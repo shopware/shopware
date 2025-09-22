@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\ShopId;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\Exception\AppSystemMisconfigurationException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,17 +29,29 @@ class ShopIdProvider implements ResetInterface
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly Connection $connection,
-        private readonly FingerprintGenerator $fingerprintGenerator
+        private readonly FingerprintGenerator $fingerprintGenerator,
+        private readonly string $appUrl,
     ) {
     }
 
-    /**
-     * @throws ShopIdChangeSuggestedException
-     */
-    public function getShopId(): string
+    public function getShopIdUnchecked(): ShopId
     {
         if ($this->shopId) {
-            return $this->shopId->id;
+            return $this->shopId;
+        }
+
+        $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
+
+        return $this->shopId;
+    }
+
+    /**
+     * @throws AppSystemMisconfigurationException
+     */
+    public function getShopId(): ShopId
+    {
+        if ($this->shopId) {
+            return $this->shopId;
         }
 
         $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
@@ -55,7 +67,11 @@ class ShopIdProvider implements ResetInterface
             $this->regenerateAndSetShopId($this->shopId->id);
         }
 
-        return $this->shopId->id;
+        if ($this->shopId->urlVerificationStatus->failed()) {
+            throw AppException::appUrlVerificationFailed($this->shopId, $this->appUrl);
+        }
+
+        return $this->shopId;
     }
 
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
@@ -63,6 +79,7 @@ class ShopIdProvider implements ResetInterface
         $shopId = ShopId::v2(
             $existingShopId ?? Random::getAlphanumericString(16),
             $this->fingerprintGenerator->takeFingerprints(),
+            UrlVerificationStatus::newPending(),
         );
 
         $this->setShopId($shopId);
@@ -85,6 +102,26 @@ class ShopIdProvider implements ResetInterface
         $this->shopId = null;
     }
 
+    /**
+     * Update the shop ID metadata but do not change the actual shop ID.
+     */
+    public function updateShopId(ShopId $shopId): void
+    {
+        $existingShopId = $this->fetchV2ShopIdFromSystemConfig();
+
+        if ($existingShopId === null) {
+            return;
+        }
+
+        if ($existingShopId->id !== $shopId->id) {
+            return;
+        }
+
+        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $shopId->toArray());
+
+        $this->shopId = $shopId;
+    }
+
     private function setShopId(ShopId $shopId): void
     {
         $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
@@ -95,8 +132,10 @@ class ShopIdProvider implements ResetInterface
             $oldShopId = null;
         }
 
-        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) $shopId);
+        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $shopId->toArray());
         $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
+
+        $this->shopId = $shopId;
     }
 
     private function hasAppsRegisteredAtAppServers(): bool
@@ -106,10 +145,9 @@ class ShopIdProvider implements ResetInterface
 
     private function fetchShopIdFromSystemConfig(): ?ShopId
     {
-        /** @var ShopIdV2Config|null $shopIdV2 */
-        $shopIdV2 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
-        if (\is_array($shopIdV2)) {
-            return ShopId::fromSystemConfig($shopIdV2);
+        $shopIdV2 = $this->fetchV2ShopIdFromSystemConfig();
+        if ($shopIdV2 !== null) {
+            return $shopIdV2;
         }
 
         /** @var ShopIdV1Config|null $shopIdV1 */
@@ -118,6 +156,17 @@ class ShopIdProvider implements ResetInterface
             $shopIdV1 = ShopId::fromSystemConfig($shopIdV1);
 
             return $this->regenerateAndSetShopId($shopIdV1->id);
+        }
+
+        return null;
+    }
+
+    private function fetchV2ShopIdFromSystemConfig(): ?ShopId
+    {
+        /** @var ShopIdV2Config|null $shopIdV2 */
+        $shopIdV2 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        if (\is_array($shopIdV2)) {
+            return ShopId::fromSystemConfig($shopIdV2);
         }
 
         return null;

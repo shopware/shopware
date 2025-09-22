@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -316,7 +317,7 @@ class ExecutorTest extends TestCase
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2('shopId', [
             AppUrl::IDENTIFIER => 'http://random-shop.url',
-        ]));
+        ], UrlVerificationStatus::newPending()));
 
         static::getContainer()->get(ShopIdProvider::class)->reset();
 

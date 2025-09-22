@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\ShopId\FingerprintMatch;
 use Shopware\Core\Framework\App\ShopId\FingerprintMismatch;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -109,7 +110,7 @@ class ShopIdControllerTest extends TestCase
 
     public function testGetFingerprintsWhenShopIdChangeSuggested(): void
     {
-        $shopId = ShopId::v2('123456789');
+        $shopId = ShopId::v2('123456789', [], UrlVerificationStatus::newPending());
         $fingerprints = new FingerprintComparisonResult([
             'fingerprint1' => new FingerprintMatch('fingerprint1', 'value1', 25),
         ], [
@@ -151,11 +152,11 @@ class ShopIdControllerTest extends TestCase
 
     public function testGetFingerprintsWhenShopIdChangeNotSuggested(): void
     {
-        $shopId = ShopId::v2('123456789');
+        $shopId = ShopId::v2('123456789', [], UrlVerificationStatus::newPending());
 
         $this->shopIdProvider->expects($this->once())
             ->method('getShopId')
-            ->willReturn($shopId->id);
+            ->willReturn($shopId);
 
         $response = $this->controller->checkShopId($this->context);
 

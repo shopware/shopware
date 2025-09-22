@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\AppUrlVerificationFailed;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -522,6 +523,11 @@ class AppException extends HttpException
     public static function shopIdChangeSuggested(ShopId $shopId, FingerprintComparisonResult $comparisonResult): self
     {
         return new ShopIdChangeSuggestedException($shopId, $comparisonResult);
+    }
+
+    public static function appUrlVerificationFailed(ShopId $shopId, string $appUrl): self
+    {
+        return new AppUrlVerificationFailed($shopId, $appUrl);
     }
 
     public static function appUrlNotConfigured(): self

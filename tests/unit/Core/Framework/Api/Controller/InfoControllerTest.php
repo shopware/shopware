@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
@@ -71,7 +72,8 @@ class InfoControllerTest extends TestCase
 
         $this->createInstance();
 
-        $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
+        $shopId = ShopId::v2('shop-id', [], UrlVerificationStatus::newPending());
+        $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn($shopId);
 
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
@@ -148,7 +150,7 @@ class InfoControllerTest extends TestCase
         $this->shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('current-shop-id'), new FingerprintComparisonResult([], [], 75)));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('current-shop-id', [], UrlVerificationStatus::newPending()), new FingerprintComparisonResult([], [], 75)));
 
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
 

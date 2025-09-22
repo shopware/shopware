@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Exception;
 
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,16 +11,19 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-class ShopIdChangeSuggestedException extends AppException implements AppSystemMisconfigurationException
+class AppUrlVerificationFailed extends AppException implements AppSystemMisconfigurationException
 {
+    final public const APP_URL_FAILED_VERIFICATION = 'FRAMEWORK__APP_URL_FAILED_VERIFICATION';
+
     public function __construct(
         private readonly ShopId $shopId,
-        public readonly FingerprintComparisonResult $comparisonResult,
+        string $appUrl
     ) {
         parent::__construct(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            AppException::SHOP_ID_CHANGE_SUGGESTED,
-            'Changes in your system were detected that suggest a change of the shop ID.'
+            self::APP_URL_FAILED_VERIFICATION,
+            'App url {{ url }} failed verification',
+            ['url' => $appUrl]
         );
     }
 

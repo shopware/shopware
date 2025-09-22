@@ -55,7 +55,7 @@ class HandshakeFactory
                 $privateSecret,
                 $setup->getRegistrationUrl(),
                 $metadata->getName(),
-                $shopId,
+                $shopId->id,
                 $this->shopwareVersion
             );
         }
@@ -64,7 +64,7 @@ class HandshakeFactory
             $this->shopUrl,
             $setup->getRegistrationUrl(),
             $metadata->getName(),
-            $shopId,
+            $shopId->id,
             $this->storeClient,
             $this->shopwareVersion
         );

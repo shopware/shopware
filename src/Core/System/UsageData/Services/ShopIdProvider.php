@@ -28,6 +28,6 @@ readonly class ShopIdProvider
             return ShopId::fromSystemConfig($shopId)->id;
         }
 
-        return $this->shopIdProvider->getShopId();
+        return $this->shopIdProvider->getShopId()->id;
     }
 }

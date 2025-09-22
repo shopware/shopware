@@ -39,7 +39,7 @@ class PermissionLogger implements RemoteLogger
                 new SaveConsentRequest(
                     identifier: $consent->identifier,
                     consentingUserId: $consent->consentingUserId,
-                    shopIdentifier: $this->shopIdProvider->getShopId(),
+                    shopIdentifier: $this->shopIdProvider->getShopId()->id,
                     consentDate: $consent->grantedAt->format(\DateTime::ATOM),
                     consentRevision: $consent->revision,
                     licenseHost: $this->systemConfigService->getString(self::CONFIG_STORE_LICENSE_HOST),

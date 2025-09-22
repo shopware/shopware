@@ -574,6 +574,15 @@
                 },
                 "tagging": {
                     "$ref": "#/definitions/cache_tags"
+                },
+                "twig": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "string_template_renderer_cache_dir": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Cache"

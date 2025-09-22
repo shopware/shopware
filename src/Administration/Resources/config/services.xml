@@ -19,28 +19,6 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Administration\Controller\AdminAuthController" public="true">
-            <argument type="service" id="shopware.api.authorization_server"/>
-            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
-            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
-            <argument type="service" id="Shopware\Administration\Login\LoginResponseService"/>
-            <argument type="service" id="Shopware\Administration\Login\StateValidator"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Administration\Controller\AdminSsoController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService"/>
-            <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService"/>
-            <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Administration\Controller\AdminExtensionApiController" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Executor"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
@@ -70,7 +48,6 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="string">%env(SERVICE_REGISTRY_URL)%</argument>
-            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
             <call method="setContainer">
@@ -200,61 +177,6 @@
             <argument type="service" id="shopware.asset.asset"/>
             <argument type="service" id="kernel"/>
             <argument type="service" id="filesystem"/>
-        </service>
-
-        <service id="Shopware\Administration\Login\UserService\UserService">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Administration\Login\TokenService\IdTokenParser"/>
-            <argument type="service" id="user.repository"/>
-            <argument type="service" id="Shopware\Administration\Login\TokenService\ExternalTokenService"/>
-        </service>
-
-        <service id="Shopware\Administration\Login\TokenService\ExternalTokenService">
-            <argument type="service" id="http_client"/>
-            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
-        </service>
-
-        <service id="Shopware\Administration\Login\Config\LoginConfigService">
-            <argument>%shopware.admin_login%</argument>
-            <argument>%APP_URL%</argument>
-            <argument>%shopware_administration.path_name%</argument>
-        </service>
-
-        <service id="Shopware\Administration\Login\LoginResponseService">
-            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
-        </service>
-
-        <service id="Shopware\Administration\Login\TokenService\IdTokenParser">
-            <argument type="service" id="Shopware\Administration\Login\TokenService\PublicKeyLoader"/>
-            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
-            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
-        </service>
-
-        <service id="Shopware\Administration\Login\TokenService\PublicKeyLoader">
-            <argument type="service" id="http_client"/>
-            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
-            <argument type="service" id="cache.object" />
-        </service>
-
-        <service id="Shopware\Administration\Login\StateValidator" />
-
-        <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService">
-            <argument type="service" id="user.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService">
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
-            <argument type="service" id="mail_template.repository"/>
-            <argument type="service" id="mail_template_type.repository"/>
-            <argument type="service" id="user.repository"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
-            <argument>%APP_URL%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Sso\SsoService">
-            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
         </service>
 
         <service id="Shopware\Administration\Framework\App\Subscriber\SystemLanguageChangedSubscriber">

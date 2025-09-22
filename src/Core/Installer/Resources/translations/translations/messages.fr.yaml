@@ -142,3 +142,19 @@ shopware.installer:
         <p>
             Nous vous souhaitons beaucoup de plaisir et de réussite avec votre nouvelle boutique en ligne !
         </p>"
+    menuitem_translation: 'Téléchargement des langues'
+    configuration_admin_shop_headline: 'Données de la boutique'
+    configuration_admin_language_headline: 'Langues'
+    configuration_admin_language_select_all: 'Tout sélectionner'
+    configuration_admin_language_clear_all: 'Tout effacer'
+    configuration_admin_user_headline: 'Données utilisateur administrateur'
+    configuration_admin_language_text: "Ajoutez plus de langues à votre boutique Shopware. Si vous souhaitez ajouter ou supprimer des langues par la suite, vous pouvez le faire à tout moment dans l'administration."
+    configuration_admin_language_search_placeholder: 'Rechercher une langue...'
+    translations_header: 'Téléchargement des langues'
+    translations_import_install_label: 'Téléchargement et installation de langues supplémentaires.'
+    translations_install_duration_info: 'Cela peut prendre quelques minutes.'
+    finish_title: 'La configuration de votre boutique Shopware est terminée.'
+    finish_subtitle: "Cliquez sur \"Continuer vers la boutique\" pour ouvrir l'administration de votre boutique et commencer à construire la boutique de vos rêves."
+    finish_continue: 'Continuer vers la boutique'
+    translations_install_error_message: "Quelque chose s'est mal passé lors de l'installation des traductions."
+    translations_install_retry_link: 'Cliquez ici pour réessayer'

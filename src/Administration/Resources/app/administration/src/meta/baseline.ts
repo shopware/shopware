@@ -55,7 +55,6 @@ const missingTests = [
     'src/app/component/form/sw-tagged-field/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index.js',
-    'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/index.js',
     'src/app/component/form/sw-textarea-field-deprecated/index.js',
     'src/app/component/grid/sw-grid/index.js',

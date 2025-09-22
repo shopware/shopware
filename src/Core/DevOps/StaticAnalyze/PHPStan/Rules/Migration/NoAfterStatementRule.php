@@ -71,7 +71,7 @@ class NoAfterStatementRule implements Rule
     private function isRecentMigration(Scope $scope): bool
     {
         $className = $scope->getClassReflection()?->getName() ?? '';
-        $className = substr($className, strrpos($className, '\\') + 1);
+        $className = substr($className, (int) strrpos($className, '\\') + 1);
 
         if (preg_match('/Migration(\d{10})/', $className, $matches)) {
             $migrationUnixTimestamp = (int) $matches[1];

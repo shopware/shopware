@@ -24,6 +24,8 @@ class Context extends Struct
 
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
+    final public const ELASTICSEARCH_EXPLAIN_MODE = 'explain-mode';
+
     protected string $scope = self::USER_SCOPE;
 
     protected bool $rulesLocked = false;

@@ -397,3 +397,19 @@ shopware.installer:
         <p>
             Viel Spaß und Erfolg mit Deinem neuen Onlineshop!
         </p>"
+    menuitem_translation: 'Sprachen-Download'
+    configuration_admin_shop_headline: 'Shop-Daten'
+    configuration_admin_language_headline: 'Sprachen'
+    configuration_admin_language_select_all: 'Alle auswählen'
+    configuration_admin_language_clear_all: 'Alle löschen'
+    configuration_admin_user_headline: 'Administrator-Benutzerdaten'
+    configuration_admin_language_text: 'Fügen Sie weitere Sprachen zu Ihrem Shopware-Shop hinzu. Wenn Sie später Sprachen hinzufügen oder entfernen möchten, können Sie dies jederzeit in der Administration tun.'
+    configuration_admin_language_search_placeholder: 'Sprache suchen...'
+    translations_header: 'Sprachen-Download'
+    translations_import_install_label: 'Zusätzliche Sprachen werden heruntergeladen und installiert.'
+    translations_install_duration_info: 'Dies kann einige Minuten dauern.'
+    finish_title: 'Das Setup für Ihren Shopware-Shop ist abgeschlossen.'
+    finish_subtitle: 'Klicken Sie auf "Zum Shop fortfahren", um die Administration Ihres Shops zu öffnen und mit dem Aufbau Ihres Traumshops zu beginnen.'
+    finish_continue: 'Zum Shop fortfahren'
+    translations_install_error_message: 'Bei der Übersetzungsinstallation ist etwas schiefgelaufen.'
+    translations_install_retry_link: 'Hier klicken, um es erneut zu versuchen'

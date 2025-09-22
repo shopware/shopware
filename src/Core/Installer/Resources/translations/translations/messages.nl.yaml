@@ -141,3 +141,19 @@ shopware.installer:
         <p>
             Veel plezier en succes met je nieuwe onlineshop!
         </p>"
+    menuitem_translation: 'Taaldownload'
+    configuration_admin_shop_headline: 'Shopgegevens'
+    configuration_admin_language_headline: 'Talen'
+    configuration_admin_language_select_all: 'Alles selecteren'
+    configuration_admin_language_clear_all: 'Alles wissen'
+    configuration_admin_user_headline: 'Beheerder gebruikersgegevens'
+    configuration_admin_language_text: 'Voeg meer talen toe aan je Shopware shop. Als je later talen wilt toevoegen of verwijderen, kun je dit op elk moment in de administratie doen.'
+    configuration_admin_language_search_placeholder: 'Zoek taal...'
+    translations_header: 'Taaldownload'
+    translations_import_install_label: 'Extra talen worden gedownload en geïnstalleerd.'
+    translations_install_duration_info: 'Dit kan een paar minuten duren.'
+    finish_title: 'De setup voor je Shopware shop is voltooid.'
+    finish_subtitle: 'Klik op "Doorgaan naar shop" om de administratie van je shop te openen en te beginnen met het bouwen van je droomshop.'
+    finish_continue: 'Doorgaan naar shop'
+    translations_install_error_message: 'Er ging iets mis tijdens de installatie van vertalingen.'
+    translations_install_retry_link: 'Klik hier om opnieuw te proberen'

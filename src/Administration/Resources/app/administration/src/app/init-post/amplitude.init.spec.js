@@ -48,7 +48,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     to: { name: 'sw.product.index', path: '/sw/product/index' },
                 }),
                 {
-                    eventName: '[Product Analytics] Page Viewed',
+                    eventName: 'Page Viewed',
                     properties: {
                         sw_route_from: 'sw.dashboard.index',
                         href_route_from: '/sw/dashboard/index',
@@ -63,7 +63,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     linkType: 'external',
                 }),
                 {
-                    eventName: '[Product Analytics] Link Visited',
+                    eventName: 'Link Visited',
                     properties: {
                         href: 'https://example.com',
                         link_type: 'external',
@@ -83,7 +83,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     originalEvent: new Event('click'),
                 }),
                 {
-                    eventName: '[Product Analytics] Button Clicked',
+                    eventName: 'Button Click',
                     properties: {
                         sw_button_text: 'Save',
                         sw_button_action: 'save',

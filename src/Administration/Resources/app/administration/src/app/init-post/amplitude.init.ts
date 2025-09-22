@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import * as amplitude from '@amplitude/analytics-browser';
+import { string } from 'src/core/service/util.service';
 import { TelemetryEvent, type EventTypes } from '../../core/telemetry/types';
 
 /**
@@ -45,7 +46,7 @@ export default function (): Promise<void> {
         }
 
         if (isEventOfType('page_change', telemetryEvent)) {
-            amplitude.track('[Product Analytics] Page Viewed', {
+            amplitude.track('Page Viewed', {
                 sw_route_from: telemetryEvent.detail.eventData.from.name,
                 href_route_from: telemetryEvent.detail.eventData.from.path,
                 sw_route_to: telemetryEvent.detail.eventData.to.name,
@@ -55,7 +56,7 @@ export default function (): Promise<void> {
         }
 
         if (isEventOfType('link_visited', telemetryEvent)) {
-            amplitude.track('[Product Analytics] Link Visited', {
+            amplitude.track('Link Visited', {
                 href: telemetryEvent.detail.eventData.href,
                 link_type: telemetryEvent.detail.eventData.linkType,
             });
@@ -65,13 +66,18 @@ export default function (): Promise<void> {
         if (isEventOfType('user_interaction', telemetryEvent)) {
             const target = telemetryEvent.detail.eventData.target;
 
-            if (target instanceof Element && target.tagName === 'BUTTON') {
-                amplitude.track('[Product Analytics] Button Clicked', {
-                    sw_button_text: target.textContent,
-                    sw_button_action: target.getAttribute('data-product-analytics-button-action') ?? '',
-                    sw_button_id: target.getAttribute('data-product-analytics-button-id') ?? target.id ?? '',
-                });
+            if (!(target instanceof Element)) {
+                return;
             }
+
+            const capitalizedTagName = string.capitalizeString(target.tagName);
+            const eventName = string.capitalizeString(telemetryEvent.detail.eventData.originalEvent.type);
+
+            amplitude.track(`${capitalizedTagName} ${eventName}`, {
+                sw_button_text: target.textContent,
+                sw_button_action: target.getAttribute('data-product-analytics-button-action') ?? '',
+                sw_button_id: target.getAttribute('data-product-analytics-button-id') ?? target.id ?? '',
+            });
         }
     });
 

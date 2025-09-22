@@ -168,8 +168,7 @@ class DocumentGeneratorControllerTest extends TestCase
         string $documentType,
         bool $requiresExistingInvoice,
         bool $requiresCreditItem,
-    ): void
-    {
+    ): void {
         $orders = [];
         for ($i = 0; $i < 2; ++$i) {
             $orders[] = $this->createOrder($this->customerId, $this->context);

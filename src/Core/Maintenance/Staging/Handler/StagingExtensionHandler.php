@@ -5,8 +5,8 @@ namespace Shopware\Core\Maintenance\Staging\Handler;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
-use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 
 /**
@@ -19,8 +19,8 @@ readonly class StagingExtensionHandler
      * @param list<string> $extensionsToDisable
      */
     public function __construct(
-        private ExtensionDataProvider $extensionDataProvider,
-        private ExtensionLifecycleService $extensionLifecycleService,
+        private AbstractExtensionDataProvider $extensionDataProvider,
+        private AbstractExtensionLifecycle $extensionLifecycleService,
         private array $extensionsToDisable = [],
     ) {
     }

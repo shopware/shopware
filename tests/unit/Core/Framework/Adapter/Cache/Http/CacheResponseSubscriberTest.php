@@ -779,7 +779,10 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             $subscriberConfig['staleWhileRevalidate'] ?? null,
             $subscriberConfig['staleIfError'] ?? null,
-            new EventDispatcher()
+            new EventDispatcher(),
+            $subscriberConfig['storeApiDefaultTtl'] ?? null,
+            $subscriberConfig['storeApiStaleWhileRevalidate'] ?? null,
+            $subscriberConfig['storeApiStaleIfError'] ?? null,
         );
 
         $request = new Request();
@@ -827,9 +830,27 @@ class CacheResponseSubscriberTest extends TestCase
             'expectedCacheControl' => 'public, s-maxage=100',
         ];
 
-        yield 'Store API with custom subscriber config options' => [
+        yield 'Store API defaultTtl is used when no storeApiDefaultTtl' => [
+            'requestResponseOptions' => $baseRequestAttributes,
+            'subscriberConfig' => ['defaultTtl' => 200],
+            'expectedCacheControl' => 'public, s-maxage=200',
+        ];
+
+        yield 'Store API storeApiDefaultTtl option has priority over defaultTtl' => [
+            'requestResponseOptions' => $baseRequestAttributes,
+            'subscriberConfig' => ['defaultTtl' => 200, 'storeApiDefaultTtl' => 300],
+            'expectedCacheControl' => 'public, s-maxage=300',
+        ];
+
+        yield 'Store API staleWhileRevalidate, staleIfError ignored' => [
             'requestResponseOptions' => $baseRequestAttributes,
             'subscriberConfig' => ['defaultTtl' => 200, 'staleWhileRevalidate' => '5', 'staleIfError' => '6'],
+            'expectedCacheControl' => 'public, s-maxage=200',
+        ];
+
+        yield 'Store API storeApiStaleWhileRevalidate, storeApiStaleIfError used' => [
+            'requestResponseOptions' => $baseRequestAttributes,
+            'subscriberConfig' => ['defaultTtl' => 200, 'storeApiStaleWhileRevalidate' => '5', 'storeApiStaleIfError' => '6'],
             'expectedCacheControl' => 'public, s-maxage=200, stale-if-error=6, stale-while-revalidate=5',
         ];
 
@@ -889,7 +910,10 @@ class CacheResponseSubscriberTest extends TestCase
             new RequestStack(),
             '5',
             '6',
-            new EventDispatcher()
+            new EventDispatcher(),
+            300,
+            '10',
+            '15',
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -932,13 +956,14 @@ class CacheResponseSubscriberTest extends TestCase
         $subscriber = new CacheResponseSubscriber(
             [],
             $cartService,
-            100,
+            200,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            new EventDispatcher(),
+            100,
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -976,13 +1001,14 @@ class CacheResponseSubscriberTest extends TestCase
         $subscriber = new CacheResponseSubscriber(
             [],
             $cartService,
-            100,
+            200,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
             null,
-            new EventDispatcher()
+            new EventDispatcher(),
+            100,
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

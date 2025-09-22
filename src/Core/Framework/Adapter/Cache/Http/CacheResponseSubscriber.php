@@ -32,6 +32,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[Package('framework')]
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
+    private readonly ?int $storeApiDefaultTtl;
+
     /**
      * @param array<string> $cookies
      *
@@ -46,8 +48,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         private readonly RequestStack $requestStack,
         private readonly ?string $staleWhileRevalidate,
         private readonly ?string $staleIfError,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        ?int $storeApiDefaultTtl = null,
+        private readonly ?string $storeApiStaleWhileRevalidate = null,
+        private readonly ?string $storeApiStaleIfError = null,
     ) {
+        $this->storeApiDefaultTtl = $storeApiDefaultTtl ?? $defaultTtl;
     }
 
     /**
@@ -203,7 +209,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $cacheConfig = $cacheAttribute === true ? [] : $cacheAttribute;
 
-        $maxAge = $cacheConfig['maxAge'] ?? $this->defaultTtl;
+        $maxAge = $cacheConfig['maxAge'] ?? $this->storeApiDefaultTtl;
 
         // Response headers have at this point 'no-cache' directive set, it has to be removed manually.
         // The reason for this is that StoreApiResponseListener creates a new JsonResponse which is initialized
@@ -213,12 +219,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->removeCacheControlDirective('no-cache');
         $response->setSharedMaxAge($maxAge);
 
-        if ($this->staleIfError !== null) {
-            $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
+        if ($this->storeApiStaleIfError !== null) {
+            $response->headers->addCacheControlDirective('stale-if-error', $this->storeApiStaleIfError);
         }
 
-        if ($this->staleWhileRevalidate !== null) {
-            $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
+        if ($this->storeApiStaleWhileRevalidate !== null) {
+            $response->headers->addCacheControlDirective('stale-while-revalidate', $this->storeApiStaleWhileRevalidate);
         }
     }
 

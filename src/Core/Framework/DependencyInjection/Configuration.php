@@ -921,6 +921,14 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('store_api')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->integerNode('default_ttl')->defaultValue(1800)->end()
+                        ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
+                        ->scalarNode('stale_if_error')->defaultValue(null)->end()
+                    ->end()
+                ->end()
             ->end()
         ->end();
 

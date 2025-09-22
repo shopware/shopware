@@ -154,18 +154,6 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: npx playwright install --with-deps chromium
 
-    # Skipping, as the snapshots are committed to the repository directly.
-    - name: Download visual testing snapshots
-      if: 'false' # ${{ contains(inputs.project, 'visual') && !contains(inputs.extra-options, 'update-snapshots') }}
-      uses: dawidd6/action-download-artifact@07ab29fd4a977ae4d2b275087cf67563dfdf0295 # v9
-      with:
-        workflow_search: 'true'
-        branch: ${{ github.ref_name }}
-        name: visual-snapshots-${{ hashFiles('.git/HEAD') }}
-        path: .
-        search_artifacts: 'true'
-      continue-on-error: true
-
     - name: Run your tests
       shell: bash
       working-directory: ${{ inputs.directory }}

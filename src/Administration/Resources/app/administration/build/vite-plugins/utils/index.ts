@@ -304,7 +304,7 @@ export function getViteServerPorts(): Record<string, number> {
  * @private
  */
 export function getMainViteServerConfig(): {
-    proxy: Record<string, { target: string; changeOrigin: boolean }>;
+    proxy: Record<string, { target: string; changeOrigin: boolean; ws: boolean; rewriteWsOrigin: boolean }>;
     port: number;
 } {
     const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
@@ -316,7 +316,7 @@ export function getMainViteServerConfig(): {
     const rawData = fs.readFileSync(mappingPath, 'utf-8');
     const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
 
-    const proxyConfig: Record<string, { target: string; changeOrigin: boolean }> = {};
+    const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
 
     for (const [
         key,
@@ -325,6 +325,8 @@ export function getMainViteServerConfig(): {
         proxyConfig[value.basePath] = {
             target: `http://localhost:${value.port}`,
             changeOrigin: true,
+            ws: true,
+            rewriteWsOrigin: true,
         };
     }
 

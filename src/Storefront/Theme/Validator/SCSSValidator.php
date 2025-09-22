@@ -23,7 +23,7 @@ class SCSSValidator
         if (!\array_key_exists('value', $data)
             || !isset($data['value'])
             || $data['value'] === ''
-            || $data['value'] === false) {
+            || ($data['value'] === false && !\in_array($data['type'], ['checkbox', 'switch', 'boolean', 'bool'], true))) {
             return null;
         }
 

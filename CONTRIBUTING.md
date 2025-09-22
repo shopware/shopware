@@ -52,6 +52,9 @@ docker compose exec web composer setup
 
 For all commands see [Command Overview](#command-overview).
 
+### Changing environment variables
+
+You can create a `.env` file to override the default environment variables. These are loaded automatically without having to restart the containers. **Except for the `APP_ENV` variable**, which requires `docker compose up -d` to apply the changes.
 
 ### Enable Profiler/Debugging for PHP
 

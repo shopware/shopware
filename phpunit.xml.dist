@@ -151,6 +151,7 @@
             <directory>tests/integration/Core/Framework/Rule</directory>
             <directory>tests/integration/Core/Framework/Script</directory>
             <directory>tests/integration/Core/Framework/Seo</directory>
+            <directory>tests/integration/Core/Framework/Sso</directory>
             <directory>tests/integration/Core/Framework/Store</directory>
             <directory>tests/integration/Core/Framework/Telemetry</directory>
             <directory>tests/integration/Core/Framework/TestCaseBase</directory>

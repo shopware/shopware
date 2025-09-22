@@ -1053,7 +1053,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "type": "object",
+                                            "required": ["elements"],
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CustomerAddress"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1083,7 +1106,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "type": "object",
+                                            "required": ["elements"],
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CustomerAddress"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [

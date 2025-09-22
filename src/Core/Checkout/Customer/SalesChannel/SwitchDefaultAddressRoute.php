@@ -5,14 +5,16 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRouteResponse;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -53,7 +55,7 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
         defaults: ['type' => 'billing', '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
         methods: ['PATCH']
     )]
-    public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
+    public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): SwitchDefaultAddressRouteResponse
     {
         $this->validateAddress($addressId, $context, $customer);
 
@@ -82,6 +84,14 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
 
         $this->customerRepository->update([$data], $context->getContext());
 
-        return new NoContentResponse();
+        $criteria = (new Criteria())
+            ->addAssociation('salutation')
+            ->addAssociation('country')
+            ->addAssociation('countryState')
+            ->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));
+
+        $addresses = $this->addressRepository->search($criteria, $context->getContext());
+
+        return new SwitchDefaultAddressRouteResponse($addresses);
     }
 }

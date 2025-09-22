@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRouteResponse;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -18,5 +18,5 @@ abstract class AbstractSwitchDefaultAddressRoute
 
     abstract public function getDecorated(): AbstractSwitchDefaultAddressRoute;
 
-    abstract public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse;
+    abstract public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): SwitchDefaultAddressRouteResponse;
 }

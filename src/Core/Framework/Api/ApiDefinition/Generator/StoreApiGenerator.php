@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use http\Exception\RuntimeException;
 use OpenApi\Annotations\License;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -116,7 +116,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     public function getSchema(array $definitions): array
     {
-        throw new RuntimeException();
+        throw ApiException::unsupportedStoreApiSchemaEndpoint();
     }
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool

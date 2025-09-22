@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -256,7 +255,11 @@ class DataAbstractionLayerExceptionTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigNotFoundDeprecated(): void
     {
-        $e = ElasticsearchProductException::configNotFound();
+        if (!\class_exists('\Shopware\Elasticsearch\Product\ElasticsearchProductException')) {
+            static::markTestSkipped('\Shopware\Elasticsearch\Product\ElasticsearchProductException does not exist');
+        }
+
+        $e = DataAbstractionLayerException::configNotFound();
 
         static::assertSame('Configuration for product elasticsearch definition not found', $e->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());

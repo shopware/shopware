@@ -274,7 +274,9 @@ class DocumentControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
         $response = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $response);
-        static::assertNotEmpty($data = $response['data']);
+
+        $data = $response['data'];
+        static::assertNotEmpty($data);
         static::assertCount(2, $data);
 
         $documentIds = $this->getDocumentIds($data);

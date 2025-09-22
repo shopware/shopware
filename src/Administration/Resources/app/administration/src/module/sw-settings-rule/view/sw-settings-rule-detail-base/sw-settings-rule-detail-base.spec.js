@@ -207,7 +207,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             expect(wrapper.emitted('tree-finished-loading')).toBeTruthy();
         });
 
-        it('should show warning when indexing is disabled and rule contains product stream conditions', async () => {
+        it('should show warning banner when indexing is disabled and rule contains product stream conditions', async () => {
             Shopware.Context.app.productStreamIndexingEnabled = false;
 
             const props = {
@@ -222,13 +222,12 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(props);
             await flushPromises();
 
-            expect(wrapper.vm.productStreamIndexingEnabled).toBe(false);
-            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(true);
-            expect(wrapper.find('mt-banner-stub').exists()).toBe(true);
-            expect(wrapper.find('mt-banner-stub').attributes('variant')).toBe('attention');
+            const banner = wrapper.find('mt-banner-stub');
+            expect(banner.exists()).toBe(true);
+            expect(banner.attributes('variant')).toBe('attention');
         });
 
-        it('should not show warning when indexing is enabled', async () => {
+        it('should not show warning banner when indexing is enabled', async () => {
             Shopware.Context.app.productStreamIndexingEnabled = true;
 
             const props = {
@@ -243,12 +242,10 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(props);
             await flushPromises();
 
-            expect(wrapper.vm.productStreamIndexingEnabled).toBe(true);
-            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(false);
             expect(wrapper.find('mt-banner-stub').exists()).toBe(false);
         });
 
-        it('should not show warning when no product stream conditions exist', async () => {
+        it('should not show warning banner when no product stream conditions exist', async () => {
             Shopware.Context.app.productStreamIndexingEnabled = false;
 
             const props = {
@@ -263,12 +260,10 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(props);
             await flushPromises();
 
-            expect(wrapper.vm.productStreamIndexingEnabled).toBe(false);
-            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(false);
             expect(wrapper.find('mt-banner-stub').exists()).toBe(false);
         });
 
-        it('should detect product stream conditions in nested children', async () => {
+        it('should show warning banner when product stream conditions exist in nested children', async () => {
             Shopware.Context.app.productStreamIndexingEnabled = false;
 
             const props = {
@@ -294,8 +289,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(props);
             await flushPromises();
 
-            expect(wrapper.vm.hasProductStreamConditions(wrapper.vm.conditions)).toBe(true);
-            expect(wrapper.vm.showProductStreamIndexingWarning).toBe(true);
+            const banner = wrapper.find('mt-banner-stub');
+            expect(banner.exists()).toBe(true);
+            expect(banner.attributes('variant')).toBe('attention');
         });
     });
 

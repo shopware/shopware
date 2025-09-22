@@ -112,5 +112,10 @@ return [
         preg_quote('CHANGED: The parameter $object of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed from Shopware\Core\Framework\Struct\Struct to a non-contravariant Shopware\Core\Content\Cookie\Struct\CookieGroupCollection', '/'),
         preg_quote('CHANGED: The parameter $object of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed from Shopware\Core\Framework\Struct\Struct to Shopware\Core\Content\Cookie\Struct\CookieGroupCollection', '/'),
         preg_quote('CHANGED: Parameter 0 of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed name from object to cookieGroups', '/'),
+        preg_quote('Shopware\Core\Service\ServiceException', '/'),
+
+        // Moved endpoint to Shopware\Core\Framework\Sso\Controller\SsoController to not have a hard dependency between admin and core packages
+        // It was never intended to be used outside of SaaS in it's initial release (still marked experimental / internal everywhere else, only this one method was forgotten)
+        preg_quote('REMOVED: Method Shopware\Administration\Controller\AdministrationController#ssoAuth() was removed', '/'),
     ],
 ];

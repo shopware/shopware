@@ -17,7 +17,7 @@ class CookieGroupCollectEvent implements ShopwareSalesChannelEvent
     public function __construct(
         public CookieGroupCollection $cookieGroupCollection,
         public readonly Request $request,
-        protected SalesChannelContext $salesChannelContext,
+        protected readonly SalesChannelContext $salesChannelContext,
     ) {
     }
 

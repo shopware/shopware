@@ -49,5 +49,11 @@ class TelemetryEvent<N extends EventTypes> extends CustomEvent<EventData<N>> {
     }
 }
 
+type ElementQuery = (mutations: MutationRecord[]) => Element[];
+
+type Config = {
+    queries: ElementQuery[];
+};
+
 /** @private */
-export { TelemetryEvent, type EventTypes, type EventPayload };
+export { TelemetryEvent, type EventTypes, type EventPayload, type ElementQuery, type Config };

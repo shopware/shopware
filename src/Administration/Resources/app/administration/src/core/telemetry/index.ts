@@ -3,12 +3,17 @@
  */
 import { type Ref, ref } from 'vue';
 import type { RouteLocation, Router } from 'vue-router';
-import { TelemetryEvent, type EventTypes, type EventPayload } from './types';
+import { TelemetryEvent, type EventTypes, type EventPayload, type ElementQuery, type Config } from './types';
+import AnchorTags from './ElementQueries/anchor-tags';
+import ProductAnalyticsTag from './ElementQueries/product-analytics-tag';
+import TaggedButtons from './ElementQueries/tagged-buttons';
 /**
  * @private
  */
 export class Telemetry {
     readonly #eventTarget: EventTarget;
+
+    readonly #elementQueries: ElementQuery[];
 
     #initialized: Ref<boolean>;
 
@@ -17,9 +22,10 @@ export class Telemetry {
     // for debugging in the browser only
     private observedNodes: Node[] = [];
 
-    constructor() {
+    constructor(config: Config) {
         this.#eventTarget = new EventTarget();
         this.#initialized = ref(false);
+        this.#elementQueries = config.queries;
 
         this.#eventTarget.addEventListener('telemetry', (event) => {
             if (this.debug) {
@@ -81,33 +87,15 @@ export class Telemetry {
 
     private initializeObservables(): void {
         const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                mutation.addedNodes.forEach((node: Node) => {
-                    if (!(node instanceof Element)) {
-                        return;
-                    }
+            const observedNodes = new Set<Element>();
 
-                    const n = new Set<Element>();
-
-                    n.add(node);
-
-                    if (node.childNodes.length > 0) {
-                        node.querySelectorAll('a').forEach((link) => {
-                            n.add(link);
-                        });
-
-                        node.querySelectorAll('button').forEach((buton) => {
-                            n.add(buton);
-                        });
-
-                        node.querySelectorAll('[data-product-analytics=true]').forEach((trackedElement) => {
-                            n.add(trackedElement);
-                        });
-                    }
-
-                    n.forEach((elementToTrack) => this.observeNode(elementToTrack));
+            this.#elementQueries.forEach((query) => {
+                query(mutations).forEach((observedNode) => {
+                    observedNodes.add(observedNode);
                 });
             });
+
+            observedNodes.forEach((node) => this.observeNode(node));
         });
 
         observer.observe(document.body, {
@@ -116,17 +104,13 @@ export class Telemetry {
         });
     }
 
-    private observeNode(node: Element): void {
-        if (node.nodeName !== 'A' && node.nodeName !== 'BUTTON' && node.getAttribute('data-product-analytics') === null) {
-            return;
-        }
-
+    private observeNode(el: Element): void {
         if (this.debug) {
-            this.observedNodes.push(node);
+            this.observedNodes.push(el);
         }
 
-        if (node.nodeName === 'A') {
-            node.addEventListener('click', (event) => {
+        if (el.nodeName === 'A') {
+            el.addEventListener('click', (event) => {
                 const target = event.currentTarget ?? event.target;
                 if (!this.assertIsElement(target)) {
                     return;
@@ -141,7 +125,9 @@ export class Telemetry {
             return;
         }
 
-        node.addEventListener('click', (event) => {
+        const eventName = el.getAttribute('data-product-analytics-tracked-event') ?? 'click';
+
+        el.addEventListener(eventName, (event) => {
             const target = event.currentTarget ?? event.target;
             if (!this.assertIsElement(target)) {
                 return;
@@ -170,4 +156,10 @@ export class Telemetry {
 /**
  * @private
  */
-export default new Telemetry();
+export default new Telemetry({
+    queries: [
+        AnchorTags,
+        TaggedButtons,
+        ProductAnalyticsTag,
+    ],
+});

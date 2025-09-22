@@ -68,14 +68,14 @@ function createClient() {
  */
 function requestCacheAdapterInterceptor(client) {
     const requestCaches = {};
+    // TODO fix cache.api.service.js
+    // client.interceptors.request.use((config) => {
+    //     const originalAdapter = config.adapter;
 
-    client.interceptors.request.use((config) => {
-        const originalAdapter = config.adapter;
+    //     config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
 
-        config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
-
-        return config;
-    });
+    //     return config;
+    // });
 }
 
 /**

@@ -39,6 +39,7 @@ class PromotionException extends HttpException
     public const FILTER_SORTER_NOT_FOUND = 'CHECKOUT__FILTER_SORTER_NOT_FOUND';
     public const FILTER_PICKER_NOT_FOUND = 'CHECKOUT__FILTER_PICKER_NOT_FOUND';
     public const PROMOTION_USAGE_LOCKED = 'CHECKOUT__PROMOTION_USAGE_LOCKED';
+    public const PROMOTION_USED_DELETE_RESTRICTION = 'CHECKOUT__PROMOTION_USED_DELETE_RESTRICTION';
 
     public static function codeAlreadyRedeemed(string $code): self
     {
@@ -261,6 +262,16 @@ class PromotionException extends HttpException
             self::PROMOTION_USAGE_LOCKED,
             'Promotion {{ promotion }} is locked due to concurrent write operation. Please try again later.',
             ['promotion' => $promotionCodeOrId]
+        );
+    }
+
+    public static function promotionUsedDeleteRestriction(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_USED_DELETE_RESTRICTION,
+            'Promotions cannot be deleted once they have been used in an order.',
+            [],
         );
     }
 }

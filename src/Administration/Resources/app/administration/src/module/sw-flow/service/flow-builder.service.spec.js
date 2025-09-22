@@ -3,7 +3,8 @@
  */
 
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
-import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
+
+const { ACTION } = Shopware.Constants.FLOW;
 
 describe('module/sw-flow/service/flow-builder.service.js', () => {
     const service = new FlowBuilderService();

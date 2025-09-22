@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociatio
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
@@ -19,15 +20,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTyp
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[Package('framework')]
 class DataAbstractionLayerException extends HttpException
@@ -123,6 +127,26 @@ class DataAbstractionLayerException extends HttpException
             'Unknown or bad CronInterval format "{{ cronIntervalString }}".',
             ['cronIntervalString' => $cronIntervalString],
         );
+    }
+
+    public static function writeTypeIntendError(
+        EntityDefinition $definition,
+        string $expectedClass,
+        string $actualClass
+    ): self {
+        return new WriteTypeIntendException(
+            $definition,
+            $expectedClass,
+            $actualClass
+        );
+    }
+
+    /**
+     * @param list<string> $remainingEntities
+     */
+    public static function impossibleWriteOrder(array $remainingEntities): self
+    {
+        return new ImpossibleWriteOrderException($remainingEntities);
     }
 
     public static function invalidDateIntervalFormat(
@@ -795,10 +819,10 @@ class DataAbstractionLayerException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
-    public static function configNotFound(): self|ElasticsearchProductException
+    public static function configNotFound(): self|\Shopware\Elasticsearch\Product\ElasticsearchProductException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            throw ElasticsearchProductException::configNotFound();
+        if (!Feature::isActive('v6.8.0.0') && class_exists('\Shopware\Elasticsearch\Product\ElasticsearchProductException')) {
+            return \Shopware\Elasticsearch\Product\ElasticsearchProductException::configNotFound();
         }
 
         return new self(
@@ -976,5 +1000,10 @@ class DataAbstractionLayerException extends HttpException
             'Can not build accessor for field "{{ propertyName }}" on root "{{ root }}"',
             ['propertyName' => $propertyName, 'root' => $root]
         );
+    }
+
+    public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
+    {
+        return new UnexpectedTypeException($constraint, $expectedType);
     }
 }

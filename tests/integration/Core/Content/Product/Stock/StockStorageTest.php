@@ -11,7 +11,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -52,8 +54,14 @@ class StockStorageTest extends TestCase
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<OrderLineItemCollection>
+     */
     private EntityRepository $lineItemRepository;
 
     private CartService $cartService;
@@ -62,14 +70,14 @@ class StockStorageTest extends TestCase
 
     private SalesChannelContext $context;
 
-    private EntityRepository $orderLineItemRepository;
-
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
     protected function setUp(): void
     {
         $this->productRepository = static::getContainer()->get('product.repository');
-        $this->orderLineItemRepository = static::getContainer()->get('order_line_item.repository');
         $this->cartService = static::getContainer()->get(CartService::class);
         $this->contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->lineItemRepository = static::getContainer()->get('order_line_item.repository');
@@ -540,10 +548,10 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
-        $this->orderLineItemRepository->delete([
+        $this->lineItemRepository->delete([
             [
                 'id' => $orderLineItem->getId(),
             ],
@@ -578,10 +586,10 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
-        $this->orderLineItemRepository->update([
+        $this->lineItemRepository->update([
             [
                 'id' => $orderLineItem->getId(),
                 'referencedId' => $newProduct->getId(),
@@ -629,10 +637,10 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
-        $this->orderLineItemRepository->update([
+        $this->lineItemRepository->update([
             [
                 'id' => $orderLineItem->getId(),
                 'referencedId' => $newProduct->getId(),
@@ -671,10 +679,10 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
-        $this->orderLineItemRepository->update([
+        $this->lineItemRepository->update([
             [
                 'id' => $orderLineItem->getId(),
                 'quantity' => 2,

@@ -401,9 +401,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             return $this->buildPriceDefinition($product->getCalculatedPrice(), $quantity);
         }
 
-        // keep loop reference to $price variable to get last quantity price in case of "null"
         $price = $product->getCalculatedPrice();
-        foreach ($product->getCalculatedPrices() as $price) {
+        foreach ($product->getCalculatedPrices() as $calculatedPrice) {
+            $price = $calculatedPrice;
             if ($quantity <= $price->getQuantity()) {
                 break;
             }

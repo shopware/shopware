@@ -42,6 +42,9 @@ export default {
             return this.repositoryFactory.create('promotion_setgroup');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         ruleFilter() {
             const criteria = new Criteria(1, 25);
 

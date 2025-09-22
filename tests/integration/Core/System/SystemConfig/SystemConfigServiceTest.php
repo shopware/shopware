@@ -322,7 +322,12 @@ class SystemConfigServiceTest extends TestCase
     public function testDeleteNonExisting(): void
     {
         $this->systemConfigService->delete('not.found');
+        $actual = $this->systemConfigService->get('not.found');
+        static::assertNull($actual);
+
         $this->systemConfigService->delete('not.found', TestDefaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('not.found', TestDefaults::SALES_CHANNEL);
+        static::assertNull($actual);
     }
 
     public function testDelete(): void

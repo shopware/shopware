@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
  * @internal
@@ -66,7 +67,11 @@ class CustomFieldRuleTest extends TestCase
      */
     public static function customFieldRuleMatchDataProvider(): iterable
     {
-        yield from self::boolTypeDataProvider();
+        // All boolean custom field types should behave the same
+        yield from self::boolTypeDataProvider(CustomFieldTypes::BOOL);
+        yield from self::boolTypeDataProvider(CustomFieldTypes::SWITCH);
+        yield from self::boolTypeDataProvider(CustomFieldTypes::CHECKBOX);
+
         yield from self::textTypeDataProvider();
         yield from self::stringTypeDataProvider();
         yield from self::floatTypeDataProvider();
@@ -78,188 +83,188 @@ class CustomFieldRuleTest extends TestCase
     /**
      * @return iterable<string, array<array<string, bool>|bool|string|null>>
      */
-    private static function boolTypeDataProvider(): iterable
+    private static function boolTypeDataProvider(string $boolCustomFieldType): iterable
     {
-        yield 'does not match missing value equals bool true' => [
+        yield $boolCustomFieldType . ': does not match missing value equals bool true' => [
             [],
             true,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does match missing value equals bool false' => [
+        yield $boolCustomFieldType . ': does match missing value equals bool false' => [
             [],
             false,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does not match bool false equals bool true' => [
+        yield $boolCustomFieldType . ': does not match bool false equals bool true' => [
             [self::CUSTOM_FIELD_NAME => false],
             true,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does match bool false equals bool false' => [
+        yield $boolCustomFieldType . ': does match bool false equals bool false' => [
             [self::CUSTOM_FIELD_NAME => false],
             false,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does not match bool true equals bool false' => [
+        yield $boolCustomFieldType . ': does not match bool true equals bool false' => [
             [self::CUSTOM_FIELD_NAME => true],
             false,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does match bool true equals bool true' => [
+        yield $boolCustomFieldType . ': does match bool true equals bool true' => [
             [self::CUSTOM_FIELD_NAME => true],
             true,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "yes"' => [
+        yield $boolCustomFieldType . ': does match bool true equals "yes"' => [
             [self::CUSTOM_FIELD_NAME => true],
             'yes',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "yes "' => [
+        yield $boolCustomFieldType . ': does match bool true equals "yes "' => [
             [self::CUSTOM_FIELD_NAME => true],
             'yes ',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "True"' => [
+        yield $boolCustomFieldType . ': does match bool true equals "True"' => [
             [self::CUSTOM_FIELD_NAME => true],
             'True',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "true"' => [
+        yield $boolCustomFieldType . ': does match bool true equals "true"' => [
             [self::CUSTOM_FIELD_NAME => true],
             'true',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "1"' => [
+        yield $boolCustomFieldType . ': does match bool true equals "1"' => [
             [self::CUSTOM_FIELD_NAME => true],
             '1',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does not match bool false equals "yes"' => [
+        yield $boolCustomFieldType . ': does not match bool false equals "yes"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'yes',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does not match bool false with "yes "' => [
+        yield $boolCustomFieldType . ': does not match bool false with "yes "' => [
             [self::CUSTOM_FIELD_NAME => false],
             'yes ',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does not match bool false with "True"' => [
+        yield $boolCustomFieldType . ': does not match bool false with "True"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'True',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does not match bool false with "true"' => [
+        yield $boolCustomFieldType . ': does not match bool false with "true"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'true',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does not match bool false with "1"' => [
+        yield $boolCustomFieldType . ': does not match bool false with "1"' => [
             [self::CUSTOM_FIELD_NAME => false],
             '1',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does match bool false equals "no"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "no"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'no',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "no "' => [
+        yield $boolCustomFieldType . ': does match bool false equals "no "' => [
             [self::CUSTOM_FIELD_NAME => false],
             'no ',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "False"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "False"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'False',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "false"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "false"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'false',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "0"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "0"' => [
             [self::CUSTOM_FIELD_NAME => false],
             '0',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "some string"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "some string"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'some string',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals null' => [
+        yield $boolCustomFieldType . ': does match bool false equals null' => [
             [self::CUSTOM_FIELD_NAME => false],
             null,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];

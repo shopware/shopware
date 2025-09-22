@@ -1,6 +1,5 @@
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
-import CMS from '../../constant/sw-cms.constant';
 
 /**
  * @private
@@ -33,7 +32,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         slotPositions() {
-            return CMS.SLOT_POSITIONS as { [key: string]: number };
+            return Shopware.Constants.CMS.SLOT_POSITIONS as { [key: string]: number };
         },
     },
 

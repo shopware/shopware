@@ -30,6 +30,7 @@ class QueryParameterAllowList
             'grouping[]',
             'total-count-mode',
             'includes',
+            'excludes',
         ];
 
         return [
@@ -70,6 +71,7 @@ class QueryParameterAllowList
                 '/store-api/navigation/{activeId}/{rootId}' => ['@criteria', 'depth', 'buildTree'],
                 '/store-api/payment-method' => ['@criteria'],
                 '/store-api/product' => ['@criteria'],
+                '/store-api/product/{productId}' => ['skipConfigurator', 'skipCmsPage'],
                 '/store-api/salutation' => ['@criteria'],
                 '/store-api/seo-url' => ['@criteria'],
                 '/store-api/shipping-method' => ['@criteria', 'onlyAvailable'],

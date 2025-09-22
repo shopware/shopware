@@ -41,6 +41,13 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ InstallPa
 
     await page.getByRole('button', { name: 'Next' }).click();
 
+    await expect(page.getByText('Installation completed')).toBeVisible({
+        timeout: 30000,
+    });
+
+    // Click "Continue to shop" button
+    await page.getByRole('link', { name: 'Continue to shop' }).click();
+
     // test admin login
 
     // Wait until the page is loaded

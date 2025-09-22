@@ -39,7 +39,6 @@ SQL;
 
         $plugins = $this->connection->executeQuery($sql)->fetchAllAssociative();
 
-        /** @var array<int, PluginInfo> $result */
         $result = [];
 
         /** @var array{baseClass: string, name: string, active: int, path: string, version: string|null, autoload: string, managedByComposer: int, composerName: string } $plugin */

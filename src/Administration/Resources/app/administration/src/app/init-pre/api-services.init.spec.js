@@ -65,6 +65,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
                 'userRecoveryService',
                 'userValidationService',
                 'userService',
+                'shopIdChangeService',
             ];
 
             serviceNames.forEach((serviceName) => {
@@ -136,6 +137,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('userRecoveryService')).toBeUndefined();
         expect(Shopware.Service('userValidationService')).toBeUndefined();
         expect(Shopware.Service('userService')).toBeUndefined();
+        expect(Shopware.Service('shopIdChangeService')).toBeUndefined();
 
         await initializeApiServices();
 
@@ -196,5 +198,6 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('userRecoveryService')).toBeDefined();
         expect(Shopware.Service('userValidationService')).toBeDefined();
         expect(Shopware.Service('userService')).toBeDefined();
+        expect(Shopware.Service('shopIdChangeService')).toBeDefined();
     });
 });

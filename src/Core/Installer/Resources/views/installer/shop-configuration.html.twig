@@ -15,6 +15,11 @@
 
             <p>{{ "shopware.installer.configuration_sconfig_text"|trans }}</p>
 
+            <!-- Shop data section -->
+            <div class="section-header">
+                <h3 class="section-title">{{ "shopware.installer.configuration_admin_shop_headline"|trans }}</h3>
+            </div>
+
             <p>
                 <label for="config_shopName">{{ "shopware.installer.configuration_sconfig_name"|trans }}</label>
                 <input type="text"
@@ -45,7 +50,7 @@
                 <div class="input-group">
                     <label for="config_shop_language">{{ "shopware.installer.configuration_sconfig_language"|trans }}</label>
                     <div class="select-wrapper">
-                        <select name="config_shop_language" id="config_shop_language">
+                        <select name="config_shop_language" id="config_shop_language" onchange="syncDefaultLanguage()">
                             {% for iso, language in languageIsos %}
                                 <option value="{{ language.id }}" {% if parameters.config_shop_language == language.id %}selected{% endif %}>
                                     {{ ("shopware.installer.select_language_" ~ iso) |trans }}
@@ -92,7 +97,58 @@
                 {{ "shopware.installer.configuration_defaults_warning"|trans }}
             </div>
 
-            <p class="available-currencies__headline">{{ "shopware.installer.configuration_admin_currency_headline"|trans }}</p>
+            <!-- Languages section -->
+            <div class="section-header">
+                <h3 class="section-title">{{ "shopware.installer.configuration_admin_language_headline"|trans }}</h3>
+            </div>
+
+            <div class="languages-block">
+                <p class="available-languages__text">
+                    {{ "shopware.installer.configuration_admin_language_text"|trans }}
+                </p>
+
+                <!-- Search row -->
+                <div class="languages-search-row">
+                    <div class="languages-search">
+                        <div class="search-input-wrapper">
+                            <input id="language-search"
+                                   class="form-control languages-search__control"
+                                   placeholder="{{ "shopware.installer.configuration_admin_language_search_placeholder"|trans }}">
+                            <i class="icon-search search-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="languages-actions">
+                        <a href="#" onclick="selectAllLanguages(event)">{{ "shopware.installer.configuration_admin_language_select_all"|trans }}</a>
+                        <a href="#" onclick="clearAllLanguages(event)">{{ "shopware.installer.configuration_admin_language_clear_all"|trans }}</a>
+                    </div>
+                </div>
+
+                <div class="languages-box">
+                    <div class="languages-list auto-columns">
+                        {% for locale, language in allAvailableLanguages %}
+                            <div class="custom-checkbox language-item"
+                                 data-language-name="{{ language.label|lower }}">
+                                <input type="checkbox"
+                                       class="language-toggle"
+                                       id="lang_{{ locale|lower|replace({'-': '_'}) }}"
+                                       name="selected_languages[]"
+                                       value="{{ locale }}"
+                                       {% if locale in ['en-GB','de-DE'] %}checked disabled data-default-locales{% elseif locale in selectedLanguages %}checked{% endif %}
+                                       onclick="event.target.classList.add('toggled')" />
+                                <label for="lang_{{ locale|lower|replace({'-': '_'}) }}">
+                                    {{ language.label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Currencies section -->
+            <div class="section-header">
+                <h3 class="section-title">{{ "shopware.installer.configuration_admin_currency_headline"|trans }}</h3>
+            </div>
             <p class="available-currencies__text">{{ "shopware.installer.configuration_admin_currency_text"|trans }}</p>
 
             <div class="available-currencies__container">
@@ -110,7 +166,10 @@
                 {% endfor %}
             </div>
 
-            <hr>
+            <!-- Admin user data section -->
+            <div class="section-header">
+                <h3 class="section-title">{{ "shopware.installer.configuration_admin_user_headline"|trans|default('Admin user data') }}</h3>
+            </div>
 
             <p>
                 <label for="config_admin_email">{{ "shopware.installer.configuration_admin_mail"|trans }}</label>
@@ -173,9 +232,11 @@
         </div>
     </form>
 
-
     <script>
+        let previousDefaultLanguage = null;
+
         toggleDefaultCurrency();
+        syncDefaultLanguage();
         function toggleDefaultCurrency() {
             const toggles = document.getElementsByClassName('currency-toggle');
             for (let toggle of toggles) {
@@ -200,8 +261,71 @@
             newDefaultToggle.classList.add('is--selected');
         }
 
+        // Language search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('language-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const languageItems = document.querySelectorAll('.language-item');
+
+                    languageItems.forEach(function(item) {
+                        const languageName = item.getAttribute('data-language-name');
+                        if (languageName.includes(searchTerm)) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+
+        function selectAllLanguages(event) {
+            event.preventDefault();
+            document.querySelectorAll('.language-toggle').forEach((toggle) => {
+                const row = toggle.closest('.language-item');
+                if (row && row.style.display !== 'none' && !toggle.disabled) {
+                    toggle.checked = true;
+                    toggle.classList.add('toggled');
+                }
+            });
+        }
+
+        function clearAllLanguages(event) {
+            event.preventDefault();
+            document.querySelectorAll('.language-toggle').forEach((toggle) => {
+                const row = toggle.closest('.language-item');
+                if (row && row.style.display !== 'none' && !toggle.disabled) {
+                    toggle.checked = false;
+                    toggle.classList.remove('toggled');
+                }
+            });
+        }
+
         function setLastActivity() {
             localStorage.setItem('lastActivity', `${Date.now()}`);
+        }
+
+        function syncDefaultLanguage() {
+            const selectedLanguage = document.getElementById('config_shop_language').value;
+            const current = document.querySelector(`input[name="selected_languages[]"][value="${selectedLanguage}"]`);
+
+            // Uncheck previous language if different
+            if (previousDefaultLanguage && previousDefaultLanguage !== selectedLanguage) {
+                const previousLanguage = document.querySelector(`input[name="selected_languages[]"][value="${previousDefaultLanguage}"]`);
+                if (previousLanguage && !previousLanguage.hasAttribute('data-default-locales')) {
+                    previousLanguage.checked = false;
+                    previousLanguage.disabled = false;
+                }
+            }
+
+            if (current && !current.disabled) {
+                current.checked = true;
+                current.disabled = true;
+            }
+
+            previousDefaultLanguage = selectedLanguage;
         }
     </script>
 {% endblock %}

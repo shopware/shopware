@@ -13,6 +13,7 @@ author_github: @spigandromeda
 * Deprecated `controllerName` and `controllerAction` variables in `TemplateDataExtension`.
 ___
 # Upgrade Information
+## Migration from controller variables to activeRoute
 Replace `controllerName` and `controllerAction` with `activeRoute`:
 * Twig: Use `activeRoute` instead of `controllerName`/`controllerAction`
 * CSS: Use `.is-active-route-*` instead of `.is-ctl-*` and `.is-act-*`
@@ -20,6 +21,7 @@ Replace `controllerName` and `controllerAction` with `activeRoute`:
 * Routes use dots, CSS classes use dashes: `activeRoute|replace({'.': '-'})`
 ___
 # Next Major Version Changes
+## Removal of deprecated controller variables
 The following will be removed in Shopware 6.8.0:
 * Twig variables `controllerName` and `controllerAction`
 * CSS classes `is-ctl-*` and `is-act-*`

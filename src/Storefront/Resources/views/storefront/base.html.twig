@@ -19,7 +19,7 @@
     <body class="{% block base_body_classes %}
         {%- if controllerName is not empty -%}is-ctl-{{ controllerName|lower }} {% endif -%}
         {%- if controllerAction is not empty -%}is-act-{{ controllerAction|lower }} {% endif -%}
-        {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'%this%': '.', '%that%': '-'}) }}{%- endif -%}
+        {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'.': '-'}) }}{%- endif -%}
     {%- endblock %}">
 
     {% block base_body_skip_to_content %}

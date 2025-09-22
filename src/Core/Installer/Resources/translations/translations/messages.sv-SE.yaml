@@ -139,3 +139,19 @@ shopware.installer:
         <p>
             Vi hoppas att du får både roligt och har framgång med din nya onlinebutik!
         </p>"
+    menuitem_translation: 'Språknedladdning'
+    configuration_admin_shop_headline: 'Butiksdata'
+    configuration_admin_language_headline: 'Språk'
+    configuration_admin_language_select_all: 'Välj alla'
+    configuration_admin_language_clear_all: 'Rensa alla'
+    configuration_admin_user_headline: 'Administratörsanvändardata'
+    configuration_admin_language_text: 'Lägg till fler språk till din Shopware-butik. Om du vill lägga till eller ta bort språk senare kan du göra det när som helst i administrationen.'
+    configuration_admin_language_search_placeholder: 'Sök språk...'
+    translations_header: 'Språknedladdning'
+    translations_import_install_label: 'Laddar ner och installerar ytterligare språk.'
+    translations_install_duration_info: 'Detta kan ta några minuter.'
+    finish_title: 'Installationen av din Shopware-butik är klar.'
+    finish_subtitle: 'Klicka på "Fortsätt till butik" för att öppna administrationen för din butik och börja bygga butiken av dina drömmar.'
+    finish_continue: 'Fortsätt till butik'
+    translations_install_error_message: 'Något gick fel under översättningsinstallationen.'
+    translations_install_retry_link: 'Klicka här för att försöka igen'

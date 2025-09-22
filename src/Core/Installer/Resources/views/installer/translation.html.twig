@@ -1,0 +1,84 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.translations_header"|trans }}</h2>
+    </div>
+
+    <div class="card__body translations-import">
+        <div id="import-container" class="translations-import-container">
+            <div id="spinner-container" class="spinner-container">
+                <div class="spinner"></div>
+                <p class="spinner-text">
+                    {{ "shopware.installer.translations_import_install_label"|trans }}
+                </p>
+                <p class="spinner-subtext">
+                    {{ "shopware.installer.translations_install_duration_info"|trans }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card__footer flex-container">
+        <a href="{{ url('installer.finish') }}"
+           id="next"
+           class="btn btn-primary flex-item flex-right disabled"
+           onclick="if (event.target.classList.contains('disabled')) event.preventDefault();">
+            {{ "shopware.installer.forward"|trans }}
+        </a>
+    </div>
+    <script>
+        window.addEventListener('beforeunload', preventPageLeave);
+
+        // Start the installation process
+        startInstallation();
+
+        function preventPageLeave(event) {
+            event.preventDefault();
+        }
+
+        async function startInstallation() {
+            try {
+                const response = await fetch('{{ url('installer.translation-run') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+
+                const data = await response.json();
+
+                if (data.isFinished) {
+                    window.removeEventListener('beforeunload', preventPageLeave);
+
+                    if (data.failed) {
+                        showError();
+                    } else {
+                        // Success - redirect to finish page
+                        window.location.href = '{{ url('installer.finish', {'completed': true}) }}';
+                    }
+                }
+            } catch (error) {
+                showError();
+            }
+        }
+
+        function showError() {
+            const spinnerContainer = document.getElementById('spinner-container');
+            spinnerContainer.innerHTML = `
+                <div class="error-container">
+                    <div class="error-message-box">
+                        <div class="error-icon">!</div>
+                        <div class="error-text">{{ "shopware.installer.translations_install_error_message"|trans }}</div>
+                    </div>
+                    <a href="javascript:location.reload()" class="retry-link">
+                        {{ "shopware.installer.translations_install_retry_link"|trans }}
+                    </a>
+                </div>
+            `;
+
+            const nextButton = document.getElementById('next');
+            nextButton.classList.remove('disabled');
+            nextButton.href = '{{ url('installer.finish', {'completed': true}) }}';
+        }
+    </script>
+{% endblock %}

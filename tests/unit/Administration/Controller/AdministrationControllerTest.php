@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector;
-use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -494,18 +493,6 @@ class AdministrationControllerTest extends TestCase
             ]),
             $this->fileSystemOperator,
             $this->serviceRegistryUrl,
-            new LoginConfigService([
-                'use_default' => true,
-                'client_id' => 'clientId',
-                'client_secret' => 'clientSecret',
-                'redirect_uri' => 'redirectUri',
-                'base_url' => 'baseUrl',
-                'authorize_path' => '/authorize',
-                'token_path' => '/token',
-                'jwks_path' => '/jwks',
-                'scope' => 'scope',
-                'register_url' => 'https://register.url',
-            ], '', ''),
             $this->refreshTokenTtl,
         );
     }

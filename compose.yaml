@@ -8,7 +8,7 @@ services:
             - 9999:9999
         environment:
             APP_ENV: ${APP_ENV-dev}
-            COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+            COMPOSER_ROOT_VERSION: 6.6.9999999-dev
             HOST: '0.0.0.0'
             APP_URL: http://localhost:8000
             DATABASE_URL: mysql://root:root@database/shopware

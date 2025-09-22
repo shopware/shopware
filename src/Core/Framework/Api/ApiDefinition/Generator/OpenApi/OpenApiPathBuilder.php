@@ -289,7 +289,7 @@ class OpenApiPathBuilder
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'tags' => $tags,
             'operationId' => 'search' . $this->convertToOperationId($definition->getEntityName()),
-            "parameters" => [
+            'parameters' => [
                 new Parameter([
                     'name' => 'sw-include-search-info',
                     'in' => 'header',

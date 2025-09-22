@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -64,6 +66,116 @@ class ProductStreamUpdaterTest extends TestCase
 
         $updater->updateProducts(['1', '2'], Context::createDefaultContext());
         $updater->update($containerEvent);
+    }
+
+    public function testOnProductUpdated(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'id' => Uuid::randomHex(),
+                    'api_filter' => json_encode([[
+                        'type' => 'equals',
+                        'field' => 'active',
+                        'value' => '1',
+                    ]]),
+                ],
+            ]);
+
+        $ids = [Uuid::randomHex(), Uuid::randomHex()];
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.active', true));
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
+
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository([
+            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
+                static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+                static::assertEquals($criteria, $actualCriteria);
+                static::assertEquals($context, $actualContext);
+
+                return $ids;
+            },
+        ]);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            new ProductDefinition(),
+            $repository,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            true
+        );
+
+        $event = new ProductIndexerEvent($ids, Context::createDefaultContext());
+
+        $updater->onProductUpdated($event);
+    }
+
+    public function testOnProductUpdatedWithoutIds(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->never())
+            ->method('fetchAllAssociative');
+
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository([]);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            new ProductDefinition(),
+            $repository,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            true
+        );
+
+        $event = new ProductIndexerEvent([], Context::createDefaultContext());
+
+        $updater->onProductUpdated($event);
+    }
+
+    public function testOnProductSkipped(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->never())
+            ->method('fetchAllAssociative');
+
+        $ids = [Uuid::randomHex(), Uuid::randomHex()];
+
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository([]);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            new ProductDefinition(),
+            $repository,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            true
+        );
+
+        $event = new ProductIndexerEvent($ids, Context::createDefaultContext(), [
+            ProductIndexer::STREAM_UPDATER,
+        ]);
+
+        $updater->onProductUpdated($event);
     }
 
     /**

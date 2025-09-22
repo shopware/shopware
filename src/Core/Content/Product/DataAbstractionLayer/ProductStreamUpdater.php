@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('framework')]
@@ -164,6 +166,23 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         return null;
+    }
+
+    public function onProductUpdated(ProductIndexerEvent $event): void
+    {
+        $ids = $event->getIds();
+
+        if (empty($ids)) {
+            return;
+        }
+
+        if (\in_array(ProductIndexer::STREAM_UPDATER, $event->getSkip(), true)) {
+            return;
+        }
+
+        Profiler::trace('product:indexer:streams', function () use ($ids, $event): void {
+            $this->updateProducts($ids, $event->getContext());
+        });
     }
 
     /**

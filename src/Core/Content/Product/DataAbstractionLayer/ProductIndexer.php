@@ -63,7 +63,6 @@ class ProductIndexer extends EntityIndexer
         private readonly AbstractStockStorage $stockStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
-        private readonly AbstractProductStreamUpdater $streamUpdater,
         private readonly StatesUpdater $statesUpdater,
         private readonly MessageBusInterface $messageBus
     ) {
@@ -185,12 +184,6 @@ class ProductIndexer extends EntityIndexer
         if ($message->allow(self::CHILD_COUNT_UPDATER)) {
             Profiler::trace('product:indexer:child-count', function () use ($parentIds, $context): void {
                 $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
-            });
-        }
-
-        if ($message->allow(self::STREAM_UPDATER)) {
-            Profiler::trace('product:indexer:streams', function () use ($ids, $context): void {
-                $this->streamUpdater->updateProducts($ids, $context);
             });
         }
 

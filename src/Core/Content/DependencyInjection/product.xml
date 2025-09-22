@@ -397,7 +397,6 @@
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
             <argument type="service" id="messenger.default_bus"/>
             <tag name="shopware.entity_indexer" priority="100"/>
@@ -411,6 +410,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument>%shopware.product_stream.indexing%</argument>
             <tag name="shopware.entity_indexer"/>
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="onProductUpdated" priority="-999" />
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">

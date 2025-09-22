@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
@@ -51,7 +50,6 @@ class ProductIndexerTest extends TestCase
             $this->createMock(StockStorage::class),
             $this->createMock(EventDispatcher::class),
             $this->createMock(CheapestPriceUpdater::class),
-            $this->createMock(ProductStreamUpdater::class),
             $this->createMock(StatesUpdater::class),
             $this->createMock(MessageBusInterface::class),
         );

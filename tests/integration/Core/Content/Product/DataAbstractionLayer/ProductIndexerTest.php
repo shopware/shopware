@@ -12,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
@@ -72,7 +71,6 @@ class ProductIndexerTest extends TestCase
             self::getContainer()->get(StockStorage::class),
             self::getContainer()->get('event_dispatcher'),
             self::getContainer()->get(CheapestPriceUpdater::class),
-            self::getContainer()->get(ProductStreamUpdater::class),
             self::getContainer()->get(StatesUpdater::class),
             $this->messageBus
         );

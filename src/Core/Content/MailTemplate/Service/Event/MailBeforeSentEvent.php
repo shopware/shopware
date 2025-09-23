@@ -6,10 +6,10 @@ use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
@@ -44,8 +44,8 @@ class MailBeforeSentEvent extends Event implements LogAware, MessageAware, Scala
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('data', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
-            ->add('message', new ObjectType());
+            ->merge(MessageStorer::getAvailableData())
+            ->add(FlowMailVariables::DATA, new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)));
     }
 
     public function getName(): string

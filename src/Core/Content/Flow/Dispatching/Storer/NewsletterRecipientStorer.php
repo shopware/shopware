@@ -21,13 +21,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('after-sales')]
 class NewsletterRecipientStorer extends FlowStorer
 {
-    public static function getAvailableData(): EventDataCollection
-    {
-        return (new EventDataCollection())
-            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT, (new EntityType(NewsletterRecipientDefinition::class))->setNullable());
-    }
-
     /**
      * @internal
      *
@@ -37,6 +30,13 @@ class NewsletterRecipientStorer extends FlowStorer
         private readonly EntityRepository $newsletterRecipientRepository,
         private readonly EventDispatcherInterface $dispatcher
     ) {
+    }
+
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT, (new EntityType(NewsletterRecipientDefinition::class))->setNullable());
     }
 
     /**

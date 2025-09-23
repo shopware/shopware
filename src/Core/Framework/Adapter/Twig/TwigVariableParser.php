@@ -9,7 +9,6 @@ use Twig\Node\Expression\AssignNameExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\GetAttrExpression;
 use Twig\Node\Expression\NameExpression;
-use Twig\Node\Expression\Variable\ContextVariable;
 use Twig\Node\ForNode;
 use Twig\Node\Node;
 use Twig\Node\SetNode;

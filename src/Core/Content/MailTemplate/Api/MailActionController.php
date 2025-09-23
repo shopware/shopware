@@ -8,12 +8,9 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Event\EventData\EntityType;
-use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -33,9 +30,9 @@ class MailActionController extends AbstractController
      * @internal
      */
     public function __construct(
-        private readonly AbstractMailService    $mailService,
+        private readonly AbstractMailService $mailService,
         private readonly StringTemplateRenderer $templateRenderer,
-        private readonly MailTemplateService    $mailTemplateService,
+        private readonly MailTemplateService $mailTemplateService,
     ) {
     }
 

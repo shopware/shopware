@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -16,9 +17,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CustomerSetDefaultShippingAddressEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, FlowEventAware
+class CustomerSetDefaultShippingAddressEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.default.shipping.address.event';
+    final public const ADDRESS_ID = 'addressId';
 
     public function __construct(
         private readonly SalesChannelContext $salesChannelContext,
@@ -30,6 +32,11 @@ class CustomerSetDefaultShippingAddressEvent extends Event implements SalesChann
     public function getName(): string
     {
         return self::EVENT_NAME;
+    }
+
+    public function getCustomerId(): string
+    {
+        return $this->customer->getId();
     }
 
     public function getCustomer(): CustomerEntity
@@ -55,8 +62,8 @@ class CustomerSetDefaultShippingAddressEvent extends Event implements SalesChann
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->merge(CustomerStorer::getAvailableData())
+            ->add(self::ADDRESS_ID, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getAddressId(): string
@@ -67,5 +74,12 @@ class CustomerSetDefaultShippingAddressEvent extends Event implements SalesChann
     public function setAddressId(string $addressId): void
     {
         $this->addressId = $addressId;
+    }
+
+    public function getValues(): array
+    {
+        return [
+            self::ADDRESS_ID => $this->addressId,
+        ];
     }
 }

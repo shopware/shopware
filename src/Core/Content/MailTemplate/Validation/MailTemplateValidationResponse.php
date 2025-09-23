@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Validation;
 
-use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 abstract class MailTemplateValidationResponse extends Struct

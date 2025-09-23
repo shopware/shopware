@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review\Event;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
-use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\EventData\ArrayType;
-use Shopware\Core\Framework\Event\EventData\AssociativeArrayType;
-use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
@@ -47,18 +46,10 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add(
-                MailAware::MAIL_STRUCT,
-                (new ObjectType())
-                    ->add('bcc', (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable())
-                    ->add('cc', (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable())
-                    ->add('recipients', new AssociativeArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING), new ScalarValueType(ScalarValueType::TYPE_STRING)))
-            )
-            ->add(MailAware::SALES_CHANNEL_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add(MailAware::TIMEZONE, new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add(ProductAware::PRODUCT, new EntityType(ProductDefinition::class))
-            ->add(CustomerAware::CUSTOMER_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->merge(MailStorer::getAvailableData())
+            ->merge(TimezoneStorer::getAvailableData())
+            ->merge(ProductStorer::getAvailableData())
+            ->merge(CustomerStorer::getAvailableData())
             ->add(
                 FlowMailVariables::REVIEW_FORM_DATA,
                 (new ObjectType())

@@ -33,8 +33,8 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('data', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
-            ->add('templateData', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)));
+            ->add(FlowMailVariables::DATA, new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
+            ->add(FlowMailVariables::TEMPLATE_DATA, new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)));
     }
 
     public function getName(): string

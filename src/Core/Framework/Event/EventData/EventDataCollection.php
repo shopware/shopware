@@ -31,4 +31,11 @@ class EventDataCollection
     {
         return array_map(fn ($type) => $type->toArray(), $this->data);
     }
+
+    public function merge(EventDataCollection $collection): EventDataCollection
+    {
+        $this->data = \array_merge($this->data, $collection->data);
+
+        return $this;
+    }
 }

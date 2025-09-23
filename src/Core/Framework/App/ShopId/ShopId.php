@@ -40,19 +40,6 @@ readonly class ShopId implements \Stringable
         );
     }
 
-    //    public function isUrlValid(): bool
-    //    {
-    //        $appUrl = $this->getFingerprint(AppUrl::IDENTIFIER);
-    //        if ($appUrl === null) {
-    //            return false;
-    //        }
-    //
-    //        if ($appUrl !== )
-    //
-    //
-    //
-    //    }
-
     public function getFingerprint(string $identifier): ?string
     {
         return $this->fingerprints[$identifier] ?? null;

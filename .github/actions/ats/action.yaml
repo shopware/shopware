@@ -63,6 +63,11 @@ inputs:
     description: Number of shards
     default: "1"
 
+  artifact-prefix:
+    required: false
+    default: "ats"
+    description: "Prefix for the artifact name"
+
 runs:
   using: "composite"
   steps:
@@ -172,7 +177,7 @@ runs:
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: ats-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
+        name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
         path: ${{ inputs.directory }}/test-results/
         retention-days: 3
       continue-on-error: true

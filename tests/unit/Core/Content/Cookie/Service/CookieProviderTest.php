@@ -50,7 +50,7 @@ class CookieProviderTest extends TestCase
         $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(3, $requiredGroup->getEntries());
+        static::assertCount(4, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);
@@ -147,7 +147,7 @@ class CookieProviderTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertTrue($requiredGroup->isRequired);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(3, $requiredGroup->getEntries());
+        static::assertCount(4, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);

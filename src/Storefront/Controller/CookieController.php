@@ -74,6 +74,7 @@ class CookieController extends StorefrontController
     public function groups(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
+
         return $this->json([
             'elements' => $cookieRouteResponse->getCookieGroups(),
             'hash' => $cookieRouteResponse->getHash(),

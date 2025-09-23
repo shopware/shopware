@@ -71,11 +71,29 @@ class CheapestPriceUpdater
 
         $variantIdsUpdated = [];
 
+        $parentAccessors = $this->connection->fetchAllKeyValue(
+            'SELECT id, cheapest_price_accessor FROM product WHERE id IN (:ids) AND version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($parentIds), 'version' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $existingContainers = $this->connection->fetchAllKeyValue(
+            'SELECT id, cheapest_price FROM product WHERE id IN (:ids) AND version_id = :version AND cheapest_price IS NOT NULL',
+            ['ids' => Uuid::fromHexToBytesList($parentIds), 'version' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
         foreach ($all as $productId => $prices) {
             $container = new CheapestPriceContainer($prices);
+            $serializedContainer = serialize($container);
+
+            // nothing has changed for the cheapest price of this product and its variants
+            if (($existingContainers[Uuid::fromHexToBytes($productId)] ?? null) === $serializedContainer) {
+                continue;
+            }
 
             $cheapestPrice->execute([
-                'price' => serialize($container),
+                'price' => $serializedContainer,
                 'id' => Uuid::fromHexToBytes($productId),
                 'version' => $versionId,
             ]);
@@ -88,10 +106,15 @@ class CheapestPriceUpdater
 
             $existingAccessors = $existingAccessorsByParent[$productId] ?? [];
 
-            foreach ($container->getVariantIds() as $variantId) {
+            foreach ($variantIds as $variantId) {
                 $accessor = Json::encode($this->buildAccessor($container, $variantId));
+                $binaryVariantId = Uuid::fromHexToBytes($variantId);
 
-                if (($existingAccessors[Uuid::fromHexToBytes($variantId)] ?? null) === $accessor) {
+                if (($existingAccessors[$binaryVariantId] ?? null) === $accessor) {
+                    continue;
+                }
+
+                if (($parentAccessors[$binaryVariantId] ?? null) === $accessor) {
                     continue;
                 }
 

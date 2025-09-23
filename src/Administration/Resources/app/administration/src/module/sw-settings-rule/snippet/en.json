@@ -100,7 +100,7 @@
       "messageSaveError": "An error occurred while saving rule",
       "productStreamIndexingWarning": {
         "title": "Dynamic Product Group indexing is disabled",
-        "message": "The \"Item in dynamic product group\" rule condition will always evaluate to false.",
+        "message": "The condition “Item in dynamic product group” will never be true.",
         "action": "Learn more in our documentation"
       },
       "tabGeneral": "General",

@@ -100,7 +100,7 @@
       "messageSaveError": "Beim Speichern der Regel ist ein Fehler aufgetreten",
       "productStreamIndexingWarning": {
         "title": "Indexierung dynamischer Produktgruppen ist deaktiviert",
-        "message": "Die Regelbedingung „Position in dynamischer Produktgruppe“ wird immer als falsch bewertet.",
+        "message": "Die Bedingung „Position in dynamischer Produktgruppe” wird nie zutreffen.",
         "action": "Mehr dazu in unserer Dokumentation"
       },
       "tabGeneral": "Allgemein",

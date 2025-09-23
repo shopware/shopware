@@ -23,7 +23,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         modelUrl: string;
         sliderPosition: number;
         lightIntensity: number;
-    }
+    };
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     protected dive: import('@shopware-ag/dive/quickview').QuickView | undefined;

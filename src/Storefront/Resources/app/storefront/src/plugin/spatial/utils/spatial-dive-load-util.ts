@@ -5,8 +5,6 @@ declare global {
         // eslint-disable-next-line @typescript-eslint/consistent-type-imports
         DIVEARPlugin: typeof import('@shopware-ag/dive/ar');
         // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-        DIVEStatePlugin: typeof import('@shopware-ag/dive/state');
-        // eslint-disable-next-line @typescript-eslint/consistent-type-imports
         DIVEQuickViewPlugin: typeof import('@shopware-ag/dive/quickview');
         loadDiveUtil: {
             promise: Promise<void> | null;
@@ -34,10 +32,6 @@ export async function loadDIVE(): Promise<void> {
         return Promise.resolve();
     }
 
-    if (window.DIVEStatePlugin) {
-        return Promise.resolve();
-    }
-
     if (window.DIVEQuickViewPlugin) {
         return Promise.resolve();
     }
@@ -45,15 +39,13 @@ export async function loadDIVE(): Promise<void> {
     if (!window.loadDiveUtil.promise) {
         window.loadDiveUtil.promise = new Promise((resolve) => {
             const diveModule = import('@shopware-ag/dive');
-            const statePlugin = import('@shopware-ag/dive/state');
             const arPlugin = import('@shopware-ag/dive/ar');
             const quickViewPlugin = import('@shopware-ag/dive/quickview');
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            Promise.all([diveModule, arPlugin, statePlugin, quickViewPlugin]).then(([diveModule, arPlugin, statePlugin, quickViewPlugin]) => {
+            Promise.all([diveModule, arPlugin, quickViewPlugin]).then(([diveModule, arPlugin, quickViewPlugin]) => {
                 window.DIVEClass = diveModule.DIVE;
                 window.DIVEARPlugin = arPlugin;
-                window.DIVEStatePlugin = statePlugin;
                 window.DIVEQuickViewPlugin = quickViewPlugin;
                 resolve();
             });

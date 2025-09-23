@@ -5,7 +5,7 @@
  */
 import Axios from 'axios';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
-//import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
+import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -67,15 +67,14 @@ function createClient() {
  * @returns {AxiosInstance}
  */
 function requestCacheAdapterInterceptor(client) {
-    // const requestCaches = {};
-    // fix cache.api.service.js
-    // client.interceptors.request.use((config) => {
-    //     const originalAdapter = config.adapter;
+    const requestCaches = {};
+    client.interceptors.request.use((config) => {
+        const originalAdapter = config.adapter;
 
-    //     config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
+        config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
 
-    //     return config;
-    // });
+        return config;
+    });
 }
 
 /**

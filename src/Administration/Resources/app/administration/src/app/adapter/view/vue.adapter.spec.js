@@ -21,6 +21,7 @@ import { h, defineComponent } from 'vue';
 window.performance.mark = () => {};
 window.performance.measure = () => {};
 window.performance.clearMarks = () => {};
+window.performance.clearMeasures = () => {};
 
 jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
     return jest.fn();

@@ -2,97 +2,30 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
+ */
 #[Package('discovery')]
 class AppCookieProvider implements CookieProviderInterface
 {
     /**
      * @internal
-     *
-     * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
         private readonly CookieProviderInterface $inner,
-        private readonly EntityRepository $appRepository
     ) {
     }
 
-    /**
-     * @return array<string|int, mixed>
-     */
     public function getCookieGroups(): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('active', true),
-            new NotEqualsFilter('app.cookies', null)
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use CookieGroupCollectEvent instead to introduce cookies')
         );
 
-        $result = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();
-
-        $cookies = array_values($this->inner->getCookieGroups());
-
-        if ($result->count() === 0) {
-            return $cookies;
-        }
-
-        return $this->mergeCookies($cookies, $result);
-    }
-
-    /**
-     * merges cookie groups by the snippet name of the group
-     * and only iterates once over every cookie
-     *
-     * @param array<string|int, mixed> $cookies
-     *
-     * @return array<string|int, mixed>
-     */
-    private function mergeCookies(array $cookies, AppCollection $apps): array
-    {
-        $cookieGroups = [];
-        // build an array with the snippetName of a cookie group and the index in the cookies array
-        // this way we need to iterate only once over the cookies
-        foreach ($cookies as $index => $cookie) {
-            if (\array_key_exists('entries', $cookie)) {
-                $cookieGroups[$cookie['snippet_name']] = $index;
-            }
-        }
-
-        foreach ($apps as $app) {
-            foreach ($app->getCookies() as $cookie) {
-                // cookies that are not part of a group can simply be added to the cookies array
-                if (!\array_key_exists('entries', $cookie)) {
-                    $cookies[] = $cookie;
-
-                    continue;
-                }
-
-                // if a cookie group with the same name already exists in the cookies array
-                // we merge the entries of both cookie groups
-                if (\array_key_exists($cookie['snippet_name'], $cookieGroups)) {
-                    $originalIndex = $cookieGroups[$cookie['snippet_name']];
-                    $cookies[$originalIndex]['entries'] = array_merge(
-                        $cookies[$originalIndex]['entries'],
-                        $cookie['entries']
-                    );
-
-                    continue;
-                }
-
-                // if no group with that name exists we add the cookie group to the cookies array
-                // and add the snippet name and the index to the snippet group array
-                $cookies[] = $cookie;
-                $cookieGroups[$cookie['snippet_name']] = \count($cookies) - 1;
-            }
-        }
-
-        return $cookies;
+        return $this->inner->getCookieGroups();
     }
 }

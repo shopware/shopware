@@ -96,7 +96,6 @@ class ProductUrlProvider extends AbstractUrlProvider
             $urls[] = $newUrl;
         }
 
-        /** @var list<string> */
         $keys = array_keys($keys);
         $nextOffset = array_pop($keys);
 

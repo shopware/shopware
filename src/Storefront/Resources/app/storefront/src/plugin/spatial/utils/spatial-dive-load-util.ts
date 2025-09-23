@@ -34,6 +34,14 @@ export async function loadDIVE(): Promise<void> {
         return Promise.resolve();
     }
 
+    if (window.DIVEStatePlugin) {
+        return Promise.resolve();
+    }
+
+    if (window.DIVEQuickViewPlugin) {
+        return Promise.resolve();
+    }
+
     if (!window.loadDiveUtil.promise) {
         window.loadDiveUtil.promise = new Promise((resolve) => {
             const diveModule = import('@shopware-ag/dive');
@@ -45,6 +53,7 @@ export async function loadDIVE(): Promise<void> {
             Promise.all([diveModule, arPlugin, statePlugin, quickViewPlugin]).then(([diveModule, arPlugin, statePlugin, quickViewPlugin]) => {
                 window.DIVEClass = diveModule.DIVE;
                 window.DIVEARPlugin = arPlugin;
+                window.DIVEStatePlugin = statePlugin;
                 window.DIVEQuickViewPlugin = quickViewPlugin;
                 resolve();
             });

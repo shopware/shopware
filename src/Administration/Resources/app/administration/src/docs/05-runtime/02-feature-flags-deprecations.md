@@ -6,9 +6,7 @@
   - Conditional component rendering
   - Enabling alternative services / logic branches
 - Deprecation process steps (placeholder list)
-- Tooling: automation generating `deprecation.ignore` etc. (cross-ref to repo root file)
 - Best practices:
   - Avoid nested flags
   - Document removal version in code comment
 - Migration path when flag removed
-- Future improvements: typed flag definitions, central registry doc generation

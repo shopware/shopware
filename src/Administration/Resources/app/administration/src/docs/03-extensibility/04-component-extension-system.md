@@ -10,14 +10,14 @@
   - `Component.override`
   - `Shopware.Component.build` (internal)
 - Template processing flow (placeholder for diagram):
-  - Load base template → apply block injections → compile to render fn
+  - Load base template → apply block changes → compile to render fn (in client browser)
 - Strengths:
   - Familiar to plugin devs migrating from Storefront Twig model
   - Fine-grained override of markup regions
 - Weaknesses:
   - Limited static analysis
-  - Fragile string-based operations
+  - Almost everything is public API, therefore unstable
   - Hard to optimize / tree-shake
-- Best practices (to elaborate): minimal override surface, prefer providing props/events
-- Deprecation signals: tie to ADR for native blocks adoption
-- Migration flags / feature toggles controlling new system (placeholder)
+  - Runtime compilation is slow
+  - No Vue SFC
+- Best practices: Try to avoid breaking changes for plugin developers

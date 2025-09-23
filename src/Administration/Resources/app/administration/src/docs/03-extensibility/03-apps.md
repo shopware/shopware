@@ -1,22 +1,19 @@
 # Apps (Skeleton)
 
-- Definition: External (not installed as server-side code) integrations rendered via iframe with secure bridge
-- Use cases: Lightweight UI extensions, app provider hosted experiences, marketplace additions
+- Definition: External (no direct script injection) integrations rendered via iframe with secure bridge
+- Use cases: Extensions which don't need to change internal code behavior
 - Technical model:
   - iFrame injection with origin isolation
   - postMessage communication channel
   - Admin Extension SDK (Meteor SDK) providing API surface
-- Capabilities (placeholder list): navigation, action buttons, entity actions, custom modules
+- Capabilities (placeholder list): navigation, action buttons, entity actions, custom modules, custom UI, ...
 - Security considerations:
   - CSP & sandbox attributes
   - Permission scoping vs plugin full access
 - Performance aspects:
   - Lazy-load iframe only when route visited
-  - Message batching (future optimization)
+  - (De-)serialization of messages
+  - Multiple iFrame instances on the same page creates multiple browser processes
 - Limitations vs plugins:
-  - No direct component override
+  - No direct component modifications
   - Latency of cross-frame messaging
-- Future enhancements:
-  - Declarative capability manifest
-  - Improved error recovery / handshake timeouts
-- Diagram placeholder: iframe handshake sequence

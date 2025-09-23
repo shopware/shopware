@@ -11,5 +11,3 @@
   - Limit associations to necessary depth
   - Use total-count selectively (impacts performance)
 - Extension possibilities: custom filters / aggregations (placeholder)
-- Future: builder utilities, type-safe criteria wrappers
-- Example placeholders to add later

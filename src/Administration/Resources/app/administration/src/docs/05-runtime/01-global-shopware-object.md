@@ -8,14 +8,12 @@
   - Mixin registry
   - State (store modules)
   - Feature flag accessor
-- Creation timing: during boot before root mount
+  - ...
+- Creation timing: during boot before view mount
 - Pros:
-  - Simple discoverability for plugin authors
-  - Consistent namespacing
+  - Simple access for plugin authors
+  - Globally available without injection
 - Cons:
   - Large global surface (risk of misuse)
   - Harder tree-shaking / dead code elimination
   - Tight coupling
-- Planned evolution: reduce to minimal adapter; promote ES module imports & composition utilities
-- Deprecation strategy placeholder: warnings for direct registry mutation
-- Security considerations: avoid leaking sensitive runtime config

@@ -8,21 +8,10 @@
   - Global `Shopware` object constructed
   - JS bundles loaded (vendor, runtime, app, module chunks)
   - Initializers execute (registry population, service setup)
+  - Plugins get injected
   - Router resolves initial route → module activation
   - Root Vue instance mounts → first render
-  - Async data fetch (entities via repositories) → component updates
-- Key actors:
-  - Initializer pipeline (list categories: services, directives, filters, components?)
-  - View adapter / legacy compatibility layer (to document details)
-  - Extension injection (plugin-provided overrides & blocks) timing
-  - App iframe handshake (postMessage) if present
 - Performance considerations:
-  - Code splitting strategy / lazy route chunks
+  - Code splitting strategy / lazy component chunks
   - Preloading critical modules
 - Error handling early phase (fallback UI / white screen mitigation)
-- Future improvements:
-  - Parallelization of initial data fetch
-  - Reducing global object surface
-- Diagram placeholders:
-  - Lifecycle timeline
-  - Initialization dependency graph

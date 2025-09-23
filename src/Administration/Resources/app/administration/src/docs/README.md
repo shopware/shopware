@@ -13,8 +13,7 @@
 - Testing (`07-testing/`)
 - Internationalization & Snippets (`08-i18n/`)
 - Security (`09-security/`)
-- Performance (`10-performance/`)
-- Commercial (`11-commercial/`)
+- Commercial (`10-commercial/`)
 
 ## Expansion Guidelines
 

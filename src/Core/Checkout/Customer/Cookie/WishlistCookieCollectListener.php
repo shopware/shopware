@@ -24,7 +24,7 @@ class WishlistCookieCollectListener
 
     public function __invoke(CookieGroupCollectEvent $event): void
     {
-        $salesChannelId = $event->salesChannelContext->getSalesChannelId();
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         if (!$this->systemConfigService->getBool('core.cart.wishlistEnabled', $salesChannelId)) {
             return;
         }

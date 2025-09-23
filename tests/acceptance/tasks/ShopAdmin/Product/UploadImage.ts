@@ -1,6 +1,6 @@
 import { test as base, expect } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
-import { createRandomImage, getMediaId } from '@fixtures/AcceptanceTest';
+import { createRandomImage, getMediaId, encodeImage } from '@fixtures/AcceptanceTest';
 
 export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
     UploadImage: async ({ AdminProductDetail, AdminApiContext }, use ) => {
@@ -21,7 +21,7 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
                 await fileChooser.setFiles({
                     name: `${ imageName }.png`,
                     mimeType: 'image/png',
-                    buffer: Buffer.from(image.toBuffer(), 'utf-8'),
+                    buffer: encodeImage(image),
                 });
 
                 // Wait until media is saved via API

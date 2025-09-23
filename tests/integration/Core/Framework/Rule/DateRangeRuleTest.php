@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Timezone;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -85,7 +86,7 @@ class DateRangeRuleTest extends TestCase
                         'ruleId' => Uuid::randomHex(),
                         'value' => [
                             'fromDate' => $value,
-                            'toDate' => '2018-12-06T10:03:35+00:00',
+                            'toDate' => '2018-12-06T10:03:35',
                             'useTime' => true,
                         ],
                     ],
@@ -110,7 +111,7 @@ class DateRangeRuleTest extends TestCase
                         'ruleId' => Uuid::randomHex(),
                         'value' => [
                             'toDate' => $value,
-                            'fromDate' => '2018-12-06T10:03:35+00:00',
+                            'fromDate' => '2018-12-06T10:03:35',
                             'useTime' => true,
                         ],
                     ],
@@ -133,8 +134,8 @@ class DateRangeRuleTest extends TestCase
                     'type' => (new DateRangeRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
-                        'toDate' => '2018-12-06T10:03:35+00:00',
-                        'fromDate' => '2018-12-06T10:03:35+00:00',
+                        'toDate' => '2018-12-06T10:03:35',
+                        'fromDate' => '2018-12-06T10:03:35',
                         'useTime' => 'true',
                     ],
                 ],
@@ -145,6 +146,30 @@ class DateRangeRuleTest extends TestCase
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/useTime', $exceptions[0]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
+        }
+    }
+
+    public function testValidateWithInvalidTimezone(): void
+    {
+        try {
+            $this->conditionRepository->create([
+                [
+                    'type' => (new DateRangeRule())->getName(),
+                    'ruleId' => Uuid::randomHex(),
+                    'value' => [
+                        'toDate' => '2018-12-06T10:03:35',
+                        'fromDate' => '2018-12-06T10:03:35',
+                        'useTime' => true,
+                        'timezone' => 'Invalid/Timezone',
+                    ],
+                ],
+            ], $this->context);
+            static::fail('Exception was not thrown');
+        } catch (WriteException $stackException) {
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(1, $exceptions);
+            static::assertSame('/0/value/timezone', $exceptions[0]['source']['pointer']);
+            static::assertSame(Timezone::TIMEZONE_IDENTIFIER_ERROR, $exceptions[0]['code']);
         }
     }
 
@@ -163,8 +188,8 @@ class DateRangeRuleTest extends TestCase
                 'type' => (new DateRangeRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
-                    'toDate' => '2018-12-06T10:03:35+00:00',
-                    'fromDate' => '2018-12-06T10:03:35+00:00',
+                    'toDate' => '2018-12-06T10:03:35',
+                    'fromDate' => '2018-12-06T10:03:35',
                     'useTime' => true,
                 ],
             ],

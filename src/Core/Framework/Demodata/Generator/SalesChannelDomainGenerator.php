@@ -45,12 +45,12 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $storefrontSalesChannelId = $this->getStorefrontSalesChannelId($context);
+        $storefrontSalesChannelId = $this->getStorefrontSalesChannel($context);
 
-        // Get the language that is not already the system language.
-        $nonSystemLanguage = $this->getNonSystemLanguage($context);
+        // Get the languages that are not the system language.
+        $languages = $this->getNonSystemLanguages($context);
 
-        if (!$nonSystemLanguage) {
+        if ($languages->count() === 0) {
             $context->getConsole()->note('Skipping sales_channel_domain generation. No other language found.');
 
             return;
@@ -71,32 +71,68 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
 
         $context->getConsole()->progressStart($numberOfItems);
 
-        $isDE = $nonSystemLanguage->getName() === 'Deutsch';
-        $domainPath = $isDE ? '/de' : '/en';
-        $snippetSetName = $isDE ? 'BASE de-DE' : 'BASE en-GB';
-        $appUrl = (string) (EnvironmentHelper::getVariable('APP_URL') ?? 'http://localhost:8000');
-        $domainUrl = rtrim($appUrl, '/') . $domainPath;
+        $this->addLanguagesToSalesChannel($context, $storefrontSalesChannelId, $languages->getIds());
 
-        $newSalesChannelDomain = [
-            'id' => Uuid::randomHex(),
-            'url' => $domainUrl,
-            'salesChannelId' => $storefrontSalesChannelId,
-            'languageId' => $nonSystemLanguage->getId(),
-            'snippetSetId' => $this->getSnippetSetId($context, $snippetSetName),
-            'currencyId' => Defaults::CURRENCY,
-        ];
+        $appUrl = (string) (EnvironmentHelper::getVariable('APP_URL') ?? 'http://localhost:8000');
+        $salesChannelDomains = [];
+
+        foreach ($languages as $language) {
+            $locale = $language->getLocale();
+
+            if ($locale === null) {
+                continue;
+            }
+
+            $localeCode = $locale->getCode();
+            $url = rtrim($appUrl, '/') . '/' . ltrim(strtolower($localeCode), '/');
+            $snippetSetId = $this->getSnippetSetByIso($context, $localeCode);
+
+            // If no matching snippet set is found, do not add the sales channel domain.
+            if ($snippetSetId === null) {
+                continue;
+            }
+
+            $salesChannelDomains[] = [
+                'id' => Uuid::randomHex(),
+                'url' => $url,
+                'salesChannelId' => $storefrontSalesChannelId,
+                'languageId' => $language->getId(),
+                'snippetSetId' => $snippetSetId,
+                'currencyId' => Defaults::CURRENCY,
+            ];
+        }
+
+        dump($salesChannelDomains);
 
         $writeContext = WriteContext::createFromContext($context->getContext());
         $this->writer->upsert(
             $this->salesChannelDomainDefinition,
-            [$newSalesChannelDomain],
+            $salesChannelDomains,
             $writeContext
         );
 
         $context->getConsole()->progressFinish();
     }
 
-    private function getStorefrontSalesChannelId(DemodataContext $context): ?string
+    /**
+     * @param array<string> $languageIds
+     */
+    private function addLanguagesToSalesChannel(DemodataContext $context, string $salesChannelId, array $languageIds): void
+    {
+        $salesChannelRepository = $this->registry->getRepository('sales_channel');
+
+        $salesChannelRepository->update([
+            [
+                'id' => $salesChannelId,
+                'languages' => array_map(
+                    fn (string $languageId) => ['id' => $languageId],
+                    $languageIds
+                ),
+            ],
+        ], $context->getContext());
+    }
+
+    private function getStorefrontSalesChannel(DemodataContext $context): ?string
     {
         $salesChannelRepository = $this->registry->getRepository('sales_channel');
         $criteria = new Criteria();
@@ -106,23 +142,26 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
         return $salesChannelRepository->searchIds($criteria, $context->getContext())->firstId();
     }
 
-    private function getNonSystemLanguage(DemodataContext $context): ?LanguageEntity
+    /**
+     * @return EntitySearchResult<LanguageCollection<LanguageEntity>>
+     */
+    private function getNonSystemLanguages(DemodataContext $context): EntitySearchResult
     {
         /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = $this->registry->getRepository('language');
         $criteria = new Criteria();
-        $criteria->setLimit(1);
         $criteria->addFilter(new NotEqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
+        $criteria->addAssociation('locale');
 
-        return $languageRepository->search($criteria, $context->getContext())->first();
+        return $languageRepository->search($criteria, $context->getContext());
     }
 
-    private function getSnippetSetId(DemodataContext $context, string $snippetSetName): ?string
+    private function getSnippetSetByIso(DemodataContext $context, string $iso): ?string
     {
         $snippetSetRepository = $this->registry->getRepository('snippet_set');
         $criteria = new Criteria();
         $criteria->setLimit(1);
-        $criteria->addFilter(new EqualsFilter('name', $snippetSetName));
+        $criteria->addFilter(new EqualsFilter('iso', $iso));
 
         return $snippetSetRepository->searchIds($criteria, $context->getContext())->firstId();
     }

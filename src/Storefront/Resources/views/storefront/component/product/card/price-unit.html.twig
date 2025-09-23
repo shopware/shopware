@@ -51,74 +51,91 @@
                 {% set isListPrice = price.listPrice.percentage > 0 %}
                 {% set isRegulationPrice = price.regulationPrice != null %}
 
-                {#
-                    Cheapest price display for variants. Used when the product is a single variant that is directly buy-able from the listing.
-                    Example: "Variants from $120.00"
-                #}
-                <div class="product-cheapest-price{% if isListPrice and isRegulationPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}{% if isRegulationPrice and not displayFrom and displayFromVariants %} with-regulation-price{% endif %}{% if displayFrom and isRegulationPrice %} with-from-price{% endif %}">
-                    {% if cheapest.unitPrice != real.unitPrice and cheapest.variantId != product.id %}
-                        {{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}</span>
+                {# Cheapest price display block #}
+                {% block component_product_box_price_cheapest %}
+                    <div class="product-cheapest-price{% if isListPrice and isRegulationPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}">
+                        {% if cheapest.unitPrice != real.unitPrice and cheapest.variantId != product.id %}
+                            {{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}</span>
+                        {% endif %}
+                    </div>
+                {% endblock %}
+
+                {# Price label for screen readers #}
+                {% block component_product_box_price_label %}
+                    <span class="visually-hidden product-price-label">
+                        {% if isListPrice and not displayFrom and not displayFromVariants %}
+                            {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
+                        {% else %}
+                            {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
+                        {% endif %}
+                    </span>
+                {% endblock %}
+
+                {# "From" price display #}
+                {% block component_product_box_price_from %}
+                    {% if displayFrom or (displayParent and hasDifferentPrice and hasRange and totalVariants|length > 1) %}
+                        {{ 'listing.listingTextFrom'|trans|sw_sanitize }}
                     {% endif %}
-                </div>
+                {% endblock %}
 
-                {#
-                    Price label for screen readers.
-                    Example with regular price: "Regular price:"
-                    Example with list price: "Sale price:"
-                #}
-                <span class="visually-hidden product-price-label">
-                    {% if isListPrice and not displayFrom and not displayFromVariants %}
-                        {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
-                    {% else %}
-                        {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
-                    {% endif %}
-                </span>
+                {# Main price display #}
+                {% block component_product_box_price_main %}
+                    <span class="product-price{% if isListPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}">
+                        {{ price.unitPrice|currency }}
 
-                {#
-                    "From" price display. Used for advanced pricing tables or variants when the storefront presentation is set to "main variant".
-                    The product is not directly buy-able from the listing.
-                    Example: "From $120.00"
-                #}
-                {% if displayFrom or (displayParent and hasDifferentPrice and hasRange and totalVariants|length > 1) %}
-                    {{ 'listing.listingTextFrom'|trans|sw_sanitize }}
-                {% endif %}
+                        {% block component_product_box_price_list %}
+                            {% if isListPrice and not displayFrom and not displayFromVariants %}
+                                {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
+                                {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
+                                {% set hideStrikeTrough = beforeListPriceSnippetExists or afterListPriceSnippetExists %}
 
-                {#
-                    Main price display. Always used, can also include list prices.
-                    Example: $150.00"
-                    Example with list price: €400.00 <s>€500.00</s> (20% saved)"
-                #}
-                <span class="product-price{% if isListPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}">
-                    {{ price.unitPrice|currency }}
+                                <span class="list-price{% if hideStrikeTrough %} list-price-no-line-through{% endif %}">
+                                    {% block component_product_box_price_list_before %}
+                                        {% if beforeListPriceSnippetExists %}
+                                            {{ 'listing.beforeListPrice'|trans|trim|sw_sanitize }}
+                                        {% endif %}
+                                    {% endblock %}
 
-                    {% if isListPrice and not displayFrom and not displayFromVariants %}
-                        {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
-                        {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
-                        {% set hideStrikeTrough = beforeListPriceSnippetExists or afterListPriceSnippetExists %}
+                                    {% block component_product_box_price_list_label %}
+                                        <span class="visually-hidden list-price-label">
+                                            {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
+                                        </span>
+                                    {% endblock %}
 
-                        <span class="list-price{% if hideStrikeTrough %} list-price-no-line-through{% endif %}">
-                            {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans|trim|sw_sanitize }}{% endif %}
+                                    {% block component_product_box_price_list_price %}
+                                        <span class="list-price-price">
+                                            {{ price.listPrice.price|currency }}
+                                        </span>
+                                    {% endblock %}
 
-                            <span class="visually-hidden list-price-label">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
+                                    {% block component_product_box_price_list_after %}
+                                        {% if afterListPriceSnippetExists %}
+                                            {{ 'listing.afterListPrice'|trans|trim|sw_sanitize }}
+                                        {% endif %}
+                                    {% endblock %}
 
-                            <span class="list-price-price">{{ price.listPrice.price|currency }}</span>
+                                    {% block component_product_box_price_list_percentage %}
+                                        <span class="list-price-percentage">
+                                            {{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}
+                                        </span>
+                                    {% endblock %}
+                                </span>
+                            {% endif %}
+                        {% endblock %}
+                    </span>
+                {% endblock %}
 
-                            {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans|trim|sw_sanitize }}{% endif %}
-
-                            <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
+                {# Previous price display #}
+                {% block component_product_box_price_regulation %}
+                    {% if isRegulationPrice %}
+                        <span class="product-price with-regulation-price">
+                            {% if isListPrice %}<br aria-hidden="true">{% endif %}
+                            <span class="regulation-price">
+                                {{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency })|sw_sanitize }}
+                            </span>
                         </span>
                     {% endif %}
-                </span>
-
-                {#
-                    Display for previous price
-                    Example: "previously €300.00"
-                #}
-                {% if isRegulationPrice %}
-                    <span class="product-price with-regulation-price">
-                        {% if isListPrice %}<br aria-hidden="true">{% endif %}<span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
-                    </span>
-                {% endif %}
+                {% endblock %}
             </div>
         {% endblock %}
 

@@ -10,7 +10,9 @@ let auditRaw = "";
 
 try {
   // Capture stdout even if npm audit exits with code 1
-  auditRaw = execSync("npm audit --json", { encoding: "utf8", stdio: ['pipe', 'pipe', 'pipe'] });
+  auditRaw = execSync("npm audit --json", {
+    encoding: "utf8"
+  });
 } catch (err: any) {
   if (err.stdout) {
     auditRaw = err.stdout.toString();

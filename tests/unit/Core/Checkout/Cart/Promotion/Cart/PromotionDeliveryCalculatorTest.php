@@ -32,10 +32,10 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
-use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -44,6 +44,10 @@ use Shopware\Core\Test\Generator;
 #[Package('checkout')]
 class PromotionDeliveryCalculatorTest extends TestCase
 {
+    private const CART_PROMOTION = 'cart-promotion';
+
+    private const DELIVERY_PROMOTION = 'delivery-promotion';
+
     private IdsCollection $ids;
 
     private QuantityPriceCalculator&MockObject $quantityPriceCalculator;
@@ -51,10 +55,6 @@ class PromotionDeliveryCalculatorTest extends TestCase
     private PercentagePriceCalculator&MockObject $percentagePriceCalculator;
 
     private PromotionDeliveryCalculator $promotionDeliveryCalculator;
-
-    private const CART_PROMOTION = 'cart-promotion';
-
-    private const DELIVERY_PROMOTION = 'delivery-promotion';
 
     protected function setUp(): void
     {

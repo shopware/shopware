@@ -76,6 +76,7 @@ class CookieProvider
             $this->getRequiredSessionEntry(),
             $this->getRequiredTimezoneEntry(),
             $this->getRequiredAcceptedEntry(),
+            $this->getRequiredCookieConfigHashEntry(),
         ]));
         $cookieGroupRequired->isRequired = true;
 
@@ -107,6 +108,15 @@ class CookieProvider
         $entryRequiredAccepted->hidden = true;
 
         return $entryRequiredAccepted;
+    }
+
+    private function getRequiredCookieConfigHashEntry(): CookieEntry
+    {
+        $entryRequiredCookieHash = new CookieEntry('cookie-config-hash');
+        $entryRequiredCookieHash->name = 'cookie.groupRequiredCookieHash';
+        $entryRequiredCookieHash->value = ''; // Will be set by the CookieRoute
+
+        return $entryRequiredCookieHash;
     }
 
     private function getCookieGroupStatistical(): CookieGroup

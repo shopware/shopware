@@ -22,7 +22,7 @@
 
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
-import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import OffCanvas, { OffCanvasInstance } from 'src/plugin/offcanvas/offcanvas.plugin';
 import Plugin from 'src/plugin-system/plugin.class';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
@@ -45,6 +45,7 @@ export default class CookieConfiguration extends Plugin {
         cookieSelector: '[data-cookie]',
         buttonOpenSelector: '.js-cookie-configuration-button button',
         buttonSubmitSelector: '.js-offcanvas-cookie-submit',
+        buttonPermissionSelector: '.js-cookie-permission-button',
         buttonAcceptAllSelector: '.js-offcanvas-cookie-accept-all',
         globalButtonAcceptAllSelector: '.js-cookie-accept-all-button',
         globalButtonPermissionSelector: '.js-cookie-permission-button',
@@ -79,6 +80,11 @@ export default class CookieConfiguration extends Plugin {
             }
             this.openRequestConsentOffCanvas(payload.route, payload.cookieName);
         });
+
+        // Subscribe to offcanvas close event to show cookie bar again when user closes without making a choice
+        OffCanvasInstance.$emitter.subscribe('onCloseOffcanvas', this._onOffCanvasClose.bind(this));
+
+        this._checkCookieConfigurationHash();
     }
 
     /**
@@ -88,7 +94,7 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerEvents() {
-        const { submitEvent, buttonOpenSelector, customLinkSelector, globalButtonAcceptAllSelector, globalButtonPermissionSelector } = this.options;
+        const { submitEvent, buttonOpenSelector, customLinkSelector, buttonPermissionSelector, globalButtonAcceptAllSelector } = this.options;
 
         Array.from(document.querySelectorAll(buttonOpenSelector)).forEach(button => {
             button.addEventListener(submitEvent, this.openOffCanvas.bind(this));
@@ -98,8 +104,8 @@ export default class CookieConfiguration extends Plugin {
             customLink.addEventListener(submitEvent, this._handleCustomLink.bind(this));
         });
 
-        Array.from(document.querySelectorAll(globalButtonPermissionSelector)).forEach(customLink => {
-            customLink.addEventListener(submitEvent, this._handlePermission.bind(this));
+        Array.from(document.querySelectorAll(buttonPermissionSelector)).forEach(buttonPermission => {
+            buttonPermission.addEventListener(submitEvent, this._handlePermission.bind(this));
         });
 
         Array.from(document.querySelectorAll(globalButtonAcceptAllSelector)).forEach(customLink => {
@@ -148,19 +154,11 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Check if cookie configuration hash has changed and reset cookies if needed
+     * Fetch cookie groups from the server
      * @private
+     * @returns {Promise<Object|null>} Cookie groups data with hash and elements, or null if error
      */
-    async _checkCookieConfigurationHash() {
-        const { cookiePreference, cookieConfigHash } = this.options;
-        const hasPreference = CookieStorage.getItem(cookiePreference);
-        const storedHash = CookieStorage.getItem(cookieConfigHash);
-
-        // Skip if user hasn't made any choice yet (fresh user)
-        if (!hasPreference && !storedHash) {
-            return;
-        }
-
+    async _fetchCookieGroups() {
         try {
             const response = await fetch('/cookie/groups', {
                 method: 'GET',
@@ -169,22 +167,38 @@ export default class CookieConfiguration extends Plugin {
                 },
             });
 
-            const data = await response.json();
-            const currentHash = data.hash;
-
-            // If no stored hash but user has preference, save current hash
-            if (!storedHash && hasPreference) {
-                CookieStorage.setItem(cookieConfigHash, currentHash, '30');
-                return;
-            }
-
-            // If hash has changed, reset cookie configuration
-            if (storedHash && storedHash !== currentHash) {
-                await this._resetCookieConfiguration(data);
-            }
+            return await response.json();
         } catch (error) {
-            console.warn('Failed to check cookie configuration hash:', error);
+            console.error('Failed to fetch cookie groups:', error);
+            return null;
         }
+    }
+
+    /**
+     * Check if cookie configuration hash has changed and reset cookies if needed
+     * @private
+     */
+    async _checkCookieConfigurationHash() {
+        const { cookiePreference, cookieConfigHash } = this.options;
+        const hasPreference = CookieStorage.getItem(cookiePreference);
+        const storedHash = CookieStorage.getItem(cookieConfigHash);
+
+        if (!hasPreference && !storedHash) {
+            return;
+        }
+
+        const data = await this._fetchCookieGroups();
+        if (!data) {
+            return; // Error already logged in _fetchCookieGroups
+        }
+
+        const currentHash = data.hash;
+
+        if (storedHash && storedHash !== currentHash) {
+            await this._resetCookieConfiguration(data);
+        }
+
+        CookieStorage.setItem(cookieConfigHash, currentHash, '30');
     }
 
     /**
@@ -192,15 +206,13 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     async _resetCookieConfiguration(data) {
-        const { cookieConfigHash } = this.options;
         const allCookieNames = this._getAllCookieNamesFromGroups(data.elements || []);
 
-        // Remove all cookies (includes cookie-preference from API response)
-        this._removeAllCookies(allCookieNames);
-        // Remove hash cookie (not included in API response)
-        CookieStorage.removeItem(cookieConfigHash);
+        this._removeAllNotTechnicalRequiredCookies(allCookieNames);
 
-        // Trigger cookie configuration update and show cookie bar again
+        // Remove cookie preference to force user to make choice again
+        CookieStorage.removeItem(this.options.cookiePreference);
+
         this._handleUpdateListener([], allCookieNames);
         this._checkAndShowCookieBarIfNeeded();
     }
@@ -216,68 +228,51 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Remove all cookies from storage
+     * Get technically required cookie names
      * @private
      */
-    _removeAllCookies(cookieNames) {
-        cookieNames.forEach(cookieName => {
-            CookieStorage.removeItem(cookieName);
-        });
+    _getTechnicallyRequiredCookieNames() {
+        return ['session-', 'timezone'];
     }
 
     /**
-     * Save current cookie configuration hash
+     * Remove all cookies from storage except technically required ones
      * @private
      */
-    async _saveCookieConfigurationHash() {
-        try {
-            const response = await fetch('/cookie/groups', {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            });
+    _removeAllNotTechnicalRequiredCookies(cookieNames) {
+        const technicallyRequiredCookieNames = this._getTechnicallyRequiredCookieNames();
 
-            const data = await response.json();
-            CookieStorage.setItem(this.options.cookieConfigHash, data.hash, '30');
-        } catch (error) {
-            console.warn('Failed to save cookie configuration hash:', error);
-        }
+        cookieNames.forEach(cookieName => {
+            const isTechnicallyRequired = technicallyRequiredCookieNames.some(requiredName =>
+                cookieName === requiredName
+            );
+
+            if (!isTechnicallyRequired) {
+                CookieStorage.removeItem(cookieName);
+            }
+        });
     }
 
     async _handlePermission(event) {
         event.preventDefault();
 
-        const response = await fetch('/cookie/groups', {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-        });
+        const data = await this._fetchCookieGroups();
+        if (!data) {
+            return; // Error already logged in _fetchCookieGroups
+        }
 
-        const data = await response.json();
-        const cookieGroups = data.elements || [];
-
+        const cookieGroups = data.elements;
         const allCookieNames = this._getAllCookieNamesFromGroups(cookieGroups);
-        this._removeAllCookies(allCookieNames);
 
-        const requiredCookies = cookieGroups
-            .filter(group => group.isRequired)
-            .flatMap(group => group.entries ? group.entries : (group.cookie ? [group] : []));
-
-        requiredCookies.forEach(cookie => {
-            if (cookie.cookie && cookie.value) {
-                CookieStorage.setItem(cookie.cookie, cookie.value, cookie.expiration || 30);
-            }
-        });
-
+        this._removeAllNotTechnicalRequiredCookies(allCookieNames);
         CookieStorage.setItem(this.options.cookiePreference, '1', '30');
         CookieStorage.setItem(this.options.cookieConfigHash, data.hash, '30');
 
-        const requiredCookieNames = requiredCookies.map(cookie => cookie.cookie);
-        const nonRequiredCookieNames = allCookieNames.filter(name => !requiredCookieNames.includes(name));
+        const technicallyRequiredCookieNames = this._getTechnicallyRequiredCookieNames();
+        const activeCookieNames = allCookieNames.filter(name => technicallyRequiredCookieNames.includes(name));
+        const inactiveCookieNames = allCookieNames.filter(name => !technicallyRequiredCookieNames.includes(name));
 
-        this._handleUpdateListener(requiredCookieNames, nonRequiredCookieNames);
+        this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
         this.closeOffCanvas();
     }
@@ -395,6 +390,20 @@ export default class CookieConfiguration extends Plugin {
     _hideCookieBar() {
         const hideCookieBarEvent = new CustomEvent('hideCookieBar');
         document.dispatchEvent(hideCookieBarEvent);
+    }
+
+    /**
+     * Handle offcanvas close event - show cookie bar again if user hasn't made a choice
+     * @private
+     */
+    _onOffCanvasClose() {
+        const { cookiePreference } = this.options;
+        const hasPreference = CookieStorage.getItem(cookiePreference);
+
+        // If user closed offcanvas without making a cookie preference, show the cookie bar again
+        if (!hasPreference) {
+            this._checkAndShowCookieBarIfNeeded();
+        }
     }
 
     /**
@@ -647,9 +656,6 @@ export default class CookieConfiguration extends Plugin {
 
         CookieStorage.setItem(cookiePreference, '1', '30');
 
-        // Save current hash when user makes a choice
-        this._saveCookieConfigurationHash();
-
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
@@ -725,9 +731,6 @@ export default class CookieConfiguration extends Plugin {
         });
 
         CookieStorage.setItem(cookiePreference, '1', '30');
-
-        // Save current hash when user makes a choice
-        this._saveCookieConfigurationHash();
 
         this._handleUpdateListener(allCookies.map(({ cookie }) => cookie), []);
     }

@@ -102,8 +102,6 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
             ];
         }
 
-        dump($salesChannelDomains);
-
         $writeContext = WriteContext::createFromContext($context->getContext());
         $this->writer->upsert(
             $this->salesChannelDomainDefinition,

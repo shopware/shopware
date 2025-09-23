@@ -8,8 +8,11 @@
                 {% block component_head_analytics_gtag_config %}
                     window.gtagActive = true;
                     window.gtagURL = '{{ trackingUrl }}{{ trackingId }}';
+                    {# @deprecated tag:v6.8.0 - Global variable `window.controllerName` will be removed, use `window.activeRoute` instead. #}
                     window.controllerName = '{{ controllerName|lower }}';
+                    {# @deprecated tag:v6.8.0 - Global variable `window.actionName` will be removed, use `window.activeRoute` instead. #}
                     window.actionName = '{{ controllerAction|lower }}';
+                    window.activeRoute = '{{ activeRoute }}';
                     window.trackOrders = '{{ storefrontAnalytics.isTrackOrders() }}';
                     window.gtagTrackingId = '{{ trackingId }}';
                     window.dataLayer = window.dataLayer || [];

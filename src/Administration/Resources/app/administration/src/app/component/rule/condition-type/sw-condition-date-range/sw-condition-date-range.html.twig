@@ -8,7 +8,6 @@
         :options="selectValues"
         :disabled="disabled || undefined"
         :placeholder="$tc('global.sw-condition.condition.withTime')"
-        show-clearable-button
     />
     {% endblock %}
 
@@ -33,6 +32,16 @@
         :date-type="isDateTime"
         :disabled="disabled || undefined"
         :placeholder="$tc('sw-datepicker.date.placeholder')"
+    />
+    {% endblock %}
+
+    {% block sw_condition_date_range_field_timezone %}
+    <sw-single-select
+        v-model:value="timezone"
+        name="sw-field--timezone"
+        :options="timezoneOptions"
+        :disabled="disabled || undefined"
+        show-clearable-button
     />
     {% endblock %}
 </div>

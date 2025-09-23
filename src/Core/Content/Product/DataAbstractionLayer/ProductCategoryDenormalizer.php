@@ -29,7 +29,6 @@ class ProductCategoryDenormalizer
     public function update(array $ids, Context $context): void
     {
         $ids = array_unique(\array_filter($ids));
-        $allIds = [];
 
         if ($ids === []) {
             return;
@@ -42,9 +41,21 @@ class ProductCategoryDenormalizer
 
         $inserts = [];
         $updates = [];
+
+        $oldTreesByProductId = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_id)), LOWER(HEX(category_id)) as category_id FROM product_category_tree WHERE product_id IN (:ids) AND product_version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList(array_keys($categories)), 'version' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $oldTreesByProductId = FetchModeHelper::group(
+            $oldTreesByProductId,
+            static fn (array $row): string => (string) $row['category_id']
+        );
+
         foreach ($categories as $productId => $mapping) {
+            $oldTrees = $oldTreesByProductId[$productId] ?? [];
             $productId = Uuid::fromHexToBytes($productId);
-            $allIds[] = $productId;
             $categoryIds = $this->mapCategories($mapping);
 
             $json = null;
@@ -52,13 +63,16 @@ class ProductCategoryDenormalizer
                 $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
             }
 
-            $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
+            $toBeDeleted = array_values(array_diff($oldTrees, $categoryIds));
+            $toBeAdded = array_values(array_diff($categoryIds, $oldTrees));
 
-            if ($categoryIds === []) {
+            if ($toBeDeleted === [] && $toBeAdded === []) {
                 continue;
             }
 
-            foreach ($categoryIds as $id) {
+            $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
+
+            foreach ($toBeAdded as $id) {
                 $inserts[] = [
                     'product_id' => $productId,
                     'product_version_id' => $versionId,
@@ -66,15 +80,19 @@ class ProductCategoryDenormalizer
                     'category_version_id' => $liveVersionId,
                 ];
             }
-        }
 
-        RetryableTransaction::retryable($this->connection, function () use ($allIds, $versionId): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_category_tree WHERE `product_id` IN (:ids) AND `product_version_id` = :version',
-                ['ids' => $allIds, 'version' => $versionId],
-                ['ids' => ArrayParameterType::BINARY]
-            );
-        });
+            if ($toBeDeleted === []) {
+                continue;
+            }
+
+            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $productId, $versionId): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_category_tree WHERE `category_id` IN (:categoryIds) AND `product_id` = :productId AND `product_version_id` = :version AND `category_version_id` = :version',
+                    ['categoryIds' => Uuid::fromHexToBytesList($toBeDeleted), 'productId' => $productId, 'version' => $versionId],
+                    ['categoryIds' => ArrayParameterType::BINARY]
+                );
+            });
+        }
 
         RetryableTransaction::retryable($this->connection, function () use ($updates): void {
             $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');

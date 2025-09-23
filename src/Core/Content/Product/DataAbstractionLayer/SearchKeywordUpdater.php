@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -114,8 +114,6 @@ class SearchKeywordUpdater implements ResetInterface
 
         $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
-
         $keywords = [];
         $dictionary = [];
 
@@ -131,12 +129,79 @@ class SearchKeywordUpdater implements ResetInterface
 
         $this->assignParentProducts($existingProducts, $configFields, $context);
 
+        $oldKeywordsByProductId = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_id)) as product_id, keyword, ranking FROM product_search_keyword WHERE language_id = :languageId AND product_id IN (:productIds) AND product_version_id = :version',
+            [
+                'languageId' => $languageId,
+                'productIds' => Uuid::fromHexToBytesList(array_keys($existingProducts)),
+                'version' => $versionId,
+            ],
+            [
+                'productIds' => ArrayParameterType::BINARY,
+            ],
+        );
+
+        $oldKeywordsByProductId = FetchModeHelper::group($oldKeywordsByProductId);
+
         foreach ($existingProducts as $product) {
             $analyzed = $this->analyzer->analyze($product, $context, $configFields);
 
-            $productId = Uuid::fromHexToBytes($product->getId());
+            $plainKeywords = [];
+            $toBeAdded = [];
+            $toBeDeleted = [];
+
+            $existingKeywordRows = $oldKeywordsByProductId[$product->getId()] ?? [];
+            $existingKeywordMap = [];
+
+            foreach ($existingKeywordRows as $row) {
+                if (!isset($row['keyword']) || !isset($row['ranking'])) {
+                    continue;
+                }
+
+                $existingKeywordMap[$row['keyword']] = (float) $row['ranking'];
+            }
 
             foreach ($analyzed as $keyword) {
+                $keywordValue = $keyword->getKeyword();
+                $plainKeywords[] = $keywordValue;
+
+                $previousRanking = $existingKeywordMap[$keywordValue] ?? null;
+
+                // new keyword
+                if ($previousRanking === null) {
+                    $toBeAdded[] = $keywordValue;
+
+                    continue;
+                }
+
+                // ranking has changed
+                if ($previousRanking !== $keyword->getRanking()) {
+                    $toBeAdded[] = $keywordValue;
+                    $toBeDeleted[] = $keywordValue;
+                }
+            }
+
+            $removedKeywords = array_diff(array_keys($existingKeywordMap), $plainKeywords);
+
+            if ($removedKeywords !== []) {
+                $toBeDeleted = [...$toBeDeleted, ...$removedKeywords];
+            }
+
+            $toBeAdded = array_values(array_unique($toBeAdded));
+            $toBeDeleted = array_values(array_unique($toBeDeleted));
+
+            if ($toBeAdded === [] && $toBeDeleted === []) {
+                continue;
+            }
+
+            $productId = Uuid::fromHexToBytes($product->getId());
+            $toBeAddedLookup = array_flip($toBeAdded);
+
+            foreach ($analyzed as $keyword) {
+                if (!isset($toBeAddedLookup[$keyword->getKeyword()])) {
+                    continue;
+                }
+
                 $keywords[] = [
                     'id' => Uuid::randomBytes(),
                     'version_id' => $versionId,
@@ -154,6 +219,23 @@ class SearchKeywordUpdater implements ResetInterface
                     'keyword' => $keyword->getKeyword(),
                 ];
             }
+
+            if ($toBeDeleted === []) {
+                continue;
+            }
+
+            $this->connection->executeStatement(
+                'DELETE FROM product_search_keyword WHERE product_id = :productId AND language_id = :languageId AND product_version_id = :versionId AND keyword IN (:keywords)',
+                [
+                    'productId' => $productId,
+                    'languageId' => $languageId,
+                    'versionId' => $versionId,
+                    'keywords' => $toBeDeleted,
+                ],
+                [
+                    'keywords' => ArrayParameterType::STRING,
+                ]
+            );
         }
 
         $this->insertKeywords($keywords);
@@ -178,28 +260,6 @@ class SearchKeywordUpdater implements ResetInterface
         $this->buildCriteria(array_column($configFields, 'field'), $criteria, $context);
 
         return new RepositoryIterator($this->productRepository, $context, $criteria);
-    }
-
-    /**
-     * @param array<string> $ids
-     */
-    private function delete(array $ids, string $languageId, string $versionId): void
-    {
-        $bytes = Uuid::fromHexToBytesList($ids);
-
-        $params = [
-            'ids' => $bytes,
-            'language' => Uuid::fromHexToBytes($languageId),
-            'versionId' => Uuid::fromHexToBytes($versionId),
-        ];
-
-        RetryableQuery::retryable($this->connection, function () use ($params): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language AND version_id = :versionId',
-                $params,
-                ['ids' => ArrayParameterType::BINARY]
-            );
-        });
     }
 
     /**

@@ -11,6 +11,7 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteR
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -185,11 +186,27 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
 
+        if ($streams === []) {
+            return;
+        }
+
         $insert = new MultiInsertQueryQueue($this->connection);
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $languageContexts = $this->getLanguageContexts($context);
+
+        /** @var list<array<string, string>> $result */
+        $result = $this->connection->fetchAllAssociative(
+            'SELECT product_stream_id, LOWER(HEX(product_id)) as product_id FROM product_stream_mapping WHERE product_stream_id IN (:ids) AND product_id IN (:productIds)',
+            ['ids' => array_column($streams, 'id'), 'productIds' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::BINARY, 'productIds' => ArrayParameterType::BINARY]
+        );
+
+        $oldMatches = FetchModeHelper::group(
+            $result,
+            static fn (array $row): string => (string) $row['product_id']
+        );
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
@@ -197,6 +214,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 continue;
             }
 
+            $oldMatchesOfStream = $oldMatches[$stream['id']] ?? [];
             $criteria = $this->getCriteria($filter, $ids);
 
             if ($criteria === null) {
@@ -211,23 +229,34 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 continue;
             }
 
-            foreach ($matchedIds as $id) {
+            $toBeDeleted = array_values(array_diff($oldMatchesOfStream, $matchedIds));
+            $toBeAdded = array_values(array_diff($matchedIds, $oldMatchesOfStream));
+
+            foreach ($toBeAdded as $id) {
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
                     'product_stream_id' => $stream['id'],
                 ]);
             }
+
+            if ($toBeDeleted === []) {
+                continue;
+            }
+
+            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $stream): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($toBeDeleted),
+                        'streamId' => $stream['id'],
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+            });
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => ArrayParameterType::BINARY]
-            );
-            $insert->execute();
-        });
+        $insert->execute();
     }
 
     public function getTotal(): int

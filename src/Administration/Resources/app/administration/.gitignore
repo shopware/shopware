@@ -19,3 +19,4 @@ src/entity-schema-definition.d.ts
 entity-schema-types
 .vscode
 .idea
+vite-server-mapping.json

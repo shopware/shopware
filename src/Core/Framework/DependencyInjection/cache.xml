@@ -163,8 +163,13 @@
             <argument>%shopware.http_cache.stale_while_revalidate%</argument>
             <argument>%shopware.http_cache.stale_if_error%</argument>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver">
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="esi" class="Shopware\Core\Framework\Adapter\Kernel\EsiDecoration" />

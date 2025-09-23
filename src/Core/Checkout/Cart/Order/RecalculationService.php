@@ -194,9 +194,11 @@ class RecalculationService
 
     public function applyAutomaticPromotions(string $orderId, Context $context): ErrorCollection
     {
-        $options[SalesChannelContextService::PERMISSIONS] = [
-            ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
-            CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => false,
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [
+                ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+                CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => false,
+            ],
         ];
 
         return $this->recalculate($orderId, $context, $options);
@@ -214,11 +216,13 @@ class RecalculationService
 
         $order = $this->fetchOrder($orderId, $context);
 
-        $options[SalesChannelContextService::PERMISSIONS] = [
-            ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
-            CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => false,
-            CheckoutPermissions::PIN_MANUAL_PROMOTIONS => false,
-            CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS => $skipAutomaticPromotions,
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [
+                ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+                CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => false,
+                CheckoutPermissions::PIN_MANUAL_PROMOTIONS => false,
+                CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS => $skipAutomaticPromotions,
+            ],
         ];
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext(

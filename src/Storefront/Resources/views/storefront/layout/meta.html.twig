@@ -150,7 +150,7 @@
             <script>
                 window.activeNavigationId = '{{ shopware.navigation.id }}';
                 window.activeRoute = '{{ activeRoute }}';
-                window.activeRouteParameters = '{{ app.request.attributes.get('_route_params')|json_encode|raw }}';
+                window.activeRouteParameters = '{{ app.request.attributes.get('_route_params')|json_encode|escape('js') }}';
                 window.router = {
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
@@ -181,7 +181,7 @@
                     xxl: theme_config('breakpoint.xxl')
                 } %}
 
-                window.breakpoints = {{ breakpoint|json_encode()|raw }};
+                window.breakpoints = JSON.parse('{{ breakpoint|json_encode|escape('js') }}');
             </script>
         {% endblock %}
 

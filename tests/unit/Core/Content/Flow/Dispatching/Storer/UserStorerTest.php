@@ -28,6 +28,7 @@ class UserStorerTest extends TestCase
 {
     private UserStorer $storer;
 
+    /** @var MockObject&EntityRepository<UserRecoveryCollection> */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

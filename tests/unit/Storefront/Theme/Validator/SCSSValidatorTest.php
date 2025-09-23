@@ -21,7 +21,7 @@ class SCSSValidatorTest extends TestCase
      * @param array<string, string> $data
      */
     #[DataProvider('sanitizeDataProvider')]
-    public function testValidateSanitize(array $data, ?string $expected): void
+    public function testValidateSanitize(array $data, string|bool|null $expected): void
     {
         $returned = SCSSValidator::validate(new ScssPhpCompiler(), $data, [], true);
 
@@ -32,7 +32,7 @@ class SCSSValidatorTest extends TestCase
      * @param array<string, string> $data
      */
     #[DataProvider('validateDataProvider')]
-    public function testValidateNoSanitize(array $data, ?string $expected, bool $throwsException = false): void
+    public function testValidateNoSanitize(array $data, string|bool|null $expected, bool $throwsException = false): void
     {
         if ($throwsException) {
             self::expectException(ThemeException::class);
@@ -47,7 +47,7 @@ class SCSSValidatorTest extends TestCase
      * @param array<string, string> $data
      */
     #[DataProvider('validateDataProviderRegex')]
-    public function testValidateNoSanitizeRegex(array $data, string $expected, bool $throwsException = false): void
+    public function testValidateNoSanitizeRegex(array $data, string|bool|null $expected, bool $throwsException = false): void
     {
         if ($throwsException) {
             self::expectException(ThemeException::class);
@@ -207,6 +207,35 @@ class SCSSValidatorTest extends TestCase
                 'value' => '',
             ],
             null,
+        ];
+        // Boolean values
+        yield 'checkbox true' => [
+            [
+                'type' => 'checkbox',
+                'value' => true,
+            ],
+            true,
+        ];
+        yield 'switch true' => [
+            [
+                'type' => 'switch',
+                'value' => true,
+            ],
+            true,
+        ];
+        yield 'checkbox false' => [
+            [
+                'type' => 'checkbox',
+                'value' => false,
+            ],
+            false,
+        ];
+        yield 'switch false' => [
+            [
+                'type' => 'switch',
+                'value' => false,
+            ],
+            false,
         ];
         // Zero values
         yield 'color with "0" value is sanitized' => [
@@ -600,6 +629,35 @@ class SCSSValidatorTest extends TestCase
                 'value' => 'rgba(4, 4, 4, 5)',
             ],
             '#040404',
+        ];
+        // Boolean values
+        yield 'checkbox true' => [
+            [
+                'type' => 'checkbox',
+                'value' => true,
+            ],
+            true,
+        ];
+        yield 'switch true' => [
+            [
+                'type' => 'switch',
+                'value' => true,
+            ],
+            true,
+        ];
+        yield 'checkbox false' => [
+            [
+                'type' => 'checkbox',
+                'value' => false,
+            ],
+            false,
+        ];
+        yield 'switch false' => [
+            [
+                'type' => 'switch',
+                'value' => false,
+            ],
+            false,
         ];
         // Empty values (are valid and will be set to null)
         yield 'color empty' => [

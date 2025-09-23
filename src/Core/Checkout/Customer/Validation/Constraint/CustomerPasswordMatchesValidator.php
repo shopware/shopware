@@ -24,12 +24,12 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
             return;
         }
 
-        $context = $constraint->getContext();
+        $context = $constraint->getSalesChannelContext();
 
         $customer = $context->getCustomer();
 
         if (!$customer) {
-            $this->context->buildViolation($constraint->message)
+            $this->context->buildViolation($constraint->getMessage())
                 ->setCode(CustomerPasswordMatches::CUSTOMER_PASSWORD_NOT_CORRECT)
                 ->addViolation();
 
@@ -40,7 +40,7 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
             $this->accountService->getCustomerByLogin(
                 $customer->getEmail(),
                 (string) $password,
-                $constraint->getContext()
+                $context
             );
 
             return;

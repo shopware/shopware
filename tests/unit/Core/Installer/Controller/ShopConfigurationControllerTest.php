@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -15,6 +16,9 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -45,6 +49,8 @@ class ShopConfigurationControllerTest extends TestCase
 
     private MockObject&AdminConfigurationService $adminConfigService;
 
+    private TranslationConfig $translationConfig;
+
     private ShopConfigurationController $controller;
 
     /**
@@ -66,12 +72,22 @@ class ShopConfigurationControllerTest extends TestCase
         $this->adminConfigService = $this->createMock(AdminConfigurationService::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
 
+        $this->translationConfig = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            [],
+            [],
+            new LanguageCollection([]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            []
+        );
         $this->controller = new ShopConfigurationController(
             $connectionFactory,
             $this->envConfigWriter,
             $this->shopConfigService,
             $this->adminConfigService,
             $this->translator,
+            $this->translationConfig,
             [
                 'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                 'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
@@ -123,10 +139,15 @@ class ShopConfigurationControllerTest extends TestCase
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
                     ],
+                    'allAvailableLanguages' => [
+                        'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-GB' => ['id' => 'en-GB', 'label' => 'English'],
+                    ],
                     'parameters' => [
                         'config_shop_language' => $expectedShopLanguage,
                         'config_shop_currency' => $expectedPresetCurrency,
                     ],
+                    'selectedLanguages' => [],
                 ])
             )
             ->willReturn('config');
@@ -212,14 +233,14 @@ class ShopConfigurationControllerTest extends TestCase
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
 
         $this->router->expects($this->once())->method('generate')
-            ->with('installer.finish', [], UrlGeneratorInterface::ABSOLUTE_PATH)
-            ->willReturn('/installer/finish');
+            ->with('installer.finish', ['completed' => true], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturn('/installer/finish?completed=1');
 
         $this->twig->expects($this->never())->method('render');
 
         $response = $this->controller->shopConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/installer/finish', $response->getTargetUrl());
+        static::assertSame('/installer/finish?completed=1', $response->getTargetUrl());
 
         static::assertFalse($session->has(DatabaseConnectionInformation::class));
         static::assertSame($expectedAdmin, $session->get('ADMIN_USER'));
@@ -269,10 +290,15 @@ class ShopConfigurationControllerTest extends TestCase
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
                     ],
+                    'allAvailableLanguages' => [
+                        'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-GB' => ['id' => 'en-GB', 'label' => 'English'],
+                    ],
                     'parameters' => [
                         'config_shop_language' => 'de-DE',
                         'config_shop_currency' => 'EUR',
                     ],
+                    'selectedLanguages' => [],
                 ])
             )
             ->willReturn('config');

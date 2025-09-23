@@ -7,13 +7,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1624967118updateMailTemplatesWithOptionalSalutation extends MigrationStep
 {
     use UpdateMailTrait;
@@ -65,12 +66,14 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutation extends Migra
      */
     public static function getUpdates(): array
     {
+        $filesystem = new Filesystem();
+
         return \array_map(static fn (string $mailTypeDirectory): MailUpdate => new MailUpdate(
             $mailTypeDirectory,
-            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-plain.html.twig', __DIR__, $mailTypeDirectory)),
-            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-html.html.twig', __DIR__, $mailTypeDirectory)),
-            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-plain.html.twig', __DIR__, $mailTypeDirectory)),
-            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-html.html.twig', __DIR__, $mailTypeDirectory))
+            $filesystem->readFile(\sprintf('%s/../Fixtures/mails/%s/en-plain.html.twig', __DIR__, $mailTypeDirectory)),
+            $filesystem->readFile(\sprintf('%s/../Fixtures/mails/%s/en-html.html.twig', __DIR__, $mailTypeDirectory)),
+            $filesystem->readFile(\sprintf('%s/../Fixtures/mails/%s/de-plain.html.twig', __DIR__, $mailTypeDirectory)),
+            $filesystem->readFile(\sprintf('%s/../Fixtures/mails/%s/de-html.html.twig', __DIR__, $mailTypeDirectory))
         ), self::MAIL_TYPE_DIRS);
     }
 

@@ -61,11 +61,18 @@ export default class NavbarPlugin extends Plugin {
     _toggleNavbar(topLevelLink, event) {
         const currentDropdown = window.bootstrap.Dropdown.getOrCreateInstance(topLevelLink);
         if (event.type === 'mouseenter') {
+            if (!currentDropdown?._menu) {
+                this._closeAllDropdowns();
+
+                return;
+            }
+
             this._isMouseOver = true;
             this._debounce(() => {
                 if (this._isMouseOver && currentDropdown?._menu && !currentDropdown._menu.classList.contains('show')) {
                     this._closeAllDropdowns();
                     currentDropdown.show();
+                    topLevelLink.blur();
                     this.$emitter.publish('showDropdown');
                 }
             }, this.options.debounceTime);

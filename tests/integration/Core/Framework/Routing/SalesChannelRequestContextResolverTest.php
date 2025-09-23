@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -42,6 +43,9 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CurrencyCollection>
+     */
     private EntityRepository $currencyRepository;
 
     private SalesChannelContextServiceInterface $contextService;
@@ -58,7 +62,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $this->createTestSalesChannel();
         $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
-        $phpunit = $this;
         $currencyId = $this->getCurrencyId('USD');
 
         $request = new Request();
@@ -69,10 +72,10 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
+        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $currencyId): void {
             $eventDidRun = true;
-            $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            $phpunit->assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+            static::assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+            static::assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
         };
 
         $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
@@ -172,10 +175,10 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
+        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $currencyId): void {
             $eventDidRun = true;
-            $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            $phpunit->assertInstanceOf(AdminSalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+            static::assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+            static::assertInstanceOf(AdminSalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
         };
 
         $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);

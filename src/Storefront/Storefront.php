@@ -27,6 +27,7 @@ class Storefront extends Bundle implements ThemeInterface
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
         $loader->load('services.xml');
+        $loader->load('captcha.xml');
         $loader->load('seo.xml');
         $loader->load('controller.xml');
         $loader->load('theme.xml');

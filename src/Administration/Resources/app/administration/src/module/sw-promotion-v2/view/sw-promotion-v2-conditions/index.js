@@ -42,6 +42,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         personaRuleFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -50,6 +53,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         cartConditionsRuleFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -58,6 +64,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         orderConditionsFilter() {
             const criteria = new Criteria(1, 25);
 

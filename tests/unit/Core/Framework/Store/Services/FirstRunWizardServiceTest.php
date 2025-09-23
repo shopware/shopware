@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -893,6 +894,9 @@ class FirstRunWizardServiceTest extends TestCase
         static::assertCount(1, $demodataPlugins);
     }
 
+    /**
+     * @param ?EntityRepository<UserConfigCollection> $userConfigRepository
+     */
     private function createFirstRunWizardService(
         ?StoreService $storeService = null,
         ?SystemConfigService $systemConfigService = null,

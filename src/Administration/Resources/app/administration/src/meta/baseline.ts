@@ -55,7 +55,6 @@ const missingTests = [
     'src/app/component/form/sw-tagged-field/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index.js',
-    'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/index.js',
     'src/app/component/form/sw-textarea-field-deprecated/index.js',
     'src/app/component/grid/sw-grid/index.js',
@@ -540,6 +539,7 @@ const missingTests = [
     'src/module/sw-settings-units/page/sw-settings-units-detail/index.ts',
     'src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/index.js',
     'src/module/sw-users-permissions/index.js',
+    'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
     // unable to test because of es module <-> cjs conflicts lazy import statements
     'src/app/init/component.init.ts',

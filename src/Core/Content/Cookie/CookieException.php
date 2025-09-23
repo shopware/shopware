@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CookieException extends HttpException
 {
     final public const NOT_ALLOWED_PROPERTY_ASSIGNMENT = 'CONTENT__COOKIE_NOT_ALLOWED_PROPERTY_ASSIGNMENT';
+    final public const HASH_GENERATION_FAILED = 'CONTENT__COOKIE_HASH_GENERATION_FAILED';
 
     public static function notAllowedPropertyAssignment(string $propertyToBeAssigned, string $alreadyAssignedProperty): self
     {
@@ -65,6 +66,16 @@ class CookieException extends HttpException
             'CONTENT__COOKIE_INVALID_LEGACY_COOKIE_ENTRY_PROVIDED',
             'Invalid legacy cookie entry provided: {{ entry }}. The key "cookie" is required.',
             ['entry' => $encodedEntry],
+        );
+    }
+
+    public static function hashGenerationFailed(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::HASH_GENERATION_FAILED,
+            'Failed to generate cookie configuration hash: {{ reason }}',
+            ['reason' => $reason],
         );
     }
 }

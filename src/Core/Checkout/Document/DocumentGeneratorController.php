@@ -54,8 +54,8 @@ class DocumentGeneratorController extends AbstractController
             ->add('referencedDocumentId', new Uuid());
 
         $configDefinition = (new DataValidationDefinition())
-            ->add('documentNumber', new NotBlank(), new Type('string'))
-            ->add('documentDate', new NotBlank(), new Type('string'));
+            ->add('documentNumber', new Type('string'))
+            ->add('documentDate', new Type('string'));
 
         $itemDefinition->addSub('config', $configDefinition);
         $definition->addList('documents', $itemDefinition);

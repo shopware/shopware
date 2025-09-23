@@ -13,6 +13,7 @@
         {% block sw_order_document_settings_modal_form_document_number %}
         <mt-text-field
             v-model="documentNumber"
+            class="sw-order-document-settings-modal__document-number"
             :label="$tc('sw-order.documentModal.labelDocumentNumber')"
             :error="documentNumberErrorMessage"
             required
@@ -21,6 +22,7 @@
         {% block sw_order_document_settings_modal_form_document_date %}
         <mt-datepicker
             v-model="documentConfig.documentDate"
+            class="sw-order-document-settings-modal__document-date"
             date-type="date"
             required
             hide-hint
@@ -106,6 +108,7 @@
             {% endblock %}
 
             <sw-context-button
+                class="sw-order-document-settings-modal__preview-button-arrow"
                 :menu-width="160"
                 :disabled="invalidInput || isLoadingDocument"
             >
@@ -138,7 +141,7 @@
             <mt-button
                 size="small"
                 variant="secondary"
-                :disabled="invalidInput || isLoadingDocument || isLoadingPreview"
+                :disabled="isLoadingDocument || isLoadingPreview"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}
@@ -161,7 +164,10 @@
                 {% endblock %}
 
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
-                <sw-context-button :disabled="invalidInput">
+                <sw-context-button
+                    class="sw-order-document-settings-modal__create-arrow"
+                    :disabled="invalidInput"
+                >
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
                     <template #button>
                         <mt-button

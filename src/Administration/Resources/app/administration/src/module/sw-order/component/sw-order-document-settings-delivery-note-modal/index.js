@@ -19,7 +19,7 @@ export default {
                     deliveryDate: new Date().toISOString(),
                     deliveryNoteDate: new Date().toISOString(),
                 },
-                documentNumber: 0,
+                documentNumber: '',
                 documentComment: '',
                 documentDate: '',
             },

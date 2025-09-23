@@ -207,10 +207,10 @@ class RemoteThumbnailLoader implements ResetInterface
                 Entity $mediaEntity,
             ): string {
                 if (Feature::isActive('v6.8.0.0')) {
-                    /** @var string $mediaPath */
                     $mediaPath = $mediaEntity->get('path');
-                    /** @var ?\DateTimeInterface $mediaUpdatedAt */
+                    \assert(\is_string($mediaPath));
                     $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
+                    \assert($mediaUpdatedAt instanceof \DateTimeInterface);
                 }
 
                 $replacements = [

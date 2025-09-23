@@ -14,6 +14,8 @@
         <mt-text-field
             v-model="documentNumber"
             :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+            :error="documentNumberErrorMessage"
+            required
         />
         {% endblock %}
         {% block sw_order_document_settings_modal_form_document_date %}
@@ -94,7 +96,7 @@
             <mt-button
                 class="sw-order-document-settings-modal__preview-button"
                 size="small"
-                :disabled="isLoadingDocument"
+                :disabled="invalidInput || isLoadingDocument"
                 :is-loading="isLoadingPreview"
                 variant="secondary"
                 @click="onPreview()"
@@ -103,12 +105,16 @@
             </mt-button>
             {% endblock %}
 
-            <sw-context-button :menu-width="160">
+            <sw-context-button
+                :menu-width="160"
+                :disabled="invalidInput || isLoadingDocument"
+            >
                 <template #button>
                     <mt-button
                         square
                         size="small"
                         variant="secondary"
+                        :disabled="invalidInput"
                     >
                         <mt-icon
                             name="regular-chevron-down-xs"
@@ -119,7 +125,7 @@
 
                 <sw-context-menu-item
                     class="sw-order-document-settings-modal__preview-button-html"
-                    :disabled="htmlPreviewDisabled"
+                    :disabled="invalidInput || htmlPreviewDisabled"
                     @click="onPreview('html')"
                 >
                     {{ $tc('sw-order.documentModal.labelPreviewOnlyHtml') }}
@@ -132,7 +138,7 @@
             <mt-button
                 size="small"
                 variant="secondary"
-                :disabled="isLoadingDocument || isLoadingPreview"
+                :disabled="invalidInput || isLoadingDocument || isLoadingPreview"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}
@@ -146,7 +152,7 @@
                     class="sw-order-document-settings-modal__create"
                     variant="primary"
                     size="small"
-                    :disabled="!documentPreconditionsFulfilled || isLoadingPreview"
+                    :disabled="invalidInput || isLoadingPreview"
                     :is-loading="isLoadingDocument"
                     @click="onCreateDocument"
                 >
@@ -155,16 +161,14 @@
                 {% endblock %}
 
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
-                <sw-context-button
-                    :disabled="!documentPreconditionsFulfilled || undefined"
-                >
+                <sw-context-button :disabled="invalidInput">
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
                     <template #button>
                         <mt-button
                             square
                             variant="primary"
                             size="small"
-                            :disabled="!documentPreconditionsFulfilled"
+                            :disabled="invalidInput"
                         >
                             <mt-icon
                                 name="regular-chevron-down-xs"

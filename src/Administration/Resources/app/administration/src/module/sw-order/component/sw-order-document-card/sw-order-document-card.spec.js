@@ -1,10 +1,9 @@
+/**
+ * @sw-package after-sales
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
-
-/**
- * @sw-package checkout
- */
 
 function getCollection(entity, collection) {
     return new EntityCollection(

@@ -4,10 +4,11 @@
     gap="0 14px"
 >
     {% block sw_order_document_settings_modal_form_document_number %}
-
     <mt-text-field
         v-model="documentConfig.documentNumber"
         :label="$tc('sw-order.documentModal.labelDeliveryNoteNumber')"
+        :error="documentNumberErrorMessage"
+        required
     />
     {% endblock %}
 
@@ -18,6 +19,7 @@
         hide-hint
         :label="$tc('sw-order.documentModal.labelDocumentDate')"
         :placeholder="$tc('sw-datepicker.date.placeholder')"
+        required
     />
     {% endblock %}
 

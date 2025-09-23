@@ -7,6 +7,8 @@
     <mt-text-field
         v-model="documentNumber"
         :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+        :error="documentNumberErrorMessage"
+        required
     />
     {% endblock %}
 
@@ -18,6 +20,7 @@
         :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
         :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
         :options="invoiceNumberOptions"
+        required
     />
     {% endblock %}
 

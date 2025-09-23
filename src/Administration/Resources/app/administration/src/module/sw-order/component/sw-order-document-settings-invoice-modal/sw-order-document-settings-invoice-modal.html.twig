@@ -2,5 +2,7 @@
 <mt-text-field
     v-model="documentNumber"
     :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+    :error="documentNumberErrorMessage"
+    required
 />
 {% endblock %}

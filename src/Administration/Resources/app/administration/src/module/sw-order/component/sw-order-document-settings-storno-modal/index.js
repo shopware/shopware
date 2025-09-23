@@ -1,8 +1,7 @@
-import template from './sw-order-document-settings-storno-modal.html.twig';
-
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
+import template from './sw-order-document-settings-storno-modal.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

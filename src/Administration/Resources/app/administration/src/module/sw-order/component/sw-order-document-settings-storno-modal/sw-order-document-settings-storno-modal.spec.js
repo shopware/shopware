@@ -1,9 +1,8 @@
+/**
+ * @sw-package after-sales
+ */
 import { mount } from '@vue/test-utils';
 import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
-
-/**
- * @sw-package checkout
- */
 
 const orderFixture = {
     id: 'order1',

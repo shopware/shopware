@@ -1,8 +1,7 @@
-import template from './sw-order-document-settings-delivery-note-modal.html.twig';
-
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
+import template from './sw-order-document-settings-delivery-note-modal.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -29,6 +28,12 @@ export default {
 
     created() {
         this.createdComponent();
+    },
+
+    computed: {
+        documentPreconditionsFulfilled() {
+            return this.documentConfig.custom.deliveryDate && this.documentConfig.custom.deliveryNoteDate;
+        },
     },
 
     methods: {

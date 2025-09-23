@@ -1,10 +1,9 @@
+/**
+ * @sw-package after-sales
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FileValidationService from 'src/app/service/file-validation.service';
-
-/**
- * @sw-package checkout
- */
 
 const orderFixture = {
     id: '1234',

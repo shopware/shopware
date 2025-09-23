@@ -7,6 +7,8 @@
     <mt-text-field
         v-model="documentNumber"
         :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
+        :error="documentNumberErrorMessage"
+        required
     />
     {% endblock %}
 
@@ -28,6 +30,7 @@
         hide-hint
         :label="$tc('sw-order.documentModal.labelDocumentDate')"
         :placeholder="$tc('sw-datepicker.date.placeholder')"
+        required
     />
     {% endblock %}
 </sw-container>

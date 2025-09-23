@@ -19,9 +19,9 @@ The properties `mediaPath` and `mediaUpdatedAt` from `Shopware\Core\Content\Medi
 
 ## Deprecation of `media` and `thumbnail` in `MediaPathChangedEvent`
 
-The method `media` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` are deprecated and will be removed with the next major version. Use the newly added `mediaWithMimeType` method instead.
+The method `media` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` is deprecated and will be removed with the next major version. Use the newly added `mediaWithMimeType` method instead.
 
-The method `thumbnail` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` are deprecated and will be removed with the next major version. Use the newly added `thumbnailWithMimeType` method instead.
+The method `thumbnail` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` is deprecated and will be removed with the next major version. Use the newly added `thumbnailWithMimeType` method instead.
 
 ___
 

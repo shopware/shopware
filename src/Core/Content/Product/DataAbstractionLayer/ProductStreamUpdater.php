@@ -4,12 +4,21 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -29,6 +38,62 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
+    private const PRODUCT_FILTER_FIELD_WHITELIST = [
+        ProductDefinition::ENTITY_NAME => [
+            'active',
+            'ratingAverage',
+            'cheapestPrice',
+            'productNumber',
+            'stock',
+            'availableStock',
+            'releaseDate',
+            'tags',
+            'weight',
+            'height',
+            'width',
+            'length',
+            'ean',
+            'sales',
+            'manufacturer',
+            'manufacturerNumber',
+            'categoriesRo',
+            'shippingFree',
+            'visibilities',
+            'properties',
+            'options',
+            'isCloseout',
+            'deliveryTime',
+            'purchasePrices',
+            'createdAt',
+            'coverId',
+            'markAsTopseller',
+            'price',
+            'states',
+        ],
+        ProductTranslationDefinition::ENTITY_NAME => [
+            'name',
+            'description',
+        ],
+        ProductVisibilityDefinition::ENTITY_NAME => [],
+        ProductPropertyDefinition::ENTITY_NAME => [],
+        ProductOptionDefinition::ENTITY_NAME => [],
+        ProductTagDefinition::ENTITY_NAME => [],
+        ProductManufacturerDefinition::ENTITY_NAME => [],
+        ProductCategoryDefinition::ENTITY_NAME => [],
+        ProductPriceDefinition::ENTITY_NAME => [],
+    ];
+
+    private const PRODUCT_STREAM_FILTER_FIELD_MAP = [
+        ProductVisibilityDefinition::ENTITY_NAME => ['visibilities.salesChannel.id', 'visibilities.product.id'],
+        ProductOptionDefinition::ENTITY_NAME => ['options.id', 'options.group.id'],
+        ProductPropertyDefinition::ENTITY_NAME => ['properties.id', 'properties.group.id', 'options.id', 'options.group.id'],
+        ProductTagDefinition::ENTITY_NAME => ['tags.id'],
+        ProductManufacturerDefinition::ENTITY_NAME => ['manufacturer.id'],
+        ProductCategoryDefinition::ENTITY_NAME => ['categoriesRo.id'],
+        ProductPriceDefinition::ENTITY_NAME => ['cheapestPrice', 'cheapestPrice.percentage'],
+        'price' => ['cheapestPrice', 'cheapestPrice.percentage'],
+    ];
+
     /**
      * @internal
      *
@@ -53,6 +118,30 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     {
         // in full index, the product indexer will call the `updateProducts` method
         return null;
+    }
+
+    /**
+     * @param array<string, array<string>> $fieldsChangeSet
+     *
+     * @return array<string>
+     */
+    public function getAffectedFilterFields(array $fieldsChangeSet): array
+    {
+        $affectedFields = [];
+        foreach ($fieldsChangeSet as $entityName => $payload) {
+            if (!\array_key_exists($entityName, self::PRODUCT_FILTER_FIELD_WHITELIST)) {
+                continue;
+            }
+
+            if (isset(self::PRODUCT_STREAM_FILTER_FIELD_MAP[$entityName])) {
+                $affectedFields = array_merge($affectedFields, self::PRODUCT_STREAM_FILTER_FIELD_MAP[$entityName]);
+            } else {
+                $fields = array_intersect($payload, self::PRODUCT_FILTER_FIELD_WHITELIST[$entityName]);
+                $affectedFields = array_merge($affectedFields, $fields);
+            }
+        }
+
+        return array_values(array_unique($affectedFields));
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -80,6 +169,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
         if ($criteria === null) {
             return;
         }
@@ -168,14 +259,38 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     /**
      * @param string[] $ids
+     * @param string[] $affectedFields
      */
-    public function updateProducts(array $ids, Context $context): void
+    public function updateProducts(array $ids, Context $context, array $affectedFields = []): void
     {
         if (!$this->indexingEnabled) {
             return;
         }
 
-        $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
+        if (!empty($affectedFields)) {
+            $streams = $this->connection->fetchAllAssociative(
+                'SELECT ps.id AS id,
+               ps.api_filter
+        FROM product_stream ps
+        WHERE ps.invalid = 0
+      AND ps.api_filter IS NOT NULL
+      AND EXISTS (
+          SELECT 1
+          FROM product_stream_filter psf
+          WHERE psf.product_stream_id = ps.id
+            AND psf.field IN (:fields)
+          LIMIT 1
+      )',
+                ['fields' => $affectedFields],
+                ['fields' => ArrayParameterType::STRING]
+            );
+        } else {
+            $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
+        }
+
+        if (empty($streams)) {
+            return;
+        }
 
         $insert = new MultiInsertQueryQueue($this->connection);
 
@@ -183,12 +298,23 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $considerInheritance = $context->considerInheritance();
         $context->setConsiderInheritance(true);
+
+        /** @var list<array<string, string>> $result */
+        $result = $this->connection->fetchAllAssociative(
+            'SELECT product_stream_id, LOWER(HEX(product_id)) as product_id FROM product_stream_mapping WHERE product_stream_id IN (:ids) AND product_id IN (:productIds)',
+            ['ids' => array_column($streams, 'id'), 'productIds' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::BINARY, 'productIds' => ArrayParameterType::BINARY]
+        );
+
+        $oldMatches = FetchModeHelper::group($result);
+
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
             if (empty($filter)) {
                 continue;
             }
 
+            $oldMatchesOfStream = array_column($oldMatches[$stream['id']] ?? [], 'product_id');
             $criteria = $this->getCriteria($filter, $ids);
 
             if ($criteria === null) {
@@ -196,33 +322,42 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             try {
-                $matches = $this->repository->searchIds($criteria, $context);
+                $newMatches = $this->repository->searchIds($criteria, $context)->getIds();
             } catch (UnmappedFieldException) {
                 // skip if filter field is not found
                 continue;
             }
 
-            foreach ($matches->getIds() as $id) {
-                if (!\is_string($id)) {
-                    continue;
-                }
+            $toBeDeleted = array_values(array_diff($oldMatchesOfStream, $newMatches));
+            $toBeAdded = array_values(array_diff($newMatches, $oldMatchesOfStream));
+
+            foreach ($toBeAdded as $id) {
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
                     'product_stream_id' => $stream['id'],
                 ]);
             }
+
+            if (empty($toBeDeleted)) {
+                continue;
+            }
+
+            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $stream): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($toBeDeleted),
+                        'streamId' => $stream['id'],
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+            });
         }
+
         $context->setConsiderInheritance($considerInheritance);
 
-        RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => ArrayParameterType::BINARY]
-            );
-            $insert->execute();
-        });
+        $insert->execute();
     }
 
     public function getTotal(): int
@@ -256,7 +391,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $criteria = new Criteria();
         $criteria->addFilter(...$parsed);
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         if ($ids !== null) {
             $criteria->addFilter(new EqualsAnyFilter('id', $ids));

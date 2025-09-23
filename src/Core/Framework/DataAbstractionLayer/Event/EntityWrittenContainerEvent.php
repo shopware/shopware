@@ -87,6 +87,27 @@ class EntityWrittenContainerEvent extends NestedEvent
         return $this->errors;
     }
 
+    /**
+     * Returns an array of entity names and the fields that were changed in the write operations.
+     *
+     * @return array<string, array<string>>
+     */
+    public function getFieldsChangeSet(): array
+    {
+        $entities = [];
+        foreach ($this->getFlatEventList() as $event) {
+            if (!$event instanceof EntityWrittenEvent) {
+                continue;
+            }
+
+            foreach ($event->getPayloads() as $payload) {
+                $entities[$event->getEntityName()] = array_values(array_unique(array_merge($entities[$event->getEntityName()] ?? [], array_keys($payload))));
+            }
+        }
+
+        return $entities;
+    }
+
     public function getPrimaryKeys(string $entity): array
     {
         return $this->findPrimaryKeys($entity);

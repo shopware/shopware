@@ -135,6 +135,8 @@ class ProductIndexer extends EntityIndexer
             $message->addSkip(self::CHILD_COUNT_UPDATER);
         }
 
+        $message->setFieldsChangeSet($event->getFieldsChangeSet());
+
         return $message;
     }
 
@@ -151,7 +153,7 @@ class ProductIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-        if (!\is_array($ids)) {
+        if (!\is_array($ids) || !$message instanceof ProductIndexingMessage) {
             return;
         }
 
@@ -188,18 +190,6 @@ class ProductIndexer extends EntityIndexer
             });
         }
 
-        if ($message->allow(self::STREAM_UPDATER)) {
-            Profiler::trace('product:indexer:streams', function () use ($ids, $context): void {
-                $this->streamUpdater->updateProducts($ids, $context);
-            });
-        }
-
-        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            Profiler::trace('product:indexer:many-to-many', function () use ($ids, $context): void {
-                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
-            });
-        }
-
         if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
             Profiler::trace('product:indexer:category', function () use ($ids, $context): void {
                 $this->categoryDenormalizer->update($ids, $context);
@@ -227,6 +217,21 @@ class ProductIndexer extends EntityIndexer
         if ($message->allow(self::STATES_UPDATER)) {
             Profiler::trace('product:indexer:states', function () use ($ids, $context): void {
                 $this->statesUpdater->update($ids, $context);
+            });
+        }
+
+        // streams are updated at the end because they depend on denormalized fields (e.g. category tree, price, ...)
+        // only synchronously update the full stream if necessary, otherwise only update the streams that are relevant for the changes
+        if ($message->allow(self::STREAM_UPDATER)) {
+            Profiler::trace('product:indexer:streams', function () use ($ids, $message): void {
+                $affectedFields = empty($message->getFieldsChangeSet()) ? [] : $this->streamUpdater->getAffectedFilterFields($message->getFieldsChangeSet());
+                $this->streamUpdater->updateProducts($ids, $message->getContext(), $affectedFields);
+            });
+        }
+
+        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
+            Profiler::trace('product:indexer:many-to-many', function () use ($ids, $context): void {
+                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
             });
         }
 

@@ -11,6 +11,17 @@ abstract class AbstractProductStreamUpdater extends EntityIndexer
 {
     /**
      * @param array<string> $ids
+     * @param array<string> $affectedFields
      */
-    abstract public function updateProducts(array $ids, Context $context): void;
+    abstract public function updateProducts(array $ids, Context $context, array $affectedFields = []): void;
+
+    /**
+     * @param array<string, array<string>> $fieldsChangeSet
+     *
+     * @return array<string>
+     */
+    public function getAffectedFilterFields(array $fieldsChangeSet): array
+    {
+        return [];
+    }
 }

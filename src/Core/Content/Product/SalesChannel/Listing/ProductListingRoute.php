@@ -84,6 +84,7 @@ class ProductListingRoute extends AbstractProductListingRoute
 
         $entities = $this->listingLoader->load($criteria, $context);
 
+        dd($entities->first());
         $result = ProductListingResult::createFrom($entities);
         $result->addState(...$entities->getStates());
 

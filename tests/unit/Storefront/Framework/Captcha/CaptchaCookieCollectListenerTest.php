@@ -14,6 +14,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\CaptchaCookieCollectListener;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -40,7 +41,7 @@ class CaptchaCookieCollectListenerTest extends TestCase
         /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
         $cookieCollection = $this->createMock(CookieGroupCollection::class);
         $cookieCollection->expects($this->never())->method('get');
-        $event = new CookieGroupCollectEvent($cookieCollection, Generator::generateSalesChannelContext());
+        $event = new CookieGroupCollectEvent($cookieCollection, new Request(), Generator::generateSalesChannelContext());
 
         $this->listener->__invoke($event);
     }
@@ -49,6 +50,7 @@ class CaptchaCookieCollectListenerTest extends TestCase
     {
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([new CookieGroup('test')]),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -64,6 +66,7 @@ class CaptchaCookieCollectListenerTest extends TestCase
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([$cookieGroup]),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 

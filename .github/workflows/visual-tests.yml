@@ -1,5 +1,8 @@
 name: Visual Tests
 
+permissions:
+  id-token: write
+
 # Once proven stable, this workflow can be integrated into the integration workflow
 # by adding "Visual" to the "name" matrix element.
 on:
@@ -13,6 +16,10 @@ on:
         description: 'Report to currents?'
         type: boolean
         default: false
+      filter:
+        description: 'Use this field to provide a filter that will be passed to playwrights `--grep` input.'
+        type: string
+        default: ''
 
   workflow_call:
     inputs:
@@ -24,6 +31,10 @@ on:
         description: 'Report to currents?'
         type: boolean
         default: false
+      filter:
+        description: 'Use this field to provide a filter that will be passed to playwrights `--grep` input.'
+        type: string
+        default: ''
 
 jobs:
   visual-tests:
@@ -41,6 +52,7 @@ jobs:
           workers: 1
           extra-options: >-
             ${{ inputs.update-snapshots && ' --update-snapshots' || '' }}
+            ${{ inputs.filter && format(' --grep="{0}"', inputs.filter) || '' }}
           use-currents: ${{ inputs.currents && 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}

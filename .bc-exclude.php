@@ -47,6 +47,8 @@ return [
         preg_quote('ADDED: Parameter message was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
         preg_quote('ADDED: Parameter messageRequired was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
         preg_quote('ADDED: Parameter excludes was added to Method __construct() of class Shopware\Core\System\SalesChannel\Api\ResponseFields', '/'),
+        preg_quote('ADDED: Parameter mimeType was added to Method __construct() of class Shopware\Core\Content\Media\Core\Params\UrlParams', '/'),
+
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',

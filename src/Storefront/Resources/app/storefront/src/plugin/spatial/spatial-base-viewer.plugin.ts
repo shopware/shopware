@@ -49,7 +49,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         if (this._dive == undefined) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-            this._dive = await window.DIVEClass.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.el as HTMLCanvasElement });
+            this._dive = await window.DIVEClass.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.el as HTMLCanvasElement, displayFloor: true });
         }
 
         // @ts-ignore

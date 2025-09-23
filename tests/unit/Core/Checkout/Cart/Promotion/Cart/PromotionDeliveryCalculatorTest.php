@@ -307,7 +307,14 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
 
+        // Prepare products to the cart
+        $product1 = new LineItem($this->ids->get('product-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $product1->setPriceDefinition(new AbsolutePriceDefinition(150.0));
+        $product1->setLabel('Product 1');
+        $product1->setPrice(new CalculatedPrice(150.0, 150.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
         $cart = new Cart('promotion-test');
+        $cart->addLineItems(new LineItemCollection([$product1]));
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
 
         // Calculate with all three fixed discounts

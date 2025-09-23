@@ -209,7 +209,7 @@ export default class CookieConfiguration extends Plugin {
         const allCookieNames = this._getAllCookieNamesFromGroups(data.elements || []);
 
         this._removeAllNotTechnicalRequiredCookies(allCookieNames);
-        
+
         // Remove cookie preference to force user to make choice again
         CookieStorage.removeItem(this.options.cookiePreference);
 

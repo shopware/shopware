@@ -80,6 +80,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
         if ($criteria === null) {
             return;
         }
@@ -256,7 +258,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $criteria = new Criteria();
         $criteria->addFilter(...$parsed);
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         if ($ids !== null) {
             $criteria->addFilter(new EqualsAnyFilter('id', $ids));

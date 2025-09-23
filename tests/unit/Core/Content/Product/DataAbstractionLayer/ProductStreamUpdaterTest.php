@@ -86,9 +86,6 @@ class ProductStreamUpdaterTest extends TestCase
         /** @var StaticEntityRepository<ProductCollection> */
         $repository = new StaticEntityRepository([
             function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
-                static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
-                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
                 static::assertEquals($criteria, $actualCriteria);
                 static::assertEquals($context, $actualContext);
 

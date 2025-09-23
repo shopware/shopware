@@ -10,6 +10,8 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndex
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -24,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -64,6 +67,80 @@ class ProductStreamUpdaterTest extends TestCase
 
         $updater->updateProducts(['1', '2'], Context::createDefaultContext());
         $updater->update($containerEvent);
+    }
+
+    public function testUpdaterWithFilterChange(): void
+    {
+        $connectionMock = $this->createMock(Connection::class);
+        $messageBusMock = $this->createMock(MessageBusInterface::class);
+        $messageBusMock->expects($this->once())->method('dispatch')->willReturnCallback(function ($message) {
+            static::assertInstanceOf(ProductStreamMappingIndexingMessage::class, $message);
+            static::assertSame('product-stream-1', $message->getData());
+            static::assertSame('product_stream_mapping.indexer', $message->getIndexer());
+
+            return new Envelope($message);
+        });
+
+        /** @var StaticEntityRepository<ProductCollection> $repo */
+        $repo = new StaticEntityRepository([]);
+
+        $updater = new ProductStreamUpdater(
+            $connectionMock,
+            new ProductDefinition(),
+            $repo,
+            $messageBusMock,
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            true
+        );
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createCLIContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(ProductStreamDefinition::ENTITY_NAME, [
+                    new EntityWriteResult('product-stream-1', [], ProductStreamDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createCLIContext()),
+                new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, [
+                    new EntityWriteResult('product-stream-filter-1', [
+                        'operator' => 'and'
+                    ], ProductStreamFilterDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createCLIContext()),
+            ]),
+            []
+        );
+
+        $updater->update($containerEvent);
+    }
+
+    public function testUpdaterWithoutFilterChange(): void
+    {
+        $connectionMock = $this->createMock(Connection::class);
+
+        $messageBusMock = $this->createMock(MessageBusInterface::class);
+        $messageBusMock->expects($this->never())->method('dispatch');
+
+        /** @var StaticEntityRepository<ProductCollection> $repo */
+        $repo = new StaticEntityRepository([]);
+
+        $updater = new ProductStreamUpdater(
+            $connectionMock,
+            new ProductDefinition(),
+            $repo,
+            $messageBusMock,
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            true
+        );
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createCLIContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(ProductStreamDefinition::ENTITY_NAME, [
+                    new EntityWriteResult('product-1', [], 'test', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createCLIContext()),
+            ]),
+            []
+        );
+
+        static::assertNull($updater->update($containerEvent));
     }
 
     /**

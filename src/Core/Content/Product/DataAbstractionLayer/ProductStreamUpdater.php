@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -80,7 +81,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         if ($criteria === null) {
             return;
@@ -154,8 +155,16 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
+        $filterIds = $event->getPrimaryKeysWithPropertyChange(ProductStreamFilterDefinition::ENTITY_NAME, [
+            'type',
+            'field',
+            'value',
+            'operator',
+            'parameters',
+            'position',
+        ]);
 
-        if (empty($ids)) {
+        if (empty($ids) || empty($filterIds)) {
             return null;
         }
 

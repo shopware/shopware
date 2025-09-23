@@ -32,7 +32,6 @@ export default class SpatialBaseViewerPlugin extends Plugin {
      * initialize plugin
      */
     public async init() {
-        console.log('base-viewer-plugin:init');
         await loadDIVE();
 
         await this.initViewer();

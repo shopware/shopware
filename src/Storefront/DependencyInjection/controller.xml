@@ -14,6 +14,19 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\Api\StorybookController" public="true">
+            <argument type="service" id="twig"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\AccountOrderController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader"/>
@@ -330,14 +343,6 @@
 
         <service id="Shopware\Storefront\Controller\VerificationHashController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Controller\UxComponentLibraryController" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\UxComponentHelper"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

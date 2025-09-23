@@ -1,0 +1,19 @@
+{
+    "title": "Sw/Rating/Stars",
+    "parameters": {
+        "server": {
+            "url": "http://localhost:8000/store-api/storybook",
+            "id": "Sw:Rating:Stars"
+        },
+        "template": "<twig:Sw:Rating:Stars stars=\"4\" maxStars=\"5\" />"
+    },
+    "stories": [
+        {
+            "name": "Stars",
+            "args": {
+                "stars": 4,
+                "maxStars": 5
+            }
+        }
+    ]
+}

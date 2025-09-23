@@ -50,10 +50,22 @@ All blocks of this template are available in the template which renders this tem
                 {% block document_footer_third_column %}
                     <ul>
                         {% block document_footer_place_of_jurisdiction %}
-                            {% if config.placeOfJurisdiction %}<li>{{ 'document.placeOfJurisdiction'|trans({'%placeOfJurisdiction%': config.placeOfJurisdiction})|sw_sanitize(null, true) }}</li>{% endif %}
+                            {% if config.placeOfJurisdiction %}
+                                <li>
+                                    {{ 'document.placeOfJurisdiction'|trans({
+                                        '%placeOfJurisdiction%': config.placeOfJurisdiction|sw_sanitize(null, true)
+                                    })|raw }}
+                                </li>
+                            {% endif %}
                         {% endblock %}
                         {% block document_footer_place_of_fulfillment %}
-                            {% if config.placeOfFulfillment %}<li>{{ 'document.placeOfFulfillment'|trans({'%placeOfFulfillment%': config.placeOfFulfillment})|sw_sanitize(null, true) }}</li>{% endif %}
+                            {% if config.placeOfFulfillment %}
+                                <li>
+                                    {{ 'document.placeOfFulfillment'|trans({
+                                        '%placeOfFulfillment%': config.placeOfFulfillment|sw_sanitize(null, true)
+                                    })|raw }}
+                                </li>
+                            {% endif %}
                         {% endblock %}
                     </ul>
                 {% endblock %}

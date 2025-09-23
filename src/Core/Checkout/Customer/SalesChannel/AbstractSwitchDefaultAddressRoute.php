@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -25,13 +26,13 @@ abstract class AbstractSwitchDefaultAddressRoute
 
     /**
      * Backwards-compatible shim. Delegates to swapWithResponse and returns NoContentResponse.
-     * Marked final so implementers only need to implement swapWithResponse.
+     * Marked non-final to avoid introducing an unexpected final method BC break.
      *
      * Deprecation: plugin authors should migrate to swapWithResponse and update callers.
      */
-    final public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
+    public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
-        @trigger_deprecation('AbstractSwitchDefaultAddressRoute::swap() is deprecated, use swapWithResponse() which returns SwitchDefaultAddressRouteResponse', \E_USER_DEPRECATED);
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, 'swap', 'v6.8.0.0', 'swapWithResponse'));
 
         $this->swapWithResponse($addressId, $type, $context, $customer);
 

@@ -43,7 +43,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
         $addresses->method('getEntities')->willReturn($addressCollection);
 
         // IdSearchResult expects array<array<string,mixed>> for the data argument
-        $idSearchResult = new IdSearchResult(1, [['id' => $addressId]], new Criteria(), $context);
+        $idSearchResult = IdSearchResult::fromIds([$addressId], new Criteria(), $context, 1);
 
         $addressRepository->method('search')->willReturn($addresses);
         $addressRepository->method('searchIds')->willReturn($idSearchResult);
@@ -70,7 +70,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
 
         $route = new SwitchDefaultAddressRoute($addressRepository, $customerRepository, $eventDispatcher);
 
-        $response = $route->swap($addressId, 'billing', $salesChannelContext, $customer);
+        $response = $route->swapWithResponse($addressId, 'billing', $salesChannelContext, $customer);
 
         // ensure we get a collection back (concrete equality check)
         static::assertSame($addressCollection, $response->getAddressCollection());
@@ -97,7 +97,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
         $addresses = $this->createMock(EntitySearchResult::class);
         $addresses->method('getEntities')->willReturn($addressCollection);
 
-        $idSearchResult = new IdSearchResult(1, [['id' => $addressId]], new Criteria(), $context);
+        $idSearchResult = IdSearchResult::fromIds([$addressId], new Criteria(), $context, 1);
 
         $addressRepository->method('search')->willReturn($addresses);
         $addressRepository->method('searchIds')->willReturn($idSearchResult);
@@ -124,7 +124,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
 
         $route = new SwitchDefaultAddressRoute($addressRepository, $customerRepository, $eventDispatcher);
 
-        $response = $route->swap($addressId, 'shipping', $salesChannelContext, $customer);
+        $response = $route->swapWithResponse($addressId, 'shipping', $salesChannelContext, $customer);
 
         static::assertSame($addressCollection, $response->getAddressCollection());
     }

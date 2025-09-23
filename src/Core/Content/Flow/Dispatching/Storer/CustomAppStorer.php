@@ -5,12 +5,18 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomAppAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
 class CustomAppStorer extends FlowStorer
 {
+    public static function getAvailableData(): EventDataCollection
+    {
+        return new EventDataCollection();
+    }
+
     /**
      * @param array<string, mixed> $stored
      *

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Log\Package;
@@ -10,6 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class LanguageStorer extends FlowStorer
 {
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(LanguageAware::LANGUAGE_ID, (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable());
+    }
+
     /**
      * @param array<string, mixed> $stored
      *

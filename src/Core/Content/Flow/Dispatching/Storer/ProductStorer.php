@@ -10,6 +10,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\ProductAware;
 use Shopware\Core\Framework\Log\Package;
@@ -27,6 +30,13 @@ class ProductStorer extends FlowStorer
         private readonly EntityRepository $productRepository,
         private readonly EventDispatcherInterface $dispatcher
     ) {
+    }
+
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(ProductAware::PRODUCT_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(ProductAware::PRODUCT, (new EntityType(ProductDefinition::class))->setNullable());
     }
 
     public function store(FlowEventAware $event, array $stored): array

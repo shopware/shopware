@@ -11,6 +11,9 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -18,6 +21,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('after-sales')]
 class NewsletterRecipientStorer extends FlowStorer
 {
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT, (new EntityType(NewsletterRecipientDefinition::class))->setNullable());
+    }
+
     /**
      * @internal
      *

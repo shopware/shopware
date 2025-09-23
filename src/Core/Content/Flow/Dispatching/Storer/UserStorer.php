@@ -7,6 +7,9 @@ use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\Framework\Log\Package;
@@ -27,6 +30,13 @@ class UserStorer extends FlowStorer
         private readonly EntityRepository $userRecoveryRepository,
         private readonly EventDispatcherInterface $dispatcher
     ) {
+    }
+
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add(UserAware::USER_RECOVERY_ID, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(UserAware::USER_RECOVERY, (new EntityType(UserRecoveryEntity::class))->setNullable());
     }
 
     public function store(FlowEventAware $event, array $stored): array

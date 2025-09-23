@@ -193,7 +193,8 @@ jobs:
         working-directory: ./src/Administration/Resources/app/administration
 
       - name: Run audit
-        run: npm audit
+        # we need to run script which also ignores axios vulnerabilities
+        run: npx esno ./scripts/runNpmAudit.ts
         working-directory: ./src/Administration/Resources/app/administration
 
   audit-eslint-deprecation-rules:

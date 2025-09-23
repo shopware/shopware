@@ -38,6 +38,10 @@ export const { CancelToken, isCancel, Cancel } = Axios;
 function createClient() {
     const client = Axios.create({
         baseURL: Shopware.Context.api.apiPath,
+        // Add request/response size limits to mitigate DoS vulnerability
+        maxContentLength: 50 * 1024 * 1024, // 50MB limit
+        maxBodyLength: 50 * 1024 * 1024, // 50MB limit
+        timeout: 30000, // 30 second timeout
     });
 
     refreshTokenInterceptor(client);

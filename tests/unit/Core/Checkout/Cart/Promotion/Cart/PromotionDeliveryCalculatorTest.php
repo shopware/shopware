@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart;
 
@@ -33,6 +35,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -48,6 +51,10 @@ class PromotionDeliveryCalculatorTest extends TestCase
     private PercentagePriceCalculator&MockObject $percentagePriceCalculator;
 
     private PromotionDeliveryCalculator $promotionDeliveryCalculator;
+
+    private const CART_PROMOTION = 'cart-promotion';
+
+    private const DELIVERY_PROMOTION = 'delivery-promotion';
 
     protected function setUp(): void
     {
@@ -198,21 +205,27 @@ class PromotionDeliveryCalculatorTest extends TestCase
                 return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
             });
 
+        // Prepare products to the cart
+        $product1 = new LineItem($this->ids->get('product-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $product1->setPriceDefinition(new AbsolutePriceDefinition(150.0));
+        $product1->setLabel('Product 1');
+        $product1->setPrice(new CalculatedPrice(150.0, 150.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
         // Higher priority cart discount that excludes the delivery discount
-        $cartDiscount = new LineItem('cart-promotion', PromotionProcessor::LINE_ITEM_TYPE);
+        $cartDiscount = new LineItem(self::CART_PROMOTION, PromotionProcessor::LINE_ITEM_TYPE);
         $cartDiscount->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_CART);
         $cartDiscount->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_ABSOLUTE);
-        $cartDiscount->setPayloadValue('exclusions', ['delivery-promotion']);
-        $cartDiscount->setPayloadValue('promotionId', 'cart-promotion');
+        $cartDiscount->setPayloadValue('exclusions', [self::DELIVERY_PROMOTION]);
+        $cartDiscount->setPayloadValue('promotionId', self::CART_PROMOTION);
         $cartDiscount->setPayloadValue('priority', 10); // Higher priority
         $cartDiscount->setPayloadValue('code', 'CART50');
-        $cartDiscount->setReferencedId('cart-promotion');
+        $cartDiscount->setReferencedId(self::CART_PROMOTION);
         $cartDiscount->setLabel('Cart Discount');
 
         // Lower priority delivery discount with TYPE_FIXED_UNIT that should be excluded
-        $deliveryDiscount = $this->getDiscountItem('delivery-promotion')
+        $deliveryDiscount = $this->getDiscountItem(self::DELIVERY_PROMOTION)
             ->setPayloadValue('code', 'FREESHIP')
-            ->setPayloadValue('exclusions', ['cart-promotion'])
+            ->setPayloadValue('exclusions', [self::CART_PROMOTION])
             ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
             ->setPayloadValue('value', 0) // Free shipping
             ->setPayloadValue('priority', 1) // Lower priority
@@ -229,7 +242,10 @@ class PromotionDeliveryCalculatorTest extends TestCase
         $cart = new Cart('promotion-test');
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
 
-        // Add cart promotion first (to simulate it was already applied)
+        // Add product to cart
+        $cart->addLineItems(new LineItemCollection([$product1]));
+
+        // Add cart promotion
         $cart->addLineItems(new LineItemCollection([$cartDiscount]));
 
         // Calculate delivery promotions - the delivery discount should be excluded
@@ -237,21 +253,14 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new LineItemCollection([$cartDiscount, $deliveryDiscount]),
             $cart,
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            Generator::generateSalesChannelContext(),
         );
 
         // The delivery discount should NOT be applied due to exclusion
         static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Shipping should still be 100 (not free) due to exclusion');
 
         // Check for promotion not eligible error
-        $hasNotEligibleError = false;
-        foreach ($cart->getErrors() as $error) {
-            if ($error->getId() === 'promotion-not-eligible') {
-                $hasNotEligibleError = true;
-                break;
-            }
-        }
-        static::assertTrue($hasNotEligibleError, 'Delivery promotion should be marked as not eligible due to exclusion');
+        static::assertTrue($cart->getErrors()->has('promotion-not-eligible'), 'Delivery promotion should be marked as not eligible due to exclusion');
     }
 
     /**
@@ -309,8 +318,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        // Should apply the lowest fixed price (20), so shipping should be reduced by 80 (100 - 20)
-        static::assertSame(20.0, $cart->getShippingCosts()->getTotalPrice(), 'Should apply lowest fixed delivery discount (20)');
+        // Should apply the lowest fixed price (20)
+        static::assertSame(20.0, $cart->getShippingCosts()->getTotalPrice(), 'Should set shipping to lowest fixed price of 20');
     }
 
     private function getDiscountItem(string $promotionId): LineItem

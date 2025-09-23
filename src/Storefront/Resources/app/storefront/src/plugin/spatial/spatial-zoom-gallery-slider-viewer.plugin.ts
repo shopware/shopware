@@ -33,7 +33,6 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
         if (!this.el) {
             return;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         this.sliderIndex = Number(this.options.sliderPosition);
 
         this.SpatialZoomGallerySliderRenderUtil = new SpatialZoomGallerySliderRenderUtil(this);

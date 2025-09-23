@@ -33,7 +33,6 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
         if (!this.el) {
             return;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         this.sliderIndex = Number(this.options.sliderPosition);
 
         this.spatialProductSliderRenderUtil = new SpatialProductSliderRenderUtil(this);

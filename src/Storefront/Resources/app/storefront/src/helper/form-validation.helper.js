@@ -367,10 +367,10 @@ export default class FormValidation {
             return true;
         }
 
-        const cookiePreference = CookieStorageHelper.getItem('cookie-preference');
-        const cookiesAccepted = cookiePreference === '1';
+        const grecaptchaCookie = CookieStorageHelper.getItem('_GRECAPTCHA');
+        const grecaptchaCookieAccepted = grecaptchaCookie === '1';
 
-        return cookiesAccepted;
+        return grecaptchaCookieAccepted;
     }
 
     /**

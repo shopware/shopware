@@ -81,17 +81,21 @@
                     {% endblock %}
 
                     {% block sw_dashboard_index_content_feedback_link %}
-                    <a
+                    <mt-button
                         class="sw-dashboard-index__card-button"
-                        :href="$tc('sw-dashboard.feedbackCard.feedbackLink')"
+                        size="large"
+                        variant="secondary"
+                        :link="$tc('sw-dashboard.feedbackCard.feedbackLink')"
                     >
                         <span>{{ $tc('sw-dashboard.feedbackCard.feedback') }}</span>
 
-                        <mt-icon
-                            name="external-link-s"
-                            size="var(--scale-size-12)"
-                        />
-                    </a>
+                        <template #iconBack>
+                            <mt-icon
+                                name="external-link-s"
+                                size="var(--scale-size-12)"
+                            />
+                        </template>
+                    </mt-button>
                     {% endblock %}
                     {% endblock %}
                 </div>

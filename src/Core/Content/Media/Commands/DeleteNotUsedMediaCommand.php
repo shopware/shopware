@@ -43,7 +43,7 @@ class DeleteNotUsedMediaCommand extends Command
         $this->addOption('folder-entity', null, InputOption::VALUE_REQUIRED, 'Restrict deletion of not used media in default location folders of the provided entity name');
         $this->addOption('limit', null, InputOption::VALUE_OPTIONAL, 'The limit of media entries to query');
         $this->addOption('offset', null, InputOption::VALUE_OPTIONAL, 'The offset to start from');
-        $this->addOption('grace-period-days', null, InputOption::VALUE_REQUIRED, 'The offset to start from', 20);
+        $this->addOption('grace-period-days', null, InputOption::VALUE_REQUIRED, 'Restrict deletion of not used media uploaded in the last n days', 20);
         $this->addOption('dry-run', description: 'Show list of files to be deleted');
         $this->addOption('report', description: 'Generate a list of files to be deleted');
     }

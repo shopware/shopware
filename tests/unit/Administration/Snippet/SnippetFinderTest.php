@@ -29,7 +29,6 @@ use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollect
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Storefront;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
@@ -39,7 +38,6 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[CoversClass(SnippetFinder::class)]
-#[DisabledFeatures(['v6.8.0.0'])]
 class SnippetFinderTest extends TestCase
 {
     use SnippetFileTrait;
@@ -327,6 +325,7 @@ class SnippetFinderTest extends TestCase
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
 
@@ -351,6 +350,7 @@ class SnippetFinderTest extends TestCase
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
         $this->createSnippetFixtures($this->filesystem, $loader);
@@ -368,6 +368,31 @@ class SnippetFinderTest extends TestCase
             'plugin_administration' => 'Plugin admin',
             'shop_administration' => 'Platform admin',
         ], $snippets);
+    }
+
+    public function testFinderSkipsExcludedLocales(): void
+    {
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['es-ES'],
+        );
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $pluginPath = __DIR__ . '/_fixtures/activePlugin';
+        $snippetFinder = $this->getSnippetFinder(
+            kernel: $this->getKernelMock(pluginPaths: [$pluginPath], activePluginPaths: ['activePlugin']),
+            connection: $this->getConnectionMock('es-ES', []),
+            translationConfig: $config,
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+        static::assertEmpty($snippets);
     }
 
     /**
@@ -423,6 +448,7 @@ class SnippetFinderTest extends TestCase
             new LanguageDtoCollection([new LanguageDto('en-GB', 'English (UK')]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
         );
 
         $kernelMock = $kernel ?? $this->getKernelMock();

@@ -18,6 +18,9 @@ class CustomerPasswordMatches extends Constraint
         self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
     ];
 
+    /**
+     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
+     */
     public string $message = 'Your password is wrong';
 
     /**
@@ -35,11 +38,12 @@ class CustomerPasswordMatches extends Constraint
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed, use $salesChannelContext instead
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext parameter will be required and natively typed as constructor property promotion
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $message will be natively typed as constructor property promotion
      *
      * @internal
      */
     #[HasNamedArguments]
-    public function __construct(?array $options = null, ?SalesChannelContext $salesChannelContext = null)
+    public function __construct(?array $options = null, ?SalesChannelContext $salesChannelContext = null, string $message = 'Your password is wrong')
     {
         if ($options !== null || $salesChannelContext === null) {
             Feature::triggerDeprecationOrThrow(
@@ -56,6 +60,7 @@ class CustomerPasswordMatches extends Constraint
             parent::__construct();
 
             $this->salesChannelContext = $salesChannelContext;
+            $this->message = $message;
         } else {
             if (isset($options['context'])) {
                 $options['salesChannelContext'] = $options['context'];
@@ -85,5 +90,10 @@ class CustomerPasswordMatches extends Constraint
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 }

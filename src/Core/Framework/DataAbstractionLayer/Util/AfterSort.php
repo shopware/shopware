@@ -25,7 +25,9 @@ class AfterSort
 
         // pre-sort elements to pull elements without an after id parent to the front
         uasort($elements, function (Struct $a, Struct $b) use ($propertyName) {
+            // @phpstan-ignore property.dynamicName (We can use any property to sort the elements)
             $aValue = $a->$propertyName;
+            // @phpstan-ignore property.dynamicName (We can use any property to sort the elements)
             $bValue = $b->$propertyName;
             if ($aValue === $bValue && $aValue === null) {
                 return 0;
@@ -55,6 +57,7 @@ class AfterSort
 
         while (\count($elements) > 0) {
             foreach ($elements as $index => $element) {
+                // @phpstan-ignore property.dynamicName
                 if ($lastId !== $element->$propertyName) {
                     continue;
                 }

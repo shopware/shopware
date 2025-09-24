@@ -116,7 +116,7 @@ shopware.installer:
     configuration_admin_mail: 'Dirección de correo electrónico del administrador:'
     configuration_admin_firstName: 'Nombre del administrador:'
     configuration_admin_lastName: 'Apellido(s) del administrador:'
-    configuration_defaults_warning: '.El idioma estándar y la moneda estándar del sistema no se podrán modificar posteriormente:'
+    configuration_defaults_warning: 'El idioma estándar y la moneda estándar del sistema no se podrán modificar posteriormente.'
     configuration_email_help_text: 'Esta dirección de correo electrónico se utilizará para los correos electrónicos salientes de la tienda.'
     configuration_admin_currency_headline: 'Monedas disponibles'
     configuration_admin_currency_text: 'Añade más monedas a tu tienda de Shopware. Si quieres añadir monedas después, puedes hacerlo en cualquier momento en la administración.'
@@ -141,3 +141,19 @@ shopware.installer:
         <p>
             ¡Que disfrutes de tu nueva tienda online!
         </p>"
+    menuitem_translation: 'Descarga de idiomas'
+    configuration_admin_shop_headline: 'Datos de la tienda'
+    configuration_admin_language_headline: 'Idiomas'
+    configuration_admin_language_select_all: 'Seleccionar todo'
+    configuration_admin_language_clear_all: 'Limpiar todo'
+    configuration_admin_user_headline: 'Datos del usuario administrador'
+    configuration_admin_language_text: 'Añade más idiomas a tu tienda Shopware. Si quieres añadir o quitar idiomas más tarde, puedes hacerlo en cualquier momento en la administración.'
+    configuration_admin_language_search_placeholder: 'Buscar idioma...'
+    translations_header: 'Descarga de idiomas'
+    translations_import_install_label: 'Descargando e instalando idiomas adicionales.'
+    translations_install_duration_info: 'Esto puede tardar unos minutos.'
+    finish_title: 'La configuración de tu tienda Shopware está completa.'
+    finish_subtitle: 'Haz clic en "Continuar a la tienda" para abrir la administración de tu tienda y empezar a construir la tienda de tus sueños.'
+    finish_continue: 'Continuar a la tienda'
+    translations_install_error_message: 'Algo salió mal durante la instalación de traducciones.'
+    translations_install_retry_link: 'Haz clic aquí para reintentar'

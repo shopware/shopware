@@ -12,6 +12,8 @@ class TokenStruct extends Struct
 
     protected int $expires;
 
+    protected bool $invalidated;
+
     public function __construct(
         protected ?string $id = null,
         protected ?string $token = null,
@@ -19,7 +21,8 @@ class TokenStruct extends Struct
         protected ?string $transactionId = null,
         protected ?string $finishUrl = null,
         ?int $expires = null,
-        protected ?string $errorUrl = null
+        protected ?string $errorUrl = null,
+        bool $invalidated = false,
     ) {
         $this->expires = $expires ?? 1800;
     }
@@ -82,5 +85,10 @@ class TokenStruct extends Struct
     public function getApiAlias(): string
     {
         return 'payment_token';
+    }
+
+    public function isInvalidated(): bool
+    {
+        return $this->invalidated;
     }
 }

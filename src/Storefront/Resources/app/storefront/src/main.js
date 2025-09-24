@@ -161,7 +161,7 @@ if ((window.googleReCaptchaV2Active || window.googleReCaptchaV3Active) && typeof
  * Registers Google reCAPTCHA plugins based on current cookie preferences
  */
 function registerGoogleReCaptchaPlugins() {
-    // depends on the value that is set via src/Storefront/Framework/Cookie/CookieProvider.php for cookie.groupRequiredAccepted
+    // depends on the value that is set via Shopware\Core\Content\Cookie\Service\CookieProvider for cookie.groupRequiredAccepted
     const cookiesAccepted = CookieStorage.getItem('cookie-preference') === '1';
 
     if (cookiesAccepted || !window.useDefaultCookieConsent) {

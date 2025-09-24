@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Util\IOStreamHelper;
 
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
@@ -41,13 +42,13 @@ class ComposerPluginLoader extends KernelPluginLoader
             \assert(\is_array($composerJson));
             $pluginClass = $composerJson['extra']['shopware-plugin-class'] ?? '';
 
-            if (\defined('\STDERR') && ($pluginClass === '' || !\class_exists($pluginClass))) {
-                \fwrite(\STDERR, \sprintf('Skipped package %s due invalid "shopware-plugin-class" config', $composerPackage->name) . \PHP_EOL);
+            if ($pluginClass === '' || !\class_exists($pluginClass)) {
+                IOStreamHelper::writeError(\sprintf('Skipped package %s due invalid "shopware-plugin-class" config', $composerPackage->name));
 
                 continue;
             }
 
-            $nameParts = \explode('\\', (string) $pluginClass);
+            $nameParts = \explode('\\', $pluginClass);
 
             $this->pluginInfos[] = [
                 'name' => \end($nameParts),

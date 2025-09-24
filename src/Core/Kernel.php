@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Util\IOStreamHelper;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
@@ -141,9 +142,7 @@ class Kernel extends HttpKernel
                 // initialize plugins before booting
                 $this->pluginLoader->initializePlugins($this->getProjectDir());
             } catch (DBALException $e) {
-                if (\defined('\STDERR')) {
-                    fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
-                }
+                IOStreamHelper::writeError('Warning: Failed to load plugins', $e);
             }
         }
 

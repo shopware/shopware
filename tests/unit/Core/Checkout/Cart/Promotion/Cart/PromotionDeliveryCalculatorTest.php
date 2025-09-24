@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;

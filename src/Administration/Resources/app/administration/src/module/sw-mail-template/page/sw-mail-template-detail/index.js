@@ -2,7 +2,7 @@ import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Mixin, Context, Service } = Shopware;
+const { Mixin, Context} = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { camelCase } = Shopware.Utils.string;
@@ -61,6 +61,8 @@ export default {
             showLanguageNotAssignedToSalesChannelWarning: false,
             triggerEvent: null,
             triggerEvents: [],
+            isValidationLoading: false,
+            validationErrors: null,
         };
     },
 
@@ -79,7 +81,7 @@ export default {
         ]),
 
         loadedAvailableVariables() {
-            if (!this.mailTemplateType || !this.mailTemplateType.templateData) {
+            if (!this.triggerEvent) {
                 return [];
             }
             if (Object.values(this.availableVariables).length === 0) {
@@ -242,11 +244,12 @@ export default {
                 this.loadEntityData();
             }
             this.businessEventService.getBusinessEvents().then(events => {
-                this.triggerEvents = events.map(event => ({
+                this.triggerEvents = events
+                    .filter(event => event.aware.includes("mailAware"))
+                    .map(event => ({
                     ...event,
                     label: event.name.split('.').map(eventName => this.getEventNameTranslated(eventName)).join(' / '),
                 }));
-                console.log(this.triggerEvents);
             });
         },
 
@@ -423,8 +426,8 @@ export default {
         },
 
         onClickValidateMailTemplate() {
-            console.log(this.mailTemplate);
-            console.log(this.triggerEvent);
+            this.isValidationLoading = true;
+            this.validationErrors = [];
             this.mailService.validateMailTemplate(
                 this.triggerEvent.class,
                 {
@@ -434,15 +437,65 @@ export default {
                     contentPlain: this.mailTemplate.contentPlain,
                 },
             ).then((response) => {
-                console.log(response);
-            }).catch((error) => {
-                console.log(error);
-                this.isLoading = false;
+                this.validationErrors = [
+                    ...response.subject.map(e => this.translateValidationError(e, 'subject')),
+                    ...response.senderName.map(e => this.translateValidationError(e, 'senderName')),
+                    ...response.contentHtml.map(e => this.translateValidationError(e, 'contentHtml')),
+                    ...response.contentPlain.map(e => this.translateValidationError(e, 'contentPlain')),
+                ];
+            }).catch((exception) => {
+                this.createNotificationError(exception.message);
+            }).finally(() => {
+                this.isValidationLoading = false;
             });
         },
 
+        translateValidationError(validationError, field) {
+            switch (field) {
+                case 'subject':
+                    field = 'options.labelSubject';
+                    break;
+                case 'senderName':
+                    field = 'options.labelSenderName';
+                    break;
+                case 'contentHtml':
+                    field = 'mailText.labelContentHtml';
+                    break;
+                case 'contentPlain':
+                    field = 'mailText.labelContentPlain';
+                    break;
+                default:
+                    break;
+            }
+
+            let message;
+            switch (validationError.type) {
+                case 'arrayAccess':
+                case 'unknownVariable':
+                    message = {'variable': validationError.variable, 'path': validationError.path};
+                    break;
+                case 'syntax':
+                    message = {'message': validationError.message};
+                    break;
+
+                default:
+                    message = {};
+            }
+
+            return {
+                level: validationError.level,
+                message: this.$tc(
+                    `sw-mail-template.validation.${validationError.level}.${validationError.type}`,
+                    message,
+                    message.path ? 2 : 1,
+                ),
+                hint: (validationError.line > 0 ? `Line ${validationError.line} / ` : "")
+                    + this.$tc(`sw-mail-template.detail.${field}`),
+                name: this.$tc(`sw-mail-template.validation.${validationError.level}.name`),
+            };
+        },
+
         onTriggerEventChange(eventName) {
-            console.log(eventName);
             this.triggerEvent = this.triggerEvents.find(event => event.name === eventName);
         },
 
@@ -638,57 +691,71 @@ export default {
         },
 
         loadAvailableVariables(variable, variableEntitySchema) {
-            if (!this.mailTemplateType || !this.mailTemplateType.availableEntities) {
-                return [];
+            if (!this.triggerEvent) {
+                return;
             }
 
-            const variablePath = variable.concat('.');
-            const variableEntitySchemaPath = variableEntitySchema.concat('.');
+            const variablePathParts = variable.split('.');
 
-            const foundVariables = Object.keys(Shopware.Utils.get(this.mailTemplateType.templateData, variable));
+            let entityPath = '';
 
-            const keys = foundVariables.map((val) => {
-                const availableVariable = Shopware.Utils.get(this.mailTemplateType.templateData, variablePath.concat(val));
-                const isObject = typeof availableVariable === 'object' && availableVariable !== null;
-                const length = isObject ? Object.values(availableVariable).length : 0;
+            let currentField = null;
+            let skip = false;
 
-                // the pattern for schema is `.at(0)` or `.at(1)` instead of `.0` or `.1`
-                const schema = this.isToManyAssociationVariable(variable)
-                    ? `${variableEntitySchemaPath}at(${parseInt(val, 10)})`
-                    : variableEntitySchemaPath + val;
+            variablePathParts.forEach(variablePathPart => {
+                if (skip) {
+                    return;
+                }
 
-                return {
-                    id: variablePath + val,
-                    schema,
-                    name: val,
-                    childCount: length,
-                    parentId: variable,
-                    afterId: null,
-                };
+                if (!currentField && !this.triggerEvent.data[variablePathPart]) {
+                    skip = true;
+                    return;
+                }
+
+                currentField = this.triggerEvent.data[variablePathPart];
+                entityPath += `${variablePathPart}.`;
+
+                if (currentField.type === 'entity') {
+                    skip = true;
+                }
             });
 
-            this.addVariables(keys);
-
-            return true;
-        },
-
-        isToManyAssociationVariable(variable) {
-            if (!variable) {
-                return false;
+            if (!currentField) {
+                return;
             }
 
-            const variables = variable.split('.');
-            variables.splice(1, 0, 'properties');
-            const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
+            if (currentField.type === 'object') {
+                this.addVariables(Object.keys(currentField.data).sort().map(key => ({
+                    id: `${variable}.${key}`,
+                    schema: variableEntitySchema,
+                    name: key,
+                    childCount: (['object', 'entity'].includes(currentField.data[key]) ? 1 : 0),
+                    parentId: variable,
+                    afterId: null,
+                })));
 
-            return (
-                field &&
-                field.type === 'association' &&
-                [
-                    'one_to_many',
-                    'many_to_many',
-                ].includes(field.relation)
-            );
+                return;
+            }
+
+            if (currentField.type === 'entity') {
+                const mapping = [];
+                mapping[currentField.entityName] = currentField.entityName;
+
+                const entityMappingPath = variable.split(entityPath)[1] ?
+                        `${currentField.entityName}.${variable.split(entityPath)[1]}.` : `${currentField.entityName}.`;
+
+                const entitySchema = this.entityMappingService.getEntityMapping(entityMappingPath, mapping);
+
+                this.addVariables(Object.keys(entitySchema).sort().map(key => ({
+                    id: `${variable}.${key}`,
+                    schema: variableEntitySchema,
+                    name: key,
+                    childCount: (entitySchema[key].type === 'association' ? 1 : 0),
+                    parentId: variable,
+                    afterId: null,
+                })));
+
+            }
         },
 
         onGetTreeItems(parent, schema) {
@@ -704,28 +771,18 @@ export default {
         loadInitialAvailableVariables() {
             this.availableVariables = {};
 
-            if (!this.hasTemplateData) {
+            if (!this.triggerEvent) {
                 return;
             }
 
-            Object.keys(this.mailTemplateType.templateData).forEach((variable) => {
-                const availableVariable = Shopware.Utils.get(this.mailTemplateType.templateData, variable);
-                let length = 0;
-                if (typeof availableVariable === 'object' && availableVariable !== null) {
-                    length = Object.values(availableVariable).length;
-                }
-
-                this.addVariables([
-                    {
-                        id: variable,
-                        schema: variable,
-                        name: variable,
-                        childCount: length,
-                        parentId: null,
-                        afterId: null,
-                    },
-                ]);
-            });
+            this.addVariables(Object.keys(this.triggerEvent.data).sort().map((variable) => ({
+                id: variable,
+                schema: variable,
+                name: variable,
+                childCount: ['entity', 'object'].includes(this.triggerEvent.data[variable].type) ? 1 : 0,
+                parentId: null,
+                afterId: null,
+            })));
         },
     },
 };

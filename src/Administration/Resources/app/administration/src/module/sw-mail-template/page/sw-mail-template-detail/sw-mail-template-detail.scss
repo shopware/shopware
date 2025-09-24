@@ -49,9 +49,78 @@
     }
 
     &__attachments-info-grid {
+    .sw-mail-template-detail__validation-sidebar {
+        &-container {
+            padding: 20px;
+            border-top: 1px solid $color-gray-300;
+            display: flex;
+            flex-direction: column;
+            gap: var(--scale-size-32);
+
+            .sw-mail-template-detail__validation-sidebar-result {
+                &-divider {
+                    border: none ;
+                    border-top: 1px solid var(--color-border-secondary-default);
+                }
+
+                &-error,&-success {
+                    display: flex;
+                    padding-top: var(--scale-size-32);
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: var(--scale-size-16);
+                    align-self: stretch;
+
+                     &-title {
+                         color: var(--color-text-primary-default);
+                         font-size: var(--font-size-xs);
+                         margin: 0;
+                     }
+
+                    &-element {
+                        position: relative;
+                        margin: 0;
+                        width: 100%;
+                        background-color: var(--color-background-tertiary-default);
+                        padding: var(--scale-size-8);
+                        gap: var(--scale-size-6);
+
+                        &-icon {
+                            margin-top: var(--scale-size-2);
+                        }
+
+                        &-hint {
+                            position: absolute;
+                            top: var(--scale-size-8);
+                            right: var(--scale-size-8);
+                            color: var(--color-text-secondary-default);
+                            font-size: var(--font-size-2xs);
+                        }
+                    }
+                }
+                &-success {
+                    flex-direction: row;
+                    gap: var(--scale-size-6);
+                }
+            }
+        }
+    }
+
+    &__test-mail-sidebar-container {
         position: relative;
         margin-top: var(--scale-size-20);
         border: 1px solid var(--color-border-primary-default);
         border-radius: var(--border-radius-xs);
     }
+
+    &__field-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--scale-size-4);
+
+        &-icon-container {
+            margin-top: -1px;
+        }
+    }
+
 }

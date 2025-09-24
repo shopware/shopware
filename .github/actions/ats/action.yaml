@@ -71,6 +71,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: octo-sts/action@e480437973a6f6ac2e9caa40ecabedc870d76395 # v1.0.1
+      id: create-pr-token
+      with:
+        scope: shopware
+        identity: CreatePR
+      continue-on-error: true
+
     - name: Start redis
       shell: bash
       run: docker run --name redis -p 6379:6379 -d redis:alpine
@@ -152,17 +159,6 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: npx playwright install --with-deps chromium
 
-    - name: Download visual testing snapshots
-      if: ${{ contains(inputs.project, 'visual') && !contains(inputs.extra-options, 'update-snapshots') }}
-      uses: dawidd6/action-download-artifact@07ab29fd4a977ae4d2b275087cf67563dfdf0295 # v9
-      with:
-        workflow_search: 'true'
-        branch: ${{ github.ref_name }}
-        name: visual-snapshots-${{ hashFiles('.git/HEAD') }}
-        path: .
-        search_artifacts: 'true'
-      continue-on-error: true
-
     - name: Run your tests
       shell: bash
       working-directory: ${{ inputs.directory }}
@@ -182,13 +178,25 @@ runs:
         retention-days: 3
       continue-on-error: true
 
-    - name: Upload visual testing snapshots
-      if: ${{ contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots') }}
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+    - name: Check for changes
+      id: diff
+      shell: bash
+      run: |
+        git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> $GITHUB_OUTPUT
+
+    - name: Create Pull Request
+      if: steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' && contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots')
+      uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
       with:
-        name: visual-snapshots-${{ hashFiles('.git/HEAD') }}
-        path: |
+        token: ${{ steps.create-pr-token.outputs.token }}
+        add-paths: |
           .gitignore
           tests/acceptance/tests/**/*-snapshots/*.png
-        retention-days: 90
+        branch: update-ats-snapshots
+        branch-suffix: short-commit-hash
+        labels: |
+          domain/quality-ops
+        commit-message: "chore(ci): update acceptance test snapshots"
+        title: "chore(ci): update acceptance test snapshots"
+        body: "🤖 This PR updates acceptance test snapshots."
       continue-on-error: true

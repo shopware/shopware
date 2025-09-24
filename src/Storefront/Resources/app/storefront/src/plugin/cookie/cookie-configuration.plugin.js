@@ -231,10 +231,8 @@ export default class CookieConfiguration extends Plugin {
         if (!cookiePermission) {
             const cookiePermissionPlugin = PluginManager.getPluginInstances('CookiePermission');
 
-            if (cookiePermissionPlugin && cookiePermissionPlugin[0]) {
-                cookiePermissionPlugin[0]._showCookieBar();
-                cookiePermissionPlugin[0]._setBodyPadding();
-            }
+            cookiePermissionPlugin?.[0]?._showCookieBar();
+            cookiePermissionPlugin?.[0]?._setBodyPadding();
         }
     }
 
@@ -274,10 +272,8 @@ export default class CookieConfiguration extends Plugin {
     _hideCookieBar() {
         const cookiePermissionPlugin = PluginManager.getPluginInstances('CookiePermission');
 
-        if (cookiePermissionPlugin && cookiePermissionPlugin[0]) {
-            cookiePermissionPlugin[0]._hideCookieBar();
-            cookiePermissionPlugin[0]._removeBodyPadding();
-        }
+        cookiePermissionPlugin?.[0]?._hideCookieBar();
+        cookiePermissionPlugin?.[0]?._removeBodyPadding();
     }
 
     /**
@@ -474,7 +470,7 @@ export default class CookieConfiguration extends Plugin {
      * @param group
      * @private
      */
-    _toggleParentCheckbox(state, group) {
+    _toggleParentCheckbox(_state, group) {
         const { parentInputSelector } = this.options;
         const checkboxes = Array.from(group.querySelectorAll(`input:not(${parentInputSelector})`));
         const activeCheckboxes = Array.from(group.querySelectorAll(`input:not(${parentInputSelector}):checked`));
@@ -699,8 +695,6 @@ export default class CookieConfiguration extends Plugin {
      */
     _restoreFocus() {
         const btn = CookieConfiguration.lastTriggerElement;
-        if (btn && btn.focus) {
-            btn.focus();
-        }
+        btn?.focus?.();
     }
 }

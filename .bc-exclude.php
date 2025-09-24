@@ -47,6 +47,8 @@ return [
         preg_quote('ADDED: Parameter message was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
         preg_quote('ADDED: Parameter messageRequired was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
         preg_quote('ADDED: Parameter excludes was added to Method __construct() of class Shopware\Core\System\SalesChannel\Api\ResponseFields', '/'),
+        preg_quote('ADDED: Parameter mimeType was added to Method __construct() of class Shopware\Core\Content\Media\Core\Params\UrlParams', '/'),
+
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
@@ -113,6 +115,14 @@ return [
         preg_quote('CHANGED: The parameter $object of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed from Shopware\Core\Framework\Struct\Struct to Shopware\Core\Content\Cookie\Struct\CookieGroupCollection', '/'),
         preg_quote('CHANGED: Parameter 0 of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed name from object to cookieGroups', '/'),
         preg_quote('Shopware\Core\Service\ServiceException', '/'),
+
+        // remove after cookie changes have been released
+        preg_quote('CHANGED: Property Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#$salesChannelContext visibility reduced from public to protected', '/'),
+        preg_quote('ADDED: Parameter request was added to Method __construct() of class Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent', '/'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() increased from 2 to 3', '/'),
+        preg_quote('CHANGED: The parameter $salesChannelContext of Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() changed from Shopware\Core\System\SalesChannel\SalesChannelContext to a non-contravariant Symfony\Component\HttpFoundation\Request', '/'),
+        preg_quote('CHANGED: The parameter $salesChannelContext of Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() changed from Shopware\Core\System\SalesChannel\SalesChannelContext to Symfony\Component\HttpFoundation\Request', '/'),
+        preg_quote('CHANGED: Parameter 1 of Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() changed name from salesChannelContext to request', '/'),
 
         // Moved endpoint to Shopware\Core\Framework\Sso\Controller\SsoController to not have a hard dependency between admin and core packages
         // It was never intended to be used outside of SaaS in it's initial release (still marked experimental / internal everywhere else, only this one method was forgotten)

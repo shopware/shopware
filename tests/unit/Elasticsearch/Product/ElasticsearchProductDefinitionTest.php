@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\System\Language\SalesChannelLanguageLoader;
@@ -688,6 +689,43 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
+    public function testFetchingWithSalesChannelLanguageMissingDefaultLang(): void
+    {
+        $registry = $this->getDefinitionRegistry();
+        $definition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $lang1 = Uuid::randomHex();
+
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            $lang1 => [TestDefaults::SALES_CHANNEL],
+        ]);
+
+        $connection = $this->getConnection(2);
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $connection,
+            $this->createMock(ProductSearchQueryBuilder::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
+            $this->createMock(ElasticsearchFieldMapper::class),
+            $salesChannelLanguageLoader,
+            false,
+            'dev',
+            $this->createMock(LanguageLoaderInterface::class)
+        );
+
+        $uuid = $this->ids->get('product-1');
+        $documents = $definition->fetch([$uuid], Context::createDefaultContext());
+        static::assertArrayHasKey($uuid, $documents);
+
+        $document = $documents[$uuid];
+
+        static::assertSame($uuid, $document['id']);
+        static::assertArrayHasKey('name', $document);
+        static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $document['name']);
+        static::assertSame('Test', $document['name'][Defaults::LANGUAGE_SYSTEM]);
+    }
+
     public function testFetchFormatsCustomFieldsAndRemovesNotMappedFields(): void
     {
         $connection = $this->getConnection();
@@ -739,85 +777,91 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertArrayNotHasKey('unknown', $documents[$uuid]['customFields'][Defaults::LANGUAGE_SYSTEM]);
     }
 
-    public function getConnection(): MockObject&Connection
+    private function getConnection(int $numberOfTranslations = 1): MockObject&Connection
     {
         $connection = $this->createMock(Connection::class);
 
+        $calls = [
+            [
+                $this->ids->get('product-1') => [
+                    'id' => $this->ids->get('product-1'),
+                    'parentId' => null,
+                    'productNumber' => 1,
+                    'autoIncrement' => 1,
+                    'ean' => '',
+                    'active' => true,
+                    'available' => true,
+                    'isCloseout' => true,
+                    'shippingFree' => true,
+                    'markAsTopseller' => true,
+                    'availableStock' => 5,
+                    'tags' => '{}',
+                    'ratingAverage' => 4,
+                    'sales' => 4,
+                    'stock' => 4,
+                    'weight' => 4,
+                    'width' => 4,
+                    'height' => 4,
+                    'length' => 4,
+                    'productManufacturerId' => null,
+                    'deliveryTimeId' => null,
+                    'manufacturerNumber' => null,
+                    'taxId' => 'tax',
+                    'displayGroup' => '1',
+                    'coverId' => null,
+                    'childCount' => 0,
+                    'cheapest_price_accessor' => '{"rule-1": {"b7d2554b0ce847cd82f3ac9bd1c0dfca": {"gross": 5, "net": 4}, "b7d2554b0ce847cd82f3ac9bd1c0dfc2": {"gross": 5, "net": 4, "percentage": {"gross": 1, "net": 2}}}}',
+                    'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
+                    'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
+                    'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
+                ],
+            ],
+        ];
+
+        for ($i = 0; $i < $numberOfTranslations; ++$i) {
+            $calls[] = [
+                $this->ids->get('product-1') => [
+                    'id' => $this->ids->get('product-1'),
+                    'name' => 'Test',
+                    'customFields' => '{"bool": "1", "int": 2, "unknown": "foo"}',
+                    'manufacturerName' => 'Shopware AG',
+                    'categories' => '[{"id": null, "languageId": null, "name": null}, {"id": 1, "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Cat Test"}]',
+                ],
+            ];
+        }
+
+        $calls[] = [
+            '809c1844f4734243b6aa04aba860cd45' => [
+                'id' => '809c1844f4734243b6aa04aba860cd45',
+                'groupId' => 'a73b9355da654243b92ce16c63e9b6cd',
+                'group' => [
+                    'id' => 'a73b9355da654243b92ce16c63e9b6cd',
+                ],
+                'translations' => json_encode([
+                    [
+                        'languageId' => '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                        'name' => 'Property A',
+                    ],
+                ]),
+            ],
+            'e4a08f9dd88f4a228240de7107e4ae4b' => [
+                'id' => 'e4a08f9dd88f4a228240de7107e4ae4b',
+                'groupId' => 'a73b9355da654243b92ce16c63e9b6cd',
+                'group' => [
+                    'id' => 'a73b9355da654243b92ce16c63e9b6cd',
+                ],
+                'translations' => json_encode([
+                    [
+                        'languageId' => '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                        'name' => 'Property B',
+                    ],
+                ]),
+            ],
+        ];
+
         $connection
             ->method('fetchAllAssociativeIndexed')
-            ->willReturnOnConsecutiveCalls(
-                [
-                    $this->ids->get('product-1') => [
-                        'id' => $this->ids->get('product-1'),
-                        'parentId' => null,
-                        'productNumber' => 1,
-                        'autoIncrement' => 1,
-                        'ean' => '',
-                        'active' => true,
-                        'available' => true,
-                        'isCloseout' => true,
-                        'shippingFree' => true,
-                        'markAsTopseller' => true,
-                        'availableStock' => 5,
-                        'tags' => '{}',
-                        'ratingAverage' => 4,
-                        'sales' => 4,
-                        'stock' => 4,
-                        'weight' => 4,
-                        'width' => 4,
-                        'height' => 4,
-                        'length' => 4,
-                        'productManufacturerId' => null,
-                        'deliveryTimeId' => null,
-                        'manufacturerNumber' => null,
-                        'taxId' => 'tax',
-                        'displayGroup' => '1',
-                        'coverId' => null,
-                        'childCount' => 0,
-                        'cheapest_price_accessor' => '{"rule-1": {"b7d2554b0ce847cd82f3ac9bd1c0dfca": {"gross": 5, "net": 4}, "b7d2554b0ce847cd82f3ac9bd1c0dfc2": {"gross": 5, "net": 4, "percentage": {"gross": 1, "net": 2}}}}',
-                        'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
-                        'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
-                        'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
-                    ],
-                ],
-                [
-                    $this->ids->get('product-1') => [
-                        'id' => $this->ids->get('product-1'),
-                        'name' => 'Test',
-                        'customFields' => '{"bool": "1", "int": 2, "unknown": "foo"}',
-                        'manufacturerName' => 'Shopware AG',
-                        'categories' => '[{"id": null, "languageId": null, "name": null}, {"id": 1, "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Cat Test"}]',
-                    ],
-                ],
-                [
-                    '809c1844f4734243b6aa04aba860cd45' => [
-                        'id' => '809c1844f4734243b6aa04aba860cd45',
-                        'groupId' => 'a73b9355da654243b92ce16c63e9b6cd',
-                        'group' => [
-                            'id' => 'a73b9355da654243b92ce16c63e9b6cd',
-                        ],
-                        'translations' => json_encode([
-                            [
-                                'languageId' => '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                                'name' => 'Property A',
-                            ],
-                        ]),
-                    ],
-                    'e4a08f9dd88f4a228240de7107e4ae4b' => [
-                        'id' => 'e4a08f9dd88f4a228240de7107e4ae4b',
-                        'groupId' => 'a73b9355da654243b92ce16c63e9b6cd',
-                        'group' => [
-                            'id' => 'a73b9355da654243b92ce16c63e9b6cd',
-                        ],
-                        'translations' => json_encode([
-                            [
-                                'languageId' => '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                                'name' => 'Property B',
-                            ],
-                        ]),
-                    ],
-                ],
-            );
+            ->willReturnOnConsecutiveCalls(...$calls);
 
         return $connection;
     }

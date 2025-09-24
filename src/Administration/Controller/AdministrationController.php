@@ -8,10 +8,6 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
-use Shopware\Administration\Login\Config\LoginConfig;
-use Shopware\Administration\Login\Config\LoginConfigService;
-use Shopware\Administration\Login\LoginException;
-use Shopware\Administration\Login\StateValidator;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -38,7 +34,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -53,6 +48,8 @@ class AdministrationController extends AbstractController
     private readonly bool $esAdministrationEnabled;
 
     private readonly bool $esStorefrontEnabled;
+
+    private readonly bool $productStreamIndexingEnabled;
 
     /**
      * @internal
@@ -78,7 +75,6 @@ class AdministrationController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
-        private readonly LoginConfigService $loginConfigService,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -88,6 +84,9 @@ class AdministrationController extends AbstractController
         $this->esStorefrontEnabled = $params->has('elasticsearch.enabled')
             ? $params->get('elasticsearch.enabled')
             : false;
+        $this->productStreamIndexingEnabled = $params->has('shopware.product_stream.indexing')
+            ? $params->get('shopware.product_stream.indexing')
+            : true;
     }
 
     #[Route(path: '/%shopware_administration.path_name%', name: 'administration.index', defaults: ['auth_required' => false], methods: ['GET'])]
@@ -114,25 +113,8 @@ class AdministrationController extends AbstractController
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
+            'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
         ]);
-    }
-
-    #[Route(path: '/%shopware_administration.path_name%/sso/auth', name: 'administration.sso.auth', defaults: ['auth_required' => false], methods: ['GET'])]
-    public function ssoAuth(Request $request): RedirectResponse
-    {
-        $random = $request->getSession()->get(StateValidator::SESSION_KEY);
-        if ($random === null) {
-            return $this->redirectToRoute('administration.index');
-        }
-
-        $loginConfig = $this->loginConfigService->getConfig();
-        if (!$loginConfig instanceof LoginConfig) {
-            throw LoginException::configurationNotFound();
-        }
-
-        $url = $this->loginConfigService->createRedirectUrl($random, $loginConfig);
-
-        return new RedirectResponse($url);
     }
 
     #[Route(path: '/api/_admin/snippets', name: 'api.admin.snippets', methods: ['GET'])]

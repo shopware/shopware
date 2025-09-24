@@ -12,8 +12,6 @@ class TokenStruct extends Struct
 
     protected int $expires;
 
-    protected bool $invalidated;
-
     public function __construct(
         protected ?string $id = null,
         protected ?string $token = null,
@@ -22,7 +20,7 @@ class TokenStruct extends Struct
         protected ?string $finishUrl = null,
         ?int $expires = null,
         protected ?string $errorUrl = null,
-        bool $invalidated = false,
+        protected bool $invalidated = false,
     ) {
         $this->expires = $expires ?? 1800;
     }

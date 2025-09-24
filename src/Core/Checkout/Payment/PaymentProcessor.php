@@ -111,6 +111,22 @@ class PaymentProcessor
 
         try {
             $transactionStruct = $this->paymentTransactionStructFactory->build($token->getTransactionId(), $context->getContext());
+
+            if ($token->isInvalidated()) {
+                // Token was already handled - check current state of the transaction
+                $stateName = $transactionStruct->getOrderTransaction()->getStateMachineState()->getTechnicalName();
+                if ($stateName === OrderTransactionStates::STATE_AUTHORIZED || $stateName === OrderTransactionStates::STATE_PAID || $stateName === OrderTransactionStates::STATE_PARTIALLY_PAID) {
+                    return $token;
+                }
+
+                if ($stateName === OrderTransactionStates::STATE_FAILED || $stateName === OrderTransactionStates::STATE_CANCELLED) {
+                    $token->setException(new TokenInvalidatedException($token->getToken() ?? ''));
+                    return $token;
+                }
+
+                throw new TokenInvalidatedException($token->getToken() ?? '');
+            }
+
             $paymentHandler->finalize($request, $transactionStruct, $context->getContext());
         } catch (\Throwable $e) {
             if ($e instanceof PaymentException && $e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {

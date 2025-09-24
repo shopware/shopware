@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -37,7 +38,7 @@ class WishlistCookieCollectListenerTest extends TestCase
         /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
         $cookieCollection = $this->createMock(CookieGroupCollection::class);
         $cookieCollection->expects($this->never())->method('get');
-        $event = new CookieGroupCollectEvent($cookieCollection, Generator::generateSalesChannelContext());
+        $event = new CookieGroupCollectEvent($cookieCollection, new Request(), Generator::generateSalesChannelContext());
 
         $this->listener->__invoke($event);
     }
@@ -46,6 +47,7 @@ class WishlistCookieCollectListenerTest extends TestCase
     {
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([new CookieGroup('test')]),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -60,6 +62,7 @@ class WishlistCookieCollectListenerTest extends TestCase
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([$cookieGroup]),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 

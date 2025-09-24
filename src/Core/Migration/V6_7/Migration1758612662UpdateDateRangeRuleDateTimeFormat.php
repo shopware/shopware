@@ -26,5 +26,7 @@ class Migration1758612662UpdateDateRangeRuleDateTimeFormat extends MigrationStep
         SQL;
 
         $connection->executeStatement($sql);
+
+        $this->registerIndexer($connection, 'rule.indexer');
     }
 }

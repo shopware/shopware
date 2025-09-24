@@ -65,11 +65,25 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
             if (
                 $captcha->supports($request, $captchaConfig) && !$captcha->isValid($request, $captchaConfig)
             ) {
-                if ($captcha->shouldBreak()) {
-                    throw CaptchaException::invalid($captcha);
-                }
-
                 $violations = $captcha->getViolations();
+
+                if ($captcha->shouldBreak()) {
+                    $exception = CaptchaException::invalid($captcha);
+                    if ($request->isXmlHttpRequest() && $violations->count() === 0) {
+                        $violations->add(new \Symfony\Component\Validator\ConstraintViolation(
+                            $exception->getMessage(),
+                            'Invalid captcha',
+                            $exception->getParameters(),
+                            '',
+                            '',
+                            '',
+                            null,
+                            $exception->getErrorCode()
+                        ));
+                    } else {
+                        throw $exception;
+                    }
+                }
 
                 $event->setController(fn () => $this->container->get(ErrorController::class)->onCaptchaFailure($violations, $request));
 

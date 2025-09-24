@@ -56,21 +56,21 @@ test('Visual: Shopping experiences pages', { tag: '@Visual' }, async ({
         await AdminListingPageLayoutDetail.settingsButton.click();
         await setViewport(AdminListingPageLayoutDetail.page, {
             waitForSelector: AdminListingPageLayoutDetail.sidebarTitle,
-            contentHeight: 1750,
+            scrollableElementVertical: '.sw-cms-detail__stage',
         });
         await assertScreenshot(AdminListingPageLayoutDetail.page, 'Layout-Detail-Settings-Tab.png');
 
         await AdminListingPageLayoutDetail.blocksButton.click();
         await setViewport(AdminListingPageLayoutDetail.page, {
             waitForSelector: AdminListingPageLayoutDetail.sidebarTitle,
-            contentHeight: 1750,
+            scrollableElementVertical: '.sw-cms-detail__stage',
         });
         await assertScreenshot(AdminListingPageLayoutDetail.page, 'Layout-Detail-Blocks-Tab.png');
 
         await AdminListingPageLayoutDetail.layoutAssignmentButton.click();
         await setViewport(AdminListingPageLayoutDetail.page, {
             waitForSelector: AdminListingPageLayoutDetail.sidebarTitle,
-            contentHeight: 1750,
+            scrollableElementVertical: '.sw-cms-detail__stage',
         });
         await assertScreenshot(AdminListingPageLayoutDetail.page, 'Layout-Detail-Layout-Assignment-Tab.png');
 
@@ -79,8 +79,8 @@ test('Visual: Shopping experiences pages', { tag: '@Visual' }, async ({
         await ShopAdmin.expects(AdminListingPageLayoutDetail.saveButton).toBeVisible();
         await setViewport(AdminListingPageLayoutDetail.page, {
             waitForSelector: AdminListingPageLayoutDetail.sidebarTitle,
-            contentHeight: 1750,
-        });
+            scrollableElementVertical: '.sw-cms-detail__stage',
+             });
         await assertScreenshot(AdminListingPageLayoutDetail.page, 'Layout-Detail-Navigator-Tab.png');
     });
 

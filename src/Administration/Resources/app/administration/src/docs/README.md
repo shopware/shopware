@@ -8,7 +8,7 @@
 - Architecture (`02-architecture/`)
 - Extensibility (`03-extensibility/`)
 - Data Layer (`04-data-layer/`)
-- Runtime (`05-runtime/`)
+- Global object (`05-global-object/`)
 - UI / Component Library (`06-ui/`)
 - Testing (`07-testing/`)
 - Internationalization & Snippets (`08-i18n/`)

@@ -12,7 +12,7 @@ Performance considerations also drive this architectural decision. Vue.js compon
 
 ## Core Components and Architecture
 
-The Native Vue Block System centers around two primary components that work together to enable dynamic content overriding and extension capabilities.
+The Native Vue Block System centers around two primary components that work together to enable dynamic content overriding and extension capabilities. For detailed technical specifications, refer to the [Native Block System ADR (2024-09-26)](https://developer.shopware.com/docs/resources/references/adr/2024-09-26-native-block-system.html).
 
 ### The `sw-block` Component
 

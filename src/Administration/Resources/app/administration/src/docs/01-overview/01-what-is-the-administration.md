@@ -12,10 +12,10 @@ description: High-level overview of the Shopware 6 Administration application �
 
 The Administration provides a cohesive UI layer over Shopware's domain APIs. Core goals:
 
-1. Unified management of commerce entities (products, orders, customers, media, rules, promotions, content, ...)
-2. Configuration (system settings, channel / locale / currency / tax setup)
+1. Unified management of commerce features (products, orders, customers, media, rules, promotions, content, ...)
+2. Configuration (system settings, sales channel / locale / currency / tax setup)
 3. Operational workflows (fulfilment, content scheduling, bulk edits, data import/export)
-4. Extensible with Plugins (directly script injected) & Apps (isolated and remote based on iframes)
+4. Extensibility with Plugins (directly script injected) & Apps (isolated and remote based on iframes)
 5. Safe multi-user access via permissions (ACL / role-based) and context separation (sales channel & language)
 6. Productivity & consistency through shared component library (Meteor components + custom `sw-` components)
 
@@ -37,28 +37,28 @@ Location in repository: `src/Administration/Resources/app/administration` (sourc
 
 ## Mental Model / System Context
 
-The Administration is a *headless* SPA: it does not render server-side HTML. It bootstraps once, then communicates via REST (and selected async channels) to the backend. Extensions can inject code at boot or run remotely.
+The Administration is the headless merchant & operator facing single-page application (SPA): it does not render server-side HTML. It bootstraps once, then communicates via REST (and selected async channels) to the backend. Extensions can inject code at boot or run remotely.
 
 ## Core Responsibilities
 
 1. Entity Management (create, read, update, delete) with validation & versioning aids
 2. Cross-domain workflows (Bulk Edit, Import/Export, Rule Builder integration)
 3. Configuration surfaces (system config, sales channel config, plugin/app config)
-4. Content composition (CMS pages, layouts, categories, navigation)
+4. Shopping experiences, content management (CMS pages, layouts, categories, navigation)
 5. Operational tooling (Order fulfilment statuses, Customer service, Media handling)
 6. Observability & feedback (notifications, activity indicators, error & deprecation surfacing)
 
 ## Architectural Characteristics
 
-| Aspect | Summary |
-|--------|---------|
+| Aspect | Summary                                                                                                                                                                                                                                |
+|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Boot Process | Progressive initialization: env/meta load → feature flag evaluation → service/container setup → module registration → login / context establishment → root component mount. See [Boot Process](../02-architecture/01-boot-process.md). |
-| Module System | Business domains encapsulated as modules (routes, components, stores, privileges, snippets). See [Module System](../02-architecture/03-module-system.md). |
-| Data Access | Repositories produce entity collections / entities via Criteria (filters, pagination, associations). See [Data Layer Overview](../04-data-layer/01-overview.md). |
-| Runtime Globals | Central `Shopware` object exposes factories, service container, feature flag API, component registry. See [Global Shopware Object](../05-runtime/01-global-shopware-object.md). |
-| Feature Flags & Deprecations | Gate experimental / versioned behavior and surface upgrade warnings. See [Feature Flags & Deprecations](../05-runtime/02-feature-flags-deprecations.md). |
-| UI Library | Migration from `sw-` components to Meteor library, plus design tokens. See [Meteor Component Library](../06-ui/01-meteor-component-library.md). |
-| Testing | Jest unit tests + integration specs. See [Testing Overview](../07-testing/01-overview.md). |
+| Module System | Business domains encapsulated as modules (routes, components, stores, privileges, snippets). See [Module System](../02-architecture/03-module-system.md).                                                                              |
+| Data Access | Repositories produce entity collections / entities via Criteria (filters, pagination, associations). See [Data Layer Overview](../04-data-layer/01-overview.md).                                                                       |
+| Runtime Globals | Central `Shopware` object exposes factories, service container, feature flag API, component registry. See [Global Shopware Object](../05-runtime/01-global-shopware-object.md).                                                        |
+| Feature Flags & Deprecations | Gate experimental / versioned behavior and surface upgrade warnings. See [Feature Flags & Deprecations](../05-runtime/02-feature-flags-deprecations.md).                                                                               |
+| UI Library | Migration from `sw-` components to meteor library components, plus design tokens. See [Meteor Component Library](../06-ui/01-meteor-component-library.md).                                                                             |
+| Testing | Jest unit tests + integration specs And Playwright E2E tests. See [Testing Overview](../07-testing/01-overview.md).                                                                                                                    |
 
 ## Data Layer Snapshot
 
@@ -93,7 +93,7 @@ See [Extensibility Overview](../03-extensibility/01-overview.md), [Plugins](../0
 
 ## Performance Notes
 
-* Code splitting by components
+* Code splitting by components with Vite dynamic imports
 * Repository queries can be tuned via Criteria association selects to reduce over-fetching
 
 More in [Performance Overview](../10-performance/01-overview.md) and [Code Splitting](../10-performance/02-code-splitting.md).

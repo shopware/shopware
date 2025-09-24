@@ -45,9 +45,7 @@ const store = Shopware.Store.get('myStore');
 store.fetchItems();
 ```
 
-## Common Store Patterns
-
-### Repository Integration
+## Repository Integration
 
 - Stores often work with Repository pattern for data fetching
 - Store updates complement local component state

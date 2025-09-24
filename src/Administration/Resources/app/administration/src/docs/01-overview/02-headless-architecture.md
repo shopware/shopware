@@ -89,13 +89,13 @@ See detailed breakdown in: [Boot Process](../02-architecture/01-boot-process.md)
 
 ## Shell & Runtime Configuration
 
-The Twig shell injects minimal dynamic values (e.g. API base URL, asset paths, potentially build hash, locale) to avoid blocking caching. Everything else (features, permissions, modules) resolves after JavaScript loads.
+The Twig shell (`src/Administration/Resources/views/administration/index.html.twig`) is a almost static twig file which boots up the SPA. It injects minimal dynamic values (e.g. API base URL, asset paths, potentially build hash, locale) needed for the application. Everything else (features, permissions, modules) resolves after JavaScript loads.
 
 ## Routing & Navigation
 
 * Vue Router (hash mode): URLs reflect logical modules and entity views
 * Route guards enforce authentication & privilege checks before component mount
-* Lazy loaded chunks for components reduce initial payload
+* Lazy loaded code for components reduce initial payload
 
 ## Communication Channels
 
@@ -116,7 +116,7 @@ Fallback strategies: if realtime unavailable, polling intervals or manual refres
 
 Advanced topics (covered in [Data Layer Overview](../04-data-layer/01-overview.md)):
 
-* Partial association loading vs over-fetching trade-offs
+* Partial database association loading vs over-fetching trade-offs
 * Draft mutation before persistence
 * Handling translated fields and fallback resolution
 
@@ -162,7 +162,7 @@ Further detail: [Performance Overview](../10-performance/01-overview.md) and [Co
 Pros:
 
 * Clear separation of presentation and backend concerns
-* Rich client-side interactivity & quicker intra-app navigation
+* Interactive app without reloads on navigation
 * Flexible extension lifecycle (dynamic injection / remote apps)
 
 Cons / Costs:
@@ -170,3 +170,4 @@ Cons / Costs:
 * Larger initial download (JS/CSS) vs incremental server rendering
 * No SSR → slower First Contentful Paint on low-end devices / slow networks
 * Offline use is not possible
+* SEO not applicable (admin is not public-facing)

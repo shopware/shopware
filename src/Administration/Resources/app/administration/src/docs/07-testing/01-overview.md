@@ -1,3 +1,5 @@
+// TODO: Add information about Playwright E2E tests later
+
 # Testing Overview
 
 ## Introduction
@@ -118,6 +120,16 @@ beforeAll(() => {
         method: jest.fn(() => Promise.resolve('result'))
     }));
 });
+```
+
+### Component Stubs
+
+```javascript 
+    stubs: {
+        'sw-icon': true,
+        'sw-button': true,
+        // Add other stubs as needed
+    }
 ```
 
 ## Best Practices

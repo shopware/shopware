@@ -37,8 +37,8 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     #[Route(
         path: '/store-api/product/{productId}/find-variant',
         name: 'store-api.product.find-variant',
-        defaults: ['_entity' => 'product', '_httpCache' => true],
-        methods: ['POST', 'GET'],
+        methods: [Request::METHOD_POST, Request::METHOD_GET],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'product', PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {

@@ -68,8 +68,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     #[Route(
         path: '/store-api/product/{productId}/cross-selling',
         name: 'store-api.product.cross-selling',
-        defaults: ['_entity' => 'product', '_httpCache' => true],
-        methods: ['POST', 'GET'],
+        methods: [Request::METHOD_POST, Request::METHOD_GET],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'product', PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {

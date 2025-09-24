@@ -48,8 +48,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     #[Route(
         path: '/store-api/product/{productId}/reviews',
         name: 'store-api.product-review.list',
-        methods: ['POST', 'GET'],
-        defaults: ['_entity' => 'product_review', '_httpCache' => true]
+        methods: [Request::METHOD_POST, Request::METHOD_GET],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'product_review', PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {

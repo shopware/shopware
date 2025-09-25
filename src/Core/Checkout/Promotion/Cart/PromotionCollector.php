@@ -398,7 +398,7 @@ class PromotionCollector implements CartDataCollectorInterface
      */
     private function buildDiscountLineItems(string $code, PromotionEntity $promotion, Cart $original, SalesChannelContext $context): array
     {
-        if (!$promotion->getDiscounts()) {
+        if ($promotion->getDiscounts()->count() <= 0) {
             return [];
         }
 

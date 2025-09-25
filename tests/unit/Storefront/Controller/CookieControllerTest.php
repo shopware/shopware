@@ -137,6 +137,74 @@ class CookieControllerTest extends TestCase
         static::assertObjectHasProperty('value', $group);
         static::assertObjectHasProperty('expiration', $group);
     }
+
+    public function testCookieConsentOffcanvasWithDefaults(): void
+    {
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $controller = new CookieControllerTestClass($cookieRoute);
+
+        $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
+
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->renderStorefrontView);
+        static::assertArrayHasKey('featureName', $controller->renderStorefrontParameters);
+        static::assertArrayHasKey('cookieName', $controller->renderStorefrontParameters);
+        static::assertSame('wishlist', $controller->renderStorefrontParameters['featureName']);
+        static::assertSame('wishlist-enabled', $controller->renderStorefrontParameters['cookieName']);
+    }
+
+    public function testCookieConsentOffcanvasWithCustomParameters(): void
+    {
+        $request = new Request(['featureName' => 'customFeature', 'cookieName' => 'custom-cookie']);
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $controller = new CookieControllerTestClass($cookieRoute);
+
+        $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
+
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->renderStorefrontView);
+        static::assertArrayHasKey('featureName', $controller->renderStorefrontParameters);
+        static::assertArrayHasKey('cookieName', $controller->renderStorefrontParameters);
+        static::assertSame('customFeature', $controller->renderStorefrontParameters['featureName']);
+        static::assertSame('custom-cookie', $controller->renderStorefrontParameters['cookieName']);
+    }
+
+    public function testGroupsCallsCookieRouteAndReturnsData(): void
+    {
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->description = 'Test Group';
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $cookieRoute->expects($this->once())
+            ->method('getCookieGroups')
+            ->with($request, $salesChannelContext)
+            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
+
+        $controller = new CookieControllerTestClass($cookieRoute);
+
+        // Override the json method to capture the data being passed to it
+        $jsonData = null;
+        $controller->jsonCallback = function (array $data) use (&$jsonData) {
+            $jsonData = $data;
+
+            return new \Symfony\Component\HttpFoundation\JsonResponse($data);
+        };
+
+        $response = $controller->groups($request, $salesChannelContext);
+
+        static::assertNotNull($jsonData);
+        static::assertArrayHasKey('elements', $jsonData);
+        static::assertArrayHasKey('hash', $jsonData);
+        static::assertSame('test-hash', $jsonData['hash']);
+        static::assertSame($cookieGroups, $jsonData['elements']);
+    }
 }
 
 /**
@@ -145,4 +213,22 @@ class CookieControllerTest extends TestCase
 class CookieControllerTestClass extends CookieController
 {
     use StorefrontControllerMockTrait;
+
+    /**
+     * @var callable|null
+     */
+    public $jsonCallback;
+
+    /**
+     * @param array<string, string> $headers
+     * @param array<string, mixed> $context
+     */
+    protected function json(mixed $data, int $status = 200, array $headers = [], array $context = []): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        if ($this->jsonCallback !== null && \is_array($data)) {
+            return ($this->jsonCallback)($data);
+        }
+
+        return parent::json($data, $status, $headers, $context);
+    }
 }

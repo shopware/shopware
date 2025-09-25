@@ -287,4 +287,81 @@ class CookieRouteTest extends TestCase
 
         $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
     }
+
+    public function testSetsCookieConfigHashValueWhenEntryExists(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create a cookie group with cookie-config-hash entry
+        $hashEntry = new CookieEntry('cookie-config-hash');
+        $hashEntry->value = 'old-hash';
+        $otherEntry = new CookieEntry('other-cookie');
+
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->setEntries(new CookieEntryCollection([$hashEntry, $otherEntry]));
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        $cookieRoute = new CookieRoute($cookieProvider);
+        $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Verify that the hash entry value was updated to the generated hash
+        static::assertSame($response->getHash(), $hashEntry->value);
+        static::assertNotSame('old-hash', $hashEntry->value);
+    }
+
+    public function testSetsCookieConfigHashValueHandlesGroupsWithoutEntries(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create groups: one without entries, one with hash entry
+        $groupWithoutEntries = new CookieGroup('group.without.entries');
+        // Don't set entries, so it remains null
+
+        $hashEntry = new CookieEntry('cookie-config-hash');
+        $hashEntry->value = 'old-hash';
+        $groupWithHashEntry = new CookieGroup('group.with.hash');
+        $groupWithHashEntry->setEntries(new CookieEntryCollection([$hashEntry]));
+
+        $cookieGroups = new CookieGroupCollection([$groupWithoutEntries, $groupWithHashEntry]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        $cookieRoute = new CookieRoute($cookieProvider);
+        $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Verify that processing continues and hash is still set correctly
+        static::assertSame($response->getHash(), $hashEntry->value);
+    }
+
+    public function testSetsCookieConfigHashValueStopsAfterFirstMatch(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create two groups each with hash entries
+        $firstHashEntry = new CookieEntry('cookie-config-hash');
+        $firstHashEntry->value = 'old-hash-1';
+        $firstGroup = new CookieGroup('first.group');
+        $firstGroup->setEntries(new CookieEntryCollection([$firstHashEntry]));
+
+        $secondHashEntry = new CookieEntry('cookie-config-hash');
+        $secondHashEntry->value = 'old-hash-2';
+        $secondGroup = new CookieGroup('second.group');
+        $secondGroup->setEntries(new CookieEntryCollection([$secondHashEntry]));
+
+        $cookieGroups = new CookieGroupCollection([$firstGroup, $secondGroup]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        $cookieRoute = new CookieRoute($cookieProvider);
+        $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Verify only the first hash entry was updated (method returns early)
+        static::assertSame($response->getHash(), $firstHashEntry->value);
+        static::assertSame('old-hash-2', $secondHashEntry->value); // Should remain unchanged
+    }
 }

@@ -713,6 +713,221 @@ class ThemeServiceTest extends TestCase
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
+    public function testValidateThemeConfig(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $config = [
+            'sw-color-brand-primary' => [
+                'value' => '#ff0000',
+            ],
+            'sw-non-scss-field' => [
+                'value' => '#invalid',
+            ],
+        ];
+
+        $baseConfig = [
+            'fields' => [
+                'sw-color-brand-primary' => [
+                    'name' => 'sw-color-brand-primary',
+                    'type' => 'color',
+                    'editable' => true,
+                    'scss' => true,
+                ],
+                'sw-ignore-field' => [
+                    'name' => 'sw-ignore-field',
+                    'type' => 'color',
+                    'editable' => false,
+                    'scss' => true,
+                ],
+                'sw-non-scss-field' => [
+                    'name' => 'sw-non-scss-field',
+                    'type' => 'color',
+                    'editable' => true,
+                    'scss' => false,
+                ],
+            ],
+        ];
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
+
+        $this->scssCompilerMock->method('compileString')->willReturn('body{background-color:#ff0000;color:darken(#ff0000, 10%)}');
+
+        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+
+        static::assertEquals($config, $result);
+    }
+
+    public function testValidateThemeConfigWithInvalidValues(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $config = [
+            'sw-color-brand-primary' => [
+                'value' => '#invalid-color',
+            ],
+        ];
+
+        $baseConfig = [
+            'fields' => [
+                'sw-color-brand-primary' => [
+                    'name' => 'sw-color-brand-primary',
+                    'type' => 'color',
+                    'editable' => true,
+                    'scss' => true,
+                ],
+            ],
+        ];
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
+
+        // Configure the mock to throw an exception when compileString is called
+        $this->scssCompilerMock->method('compileString')
+            ->willThrowException(new \Exception('Invalid SCSS compilation'));
+
+        $this->expectException(ThemeConfigException::class);
+
+        $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+    }
+
+    public function testValidateThemeConfigWithSanitize(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $config = [
+            'sw-color-brand-primary' => [
+                'value' => '#invalid-color',
+            ],
+        ];
+
+        $baseConfig = [
+            'fields' => [
+                'sw-color-brand-primary' => [
+                    'name' => 'sw-color-brand-primary',
+                    'type' => 'color',
+                    'editable' => true,
+                    'scss' => true,
+                ],
+            ],
+        ];
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
+
+        $this->scssCompilerMock->method('compileString')
+            ->willThrowException(new \Exception('Invalid SCSS compilation'));
+
+        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context, [], true);
+
+        static::assertEquals([
+            'sw-color-brand-primary' => [
+                'value' => '#ffffff00',
+            ],
+        ], $result);
+    }
+
+    public function testValidateThemeConfigSkipsNonEditableFields(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $config = [
+            'sw-non-editable-field' => [
+                'value' => '#some-value',
+            ],
+        ];
+
+        $baseConfig = [
+            'fields' => [
+                'sw-non-editable-field' => [
+                    'name' => 'sw-non-editable-field',
+                    'type' => 'color',
+                    'editable' => false,
+                    'scss' => true,
+                ],
+            ],
+        ];
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
+
+        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+
+        static::assertEquals($config, $result);
+    }
+
+    public function testValidateThemeConfigSkipsNonScssFields(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $config = [
+            'sw-non-scss-field' => [
+                'value' => '#some-value',
+            ],
+        ];
+
+        $baseConfig = [
+            'fields' => [
+                'sw-non-scss-field' => [
+                    'name' => 'sw-non-scss-field',
+                    'type' => 'color',
+                    'editable' => true,
+                    'scss' => false,
+                ],
+            ],
+        ];
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
+
+        $this->scssCompilerMock->method('compileString')
+            ->willThrowException(new \Exception('Invalid SCSS compilation'));
+
+        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+
+        static::assertEquals($config, $result);
+    }
+
+    public function testValidateThemeConfigSkipsNonExistentFields(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $config = [
+            'sw-non-existent-field' => [
+                'value' => '#some-value',
+            ],
+        ];
+
+        $baseConfig = [
+            'fields' => [
+                'sw-existing-field' => [
+                    'name' => 'sw-existing-field',
+                    'type' => 'color',
+                    'editable' => true,
+                    'scss' => true,
+                ],
+            ],
+        ];
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
+
+        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+
+        static::assertEquals($config, $result);
+    }
+
+    public function testGetPlainThemeConfiguration(): void
+    {
+        $themeId = Uuid::randomHex();
+        $expectedConfig = ['key' => 'value'];
+
+        $this->mergedConfigBuilderMock
+            ->expects($this->once())
+            ->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn($expectedConfig);
+
+        $result = $this->themeService->getPlainThemeConfiguration($themeId, $this->context);
+
+        static::assertSame($expectedConfig, $result);
+    }
+
     /**
      * @return array<int, array<string, array<string, array<int|string, mixed>|string>|ThemeCollection|null>>
      */

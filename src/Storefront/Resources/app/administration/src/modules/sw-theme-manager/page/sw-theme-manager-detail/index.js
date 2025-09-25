@@ -422,6 +422,28 @@ Component.register('sw-theme-manager-detail', {
                     return;
                 }
 
+                if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                    this.createNotificationError({
+                        title: this.$t('sw-theme-manager.detail.error.invalidConfiguration.title'),
+                        message: this.$t('sw-theme-manager.detail.error.invalidConfiguration.message'),
+                        autoClose: true,
+                    });
+
+                    error.response.data.errors.forEach((error) => {
+                        const fieldName = error.meta.parameters.name;
+
+                        // Compatibility for issue within mt-field-error.vue
+                        // See GitHub issue: https://github.com/shopware/meteor/issues/906
+                        error.parameters = error.meta.parameters;
+
+                        if (fieldName) {
+                            this.themeConfigErrors[fieldName] = error;
+                        }
+                    });
+
+                    return;
+                }
+
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: errorObject.detail ?? error.toString(),

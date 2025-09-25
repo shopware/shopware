@@ -34,6 +34,7 @@
                     size="small"
                     :disabled="!editable || undefined"
                     variant="secondary"
+                    data-analytics-id="sw-order-line-items-grid.add-existing-product"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.detailBase.buttonAddProduct') }}
@@ -41,7 +42,9 @@
                 {% endblock %}
 
                 {% block sw_order_line_items_grid_create_actions_dropdown %}
-                <sw-context-button>
+                <sw-context-button
+                    data-analytics-id="sw-order-line-items-grid.open-add-product-menu"
+                >
                     <template #button>
                         <mt-button
                             ghost
@@ -65,6 +68,7 @@
                         }"
                         class="sw-order-line-items-grid__create-custom-item"
                         :disabled="!editable || undefined"
+                        data-analytics-id="sw-order-line-items-grid.add-custom-item"
                         @click="onInsertBlankItem"
                     >
                         {{ $tc('sw-order.detailBase.buttonAddBlankProduct') }}
@@ -77,6 +81,7 @@
                         }"
                         class="sw-order-line-items-grid__can-create-discounts-button"
                         :disabled="!canCreateDiscounts || undefined"
+                        data-analytics-id="sw-order-line-items-grid.add-credit-item"
                         @click="onInsertCreditItem"
                     >
                         {{ $tc('sw-order.detailBase.buttonAddCredit') }}
@@ -139,6 +144,7 @@
                     class="sw-order-line-items-grid__item-nested-indicator"
                     size="x-small"
                     variant="secondary"
+                    data-analytics-id="sw-order-line-items-grid.open-nested-line-items-modal"
                     @click="openNestedLineItemsModal(item)"
                 >
 
@@ -331,6 +337,7 @@
                 variant="danger"
                 class="sw_order_line_items_grid-item__delete-action"
                 :disabled="!editable || undefined"
+                data-analytics-id="sw-order-line-items-grid.delete-item"
                 @click="onDeleteItem(item, itemIndex)"
             >
                 {% block sw_order_line_items_grid_grid_actions_delete_label %}
@@ -362,6 +369,7 @@
                         size="small"
                         class="sw_order_line_items_grid-actions_modal__close-action"
                         variant="secondary"
+                        data-analytics-id="sw-order-line-items-grid.cancel-delete-item-modal"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}
@@ -372,6 +380,7 @@
                         size="small"
 
                         class="sw_order_line_items_grid-actions_modal__confirm-action"
+                        data-analytics-id="sw-order-line-items-grid.confirm-delete-item-modal"
                         @click="onConfirmDelete(item.id)"
                     >
                         {{ $tc('global.default.delete') }}

@@ -55,6 +55,7 @@
             :disabled="loading.order || !acl.can('order.editor')"
             variant="secondary"
             size="default"
+            data-analytics-id="sw-order-detail.cancel-editing"
             @click="onCancelEditing"
         >
             {{ $tc('global.default.cancel') }}
@@ -73,6 +74,7 @@
             :disabled="loading.order || loading.recalculation || !acl.can('order.editor')"
             :is-loading="loading.order"
             :process-success="isSaveSuccessful"
+            data-analytics-id="sw-order-detail.save-edits"
             @update:process-success="saveEditsFinish"
             @click.prevent="onSaveEdits"
         >

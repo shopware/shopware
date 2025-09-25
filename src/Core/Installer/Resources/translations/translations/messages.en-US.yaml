@@ -16,19 +16,37 @@ shopware.installer:
     forward: Next
     start: Start
     start_installation: 'Start installation'
-    select_language_cs: Czech
+    select_language_bg-BG: Bulgarian
+    select_language_bs-BA: Bosnian
+    select_language_cs-CZ: Czech
     select_language_da-DK: Danish
-    select_language_de: German
+    select_language_de-DE: German
+    select_language_el-GR: Greek
     select_language_en-US: English (United States of America)
-    select_language_en: English (United Kingdom)
+    select_language_en-GB: English (United Kingdom)
     select_language_es-ES: Spanish
-    select_language_fr: French
-    select_language_it: Italian
-    select_language_nl: Dutch
-    select_language_no: Norwegian
-    select_language_pl: Polish
+    select_language_fi-FI: Finnish
+    select_language_fr-FR: French
+    select_language_hi-IN: Hindi
+    select_language_hr-HR: Croatian
+    select_language_hu-HU: Hungarian
+    select_language_id-ID: Indonesian
+    select_language_it-IT: Italian
+    select_language_ko-KR: Korean
+    select_language_lv-LV: Latvian
+    select_language_nl-NL: Dutch
+    select_language_nn-NO: Norwegian
+    select_language_pl-PL: Polish
     select_language_pt-PT: Portuguese
+    select_language_ro-RO: Romanian
+    select_language_ru-RU: Russian
+    select_language_sk-SK: Slovak
+    select_language_sl-SI: Slovenian
+    select_language_sr-RS: Serbian
     select_language_sv-SE: Swedish
+    select_language_tr-TR: Turkish
+    select_language_uk-UA: Ukrainian
+    select_language_vi-VN: Vietnamese
     select_country_jam: Jamaica
     select_country_mmr: Myanmar
     select_country_pan: Panama

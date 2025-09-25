@@ -6,7 +6,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\Order\RecalculationService;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -31,6 +34,8 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -619,6 +624,49 @@ class InvoiceRendererTest extends TestCase
                 static::assertEmpty($customer->getVatIds());
 
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
+            },
+        ];
+
+        yield 'render with credit item' => [
+            [7],
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+                $context = Context::createDefaultContext();
+                $orderId = $operation->getOrderId();
+
+                $versionId = $container->get('order.repository')->createVersion($orderId, $context, 'DRAFT');
+                $versionContext = $context->createWithVersionId($versionId);
+
+                // add credit line item to order
+                $creditLineItemId = Uuid::randomHex();
+                $creditLineItem = new LineItem(
+                    $creditLineItemId,
+                    LineItem::CREDIT_LINE_ITEM_TYPE,
+                    null,
+                    1
+                )
+                ;
+                $creditLineItem->setLabel('credit-item-1');
+                $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition(-20.0));
+
+                $container->get(RecalculationService::class)->addCustomLineItem(
+                    $orderId,
+                    $creditLineItem,
+                    $versionContext,
+                );
+
+                // merge the version changes back into LIVE-ORDER-VERSION
+                $container->get(VersionManager::class)
+                    ->merge($versionId, WriteContext::createFromContext($context));
+
+                $operation->assign([
+                    'config' => [
+                        'displayLineItems' => true,
+                    ],
+                ]);
+            },
+            function (RenderedDocument $rendered): void {
+                $rendered = $rendered->getContent();
+                static::assertStringContainsString('credit-item-1', $rendered);
             },
         ];
     }

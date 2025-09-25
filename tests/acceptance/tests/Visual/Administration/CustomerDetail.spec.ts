@@ -1,4 +1,4 @@
-import { test, setViewport, assertScreenshot, hideElements, replaceElementsIndividually } from '@fixtures/AcceptanceTest';
+import { test, setViewport, assertScreenshot, hideElements, Locator, replaceElements, expect } from '@fixtures/AcceptanceTest';
 
 test('Visual: Customer Detail Page', { tag: '@Visual' }, async ({ 
     ShopAdmin,
@@ -45,8 +45,14 @@ test('Visual: Customer Detail Page', { tag: '@Visual' }, async ({
         });
 
         //hide the first dynamic customer
-        const customer1 = await AdminCustomerListing.getCustomerByEmail(DefaultSalesChannel.customer.email);
-        hideElements(AdminCustomerListing.page, [
+        const customer1Row = AdminCustomerListing.page.getByRole('row').filter({ hasText: DefaultSalesChannel.customer.email });
+
+        //const customer1 = await AdminCustomerListing.getCustomerByEmail(DefaultSalesChannel.customer.email); 
+        await ShopAdmin.expects(customer1Row).toBeVisible();
+
+        await hideElements(AdminCustomerListing.page, [
+            customer1Row,
+            /*
             customer1.customerName,
             customer1.customerStreet,
             customer1.customerPostalCode,
@@ -54,8 +60,9 @@ test('Visual: Customer Detail Page', { tag: '@Visual' }, async ({
             customer1.customerNumber,
             customer1.customerGroup, 
             customer1.customerEmailAddress,
-            customer1.customerCreatedTime,
             customer1.customerAvatar,
+            customer1.customerCreatedTime,
+            */
         ]);
 
         await assertScreenshot(AdminCustomerListing.page, 'Listing-With-Customer.png');

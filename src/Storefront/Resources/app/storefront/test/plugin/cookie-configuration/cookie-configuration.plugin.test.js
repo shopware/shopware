@@ -337,20 +337,19 @@ describe('CookieConfiguration plugin tests', () => {
     });
 
     test('_checkAndShowCookieBarIfNeeded shows cookie bar when no preference is set', () => {
-        const mockCookiePermissionPlugin = {
-            _showCookieBar: jest.fn(),
-            _setBodyPadding: jest.fn()
-        };
-
-        window.PluginManager.getPluginInstances.mockReturnValue([mockCookiePermissionPlugin]);
         jest.spyOn(CookieStorage, 'getItem').mockReturnValue(null);
+        const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent');
 
         plugin._checkAndShowCookieBarIfNeeded();
 
-        expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
-        expect(mockCookiePermissionPlugin._setBodyPadding).toHaveBeenCalled();
+        expect(dispatchEventSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: 'showCookieBar'
+            })
+        );
 
         CookieStorage.getItem.mockRestore();
+        dispatchEventSpy.mockRestore();
     });
 
     test('_handleCheckbox calls correct callback based on parent input class', () => {

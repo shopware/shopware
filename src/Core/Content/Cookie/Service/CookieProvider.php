@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -43,7 +44,7 @@ class CookieProvider
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
-    public function getCookieGroups(SalesChannelContext $salesChannelContext): CookieGroupCollection
+    public function getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection
     {
         $cookieGroups = new CookieGroupCollection();
 
@@ -57,7 +58,7 @@ class CookieProvider
             $cookieGroups->add($this->getCookieGroupMarketing());
         }
 
-        $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $salesChannelContext));
+        $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $request, $salesChannelContext));
 
         foreach ($cookieGroups as $cookieGroup) {
             $this->removeCookieGroupsWithoutCookies($cookieGroups, $cookieGroup);

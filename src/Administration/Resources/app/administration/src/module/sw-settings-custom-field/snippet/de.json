@@ -7,6 +7,9 @@
       "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann später nicht mehr verändert werden.",
       "tooltipType": "Der Typ kann später nicht mehr verändert werden."
     },
+    "error": {
+      "CUSTOM_FIELD_NAME_INVALID": "Ungültiger Name: Es sind nur Buchstaben, Zahlen oder Unterstriche zulässig, und der Name muss mit einem Buchstaben oder einem Unterstrich beginnen."
+    },
     "set": {
       "list": {
         "textHeadline": "Zusatzfelder",

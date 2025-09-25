@@ -7,4 +7,10 @@
         grid-column: span 2;
         margin-bottom: 24px;
     }
+
+    .sw-custom-field-detail__technical-name {
+        .mt-icon {
+            min-width: var(--scale-size-12);
+        }
+    }
 }

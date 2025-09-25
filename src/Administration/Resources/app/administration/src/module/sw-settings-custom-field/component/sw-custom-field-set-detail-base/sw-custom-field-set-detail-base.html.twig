@@ -26,6 +26,7 @@
         v-model="set.position"
         name="sw-field--set-position"
         class="sw-settings-custom-field-set-detail-base__base-postion"
+        number-type="int"
         :disabled="!acl.can('custom_field.editor') || undefined"
         :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
     />

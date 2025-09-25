@@ -85,7 +85,7 @@ class StorybookController extends AbstractController
         defaults: ['auth_required' => false],
         methods: ['GET']
     )]
-    public function storybook(Request $request): Response
+    public function storybook(string $component, Request $request): Response
     {
         $isDev = $this->environment === 'dev';
 
@@ -108,8 +108,6 @@ class StorybookController extends AbstractController
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $themeId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
 
-        $component = $request->attributes->get('component');
-
         try {
             $properties = $this->getPropertiesFromStoryParameters($request, $context);
 
@@ -130,7 +128,6 @@ class StorybookController extends AbstractController
         }
 
         $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Content-Type', 'text/html');
 
         return $response;
     }
@@ -200,6 +197,7 @@ class StorybookController extends AbstractController
     private function resolveProductProperty(SalesChannelContext $context): ?SalesChannelProductEntity
     {
         $criteria = new Criteria();
+        $criteria->setLimit(1);
 
         $criteria->addAssociation('media.media');
         $criteria->addAssociation('manufacturer');

@@ -49,6 +49,8 @@ class AdministrationController extends AbstractController
 
     private readonly bool $esStorefrontEnabled;
 
+    private readonly bool $productStreamIndexingEnabled;
+
     /**
      * @internal
      *
@@ -82,6 +84,9 @@ class AdministrationController extends AbstractController
         $this->esStorefrontEnabled = $params->has('elasticsearch.enabled')
             ? $params->get('elasticsearch.enabled')
             : false;
+        $this->productStreamIndexingEnabled = $params->has('shopware.product_stream.indexing')
+            ? $params->get('shopware.product_stream.indexing')
+            : true;
     }
 
     #[Route(path: '/%shopware_administration.path_name%', name: 'administration.index', defaults: ['auth_required' => false], methods: ['GET'])]
@@ -108,6 +113,7 @@ class AdministrationController extends AbstractController
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
+            'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
         ]);
     }
 

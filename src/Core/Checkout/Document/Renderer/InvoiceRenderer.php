@@ -145,19 +145,92 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $doc->setOrder($order);
                     $doc->setContext($context);
 
-                    $debugDirectory = 'document_debug';
+                    try {
+                        $debugDirectory = 'document_debug';
+                        $orderCustomer = $order->getOrderCustomer();
+                        $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
+                        $country = $billingAddress?->getCountry();
+                        $countryTranslated = $country?->getTranslated();
+                        $configSerialized = $config->jsonSerialize();
 
-                    if (!$this->privateFilesystem->directoryExists($debugDirectory)) {
-                        $this->privateFilesystem->createDirectory($debugDirectory);
+                        $debugData = [
+                            'order' => [
+                                'orderId' => $order->getId(),
+                                'orderNumber' => $order->getOrderNumber(),
+                                'currencyId' => $order->getCurrencyId(),
+                                'language' => [
+                                    'id' => $order->getLanguage()?->getId(),
+                                    'code' => $order->getLanguage()?->getLocale()?->getCode(),
+                                ],
+                                'billingAddressId' => $order->getBillingAddressId(),
+                            ],
+                            'orderCustomer' => $orderCustomer ? [
+                                'customerId' => $orderCustomer->getId() ?? null,
+                                'customerNumber' => $orderCustomer->getCustomerNumber() ?? null,
+                                'email' => $orderCustomer->getEmail() ?? null,
+                                'title' => $orderCustomer->getTitle() ?? null,
+                                'firstName' => $orderCustomer->getFirstName() ?? null,
+                                'lastName' => $orderCustomer->getLastName() ?? null,
+                            ] : null,
+                            'context' => [
+                                'languageId' => $context->getLanguageId(),
+                                'languageIdChain' => $context->getLanguageIdChain(),
+                            ],
+                            'config' => [
+                                'documentNumber' => $configSerialized['documentNumber'] ?? null,
+                                'documentDate' => $configSerialized['documentDate'] ?? null,
+                                'intraCommunityDelivery' => $configSerialized['intraCommunityDelivery'] ?? null,
+                                'displayLineItems' => $configSerialized['displayLineItems'] ?? null,
+                                'displayLineItemPosition' => $configSerialized['displayLineItemPosition'] ?? null,
+                                'itemsPerPage' => $configSerialized['itemsPerPage'] ?? null,
+                                'displayCompanyAddress' => $configSerialized['displayCompanyAddress'] ?? null,
+                                'displayReturnAddress' => $configSerialized['displayReturnAddress'] ?? null,
+                                'deliveryCountries' => $configSerialized['deliveryCountries'] ?? null,
+                            ],
+                            'billingAddress' => $billingAddress ? [
+                                'id' => $billingAddress->getId(),
+                                'firstname' => $billingAddress->getFirstName(),
+                                'lastname' => $billingAddress->getLastName(),
+                                'company' => $billingAddress->getCompany(),
+                                'street' => $billingAddress->getStreet(),
+                                'zipcode' => $billingAddress->getZipcode(),
+                                'city' => $billingAddress->getCity(),
+                                'country' => $country ? [
+                                    'id' => $country->getId(),
+                                    'iso' => $country->getIso(),
+                                    'name' => $country->getName(),
+                                    'getAddressFormat' => $country->getAddressFormat(),
+                                    'getTranslated' => $countryTranslated ? [
+                                        'name' => $countryTranslated['name'] ?? null,
+                                        'addressFormat' => $countryTranslated['addressFormat'] ?? null,
+                                    ] : null,
+                                ] : null,
+                                'additionalAddressLine1' => $billingAddress->getAdditionalAddressLine1(),
+                                'additionalAddressLine2' => $billingAddress->getAdditionalAddressLine2(),
+                                'department' => $billingAddress->getDepartment(),
+                                'vatId' => $billingAddress->getVatId(),
+                            ] : null,
+                        ];
+
+                        if (!$this->privateFilesystem->directoryExists($debugDirectory)) {
+                            $this->privateFilesystem->createDirectory($debugDirectory);
+                        }
+
+                        $filename = \sprintf(
+                            '%s/%s.log',
+                            $debugDirectory,
+                            (new \DateTime())->format('Ymd-His-u')
+                        );
+
+                        $this->privateFilesystem->write(
+                            $filename,
+                            var_export(\json_decode(\json_encode($debugData)), true),
+                        );
+
+                    } catch (\Throwable $e) {
+                        // do nothing
+                        $e->getMessage()
                     }
-
-                    $filename = \sprintf(
-                        '%s/%s.log',
-                        $debugDirectory,
-                        (new \DateTime())->format('Ymd-His-u')
-                    );
-
-                    $this->privateFilesystem->write($filename, var_export($doc, true));
 
                     $doc->setContent($this->fileRendererRegistry->render($doc));
 

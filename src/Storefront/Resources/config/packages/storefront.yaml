@@ -4,4 +4,3 @@ storefront:
         validate_on_compile: false
     router:
         allowed_routes:
-            - storybook.component

@@ -600,5 +600,9 @@
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\StorybookRouteScopeWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
     </services>
 </container>

@@ -18,8 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,29 +33,38 @@ use Twig\Error\SyntaxError;
 #[Package('framework')]
 class StorybookController extends AbstractController
 {
-    private array $parameterDenyList;
-    private array $entityPropertyList;
-    private string $baseTemplate;
+    private const PARAMETER_DENY_LIST = [
+        'measureEnabled',
+        'backgrounds',
+        'outline',
+        'viewport',
+    ];
+
+    private const ENTITY_PROPERTY_LIST = [
+        'product',
+        'category',
+        'media',
+    ];
+
+    private const BASE_TEMPLATE = <<<TWIG
+        {% set assets = theme_config('assets.css') %}
+        {% for file in assets %}
+            <link rel="stylesheet"
+                href="{{ asset(file, 'theme') }}">
+        {% endfor %}
+    TWIG;
 
     public function __construct(
+        private readonly string $environment,
         private readonly Environment $twig,
+        private readonly Connection $connection,
         private readonly SalesChannelRepository $productRepository,
         private readonly EntityRepository $mediaRepository,
         private readonly CachedSalesChannelContextFactory $contextFactory,
         private readonly EntityRepository $salesChannelRepository,
         private readonly DatabaseSalesChannelThemeLoader $themeLoader,
-        private readonly Connection $connection,
+        private readonly ThemeRuntimeConfigStorage $themeRuntimeConfigStorage,
     ) {
-        $this->parameterDenyList = ['measureEnabled', 'backgrounds', 'outline', 'viewport'];
-        $this->entityPropertyList = ['product', 'category', 'media'];
-
-        $this->baseTemplate = <<<TWIG
-            {% set assets = theme_config('assets.css') %}
-            {% for file in assets %}
-                <link rel="stylesheet"
-                    href="{{ asset(file, 'theme') }}">
-            {% endfor %}
-        TWIG;
     }
 
     #[Route(
@@ -66,7 +75,7 @@ class StorybookController extends AbstractController
     )]
     public function storybook(Request $request): Response
     {
-        $isDev = EnvironmentHelper::getVariable('APP_ENV', 'prod') === 'dev';
+        $isDev = $this->environment === 'dev';
 
         // Only allow in development environment
         if (!$isDev || !Feature::isActive('STOREFRONT_COMPONENTS')) {
@@ -95,7 +104,7 @@ class StorybookController extends AbstractController
             // Resolve properties that reference entities.
             $data = $this->resolveEntityProperties($properties, $context);
 
-            $templateString = $this->baseTemplate . '{{ component("' . $component . '", ' . $this->convertPropertiesToTwig($properties) . ') }}';
+            $templateString = self::BASE_TEMPLATE . '{{ component("' . $component . '", ' . $this->convertPropertiesToTwig($properties) . ') }}';
             $template = $this->twig->createTemplate($templateString);
 
             $content = $this->twig->render($template, $data);
@@ -121,8 +130,8 @@ class StorybookController extends AbstractController
         $queryParams = $request->query->all();
 
         foreach ($queryParams as $key => $value) {
-            if (!in_array($key, $this->parameterDenyList)) {
-                if (in_array($key, $this->entityPropertyList)) {
+            if (!in_array($key, self::PARAMETER_DENY_LIST)) {
+                if (in_array($key, self::ENTITY_PROPERTY_LIST)) {
                     $parameters[$key] = $key;
                 } else {
                     $parameters[$key] = $value;
@@ -138,7 +147,7 @@ class StorybookController extends AbstractController
         $parameters = "";
 
         foreach ($properties as $key => $value) {
-            if (in_array($key, $this->entityPropertyList)) {
+            if (in_array($key, self::ENTITY_PROPERTY_LIST)) {
                 $parameters .= $key . ": " . $key . ", ";
             } else {
                 $parameters .= $key . ": '" . $value . "', ";
@@ -148,7 +157,7 @@ class StorybookController extends AbstractController
         return "{ " . $parameters . "}";
     }
 
-    private function resolveEntityProperties(array $properties, SalesChannelContext $context): mixed
+    private function resolveEntityProperties(array $properties, SalesChannelContext $context): array
     {
         $data = [];
 
@@ -221,22 +230,9 @@ class StorybookController extends AbstractController
         // Get the theme ID from the database using the theme name.
         if (!empty($themes)) {
             $themeName = $themes[0];
-            return $this->getThemeIdByName($themeName);
+            return $this->themeRuntimeConfigStorage->getThemeIdByTechnicalName($themeName);
         }
 
         return null;
-    }
-
-    private function getThemeIdByName(string $themeName): ?string
-    {
-        $themeId = $this->connection->fetchOne('
-            SELECT LOWER(HEX(id))
-            FROM theme
-            WHERE technical_name = :themeName
-        ', [
-            'themeName' => $themeName,
-        ]);
-
-        return $themeId ?: null;
     }
 }

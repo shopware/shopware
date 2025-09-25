@@ -2,22 +2,26 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,7 +29,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
-use Doctrine\DBAL\Connection;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -54,19 +57,28 @@ class StorybookController extends AbstractController
         {% endfor %}
     TWIG;
 
+    /**
+     * @internal
+     *
+     * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     */
     public function __construct(
         private readonly string $environment,
         private readonly Environment $twig,
-        private readonly Connection $connection,
         private readonly SalesChannelRepository $productRepository,
         private readonly EntityRepository $mediaRepository,
-        private readonly CachedSalesChannelContextFactory $contextFactory,
+        private readonly AbstractSalesChannelContextFactory $contextFactory,
         private readonly EntityRepository $salesChannelRepository,
         private readonly DatabaseSalesChannelThemeLoader $themeLoader,
         private readonly ThemeRuntimeConfigStorage $themeRuntimeConfigStorage,
     ) {
     }
 
+    /**
+     * @phpstan-ignore shopware.routeScope
+     */
     #[Route(
         path: '/storybook/{component}',
         name: 'storybook.component',
@@ -110,7 +122,6 @@ class StorybookController extends AbstractController
             $content = $this->twig->render($template, $data);
 
             $response = new Response($content);
-
         } catch (RuntimeError|SyntaxError $e) {
             $response = new Response(
                 '<div style="color: red; padding: 20px;">Template error: ' . htmlspecialchars($e->getMessage()) . '</div>',
@@ -124,14 +135,17 @@ class StorybookController extends AbstractController
         return $response;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getPropertiesFromStoryParameters(Request $request, SalesChannelContext $context): array
     {
         $parameters = [];
         $queryParams = $request->query->all();
 
         foreach ($queryParams as $key => $value) {
-            if (!in_array($key, self::PARAMETER_DENY_LIST)) {
-                if (in_array($key, self::ENTITY_PROPERTY_LIST)) {
+            if (!\in_array($key, self::PARAMETER_DENY_LIST, true)) {
+                if (\in_array($key, self::ENTITY_PROPERTY_LIST, true)) {
                     $parameters[$key] = $key;
                 } else {
                     $parameters[$key] = $value;
@@ -142,21 +156,29 @@ class StorybookController extends AbstractController
         return $parameters;
     }
 
+    /**
+     * @param array<string, mixed> $properties
+     */
     private function convertPropertiesToTwig(array $properties): string
     {
-        $parameters = "";
+        $parameters = '';
 
         foreach ($properties as $key => $value) {
-            if (in_array($key, self::ENTITY_PROPERTY_LIST)) {
-                $parameters .= $key . ": " . $key . ", ";
+            if (\in_array($key, self::ENTITY_PROPERTY_LIST, true)) {
+                $parameters .= $key . ': ' . $key . ', ';
             } else {
-                $parameters .= $key . ": '" . $value . "', ";
+                $parameters .= $key . ': \'' . $value . '\', ';
             }
         }
 
-        return "{ " . $parameters . "}";
+        return '{ ' . $parameters . '}';
     }
 
+    /**
+     * @param array<string, mixed> $properties
+     *
+     * @return array<string, mixed>
+     */
     private function resolveEntityProperties(array $properties, SalesChannelContext $context): array
     {
         $data = [];
@@ -186,7 +208,9 @@ class StorybookController extends AbstractController
 
         $result = $this->productRepository->search($criteria, $context);
 
-        return $result->getEntities()->first();
+        $entity = $result->getEntities()->first();
+
+        return $entity instanceof SalesChannelProductEntity ? $entity : null;
     }
 
     private function resolveMediaProperty(SalesChannelContext $context): ?MediaEntity
@@ -197,12 +221,14 @@ class StorybookController extends AbstractController
         // Filter for JPEG and PNG MIME types only using OR condition
         $criteria->addFilter(new OrFilter([
             new EqualsFilter('mimeType', 'image/jpeg'),
-            new EqualsFilter('mimeType', 'image/png')
+            new EqualsFilter('mimeType', 'image/png'),
         ]));
 
         $result = $this->mediaRepository->search($criteria, $context->getContext());
 
-        return $result->getEntities()->first();
+        $entity = $result->getEntities()->first();
+
+        return $entity instanceof MediaEntity ? $entity : null;
     }
 
     private function getFirstAvailableSalesChannel(): SalesChannelEntity
@@ -216,7 +242,7 @@ class StorybookController extends AbstractController
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$salesChannel instanceof SalesChannelEntity) {
-            throw new \RuntimeException('No sales channel found');
+            throw SalesChannelException::salesChannelNotFound('');
         }
 
         return $salesChannel;
@@ -230,6 +256,7 @@ class StorybookController extends AbstractController
         // Get the theme ID from the database using the theme name.
         if (!empty($themes)) {
             $themeName = $themes[0];
+
             return $this->themeRuntimeConfigStorage->getThemeIdByTechnicalName($themeName);
         }
 

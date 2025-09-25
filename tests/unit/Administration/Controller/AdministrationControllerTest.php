@@ -116,6 +116,7 @@ class AdministrationControllerTest extends TestCase
                     'storefrontEsEnable' => true,
                     'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
+                    'productStreamIndexingEnabled' => true,
                 ]
             );
 

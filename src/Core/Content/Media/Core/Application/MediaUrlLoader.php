@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\Media\Core\Application;
 
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -31,7 +33,7 @@ class MediaUrlLoader
      * Collects all urls of the provided entities and triggers the AbstractMediaUrlGenerator to generate the urls.
      * The generated urls will be assigned to the entities afterward.
      *
-     * @param iterable<Entity> $entities
+     * @param iterable<MediaEntity|PartialEntity> $entities
      */
     public function loaded(iterable $entities): void
     {

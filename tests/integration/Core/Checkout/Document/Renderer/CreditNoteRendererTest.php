@@ -32,6 +32,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
@@ -109,8 +110,22 @@ class CreditNoteRendererTest extends TestCase
         $this->orderRepository = static::getContainer()->get('order.repository');
     }
 
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(Translator::class)->reset();
+        parent::tearDown();
+    }
+
     public function testDocumentSnapshot(): void
     {
+        $translator = static::getContainer()->get(Translator::class);
+        $translator->injectSettings(
+            $this->salesChannelContext->getSalesChannelId(),
+            $this->salesChannelContext->getLanguageId(),
+            'en-GB',
+            $this->salesChannelContext->getContext()
+        );
+
         $cart = $this->generateDemoCart([7]);
 
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());

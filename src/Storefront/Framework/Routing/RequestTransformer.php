@@ -80,6 +80,7 @@ class RequestTransformer implements RequestTransformerInterface
         '/installer',
         '/_fragment/',
         '/robots.txt',
+        '/storybook/',
     ];
 
     /**

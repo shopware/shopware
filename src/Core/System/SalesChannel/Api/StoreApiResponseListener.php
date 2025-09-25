@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Api;
 
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,6 +29,7 @@ class StoreApiResponseListener implements EventSubscriberInterface
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler,
+        private readonly CriteriaParameterResolver $parameterResolver,
     ) {
     }
 
@@ -50,10 +52,11 @@ class StoreApiResponseListener implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        $fields = new ResponseFields(
-            $request->get('includes', []),
-            $request->get('excludes', []),
-        );
+        // Getting criteria parameters from the correct property
+        $includes = $this->parameterResolver->getParameter($request, 'includes', []);
+        $excludes = $this->parameterResolver->getParameter($request, 'excludes', []);
+
+        $fields = new ResponseFields($includes, $excludes);
 
         $encoded = $this->encoder->encode($response->getObject(), $fields);
 

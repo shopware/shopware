@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -16,6 +17,14 @@ class ShippingFreeListingFilterHandler extends AbstractListingFilterHandler
 {
     final public const FILTER_ENABLED_REQUEST_PARAM = 'shipping-free-filter';
 
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly CriteriaParameterResolver $parameterResolver
+    ) {
+    }
+
     public function getDecorated(): AbstractListingFilterHandler
     {
         throw new DecorationPatternException(self::class);
@@ -23,11 +32,11 @@ class ShippingFreeListingFilterHandler extends AbstractListingFilterHandler
 
     public function create(Request $request, SalesChannelContext $context): ?Filter
     {
-        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true)) {
+        if (!$this->parameterResolver->getParameter($request, self::FILTER_ENABLED_REQUEST_PARAM, true)) {
             return null;
         }
 
-        $filtered = (bool) $request->get('shipping-free', false);
+        $filtered = (bool) $this->parameterResolver->getParameter($request, 'shipping-free', false);
 
         return new Filter(
             'shipping-free',

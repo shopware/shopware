@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing\Processor;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,7 +19,8 @@ class PagingListingProcessor extends AbstractListingProcessor
      */
     public function __construct(
         private readonly SystemConfigService $config,
-        private readonly int $maxLimit = 100
+        private readonly CriteriaParameterResolver $parameterResolver,
+        private readonly int $maxLimit = 100,
     ) {
     }
 
@@ -56,8 +58,8 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
     {
-        $limit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
-        $limit = $request->request->has('limit') ? $request->request->getInt('limit') : $limit;
+        // Use parameter resolver instead of direct request access
+        $limit = $this->parameterResolver->getParameter($request, 'limit');
 
         // request > criteria > config
         if ($limit > 0) {
@@ -75,8 +77,8 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     private function getPage(Request $request): ?int
     {
-        $page = $request->query->has('p') ? $request->query->getInt('p') : null;
-        $page = $request->request->has('p') ? $request->request->getInt('p') : $page;
+        // Use parameter resolver instead of direct request access
+        $page = $this->parameterResolver->getParameter($request, 'p');
 
         return $page > 0 ? $page : null;
     }

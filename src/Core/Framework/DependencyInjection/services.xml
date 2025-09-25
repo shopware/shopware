@@ -601,6 +601,10 @@ frame-ancestors 'none';
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>

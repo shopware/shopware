@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -14,6 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 class ManufacturerListingFilterHandler extends AbstractListingFilterHandler
 {
     final public const FILTER_ENABLED_REQUEST_PARAM = 'manufacturer-filter';
+
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly CriteriaParameterResolver $parameterResolver
+    ) {
+    }
 
     public function getDecorated(): AbstractListingFilterHandler
     {
@@ -42,17 +51,14 @@ class ManufacturerListingFilterHandler extends AbstractListingFilterHandler
      */
     private function getManufacturerIds(Request $request): array
     {
-        $ids = $request->query->get('manufacturer', '');
-        if ($request->isMethod(Request::METHOD_POST)) {
-            $ids = $request->request->get('manufacturer', '');
-        }
+        $ids = $this->parameterResolver->getParameter($request, 'manufacturer', '');
 
         if (\is_string($ids)) {
             $ids = explode('|', $ids);
         }
 
         /** @var list<string> $ids */
-        $ids = array_filter((array) $ids);
+        $ids = array_filter($ids);
 
         return $ids;
     }

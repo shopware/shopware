@@ -175,6 +175,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">

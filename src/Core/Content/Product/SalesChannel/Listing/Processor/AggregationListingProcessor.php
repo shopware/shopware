@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -25,7 +26,8 @@ class AggregationListingProcessor extends AbstractListingProcessor
      */
     public function __construct(
         private readonly iterable $factories,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CriteriaParameterResolver $parameterResolver,
     ) {
     }
 
@@ -99,7 +101,7 @@ class AggregationListingProcessor extends AbstractListingProcessor
     {
         $aggregations = [];
 
-        if ($request->get('reduce-aggregations') === null) {
+        if ($this->parameterResolver->getParameter($request, 'reduce-aggregations') === null) {
             foreach ($filters as $filter) {
                 $aggregations = array_merge($aggregations, $filter->getAggregations());
             }

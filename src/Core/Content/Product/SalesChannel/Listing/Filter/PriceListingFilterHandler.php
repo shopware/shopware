@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -15,6 +16,14 @@ class PriceListingFilterHandler extends AbstractListingFilterHandler
 {
     final public const FILTER_ENABLED_REQUEST_PARAM = 'price-filter';
 
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly CriteriaParameterResolver $parameterResolver
+    ) {
+    }
+
     public function getDecorated(): AbstractListingFilterHandler
     {
         throw new DecorationPatternException(self::class);
@@ -22,12 +31,15 @@ class PriceListingFilterHandler extends AbstractListingFilterHandler
 
     public function create(Request $request, SalesChannelContext $context): ?Filter
     {
-        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true)) {
+        // Use parameter resolver instead of direct request access
+        $filterEnabled = $this->parameterResolver->getParameter($request, self::FILTER_ENABLED_REQUEST_PARAM, true);
+
+        if (!$filterEnabled) {
             return null;
         }
 
-        $min = $request->get('min-price');
-        $max = $request->get('max-price');
+        $min = $this->parameterResolver->getParameter($request, 'min-price');
+        $max = $this->parameterResolver->getParameter($request, 'max-price');
 
         $range = [];
         if ($min !== null && $min >= 0) {
@@ -43,8 +55,8 @@ class PriceListingFilterHandler extends AbstractListingFilterHandler
             [new StatsAggregation('price', 'product.cheapestPrice', true, true, false, false)],
             new RangeFilter('product.cheapestPrice', $range),
             [
-                'min' => (float) $request->get('min-price'),
-                'max' => (float) $request->get('max-price'),
+                'min' => (float) $min,
+                'max' => (float) $max,
             ]
         );
     }

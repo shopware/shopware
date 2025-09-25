@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -41,7 +42,8 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     public function __construct(
         private readonly EntityRepository $groupRepository,
         private readonly EntityRepository $optionRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly CriteriaParameterResolver $parameterResolver,
     ) {
     }
 
@@ -52,9 +54,11 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
     public function create(Request $request, SalesChannelContext $context): ?Filter
     {
-        $groupIds = $request->request->all(self::PROPERTY_GROUP_IDS_REQUEST_PARAM);
+        // Use parameter resolver instead of direct request access
+        $groupIds = $this->parameterResolver->getParameter($request, self::PROPERTY_GROUP_IDS_REQUEST_PARAM, []);
+        $filterEnabled = $this->parameterResolver->getParameter($request, self::FILTER_ENABLED_REQUEST_PARAM, true);
 
-        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true) && empty($groupIds)) {
+        if (!$filterEnabled && empty($groupIds)) {
             return null;
         }
 
@@ -208,10 +212,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
      */
     private function getPropertyIds(Request $request): array
     {
-        $ids = $request->query->get('properties', '');
-        if ($request->isMethod(Request::METHOD_POST)) {
-            $ids = $request->request->get('properties', '');
-        }
+        $ids = $this->parameterResolver->getParameter($request, 'properties', '');
 
         if (\is_string($ids)) {
             $ids = explode('|', $ids);

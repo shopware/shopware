@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -29,7 +30,8 @@ class SortingListingProcessor extends AbstractListingProcessor
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
-        private readonly EntityRepository $sortingRepository
+        private readonly EntityRepository $sortingRepository,
+        private readonly CriteriaParameterResolver $parameterResolver,
     ) {
     }
 
@@ -40,7 +42,8 @@ class SortingListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if (!$request->get('order')) {
+        $order = $this->parameterResolver->getParameter($request, 'order');
+        if (!$order) {
             $key = $request->get('search') ? 'core.listing.defaultSearchResultSorting' : 'core.listing.defaultSorting';
             $request->request->set('order', $this->getDefaultSortingKey($key, $context));
         }

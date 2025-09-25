@@ -281,18 +281,27 @@
             <argument type="tagged_iterator" tag="shopware.listing.processor" />
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler" />
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
+        </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler" />
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
+        </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler"/>
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
+        </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler"/>
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
+        </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler">
             <argument type="service" id="property_group.repository"/>
             <argument type="service" id="property_group_option.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
         </service>
 
         <instanceof id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler">
@@ -303,24 +312,29 @@
             <tag name="shopware.listing.processor"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="product_sorting.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AggregationListingProcessor">
             <argument type="tagged_iterator" tag="shopware.listing.filter.handler" />
             <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
             <tag name="shopware.listing.processor" />
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AssociationLoadingListingProcessor">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
             <tag name="shopware.listing.processor"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\BehaviorListingProcessor">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
             <tag name="shopware.listing.processor" priority="-1000"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingProcessor">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver"/>
             <argument>%shopware.api.store.max_limit%</argument>
             <tag name="shopware.listing.processor"/>
         </service>

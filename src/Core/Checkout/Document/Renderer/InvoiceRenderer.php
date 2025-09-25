@@ -229,7 +229,6 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
                     } catch (\Throwable $e) {
                         // do nothing
-                        $e->getMessage()
                     }
 
                     $doc->setContent($this->fileRendererRegistry->render($doc));

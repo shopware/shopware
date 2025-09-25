@@ -99,7 +99,7 @@ class ProductListingLoader
 
         $productSearchResult = $this->resolveData($clone, $mapping, $context);
 
-        $this->addExtensions($idResult, $productSearchResult, $mapping);
+        $this->addExtensions($clone, $idResult, $productSearchResult, $mapping);
 
         $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
         $result->addState(...$idResult->getStates());
@@ -237,10 +237,14 @@ class ProductListingLoader
      * @param EntitySearchResult<ProductCollection> $productSearchResult
      * @param array<string> $mapping
      */
-    private function addExtensions(IdSearchResult $ids, EntitySearchResult $productSearchResult, array $mapping): void
+    private function addExtensions(Criteria $criteria, IdSearchResult $ids, EntitySearchResult $productSearchResult, array $mapping): void
     {
         foreach ($ids->getExtensions() as $name => $extension) {
             $productSearchResult->addExtension($name, $extension);
+        }
+
+        if ($criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO)) {
+            return;
         }
 
         /** @var string $id */

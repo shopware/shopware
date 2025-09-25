@@ -4,7 +4,9 @@
     "paths": {
         "/search": {
             "post": {
-                "tags": ["Product"],
+                "tags": [
+                    "Product"
+                ],
                 "summary": "Search for products",
                 "description": "Performs a search for products which can be used to display a product listing.",
                 "operationId": "searchPage",
@@ -35,6 +37,20 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
                         }
                     }
                 ],

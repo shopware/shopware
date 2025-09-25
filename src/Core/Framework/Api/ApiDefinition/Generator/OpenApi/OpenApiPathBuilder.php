@@ -289,6 +289,18 @@ class OpenApiPathBuilder
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'tags' => $tags,
             'operationId' => 'search' . $this->convertToOperationId($definition->getEntityName()),
+            'parameters' => [
+                new Parameter([
+                    'name' => 'sw-include-search-info',
+                    'in' => 'header',
+                    'schema' => [
+                        'type' => 'string',
+                        'enum' => ['0', '1'],
+                        'default' => '1',
+                    ],
+                    'description' => 'Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.',
+                ]),
+            ],
             'requestBody' => [
                 'required' => true,
                 'content' => [

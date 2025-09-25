@@ -43,7 +43,6 @@ class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTes
                 'translated' => [],
                 'createdAt' => $tax->getCreatedAt() ? $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                 'updatedAt' => null,
-                'extensions' => [],
                 'apiAlias' => 'tax',
             ];
         }

@@ -16,19 +16,37 @@ shopware.installer:
     forward: Videre
     start: Start
     start_installation: 'Start installasjonen'
-    select_language_cs: Tjekkisk
+    select_language_bg-BG: Bulgarsk
+    select_language_bs-BA: Bosnisk
+    select_language_cs-CZ: Tjekkisk
     select_language_da-DK: Dansk
-    select_language_de: Tysk
+    select_language_de-DE: Tysk
+    select_language_el-GR: Gresk
     select_language_en-US: Engelsk (Amerikas forente stater)
-    select_language_en: Engelsk (Storbritannia)
+    select_language_en-GB: Engelsk (Storbritannia)
     select_language_es-ES: Spansk
-    select_language_fr: Fransk
-    select_language_it: Italiensk
-    select_language_nl: Nederlandsk
-    select_language_no: Norsk
-    select_language_pl: Polsk
+    select_language_fi-FI: Finsk
+    select_language_fr-FR: Fransk
+    select_language_hi-IN: Hindi
+    select_language_hr-HR: Kroatisk
+    select_language_hu-HU: Ungarsk
+    select_language_id-ID: Indonesisk
+    select_language_it-IT: Italiensk
+    select_language_ko-KR: Koreansk
+    select_language_lv-LV: Latvisk
+    select_language_nl-NL: Nederlandsk
+    select_language_nn-NO: Norsk
+    select_language_pl-PL: Polsk
     select_language_pt-PT: Portugisisk
+    select_language_ro-RO: Rumensk
+    select_language_ru-RU: Russisk
+    select_language_sk-SK: Slovakisk
+    select_language_sl-SI: Slovensk
+    select_language_sr-RS: Serbisk
     select_language_sv-SE: Svensk
+    select_language_tr-TR: Tyrkisk
+    select_language_uk-UA: Ukrainsk
+    select_language_vi-VN: Vietnamesisk
     welcome_title: 'Velkommen til Shopware 6'
     language-selection_select_language: 'Installasjonsveiledningens språk'
     welcome_header: 'Din Shopware installasjon'

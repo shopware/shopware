@@ -16,19 +16,37 @@ shopware.installer:
     forward: Další
     start: Spustit
     start_installation: 'Spustit instalaci'
-    select_language_cs: Čeština
+    select_language_bg-BG: Bulharština
+    select_language_bs-BA: Bosenština
+    select_language_cs-CZ: Čeština
     select_language_da-DK: Dánština
-    select_language_de: Německy
+    select_language_de-DE: Německy
+    select_language_el-GR: Řečtina
     select_language_en-US: Anglicky (Spojené státy americké)
-    select_language_en: Anglicky (Spojené království)
+    select_language_en-GB: Anglicky (Spojené království)
     select_language_es-ES: Španělsky
-    select_language_fr: Francouzsky
-    select_language_it: Italsky
-    select_language_nl: Holandsky
-    select_language_no: Norský
-    select_language_pl: Polsky
+    select_language_fi-FI: Finština
+    select_language_fr-FR: Francouzsky
+    select_language_hi-IN: Hindština
+    select_language_hr-HR: Chorvatština
+    select_language_hu-HU: Maďarština
+    select_language_id-ID: Indonéština
+    select_language_it-IT: Italsky
+    select_language_ko-KR: Korejština
+    select_language_lv-LV: Lotyština
+    select_language_nl-NL: Holandsky
+    select_language_nn-NO: Norský
+    select_language_pl-PL: Polsky
     select_language_pt-PT: Portugalsky
+    select_language_ro-RO: Rumunština
+    select_language_ru-RU: Ruština
+    select_language_sk-SK: Slovenština
+    select_language_sl-SI: Slovinština
+    select_language_sr-RS: Srbština
     select_language_sv-SE: Švédský
+    select_language_tr-TR: Turečtina
+    select_language_uk-UA: Ukrajinština
+    select_language_vi-VN: Vietnamština
     welcome_title: 'Vítejte v aplikaci Shopware 6'
     language-selection_select_language: 'Jazyk průvodce instalací'
     welcome_header: 'Vaše instalace softwaru Shopware'

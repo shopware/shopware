@@ -203,18 +203,23 @@ class ShopConfigurationController extends InstallerController
         $languages = [
             'de-DE' => [
                 'id' => 'de-DE',
-                'label' => 'Deutsch',
+                'label' => $this->translator->trans('shopware.installer.select_language_de-DE'),
             ],
             'en-GB' => [
                 'id' => 'en-GB',
-                'label' => 'English',
+                'label' => $this->translator->trans('shopware.installer.select_language_en-GB'),
             ],
         ];
 
         foreach ($this->translationConfig->languages as $language) {
+            $translationKey = 'shopware.installer.select_language_' . $language->locale;
+            $translatedName = $this->translator->trans($translationKey);
+
+            $label = ($translatedName !== $translationKey) ? $translatedName : $language->name;
+
             $languages[$language->locale] = [
                 'id' => $language->locale,
-                'label' => $language->name,
+                'label' => $label,
             ];
         }
 

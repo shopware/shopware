@@ -259,7 +259,7 @@ export default class CookieConfiguration extends Plugin {
                                 cookiesToSet.push({
                                     cookie: entry.cookie,
                                     value: entry.value,
-                                    expiration: entry.expiration || 30
+                                    expiration: entry.expiration || 30,
                                 });
                             }
                         }
@@ -275,7 +275,7 @@ export default class CookieConfiguration extends Plugin {
                         cookiesToSet.push({
                             cookie: group.cookie,
                             value: group.value,
-                            expiration: group.expiration || 30
+                            expiration: group.expiration || 30,
                         });
                     }
                 }

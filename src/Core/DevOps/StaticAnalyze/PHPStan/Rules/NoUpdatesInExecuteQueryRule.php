@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
@@ -26,8 +26,8 @@ class NoUpdatesInExecuteQueryRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!($node->name instanceof Identifier) ||
-            $node->name->toString() !== 'executeQuery'
+        if (!($node->name instanceof Identifier)
+            || $node->name->toString() !== 'executeQuery'
         ) {
             return [];
         }
@@ -35,14 +35,14 @@ class NoUpdatesInExecuteQueryRule implements Rule
         $errors = [];
 
         $varType = $scope->getType($node->var);
-        if (in_array(QueryBuilder::class, $varType->getObjectClassNames(), true)) {
+        if (\in_array(QueryBuilder::class, $varType->getObjectClassNames(), true)) {
             $current = $node->var;
             $hasWriteCall = false;
 
             while ($current instanceof Node\Expr\MethodCall) {
                 if ($current->name instanceof Identifier) {
                     $method = strtolower($current->name->toString());
-                    if (in_array($method, ['update','insert','delete'], true)) {
+                    if (\in_array($method, ['update', 'insert', 'delete'], true)) {
                         $hasWriteCall = true;
                         break;
                     }

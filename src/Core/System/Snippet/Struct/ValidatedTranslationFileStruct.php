@@ -3,25 +3,22 @@
 namespace Shopware\Core\System\Snippet\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class ValidatedTranslationFileStruct extends Struct
+readonly class ValidatedTranslationFileStruct
 {
-    /**
-     * @var array<string, array<string, TranslationFile>> List of files that need to be fixed (key: agnostic identifier, value: list of locales)
-     */
-    private array $fixableFilesMapping = [];
+    private FixableTranslationFileCollection $fixableFiles;
 
-    private readonly TranslationFileCollection $fixingCollection;
+    private TranslationFileCollection $fixingCollection;
 
     public function __construct(
-        private readonly TranslationFileCollection $translationFiles = new TranslationFileCollection([]),
-        private readonly TranslationFileCollection $countrySpecificFiles = new TranslationFileCollection([]),
+        private TranslationFileCollection $translationFiles = new TranslationFileCollection([]),
+        private TranslationFileCollection $countrySpecificFiles = new TranslationFileCollection([]),
     ) {
+        $this->fixableFiles = new FixableTranslationFileCollection([]);
         $this->fixingCollection = new TranslationFileCollection([]);
     }
 
@@ -32,7 +29,9 @@ class ValidatedTranslationFileStruct extends Struct
 
     public function getDomainCollection(string $domain): TranslationFileCollection
     {
-        return $this->translationFiles->filter(static fn (TranslationFile $file) => self::getCollectionDomainName($file->getDomain()) === self::getCollectionDomainName($domain));
+        return $this->translationFiles->filter(
+            fn (TranslationFile $file) => $this->getCollectionDomainName($file->domain) === self::getCollectionDomainName($domain)
+        );
     }
 
     public function getSpecificCollection(): TranslationFileCollection
@@ -47,33 +46,35 @@ class ValidatedTranslationFileStruct extends Struct
 
     public function addFixableFile(TranslationFile $translationFile): void
     {
-        $this->fixableFilesMapping[$translationFile->getAgnosticPath()][$translationFile->getLocale()] = $translationFile;
+        $this->fixableFiles->add($translationFile);
     }
 
     /**
-     * @return array<string, array<string, TranslationFile>>
+     * @description List of all {@see TranslationFile}s, grouped by their missing agnostic counterpart
      */
-    public function getFixableFiles(): array
+    public function getFixableFiles(): FixableTranslationFileCollection
     {
-        return $this->fixableFilesMapping;
+        return $this->fixableFiles;
     }
 
     public function getFixableFileCount(): int
     {
         return \array_reduce(
-            $this->getFixableFiles(),
+            $this->getFixableFiles()->getElements(),
             static fn ($sum, $fixableFile) => $sum + \count($fixableFile),
             0,
         );
     }
 
     /**
+     * @description List of all {@see TranslationFile}s, which are missing an agnostic counterpart
+     *
      * @return list<TranslationFile>
      */
     public function getIssues(): array
     {
         return \array_reduce(
-            $this->getFixableFiles(),
+            $this->getFixableFiles()->getElements(),
             static function ($accumulator, $fixableFileOptions) {
                 foreach ($fixableFileOptions as $fixableFile) {
                     $accumulator[] = $fixableFile;
@@ -99,7 +100,7 @@ class ValidatedTranslationFileStruct extends Struct
      * @description Returns correct collection domain name. All files with a custom domain (e.g. 'swag-cms-extensions' instead of 'messages' or 'storefront')
      *   are no base files and therefore considered storefront files
      */
-    public static function getCollectionDomainName(string $domain): string
+    private function getCollectionDomainName(string $domain): string
     {
         return \in_array($domain, ['administration', 'messages'], true) ? $domain : 'storefront';
     }

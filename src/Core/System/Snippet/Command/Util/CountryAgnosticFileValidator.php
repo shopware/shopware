@@ -11,6 +11,8 @@ use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileOptions;
 use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -18,75 +20,21 @@ use Symfony\Component\Finder\Finder;
 #[Package('discovery')]
 class CountryAgnosticFileValidator
 {
-    public const CORE_DOMAINS = [
+    public const PLATFORM_DOMAINS = [
         'administration' => 'Administration',
         'messages' => 'Core',
         'storefront' => 'Storefront',
     ];
 
-    public function getFinder(ValidatedTranslationFileOptions $options): Finder
-    {
-        $finder = (new Finder())
-            ->files()
-            ->ignoreUnreadableDirs()
-            ->ignoreDotFiles(true)
-            ->ignoreVCS(true)
-            ->exclude([
-                'node_modules',
-                'vendor',
-                'bin',
-                'static',
-                // Translations of languages fetched from crowdin should not be validated
-                'SwagLanguagePack/src/Resources/snippet',
-                'SwagLanguagePack/src/Resources/app/administration/src/snippet',
-                ...$options->getIgnoredPaths(),
-            ])
-            ->name([SnippetPatterns::CORE_SNIPPET_FILE_PATTERN, SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN])
-            ->sortByName(true);
-
-        if ($options->getDir()) {
-            $finder->in($options->getDir());
-        } elseif (empty($options->getExtensionPaths())) {
-            $finder->in('src');
-
-            if ($options->isAll()) {
-                $finder->in('custom/plugins');
-                $finder->in('custom/apps');
-            }
-        } else {
-            $extensionPaths = \array_reduce($options->getExtensionPaths(), static function (array $accumulator, string $extension): array {
-                $extension = trim($extension);
-                $appPath = 'custom/apps/' . $extension;
-                $pluginPath = 'custom/plugins/' . $extension;
-
-                $isApp = is_dir('custom/apps/' . $extension);
-                $isPlugin = is_dir('custom/plugins/' . $extension);
-
-                if (!$isApp && !$isPlugin) {
-                    throw SnippetException::invalidExtension($extension);
-                }
-
-                if ($isApp) {
-                    $accumulator[] = $appPath;
-                }
-
-                if ($isPlugin) {
-                    $accumulator[] = $pluginPath;
-                }
-
-                return $accumulator;
-            }, []);
-
-            $finder->in($extensionPaths);
-        }
-
-        return $finder;
+    public function __construct(
+        private readonly Filesystem $filesystem,
+    ) {
     }
 
     public function checkTranslationFiles(ValidatedTranslationFileOptions $options): ValidatedTranslationFileStruct
     {
         $finder = $this->getFinder($options);
-        if ($finder->count() < 0) {
+        if ($finder->count() < 1) {
             return new ValidatedTranslationFileStruct();
         }
 
@@ -115,25 +63,14 @@ class CountryAgnosticFileValidator
 
             $currentFileData = $isAdminTranslationFile ? $adminFileData : $coreFileData;
 
-            $currentDomain = $currentFileData['domain'] ?? 'administration';
-            $formatedLanguageStruct = new TranslationFile(
-                $filename,
-                $file->getPath(),
-                $currentDomain,
-                str_replace('_', '-', $currentFileData['locale']),
-                $currentFileData['language'] ?? null,
-                $currentFileData['script'] ?: null,
-                $currentFileData['region'] ?: null,
-                !$isAdminTranslationFile && !empty($currentFileData['isBase']),
+            $formatedLanguageStruct = $this->createTranslationFile(
+                $currentFileData,
+                $file,
+                (bool) $isAdminTranslationFile,
+                $countrySpecificFileCollection,
             );
 
-            $fileIdentifier = $formatedLanguageStruct->getFullPath();
-
-            if ($formatedLanguageStruct->getRegion()) {
-                $countrySpecificFileCollection->set($fileIdentifier, $formatedLanguageStruct);
-            }
-
-            $languageFiles->set($fileIdentifier, $formatedLanguageStruct);
+            $languageFiles->add($formatedLanguageStruct);
         }
 
         return $this->processAgnosticFiles(new ValidatedTranslationFileStruct(
@@ -142,14 +79,14 @@ class CountryAgnosticFileValidator
         ));
     }
 
-    public function processAgnosticFiles(ValidatedTranslationFileStruct $validatedFileStruct): ValidatedTranslationFileStruct
+    private function processAgnosticFiles(ValidatedTranslationFileStruct $validatedFileStruct): ValidatedTranslationFileStruct
     {
-        $count = $validatedFileStruct->getSpecificCollection()->count();
-        if ($count < 1) {
+        $specificCollection = $validatedFileStruct->getSpecificCollection();
+        if ($specificCollection->count() === 0) {
             return $validatedFileStruct;
         }
 
-        foreach ($validatedFileStruct->getSpecificCollection()->getElements() as $countrySpecificFile) {
+        foreach ($specificCollection as $countrySpecificFile) {
             $translationCollection = $validatedFileStruct->getCompleteCollection();
 
             // If no agnostic file exists, $countrySpecificFile is content for `fixFilenames` to be fixed
@@ -163,13 +100,104 @@ class CountryAgnosticFileValidator
 
     public function fixFilenames(ValidatedTranslationFileStruct $validatedFileStruct): void
     {
-        $fileSystem = new Filesystem();
-
         foreach ($validatedFileStruct->getFixingCollection() as $translationFile) {
-            $fileSystem->rename(
+            $this->filesystem->rename(
                 $translationFile->getFullPath(),
                 $translationFile->getAgnosticPath(),
             );
         }
+    }
+
+    private function getFinder(ValidatedTranslationFileOptions $options): Finder
+    {
+        $finder = (new Finder())
+            ->files()
+            ->ignoreUnreadableDirs()
+            ->ignoreDotFiles(true)
+            ->ignoreVCS(true)
+            ->exclude([
+                'node_modules',
+                'vendor',
+                'bin',
+                'static',
+                // Translations of languages fetched from crowdin should not be validated
+                'SwagLanguagePack/src/Resources/snippet',
+                'SwagLanguagePack/src/Resources/app/administration/src/snippet',
+                ...$options->ignoredPaths,
+            ])
+            ->name([SnippetPatterns::CORE_SNIPPET_FILE_PATTERN, SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN])
+            ->sortByName(true);
+
+        if ($options->dir) {
+            $finder->in($options->dir);
+        } elseif (empty($options->extensionPaths)) {
+            $finder->in('src');
+
+            if ($options->isAll) {
+                $finder->in('custom/plugins');
+                $finder->in('custom/apps');
+            }
+        } else {
+            $finder->in($this->getExtensionPaths($options));
+        }
+
+        return $finder;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getExtensionPaths(ValidatedTranslationFileOptions $options): array
+    {
+        return \array_reduce($options->extensionPaths, static function (array $accumulator, string $extension): array {
+            $extension = trim($extension);
+            $appPath = 'custom/apps/' . $extension;
+            $pluginPath = 'custom/plugins/' . $extension;
+
+            $isApp = is_dir('custom/apps/' . $extension);
+            $isPlugin = is_dir('custom/plugins/' . $extension);
+
+            if (!$isApp && !$isPlugin) {
+                throw SnippetException::invalidExtension($extension);
+            }
+
+            if ($isApp) {
+                $accumulator[] = $appPath;
+            }
+
+            if ($isPlugin) {
+                $accumulator[] = $pluginPath;
+            }
+
+            return $accumulator;
+        }, []);
+    }
+
+    /**
+     * @param array<int|string, string> $currentFileData
+     */
+    private function createTranslationFile(
+        array $currentFileData,
+        SplFileInfo $file,
+        bool $isAdminTranslationFile,
+        TranslationFileCollection $countrySpecificFileCollection
+    ): TranslationFile {
+        $currentDomain = $currentFileData['domain'] ?? 'administration';
+        $formatedLanguageStruct = new TranslationFile(
+            $file->getFilename(),
+            $file->getPath(),
+            $currentDomain,
+            str_replace('_', '-', $currentFileData['locale']),
+            $currentFileData['language'] ?? null,
+            $currentFileData['script'] ?: null,
+            $currentFileData['region'] ?: null,
+            !$isAdminTranslationFile && !empty($currentFileData['isBase']),
+        );
+
+        if ($formatedLanguageStruct->region) {
+            $countrySpecificFileCollection->add($formatedLanguageStruct);
+        }
+
+        return $formatedLanguageStruct;
     }
 }

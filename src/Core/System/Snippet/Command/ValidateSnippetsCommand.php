@@ -16,6 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ * @deprecated tag:v6.8.0 - reason:parameter-name-change - alias 'snippets:validate' will be removed
+ *
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */
 #[AsCommand(

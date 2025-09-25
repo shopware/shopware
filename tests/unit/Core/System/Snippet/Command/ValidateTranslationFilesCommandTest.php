@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileValidator;
 use Shopware\Core\System\Snippet\Command\ValidateTranslationFilesCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -49,9 +50,12 @@ class ValidateTranslationFilesCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        (new Filesystem())->mirror(self::FIXTURES_SOURCE_PATH, self::FIXTURES_PATH);
+        $filesystem = new Filesystem();
+        $filesystem->mirror(self::FIXTURES_SOURCE_PATH, self::FIXTURES_PATH);
 
-        $this->tester = new CommandTester(new ValidateTranslationFilesCommand());
+        $this->tester = new CommandTester(
+            new ValidateTranslationFilesCommand(new CountryAgnosticFileValidator($filesystem))
+        );
     }
 
     protected function tearDown(): void

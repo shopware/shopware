@@ -36,7 +36,13 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileValidator">
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\Command\ValidateTranslationFilesCommand">
+            <argument type="service" id="Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileValidator"/>
+
             <tag name="console.command"/>
         </service>
 

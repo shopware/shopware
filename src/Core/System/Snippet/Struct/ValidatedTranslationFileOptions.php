@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Snippet\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Snippet\Command\ValidateTranslationFilesCommand;
 use Symfony\Component\Console\Input\InputInterface;
 
@@ -11,50 +10,19 @@ use Symfony\Component\Console\Input\InputInterface;
  * @internal
  */
 #[Package('discovery')]
-class ValidatedTranslationFileOptions extends Struct
+readonly class ValidatedTranslationFileOptions
 {
     /**
      * @param list<string> $extensionPaths
      * @param list<string> $ignoredPaths
      */
     public function __construct(
-        protected bool $fix = false,
-        protected bool $all = false,
-        protected array $extensionPaths = [],
-        protected array $ignoredPaths = [],
-        protected ?string $dir = null,
+        public bool $isFix = false,
+        public bool $isAll = false,
+        public array $extensionPaths = [],
+        public array $ignoredPaths = [],
+        public ?string $dir = null,
     ) {
-    }
-
-    public function isFix(): bool
-    {
-        return $this->fix;
-    }
-
-    public function isAll(): bool
-    {
-        return $this->all;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getExtensionPaths(): array
-    {
-        return $this->extensionPaths;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getIgnoredPaths(): array
-    {
-        return $this->ignoredPaths;
-    }
-
-    public function getDir(): ?string
-    {
-        return $this->dir;
     }
 
     /**

@@ -9,7 +9,6 @@ use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileOptions;
 use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileStruct;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,6 +24,12 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 #[Package('discovery')]
 class ValidateTranslationFilesCommand extends Command
 {
+    public function __construct(
+        private readonly CountryAgnosticFileValidator $fileValidator,
+    ) {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this->addOption(
@@ -68,26 +73,23 @@ class ValidateTranslationFilesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new ShopwareStyle($input, $output);
         $options = ValidatedTranslationFileOptions::fromInputInterface($input);
-        $fileValidator = new CountryAgnosticFileValidator();
 
-        $validatedFileStruct = $fileValidator->checkTranslationFiles($options);
+        $validatedFileStruct = $this->fileValidator->checkTranslationFiles($options);
 
-        if ($options->isFix() && $validatedFileStruct->getFixableFileCount() > 0) {
-            $validatedFileStruct = $this->hydrateFixingCollection($input, $output, $validatedFileStruct);
-            $fileValidator->fixFilenames($validatedFileStruct);
+        if ($options->isFix && $validatedFileStruct->getFixableFileCount() > 0) {
+            $validatedFileStruct = $this->hydrateFixingCollection($io, $validatedFileStruct);
+            $this->fileValidator->fixFilenames($validatedFileStruct);
         }
 
-        return $this->renderOutput($input, $output, $validatedFileStruct, $options);
+        return $this->renderOutput($io, $validatedFileStruct, $options);
     }
 
     private function hydrateFixingCollection(
-        InputInterface $input,
-        OutputInterface $output,
+        ShopwareStyle $io,
         ValidatedTranslationFileStruct $validatedFileStruct,
     ): ValidatedTranslationFileStruct {
-        $io = new ShopwareStyle($input, $output);
-
         foreach ($validatedFileStruct->getFixableFiles() as $targetPath => $fileOptions) {
             $selection = array_key_first($fileOptions);
 
@@ -108,32 +110,29 @@ class ValidateTranslationFilesCommand extends Command
     }
 
     private function renderOutput(
-        InputInterface $input,
-        OutputInterface $output,
+        ShopwareStyle $io,
         ValidatedTranslationFileStruct $validatedFileStruct,
         ValidatedTranslationFileOptions $validatedFileOptions,
     ): int {
-        $io = new ShopwareStyle($input, $output);
-
-        if (!$validatedFileOptions->isFix()) {
-            foreach (CountryAgnosticFileValidator::CORE_DOMAINS as $domain => $label) {
-                $this->renderDomainTable($input, $output, $domain, $validatedFileStruct);
+        if (!$validatedFileOptions->isFix) {
+            foreach (\array_keys(CountryAgnosticFileValidator::PLATFORM_DOMAINS) as $domain) {
+                $this->renderDomainTable($io, $domain, $validatedFileStruct);
             }
         }
 
-        $this->renderIssuesTable($input, $output, $validatedFileStruct);
+        $this->renderIssuesTable($io, $validatedFileStruct);
 
         if ($validatedFileStruct->getFixableFileCount() < 1) {
             $io->success(\sprintf(
                 'All translation files are named correctly.%s',
-                $validatedFileOptions->isFix() ? ' Nothing to fix.' : '',
+                $validatedFileOptions->isFix ? ' Nothing to fix.' : '',
             ));
 
             return self::SUCCESS;
         }
 
-        if ($validatedFileOptions->isFix()) {
-            $this->renderFixedTable($input, $output, $validatedFileStruct);
+        if ($validatedFileOptions->isFix) {
+            $this->renderFixedTable($io, $validatedFileStruct);
 
             return self::SUCCESS;
         }
@@ -144,18 +143,16 @@ class ValidateTranslationFilesCommand extends Command
     }
 
     private function renderDomainTable(
-        InputInterface $input,
-        OutputInterface $output,
+        ShopwareStyle $io,
         string $domain,
         ValidatedTranslationFileStruct $validatedFileStruct
     ): void {
-        $io = new ShopwareStyle($input, $output);
         $domainCollection = $validatedFileStruct->getDomainCollection($domain);
 
         if ($domainCollection->count() < 1) {
             $io->note(\sprintf(
                 'No %s files found',
-                CountryAgnosticFileValidator::CORE_DOMAINS[$domain],
+                CountryAgnosticFileValidator::PLATFORM_DOMAINS[$domain],
             ));
 
             return;
@@ -166,24 +163,24 @@ class ValidateTranslationFilesCommand extends Command
             $headers[] = 'Base';
         }
 
-        $domainTable = (new Table($output))
-            ->setHeaderTitle(CountryAgnosticFileValidator::CORE_DOMAINS[$domain] . ' files')
+        $domainTable = $io->createTable()
+            ->setHeaderTitle(CountryAgnosticFileValidator::PLATFORM_DOMAINS[$domain] . ' files')
             ->setHeaders($headers)
             ->setStyle('box-double');
 
         foreach ($validatedFileStruct->getDomainCollection($domain) as $translationFile) {
             $row = [
-                $translationFile->getFilename(),
-                $translationFile->getPath(),
-                $translationFile->getDomain(),
-                $translationFile->getLocale(),
-                $translationFile->getLanguage(),
-                $translationFile->getScript() ?? '-',
-                $translationFile->getRegion() ?? '-',
+                $translationFile->filename,
+                $translationFile->path,
+                $translationFile->domain,
+                $translationFile->locale,
+                $translationFile->language,
+                $translationFile->script ?? '-',
+                $translationFile->region ?? '-',
             ];
 
             if ($domain !== 'administration') {
-                $row[] = $translationFile->isBase() ? 'true' : 'false';
+                $row[] = $translationFile->isBase ? 'true' : 'false';
             }
 
             $domainTable->addRow($row);
@@ -193,18 +190,16 @@ class ValidateTranslationFilesCommand extends Command
 
         $io->text(\sprintf(
             '%s files found: %s',
-            CountryAgnosticFileValidator::CORE_DOMAINS[$domain],
+            CountryAgnosticFileValidator::PLATFORM_DOMAINS[$domain],
             $validatedFileStruct->getDomainCount($domain)
         ));
         $io->newLine();
     }
 
     private function renderIssuesTable(
-        InputInterface $input,
-        OutputInterface $output,
+        ShopwareStyle $io,
         ValidatedTranslationFileStruct $validatedFileStruct
     ): void {
-        $io = new ShopwareStyle($input, $output);
         $issuesCollection = $validatedFileStruct->getIssues();
         $issuesCount = \count($issuesCollection);
 
@@ -212,17 +207,17 @@ class ValidateTranslationFilesCommand extends Command
             return;
         }
 
-        $issuesTable = (new Table($output))
-            ->setHeaderTitle('Problems')
+        $issuesTable = $io->createTable()
+            ->setHeaderTitle('Issues')
             ->setHeaders(['File name', 'Locale', 'Missing file', 'Path'])
             ->setStyle('box-double');
 
         foreach ($issuesCollection as $translationFile) {
             $issuesTable->addRow([
-                $translationFile->getFilename(),
-                $translationFile->getLocale(),
+                $translationFile->filename,
+                $translationFile->locale,
                 $translationFile->getAgnosticFilename(),
-                $translationFile->getPath(),
+                $translationFile->path,
             ]);
         }
 
@@ -233,22 +228,19 @@ class ValidateTranslationFilesCommand extends Command
     }
 
     private function renderFixedTable(
-        InputInterface $input,
-        OutputInterface $output,
+        ShopwareStyle $io,
         ValidatedTranslationFileStruct $validatedFileStruct
     ): void {
-        $io = new ShopwareStyle($input, $output);
-
-        $fixedTable = (new Table($output))
+        $fixedTable = $io->createTable()
             ->setHeaderTitle('Fixed files')
             ->setHeaders(['Old filename', 'New filename', 'Path'])
             ->setStyle('box-double');
 
         foreach ($validatedFileStruct->getFixingCollection() as $translationFile) {
             $fixedTable->addRow([
-                $translationFile->getFilename(),
+                $translationFile->filename,
                 $translationFile->getAgnosticFilename(),
-                $translationFile->getPath(),
+                $translationFile->path,
             ]);
         }
 

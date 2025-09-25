@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-abstract class SnippetPatterns
+final class SnippetPatterns
 {
     /**
      * Locale pattern based on BCP 47,
@@ -28,4 +28,8 @@ abstract class SnippetPatterns
         '(?:\.(?P<isBase>base))?\.json$/';      // optional "base" suffix and .json file extension
 
     public const ADMIN_SNIPPET_FILE_PATTERN = '/^' . self::LOCALE_PATTERN_BCP47_ISO639_1 . '\.json$/';
+
+    private function __construct()
+    {
+    }
 }

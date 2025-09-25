@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\Snippet\Command\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -22,84 +21,20 @@ class CountryAgnosticFileValidatorTest extends TestCase
 {
     private const FIXTURES_SOURCE_PATH = 'tests/unit/Core/System/Snippet/Command/_fixtures';
     private const FIXTURES_PATH = self::FIXTURES_SOURCE_PATH . '/../temp';
-    private const FIXTURES_SUBDIRECTORY = 'subdir';
 
     public CountryAgnosticFileValidator $fileValidator;
 
     protected function setUp(): void
     {
-        (new Filesystem())->mirror(self::FIXTURES_SOURCE_PATH, self::FIXTURES_PATH);
-        $this->fileValidator = new CountryAgnosticFileValidator();
+        $filesystem = new Filesystem();
+        $filesystem->mirror(self::FIXTURES_SOURCE_PATH, self::FIXTURES_PATH);
+
+        $this->fileValidator = new CountryAgnosticFileValidator($filesystem);
     }
 
     protected function tearDown(): void
     {
         (new Filesystem())->remove(self::FIXTURES_PATH);
-    }
-
-    /**
-     * @return \Generator<string, array<string, bool>>
-     */
-    public static function getFinderDataProviderWithDefaultFiles(): \Generator
-    {
-        yield 'Options: none' => [
-            'allParameter' => false,
-        ];
-
-        yield 'Options: all' => [
-            'allParameter' => true,
-        ];
-    }
-
-    #[DataProvider('getFinderDataProviderWithDefaultFiles')]
-    public function testGetFinderDataProviderWithDefaultFiles(bool $allParameter): void
-    {
-        $options = new ValidatedTranslationFileOptions(false, $allParameter);
-        $finder = $this->fileValidator->getFinder($options);
-        $files = iterator_to_array($finder->getIterator());
-
-        static::assertTrue(\count($files) > 100, \sprintf(
-            'Expected to find more than 100 files %s enabled "all" parameter',
-            $allParameter ? 'with' : 'without'
-        ));
-    }
-
-    /**
-     * @return \Generator<string, array{
-     *     ignoredPaths: list<string>,
-     *     expectedCount: int
-     * }>
-     */
-    public static function getFinderDataProviderWithDirDataProvider(): \Generator
-    {
-        yield 'All fixtures' => [
-            'ignoredPaths' => [],
-            'expectedCount' => 18,
-        ];
-
-        yield 'All fixtures without sub directory' => [
-            'ignoredPaths' => [self::FIXTURES_SUBDIRECTORY],
-            'expectedCount' => 10,
-        ];
-    }
-
-    /**
-     * @param list<string> $ignoredPaths
-     */
-    #[DataProvider('getFinderDataProviderWithDirDataProvider')]
-    public function testGetFinderDataProviderWithDir(array $ignoredPaths, int $expectedCount): void
-    {
-        $options = new ValidatedTranslationFileOptions(
-            false,
-            false,
-            [],
-            $ignoredPaths,
-            self::FIXTURES_PATH,
-        );
-        $finder = $this->fileValidator->getFinder($options);
-        $files = iterator_to_array($finder->getIterator());
-
-        static::assertCount($expectedCount, $files);
     }
 
     public function testCheckTranslationFiles(): void

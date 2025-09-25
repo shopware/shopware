@@ -13,7 +13,14 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('discovery')]
 class TranslationFileCollection extends Collection
 {
-    protected function getExpectedClass(): ?string
+    public function add($element): void
+    {
+        $this->validateType($element);
+
+        $this->set($element->getFullPath(), $element);
+    }
+
+    protected function getExpectedClass(): string
     {
         return TranslationFile::class;
     }

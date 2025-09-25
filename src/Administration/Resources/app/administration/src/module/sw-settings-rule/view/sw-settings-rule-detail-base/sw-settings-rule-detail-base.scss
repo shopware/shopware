@@ -1,0 +1,9 @@
+.sw-settings-rule-detail-base {
+    &__product-stream-warning {
+        padding: var(--scale-size-24) var(--scale-size-24) 0 var(--scale-size-24);
+    }
+
+    .mt-banner {
+        margin-block-end: 0;
+    }
+}

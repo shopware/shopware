@@ -279,14 +279,16 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _removeLoadingIndicators() {
-        this.options.replaceSelectors.forEach((selector) => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => {
-                ElementLoadingIndicatorUtil.remove(el);
+        if (this.options.replaceSelectors) {
+            this.options.replaceSelectors.forEach((selector) => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    ElementLoadingIndicatorUtil.remove(el);
+                });
             });
-        });
+        }
 
-        this.$emitter.publish('createLoadingIndicators');
+        this.$emitter.publish('removeLoadingIndicators');
     }
 
     /**

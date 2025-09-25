@@ -62,7 +62,6 @@ const template = `
 
 describe('CookieConfiguration plugin tests', () => {
     let plugin;
-    let originalHref;
 
     beforeEach(() => {
         window.router = {
@@ -95,13 +94,14 @@ describe('CookieConfiguration plugin tests', () => {
 
         jest.spyOn(AjaxOffCanvas, 'open').mockImplementation(jest.fn());
         jest.spyOn(AjaxOffCanvas, 'close').mockImplementation(jest.fn());
-        originalHref = window.location.href;
     });
 
     afterEach(() => {
         const cookies = plugin._getCookies('all');
 
-        cookies.forEach(el => CookieStorage.removeItem(el.cookie));
+        cookies.forEach(el => {
+            CookieStorage.removeItem(el.cookie);
+        });
         CookieStorage.removeItem(plugin.options.cookiePreference);
 
         document.$emitter.unsubscribe(COOKIE_CONFIGURATION_UPDATE);
@@ -134,20 +134,17 @@ describe('CookieConfiguration plugin tests', () => {
         });
     });
 
-    test('The preference flag is set, when cookie settings are submitted', () => {
+    test('The preference flag is set when cookie settings are submitted or all cookies are accepted', () => {
         expect(CookieStorage.getItem(plugin.options.cookiePreference)).toBeFalsy();
 
         plugin._handleSubmit();
-
         expect(CookieStorage.getItem(plugin.options.cookiePreference)).toBeTruthy();
-    });
 
-
-    test('The preference flag is set, when all cookies are accepted', () => {
+        // Reset for second test
+        CookieStorage.removeItem(plugin.options.cookiePreference);
         expect(CookieStorage.getItem(plugin.options.cookiePreference)).toBeFalsy();
 
         plugin._handleAcceptAll();
-
         expect(CookieStorage.getItem(plugin.options.cookiePreference)).toBeTruthy();
     });
 
@@ -231,7 +228,7 @@ describe('CookieConfiguration plugin tests', () => {
         expect(CookieStorage.getItem(optionalAndInactive[0])).toBeFalsy();
     });
 
-    test('Ensure that it sets the `loadIntoMemory` flag is set if the accept all button is pressed ', () => {
+    test('Ensure that loadIntoMemory flag triggers fetch when accept all button is pressed from cookie bar', () => {
         plugin._acceptAllCookiesFromCookieBar();
 
         expect(global.fetch).toHaveBeenCalledWith('https://shop.example.com/offcanvas', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
@@ -303,5 +300,211 @@ describe('CookieConfiguration plugin tests', () => {
         plugin._restoreFocus();
         expect(focusSpy).toHaveBeenCalled();
         document.body.removeChild(btn);
+    });
+
+    test('_handlePermission sets cookie preference and calls closeOffCanvas', () => {
+        const event = { preventDefault: jest.fn() };
+        const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+        const closeOffCanvasSpy = jest.spyOn(plugin, 'closeOffCanvas');
+
+        plugin._handlePermission(event);
+
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', '30');
+        expect(closeOffCanvasSpy).toHaveBeenCalled();
+
+        setItemSpy.mockRestore();
+        closeOffCanvasSpy.mockRestore();
+    });
+
+    test('closeOffCanvas executes callback when provided', () => {
+        const callback = jest.fn();
+        plugin.closeOffCanvas(callback);
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+        expect(callback).toHaveBeenCalled();
+    });
+
+    test('_handleUpdateListener calls Google reCAPTCHA plugins when available', () => {
+        window.registerGoogleReCaptchaPlugins = jest.fn();
+        const initializePluginsSpy = jest.spyOn(window.PluginManager, 'initializePlugins');
+
+        plugin._handleUpdateListener([], []);
+
+        expect(window.registerGoogleReCaptchaPlugins).toHaveBeenCalled();
+        expect(initializePluginsSpy).toHaveBeenCalled();
+
+        delete window.registerGoogleReCaptchaPlugins;
+    });
+
+    test('_checkAndShowCookieBarIfNeeded shows cookie bar when no preference is set', () => {
+        const mockCookiePermissionPlugin = {
+            _showCookieBar: jest.fn(),
+            _setBodyPadding: jest.fn()
+        };
+
+        window.PluginManager.getPluginInstances.mockReturnValue([mockCookiePermissionPlugin]);
+        jest.spyOn(CookieStorage, 'getItem').mockReturnValue(null);
+
+        plugin._checkAndShowCookieBarIfNeeded();
+
+        expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
+        expect(mockCookiePermissionPlugin._setBodyPadding).toHaveBeenCalled();
+
+        CookieStorage.getItem.mockRestore();
+    });
+
+    test('_handleCheckbox calls correct callback based on parent input class', () => {
+        // Create a group container first
+        const group = document.createElement('div');
+        group.classList.add('offcanvas-cookie-group');
+
+        const target = document.createElement('input');
+        target.type = 'checkbox';
+        target.classList.add('offcanvas-cookie-parent-input');
+
+        group.appendChild(target);
+        document.body.appendChild(group);
+
+        const parentCheckboxEventSpy = jest.spyOn(plugin, '_parentCheckboxEvent');
+        const event = { target };
+
+        plugin._handleCheckbox(event);
+
+        expect(parentCheckboxEventSpy).toHaveBeenCalledWith(target);
+
+        document.body.removeChild(group);
+        parentCheckboxEventSpy.mockRestore();
+    });
+
+    test('_parentCheckboxEvent toggles whole group', () => {
+        // Create a parent checkbox within a group
+        const group = document.createElement('div');
+        group.classList.add('offcanvas-cookie-group');
+
+        const parentCheckbox = document.createElement('input');
+        parentCheckbox.type = 'checkbox';
+        parentCheckbox.checked = true;
+        parentCheckbox.classList.add('offcanvas-cookie-parent-input');
+
+        group.appendChild(parentCheckbox);
+        document.body.appendChild(group);
+
+        const toggleWholeGroupSpy = jest.spyOn(plugin, '_toggleWholeGroup');
+
+        plugin._parentCheckboxEvent(parentCheckbox);
+
+        expect(toggleWholeGroupSpy).toHaveBeenCalledWith(true, group);
+
+        document.body.removeChild(group);
+        toggleWholeGroupSpy.mockRestore();
+    });
+
+    test('_toggleWholeGroup sets all checkboxes to specified state', () => {
+        const group = document.createElement('div');
+        const checkbox1 = document.createElement('input');
+        checkbox1.type = 'checkbox';
+        const checkbox2 = document.createElement('input');
+        checkbox2.type = 'checkbox';
+
+        group.appendChild(checkbox1);
+        group.appendChild(checkbox2);
+
+        plugin._toggleWholeGroup(true, group);
+
+        expect(checkbox1.checked).toBe(true);
+        expect(checkbox2.checked).toBe(true);
+
+        plugin._toggleWholeGroup(false, group);
+
+        expect(checkbox1.checked).toBe(false);
+        expect(checkbox2.checked).toBe(false);
+    });
+
+    test('CookieConfiguration/requestConsent event subscription is set up during init', () => {
+        const subscribeSpy = jest.spyOn(document.$emitter, 'subscribe');
+
+        // Create a fresh plugin instance to test the event subscription in init
+        const container = document.createElement('div');
+        new CookieConfiguration(container);
+
+        expect(subscribeSpy).toHaveBeenCalledWith('CookieConfiguration/requestConsent', expect.any(Function));
+
+        subscribeSpy.mockRestore();
+    });
+
+
+    test('_registerOffCanvasCloseListener subscribes to onCloseOffcanvas event', () => {
+        const subscribeSpy = jest.spyOn(document.$emitter, 'subscribe');
+
+        plugin._registerOffCanvasCloseListener();
+
+        expect(subscribeSpy).toHaveBeenCalledWith('onCloseOffcanvas', expect.any(Function));
+
+        subscribeSpy.mockRestore();
+    });
+
+    test('openRequestConsentOffCanvas returns early when route or cookieName is missing', () => {
+        const openSpy = jest.spyOn(AjaxOffCanvas, 'open');
+
+        // Test with missing route
+        plugin.openRequestConsentOffCanvas('', 'cookieName');
+        expect(openSpy).not.toHaveBeenCalled();
+
+        // Test with missing cookieName
+        plugin.openRequestConsentOffCanvas('/route', '');
+        expect(openSpy).not.toHaveBeenCalled();
+
+        openSpy.mockRestore();
+    });
+
+    test('_registerConsentOffcanvasEvents registers all consent button event listeners', () => {
+        const offcanvas = document.createElement('div');
+
+        const acceptBtn = document.createElement('button');
+        acceptBtn.classList.add('js-wishlist-cookie-accept');
+
+        const loginBtn = document.createElement('button');
+        loginBtn.classList.add('js-wishlist-login');
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.classList.add('js-wishlist-cookie-offcanvas-cancel');
+
+        const prefBtn = document.createElement('button');
+        prefBtn.classList.add('js-wishlist-cookie-preferences');
+
+        offcanvas.appendChild(acceptBtn);
+        offcanvas.appendChild(loginBtn);
+        offcanvas.appendChild(cancelBtn);
+        offcanvas.appendChild(prefBtn);
+
+        const acceptAddEventListenerSpy = jest.spyOn(acceptBtn, 'addEventListener');
+        const loginAddEventListenerSpy = jest.spyOn(loginBtn, 'addEventListener');
+        const cancelAddEventListenerSpy = jest.spyOn(cancelBtn, 'addEventListener');
+        const prefAddEventListenerSpy = jest.spyOn(prefBtn, 'addEventListener');
+
+        plugin._registerConsentOffcanvasEvents(offcanvas, 'test-cookie');
+
+        expect(acceptAddEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+        expect(loginAddEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+        expect(cancelAddEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+        expect(prefAddEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+    });
+
+    test('acceptAllCookies with loadIntoMemory false calls _handleAcceptAll and closeOffCanvas', () => {
+        const handleAcceptAllSpy = jest.spyOn(plugin, '_handleAcceptAll');
+        const closeOffCanvasSpy = jest.spyOn(plugin, 'closeOffCanvas');
+
+        plugin.acceptAllCookies(false);
+
+        expect(handleAcceptAllSpy).toHaveBeenCalled();
+        expect(closeOffCanvasSpy).toHaveBeenCalled();
+
+        handleAcceptAllSpy.mockRestore();
+        closeOffCanvasSpy.mockRestore();
+    });
+
+    test('_getCookies returns empty array for default case', () => {
+        const result = plugin._getCookies('invalid-type');
+        expect(result).toEqual([]);
     });
 });

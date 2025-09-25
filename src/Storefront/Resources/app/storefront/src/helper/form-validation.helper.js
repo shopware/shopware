@@ -350,6 +350,7 @@ export default class FormValidation {
      * Validates Google reCAPTCHA v3/v2 cookies.
      * Checks if the required cookies are set to allow reCAPTCHA functionality.
      * This validates that users have accepted cookies before trying to use reCAPTCHA.
+     * Dispatches a custom event to show the cookie bar if validation fails.
      *
      * @param {string} _value - The field value (unused for cookie validation)
      * @param {HTMLElement} field
@@ -369,6 +370,11 @@ export default class FormValidation {
 
         const grecaptchaCookie = CookieStorageHelper.getItem('_GRECAPTCHA');
         const grecaptchaCookieAccepted = grecaptchaCookie === '1';
+
+        if (!grecaptchaCookieAccepted) {
+            const showCookieBarEvent = new CustomEvent('showCookieBar');
+            document.dispatchEvent(showCookieBarEvent);
+        }
 
         return grecaptchaCookieAccepted;
     }

@@ -20,10 +20,10 @@
 
 /* global PluginManager */
 
-import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import Plugin from 'src/plugin-system/plugin.class';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
@@ -227,12 +227,9 @@ export default class CookieConfiguration extends Plugin {
         const { cookiePreference } = this.options;
         const cookiePermission = CookieStorage.getItem(cookiePreference);
 
-        // If no cookie preference is set, show the cookie bar again
         if (!cookiePermission) {
-            const cookiePermissionPlugin = PluginManager.getPluginInstances('CookiePermission');
-
-            cookiePermissionPlugin?.[0]?._showCookieBar();
-            cookiePermissionPlugin?.[0]?._setBodyPadding();
+            const showCookieBarEvent = new CustomEvent('showCookieBar');
+            document.dispatchEvent(showCookieBarEvent);
         }
     }
 
@@ -259,10 +256,8 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerOffCanvasCloseListener() {
-        // Listen to the offcanvas close event to check cookie preferences
         const onOffCanvasClose = () => {
             this._checkAndShowCookieBarIfNeeded();
-            // Remove the listener to avoid memory leaks
             document.$emitter.unsubscribe('onCloseOffcanvas', onOffCanvasClose);
         };
 
@@ -270,10 +265,8 @@ export default class CookieConfiguration extends Plugin {
     }
 
     _hideCookieBar() {
-        const cookiePermissionPlugin = PluginManager.getPluginInstances('CookiePermission');
-
-        cookiePermissionPlugin?.[0]?._hideCookieBar();
-        cookiePermissionPlugin?.[0]?._removeBodyPadding();
+        const hideCookieBarEvent = new CustomEvent('hideCookieBar');
+        document.dispatchEvent(hideCookieBarEvent);
     }
 
     /**

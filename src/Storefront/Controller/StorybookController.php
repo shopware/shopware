@@ -1,37 +1,35 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Controller\Api;
+namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Defaults;
+use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Doctrine\DBAL\Connection;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
 class StorybookController extends AbstractController
 {
@@ -61,12 +59,12 @@ class StorybookController extends AbstractController
     }
 
     #[Route(
-        path: '/store-api/storybook/{component}',
-        name: 'store-api.storybook.component',
+        path: '/storybook/{component}',
+        name: 'storybook.component',
         defaults: ['auth_required' => false],
         methods: ['GET']
     )]
-    public function storybook(Request $request, ?SalesChannelContext $context = null): Response
+    public function storybook(Request $request): Response
     {
         $isDev = EnvironmentHelper::getVariable('APP_ENV', 'prod') === 'dev';
 
@@ -76,11 +74,9 @@ class StorybookController extends AbstractController
         }
 
         // Build SalesChannelContext
-        if ($context === null) {
-            $salesChannel = $this->getFirstAvailableSalesChannel();
-            $salesChannelId = $salesChannel->getId();
-            $context = $this->contextFactory->create('', $salesChannelId);
-        }
+        $salesChannel = $this->getFirstAvailableSalesChannel();
+        $salesChannelId = $salesChannel->getId();
+        $context = $this->contextFactory->create('', $salesChannelId);
 
         $this->twig->addGlobal('context', $context);
 

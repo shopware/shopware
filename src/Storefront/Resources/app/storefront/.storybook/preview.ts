@@ -2,7 +2,7 @@ import type { Preview } from '@storybook/server-webpack5'
 
 // Get the app URL from environment variables (injected by Storybook)
 const appUrl = process.env.APP_URL;
-const storybookApiUrl = `${appUrl}/store-api/storybook`;
+const storybookApiUrl = `${appUrl}/storybook`;
 
 const preview: Preview = {
   parameters: {

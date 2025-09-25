@@ -562,6 +562,7 @@ afterEach(() => {
     }
 });
 
+// eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

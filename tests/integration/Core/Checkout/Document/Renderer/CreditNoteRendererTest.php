@@ -647,7 +647,7 @@ class CreditNoteRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $errors);
         static::assertSame(
             $errors[$orderId]->getMessage(),
-            'Unable to generate document. Can not generate credit note document because no credit line items exists. OrderId: ' . $orderId
+            'Unable to generate document. Can not generate credit note document because no unprocessed credit line items exists. OrderId: ' . $orderId
         );
     }
 
@@ -677,7 +677,7 @@ class CreditNoteRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $errors);
         static::assertSame(
             $errors[$orderId]->getMessage(),
-            'Unable to generate document. Can not generate credit note document because no credit line items exists. OrderId: ' . $orderId
+            'Unable to generate document. Can not generate credit note document because no unprocessed credit line items exists. OrderId: ' . $orderId
         );
     }
 

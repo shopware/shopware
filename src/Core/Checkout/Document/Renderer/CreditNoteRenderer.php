@@ -141,7 +141,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
                 if ($creditItems->count() === 0) {
                     throw DocumentException::generationError(
-                        'Can not generate credit note document because no credit line items exists. OrderId: ' . $operation->getOrderId()
+                        'Can not generate credit note document because no unprocessed credit line items exists. OrderId: ' . $operation->getOrderId()
                     );
                 }
 

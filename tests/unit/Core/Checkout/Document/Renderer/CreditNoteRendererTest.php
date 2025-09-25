@@ -347,7 +347,7 @@ class CreditNoteRendererTest extends TestCase
 
         static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertSame(
-            'Unable to generate document. Can not generate credit note document because no credit line items exists. OrderId: ' . self::ORDER_ID,
+            'Unable to generate document. Can not generate credit note document because no unprocessed credit line items exists. OrderId: ' . self::ORDER_ID,
             $errors[$orderId]->getMessage()
         );
     }

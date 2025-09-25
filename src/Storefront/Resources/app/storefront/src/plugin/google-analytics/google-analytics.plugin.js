@@ -45,8 +45,13 @@ export default class GoogleAnalyticsPlugin extends Plugin
         gtag('js', new Date());
         gtag('config', window.gtagTrackingId, window.gtagConfig);
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead. */
         this.controllerName = window.controllerName;
+
+        /** @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead. */
         this.actionName = window.actionName;
+        
+        this.activeRoute = window.activeRoute;
         this.events = [];
 
         this.registerDefaultEvents();
@@ -76,7 +81,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
     handleEvents() {
         this.events.forEach(event => {
-            if (!event.supports(this.controllerName, this.actionName)) {
+            if (!event.supports(this.controllerName, this.actionName, this.activeRoute)) {
                 return;
             }
 

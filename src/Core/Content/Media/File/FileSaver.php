@@ -147,9 +147,10 @@ class FileSaver
 
         $event = new MediaPathChangedEvent($context);
 
-        $event->media(
+        $event->mediaWithMimeType(
             mediaId: $media->getId(),
-            path: $path
+            path: $path,
+            mimeType: $media->getMimeType()
         );
 
         $updateData = [
@@ -177,10 +178,11 @@ class FileSaver
 
             if (!empty($thumbnails)) {
                 foreach ($thumbnails as $thumbnailId => $thumbnailPath) {
-                    $event->thumbnail(
+                    $event->thumbnailWithMimeType(
                         mediaId: $media->getId(),
                         thumbnailId: $thumbnailId,
-                        path: $thumbnailPath
+                        path: $thumbnailPath,
+                        mimeType: $media->getMimeType()
                     );
                 }
 
@@ -246,7 +248,7 @@ class FileSaver
         $path = $media->getPath();
 
         $event = new MediaPathChangedEvent($context);
-        $event->media(mediaId: $media->getId(), path: $path);
+        $event->mediaWithMimeType(mediaId: $media->getId(), path: $path, mimeType: $media->getMimeType());
 
         try {
             $this->getFileSystem($media)->writeStream($path, $stream);

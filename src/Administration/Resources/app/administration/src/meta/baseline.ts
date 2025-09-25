@@ -352,6 +352,7 @@ const missingTests = [
     'src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal/index.js',
     'src/module/sw-first-run-wizard/index.js',
     'src/module/sw-first-run-wizard/page/index/index.js',
+    'src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-data-import/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-defaults/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js',

@@ -1,7 +1,7 @@
 {% block sw_flow_rule_modal %}
 <sw-modal
     class="sw-flow-rule-modal"
-    variant="large"
+    variant="full"
     :title="modalTitle"
     :is-loading="isLoading"
     :closable="false"
@@ -11,6 +11,7 @@
     <sw-tabs
         default-item="detail"
         position-identifier="sw-flow-rule-modal"
+        :small="false"
     >
         {% block sw_flow_rule_headers %}
         <template #default="{ active }">

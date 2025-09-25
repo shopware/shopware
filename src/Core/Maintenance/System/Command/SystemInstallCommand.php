@@ -6,6 +6,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
@@ -33,6 +34,7 @@ class SystemInstallCommand extends Command
         private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
         private readonly DatabaseConnectionFactory $databaseConnectionFactory,
         private readonly CacheClearer $cacheClearer,
+        private readonly SystemLocker $systemLocker,
     ) {
         parent::__construct();
     }
@@ -168,15 +170,18 @@ class SystemInstallCommand extends Command
 
         $result = $this->runCommands($commands, $output);
 
-        if (!\is_file($this->projectDir . '/public/.htaccess')
-            && \is_file($this->projectDir . '/public/.htaccess.dist')
-        ) {
-            copy($this->projectDir . '/public/.htaccess.dist', $this->projectDir . '/public/.htaccess');
+        if ($result !== self::SUCCESS) {
+            return $result;
         }
 
-        if ($result === self::SUCCESS) {
-            touch($this->projectDir . '/install.lock');
+        if ($this->shouldSkipFileOperations()) {
+            $output->comment('Skipping install.lock and .htaccess creation (SHOPWARE_SKIP_WEBINSTALLER is set)');
+
+            return $result;
         }
+
+        $this->ensureHtaccessExists();
+        $this->systemLocker->lock();
 
         return $result;
     }
@@ -248,5 +253,26 @@ class SystemInstallCommand extends Command
         }
 
         return $application;
+    }
+
+    private function shouldSkipFileOperations(): bool
+    {
+        return (bool) EnvironmentHelper::getVariable('SHOPWARE_SKIP_WEBINSTALLER', false);
+    }
+
+    private function ensureHtaccessExists(): void
+    {
+        $htaccessPath = $this->projectDir . '/public/.htaccess';
+        $htaccessDistPath = $this->projectDir . '/public/.htaccess.dist';
+
+        if (\is_file($htaccessPath)) {
+            return;
+        }
+
+        if (!\is_file($htaccessDistPath)) {
+            return;
+        }
+
+        copy($htaccessDistPath, $htaccessPath);
     }
 }

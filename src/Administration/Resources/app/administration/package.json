@@ -24,7 +24,7 @@
     "preinstall": "node ./scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
     "lint": "eslint --ext .js,.ts,.vue,.html.twig src test build.ts --cache",
-    "lint:all": "npm run lint:types && npm run lint",
+    "lint:all": "npm run lint:types && npm run lint && npm run lint:scss && npm run format",
     "lint:debugging": "eslint --ext .js,.ts,.vue,.html.twig",
     "lint:deprecations": "eslint --rule '\"sw-new-core-rules/private-feature-declarations\": \"error\"' $(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}')",
     "lint:fix": "npm run lint -- --fix",

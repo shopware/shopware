@@ -30,7 +30,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -194,8 +193,7 @@ class ProductSerializerTest extends TestCase
             $mediaService,
             $fileSaver,
             static::getContainer()->get('media_folder.repository'),
-            static::getContainer()->get('media.repository'),
-            new UrlEncodingTwigFilter(),
+            static::getContainer()->get('media.repository')
         );
         $mediaSerializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 

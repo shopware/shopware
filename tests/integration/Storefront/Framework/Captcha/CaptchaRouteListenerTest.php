@@ -15,6 +15,7 @@ use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Shopware\Storefront\Framework\Captcha\CaptchaRouteListener;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -138,6 +139,175 @@ class CaptchaRouteListenerTest extends TestCase
 
         static::assertInstanceOf(Response::class, $response);
         static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
+    }
+
+    public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndNonXmlRequest(): void
+    {
+        $event = $this->getControllerEventMock();
+
+        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha->expects($this->once())
+            ->method('supports')
+            ->willReturn(true);
+        $captcha->expects($this->once())
+            ->method('isValid')
+            ->willReturn(false);
+        $captcha->expects($this->once())
+            ->method('shouldBreak')
+            ->willReturn(true);
+        $captcha->expects($this->once())
+            ->method('getViolations')
+            ->willReturn(new \Symfony\Component\Validator\ConstraintViolationList());
+
+        $this->expectExceptionObject(CaptchaException::invalid($captcha));
+
+        (new CaptchaRouteListener(
+            [$captcha],
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()
+        ))->validateCaptcha($event);
+    }
+
+    public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndXmlRequestWithNoViolations(): void
+    {
+        $request = new Request([], [], ['_captcha' => true], [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
+
+        $event = new ControllerEvent(
+            $this->createMock(HttpKernelInterface::class),
+            function (): void {},
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha->expects($this->once())
+            ->method('supports')
+            ->willReturn(true);
+        $captcha->expects($this->once())
+            ->method('isValid')
+            ->willReturn(false);
+        $captcha->expects($this->once())
+            ->method('shouldBreak')
+            ->willReturn(true);
+
+        $violations = new \Symfony\Component\Validator\ConstraintViolationList();
+        $captcha->expects($this->once())
+            ->method('getViolations')
+            ->willReturn($violations);
+
+        $listener = new CaptchaRouteListener(
+            [$captcha],
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()
+        );
+
+        $originalController = $event->getController();
+        $listener->validateCaptcha($event);
+
+        // Verify that a violation was added to the list
+        static::assertCount(1, $violations);
+        $violation = $violations->get(0);
+        static::assertInstanceOf(\Symfony\Component\Validator\ConstraintViolation::class, $violation);
+        static::assertSame('Invalid captcha', $violation->getMessageTemplate());
+
+        // Verify that the controller was changed to ErrorController (line 88)
+        static::assertNotSame($originalController, $event->getController());
+    }
+
+    public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndXmlRequestWithExistingViolations(): void
+    {
+        $request = new Request([], [], ['_captcha' => true], [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
+
+        $event = new ControllerEvent(
+            $this->createMock(HttpKernelInterface::class),
+            function (): void {},
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha->expects($this->once())
+            ->method('supports')
+            ->willReturn(true);
+        $captcha->expects($this->once())
+            ->method('isValid')
+            ->willReturn(false);
+        $captcha->expects($this->once())
+            ->method('shouldBreak')
+            ->willReturn(true);
+
+        $violations = new \Symfony\Component\Validator\ConstraintViolationList();
+        $violations->add(new \Symfony\Component\Validator\ConstraintViolation(
+            'Existing violation',
+            'Existing violation',
+            [],
+            '',
+            '',
+            ''
+        ));
+
+        $captcha->expects($this->once())
+            ->method('getViolations')
+            ->willReturn($violations);
+
+        $listener = new CaptchaRouteListener(
+            [$captcha],
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()
+        );
+
+        // Since violations count > 0, we expect an exception to be thrown (line 84)
+        $this->expectExceptionObject(CaptchaException::invalid($captcha));
+
+        $listener->validateCaptcha($event);
+    }
+
+    public function testCaptchaSupportedButInvalidWithShouldBreakFalseSetsErrorController(): void
+    {
+        $request = new Request(
+            ['_route' => 'frontend.home.page'],
+            [],
+            ['_captcha' => true, '_route' => 'frontend.home.page']
+        );
+
+        $event = new ControllerEvent(
+            $this->createMock(HttpKernelInterface::class),
+            function (): void {},
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha->expects($this->once())
+            ->method('supports')
+            ->willReturn(true);
+        $captcha->expects($this->once())
+            ->method('isValid')
+            ->willReturn(false);
+        $captcha->expects($this->once())
+            ->method('shouldBreak')
+            ->willReturn(false);
+
+        $violations = new \Symfony\Component\Validator\ConstraintViolationList();
+        $captcha->expects($this->once())
+            ->method('getViolations')
+            ->willReturn($violations);
+
+        $listener = new CaptchaRouteListener(
+            [$captcha],
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()
+        );
+
+        $originalController = $event->getController();
+        $listener->validateCaptcha($event);
+
+        // Verify that the controller was changed (line 88 executed)
+        static::assertNotSame($originalController, $event->getController());
+
+        // Verify that the new controller is callable (set by line 88)
+        $newController = $event->getController();
+        static::assertIsCallable($newController);
     }
 
     /**

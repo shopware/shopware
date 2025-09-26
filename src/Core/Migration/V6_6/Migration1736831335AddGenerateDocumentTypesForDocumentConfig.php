@@ -31,7 +31,7 @@ class Migration1736831335AddGenerateDocumentTypesForDocumentConfig extends Migra
     {
         $connection->transactional(function (Connection $transaction): void {
             $documentConfig = $transaction->executeQuery(
-                <<<SQL
+                <<<'SQL'
                     SELECT `document_base_config`.`id`, `document_base_config`.`config` FROM `document_base_config`
                     JOIN `document_type` ON `document_base_config`.`document_type_id` = `document_type`.`id`
                     WHERE `document_type`.`technical_name` IN (:technicalName);

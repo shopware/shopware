@@ -43,13 +43,7 @@ abstract class MediaType extends Struct
 
     public function is(string $input): bool
     {
-        foreach ($this->flags as $flag) {
-            if ($flag === $input) {
-                return true;
-            }
-        }
-
-        return false;
+        return \in_array($input, $this->flags, true);
     }
 
     public function getFlags(): array

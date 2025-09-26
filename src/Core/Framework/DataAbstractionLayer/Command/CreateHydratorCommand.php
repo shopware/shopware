@@ -453,12 +453,6 @@ EOF;
 
     private function hasInactiveFeatureFlag(): bool
     {
-        foreach (Feature::getAll() as $enabled) {
-            if ($enabled === false) {
-                return true;
-            }
-        }
-
-        return false;
+        return \in_array(false, Feature::getAll(), true);
     }
 }

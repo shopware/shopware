@@ -53,9 +53,9 @@ class KernelFactory
             $middlewares = [new ProfilingMiddleware()];
         }
 
-        $connection = $connection ?? MySQLFactory::create($middlewares);
+        $connection ??= MySQLFactory::create($middlewares);
 
-        $pluginLoader = $pluginLoader ?? new DbalKernelPluginLoader($classLoader, null, $connection);
+        $pluginLoader ??= new DbalKernelPluginLoader($classLoader, null, $connection);
 
         $cacheId = (string) EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
 

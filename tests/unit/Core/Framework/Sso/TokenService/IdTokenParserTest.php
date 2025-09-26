@@ -36,7 +36,12 @@ class IdTokenParserTest extends TestCase
             $this->createClock()
         );
 
-        $validator = $this->createValidator(true);
+        $validationResults = [
+            'first issued by check' => true,
+            'first signed and loose valid check' => true,
+        ];
+
+        $validator = $this->createValidator($validationResults);
 
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
         $validatorProperty->setAccessible(true);
@@ -59,7 +64,16 @@ class IdTokenParserTest extends TestCase
             $this->createClock()
         );
 
-        $validator = $this->createValidator(false);
+        $validationResults = [
+            'first issued by check' => false,
+            'second issued by check' => true,
+            'first signed and loose valid check' => false,
+            'recursion first issued by check' => false,
+            'recursion second issued by check' => true,
+            'final signed and loose valid check' => false,
+        ];
+
+        $validator = $this->createValidator($validationResults);
 
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
         $validatorProperty->setAccessible(true);
@@ -69,10 +83,13 @@ class IdTokenParserTest extends TestCase
         $idTokenParser->parse($idToken);
     }
 
-    private function createValidator(bool $isValid): ValidatorInterface
+    /**
+     * @param array<string, bool> $results
+     */
+    private function createValidator(array $results): ValidatorInterface
     {
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method('validate')->willReturn($isValid);
+        $validator->method('validate')->willReturnOnConsecutiveCalls(...\array_values($results));
 
         return $validator;
     }

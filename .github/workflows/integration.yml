@@ -147,6 +147,9 @@ jobs:
         ports:
           - "6379:6379"
     steps:
+      - name: Fake version
+        run: |
+          composer config platform.php "8.4.0"
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:

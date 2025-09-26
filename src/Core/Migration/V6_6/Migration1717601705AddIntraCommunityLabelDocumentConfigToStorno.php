@@ -39,7 +39,7 @@ class Migration1717601705AddIntraCommunityLabelDocumentConfigToStorno extends Mi
                 $config['displayAdditionalNoteDelivery'] = false;
             }
 
-            $transaction->executeQuery(
+            $transaction->executeStatement(
                 'UPDATE `document_base_config` SET `config` = :config WHERE `id` = :id;',
                 [
                     'id' => $stornoConfig['id'],

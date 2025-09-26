@@ -39,7 +39,7 @@ class Migration1718635021AddIntraCommunityLabelDocumentConfigToCreditNote extend
                 $config['displayAdditionalNoteDelivery'] = false;
             }
 
-            $transaction->executeQuery(
+            $transaction->executeStatement(
                 'UPDATE `document_base_config` SET `config` = :config WHERE `id` = :id;',
                 [
                     'id' => $invoiceConfig['id'],

@@ -52,7 +52,7 @@ class Migration1736831335AddGenerateDocumentTypesForDocumentConfig extends Migra
                     $config['fileTypes'] = [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION];
                 }
 
-                $transaction->executeQuery(
+                $transaction->executeStatement(
                     'UPDATE `document_base_config` SET `config` = :config WHERE `id` = :id;',
                     [
                         'id' => $id,

@@ -67,12 +67,12 @@ class CreateHydratorCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->hasInactiveFeatureFlag()) {
-            throw new \RuntimeException('You have to enable all feature flags when running this command. Simply add FEATURE_ALL=major to your .env file');
-        }
-
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate hydrators');
+
+        if ($this->hasInactiveFeatureFlag()) {
+            $io->info('Note that if definitions are dependent on feature flags, make sure to activate these feature flags, in order to consider them in the hydrators');
+        }
 
         if (!\is_dir($this->dir)) {
             mkdir($this->dir);

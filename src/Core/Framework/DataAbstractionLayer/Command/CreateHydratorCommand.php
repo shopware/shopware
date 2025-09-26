@@ -38,6 +38,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(
     name: 'dal:create:hydrators',
@@ -53,6 +54,7 @@ class CreateHydratorCommand extends Command
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
+        private readonly Filesystem $filesystem,
         string $rootDir
     ) {
         parent::__construct();
@@ -74,9 +76,7 @@ class CreateHydratorCommand extends Command
             $io->info('Note that if definitions are dependent on feature flags, make sure to activate these feature flags, in order to consider them in the hydrators');
         }
 
-        if (!\is_dir($this->dir)) {
-            mkdir($this->dir);
-        }
+        $this->filesystem->mkdir($this->dir);
 
         $entities = $this->registry->getDefinitions();
         $classes = [];
@@ -124,7 +124,7 @@ class CreateHydratorCommand extends Command
             $file = rtrim($this->dir, '/') . '/' . $file;
 
             try {
-                file_put_contents($file, $content);
+                $this->filesystem->dumpFile($file, $content);
             } catch (\Throwable $e) {
                 $output->writeln($e->getMessage());
             }
@@ -149,7 +149,7 @@ EOF;
 
             $content = str_replace('#services#', implode("\n\n", $services), $content);
 
-            file_put_contents($file, $content);
+            $this->filesystem->dumpFile($file, $content);
         } catch (\Throwable $e) {
             $output->writeln($e->getMessage());
         }
@@ -176,7 +176,7 @@ EOF;
 
         $file = rtrim($this->dir, '/') . '/' . $file;
 
-        $content = (string) file_get_contents($file);
+        $content = $this->filesystem->readFile($file);
 
         if (str_contains($content, 'getHydratorClass')) {
             return null;

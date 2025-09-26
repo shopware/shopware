@@ -88,6 +88,7 @@ class DocumentGenerator
 
     public function preview(string $documentType, DocumentGenerateOperation $operation, string $deepLinkCode, Context $context): RenderedDocument
     {
+        file_put_contents('/var/www/shopware6/src/Core/Checkout/Document/creditnotes.log', \var_export("\n\Shopware\Core\Checkout\Document\Service\DocumentGenerator::preview STARTS\n", true), FILE_APPEND);
         $config = new DocumentRendererConfig();
         $config->deepLinkCode = $deepLinkCode;
 
@@ -95,6 +96,11 @@ class DocumentGenerator
             $invoiceNumber = (string) $operation->getConfig()['custom']['invoiceNumber'];
             $operation->setReferencedDocumentId($this->getReferenceId($operation->getOrderId(), $invoiceNumber));
         }
+
+
+        file_put_contents('/var/www/shopware6/src/Core/Checkout/Document/creditnotes.log', \var_export("\Shopware\Core\Checkout\Document\Service\DocumentGenerator::preview - configs\n", true), FILE_APPEND);
+        file_put_contents('/var/www/shopware6/src/Core/Checkout/Document/creditnotes.log', \var_export($config, true), FILE_APPEND);
+        file_put_contents('/var/www/shopware6/src/Core/Checkout/Document/creditnotes.log', \var_export("\n", true), FILE_APPEND);
 
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
         $document = $rendered->getOrderSuccess($operation->getOrderId());

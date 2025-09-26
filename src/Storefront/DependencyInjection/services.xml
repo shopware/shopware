@@ -547,6 +547,7 @@
         <service id="Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck">
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
+            <argument type="tagged_iterator" tag="document.renderer"/>
 
             <tag name="shopware.system_check"/>
         </service>
@@ -563,6 +564,14 @@
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\DocumentRenderReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="tagged_iterator" tag="document.renderer"/>
 
             <tag name="shopware.system_check"/>
         </service>

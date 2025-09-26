@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\BehaviorListingProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -21,7 +22,9 @@ class BehaviorProcessorTest extends TestCase
         $criteria = new Criteria();
         $context = $this->createMock(SalesChannelContext::class);
 
-        (new BehaviorListingProcessor())->prepare($request, $criteria, $context);
+        (new BehaviorListingProcessor(
+            new TestCriteriaParameterResolver()
+        ))->prepare($request, $criteria, $context);
 
         static::assertEmpty($criteria->getAggregations());
     }
@@ -32,7 +35,9 @@ class BehaviorProcessorTest extends TestCase
         $criteria = new Criteria();
         $context = $this->createMock(SalesChannelContext::class);
 
-        (new BehaviorListingProcessor())->prepare($request, $criteria, $context);
+        (new BehaviorListingProcessor(
+            new TestCriteriaParameterResolver()
+        ))->prepare($request, $criteria, $context);
 
         static::assertSame(0, $criteria->getLimit());
         static::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $criteria->getTotalCountMode());

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,7 +30,10 @@ class PagingProcessorTest extends TestCase
             'core.listing.productsPerPage' => 24,
         ]);
 
-        $processor = new PagingListingProcessor($config);
+        $processor = new PagingListingProcessor(
+            $config,
+            new TestCriteriaParameterResolver()
+        );
         $processor->prepare($request, $criteria, $context);
 
         static::assertSame($expectedOffset, $criteria->getOffset());
@@ -94,7 +98,10 @@ class PagingProcessorTest extends TestCase
             'core.listing.productsPerPage' => 24,
         ]);
 
-        $processor = new PagingListingProcessor($config);
+        $processor = new PagingListingProcessor(
+            $config,
+            new TestCriteriaParameterResolver()
+        );
         $processor->process($request, $result, $context);
 
         static::assertSame(2, $result->getPage());

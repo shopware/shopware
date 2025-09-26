@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListin
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -21,7 +22,9 @@ class ManufacturerFilterHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->handler = new ManufacturerListingFilterHandler();
+        $this->handler = new ManufacturerListingFilterHandler(
+            new TestCriteriaParameterResolver()
+        );
     }
 
     public function testCreateWithManufacturerFilterDisabled(): void

@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\GenericStoreApiResponse;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +43,13 @@ class StoreApiResponseListenerTest extends TestCase
         $this->mediaUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
         $this->seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
-        $this->listener = new StoreApiResponseListener($this->encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
+        $this->listener = new StoreApiResponseListener(
+            $this->encoder,
+            new EventDispatcher(),
+            $this->seoUrlPlaceholderHandler,
+            $this->mediaUrlPlaceholderHandler,
+            new TestCriteriaParameterResolver()
+        );
     }
 
     public function testEncodeEvent(): void
@@ -60,7 +67,8 @@ class StoreApiResponseListenerTest extends TestCase
             $this->createMock(StructEncoder::class),
             $dispatcher,
             $this->seoUrlPlaceholderHandler,
-            $this->mediaUrlPlaceholderHandler
+            $this->mediaUrlPlaceholderHandler,
+            new TestCriteriaParameterResolver()
         );
 
         $instance->encodeResponse(new ResponseEvent(

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -29,7 +30,8 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [$foo = new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            $this->createMock(EventDispatcherInterface::class),
+            new TestCriteriaParameterResolver()
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -47,7 +49,8 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [$foo = new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            $this->createMock(EventDispatcherInterface::class),
+            new TestCriteriaParameterResolver()
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -63,7 +66,8 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            $this->createMock(EventDispatcherInterface::class),
+            new TestCriteriaParameterResolver()
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -82,7 +86,8 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [new FooListingFilterHandler(), new BarListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            $this->createMock(EventDispatcherInterface::class),
+            new TestCriteriaParameterResolver()
         );
 
         $processor->prepare(

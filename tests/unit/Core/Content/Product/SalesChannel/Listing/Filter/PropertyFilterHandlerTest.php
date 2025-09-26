@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -259,7 +260,8 @@ class PropertyFilterHandlerTest extends TestCase
         $handler = new PropertyListingFilterHandler(
             $groupRepository,
             $repository,
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            new TestCriteriaParameterResolver()
         );
 
         $result = new ProductListingResult(
@@ -443,7 +445,8 @@ class PropertyFilterHandlerTest extends TestCase
         return new PropertyListingFilterHandler(
             $groupRepository,
             $optionRepository,
-            $connection
+            $connection,
+            new TestCriteriaParameterResolver()
         );
     }
 }

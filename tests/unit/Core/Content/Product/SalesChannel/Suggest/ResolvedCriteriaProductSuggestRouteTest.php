@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -49,16 +50,28 @@ class ResolvedCriteriaProductSuggestRouteTest extends TestCase
             new EventDispatcher(),
             $decorated,
             new CompositeListingProcessor([
-                new PagingListingProcessor(new StaticSystemConfigService()),
+                new PagingListingProcessor(
+                    new StaticSystemConfigService(),
+                    new TestCriteriaParameterResolver()
+                ),
                 new AggregationListingProcessor(
                     [
-                        new ManufacturerListingFilterHandler(),
-                        new PriceListingFilterHandler(),
-                        new ShippingFreeListingFilterHandler(),
+                        new ManufacturerListingFilterHandler(
+                            new TestCriteriaParameterResolver()
+                        ),
+                        new PriceListingFilterHandler(
+                            new TestCriteriaParameterResolver()
+                        ),
+                        new ShippingFreeListingFilterHandler(
+                            new TestCriteriaParameterResolver()
+                        ),
                     ],
-                    new EventDispatcher()
+                    new EventDispatcher(),
+                    new TestCriteriaParameterResolver()
                 ),
-                new BehaviorListingProcessor(),
+                new BehaviorListingProcessor(
+                    new TestCriteriaParameterResolver()
+                ),
             ])
         );
 

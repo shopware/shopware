@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('fundamentals@after-sales')]
 class LogNotWritableException extends ShopwareHttpException
 {
+    /**
+     * @param list<string> $ids
+     */
     public function __construct(array $ids)
     {
         parent::__construct('Entity import_export_log is write-protected if not in system scope', ['ids' => $ids]);

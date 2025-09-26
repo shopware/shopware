@@ -5,21 +5,16 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 
 /**
@@ -32,9 +27,7 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private readonly EntityWriterInterface $writer,
         private readonly DefinitionInstanceRegistry $registry,
-        private readonly SalesChannelDomainDefinition $salesChannelDomainDefinition
     ) {
     }
 
@@ -102,12 +95,8 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
             ];
         }
 
-        $writeContext = WriteContext::createFromContext($context->getContext());
-        $this->writer->upsert(
-            $this->salesChannelDomainDefinition,
-            $salesChannelDomains,
-            $writeContext
-        );
+        $salesChannelDomainRepository = $this->registry->getRepository('sales_channel_domain');
+        $salesChannelDomainRepository->upsert($salesChannelDomains, $context->getContext());
 
         $context->getConsole()->progressFinish();
     }
@@ -140,10 +129,7 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
         return $salesChannelRepository->searchIds($criteria, $context->getContext())->firstId();
     }
 
-    /**
-     * @return EntitySearchResult<LanguageCollection<LanguageEntity>>
-     */
-    private function getNonSystemLanguages(DemodataContext $context): EntitySearchResult
+    private function getNonSystemLanguages(DemodataContext $context): LanguageCollection
     {
         /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = $this->registry->getRepository('language');
@@ -151,7 +137,7 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
         $criteria->addFilter(new NotEqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
         $criteria->addAssociation('locale');
 
-        return $languageRepository->search($criteria, $context->getContext());
+        return $languageRepository->search($criteria, $context->getContext())->getEntities();
     }
 
     private function getSnippetSetByIso(DemodataContext $context, string $iso): ?string
@@ -164,15 +150,13 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
         return $snippetSetRepository->searchIds($criteria, $context->getContext())->firstId();
     }
 
-    /**
-     * @return EntitySearchResult<covariant EntityCollection<covariant Entity>>
-     */
-    private function getCurrentSalesChannelDomains(DemodataContext $context, string $storefrontSalesChannelId): EntitySearchResult
+    private function getCurrentSalesChannelDomains(DemodataContext $context, string $storefrontSalesChannelId): SalesChannelDomainCollection
     {
+        /** @var EntityRepository<SalesChannelDomainCollection> $salesChannelDomainRepository */
         $salesChannelDomainRepository = $this->registry->getRepository('sales_channel_domain');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannelId', $storefrontSalesChannelId));
 
-        return $salesChannelDomainRepository->search($criteria, $context->getContext());
+        return $salesChannelDomainRepository->search($criteria, $context->getContext())->getEntities();
     }
 }

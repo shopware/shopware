@@ -38,7 +38,7 @@ class CriteriaParameterResolver
             }
         }
 
-        return $request->request->get($key, $default);
+        return $request->get($key, $default);
     }
 
     /**

@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolverFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -52,25 +52,25 @@ class ResolvedCriteriaProductSuggestRouteTest extends TestCase
             new CompositeListingProcessor([
                 new PagingListingProcessor(
                     new StaticSystemConfigService(),
-                    new TestCriteriaParameterResolver()
+                    CriteriaParameterResolverFactory::createCriteriaParameterResolver()
                 ),
                 new AggregationListingProcessor(
                     [
                         new ManufacturerListingFilterHandler(
-                            new TestCriteriaParameterResolver()
+                            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
                         ),
                         new PriceListingFilterHandler(
-                            new TestCriteriaParameterResolver()
+                            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
                         ),
                         new ShippingFreeListingFilterHandler(
-                            new TestCriteriaParameterResolver()
+                            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
                         ),
                     ],
                     new EventDispatcher(),
-                    new TestCriteriaParameterResolver()
+                    CriteriaParameterResolverFactory::createCriteriaParameterResolver()
                 ),
                 new BehaviorListingProcessor(
-                    new TestCriteriaParameterResolver()
+                    CriteriaParameterResolverFactory::createCriteriaParameterResolver()
                 ),
             ])
         );

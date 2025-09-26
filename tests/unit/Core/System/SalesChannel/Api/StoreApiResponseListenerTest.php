@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\GenericStoreApiResponse;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
-use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolverFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,7 +48,7 @@ class StoreApiResponseListenerTest extends TestCase
             new EventDispatcher(),
             $this->seoUrlPlaceholderHandler,
             $this->mediaUrlPlaceholderHandler,
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
     }
 
@@ -68,7 +68,7 @@ class StoreApiResponseListenerTest extends TestCase
             $dispatcher,
             $this->seoUrlPlaceholderHandler,
             $this->mediaUrlPlaceholderHandler,
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
 
         $instance->encodeResponse(new ResponseEvent(

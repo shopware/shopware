@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolverFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -143,7 +143,7 @@ class PagingListingProcessorTest extends TestCase
             new StaticSystemConfigService([
                 'core.listing.productsPerPage' => 24,
             ]),
-            new TestCriteriaParameterResolver(),
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver(),
             $maxLimit
         );
 
@@ -164,7 +164,7 @@ class PagingListingProcessorTest extends TestCase
             new StaticSystemConfigService([
                 'core.listing.productsPerPage' => 24,
             ]),
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
 
         $result = new ProductListingResult('product', 10, new ProductCollection(), new AggregationResultCollection(), $criteria, Context::createDefaultContext());

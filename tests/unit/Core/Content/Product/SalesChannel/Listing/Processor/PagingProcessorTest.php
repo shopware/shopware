@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolverFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -32,7 +32,7 @@ class PagingProcessorTest extends TestCase
 
         $processor = new PagingListingProcessor(
             $config,
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
         $processor->prepare($request, $criteria, $context);
 
@@ -100,7 +100,7 @@ class PagingProcessorTest extends TestCase
 
         $processor = new PagingListingProcessor(
             $config,
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
         $processor->process($request, $result, $context);
 

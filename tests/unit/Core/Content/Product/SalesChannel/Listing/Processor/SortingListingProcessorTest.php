@@ -15,14 +15,13 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolverFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -49,7 +48,7 @@ class SortingListingProcessorTest extends TestCase
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
             $sortingRepository,
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
 
         $processor->prepare(
@@ -90,7 +89,7 @@ class SortingListingProcessorTest extends TestCase
                 'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
             ]),
             $repository,
-            $this->createMock(CriteriaParameterResolver::class)
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
 
         $processor->prepare(
@@ -134,7 +133,7 @@ class SortingListingProcessorTest extends TestCase
                 'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
             ]),
             $repository,
-            $this->createMock(CriteriaParameterResolver::class)
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
 
         $criteria = new Criteria();
@@ -163,7 +162,7 @@ class SortingListingProcessorTest extends TestCase
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
             $sortingRepository,
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
 
         $result = new ProductListingResult($requested, 1, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
@@ -191,7 +190,7 @@ class SortingListingProcessorTest extends TestCase
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
             $sortingRepository,
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         );
 
         $processor->prepare(

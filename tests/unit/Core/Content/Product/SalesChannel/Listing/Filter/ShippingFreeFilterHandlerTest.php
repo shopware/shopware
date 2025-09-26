@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Filte
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\TestCriteriaParameterResolver;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\CriteriaParameterResolverFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -23,7 +23,7 @@ class ShippingFreeFilterHandlerTest extends TestCase
     public function testFilterCanBeSkipped(): void
     {
         $result = (new ShippingFreeListingFilterHandler(
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         ))->create(
             new Request([], ['shipping-free-filter' => false]),
             $this->createMock(SalesChannelContext::class)
@@ -36,7 +36,7 @@ class ShippingFreeFilterHandlerTest extends TestCase
     public function testFilterCanBeCreated(bool $input): void
     {
         $result = (new ShippingFreeListingFilterHandler(
-            new TestCriteriaParameterResolver()
+            CriteriaParameterResolverFactory::createCriteriaParameterResolver()
         ))->create(
             new Request(['shipping-free' => $input]),
             $this->createMock(SalesChannelContext::class)

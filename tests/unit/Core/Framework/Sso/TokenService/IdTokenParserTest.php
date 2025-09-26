@@ -45,7 +45,6 @@ class IdTokenParserTest extends TestCase
         $validator = $this->createValidator($validationResults);
 
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
-        $validatorProperty->setAccessible(true);
         $validatorProperty->setValue($idTokenParser, $validator);
 
         $result = $idTokenParser->parse($idToken);
@@ -72,7 +71,6 @@ class IdTokenParserTest extends TestCase
         $validator = $this->createValidator($validationResults);
 
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
-        $validatorProperty->setAccessible(true);
         $validatorProperty->setValue($idTokenParser, $validator);
 
         $this->expectExceptionObject(new SsoException(0, '0', 'The id token is invalid'));

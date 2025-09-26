@@ -91,7 +91,6 @@ class RetryableTransaction
     {
         if ($connection->getTransactionNestingLevel() > 0) {
             $reflectionProperty = new \ReflectionProperty(Connection::class, 'transactionNestingLevel');
-            $reflectionProperty->setAccessible(true);
             $reflectionProperty->setValue($connection, 1);
             // it could happen that transaction was already rolled back in the transactional method.
             // if case reported - need to catch specific exception

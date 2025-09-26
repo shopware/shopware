@@ -156,10 +156,7 @@ class ServiceClientFactoryTest extends TestCase
     private function getConfigFromClient(ClientInterface $client): array
     {
         $reflObject = new \ReflectionObject($client);
-        $reflProp = $reflObject->getProperty('config');
 
-        $reflProp->setAccessible(true);
-
-        return $reflProp->getValue($client);
+        return $reflObject->getProperty('config')->getValue($client);
     }
 }

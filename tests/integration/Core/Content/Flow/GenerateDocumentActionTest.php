@@ -208,7 +208,6 @@ class GenerateDocumentActionTest extends TestCase
         $customDocGenerator = new CustomDocRenderer();
         $class = new \ReflectionClass($registry);
         $property = $class->getProperty('documentRenderers');
-        $property->setAccessible(true);
         $oldValue = $property->getValue($registry);
         $property->setValue(
             $registry,

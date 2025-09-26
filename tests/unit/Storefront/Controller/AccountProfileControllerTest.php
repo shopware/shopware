@@ -144,7 +144,6 @@ class AccountProfileControllerTest extends TestCase
             ->getMock();
 
         $reflectionProperty = new \ReflectionProperty(AccountProfileController::class, 'changePasswordRoute');
-        $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($controller, $changePasswordRoute);
 
         $controller->method('trans')->willReturn('translated.message');

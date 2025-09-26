@@ -80,10 +80,7 @@ class HtmlSanitizerTest extends TestCase
         $sanitizer->sanitize($this->unfilteredString);
 
         $reflObj = new \ReflectionObject($sanitizer);
-        $reflProp = $reflObj->getProperty('purifiers');
-        $reflProp->setAccessible(true);
-
-        $purifiers = $reflProp->getValue($sanitizer);
+        $purifiers = $reflObj->getProperty('purifiers')->getValue($sanitizer);
 
         static::assertCount(1, $purifiers);
 
@@ -134,10 +131,7 @@ class HtmlSanitizerTest extends TestCase
         $sanitizer->sanitize($this->unfilteredString);
 
         $reflObj = new \ReflectionObject($sanitizer);
-        $reflProp = $reflObj->getProperty('purifiers');
-        $reflProp->setAccessible(true);
-
-        $purifiers = $reflProp->getValue($sanitizer);
+        $purifiers = $reflObj->getProperty('purifiers')->getValue($sanitizer);
 
         static::assertCount(1, $purifiers);
 

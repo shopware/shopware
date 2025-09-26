@@ -38,6 +38,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(
@@ -125,7 +126,7 @@ class CreateHydratorCommand extends Command
 
             try {
                 $this->filesystem->dumpFile($file, $content);
-            } catch (\Throwable $e) {
+            } catch (IOException $e) {
                 $output->writeln($e->getMessage());
             }
         }
@@ -150,7 +151,7 @@ EOF;
             $content = str_replace('#services#', implode("\n\n", $services), $content);
 
             $this->filesystem->dumpFile($file, $content);
-        } catch (\Throwable $e) {
+        } catch (IOException $e) {
             $output->writeln($e->getMessage());
         }
 

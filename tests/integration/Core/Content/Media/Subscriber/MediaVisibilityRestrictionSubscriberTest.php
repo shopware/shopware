@@ -71,7 +71,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
         $mediaIds = array_map(fn ($media) => $media->getId(), $result->getEntities()->getElements());
         static::assertNotContains($privateMediaId, $mediaIds, 'Private media should not be found');
-        static::assertNotContains($publicMediaInPrivateFolder, $mediaIds, 'Public media in private folder should not be found');
+        static::assertContains($publicMediaInPrivateFolder, $mediaIds, 'Public media in private folder should be found');
         static::assertContains($publicMediaId, $mediaIds, 'Public media should be found');
     }
 
@@ -145,15 +145,20 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         ]);
         $criteria->addAggregation(
             new FilterAggregation(
-                'private-media',
-                new CountAggregation('private-media-count', 'id'),
+                'public-media',
+                new CountAggregation('public-media-count', 'id'),
                 [new EqualsFilter('private', false)]
             )
         );
         $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
-        $countResult = $result->getAggregations()->get('private-media-count');
+        static::assertCount(2, $result);
+
+        static::assertTrue($result->has($this->ids->get('public-media.1')));
+        static::assertTrue($result->has($this->ids->get('public-media.2')));
+
+        $countResult = $result->getAggregations()->get('public-media-count');
         static::assertInstanceOf(CountResult::class, $countResult);
-        static::assertSame(1, $countResult->getCount(), 'Public media should be counted in aggregation');
+        static::assertSame(2, $countResult->getCount(), 'Public media should be counted in aggregation');
     }
 
     public function testFilterAggregationForPrivateMediaIsRestricted(): void
@@ -215,7 +220,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         static::assertCount(1, $publicBucket, 'There should be exactly one public media bucket');
         $publicCount = $publicBucket[0];
         static::assertInstanceOf(Bucket::class, $publicCount);
-        static::assertSame(1, $publicCount->getCount(), 'Public media bucket should have count 1');
+        static::assertSame(2, $publicCount->getCount(), 'Public media bucket should have count 2');
     }
 
     private function createMediaFolder(string $key, string $name, bool $isPrivate): string

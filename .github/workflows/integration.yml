@@ -148,13 +148,13 @@ jobs:
           - "6379:6379"
     steps:
       - name: Setup Shopware
-        uses: shopware/setup-shopware@feat-add-php-fake-version
+        uses: shopware/setup-shopware@main
         with:
           php-version: ${{ matrix.php }}
           mysql-version: "skip"
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-          php-fake-version: 8.4.0
+          php-fake-version: ${{ matrix.php == '8.5rc1' && '8.4.0' }}
 
       - name: Wait for OpenSearch/Elasticsearch
         if: ${{ contains(matrix.test.path, 'Elasticsearch') }}

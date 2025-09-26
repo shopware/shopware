@@ -147,16 +147,14 @@ jobs:
         ports:
           - "6379:6379"
     steps:
-      - name: Fake version
-        run: |
-          composer config platform.php "8.4.0"
       - name: Setup Shopware
-        uses: shopware/setup-shopware@main
+        uses: shopware/setup-shopware@feat-add-php-fake-version
         with:
           php-version: ${{ matrix.php }}
           mysql-version: "skip"
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          php-fake-version: 8.4.0
 
       - name: Wait for OpenSearch/Elasticsearch
         if: ${{ contains(matrix.test.path, 'Elasticsearch') }}

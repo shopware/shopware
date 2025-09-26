@@ -307,6 +307,10 @@ EOF;
         return implode('', $parts) . 'Hydrator';
     }
 
+    /**
+     * @param list<string> $fields
+     * @param list<string> $calls
+     */
     private function renderClass(EntityDefinition $definition, string $namespace, string $class, array $fields, array $calls): string
     {
         $template = <<<EOF

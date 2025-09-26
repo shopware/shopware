@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -146,7 +147,11 @@ abstract class StorefrontController extends AbstractController
     {
         $router = $this->container->get('router');
 
-        $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
+        try {
+            $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
+        } catch (RouteNotFoundException $e) {
+            throw StorefrontException::routeNotFound($routeName, $e);
+        }
 
         // for the route matching the request method is set to "GET" because
         // this method is not ought to be used as a post passthrough
@@ -253,7 +258,11 @@ abstract class StorefrontController extends AbstractController
         $event = new StorefrontRedirectEvent($route, $parameters, $status);
         $this->container->get('event_dispatcher')->dispatch($event);
 
-        return parent::redirectToRoute($event->getRoute(), $event->getParameters(), $event->getStatus());
+        try {
+            return parent::redirectToRoute($event->getRoute(), $event->getParameters(), $event->getStatus());
+        } catch (RouteNotFoundException $e) {
+            throw StorefrontException::routeNotFound($route, $e);
+        }
     }
 
     /**

@@ -53,6 +53,7 @@
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
       "notificationSaveErrorMessageRequiredFieldsInvalid": "Bitte fülle alle Pflichtfelder aus.",
+      "notificationSaveErrorMessageRequiredField": "Dieses Feld ist ein Pflichtfeld.",
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
       "messageDeleteSuccess": "\"{name}\" gelöscht.",

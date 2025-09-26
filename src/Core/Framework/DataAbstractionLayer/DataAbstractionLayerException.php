@@ -92,6 +92,8 @@ class DataAbstractionLayerException extends HttpException
     public const UNSUPPORTED_QUERY_FILTER = 'FRAMEWORK__UNSUPPORTED_QUERY_FILTER';
     public const INVALID_SORT_DIRECTION = 'FRAMEWORK__INVALID_SORT_DIRECTION';
     public const PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND = 'FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND';
+    public const ENTITY_NOT_VERSIONABLE = 'FRAMEWORK__DAL_ENTITY_NOT_VERSIONABLE';
+    public const INVALID_UUID = 'FRAMEWORK__DAL_INVALID_UUID';
 
     public const DBAL_UNMAPPED_FIELD = 'FRAMEWORK__DBAL_UNMAPPED_FIELD';
 
@@ -442,6 +444,16 @@ class DataAbstractionLayerException extends HttpException
     public static function missingTranslation(string $path, int $index): self
     {
         return new MissingTranslationLanguageException($path, $index);
+    }
+
+    public static function invalidUuid(string $uuid): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_UUID,
+            'Invalid UUID provided: {{ uuid }}',
+            ['uuid' => $uuid]
+        );
     }
 
     public static function canNotFindAttribute(string $attribute, string $property): self
@@ -882,6 +894,16 @@ class DataAbstractionLayerException extends HttpException
             self::DBAL_MISSING_VERSION_FIELD,
             'Missing `VersionField` in "{{ definitionClass }}"',
             ['definitionClass' => $definitionClass]
+        );
+    }
+
+    public static function entityNotVersionable(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_NOT_VERSIONABLE,
+            'Entity {{ entityName }} is not versionable',
+            ['entityName' => $entityName]
         );
     }
 

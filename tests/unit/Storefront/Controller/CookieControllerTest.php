@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\CookieController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -49,6 +50,29 @@ class CookieControllerTest extends TestCase
         static::assertSame('noindex,follow', $response->headers->get('x-robots-tag'));
     }
 
+    public function testOffcanvasThrowsExceptionWhenCookieRouteFails(): void
+    {
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $cookieRoute->expects($this->once())
+            ->method('getCookieGroups')
+            ->with(
+                static::callback(static function (Request $req) {
+                    return $req->query->getBoolean('translate') === false;
+                }),
+                $salesChannelContext
+            )
+            ->willThrowException(new \RuntimeException('Cookie route failed'));
+
+        $controller = new CookieControllerTestClass($cookieRoute);
+
+        $this->expectExceptionObject(new \RuntimeException('Cookie route failed'));
+
+        $controller->offcanvas($request, $salesChannelContext);
+    }
+
     public function testPermissionCallsRouteAndRendersTemplate(): void
     {
         $request = new Request();
@@ -80,37 +104,14 @@ class CookieControllerTest extends TestCase
         static::assertSame('noindex,follow', $response->headers->get('x-robots-tag'));
     }
 
-    public function testHandlesExceptionFromCookieRoute(): void
+    public function testOffcanvasPassesCookieGroupsDirectlyToTemplate(): void
     {
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
-        $cookieRoute->expects($this->once())
-            ->method('getCookieGroups')
-            ->with(
-                static::callback(static function (Request $req) {
-                    return $req->query->getBoolean('translate') === false;
-                }),
-                $salesChannelContext
-            );
-
-        $controller = new CookieControllerTestClass($cookieRoute);
-
-        $controller->offcanvas($request, $salesChannelContext);
-
-        static::assertSame('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', $controller->renderStorefrontView);
-        static::assertArrayHasKey('cookieGroups', $controller->renderStorefrontParameters);
-        static::assertEmpty($controller->renderStorefrontParameters['cookieGroups']);
-    }
-
-    public function testTransformCookieGroupForTwigSetsDefaultValues(): void
-    {
-        $request = new Request();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        // Create a cookie group without setting snippet values to test default handling
+        // Create a cookie group to verify it gets passed through unchanged
         $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->description = 'Test description';
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieRoute = $this->createMock(AbstractCookieRoute::class);
@@ -121,21 +122,10 @@ class CookieControllerTest extends TestCase
 
         $controller->offcanvas($request, $salesChannelContext);
 
-        $transformedGroups = $controller->renderStorefrontParameters['cookieGroups'];
-        static::assertInstanceOf(CookieGroupCollection::class, $transformedGroups);
-        static::assertNotEmpty($transformedGroups);
-
-        // Check that default values are set
-        $group = $transformedGroups->first();
-        static::assertNotNull($group);
-
-        static::assertObjectHasProperty('name', $group);
-        static::assertObjectNotHasProperty('snippet_name', $group);
-        static::assertObjectHasProperty('description', $group);
-        static::assertObjectNotHasProperty('snippet_description', $group);
-        static::assertObjectHasProperty('cookie', $group);
-        static::assertObjectHasProperty('value', $group);
-        static::assertObjectHasProperty('expiration', $group);
+        // Verify the exact same collection is passed to the template (no transformation)
+        $passedGroups = $controller->renderStorefrontParameters['cookieGroups'];
+        static::assertSame($cookieGroups, $passedGroups);
+        static::assertSame($cookieGroup, $passedGroups->first());
     }
 
     public function testCookieConsentOffcanvasWithDefaults(): void
@@ -191,10 +181,10 @@ class CookieControllerTest extends TestCase
 
         // Override the json method to capture the data being passed to it
         $jsonData = null;
-        $controller->jsonCallback = function (array $data) use (&$jsonData) {
+        $controller->jsonCallback = function ($data) use (&$jsonData) {
             $jsonData = $data;
 
-            return new \Symfony\Component\HttpFoundation\JsonResponse($data);
+            return new JsonResponse($data);
         };
 
         $response = $controller->groups($request, $salesChannelContext);
@@ -204,6 +194,24 @@ class CookieControllerTest extends TestCase
         static::assertArrayHasKey('hash', $jsonData);
         static::assertSame('test-hash', $jsonData['hash']);
         static::assertSame($cookieGroups, $jsonData['elements']);
+    }
+
+    public function testGroupsThrowsExceptionWhenCookieRouteFails(): void
+    {
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $cookieRoute->expects($this->once())
+            ->method('getCookieGroups')
+            ->with($request, $salesChannelContext)
+            ->willThrowException(new \RuntimeException('Cookie route failed'));
+
+        $controller = new CookieControllerTestClass($cookieRoute);
+
+        $this->expectExceptionObject(new \RuntimeException('Cookie route failed'));
+
+        $controller->groups($request, $salesChannelContext);
     }
 }
 
@@ -223,12 +231,16 @@ class CookieControllerTestClass extends CookieController
      * @param array<string, string> $headers
      * @param array<string, mixed> $context
      */
-    protected function json(mixed $data, int $status = 200, array $headers = [], array $context = []): \Symfony\Component\HttpFoundation\JsonResponse
+    protected function json(mixed $data, int $status = 200, array $headers = [], array $context = []): JsonResponse
     {
-        if ($this->jsonCallback !== null && \is_array($data)) {
+        if ($this->jsonCallback !== null) {
+            if (\is_object($data) && method_exists($data, 'all')) {
+                $data = $data->all();
+            }
+
             return ($this->jsonCallback)($data);
         }
 
-        return parent::json($data, $status, $headers, $context);
+        return new JsonResponse($data, $status, $headers);
     }
 }

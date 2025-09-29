@@ -31,7 +31,7 @@ class ViteFileAccessorDecorator extends FileAccessor
     ) {
         $this->assetPath = $this->package->getUrl('');
 
-        parent::__construct($this->assetPath, $configs, null);
+        parent::__construct($this->assetPath, $configs);
     }
 
     public function hasFile(string $configName, string $fileType): bool

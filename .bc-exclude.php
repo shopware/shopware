@@ -47,6 +47,8 @@ return [
         preg_quote('ADDED: Parameter message was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
         preg_quote('ADDED: Parameter messageRequired was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
         preg_quote('ADDED: Parameter excludes was added to Method __construct() of class Shopware\Core\System\SalesChannel\Api\ResponseFields', '/'),
+        preg_quote('ADDED: Parameter mimeType was added to Method __construct() of class Shopware\Core\Content\Media\Core\Params\UrlParams', '/'),
+
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
@@ -71,6 +73,12 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity#$type changed from Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity to Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaId changed from string to string|null', '/'),
+
+        // Fix for promotion discount entity property initialization error - necessary to prevent runtime errors
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$sorterKey changed from string to string|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$applierKey changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $sorterKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setSorterKey() changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $applierKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setApplierKey() changed from string to string|null', '/'),
 
         // The media thumbnail size id changes have not been released
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaThumbnailSizeId changed from string to string|null', '/'),

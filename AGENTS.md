@@ -25,6 +25,23 @@ shopware/
 - **Cache**: Redis (optional), Symfony Cache
 - **Testing**: PHPUnit, PHPStan, Jest, Playwright
 
+## Shopware Architecture
+
+### NOT Standard Symfony/Doctrine
+- **NO Doctrine ORM** - Uses custom Data Abstraction Layer (DAL)
+- **NO QueryBuilder** - Use `Criteria` API instead
+- **NO Doctrine Annotations** - Use `EntityDefinition` classes
+- **NO Doctrine Repositories** - Use `EntityRepository` with DAL
+
+### Extension Pattern Priority
+1. **Prefer Events** - EventSubscriberInterface for most extensibility
+2. **Use Decorators Only When** - Event timing doesn't fit
+
+### Three Distinct APIs
+- `/api/` - Admin API (full CRUD, admin operations)
+- `/store-api/` - Store API (customer-facing, storefront)
+- `/api/_action/sync` - Sync API (bulk operations)
+
 ## Coding Guidelines
 
 **MANDATORY**: All code must follow the guidelines in `coding-guidelines/`.

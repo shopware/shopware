@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
-use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;

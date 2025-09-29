@@ -26,6 +26,8 @@ class Criteria extends Struct implements \Stringable
 
     final public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
+    final public const STATE_DISABLE_SEARCH_INFO = 'disableSearchInfo';
+
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
@@ -97,6 +99,11 @@ class Criteria extends Struct implements \Stringable
      * @var array<string, list<string>>|null
      */
     protected ?array $includes = null;
+
+    /**
+     * @var array<string, list<string>>|null
+     */
+    protected ?array $excludes = null;
 
     protected ?string $title = null;
 
@@ -540,6 +547,22 @@ class Criteria extends Struct implements \Stringable
     public function getIncludes()
     {
         return $this->includes;
+    }
+
+    /**
+     * @param array<string, list<string>>|null $excludes
+     */
+    public function setExcludes(?array $excludes): void
+    {
+        $this->excludes = $excludes;
+    }
+
+    /**
+     * @return array<string, list<string>>|null
+     */
+    public function getExcludes(): ?array
+    {
+        return $this->excludes;
     }
 
     public function getApiAlias(): string

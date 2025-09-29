@@ -103,6 +103,7 @@ class DefinitionValidator
         'one_time_tasks',
         'invalidation_tags',
         'subscription_cart',
+        'oauth_user',
         'theme_runtime_config',
     ];
 
@@ -203,6 +204,7 @@ class DefinitionValidator
                 );
             }
 
+            // @phpstan-ignore variable.implicitArray (The `notices` were accidentally omitted during a refactor of the class, we should add them back later to the output)
             $notices[$definitionClass] = array_merge_recursive(
                 $violations[$definitionClass],
                 $this->validateDataFieldNotPrefixedByEntityName($definition)

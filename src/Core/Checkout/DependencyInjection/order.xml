@@ -7,10 +7,12 @@
     <services>
         <service id="Shopware\Core\Checkout\Order\OrderDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.hookable"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.hookable"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\OrderExceptionHandler">
@@ -123,6 +125,8 @@
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="shopware.rate_limiter"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Service\GuestAuthenticator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute" public="true">

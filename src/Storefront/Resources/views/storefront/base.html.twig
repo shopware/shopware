@@ -15,7 +15,12 @@
 {% endblock %}
 
 {% block base_body %}
-    <body class="{% block base_body_classes %}is-ctl-{% if controllerName is not empty %}{{ controllerName|lower }}{% endif %} is-act-{% if controllerAction is not empty %}{{ controllerAction|lower }}{% endif %}{% endblock %}">
+    {# @deprecated tag:v6.8.0 - CSS classes `is-ctl-*` and `is-act-*` will be removed, use `is-active-route-*` instead. #}
+    <body class="{% block base_body_classes %}
+        {%- if controllerName is not empty -%}is-ctl-{{ controllerName|lower }} {% endif -%}
+        {%- if controllerAction is not empty -%}is-act-{{ controllerAction|lower }} {% endif -%}
+        {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'.': '-'}) }}{%- endif -%}
+    {%- endblock %}">
 
     {% block base_body_skip_to_content %}
         {% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {

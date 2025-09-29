@@ -122,7 +122,7 @@ class UserRecoveryService
         return $recovery && $validDateTime < $recovery->getCreatedAt();
     }
 
-    public function updatePassword(string $hash, string $password, Context $context): bool
+    public function updatePassword(string $hash, #[\SensitiveParameter] string $password, Context $context): bool
     {
         if (!$this->checkHash($hash, $context)) {
             return false;

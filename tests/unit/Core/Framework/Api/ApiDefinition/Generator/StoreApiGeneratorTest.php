@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollecti
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
@@ -170,5 +171,12 @@ class StoreApiGeneratorTest extends TestCase
             static::assertArrayHasKey('in', $parameter);
             static::assertArrayHasKey('schema', $parameter);
         }
+    }
+
+    public function testGetSchemaThrowsUnsupportedException(): void
+    {
+        $this->expectExceptionObject(ApiException::unsupportedStoreApiSchemaEndpoint());
+
+        $this->generator->getSchema($this->definitionRegistry->getDefinitions());
     }
 }

@@ -401,7 +401,6 @@ class LineItemListPriceRuleTest extends TestCase
         foreach ($rules as $rule) {
             // test combination with currency rule to validate currency list prices+
 
-            /** @var list<string> $currencyIds */
             $currencyIds = array_values($ids->getList(['currency']));
 
             $wrapper = new AndRule([

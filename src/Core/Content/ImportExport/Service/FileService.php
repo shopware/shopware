@@ -9,6 +9,7 @@ use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -22,6 +23,8 @@ class FileService extends AbstractFileService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,

@@ -82,7 +82,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             '#root#' => EntityDefinitionQueryHelper::escape($root),
             '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
             '#currencyId#' => $currencyId,
-            '#property#' => (string) $jsonAccessor,
+            '#property#' => $jsonAccessor,
             '#factor#' => '+ 0.0',
         ];
 
@@ -93,7 +93,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 '#root#' => EntityDefinitionQueryHelper::escape($root),
                 '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
                 '#currencyId#' => Defaults::CURRENCY,
-                '#property#' => (string) $jsonAccessor,
+                '#property#' => $jsonAccessor,
                 '#factor#' => $currencyFactor,
             ];
 

@@ -3,6 +3,7 @@
 .sw-first-run-wizard-welcome {
     width: 100%;
     align-self: flex-start;
+    margin-top: 100px;
 
     .center {
         text-align: center;
@@ -17,27 +18,10 @@
     }
 
     .text-welcome {
-        width: 675px;
         font-size: $font-size-xs;
         font-weight: normal;
         text-align: center;
         letter-spacing: 0.1px;
         margin: 0 auto 30px;
-    }
-
-    .text-change-language {
-        height: 25px;
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
-        letter-spacing: 0.1px;
-        line-height: 25px;
-    }
-}
-
-.sw-first-run-wizard-confirmLanguageSwitch-modal {
-    z-index: 1002 !important;
-
-    .sw-first-run-wizard-welcome__modal-text {
-        margin-bottom: 22px;
     }
 }

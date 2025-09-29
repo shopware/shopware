@@ -19,13 +19,14 @@ class Migration1758612662UpdateDateRangeRuleDateTimeFormat extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<'SQL'
-            UPDATE `rule_condition`
-            SET `value` = REPLACE(value, '+00:00', '')
-            WHERE `type` = 'dateRange' AND (`value` LIKE '%+00:00%')
-        SQL;
-
-        $connection->executeStatement($sql);
+        $connection->createQueryBuilder()
+            ->update('rule_condition')
+            ->set('value', 'REPLACE(value, \'+00:00\', \'\')')
+            ->where('type = :type')
+            ->andWhere('value LIKE :value')
+            ->setParameter('type', 'dateRange')
+            ->setParameter('value', '%+00:00%')
+            ->executeStatement();
 
         $this->registerIndexer($connection, 'rule.indexer');
     }

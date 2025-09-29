@@ -83,7 +83,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $customer = new CustomerEntity();
@@ -115,7 +114,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $request = new Request();
@@ -142,7 +140,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $request = new Request();
@@ -169,7 +166,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $request = new Request();
@@ -200,7 +196,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -278,7 +273,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $customer = new CustomerEntity();
@@ -323,7 +317,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -379,7 +372,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $request = new Request();
@@ -425,7 +417,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $request = new Request();
@@ -460,7 +451,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $response = new Response();
@@ -503,7 +493,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         if (!$response) {
@@ -560,7 +549,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $request = new Request();
@@ -599,7 +587,6 @@ class CacheResponseSubscriberTest extends TestCase
             '5',
             '6',
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $request = new Request();
@@ -686,7 +673,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);
@@ -745,7 +731,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $subscriber->onCustomerLogout($event);
@@ -768,7 +753,6 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             null,
             $this->eventDispatcher,
-            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
         );
 
         $customer = new CustomerEntity();

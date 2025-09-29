@@ -23,20 +23,29 @@ async function createWrapper() {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve({
-                                total: 1,
-                                data: [
-                                    {
-                                        id: '1a2b3c4e',
-                                        name: 'Test property',
-                                        sourceEntitiy: 'property',
-                                    },
-                                ],
-                            });
-                        },
-                    }),
+                    create: (entityName) => {
+                        if (entityName === 'product') {
+                            return {
+                                searchIds: jest.fn(() => Promise.resolve({ data: [], total: 0 })),
+                            };
+                        }
+
+                        if (entityName === 'property_group') {
+                            return {
+                                search: () =>
+                                    Promise.resolve([
+                                        {
+                                            id: '1a2b3c4e',
+                                            name: 'Test property',
+                                            sourceEntitiy: 'property',
+                                        },
+                                    ]),
+                                delete: jest.fn(() => Promise.resolve()),
+                            };
+                        }
+
+                        return {};
+                    },
                 },
                 searchRankingService: {
                     getSearchFieldsByEntity: () => {
@@ -75,6 +84,7 @@ async function createWrapper() {
                         </div>`,
                 },
                 'sw-language-switch': true,
+                'sw-empty-state': true,
                 'sw-context-menu-item': {
                     template: '<div class="sw-context-menu-item"><slot></slot></div>',
                     props: ['disabled'],
@@ -265,5 +275,23 @@ describe('module/sw-property/page/sw-property-list', () => {
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should not delete property group if it is in use', async () => {
+        global.activeAclRoles = ['property.deleter'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productRepository.searchIds = jest.fn(() => Promise.resolve({ data: ['some-product-id'], total: 1 }));
+        const notifySpy = jest.spyOn(wrapper.vm, 'createNotificationError').mockImplementation(() => {});
+
+        await wrapper.vm.onConfirmDelete('test-group-id');
+
+        expect(notifySpy).toHaveBeenCalledWith({ message: expect.any(String) });
+        expect(wrapper.vm.propertyRepository.delete).not.toHaveBeenCalled();
+
+        wrapper.vm.productRepository.searchIds.mockRestore();
+        notifySpy.mockRestore();
     });
 });

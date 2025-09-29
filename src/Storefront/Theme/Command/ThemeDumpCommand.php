@@ -120,7 +120,7 @@ class ThemeDumpCommand extends Command
 
         $domainUrl = $input->getArgument('domain-url');
         if ($input->isInteractive()) {
-            $domainUrl = $domainUrl ?? $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
+            $domainUrl ??= $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
 
             if ($domainUrl === null) {
                 $this->io->error(\sprintf('No domain URL for theme %s found', $themeEntity->getTechnicalName()));

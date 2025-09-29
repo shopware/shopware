@@ -215,7 +215,7 @@ class EntityReader implements EntityReaderInterface
 
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
                 if ($isPartial && $referenceField && !isset($partial[$fieldPropertyName][$referenceField->getPropertyName()])) {
-                    $partial[$fieldPropertyName] = $partial[$fieldPropertyName] ?? [];
+                    $partial[$fieldPropertyName] ??= [];
                     $partial[$fieldPropertyName][$referenceField->getPropertyName()] = [];
                 }
 

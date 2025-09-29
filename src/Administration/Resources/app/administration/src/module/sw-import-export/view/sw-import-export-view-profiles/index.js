@@ -111,21 +111,17 @@ export default {
         },
 
         onAddNewProfile() {
-            const profile = {
-                ...this.profileRepository.create(),
-                fileType: 'text/csv',
-                mapping: [],
-                config: {
-                    createEntities: true,
-                    updateEntities: true,
-                },
-                type: 'import-export',
-                translated: {},
-                delimiter: ';',
-                enclosure: '"',
+            const profile = this.profileRepository.create();
+            profile.type = 'import-export';
+            profile.fileType = 'text/csv';
+            profile.delimiter = ';';
+            profile.enclosure = '"';
+            profile.mapping = [];
+            profile.config = {
+                createEntities: true,
+                updateEntities: true,
             };
 
-            this.selectedProfile = null;
             this.selectedProfile = profile;
             this.showNewProfileWizard = true;
         },

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Sso\TokenService;
 
 use Lcobucci\JWT\Validator as ValidatorInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
@@ -36,7 +37,12 @@ class IdTokenParserTest extends TestCase
             $this->createClock()
         );
 
-        $validator = $this->createValidator(true);
+        $validationResults = [
+            'first issued by check' => true,
+            'first signed and loose valid check' => true,
+        ];
+
+        $validator = $this->createValidator($validationResults);
 
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
         $validatorProperty->setAccessible(true);
@@ -49,7 +55,11 @@ class IdTokenParserTest extends TestCase
         static::assertInstanceOf(\DateTimeImmutable::class, $result->expiry);
     }
 
-    public function testParseWithInvalidTokenShouldThrowException(): void
+    /**
+     * @param array<string, bool> $validationResults
+     */
+    #[DataProvider('invalidTokenTestCases')]
+    public function testParseWithInvalidTokenShouldThrowException(array $validationResults): void
     {
         $idToken = (new FakeTokenGenerator())->generate(JwksIds::KEY_ID_TWO);
 
@@ -59,7 +69,7 @@ class IdTokenParserTest extends TestCase
             $this->createClock()
         );
 
-        $validator = $this->createValidator(false);
+        $validator = $this->createValidator($validationResults);
 
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
         $validatorProperty->setAccessible(true);
@@ -69,10 +79,38 @@ class IdTokenParserTest extends TestCase
         $idTokenParser->parse($idToken);
     }
 
-    private function createValidator(bool $isValid): ValidatorInterface
+    /**
+     * @return array<string, array<string, array<string, bool>>>
+     */
+    public static function invalidTokenTestCases(): array
+    {
+        return [
+            'IssuedBy is invalid' => [
+                'validationResults' => [
+                    'first issued by check' => false,
+                    'second issued by check' => false,
+                ],
+            ],
+            'SignedWith and LooseValidAt are invalid' => [
+                'validationResults' => [
+                    'first issued by check' => false,
+                    'second issued by check' => true,
+                    'first signed and loose valid check' => false,
+                    'recursion first issued by check' => false,
+                    'recursion second issued by check' => true,
+                    'final signed and loose valid check' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, bool> $results
+     */
+    private function createValidator(array $results): ValidatorInterface
     {
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method('validate')->willReturn($isValid);
+        $validator->method('validate')->willReturnOnConsecutiveCalls(...\array_values($results));
 
         return $validator;
     }

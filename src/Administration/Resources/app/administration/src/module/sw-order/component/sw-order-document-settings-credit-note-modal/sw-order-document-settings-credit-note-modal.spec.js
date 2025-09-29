@@ -1,7 +1,6 @@
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
-
 import { mount } from '@vue/test-utils';
 
 const orderFixture = {
@@ -106,7 +105,6 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-datepicker': true,
                 'sw-checkbox-field': true,
-
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
@@ -385,35 +383,49 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         expect(invoiceOptions.at(1).text()).toBe('1001');
     });
 
-    it('should disable create button if there is no selected invoice', async () => {
-        const createButton = wrapper.findComponent('.sw-order-document-settings-modal__create');
-        expect(createButton.attributes('disabled')).toBeDefined();
-
-        const createContextMenu = wrapper.findAllComponents('.sw-context-button').at(1);
-        expect(createContextMenu.attributes('disabled')).toBe('true');
-    });
-
-    it('should enable create button if there is at least one selected invoice', async () => {
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input');
-        await invoiceSelect.trigger('click');
-
-        const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
-
-        await invoiceOptions.at(0).trigger('click');
-        await wrapper.vm.$nextTick();
-
-        const createButton = wrapper.find('.sw-order-document-settings-modal__create');
-        expect(createButton.attributes().disabled).toBeUndefined();
-
-        const createContextMenu = wrapper.find('.sw-context-button');
-        expect(createContextMenu.attributes().disabled).toBeUndefined();
-    });
-
     it('should allow any text input in the document number field', async () => {
         const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
         expect(documentNumberFieldInput.exists()).toBeTruthy();
 
         await documentNumberFieldInput.setValue('Prefix-1000-Suffix');
         expect(documentNumberFieldInput.element.value).toBe('Prefix-1000-Suffix');
+    });
+
+    it('should disable/enable create & preview buttons by selected invoice value', async () => {
+        const documentConfig = {
+            documentNumber: 'PREVIEW_NUM_001',
+            documentDate: '2024/01/01',
+        };
+
+        await wrapper.setData({
+            documentConfig,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__document-number input').element.value).toBe(
+            documentConfig.documentNumber,
+        );
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__document-date input').element.value).toBe(
+            documentConfig.documentDate,
+        );
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input').element.value).toBe('');
+
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('true');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('true');
+
+        await wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input').trigger('click');
+
+        const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
+        await invoiceOptions.at(0).trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).not.toHaveProperty(
+            'disabled',
+        );
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('false');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).not.toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('false');
     });
 });

@@ -45,19 +45,25 @@ class DocumentGeneratorController extends AbstractController
         }
 
         $operations = [];
-
         $definition = new DataValidationDefinition();
-        $definition->addList(
-            'documents',
-            (new DataValidationDefinition())
-                ->add('orderId', new NotBlank())
-                ->add('fileType', new Choice(choices: [PdfRenderer::FILE_EXTENSION]))
-                ->add('config', new Type('array'))
-                ->add('static', new Type('bool'))
-                ->add('referencedDocumentId', new Uuid())
-        );
 
-        $this->dataValidator->validate($documents, $definition);
+        $itemDefinition = (new DataValidationDefinition())
+            ->add('orderId', new NotBlank(), new Type('string'))
+            ->add('fileType', new Choice(choices: [PdfRenderer::FILE_EXTENSION]))
+            ->add('static', new Type('bool'))
+            ->add('referencedDocumentId', new Uuid());
+
+        $configDefinition = (new DataValidationDefinition())
+            ->add('documentNumber', new Type('string'))
+            ->add('documentDate', new Type('string'));
+
+        $itemDefinition->addSub('config', $configDefinition);
+        $definition->addList('documents', $itemDefinition);
+
+        $this->dataValidator->validate(
+            ['documents' => $documents],
+            $definition
+        );
 
         foreach ($documents as $operation) {
             $operations[(string) $operation['orderId']] = new DocumentGenerateOperation(

@@ -133,7 +133,7 @@ class StructEncoder implements ResetInterface
      */
     private function encodeStruct(Struct $struct, ResponseFields $fields, array $data, ?string $alias = null): array
     {
-        $alias = $alias ?? $struct->getApiAlias();
+        $alias ??= $struct->getApiAlias();
 
         foreach ($data as $property => $value) {
             if ($property === 'customFields' && $value === []) {

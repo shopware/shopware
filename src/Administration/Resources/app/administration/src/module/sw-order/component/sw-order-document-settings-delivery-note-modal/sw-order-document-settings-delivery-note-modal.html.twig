@@ -4,26 +4,31 @@
     gap="0 14px"
 >
     {% block sw_order_document_settings_modal_form_document_number %}
-
     <mt-text-field
         v-model="documentConfig.documentNumber"
+        class="sw-order-document-settings-delivery-note-modal__document-number"
         :label="$tc('sw-order.documentModal.labelDeliveryNoteNumber')"
+        :error="documentNumberErrorMessage"
+        required
     />
     {% endblock %}
 
     {% block sw_order_document_settings_modal_form_document_date %}
     <mt-datepicker
         v-model="documentConfig.documentDate"
+        class="sw-order-document-settings-delivery-note-modal__document-date"
         date-type="date"
         hide-hint
         :label="$tc('sw-order.documentModal.labelDocumentDate')"
         :placeholder="$tc('sw-datepicker.date.placeholder')"
+        required
     />
     {% endblock %}
 
     {% block sw_order_document_settings_modal_form_document_delivery_date %}
     <mt-datepicker
         v-model="documentConfig.custom.deliveryDate"
+        class="sw-order-document-settings-delivery-note-modal__delivery-date"
         date-type="date"
         required
         hide-hint

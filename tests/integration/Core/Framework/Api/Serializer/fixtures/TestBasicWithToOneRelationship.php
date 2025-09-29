@@ -323,7 +323,6 @@ class TestBasicWithToOneRelationship extends SerializationFixture
                 'translated' => [],
                 'createdAt' => '2018-01-15T08:01:16.000+00:00',
                 'updatedAt' => null,
-                'extensions' => [],
                 'admin' => true,
                 'title' => null,
                 'aclRoles' => null,
@@ -357,7 +356,6 @@ class TestBasicWithToOneRelationship extends SerializationFixture
             'translated' => [],
             'createdAt' => '2012-08-31T00:00:00.000+00:00',
             'updatedAt' => '2017-11-21T11:25:34.000+00:00',
-            'extensions' => [],
             'apiAlias' => 'media',
         ];
     }

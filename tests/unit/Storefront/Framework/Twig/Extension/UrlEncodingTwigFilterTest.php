@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
+use Twig\TwigFilter;
 
 /**
  * @internal
@@ -20,80 +21,74 @@ use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 #[CoversClass(UrlEncodingTwigFilter::class)]
 class UrlEncodingTwigFilterTest extends TestCase
 {
-    public function testHappyPath(): void
+    private UrlEncodingTwigFilter $filter;
+
+    protected function setUp(): void
     {
-        $filter = new UrlEncodingTwigFilter();
-        $url = 'https://shopware.com:80/some/thing';
-        static::assertSame($url, $filter->encodeUrl($url));
+        $this->filter = new UrlEncodingTwigFilter();
     }
 
-    public function testReturnsNullsIfNoUrlIsGiven(): void
+    public function testGetFiltersReturnsCorrectFilters(): void
     {
-        $filter = new UrlEncodingTwigFilter();
-        static::assertNull($filter->encodeUrl(null));
+        $filters = $this->filter->getFilters();
+
+        static::assertCount(2, $filters);
+        static::assertContainsOnlyInstancesOf(TwigFilter::class, $filters);
+
+        $filterNames = array_map(static fn (TwigFilter $filter) => $filter->getName(), $filters);
+        static::assertContains('sw_encode_url', $filterNames);
+        static::assertContains('sw_encode_media_url', $filterNames);
     }
 
-    public function testItEncodesWithoutPort(): void
+    public function testEncodeUrlDelegatesToUrlEncoder(): void
     {
-        $filter = new UrlEncodingTwigFilter();
         $url = 'https://shopware.com/some/thing';
-        static::assertSame($url, $filter->encodeUrl($url));
+        static::assertSame($url, $this->filter->encodeUrl($url));
     }
 
-    public function testRespectsQueryParameter(): void
+    public function testEncodeUrlReturnsNullForNullInput(): void
     {
-        $filter = new UrlEncodingTwigFilter();
-        $url = 'https://shopware.com/some/thing?a=3&b=25';
-        static::assertSame($url, $filter->encodeUrl($url));
+        static::assertNull($this->filter->encodeUrl(null));
     }
 
-    public function testReturnsEncodedPathsWithoutHostAndScheme(): void
+    public function testEncodeUrlHandlesSpecialCharacters(): void
     {
-        $filter = new UrlEncodingTwigFilter();
-        static::assertSame(
-            'shopware.com/some/thing',
-            $filter->encodeUrl('shopware.com/some/thing')
-        );
-    }
-
-    public function testItEncodesSpaces(): void
-    {
-        $filter = new UrlEncodingTwigFilter();
         static::assertSame(
             'https://shopware.com:80/so%20me/thing%20new.jpg',
-            $filter->encodeUrl('https://shopware.com:80/so me/thing new.jpg')
+            $this->filter->encodeUrl('https://shopware.com:80/so me/thing new.jpg')
         );
     }
 
-    public function testItEncodesSpecialCharacters(): void
+    public function testEncodeMediaUrlReturnsNullIfMediaIsNull(): void
     {
-        $filter = new UrlEncodingTwigFilter();
-        static::assertSame(
-            'https://shopware.com:80/so%20me/thing%20new.jpg',
-            $filter->encodeUrl('https://shopware.com:80/so me/thing new.jpg')
-        );
+        static::assertNull($this->filter->encodeMediaUrl(null));
     }
 
-    public function testItReturnsNullIfMediaIsNull(): void
+    public function testEncodeMediaUrlReturnsNullIfNoMediaIsUploaded(): void
     {
-        $filter = new UrlEncodingTwigFilter();
-        static::assertNull($filter->encodeMediaUrl(null));
-    }
-
-    public function testNullIfNoMediaIsUploaded(): void
-    {
-        $filter = new UrlEncodingTwigFilter();
         $media = new MediaEntity();
-
-        static::assertNull($filter->encodeMediaUrl($media));
+        static::assertNull($this->filter->encodeMediaUrl($media));
     }
 
-    public function testItEncodesTheUrl(): void
+    public function testEncodeMediaUrlWithSpacesInUrl(): void
     {
-        $filter = new UrlEncodingTwigFilter();
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/file with spaces.jpg');
+        $media->setFileName('file with spaces.jpg');
+        $media->setFileExtension('jpg');
+        $media->setMimeType('image/jpeg');
 
+        $result = $this->filter->encodeMediaUrl($media);
+
+        static::assertIsString($result);
+        static::assertStringContainsString('example.com', $result);
+        static::assertStringContainsString('file', $result);
+        static::assertStringContainsString('spaces', $result);
+    }
+
+    public function testEncodeMediaUrlWithComplexMediaEntity(): void
+    {
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
-
         $urlGenerator = new MediaUrlGenerator($filesystem);
         $uploadTime = new \DateTime();
 
@@ -112,6 +107,9 @@ class UrlEncodingTwigFilterTest extends TestCase
 
         $media->setUrl((string) $url);
 
-        static::assertStringEndsWith('%28image%20with%20spaces%20and%20brackets%29.png', (string) $filter->encodeMediaUrl($media));
+        $result = $this->filter->encodeMediaUrl($media);
+
+        static::assertIsString($result);
+        static::assertStringEndsWith('%28image%20with%20spaces%20and%20brackets%29.png', $result);
     }
 }

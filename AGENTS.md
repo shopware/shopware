@@ -28,3 +28,19 @@ shopware/
 ## Coding Guidelines
 
 **MANDATORY**: All code must follow the guidelines in `coding-guidelines/`.
+
+## File Linting
+
+**MANDATORY**: All code must be linted according to the following table.
+
+| File Type              | Check Command                 | Fix Command                                  |
+|------------------------|-------------------------------|----------------------------------------------|
+| **PHP** (.php)         | `composer ecs`                | `composer ecs-fix`                           |
+| **PHP** (types)        | `composer phpstan`            | N/A - must fix manually                      |
+| **JS/TS/Vue** (Admin)  | `composer eslint:admin`       | `composer eslint:admin:fix`                  |
+| **JS/TS** (Storefront) | `composer eslint:storefront`  | `composer eslint:storefront:fix`             |
+| **SCSS**               | `composer stylelint`          | `composer stylelint:[admin\|storefront]:fix` |
+| **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
+| **Changelog**          | `composer lint:changelog`     | Manual fix required                          |
+| **Snippets**           | `composer lint:snippets`      | Manual fix required                          |
+| **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |

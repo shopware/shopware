@@ -4,6 +4,7 @@ test('Shop customers should be able to view products in different currencies.', 
     ShopCustomer,
     TestDataService,
     StorefrontHome,
+    ChangeStorefrontCurrency,
 }) => {
 
     const salesChannelId = TestDataService.defaultSalesChannel.id;
@@ -24,8 +25,7 @@ test('Shop customers should be able to view products in different currencies.', 
     });
 
     await test.step('Customer can select a different currency', async () => {
-        await ShopCustomer.presses(StorefrontHome.currenciesDropdown, 'Space');
-        await ShopCustomer.presses(StorefrontHome.currenciesMenuOptions.getByText(currency.symbol), 'Enter');
+        await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
         await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText(currency.name);
         await ShopCustomer.expects(productListing.productPrice).toContainText(currency.isoCode);
     });

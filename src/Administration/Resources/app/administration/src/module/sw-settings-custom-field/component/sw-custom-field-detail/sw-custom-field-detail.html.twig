@@ -29,7 +29,7 @@
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
             :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
             :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor') || undefined"
-            :error="customFieldNameError"
+            :error="currentCustomFieldNameError?.error"
         />
         {% endblock %}
 

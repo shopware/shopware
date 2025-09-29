@@ -4,18 +4,9 @@
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Component } = Shopware;
 const { Criteria } = Shopware.Data;
-
-/**
- * @private
- */
-export const ERROR_CODE_CUSTOM_FIELD_NAME_INVALID = 'CUSTOM_FIELD_NAME_INVALID';
-
-/**
- * @private
- */
-export const CUSTOM_FIELD_NAME_PATTERN = /^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -65,24 +56,8 @@ export default {
             return [this.$root.$i18n.fallbackLocale.value];
         },
 
-        customFieldNameError() {
-            if (!this.currentCustomField.name) {
-                return null;
-            }
-
-            const isValid = CUSTOM_FIELD_NAME_PATTERN.test(this.currentCustomField.name);
-
-            if (isValid) {
-                return null;
-            }
-
-            return {
-                detail: this.$tc(`sw-settings-custom-field.error.${ERROR_CODE_CUSTOM_FIELD_NAME_INVALID}`),
-            };
-        },
-
         canSave() {
-            return this.currentCustomField.config.customFieldType && !this.customFieldNameError;
+            return this.currentCustomField.config.customFieldType;
         },
 
         renderComponentName() {
@@ -126,6 +101,10 @@ export default {
                 };
             });
         },
+
+        ...mapPropertyErrors('currentCustomField', [
+            'name',
+        ]),
     },
 
     created() {

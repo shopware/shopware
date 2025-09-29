@@ -6,6 +6,7 @@ import './sw-custom-field-list.scss';
 
 const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
+const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -121,6 +122,7 @@ export default {
         onAddCustomField() {
             const customField = this.customFieldRepository.create();
             customField.storeApiAware = true;
+
             this.onCustomFieldEdit(customField);
         },
 
@@ -138,20 +140,19 @@ export default {
 
             return this.customFieldRepository
                 .save(field)
-                .catch((error) => {
-                    const errorMessage = error?.response?.data?.errors?.[0]?.detail ?? 'Error';
-
-                    this.createNotificationError({
-                        message: errorMessage,
-                    });
-                })
-                .finally(() => {
+                .then(() => {
                     this.currentCustomField = null;
+                    this.loadCustomFields();
+                })
+                .catch((error) => {
+                    const [{ detail: message = 'Error', code = 'UNKNOWN_ERROR' } = {}] = error?.response?.data?.errors ?? [];
 
-                    // Wait for modal to be closed
-                    this.$nextTick(() => {
-                        this.loadCustomFields();
+                    Shopware.Store.get('error').addApiError({
+                        expression: `custom_field.${field.id}.name.error`,
+                        error: new ShopwareError({ code, detail: message }),
                     });
+
+                    this.createNotificationError({ message });
                 });
         },
 

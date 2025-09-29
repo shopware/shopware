@@ -34,6 +34,7 @@ const customFieldFixture = {
         customFieldPosition: 1,
     },
     _isNew: true,
+    getEntityName: () => 'custom_field',
 };
 
 const defaultProps = {
@@ -68,7 +69,7 @@ async function createWrapper(props = defaultProps, privileges = []) {
                     customFieldDataProviderService: {
                         getTypes: () => getFieldTypes(),
                     },
-                    SwCustomFieldListIsCustomFieldNameUnique: () => Promise.resolve(null),
+                    SwCustomFieldListIsCustomFieldNameUnique: () => Promise.resolve(true),
                     validationService: {},
                     shortcutService: {
                         stopEventListener: () => {},
@@ -167,18 +168,23 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
 
         expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').exists()).toBe(false);
 
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-custom-field.types.select');
+        await flushPromises();
+
         await wrapper.find('.sw-custom-field-detail__technical-name input').setValue('invalid-name.');
         expect(wrapper.vm.currentCustomField.name).toBe('invalid-name.');
         await flushPromises();
 
-        expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').text()).toBe(
-            'sw-settings-custom-field.error.CUSTOM_FIELD_NAME_INVALID',
-        );
+        await wrapper.find('.sw-custom-field-detail__footer-save').trigger('click');
+        expect(wrapper.emitted('custom-field-edit-save')).toBeDefined();
 
-        await wrapper.find('.sw-custom-field-detail__technical-name input').setValue('_valid_name');
-        expect(wrapper.vm.currentCustomField.name).toBe('_valid_name');
+        Shopware.Store.get('error').addApiError({
+            expression: `custom_field.id1.name.error`,
+            error: new Shopware.Classes.ShopwareError({ code: 'test', detail: 'test' }),
+        });
         await flushPromises();
 
-        expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').exists()).toBe(false);
+        expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').exists()).toBe(true);
+        expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').text()).toBe('test');
     });
 });

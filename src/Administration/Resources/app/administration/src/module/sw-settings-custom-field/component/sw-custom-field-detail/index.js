@@ -4,8 +4,9 @@
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -100,6 +101,10 @@ export default {
                 };
             });
         },
+
+        ...mapPropertyErrors('currentCustomField', [
+            'name',
+        ]),
     },
 
     created() {

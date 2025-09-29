@@ -60,16 +60,13 @@ final class IdTokenParser
 
     private function validateToken(string $kid, LoginConfig $loginConfig, UnencryptedToken $token, bool $bypassCacheLoading = false): void
     {
-        if (!$this->validateIssuedBy($loginConfig, $token)) {
-            throw SsoException::invalidIdToken();
-        }
-
         $publicKey = $this->publicKeyLoader->loadPublicKey($kid, $bypassCacheLoading);
 
         $signatureConstraint = new SignedWith($this->algorithm, $publicKey);
+        $issuedByConstraint = new IssuedBy($loginConfig->baseUrl);
         $validAtConstraint = new LooseValidAt($this->clock);
 
-        if (!$this->validator->validate($token, $signatureConstraint, $validAtConstraint)) {
+        if (!$this->validator->validate($token, $signatureConstraint, $issuedByConstraint, $validAtConstraint)) {
             if (!$bypassCacheLoading) {
                 $this->validateToken($kid, $loginConfig, $token, true);
 
@@ -78,17 +75,5 @@ final class IdTokenParser
 
             throw SsoException::invalidIdToken();
         }
-    }
-
-    private function validateIssuedBy(LoginConfig $loginConfig, UnencryptedToken $token): bool
-    {
-        $issuedByConstraint = new IssuedBy($loginConfig->baseUrl);
-        if ($this->validator->validate($token, $issuedByConstraint)) {
-            return true;
-        }
-
-        $issuedByConstraint = new IssuedBy($loginConfig->baseUrl . '/');
-
-        return $this->validator->validate($token, $issuedByConstraint);
     }
 }

@@ -7,6 +7,9 @@
       "tooltipTechnicalName": "A technical name has to be unique and cannot be changed later.",
       "tooltipType": "The type cannot be changed later."
     },
+    "error": {
+      "CUSTOM_FIELD_NAME_INVALID": "Invalid field name: Only letters, numbers, or underscores are allowed, and it must start with a letter or underscore."
+    },
     "set": {
       "list": {
         "textHeadline": "Custom fields",

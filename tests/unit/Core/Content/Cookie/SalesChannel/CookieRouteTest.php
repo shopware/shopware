@@ -293,7 +293,7 @@ class CookieRouteTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         // Create a cookie group with cookie-config-hash entry
-        $hashEntry = new CookieEntry('cookie-config-hash');
+        $hashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
         $hashEntry->value = 'old-hash';
         $otherEntry = new CookieEntry('other-cookie');
 
@@ -320,7 +320,7 @@ class CookieRouteTest extends TestCase
         $groupWithoutEntries = new CookieGroup('group.without.entries');
         // Don't set entries, so it remains null
 
-        $hashEntry = new CookieEntry('cookie-config-hash');
+        $hashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
         $hashEntry->value = 'old-hash';
         $groupWithHashEntry = new CookieGroup('group.with.hash');
         $groupWithHashEntry->setEntries(new CookieEntryCollection([$hashEntry]));
@@ -342,12 +342,12 @@ class CookieRouteTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         // Create two groups each with hash entries
-        $firstHashEntry = new CookieEntry('cookie-config-hash');
+        $firstHashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
         $firstHashEntry->value = 'old-hash-1';
         $firstGroup = new CookieGroup('first.group');
         $firstGroup->setEntries(new CookieEntryCollection([$firstHashEntry]));
 
-        $secondHashEntry = new CookieEntry('cookie-config-hash');
+        $secondHashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
         $secondHashEntry->value = 'old-hash-2';
         $secondGroup = new CookieGroup('second.group');
         $secondGroup->setEntries(new CookieEntryCollection([$secondHashEntry]));

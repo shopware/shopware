@@ -107,19 +107,9 @@ class CookieRoute extends AbstractCookieRoute
      */
     private function setCookieConfigHashValue(CookieGroupCollection $cookieGroups, string $hash): void
     {
-        foreach ($cookieGroups as $cookieGroup) {
-            $entries = $cookieGroup->getEntries();
-            if ($entries === null) {
-                continue;
-            }
-
-            foreach ($entries as $entry) {
-                if ($entry->cookie === 'cookie-config-hash') {
-                    $entry->value = $hash;
-
-                    return;
-                }
-            }
+        $cookie = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED)?->getEntries()?->get(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        if ($cookie) {
+            $cookie->value = $hash;
         }
     }
 }

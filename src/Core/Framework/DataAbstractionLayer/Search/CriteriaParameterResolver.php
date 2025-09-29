@@ -31,14 +31,20 @@ class CriteriaParameterResolver
      */
     public function getParameter(Request $request, string $key, mixed $default = null): mixed
     {
+        return $this->getFromCompressed($request, $key, $request->get($key, $default));
+    }
+
+    public function getFromCompressed(Request $request, string $key, mixed $default = null): mixed
+    {
         if ($request->isMethod(Request::METHOD_GET)) {
             $parameters = $this->getCompressedCriteriaParameters($request);
+
             if ($parameters !== null) {
                 return $parameters[$key] ?? $default;
             }
         }
 
-        return $request->get($key, $default);
+        return $default;
     }
 
     /**

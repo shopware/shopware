@@ -54,7 +54,6 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
     public function create(Request $request, SalesChannelContext $context): ?Filter
     {
-        // Use parameter resolver instead of direct request access
         $groupIds = $this->parameterResolver->getParameter($request, self::PROPERTY_GROUP_IDS_REQUEST_PARAM, []);
         $filterEnabled = $this->parameterResolver->getParameter($request, self::FILTER_ENABLED_REQUEST_PARAM, true);
 

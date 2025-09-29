@@ -31,7 +31,6 @@ class PriceListingFilterHandler extends AbstractListingFilterHandler
 
     public function create(Request $request, SalesChannelContext $context): ?Filter
     {
-        // Use parameter resolver instead of direct request access
         $filterEnabled = $this->parameterResolver->getParameter($request, self::FILTER_ENABLED_REQUEST_PARAM, true);
 
         if (!$filterEnabled) {

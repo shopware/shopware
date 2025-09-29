@@ -58,8 +58,9 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
     {
-        // Use parameter resolver instead of direct request access
-        $limit = $this->parameterResolver->getParameter($request, 'limit');
+        $limit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
+        $limit = $request->request->has('limit') ? $request->request->getInt('limit') : $limit;
+        $limit = (int) $this->parameterResolver->getFromCompressed($request, 'limit', $limit);
 
         // request > criteria > config
         if ($limit > 0) {
@@ -77,8 +78,9 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     private function getPage(Request $request): ?int
     {
-        // Use parameter resolver instead of direct request access
-        $page = $this->parameterResolver->getParameter($request, 'p');
+        $page = $request->query->has('p') ? $request->query->getInt('p') : null;
+        $page = $request->request->has('p') ? $request->request->getInt('p') : $page;
+        $page = (int) $this->parameterResolver->getFromCompressed($request, 'p', $page);
 
         return $page > 0 ? $page : null;
     }

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStora
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTyp
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -115,6 +117,26 @@ class DataAbstractionLayerException extends HttpException
             'Unknown or bad CronInterval format "{{ cronIntervalString }}".',
             ['cronIntervalString' => $cronIntervalString],
         );
+    }
+
+    public static function writeTypeIntendError(
+        EntityDefinition $definition,
+        string $expectedClass,
+        string $actualClass
+    ): self {
+        return new WriteTypeIntendException(
+            $definition,
+            $expectedClass,
+            $actualClass
+        );
+    }
+
+    /**
+     * @param list<string> $remainingEntities
+     */
+    public static function impossibleWriteOrder(array $remainingEntities): self
+    {
+        return new ImpossibleWriteOrderException($remainingEntities);
     }
 
     public static function invalidDateIntervalFormat(

@@ -96,9 +96,7 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
         }
 
         trigger.removeAttribute('data-bs-toggle');
-        trigger.removeAttribute('data-toggle');  // legacy fallback
         trigger.removeAttribute('data-bs-target');
-        trigger.removeAttribute('data-target');  // legacy fallback
         trigger.removeAttribute('aria-controls');
         trigger.classList.remove('collapsed');
         trigger.setAttribute('aria-expanded', 'true');

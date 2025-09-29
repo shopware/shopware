@@ -6,7 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -14,14 +16,20 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(HttpCacheKeyGenerator::class)]
+#[CoversClass(HttpCacheKeyEvent::class)]
 #[Group('cache')]
 class HttpCacheKeyGeneratorTest extends TestCase
 {
+    use EventDispatcherBehaviour;
+
     private HttpCacheKeyGenerator $cacheKeyGenerator;
+
+    private EventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
-        $this->cacheKeyGenerator = new HttpCacheKeyGenerator('foo', new EventDispatcher(), ['_ga']);
+        $this->eventDispatcher = new EventDispatcher();
+        $this->cacheKeyGenerator = new HttpCacheKeyGenerator('foo', $this->eventDispatcher, ['_ga']);
     }
 
     #[DataProvider('differentKeyProvider')]
@@ -40,6 +48,22 @@ class HttpCacheKeyGeneratorTest extends TestCase
             $this->cacheKeyGenerator->generate($requestA),
             $this->cacheKeyGenerator->generate($requestB),
         );
+    }
+
+    public function testCacheKeyStaysTheSameIfEventPartsAreSortedDifferently(): void
+    {
+        $request = Request::create('https://domain.com/method');
+        $firstHash = $this->cacheKeyGenerator->generate($request);
+
+        $this->addEventListener($this->eventDispatcher, HttpCacheKeyEvent::class, static function (HttpCacheKeyEvent $event): void {
+            $uri = $event->get('uri');
+            self::assertIsString($uri);
+            $event->remove('uri');
+            $event->add('uri', $uri);
+        });
+
+        $secondHash = $this->cacheKeyGenerator->generate($request);
+        static::assertSame($firstHash, $secondHash);
     }
 
     public static function sameKeyProvider(): \Generator

@@ -170,6 +170,10 @@ Shopware.Store.get('session').setAdminLocaleState({
     languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
 });
 
+// disable telemetry
+Shopware.Telemetry.initialize = () => Promise.resolve();
+Shopware.Telemetry.track = () => {};
+
 // Add global mocks
 config.global.mocks = {
     $tc: v => v,

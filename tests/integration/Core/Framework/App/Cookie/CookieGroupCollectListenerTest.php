@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -39,6 +40,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection(),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -60,6 +62,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection(),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -100,6 +103,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([$coreCookieGroup]),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -137,6 +141,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection(),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -174,6 +179,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection(),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 

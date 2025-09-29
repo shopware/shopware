@@ -114,19 +114,21 @@ class SalesChannelRepository
 
         $search = $ids->getData();
 
-        foreach ($entities as $element) {
-            if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
-                continue;
+        if (!$criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO)) {
+            foreach ($entities as $element) {
+                if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
+                    continue;
+                }
+
+                $data = $search[$element->getUniqueIdentifier()];
+                unset($data['id']);
+
+                if (empty($data)) {
+                    continue;
+                }
+
+                $element->addExtension('search', new ArrayEntity($data));
             }
-
-            $data = $search[$element->getUniqueIdentifier()];
-            unset($data['id']);
-
-            if (empty($data)) {
-                continue;
-            }
-
-            $element->addExtension('search', new ArrayEntity($data));
         }
 
         $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());

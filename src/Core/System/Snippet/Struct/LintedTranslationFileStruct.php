@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-readonly class ValidatedTranslationFileStruct
+readonly class LintedTranslationFileStruct
 {
     private FixableTranslationFileCollection $fixableFiles;
 
@@ -69,8 +69,9 @@ readonly class ValidatedTranslationFileStruct
     }
 
     /**
-     * @description Returns correct collection domain name. All files with a custom domain (e.g. 'swag-cms-extensions' instead of 'messages' or 'storefront')
-     *   are no base files and therefore considered storefront files
+     * @description Returns correct collection domain name. All files with a custom domain are no base files and therefore considered storefront files
+     *
+     * @example Entered custom domain 'swag-cms-extensions' instead of 'messages' or 'storefront' will return 'storefront'
      */
     private function getCollectionDomainName(string $domain): string
     {

@@ -5,12 +5,12 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
-use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileOptions;
-use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileStruct;
+use Shopware\Core\System\Snippet\Struct\LintedTranslationFileOptions;
+use Shopware\Core\System\Snippet\Struct\LintedTranslationFileStruct;
 use Symfony\Component\Filesystem\Filesystem;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 /**
  * @internal
@@ -44,38 +44,38 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     public function testCheckTranslationFiles(): void
     {
-        $options = new ValidatedTranslationFileOptions(
+        $options = new LintedTranslationFileOptions(
             false,
             false,
             [],
             [],
             self::FIXTURES_PATH,
         );
-        $validatedFileStruct = $this->fileLinter->checkTranslationFiles($options);
+        $lintedFileStruct = $this->fileLinter->checkTranslationFiles($options);
 
-        static::assertCount(18, $validatedFileStruct->getCompleteCollection());
-        static::assertCount(14, $validatedFileStruct->getSpecificCollection());
-        static::assertCount(0, $validatedFileStruct->getDomainCollection('messages'));
-        static::assertCount(10, $validatedFileStruct->getDomainCollection('storefront'));
-        static::assertCount(10, $validatedFileStruct->getDomainCollection('sth-which-fallbacks-to-storefront'));
-        static::assertCount(8, $validatedFileStruct->getDomainCollection('administration'));
+        static::assertCount(18, $lintedFileStruct->getCompleteCollection());
+        static::assertCount(14, $lintedFileStruct->getSpecificCollection());
+        static::assertCount(0, $lintedFileStruct->getDomainCollection('messages'));
+        static::assertCount(10, $lintedFileStruct->getDomainCollection('storefront'));
+        static::assertCount(10, $lintedFileStruct->getDomainCollection('sth-which-fallbacks-to-storefront'));
+        static::assertCount(8, $lintedFileStruct->getDomainCollection('administration'));
 
-        static::assertCount(6, $validatedFileStruct->getFixableFiles()->getMapping());
-        static::assertCount(9, $validatedFileStruct->getFixableFiles());
-        static::assertCount(0, $validatedFileStruct->getFixingCollection());
+        static::assertCount(6, $lintedFileStruct->getFixableFiles()->getMapping());
+        static::assertCount(9, $lintedFileStruct->getFixableFiles());
+        static::assertCount(0, $lintedFileStruct->getFixingCollection());
     }
 
     public function testFixFilenames(): void
     {
-        $options = new ValidatedTranslationFileOptions(
+        $options = new LintedTranslationFileOptions(
             true,
             false,
             [],
             [],
             self::FIXTURES_PATH,
         );
-        $validatedFileStruct = $this->fileLinter->checkTranslationFiles($options);
-        $hydratedFileStruct = $this->hydrateFixingCollection($validatedFileStruct);
+        $lintedFileStruct = $this->fileLinter->checkTranslationFiles($options);
+        $hydratedFileStruct = $this->hydrateFixingCollection($lintedFileStruct);
         $this->fileLinter->fixFilenames($hydratedFileStruct);
 
         static::assertCount(18, $hydratedFileStruct->getCompleteCollection());
@@ -90,13 +90,13 @@ class CountryAgnosticFileLinterTest extends TestCase
         static::assertCount(6, $hydratedFileStruct->getFixingCollection());
     }
 
-    private function hydrateFixingCollection(ValidatedTranslationFileStruct $validatedFileStruct): ValidatedTranslationFileStruct
+    private function hydrateFixingCollection(LintedTranslationFileStruct $lintedFileStruct): LintedTranslationFileStruct
     {
-        foreach ($validatedFileStruct->getFixableFiles()->getMapping() as $fileOptions) {
+        foreach ($lintedFileStruct->getFixableFiles()->getMapping() as $fileOptions) {
             $selection = array_key_first($fileOptions);
-            $validatedFileStruct->addToFixingCollection($fileOptions[$selection]);
+            $lintedFileStruct->addToFixingCollection($fileOptions[$selection]);
         }
 
-        return $validatedFileStruct;
+        return $lintedFileStruct;
     }
 }

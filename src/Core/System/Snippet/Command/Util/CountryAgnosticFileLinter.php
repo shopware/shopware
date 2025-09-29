@@ -13,10 +13,10 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetPatterns;
+use Shopware\Core\System\Snippet\Struct\LintedTranslationFileOptions;
+use Shopware\Core\System\Snippet\Struct\LintedTranslationFileStruct;
 use Shopware\Core\System\Snippet\Struct\TranslationFile;
 use Shopware\Core\System\Snippet\Struct\TranslationFileCollection;
-use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileOptions;
-use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -44,11 +44,11 @@ class CountryAgnosticFileLinter
     ) {
     }
 
-    public function checkTranslationFiles(ValidatedTranslationFileOptions $options): ValidatedTranslationFileStruct
+    public function checkTranslationFiles(LintedTranslationFileOptions $options): LintedTranslationFileStruct
     {
         $finder = $this->getFinder($options);
         if ($finder->count() < 1) {
-            return new ValidatedTranslationFileStruct();
+            return new LintedTranslationFileStruct();
         }
 
         $languageFiles = new TranslationFileCollection([]);
@@ -86,34 +86,15 @@ class CountryAgnosticFileLinter
             $languageFiles->add($formatedLanguageStruct);
         }
 
-        return $this->processAgnosticFiles(new ValidatedTranslationFileStruct(
+        return $this->processAgnosticFiles(new LintedTranslationFileStruct(
             $languageFiles,
             $countrySpecificFileCollection,
         ));
     }
 
-    private function processAgnosticFiles(ValidatedTranslationFileStruct $validatedFileStruct): ValidatedTranslationFileStruct
+    public function fixFilenames(LintedTranslationFileStruct $lintedFileStruct): void
     {
-        $specificCollection = $validatedFileStruct->getSpecificCollection();
-        if ($specificCollection->count() === 0) {
-            return $validatedFileStruct;
-        }
-
-        foreach ($specificCollection as $countrySpecificFile) {
-            $translationCollection = $validatedFileStruct->getCompleteCollection();
-
-            // If no agnostic file exists, $countrySpecificFile is content for `fixFilenames` to be fixed
-            if ($translationCollection->get($countrySpecificFile->getAgnosticPath()) === null) {
-                $validatedFileStruct->addFixableFile($countrySpecificFile);
-            }
-        }
-
-        return $validatedFileStruct;
-    }
-
-    public function fixFilenames(ValidatedTranslationFileStruct $validatedFileStruct): void
-    {
-        foreach ($validatedFileStruct->getFixingCollection() as $translationFile) {
+        foreach ($lintedFileStruct->getFixingCollection() as $translationFile) {
             $this->filesystem->rename(
                 $translationFile->getFullPath(),
                 $translationFile->getAgnosticPath(),
@@ -121,7 +102,25 @@ class CountryAgnosticFileLinter
         }
     }
 
-    private function getFinder(ValidatedTranslationFileOptions $options): Finder
+    private function processAgnosticFiles(LintedTranslationFileStruct $lintedFileStruct): LintedTranslationFileStruct
+    {
+        $specificCollection = $lintedFileStruct->getSpecificCollection();
+        if ($specificCollection->count() === 0) {
+            return $lintedFileStruct;
+        }
+
+        $translationCollection = $lintedFileStruct->getCompleteCollection();
+        foreach ($specificCollection as $countrySpecificFile) {
+            // If no agnostic file exists, $countrySpecificFile is content for `fixFilenames` to be fixed
+            if ($translationCollection->get($countrySpecificFile->getAgnosticPath()) === null) {
+                $lintedFileStruct->addFixableFile($countrySpecificFile);
+            }
+        }
+
+        return $lintedFileStruct;
+    }
+
+    private function getFinder(LintedTranslationFileOptions $options): Finder
     {
         $finder = (new Finder())
             ->files()
@@ -133,7 +132,7 @@ class CountryAgnosticFileLinter
                 'vendor',
                 'bin',
                 'static',
-                // Translations of languages fetched from crowdin should not be validated
+                // Translations of languages fetched from crowdin should not be linted
                 'SwagLanguagePack/src/Resources/snippet',
                 'SwagLanguagePack/src/Resources/app/administration/src/snippet',
                 ...$options->ignoredPaths,
@@ -160,7 +159,7 @@ class CountryAgnosticFileLinter
     /**
      * @return array<string, string>
      */
-    private function getExtensionPaths(ValidatedTranslationFileOptions $options): array
+    private function getExtensionPaths(LintedTranslationFileOptions $options): array
     {
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('name', $options->extensionPaths));
         $context = Context::createCLIContext();
@@ -174,7 +173,7 @@ class CountryAgnosticFileLinter
         ];
 
         if (empty($extensionPaths)) {
-            throw SnippetException::invalidExtension($options->extensionPaths);
+            throw SnippetException::invalidExtensions($options->extensionPaths);
         }
 
         return $extensionPaths;
@@ -197,7 +196,7 @@ class CountryAgnosticFileLinter
         TranslationFileCollection $countrySpecificFileCollection
     ): TranslationFile {
         $currentDomain = $currentFileData['domain'] ?? 'administration';
-        $formatedLanguageStruct = new TranslationFile(
+        $translationFile = new TranslationFile(
             $file->getFilename(),
             $file->getPath(),
             $currentDomain,
@@ -208,10 +207,10 @@ class CountryAgnosticFileLinter
             !$isAdminTranslationFile && !empty($currentFileData['isBase']),
         );
 
-        if ($formatedLanguageStruct->region) {
-            $countrySpecificFileCollection->add($formatedLanguageStruct);
+        if ($translationFile->region) {
+            $countrySpecificFileCollection->add($translationFile);
         }
 
-        return $formatedLanguageStruct;
+        return $translationFile;
     }
 }

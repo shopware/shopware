@@ -402,7 +402,7 @@
       "@lint:snippets"
     ],
     "lint:changelog": "@php bin/shopware changelog:check",
-    "lint:snippets": "@translation:lint",
+    "lint:snippets": "@translation:validate",
     "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
     "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
     "make:coverage": [

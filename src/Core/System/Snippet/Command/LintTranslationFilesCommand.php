@@ -5,8 +5,8 @@ namespace Shopware\Core\System\Snippet\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
-use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileOptions;
-use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileStruct;
+use Shopware\Core\System\Snippet\Struct\LintedTranslationFileOptions;
+use Shopware\Core\System\Snippet\Struct\LintedTranslationFileStruct;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -74,23 +74,23 @@ class LintTranslationFilesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
-        $options = ValidatedTranslationFileOptions::fromInputInterface($input);
+        $options = LintedTranslationFileOptions::fromInputInterface($input);
 
-        $validatedFileStruct = $this->fileLinter->checkTranslationFiles($options);
+        $lintedFileStruct = $this->fileLinter->checkTranslationFiles($options);
 
-        if ($options->isFix && $validatedFileStruct->getFixableFiles()->count() > 0) {
-            $validatedFileStruct = $this->hydrateFixingCollection($io, $validatedFileStruct);
-            $this->fileLinter->fixFilenames($validatedFileStruct);
+        if ($options->isFix && $lintedFileStruct->getFixableFiles()->count() > 0) {
+            $lintedFileStruct = $this->hydrateFixingCollection($io, $lintedFileStruct);
+            $this->fileLinter->fixFilenames($lintedFileStruct);
         }
 
-        return $this->renderOutput($io, $validatedFileStruct, $options);
+        return $this->renderOutput($io, $lintedFileStruct, $options);
     }
 
     private function hydrateFixingCollection(
         ShopwareStyle $io,
-        ValidatedTranslationFileStruct $validatedFileStruct,
-    ): ValidatedTranslationFileStruct {
-        foreach ($validatedFileStruct->getFixableFiles()->getMapping() as $targetPath => $fileOptions) {
+        LintedTranslationFileStruct $lintedFileStruct,
+    ): LintedTranslationFileStruct {
+        foreach ($lintedFileStruct->getFixableFiles()->getMapping() as $targetPath => $fileOptions) {
             $selection = array_key_first($fileOptions);
 
             if (\count($fileOptions) > 1) {
@@ -103,36 +103,36 @@ class LintTranslationFilesCommand extends Command
                 ));
             }
 
-            $validatedFileStruct->addToFixingCollection($fileOptions[$selection]);
+            $lintedFileStruct->addToFixingCollection($fileOptions[$selection]);
         }
 
-        return $validatedFileStruct;
+        return $lintedFileStruct;
     }
 
     private function renderOutput(
         ShopwareStyle $io,
-        ValidatedTranslationFileStruct $validatedFileStruct,
-        ValidatedTranslationFileOptions $validatedFileOptions,
+        LintedTranslationFileStruct $lintedFileStruct,
+        LintedTranslationFileOptions $lintedFileOptions,
     ): int {
-        if (!$validatedFileOptions->isFix) {
+        if (!$lintedFileOptions->isFix) {
             foreach (\array_keys(CountryAgnosticFileLinter::PLATFORM_DOMAINS) as $domain) {
-                $this->renderDomainTable($io, $domain, $validatedFileStruct);
+                $this->renderDomainTable($io, $domain, $lintedFileStruct);
             }
         }
 
-        $this->renderIssuesTable($io, $validatedFileStruct);
+        $this->renderIssuesTable($io, $lintedFileStruct);
 
-        if ($validatedFileStruct->getFixableFiles()->count() < 1) {
+        if ($lintedFileStruct->getFixableFiles()->count() < 1) {
             $io->success(\sprintf(
                 'All translation files are named correctly.%s',
-                $validatedFileOptions->isFix ? ' Nothing to fix.' : '',
+                $lintedFileOptions->isFix ? ' Nothing to fix.' : '',
             ));
 
             return self::SUCCESS;
         }
 
-        if ($validatedFileOptions->isFix) {
-            $this->renderFixedTable($io, $validatedFileStruct);
+        if ($lintedFileOptions->isFix) {
+            $this->renderFixedTable($io, $lintedFileStruct);
 
             return self::SUCCESS;
         }
@@ -145,9 +145,9 @@ class LintTranslationFilesCommand extends Command
     private function renderDomainTable(
         ShopwareStyle $io,
         string $domain,
-        ValidatedTranslationFileStruct $validatedFileStruct
+        LintedTranslationFileStruct $lintedFileStruct,
     ): void {
-        $domainCollection = $validatedFileStruct->getDomainCollection($domain);
+        $domainCollection = $lintedFileStruct->getDomainCollection($domain);
 
         if ($domainCollection->count() < 1) {
             $io->note(\sprintf(
@@ -168,7 +168,7 @@ class LintTranslationFilesCommand extends Command
             ->setHeaders($headers)
             ->setStyle('box-double');
 
-        foreach ($validatedFileStruct->getDomainCollection($domain) as $translationFile) {
+        foreach ($lintedFileStruct->getDomainCollection($domain) as $translationFile) {
             $row = [
                 $translationFile->filename,
                 $translationFile->path,
@@ -191,16 +191,16 @@ class LintTranslationFilesCommand extends Command
         $io->text(\sprintf(
             '%s files found: %s',
             CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain],
-            $validatedFileStruct->getDomainCollection($domain)->count()
+            $lintedFileStruct->getDomainCollection($domain)->count()
         ));
         $io->newLine();
     }
 
     private function renderIssuesTable(
         ShopwareStyle $io,
-        ValidatedTranslationFileStruct $validatedFileStruct
+        LintedTranslationFileStruct $lintedFileStruct,
     ): void {
-        $issuesCollection = $validatedFileStruct->getFixableFiles();
+        $issuesCollection = $lintedFileStruct->getFixableFiles();
         if ($issuesCollection->count() < 1) {
             return;
         }
@@ -227,14 +227,14 @@ class LintTranslationFilesCommand extends Command
 
     private function renderFixedTable(
         ShopwareStyle $io,
-        ValidatedTranslationFileStruct $validatedFileStruct
+        LintedTranslationFileStruct $lintedFileStruct
     ): void {
         $fixedTable = $io->createTable()
             ->setHeaderTitle('Fixed files')
             ->setHeaders(['Old filename', 'New filename', 'Path'])
             ->setStyle('box-double');
 
-        foreach ($validatedFileStruct->getFixingCollection() as $translationFile) {
+        foreach ($lintedFileStruct->getFixingCollection() as $translationFile) {
             $fixedTable->addRow([
                 $translationFile->filename,
                 $translationFile->getAgnosticFilename(),
@@ -244,7 +244,7 @@ class LintTranslationFilesCommand extends Command
 
         $fixedTable->render();
 
-        $io->text(\sprintf('Files fixed: %s', $validatedFileStruct->getFixingCollection()->count()));
+        $io->text(\sprintf('Files fixed: %s', $lintedFileStruct->getFixingCollection()->count()));
         $io->success('All faulty files have been fixed.');
         $io->newLine();
     }

@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
  * @internal
  */
 #[Package('discovery')]
-readonly class ValidatedTranslationFileOptions
+readonly class LintedTranslationFileOptions
 {
     /**
      * @param list<string> $extensionPaths

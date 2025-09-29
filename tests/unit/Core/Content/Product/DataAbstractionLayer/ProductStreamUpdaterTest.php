@@ -101,7 +101,7 @@ class ProductStreamUpdaterTest extends TestCase
                 ], Context::createCLIContext()),
                 new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, [
                     new EntityWriteResult('product-stream-filter-1', [
-                        'operator' => 'and'
+                        'operator' => 'and',
                     ], ProductStreamFilterDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
                 ], Context::createCLIContext()),
             ]),

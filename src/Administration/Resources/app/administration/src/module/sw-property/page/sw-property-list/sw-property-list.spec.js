@@ -33,13 +33,16 @@ async function createWrapper() {
                         if (entityName === 'property_group') {
                             return {
                                 search: () =>
-                                    Promise.resolve([
-                                        {
-                                            id: '1a2b3c4e',
-                                            name: 'Test property',
-                                            sourceEntitiy: 'property',
-                                        },
-                                    ]),
+                                    Promise.resolve({
+                                        total: 1,
+                                        data: [
+                                            {
+                                                id: '1a2b3c4e',
+                                                name: 'Test property',
+                                                sourceEntitiy: 'property',
+                                            },
+                                        ],
+                                    }),
                                 delete: jest.fn(() => Promise.resolve()),
                             };
                         }

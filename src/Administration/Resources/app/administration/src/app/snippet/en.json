@@ -53,6 +53,7 @@
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
       "notificationSaveErrorMessageRequiredFieldsInvalid": "Please fill in all required fields.",
+      "notificationSaveErrorMessageRequiredField": "The field is required.",
       "unspecifiedSaveErrorMessage": "An error occurred.",
       "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved.",
       "messageDeleteSuccess": "\"{name}\" deleted.",

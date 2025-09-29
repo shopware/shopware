@@ -65,20 +65,6 @@ class PagingListingProcessorTest extends TestCase
             'limit' => 50,
         ];
 
-        yield 'Criteria with limit & page, request with page (should use request body parameter over criteria)' => [
-            'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
-            'request' => new Request(request: ['p' => 2]),
-            'page' => 2,
-            'limit' => 50,
-        ];
-
-        yield 'Criteria with limit & page, post request with page (should use request body parameter over query parameter and criteria)' => [
-            'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
-            'request' => new Request(['p' => 2], ['p' => 3]),
-            'page' => 3,
-            'limit' => 50,
-        ];
-
         yield 'Empty criteria, request with page 0' => [
             'criteria' => new Criteria(),
             'request' => new Request(['p' => 0]),

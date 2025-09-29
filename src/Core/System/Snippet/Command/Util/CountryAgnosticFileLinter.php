@@ -2,7 +2,15 @@
 
 namespace Shopware\Core\System\Snippet\Command\Util;
 
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetPatterns;
 use Shopware\Core\System\Snippet\Struct\TranslationFile;
@@ -12,13 +20,12 @@ use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class CountryAgnosticFileValidator
+class CountryAgnosticFileLinter
 {
     public const PLATFORM_DOMAINS = [
         'administration' => 'Administration',
@@ -26,8 +33,14 @@ class CountryAgnosticFileValidator
         'storefront' => 'Storefront',
     ];
 
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepository
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly Filesystem $filesystem,
+        private readonly EntityRepository $pluginRepository,
+        private readonly EntityRepository $appRepository,
     ) {
     }
 
@@ -145,36 +158,37 @@ class CountryAgnosticFileValidator
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     private function getExtensionPaths(ValidatedTranslationFileOptions $options): array
     {
-        return \array_reduce($options->extensionPaths, static function (array $accumulator, string $extension): array {
-            $extension = trim($extension);
-            $appPath = 'custom/apps/' . $extension;
-            $pluginPath = 'custom/plugins/' . $extension;
+        $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('name', $options->extensionPaths));
+        $context = Context::createCLIContext();
 
-            $isApp = is_dir('custom/apps/' . $extension);
-            $isPlugin = is_dir('custom/plugins/' . $extension);
+        $plugins = $this->pluginRepository->search($criteria, $context)->getEntities();
+        $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
-            if (!$isApp && !$isPlugin) {
-                throw SnippetException::invalidExtension($extension);
-            }
+        $extensionPaths = [
+            ...$plugins->map(static fn (PluginEntity $plugin) => $plugin->getPath()),
+            ...$apps->map(static fn (AppEntity $app) => $app->getPath()),
+        ];
 
-            if ($isApp) {
-                $accumulator[] = $appPath;
-            }
+        if (empty($extensionPaths)) {
+            throw SnippetException::invalidExtension($options->extensionPaths);
+        }
 
-            if ($isPlugin) {
-                $accumulator[] = $pluginPath;
-            }
-
-            return $accumulator;
-        }, []);
+        return $extensionPaths;
     }
 
     /**
-     * @param array<int|string, string> $currentFileData
+     * @param array{
+     *     domain?: string,
+     *     locale: string,
+     *     language: string,
+     *     script: ?string,
+     *     region: ?string,
+     *     isBase?: ?string,
+     * } $currentFileData
      */
     private function createTranslationFile(
         array $currentFileData,
@@ -188,7 +202,7 @@ class CountryAgnosticFileValidator
             $file->getPath(),
             $currentDomain,
             str_replace('_', '-', $currentFileData['locale']),
-            $currentFileData['language'] ?? null,
+            $currentFileData['language'],
             $currentFileData['script'] ?: null,
             $currentFileData['region'] ?: null,
             !$isAdminTranslationFile && !empty($currentFileData['isBase']),

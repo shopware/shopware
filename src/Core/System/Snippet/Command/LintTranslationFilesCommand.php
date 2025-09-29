@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Snippet\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileValidator;
+use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileOptions;
 use Shopware\Core\System\Snippet\Struct\ValidatedTranslationFileStruct;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,14 +18,14 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
  * @internal
  */
 #[AsCommand(
-    name: 'translation:validate-filenames',
-    description: 'Ensures translations have a country agnostic translation file as a base',
+    name: 'translation:lint-filenames',
+    description: 'Ensures translations have a country-agnostic translation file as a base',
 )]
 #[Package('discovery')]
-class ValidateTranslationFilesCommand extends Command
+class LintTranslationFilesCommand extends Command
 {
     public function __construct(
-        private readonly CountryAgnosticFileValidator $fileValidator,
+        private readonly CountryAgnosticFileLinter $fileLinter,
     ) {
         parent::__construct();
     }
@@ -76,11 +76,11 @@ class ValidateTranslationFilesCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $options = ValidatedTranslationFileOptions::fromInputInterface($input);
 
-        $validatedFileStruct = $this->fileValidator->checkTranslationFiles($options);
+        $validatedFileStruct = $this->fileLinter->checkTranslationFiles($options);
 
-        if ($options->isFix && $validatedFileStruct->getFixableFileCount() > 0) {
+        if ($options->isFix && $validatedFileStruct->getFixableFiles()->count() > 0) {
             $validatedFileStruct = $this->hydrateFixingCollection($io, $validatedFileStruct);
-            $this->fileValidator->fixFilenames($validatedFileStruct);
+            $this->fileLinter->fixFilenames($validatedFileStruct);
         }
 
         return $this->renderOutput($io, $validatedFileStruct, $options);
@@ -90,7 +90,7 @@ class ValidateTranslationFilesCommand extends Command
         ShopwareStyle $io,
         ValidatedTranslationFileStruct $validatedFileStruct,
     ): ValidatedTranslationFileStruct {
-        foreach ($validatedFileStruct->getFixableFiles() as $targetPath => $fileOptions) {
+        foreach ($validatedFileStruct->getFixableFiles()->getMapping() as $targetPath => $fileOptions) {
             $selection = array_key_first($fileOptions);
 
             if (\count($fileOptions) > 1) {
@@ -115,14 +115,14 @@ class ValidateTranslationFilesCommand extends Command
         ValidatedTranslationFileOptions $validatedFileOptions,
     ): int {
         if (!$validatedFileOptions->isFix) {
-            foreach (\array_keys(CountryAgnosticFileValidator::PLATFORM_DOMAINS) as $domain) {
+            foreach (\array_keys(CountryAgnosticFileLinter::PLATFORM_DOMAINS) as $domain) {
                 $this->renderDomainTable($io, $domain, $validatedFileStruct);
             }
         }
 
         $this->renderIssuesTable($io, $validatedFileStruct);
 
-        if ($validatedFileStruct->getFixableFileCount() < 1) {
+        if ($validatedFileStruct->getFixableFiles()->count() < 1) {
             $io->success(\sprintf(
                 'All translation files are named correctly.%s',
                 $validatedFileOptions->isFix ? ' Nothing to fix.' : '',
@@ -152,7 +152,7 @@ class ValidateTranslationFilesCommand extends Command
         if ($domainCollection->count() < 1) {
             $io->note(\sprintf(
                 'No %s files found',
-                CountryAgnosticFileValidator::PLATFORM_DOMAINS[$domain],
+                CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain],
             ));
 
             return;
@@ -164,7 +164,7 @@ class ValidateTranslationFilesCommand extends Command
         }
 
         $domainTable = $io->createTable()
-            ->setHeaderTitle(CountryAgnosticFileValidator::PLATFORM_DOMAINS[$domain] . ' files')
+            ->setHeaderTitle(CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain] . ' files')
             ->setHeaders($headers)
             ->setStyle('box-double');
 
@@ -190,8 +190,8 @@ class ValidateTranslationFilesCommand extends Command
 
         $io->text(\sprintf(
             '%s files found: %s',
-            CountryAgnosticFileValidator::PLATFORM_DOMAINS[$domain],
-            $validatedFileStruct->getDomainCount($domain)
+            CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain],
+            $validatedFileStruct->getDomainCollection($domain)->count()
         ));
         $io->newLine();
     }
@@ -200,10 +200,8 @@ class ValidateTranslationFilesCommand extends Command
         ShopwareStyle $io,
         ValidatedTranslationFileStruct $validatedFileStruct
     ): void {
-        $issuesCollection = $validatedFileStruct->getIssues();
-        $issuesCount = \count($issuesCollection);
-
-        if ($issuesCount < 1) {
+        $issuesCollection = $validatedFileStruct->getFixableFiles();
+        if ($issuesCollection->count() < 1) {
             return;
         }
 
@@ -223,7 +221,7 @@ class ValidateTranslationFilesCommand extends Command
 
         $issuesTable->render();
 
-        $io->text(\sprintf('Errors found: %s', $issuesCount));
+        $io->text(\sprintf('Errors found: %s', $issuesCollection->count()));
         $io->newLine();
     }
 

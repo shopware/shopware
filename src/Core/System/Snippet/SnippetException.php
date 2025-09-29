@@ -238,13 +238,16 @@ class SnippetException extends HttpException
         );
     }
 
-    public static function invalidExtension(string $extensionName): self
+    /**
+     * @param list<string> $extensionName
+     */
+    public static function invalidExtension(array $extensionName): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SNIPPET_COUNTRY_AGNOSTIC_FILE_VALIDATOR_INVALID_EXTENSION,
-            'Specified argument "{{ extensionName }}" is not a valid extension.',
-            ['extensionName' => $extensionName],
+            'Specified argument "{{ extensionName }}" does not contain valid extensions.',
+            ['extensionNames' => implode(', ', $extensionName)],
         );
     }
 }

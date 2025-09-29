@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Snippet\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Snippet\Command\ValidateTranslationFilesCommand;
+use Shopware\Core\System\Snippet\Command\LintTranslationFilesCommand;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -26,7 +26,7 @@ readonly class ValidatedTranslationFileOptions
     }
 
     /**
-     * @param InputInterface $input Expected to have options as defined in {@see ValidateTranslationFilesCommand}
+     * @param InputInterface $input Expected to have options as defined in {@see LintTranslationFilesCommand}
      */
     public static function fromInputInterface(InputInterface $input): self
     {

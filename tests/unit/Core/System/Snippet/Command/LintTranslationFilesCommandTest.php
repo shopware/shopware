@@ -6,12 +6,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileValidator;
-use Shopware\Core\System\Snippet\Command\ValidateTranslationFilesCommand;
+use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
+use Shopware\Core\System\Snippet\Command\LintTranslationFilesCommand;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -39,8 +45,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 #[Package('discovery')]
 #[Group('slow')]
-#[CoversClass(ValidateTranslationFilesCommand::class)]
-class ValidateTranslationFilesCommandTest extends TestCase
+#[CoversClass(LintTranslationFilesCommand::class)]
+class LintTranslationFilesCommandTest extends TestCase
 {
     private const FIXTURES_SOURCE_PATH = 'tests/unit/Core/System/Snippet/Command/_fixtures';
     private const FIXTURES_PATH = self::FIXTURES_SOURCE_PATH . '/../temp';
@@ -53,9 +59,19 @@ class ValidateTranslationFilesCommandTest extends TestCase
         $filesystem = new Filesystem();
         $filesystem->mirror(self::FIXTURES_SOURCE_PATH, self::FIXTURES_PATH);
 
-        $this->tester = new CommandTester(
-            new ValidateTranslationFilesCommand(new CountryAgnosticFileValidator($filesystem))
-        );
+        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
+        $pluginRepository = new StaticEntityRepository([]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([]);
+
+        $this->tester = new CommandTester(new LintTranslationFilesCommand(
+            new CountryAgnosticFileLinter(
+                new Filesystem(),
+                $pluginRepository,
+                $appRepository,
+            ),
+        ));
     }
 
     protected function tearDown(): void
@@ -71,7 +87,7 @@ class ValidateTranslationFilesCommandTest extends TestCase
         static::assertStringContainsString(
             '[OK] All translation files are named correctly.',
             $this->getDisplayOutput(),
-            'Failed asserting that all translation files are named correctly. Please run `php bin/console translation:check-filenames --fix` to fix the issues.'
+            'Failed asserting that all translation files are named correctly. Please run `php bin/console translation:lint-filenames --fix` to fix the issues.'
         );
     }
 
@@ -83,7 +99,7 @@ class ValidateTranslationFilesCommandTest extends TestCase
         static::assertStringContainsString(
             '[OK] All translation files are named correctly. Nothing to fix.',
             $this->getDisplayOutput(),
-            'Failed asserting that all translation files are named correctly. Please run `php bin/console translation:check-filenames --fix` to fix the issues.'
+            'Failed asserting that all translation files are named correctly. Please run `php bin/console translation:lint-filenames --fix` to fix the issues.'
         );
     }
 

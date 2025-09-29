@@ -39,58 +39,30 @@ readonly class ValidatedTranslationFileStruct
         return $this->countrySpecificFiles;
     }
 
-    public function getDomainCount(string $domain): int
-    {
-        return $this->getDomainCollection($domain)->count();
-    }
-
     public function addFixableFile(TranslationFile $translationFile): void
     {
         $this->fixableFiles->add($translationFile);
     }
 
     /**
-     * @description List of all {@see TranslationFile}s, grouped by their missing agnostic counterpart
+     * @description List of all {@see TranslationFile}s, which are missing a country-agnostic counterpart
      */
     public function getFixableFiles(): FixableTranslationFileCollection
     {
         return $this->fixableFiles;
     }
 
-    public function getFixableFileCount(): int
-    {
-        return \array_reduce(
-            $this->getFixableFiles()->getElements(),
-            static fn ($sum, $fixableFile) => $sum + \count($fixableFile),
-            0,
-        );
-    }
-
     /**
-     * @description List of all {@see TranslationFile}s, which are missing an agnostic counterpart
-     *
-     * @return list<TranslationFile>
+     * @description Adds {@see TranslationFile} after resolving conflicts of {@see self::getFixableFiles()}
      */
-    public function getIssues(): array
-    {
-        return \array_reduce(
-            $this->getFixableFiles()->getElements(),
-            static function ($accumulator, $fixableFileOptions) {
-                foreach ($fixableFileOptions as $fixableFile) {
-                    $accumulator[] = $fixableFile;
-                }
-
-                return $accumulator;
-            },
-            []
-        );
-    }
-
     public function addToFixingCollection(TranslationFile $translationFile): void
     {
         $this->fixingCollection->add($translationFile);
     }
 
+    /**
+     * @description Subset of {@see self::getFixableFiles()} whose conflicts have already been resolved, containing only files ready to be fixed
+     */
     public function getFixingCollection(): TranslationFileCollection
     {
         return $this->fixingCollection;

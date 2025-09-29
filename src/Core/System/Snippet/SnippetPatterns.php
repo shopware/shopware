@@ -15,7 +15,7 @@ final class SnippetPatterns
      * restricted to ISO 639-1 (2-letter) language codes.
      * Excludes 3-letter prefixes like `ger` or `eng`.
      */
-    public const LOCALE_PATTERN_BCP47_ISO639_1 =
+    public const LOCALE_PATTERN =
         '(?P<locale>' .
         '(?P<language>[a-z]{2})' .              // ISO 639-1 language prefix
         '(?:[_-](?P<script>[A-Z][a-z]{3}))?' .  // optional script (Hant, Latn, Cyrl)
@@ -24,10 +24,10 @@ final class SnippetPatterns
 
     public const CORE_SNIPPET_FILE_PATTERN =
         '/^(?P<domain>.+?)\.' .                 // domain (e.g. messages, storefront, swag-cms-extensions etc.)
-        self::LOCALE_PATTERN_BCP47_ISO639_1 .   // locale (e.g. en-GB, de, zh-Hant-TW)
+        self::LOCALE_PATTERN .                  // locale (e.g. en-GB, de, zh-Hant-TW)
         '(?:\.(?P<isBase>base))?\.json$/';      // optional "base" suffix and .json file extension
 
-    public const ADMIN_SNIPPET_FILE_PATTERN = '/^' . self::LOCALE_PATTERN_BCP47_ISO639_1 . '\.json$/';
+    public const ADMIN_SNIPPET_FILE_PATTERN = '/^' . self::LOCALE_PATTERN . '\.json$/';
 
     private function __construct()
     {

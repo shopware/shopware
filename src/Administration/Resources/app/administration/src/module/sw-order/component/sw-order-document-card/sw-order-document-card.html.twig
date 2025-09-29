@@ -221,20 +221,12 @@
     {% endblock %}
 
     {% block sw_order_document_card_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-if="documentsEmpty"
-        :title="emptyStateTitle"
-        :show-description="false"
-        :absolute="false"
-    >/
-        <template #icon>
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
-                :alt="$tc('sw-order.list.messageEmpty')"
-            >
-        </template>
-
-        <template #actions>
+        :icon="$route.meta.$module.icon"
+        :headline="emptyStateTitle"
+    >
+        <template #button>
             <mt-button
                 v-if="showCreateDocumentButton"
                 v-tooltip="{
@@ -256,7 +248,7 @@
 
             </mt-button>
         </template>
-    </sw-empty-state>
+    </mt-empty-state>
     {% endblock %}
 </mt-card>
 {% endblock %}

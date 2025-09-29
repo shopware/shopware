@@ -115,12 +115,11 @@
         </sw-one-to-many-grid>
         {% endblock %}
         {% block sw_settings_country_state_list_empty %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="showEmptyState"
-            :absolute="false"
-            :title="$tc('sw-country-state-detail.emptyTitle')"
-            :subline="$tc('sw-country-state-detail.emptySubline')"
-            auto-height
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-country-state-detail.emptyTitle')"
+            :description="$tc('sw-country-state-detail.emptySubline')"
         />
         {% endblock %}
     </template>

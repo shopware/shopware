@@ -61,6 +61,15 @@
                                         {% endif %}
                                     {% endfor %}
 
+                                    {# Check footer navigation #}
+                                    {% if footer.navigation and footer.navigation.tree %}
+                                        {% for footerItem in footer.navigation.tree %}
+                                            {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
+                                                {% set contactUrl = footerItem.category.seoUrl %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+
                                     {{ contactSnippetKey|trans({
                                         '%url%': contactUrl
                                     })|raw }}
@@ -241,6 +250,15 @@
                                 {% set shippingUrl = serviceMenuItem.seoUrl %}
                             {% endif %}
                         {% endfor %}
+
+                        {# Check footer navigation #}
+                        {% if footer.navigation and footer.navigation.tree %}
+                            {% for footerItem in footer.navigation.tree %}
+                                {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
+                                    {% set shippingUrl = footerItem.category.seoUrl %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
 
                         <p>
                             {{ shippingSnippetKey|trans({

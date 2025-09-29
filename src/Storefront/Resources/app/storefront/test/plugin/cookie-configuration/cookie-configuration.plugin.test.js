@@ -368,7 +368,7 @@ describe('CookieConfiguration plugin tests', () => {
                 },
             });
 
-            expect(setItemSpy).toHaveBeenCalledWith(plugin.options.cookieConfigHash, 'abc123hash', '30');
+            expect(setItemSpy).toHaveBeenCalledWith(plugin.options.cookieConfigHash, 'abc123hash', 30);
             expect(mockCookiePermissionPlugin._showCookieBar).not.toHaveBeenCalled();
 
             setItemSpy.mockRestore();
@@ -480,7 +480,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(mockCookiePermissionPlugin._showCookieBar).not.toHaveBeenCalled();
 
             // Should refresh the hash cookie to extend expiration
-            expect(setItemSpy).toHaveBeenCalledWith(plugin.options.cookieConfigHash, sameHash, '30');
+            expect(setItemSpy).toHaveBeenCalledWith(plugin.options.cookieConfigHash, sameHash, 30);
 
             removeItemSpy.mockRestore();
             setItemSpy.mockRestore();
@@ -1558,6 +1558,35 @@ describe('CookieConfiguration plugin tests', () => {
 
             getItemSpy.mockRestore();
             showCookieBarSpy.mockRestore();
+        });
+    });
+
+    describe('Cookie expiration configuration', () => {
+        test('uses default expiration from options', () => {
+            const plugin = new CookieConfiguration(document.body);
+            expect(plugin._getDefaultCookieExpiration()).toBe(30);
+        });
+
+        test('allows overriding default expiration via options', () => {
+            const plugin = new CookieConfiguration(document.body, { defaultCookieExpiration: 60 });
+            expect(plugin._getDefaultCookieExpiration()).toBe(60);
+        });
+
+        test('falls back to 30 for invalid expiration values', () => {
+            const plugin1 = new CookieConfiguration(document.body, { defaultCookieExpiration: 'invalid' });
+            const plugin2 = new CookieConfiguration(document.body, { defaultCookieExpiration: -5 });
+            const plugin3 = new CookieConfiguration(document.body, { defaultCookieExpiration: 0 });
+            const plugin4 = new CookieConfiguration(document.body, { defaultCookieExpiration: 3.14 });
+
+            expect(plugin1._getDefaultCookieExpiration()).toBe(30);
+            expect(plugin2._getDefaultCookieExpiration()).toBe(30);
+            expect(plugin3._getDefaultCookieExpiration()).toBe(30);
+            expect(plugin4._getDefaultCookieExpiration()).toBe(30);
+        });
+
+        test('accepts valid numeric strings', () => {
+            const plugin = new CookieConfiguration(document.body, { defaultCookieExpiration: '90' });
+            expect(plugin._getDefaultCookieExpiration()).toBe(90);
         });
     });
 });

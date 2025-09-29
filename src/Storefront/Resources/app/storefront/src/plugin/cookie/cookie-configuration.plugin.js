@@ -37,6 +37,7 @@ export default class CookieConfiguration extends Plugin {
     static lastTriggerElement = null;
 
     static options = {
+        defaultCookieExpiration: 30,
         offCanvasPosition: 'left',
         submitEvent: 'click',
         cookiePreference: 'cookie-preference',
@@ -80,8 +81,21 @@ export default class CookieConfiguration extends Plugin {
             this.openRequestConsentOffCanvas(payload.route, payload.cookieName);
         });
 
-        // Subscribe to offcanvas close event to show cookie bar again when user closes without making a choice
+        // Subscribe to offcanvas close event to show cookie bar (not offcanvas) again when user closes without making a choice
         OffCanvasInstance.$emitter.subscribe('onCloseOffcanvas', this._onOffCanvasClose.bind(this));
+    }
+
+    /**
+     * Get the default cookie expiration value with validation
+     * Ensures the value is a number and falls back to 30 if invalid
+     * @returns {number}
+     * @private
+     */
+    _getDefaultCookieExpiration() {
+        const { defaultCookieExpiration } = this.options;
+        const parsed = Number(defaultCookieExpiration);
+
+        return (Number.isInteger(parsed) && parsed > 0) ? parsed : 30;
     }
 
     /**
@@ -195,7 +209,7 @@ export default class CookieConfiguration extends Plugin {
             await this._resetCookieConfiguration(data);
         }
 
-        CookieStorage.setItem(cookieConfigHash, currentHash, '30');
+        CookieStorage.setItem(cookieConfigHash, currentHash, this._getDefaultCookieExpiration());
     }
 
 
@@ -246,39 +260,49 @@ export default class CookieConfiguration extends Plugin {
 
         for (let i = 0; i < cookieGroups.length; i++) {
             const group = cookieGroups[i];
-            if (group.isRequired) {
-                if (group.entries && Array.isArray(group.entries)) {
-                    for (let j = 0; j < group.entries.length; j++) {
-                        const entry = group.entries[j];
-                        if (entry.cookie && entry.value) {
-                            const isPhpManaged = phpManagedCookies.some(phpCookie =>
-                                entry.cookie === phpCookie
-                            );
 
-                            if (!isPhpManaged) {
-                                cookiesToSet.push({
-                                    cookie: entry.cookie,
-                                    value: entry.value,
-                                    expiration: entry.expiration || 30,
-                                });
-                            }
-                        }
+            if (!group.isRequired) {
+                continue;
+            }
+
+            // Process group entries
+            if (group.entries) {
+                for (let j = 0; j < group.entries.length; j++) {
+                    const entry = group.entries[j];
+
+                    if (!entry.cookie || !entry.value) {
+                        continue;
                     }
-                }
 
-                if (group.cookie && group.value) {
                     const isPhpManaged = phpManagedCookies.some(phpCookie =>
-                        group.cookie === phpCookie
+                        entry.cookie === phpCookie
                     );
 
                     if (!isPhpManaged) {
                         cookiesToSet.push({
-                            cookie: group.cookie,
-                            value: group.value,
-                            expiration: group.expiration || 30,
+                            cookie: entry.cookie,
+                            value: entry.value,
+                            expiration: entry.expiration || this._getDefaultCookieExpiration(),
                         });
                     }
                 }
+            }
+
+            // Process direct group cookie
+            if (!group.cookie || !group.value) {
+                continue;
+            }
+
+            const isPhpManaged = phpManagedCookies.some(phpCookie =>
+                group.cookie === phpCookie
+            );
+
+            if (!isPhpManaged) {
+                cookiesToSet.push({
+                    cookie: group.cookie,
+                    value: group.value,
+                    expiration: group.expiration || this._getDefaultCookieExpiration(),
+                });
             }
         }
 
@@ -730,7 +754,7 @@ export default class CookieConfiguration extends Plugin {
             }
         });
 
-        CookieStorage.setItem(cookiePreference, '1', '30');
+        CookieStorage.setItem(cookiePreference, '1', this._getDefaultCookieExpiration());
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
@@ -806,7 +830,7 @@ export default class CookieConfiguration extends Plugin {
             }
         });
 
-        CookieStorage.setItem(cookiePreference, '1', '30');
+        CookieStorage.setItem(cookiePreference, '1', this._getDefaultCookieExpiration());
 
         this._handleUpdateListener(allCookies.map(({ cookie }) => cookie), []);
     }
@@ -858,7 +882,7 @@ export default class CookieConfiguration extends Plugin {
      * @param {string} cookieName
      */
     _onAccept(cookieName) {
-        CookieStorage.setItem(cookieName, '1', 30);
+        CookieStorage.setItem(cookieName, '1', this._getDefaultCookieExpiration());
         AjaxOffCanvas.close();
     }
 

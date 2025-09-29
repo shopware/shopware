@@ -373,19 +373,21 @@ class AdministrationController extends AbstractController
     }
 
     /**
+     * @description Filters snippets based on authentication status. If the request is unauthenticated, only the bare minimum of translations is available.
+     *
      * @param array<string, mixed> $snippets
      *
      * @return array<string, mixed>
      */
-    public function filterByAuthentication(Request $request, array $snippets, string $locale): array
+    private function filterByAuthentication(Request $request, array $snippets, string $locale): array
     {
         try {
             $this->tokenValidator->validateAuthorization($request);
         } catch (OAuthServerException) {
             $snippets[$locale] = \array_filter(
                 $snippets[$locale],
-                static fn(string $key) => \in_array($key, self::UNAUTHENTICATED_SNIPPET_NAMESPACES, true),
-                ARRAY_FILTER_USE_KEY
+                static fn (string $key) => \in_array($key, self::UNAUTHENTICATED_SNIPPET_NAMESPACES, true),
+                \ARRAY_FILTER_USE_KEY
             );
         }
 

@@ -335,6 +335,7 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function findRemoteSnippetFiles(array $snippetNames, SnippetPathCollection $paths): array
     {
+        // ToDo: Optimize?
         $files = [];
         foreach ($paths as $path) {
             $snippetPaths = \array_map(

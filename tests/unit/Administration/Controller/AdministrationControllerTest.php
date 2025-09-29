@@ -18,6 +18,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -490,7 +491,10 @@ class AdministrationControllerTest extends TestCase
         static::assertInstanceOf(JsonResponse::class, $jsonResponse);
         static::assertSame(Response::HTTP_OK, $jsonResponse->getStatusCode());
 
-        $actualLocales = \json_decode($jsonResponse->getContent(), true);
+        $content = $jsonResponse->getContent();
+        static::assertNotFalse($jsonResponse->getContent());
+
+        $actualLocales = \json_decode($content, true);
         static::assertEquals($expectedLocales, $actualLocales);
     }
 
@@ -520,6 +524,9 @@ class AdministrationControllerTest extends TestCase
         ];
     }
 
+    /**
+     * @param ?EntityRepository<LanguageCollection> $languageRepository
+     */
     protected function createAdministrationController(
         ?CustomerCollection $collection = null,
         bool $isCustomerBoundToSalesChannel = false,
@@ -550,6 +557,7 @@ class AdministrationControllerTest extends TestCase
             $this->fileSystemOperator,
             $this->serviceRegistryUrl,
             $languageRepository ?? $this->languageRepository,
+            $this->createMock(SymfonyBearerTokenValidator::class),
             $this->refreshTokenTtl,
         );
     }

@@ -297,7 +297,7 @@ class CookieRouteTest extends TestCase
         $hashEntry->value = 'old-hash';
         $otherEntry = new CookieEntry('other-cookie');
 
-        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         $cookieGroup->setEntries(new CookieEntryCollection([$hashEntry, $otherEntry]));
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -322,7 +322,7 @@ class CookieRouteTest extends TestCase
 
         $hashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
         $hashEntry->value = 'old-hash';
-        $groupWithHashEntry = new CookieGroup('group.with.hash');
+        $groupWithHashEntry = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         $groupWithHashEntry->setEntries(new CookieEntryCollection([$hashEntry]));
 
         $cookieGroups = new CookieGroupCollection([$groupWithoutEntries, $groupWithHashEntry]);
@@ -344,7 +344,7 @@ class CookieRouteTest extends TestCase
         // Create two groups each with hash entries
         $firstHashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
         $firstHashEntry->value = 'old-hash-1';
-        $firstGroup = new CookieGroup('first.group');
+        $firstGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         $firstGroup->setEntries(new CookieEntryCollection([$firstHashEntry]));
 
         $secondHashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);

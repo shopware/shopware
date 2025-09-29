@@ -8,6 +8,24 @@ jest.mock('@amplitude/analytics-browser', () => ({
 }));
 
 describe('src/app/post-init/amplitude.init.ts', () => {
+    beforeEach(() => {
+        global.repositoryFactoryMock.responses.addResponse({
+            method: 'Post',
+            url: '/search/language',
+            status: 200,
+            response: {
+                data: [
+                    {
+                        id: 'language-id',
+                        attributes: {
+                            name: 'English',
+                        },
+                    },
+                ],
+            },
+        });
+    });
+
     describe('initialization', () => {
         it('add enrichment plugin and calls initialization routine', async () => {
             const { init, add } = await import('@amplitude/analytics-browser');

@@ -112,11 +112,13 @@ export class Telemetry {
         if (el.nodeName === 'A') {
             el.addEventListener('click', (event) => {
                 const target = event.currentTarget ?? event.target;
-                if (!this.assertIsElement(target)) {
+                if (!this.isElement(target)) {
                     return;
                 }
 
                 this.dispatchEvent('link_visited', {
+                    target: target,
+                    originalEvent: event,
                     href: target.getAttribute('href') ?? '',
                     linkType: target.getAttribute('target') === '_blank' ? 'external' : 'internal',
                 });
@@ -129,12 +131,12 @@ export class Telemetry {
 
         el.addEventListener(eventName, (event) => {
             const target = event.currentTarget ?? event.target;
-            if (!this.assertIsElement(target)) {
+            if (!this.isElement(target)) {
                 return;
             }
 
             this.dispatchEvent('user_interaction', {
-                target: event.currentTarget ?? event.target,
+                target: target,
                 originalEvent: event,
             });
         });
@@ -148,7 +150,7 @@ export class Telemetry {
         this.#eventTarget.dispatchEvent(new TelemetryEvent<N>(eventType, eventData));
     }
 
-    private assertIsElement(target: EventTarget | null): target is Element {
+    private isElement(target: EventTarget | null): target is Element {
         return target !== null && target instanceof Element;
     }
 }

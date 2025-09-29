@@ -7,7 +7,7 @@ type TrackableType = string | string[] | number | boolean;
 
 type AnalyticsEvents = {
     user_interaction: {
-        target: EventTarget | null;
+        target: Element;
         originalEvent: Event;
     };
     page_change: {
@@ -17,7 +17,7 @@ type AnalyticsEvents = {
     programmatic: {
         [key: string]: TrackableType;
     };
-    link_visited: {
+    link_visited: AnalyticsEvents["user_interaction"] & {
         href: string;
         linkType: 'internal' | 'external';
     };

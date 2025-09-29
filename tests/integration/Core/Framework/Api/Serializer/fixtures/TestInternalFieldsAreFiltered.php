@@ -133,7 +133,6 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
                 'translated' => [],
                 'createdAt' => null,
                 'updatedAt' => null,
-                'extensions' => [],
                 'promotionSetGroups' => null,
                 'apiAlias' => 'rule',
             ],

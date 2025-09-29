@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
@@ -230,5 +231,48 @@ class JsonEntityEncoderTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    public function testExtensionsForeignKeysAreRemoved(): void
+    {
+        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+
+        $definition = new CustomFieldTestDefinition();
+        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $struct1 = new class extends Entity {
+            use EntityCustomFieldsTrait;
+        };
+        $struct1->setUniqueIdentifier('test-id');
+
+        // Add extensions properly using the extension system
+        $struct1->addExtension('foreignKeys', new ArrayEntity(['key1' => 'some', 'key2' => 'keys']));
+        $struct1->addExtension('otherExtension', new ArrayEntity(['value' => 'test']));
+
+        $actual = $encoder->encode(new Criteria(), $definition, $struct1, SerializationFixture::API_BASE_URL);
+
+        // foreignKeys should be removed but extensions should remain
+        static::assertArrayHasKey('extensions', $actual);
+        static::assertArrayNotHasKey('foreignKeys', $actual['extensions']);
+        static::assertArrayHasKey('otherExtension', $actual['extensions']);
+    }
+
+    public function testExtensionsRemovedCompletely(): void
+    {
+        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+
+        $definition = new CustomFieldTestDefinition();
+        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $struct2 = new class extends Entity {
+            use EntityCustomFieldsTrait;
+        };
+        $struct2->setUniqueIdentifier('test-id-2');
+        $struct2->addExtension('foreignKeys', new ArrayEntity(['key1' => 'some', 'key2' => 'keys']));
+
+        $actual = $encoder->encode(new Criteria(), $definition, $struct2, SerializationFixture::API_BASE_URL);
+
+        // extensions should be completely removed
+        static::assertArrayNotHasKey('extensions', $actual);
     }
 }

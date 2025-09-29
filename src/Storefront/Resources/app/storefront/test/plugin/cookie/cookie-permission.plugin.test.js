@@ -314,7 +314,7 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 
                 <div class="form-group">
                     <label for="grecaptcha-v3">reCAPTCHA v3</label>
-                    <input type="hidden" name="_grecaptcha_v3" id="grecaptcha-v3" data-validation="grecaptcha" aria-describedby="grecaptcha-v3-feedback">
+                    <input type="hidden" name="_grecaptcha_v3" id="grecaptcha-v3" data-validation="grecaptcha,required" aria-describedby="grecaptcha-v3-feedback">
                     <div id="grecaptcha-v3-feedback" class="form-field-feedback"></div>
                 </div>
 
@@ -371,8 +371,8 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		// Validate the field - this should fail and trigger the event
 		const validationResult = formValidation.validateField(grecaptchaField);
 
-		// Assertions
-		expect(validationResult).toEqual(["grecaptcha"]); // Field should fail validation
+		// Assertions - field should fail both grecaptcha and required validations
+		expect(validationResult).toEqual(["grecaptcha", "required"]);
 		expect(showCookieBarSpy).toHaveBeenCalled(); // Cookie bar should be shown
 		expect(setBodyPaddingSpy).toHaveBeenCalled(); // Body padding should be set
 		expect(cookiePermissionPlugin.$emitter.publish).toHaveBeenCalledWith(
@@ -394,8 +394,9 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 			"_showCookieBar",
 		);
 
-		// Get the grecaptcha field
+		// Get the grecaptcha field and set a value to pass required validation
 		const grecaptchaField = document.getElementById("grecaptcha-v3");
+		grecaptchaField.value = "test-token"; // Set a value to pass required validation
 
 		// Validate the field - this should pass
 		const validationResult = formValidation.validateField(grecaptchaField);
@@ -538,8 +539,8 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		// Validate the field - this should fail and trigger the event to show cookie bar
 		const validationResult = formValidation.validateField(grecaptchaField);
 
-		// Assertions
-		expect(validationResult).toEqual(["grecaptcha"]); // Field should fail validation
+		// Assertions - field should fail both grecaptcha and required validations
+		expect(validationResult).toEqual(["grecaptcha", "required"]);
 		expect(showCookieBarSpy).toHaveBeenCalled(); // Cookie bar should be shown despite cookie-preference being set
 		expect(testCookiePlugin.$emitter.publish).toHaveBeenCalledWith("showCookieBar");
 	});

@@ -166,19 +166,19 @@ function registerGoogleReCaptchaPlugins() {
 
     if (cookiesAccepted || !window.useDefaultCookieConsent) {
         if (window.googleReCaptchaV2Active) {
-            try {
-                PluginManager.register('GoogleReCaptchaV2', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'), '[data-google-re-captcha-v2]');
-            } catch (e) {
-                // Plugin already registered, ignore
-            }
+            PluginManager.register(
+                'GoogleReCaptchaV2',
+                () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'),
+                '[data-google-re-captcha-v2]',
+            );
         }
 
         if (window.googleReCaptchaV3Active) {
-            try {
-                PluginManager.register('GoogleReCaptchaV3', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'), '[data-google-re-captcha-v3]');
-            } catch (e) {
-                // Plugin already registered, ignore
-            }
+            PluginManager.register(
+                'GoogleReCaptchaV3',
+                () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'),
+                '[data-google-re-captcha-v3]',
+            );
         }
     }
 }

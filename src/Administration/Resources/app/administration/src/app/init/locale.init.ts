@@ -8,7 +8,9 @@ export default async function initializeLocaleService() {
     const snippetService = Shopware.Service('snippetService');
 
     if (!snippetService) {
-        throw new Error('Snippet service not found. Snippets could not be loaded');
+        console.warn('Snippet service not found. Snippets could not be loaded');
+
+        return;
     }
 
     const locales = await snippetService.getLocales();

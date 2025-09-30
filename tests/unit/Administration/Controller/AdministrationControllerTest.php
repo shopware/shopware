@@ -3,12 +3,10 @@
 namespace Shopware\Tests\Unit\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
-use Hoa\Iterator\Mock;
 use League\Flysystem\UnableToReadFile;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
@@ -464,7 +462,7 @@ class AdministrationControllerTest extends TestCase
 
         $request = new Request(query: ['locale' => 'en-GB']);
         $response = $controller->snippets($request);
-        $snippets = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['en-GB'];
+        $snippets = \json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR)['en-GB'];
 
         static::assertCount(2, $snippets);
         static::assertArrayHasKey('global', $snippets);

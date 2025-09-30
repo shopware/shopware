@@ -48,7 +48,6 @@ async function createWrapper(orderData = []) {
                 'sw-card-filter': {
                     template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
                 },
-                'sw-empty-state': true,
                 'sw-entity-listing': true,
                 'router-link': true,
                 'sw-time-ago': true,
@@ -73,7 +72,7 @@ describe('module/sw-customer/view/sw-customer-detail-order.spec.js', () => {
     });
 
     it('should show empty state', async () => {
-        const emptyState = wrapper.find('sw-empty-state-stub');
+        const emptyState = wrapper.find('.mt-empty-state');
         const cardFilter = wrapper.find('.sw-card-filter');
 
         expect(emptyState.exists()).toBeTruthy();

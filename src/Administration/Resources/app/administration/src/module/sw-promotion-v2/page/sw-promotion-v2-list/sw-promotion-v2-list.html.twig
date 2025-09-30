@@ -66,9 +66,30 @@
     <template #content>
         <div class="sw-promotion-v2-list__content">
 
+            {% block sw_promotion_v2_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                class="mt-empty-state--center"
+                :icon="$route.meta.$module.icon"
+                :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-promotion-v2.list.titleEmpty')"
+                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : ''"
+                :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            >
+
+                <template #button>
+                    {# @deprecated tag:v6.8.0 - Block will be removed without replacement #}
+                    {% block sw_promotion_v2_list_empty_state_actions %}
+                    {{ "" }}
+                    {% endblock %}
+                </template>
+
+            </mt-empty-state>
+            {% endblock %}
+
             {% block sw_promotion_v2_list_grid %}
             <sw-entity-listing
-                v-if="entitySearchable"
+                v-else-if="entitySearchable"
                 ref="listing"
                 :repository="promotionRepository"
                 :columns="promotionColumns"
@@ -143,38 +164,6 @@
 
             </sw-entity-listing>
             {% endblock %}
-
-            {% block sw_promotion_v2_list_empty_state %}
-            <template v-if="!isLoading && !total">
-                <sw-promotion-v2-empty-state-hero
-                    v-if="isValidTerm(term)"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                    :description="$tc('sw-empty-state.messageNoResultSubline')"
-                />
-                <sw-promotion-v2-empty-state-hero
-                    v-else
-                    :title="$tc('sw-promotion-v2.list.titleEmpty')"
-                    :description="$tc('sw-promotion-v2.list.descriptionEmpty')"
-                >
-
-                    {% block sw_promotion_v2_list_empty_state_actions %}
-                    <template #actions>
-                        <mt-button
-                            v-tooltip="addButtonTooltip"
-                            class="sw-promotion-v2-list__empty-state-button-add"
-                            variant="primary"
-                            :disabled="!acl.can('promotion.creator') || undefined"
-                            @click="$router.push({ name: 'sw.promotion.v2.create' })"
-                        >
-                            {{ $tc('sw-promotion-v2.list.buttonAddPromotion') }}
-                        </mt-button>
-                    </template>
-                    {% endblock %}
-
-                </sw-promotion-v2-empty-state-hero>
-            </template>
-            {% endblock %}
-
         </div>
     </template>
     {% endblock %}

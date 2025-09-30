@@ -50,7 +50,7 @@ class LintTranslationFilesCommand extends Command
             'extensions',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Restricts the search to the given extensions, if specified.',
+            'Restricts the search to the given extension names, if specified. Values are comma-separated.',
             '',
         );
 

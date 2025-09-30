@@ -146,8 +146,7 @@ class CountryAgnosticFileLinter
             $finder->in('src');
 
             if ($options->isAll) {
-                $finder->in('custom/plugins');
-                $finder->in('custom/apps');
+                $finder->in('custom');
             }
         } else {
             $finder->in($this->getExtensionPaths($options));

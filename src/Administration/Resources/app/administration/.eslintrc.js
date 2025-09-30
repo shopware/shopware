@@ -311,6 +311,7 @@ module.exports = {
                 'no-shadow': 'off',
                 '@typescript-eslint/no-shadow': ['error'],
                 '@typescript-eslint/consistent-type-imports': ['error'],
+                '@typescript-eslint/no-misused-spread': 'error',
                 'import/extensions': [
                     'error',
                     'ignorePackages',

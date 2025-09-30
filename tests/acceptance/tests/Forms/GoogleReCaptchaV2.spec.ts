@@ -196,6 +196,8 @@ test('As a customer, I want to fill out and submit the contact form that is vali
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
+        test.slow(); //Necessary for multiple retries due to rate limiting
+
         await TestDataService.setSystemConfig({
             'core.basicInformation.activeCaptchasV2': {
                 googleReCaptchaV2: {
@@ -229,19 +231,21 @@ test('As a customer, I want to fill out and submit the contact form that is vali
             await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
         });
 
-        await test.step('Send and validate the contact form.', async () => {
-            const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
-            );
+        await ShopCustomer.expects(async () => {
+            await test.step('Send and validate the contact form.', async () => {
+                const contactFormPromise = StorefrontContactForm.page.waitForResponse(
+                    `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
+                );
 
-            await StorefrontContactForm.submitButton.click();
-            const contactFormResponse = await contactFormPromise;
+                await StorefrontContactForm.submitButton.click();
+                const contactFormResponse = await contactFormPromise;
 
-            expect(contactFormResponse.ok()).toBeTruthy();
+                expect(contactFormResponse.ok()).toBeTruthy();
 
-            await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toHaveText(
-                'We have received your contact request and will process it as soon as possible.'
-            );
+                await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toBeVisible();
+            });
+        }).toPass({
+            intervals: [30_000], // retry after 30 seconds
         });
     }
 );

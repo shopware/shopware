@@ -1,12 +1,11 @@
+/**
+ * @sw-package after-sales
+ */
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
-
-/**
- * @sw-package checkout
- */
 
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;

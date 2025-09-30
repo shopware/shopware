@@ -545,5 +545,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Subscriber\CartOrderEventSubscriber">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

@@ -147,21 +147,13 @@
             {% endblock %}
 
             {% block sw_entity_advanced_selection_modal_list_empty_state %}
-            <sw-empty-state
+            <mt-empty-state
                 v-else
                 class="sw-entity-advanced-selection-modal__empty-state"
-                :absolute="false"
-                :show-description="true"
-                :title="$tc('sw-empty-state.messageNoResultTitle')"
-                :subline="$tc('sw-empty-state.messageNoResultSublineSimple')"
-            >
-                <template #icon>
-                    <img
-                        :src="assetFilter(emptyImagePath)"
-                        :alt="$tc('sw-empty-state.messageNoResultTitle')"
-                    >
-                </template>
-            </sw-empty-state>
+                :icon="emptyIcon"
+                :headline="$tc('sw-empty-state.messageNoResultTitle')"
+                :description="$tc('sw-empty-state.messageNoResultSublineSimple')"
+            />
             {% endblock %}
         </template>
     </mt-card>

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -14,6 +15,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\DocumentGeneratorController;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -42,6 +45,7 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('after-sales')]
+#[CoversClass(DocumentGeneratorController::class)]
 class DocumentGeneratorControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -258,7 +262,42 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertSame('DOCUMENT__INVALID_RENDERER_TYPE', $response['errors'][0]['code']);
+        static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
+    }
+
+    public function testCreateDocumentWithInvalidDocumentConfig(): void
+    {
+        $order = $this->createOrder($this->customerId, $this->context);
+        $content = [
+            [
+                'orderId' => $order->getId(),
+                'fileType' => FileTypes::PDF,
+                'config' => [
+                    'documentDate' => 121212,
+                    'documentNumber' => true,
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/order/document/receipt/create',
+            $content
+        );
+
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
+
+        static::assertNotEmpty($response['errors']);
+        static::assertCount(2, $response['errors']);
+
+        static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/documents/0/config/documentNumber', $response['errors'][0]['source']['pointer']);
+
+        static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $response['errors'][1]['code']);
+        static::assertSame('/documents/0/config/documentDate', $response['errors'][1]['source']['pointer']);
     }
 
     public function testCreateWithoutDocumentsParameter(): void
@@ -274,7 +313,7 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertSame('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        static::assertSame(DocumentException::INVALID_REQUEST_PARAMETER_CODE, $response['errors'][0]['code']);
     }
 
     public function testCreateStornoDocumentsWithoutInvoiceDocument(): void

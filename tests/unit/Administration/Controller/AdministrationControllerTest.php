@@ -3,9 +3,12 @@
 namespace Shopware\Tests\Unit\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
+use Hoa\Iterator\Mock;
 use League\Flysystem\UnableToReadFile;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
@@ -455,6 +458,19 @@ class AdministrationControllerTest extends TestCase
         static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
     }
 
+    public function testGetUnauthenticatedSnippetsWithoutAuthentication(): void
+    {
+        $controller = $this->createUnauthenticatedAdministrationController();
+
+        $request = new Request(query: ['locale' => 'en-GB']);
+        $response = $controller->snippets($request);
+        $snippets = \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)['en-GB'];
+
+        static::assertCount(2, $snippets);
+        static::assertArrayHasKey('global', $snippets);
+        static::assertArrayHasKey('sw-login', $snippets);
+    }
+
     public function testGetAllActivatedLanguagesLocales(): void
     {
         $expectedLocales = [
@@ -531,6 +547,8 @@ class AdministrationControllerTest extends TestCase
         ?CustomerCollection $collection = null,
         bool $isCustomerBoundToSalesChannel = false,
         ?EntityRepository $languageRepository = null,
+        (SnippetFinderInterface&MockObject)|null $snippetFinder = null,
+        (SymfonyBearerTokenValidator&MockObject)|null $tokenValidator = null,
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
@@ -540,7 +558,7 @@ class AdministrationControllerTest extends TestCase
         return new AdministrationController(
             $this->createMock(TemplateFinder::class),
             $this->createMock(FirstRunWizardService::class),
-            $this->createMock(SnippetFinderInterface::class),
+            $snippetFinder ?? $this->createMock(SnippetFinderInterface::class),
             [],
             new KnownIpsCollector(),
             $this->connection,
@@ -557,8 +575,50 @@ class AdministrationControllerTest extends TestCase
             $this->fileSystemOperator,
             $this->serviceRegistryUrl,
             $languageRepository ?? $this->languageRepository,
-            $this->createMock(SymfonyBearerTokenValidator::class),
+            $tokenValidator ?? $this->createMock(SymfonyBearerTokenValidator::class),
             $this->refreshTokenTtl,
+        );
+    }
+
+    private function createUnauthenticatedAdministrationController(): AdministrationController
+    {
+        /** @var SnippetFinderInterface&MockObject $snippetFinder */
+        $snippetFinder = $this->createMock(SnippetFinderInterface::class);
+        $snippetFinder
+            ->expects($this->once())
+            ->method('findSnippets')
+            ->willReturn([
+                'global' => [],
+                'sw-login' => [],
+                'entityCategories' => [],
+                'help-center' => [],
+                'locale' => [],
+                'mt-text-editor-toolbar-button-link' => [],
+                'sales-channel-theme' => [],
+                'sidebar' => [],
+                'sw-ai-copilot-warning' => [],
+                'sw-app' => [],
+                'sw-base-filter' => [],
+                'sw-boolean-filter' => [],
+                'sw-bulk-edit' => [],
+                'sw-category' => [],
+                'sw-category-tree-field' => [],
+                'sw-cms' => [],
+                'sw-config-form-renderer' => [],
+            ]);
+
+        $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
+        $tokenValidator
+            ->expects($this->once())
+            ->method('validateAuthorization')
+            ->willThrowException(new OAuthServerException('', 0, ''));
+
+        return $this->createAdministrationController(
+            null,
+            false,
+            null,
+            $snippetFinder,
+            $tokenValidator,
         );
     }
 

@@ -29,13 +29,13 @@ test('As a shop customer, I want use a basic cookie consent banner in the storef
 
     await test.step('Verify cookies after saving consent settings', async () => {
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.length).toEqual(3);
+        ShopCustomer.expects(allCookies.length).toEqual(4);
     });
 
     await test.step('Reload page and verify cookie persistence', async () => {
         await StorefrontHome.page.reload();
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.length).toEqual(3);
+        ShopCustomer.expects(allCookies.length).toEqual(4);
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
     });
 });

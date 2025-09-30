@@ -143,5 +143,9 @@ return [
         preg_quote('REMOVED: Property Shopware\Core\Content\Media\MediaEntity#$themes was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Content\Media\MediaEntity#getThemes() was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Content\Media\MediaEntity#setThemes() was removed', '/'),
+
+        // Constants were introduced in the same release cycle
+        preg_quote('REMOVED: Constant Shopware\Core\System\Snippet\SnippetValidator::LOCALE_PATTERN_BCP47_ISO639_1 was removed', '/'),
+        preg_quote('REMOVED: Constant Shopware\Core\System\Snippet\SnippetValidator::SNIPPET_FILE_PATTERN was removed', '/'),
     ],
 ];

@@ -245,18 +245,96 @@ export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): P
     return ports;
 }
 
+type ViteServerMapping = {
+    basePath: string;
+    port: number;
+};
+
 /**
  * @private
- * This function returns the IP address of the container
- * if the application is running in a Docker container.
  */
-export const getContainerIP = (): string | undefined => {
-    const interfaces = os.networkInterfaces();
+export async function exportViteServerMapping(): Promise<void> {
+    const extensions = loadExtensions();
 
-    return Object.values(interfaces)
-        .flatMap((ifaces) => ifaces || [])
-        .find((iface) => !iface.internal && iface.family === 'IPv4')?.address;
-};
+    const mapping = new Map<string, ViteServerMapping>();
+    const ports = await findAvailablePorts(Number(process.env.ADMIN_PORT) || 5173, extensions.length + 1);
+    let counter = 1;
+
+    for (const extension of extensions) {
+        mapping.set(extension.technicalName, {
+            basePath: `/_internal_ext/${extension.technicalName}/`,
+            port: ports[counter],
+        });
+        counter += 1;
+    }
+
+    fs.writeFileSync(
+        path.join(__dirname, 'vite-server-mapping.json'),
+        JSON.stringify({ extensions: Object.fromEntries(mapping), vitePort: ports[0] }),
+        'utf-8',
+    );
+}
+
+/**
+ * @private
+ */
+export function getViteServerPorts(): Record<string, number> {
+    const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
+
+    if (!fs.existsSync(mappingPath)) {
+        throw new Error(`Cannot find Vite server mapping for ${mappingPath}`);
+    }
+
+    const rawData = fs.readFileSync(mappingPath, 'utf-8');
+    const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
+
+    const ports: Record<string, number> = {};
+
+    for (const [
+        key,
+        value,
+    ] of Object.entries(parsedData.extensions)) {
+        ports[key] = value.port;
+    }
+
+    return ports;
+}
+
+/**
+ * @private
+ */
+export function getMainViteServerConfig(): {
+    proxy: Record<string, { target: string; changeOrigin: boolean; ws: boolean; rewriteWsOrigin: boolean }>;
+    port: number;
+} {
+    const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
+
+    if (!fs.existsSync(mappingPath)) {
+        throw new Error(`Cannot find Vite server mapping for ${mappingPath}`);
+    }
+
+    const rawData = fs.readFileSync(mappingPath, 'utf-8');
+    const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
+
+    const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
+
+    for (const [
+        key,
+        value,
+    ] of Object.entries(parsedData.extensions)) {
+        proxyConfig[value.basePath] = {
+            target: `http://localhost:${value.port}`,
+            changeOrigin: true,
+            ws: true,
+            rewriteWsOrigin: true,
+        };
+    }
+
+    return {
+        proxy: proxyConfig,
+        port: parsedData.vitePort,
+    };
+}
 
 /**
  * @private

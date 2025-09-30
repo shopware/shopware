@@ -54,7 +54,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
-use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 
 #[Package('discovery')]
 class MediaDefinition extends EntityDefinition
@@ -88,7 +87,7 @@ class MediaDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             new FkField('user_id', 'userId', UserDefinition::class),
             new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class),
@@ -113,7 +112,6 @@ class MediaDefinition extends EntityDefinition
             (new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, 'media_id', 'tag_id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             // reverse side of the associations, not available in store-api
-            (new ManyToManyAssociationField('themes', UserDefinition::class, ThemeMediaDefinition::class, 'media_id', 'theme_id'))->addFlags(new RestrictDelete()),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete()),
@@ -138,7 +136,5 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('appShippingMethods', AppShippingMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new StringField('file_hash', 'fileHash'))->addFlags(new Computed()),
         ]);
-
-        return $fields;
     }
 }

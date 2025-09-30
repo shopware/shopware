@@ -145,21 +145,13 @@
         </sw-card-view>
 
         {% block sw_settings_customer_group_list_empty_state %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="!isLoading && !total && isValidTerm(term)"
-            :title="$tc('sw-empty-state.messageNoResultTitle')"
-        >
-            <template #default>
-                {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                <router-link
-                    class="sw-empty-state__description-link"
-                    :to="{ name: 'sw.profile.index.searchPreferences' }"
-                >
-                    {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                </router-link>
-                {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-            </template>
-        </sw-empty-state>
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-empty-state.messageNoResultTitle')"
+            :link-text="$t('sw-empty-state.messageNoResultLink')"
+            :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
+        />
         {% endblock %}
     </template>
     {% endblock %}

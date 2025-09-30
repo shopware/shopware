@@ -18,6 +18,7 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Framework\Cookie\CookieProvider as LegacyCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -36,7 +37,7 @@ class CookieProviderTest extends TestCase
             $translator,
             ['name' => 'test-session-name-']
         )
-        )->getCookieGroups(Generator::generateSalesChannelContext());
+        )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
         $events = $eventDispatcher->getEvents();
         static::assertCount(1, $events);
@@ -85,7 +86,7 @@ class CookieProviderTest extends TestCase
             $translator,
             ['name' => 'test-session-name-']
         )
-        )->getCookieGroups(Generator::generateSalesChannelContext());
+        )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
         static::assertCount(3, $cookieGroups);
         $group = $cookieGroups->get('cookie.group.test');
@@ -119,7 +120,7 @@ class CookieProviderTest extends TestCase
             $translator,
             ['name' => 'test-session-name-']
         )
-        )->getCookieGroups(Generator::generateSalesChannelContext());
+        )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
         static::assertCount(3, $cookieGroups);
 
         $testGroup = $cookieGroups->get('test');
@@ -138,7 +139,7 @@ class CookieProviderTest extends TestCase
             $translator,
             [],
             $legacyCookieProvider,
-        ))->getCookieGroups(Generator::generateSalesChannelContext());
+        ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
         static::assertCount(4, $cookieGroups);
 
@@ -190,7 +191,7 @@ class CookieProviderTest extends TestCase
             $translator,
             [],
             $legacyCookieProvider,
-        ))->getCookieGroups(Generator::generateSalesChannelContext());
+        ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
@@ -217,7 +218,7 @@ class CookieProviderTest extends TestCase
             $translator,
             [],
             $legacyCookieProvider,
-        ))->getCookieGroups(Generator::generateSalesChannelContext());
+        ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }
 }
 

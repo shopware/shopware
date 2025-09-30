@@ -20,17 +20,17 @@ return [
         // Will be typed in Symfony 8 (maybe)
         preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
 
-        // Version related const values changed for 7.3 update
+        // Version-related const values changed for the 7.3 update
         preg_quote('Value of constant Symfony\Component\HttpKernel\Kernel', '/'),
 
-        // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+        // Cannot be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
         'An enum expression .* is not supported in .*',
 
         // Incorrectly deprecated
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
         preg_quote('The return type of Shopware\Core\Content\Product\ProductException::productNotFound() changed from self|Shopware\Core\Content\Product\Exception\ProductNotFoundException to Shopware\Core\Content\Product\Exception\ProductNotFoundException', '/'),
 
-        // Expected to be appended when new event is added
+        // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
         // Adding optional parameters to a constructor is not a BC
@@ -47,6 +47,8 @@ return [
         preg_quote('ADDED: Parameter message was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
         preg_quote('ADDED: Parameter messageRequired was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
         preg_quote('ADDED: Parameter excludes was added to Method __construct() of class Shopware\Core\System\SalesChannel\Api\ResponseFields', '/'),
+        preg_quote('ADDED: Parameter mimeType was added to Method __construct() of class Shopware\Core\Content\Media\Core\Params\UrlParams', '/'),
+
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
@@ -54,7 +56,7 @@ return [
         // Only new additions
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*to array \((\n.*)*skipCartPersistence(.*\n.*)*skipPrimaryOrderIds(.*\n.*)*automaticPromotionDeletionNotices',
 
-        // No break as mixed is the top type and every other type is a subtype of mixed
+        // No break as mixed is the top type, and every other type is a subtype of mixed
         preg_quote('The parameter $value of Shopware\Storefront\Event\StorefrontRenderEvent#setParameter() changed from no type to mixed', '/'),
 
         // No break as the `{get,set}SeoLink()` changes have not been released
@@ -71,6 +73,12 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity#$type changed from Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity to Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaId changed from string to string|null', '/'),
+
+        // Fix for promotion discount entity property initialization error - necessary to prevent runtime errors
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$sorterKey changed from string to string|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$applierKey changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $sorterKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setSorterKey() changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $applierKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setApplierKey() changed from string to string|null', '/'),
 
         // The media thumbnail size id changes have not been released
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaThumbnailSizeId changed from string to string|null', '/'),
@@ -114,8 +122,30 @@ return [
         preg_quote('CHANGED: Parameter 0 of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed name from object to cookieGroups', '/'),
         preg_quote('Shopware\Core\Service\ServiceException', '/'),
 
+        // remove after cookie changes have been released
+        preg_quote('CHANGED: Property Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#$salesChannelContext visibility reduced from public to protected', '/'),
+        preg_quote('ADDED: Parameter request was added to Method __construct() of class Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent', '/'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() increased from 2 to 3', '/'),
+        preg_quote('CHANGED: The parameter $salesChannelContext of Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() changed from Shopware\Core\System\SalesChannel\SalesChannelContext to a non-contravariant Symfony\Component\HttpFoundation\Request', '/'),
+        preg_quote('CHANGED: The parameter $salesChannelContext of Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() changed from Shopware\Core\System\SalesChannel\SalesChannelContext to Symfony\Component\HttpFoundation\Request', '/'),
+        preg_quote('CHANGED: Parameter 1 of Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() changed name from salesChannelContext to request', '/'),
+
         // Moved endpoint to Shopware\Core\Framework\Sso\Controller\SsoController to not have a hard dependency between admin and core packages
-        // It was never intended to be used outside of SaaS in it's initial release (still marked experimental / internal everywhere else, only this one method was forgotten)
+        // It was never intended to be used outside of SaaS in its initial release (still marked experimental / internal everywhere else, only this one method was forgotten)
         preg_quote('REMOVED: Method Shopware\Administration\Controller\AdministrationController#ssoAuth() was removed', '/'),
+
+        // The "parts" arrays of these events could contain values that are not correctly represented in the getter and add methods. Those are necessary fixes, otherwise type errors will occur.
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent#get() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#get() changed from string|null', '/'),
+        preg_quote('CHANGED: The parameter $value of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#add() changed from string', '/'),
+
+        // The property was wrongly added as it introduced a dependency on the Storefront package
+        preg_quote('REMOVED: Property Shopware\Core\Content\Media\MediaEntity#$themes was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Content\Media\MediaEntity#getThemes() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Content\Media\MediaEntity#setThemes() was removed', '/'),
+
+        // Constants were introduced in the same release cycle
+        preg_quote('REMOVED: Constant Shopware\Core\System\Snippet\SnippetValidator::LOCALE_PATTERN_BCP47_ISO639_1 was removed', '/'),
+        preg_quote('REMOVED: Constant Shopware\Core\System\Snippet\SnippetValidator::SNIPPET_FILE_PATTERN was removed', '/'),
     ],
 ];

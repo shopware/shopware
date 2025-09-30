@@ -270,10 +270,11 @@ class ThumbnailService
                     $fileSystem->write($path, $fileSystem->read($media->getPath()));
                 }
 
-                $event->thumbnail(
+                $event->thumbnailWithMimeType(
                     mediaId: $media->getId(),
                     thumbnailId: $id,
                     path: $path,
+                    mimeType: $media->getMimeType()
                 );
             }
 

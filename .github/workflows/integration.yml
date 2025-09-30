@@ -84,6 +84,7 @@ jobs:
           extra-options: >-
             --repeat-each="10"
             -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
+          artifact-prefix: "ats-changed"
 
   phpunit-matrix:
     runs-on: ubuntu-24.04

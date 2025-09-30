@@ -24,7 +24,7 @@ class CaptchaCookieCollectListener
 
     public function __invoke(CookieGroupCollectEvent $event): void
     {
-        $salesChannelId = $event->salesChannelContext->getSalesChannelId();
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $googleRecaptchaActive = $this->systemConfigService->getBool(
             'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV2::CAPTCHA_NAME . '.isActive',
             $salesChannelId

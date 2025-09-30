@@ -100,7 +100,7 @@ final class RuleConfig extends Struct
      */
     public function numberField(string $name, array $config = []): self
     {
-        $config['digits'] = $config['digits'] ?? self::DEFAULT_DIGITS;
+        $config['digits'] ??= self::DEFAULT_DIGITS;
 
         return $this->field($name, 'float', $config);
     }

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -31,6 +32,7 @@ class AppCookieCollectListenerTest extends TestCase
     {
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection(),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -58,6 +60,7 @@ class AppCookieCollectListenerTest extends TestCase
     {
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection(),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -118,6 +121,7 @@ class AppCookieCollectListenerTest extends TestCase
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([$coreCookieGroup]),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -168,6 +172,7 @@ class AppCookieCollectListenerTest extends TestCase
     {
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection(),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 
@@ -229,6 +234,7 @@ class AppCookieCollectListenerTest extends TestCase
     {
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection(),
+            new Request(),
             Generator::generateSalesChannelContext()
         );
 

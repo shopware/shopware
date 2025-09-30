@@ -1,0 +1,23 @@
+.sw-settings-newsletter {
+    .mt-card {
+        &__toolbar {
+            .sw-sales-channel-switch .sw-select {
+                margin-bottom: var(--scale-size-8);
+            }
+        }
+
+        &__content {
+            .sw-inherit-wrapper .sw-form-field-renderer {
+                margin: var(--scale-size-18) 0;
+            }
+
+            .sw-inherit-wrapper:first-of-type .sw-form-field-renderer {
+                margin-top: 0;
+            }
+
+            .sw-inherit-wrapper:last-of-type .sw-form-field-renderer {
+                margin-bottom: 0;
+            }
+        }
+    }
+}

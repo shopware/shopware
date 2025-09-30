@@ -1,4 +1,5 @@
 import template from './sw-settings-newsletter.html.twig';
+import './sw-settings-newsletter.scss';
 
 /**
  * @sw-package after-sales

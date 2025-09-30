@@ -22,6 +22,7 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
@@ -114,8 +115,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ]);
 
         $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
-            'lang_en' => ['id' => Uuid::randomHex(), 'code' => 'en-GB', 'parentId' => Defaults::LANGUAGE_SYSTEM],
-            'lang_de' => ['id' => Uuid::randomHex(), 'code' => 'de-DE', 'parentId' => Defaults::LANGUAGE_SYSTEM],
+            'lang_en' => [TestDefaults::SALES_CHANNEL],
+            'lang_de' => [TestDefaults::SALES_CHANNEL],
         ]);
 
         $parameterBag = new ParameterBag([
@@ -382,8 +383,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ]);
 
         $salesChannelLoader = new StaticSalesChannelLanguageLoader([
-            'lang_en' => ['id' => Uuid::randomHex(), 'code' => 'en-GB', 'parentId' => Defaults::LANGUAGE_SYSTEM],
-            'lang_de' => ['id' => Uuid::randomHex(), 'code' => 'de-DE', 'parentId' => Defaults::LANGUAGE_SYSTEM],
+            'lang_en' => [TestDefaults::SALES_CHANNEL],
+            'lang_de' => [TestDefaults::SALES_CHANNEL],
         ]);
 
         $parameterBag = new ParameterBag([
@@ -562,7 +563,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertInstanceOf(ProductDefinition::class, $definition);
 
         $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
-            Defaults::LANGUAGE_SYSTEM => ['id' => Defaults::LANGUAGE_SYSTEM, 'code' => 'en-GB', 'parentId' => Defaults::LANGUAGE_SYSTEM],
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
         ]);
 
         $connection = $this->getConnection();
@@ -697,7 +698,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $lang1 = Uuid::randomHex();
 
         $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
-            $lang1 => ['id' => $lang1, 'code' => 'en-GB', 'parentId' => Defaults::LANGUAGE_SYSTEM],
+            $lang1 => [TestDefaults::SALES_CHANNEL],
         ]);
 
         $connection = $this->getConnection(2);
@@ -738,7 +739,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ]);
 
         $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
-            Defaults::LANGUAGE_SYSTEM => ['id' => Defaults::LANGUAGE_SYSTEM, 'code' => 'en-GB', 'parentId' => Defaults::LANGUAGE_SYSTEM],
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
         ]);
 
         $parameterBag = new ParameterBag([

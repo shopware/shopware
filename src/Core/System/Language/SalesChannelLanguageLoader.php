@@ -9,14 +9,12 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
- *
- * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
 #[Package('fundamentals@discovery')]
 class SalesChannelLanguageLoader implements ResetInterface
 {
     /**
-     * @var LanguageData|null
+     * @var array<string, list<string>>|null
      */
     private ?array $languages = null;
 
@@ -28,7 +26,7 @@ class SalesChannelLanguageLoader implements ResetInterface
     }
 
     /**
-     * @return LanguageData
+     * @return array<string, list<string>>
      */
     public function loadLanguages(): array
     {
@@ -44,8 +42,7 @@ class SalesChannelLanguageLoader implements ResetInterface
             $grouped[$languageId] = array_column($value, 'salesChannelId');
         }
 
-        /** @var LanguageData $grouped */
-        // @phpstan-ignore varTag.type (phpstan can't correctly detect the array_column usage here)
+        /** @var array<string, list<string>> $grouped */
         return $this->languages = $grouped;
     }
 

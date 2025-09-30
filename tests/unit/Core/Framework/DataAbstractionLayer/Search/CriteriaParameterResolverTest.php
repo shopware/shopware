@@ -103,6 +103,27 @@ class CriteriaParameterResolverTest extends TestCase
         ];
     }
 
+    public function testGetParameterCached(): void
+    {
+        $request = new Request(['_criteria' => 'compressed_value'], [], [], [], [], ['REQUEST_METHOD' => 'GET']);
+
+        $this->criteriaDecoder->expects($this->once())
+            ->method('decode')
+            ->with($request->query->get('_criteria'))
+            ->willReturn(['test_key' => 'decoded_value']);
+
+        static::assertFalse($request->attributes->has(CriteriaParameterResolver::ATTRIBUTE_RESOLVED_CRITERIA));
+
+        // First call, should decode and cache the result in request attributes
+        $got = $this->resolver->getParameter($request, 'test_key', 'fallback');
+        static::assertSame('decoded_value', $got);
+        static::assertTrue($request->attributes->has(CriteriaParameterResolver::ATTRIBUTE_RESOLVED_CRITERIA));
+
+        // Call again to test caching
+        $got = $this->resolver->getParameter($request, 'test_key', 'fallback');
+        static::assertSame('decoded_value', $got);
+    }
+
     /**
      * @param array<string, mixed>|null $decodedCriteria
      */

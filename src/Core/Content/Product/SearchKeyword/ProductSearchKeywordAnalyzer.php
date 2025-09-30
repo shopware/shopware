@@ -46,7 +46,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                     continue;
                 }
 
-                /** @var array<int, string> $onlyScalarValues */
+                /** @var array<int, non-falsy-string> $onlyScalarValues */
                 $onlyScalarValues = $values;
                 $values = $this->tokenize($onlyScalarValues, $context);
                 $values[] = implode(' ', $values);

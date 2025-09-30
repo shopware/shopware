@@ -60,9 +60,22 @@
     <template #content>
         {% block sw_customer_list_content %}
         <div class="sw-customer-list__content">
+
+            {% block sw_customer_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                class="mt-empty-state--center"
+                :icon="$route.meta.$module.icon"
+                :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-customer.list.messageEmpty')"
+                :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : ''"
+                :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="filterCriteria.length || isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            />
+            {% endblock %}
+
             {% block sw_customer_list_grid %}
             <sw-entity-listing
-                v-if="isLoading || (customers && entitySearchable)"
+                v-else-if="isLoading || (customers && entitySearchable)"
                 ref="swCustomerGrid"
                 class="sw-customer-list-grid"
                 identifier="sw-customer-list"
@@ -364,44 +377,6 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
-            {% endblock %}
-
-            {% block sw_customer_list_empty_state %}
-            <template v-if="!isLoading && !total">
-                <sw-empty-state
-                    v-if="filterCriteria.length || isValidTerm(term)"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                >
-                    <template #icon>
-                        <img
-                            :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
-                            :alt="$tc('sw-empty-state.messageNoResultTitle')"
-                        >
-                    </template>
-
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
-                <sw-empty-state
-                    v-else
-                    :title="$tc('sw-customer.list.messageEmpty')"
-                >
-                    <template #icon>
-                        <img
-                            :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
-                            :alt="$tc('sw-customer.list.messageEmpty')"
-                        >
-                    </template>
-                </sw-empty-state>
-            </template>
             {% endblock %}
         </div>
         {% endblock %}

@@ -14,6 +14,7 @@
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
             <tag name="console.command"/>
         </service>
 
@@ -129,6 +130,10 @@
         </service>
 
         <service id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+
+        <service id="Shopware\Core\Installer\Finish\SystemLocker">
+            <argument>%kernel.project_dir%</argument>
+        </service>
 
         <service id="Shopware\Core\Maintenance\Staging\Command\SystemSetupStagingCommand">
             <argument type="service" id="event_dispatcher"/>

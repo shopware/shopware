@@ -39,7 +39,7 @@ class CookieRouteTest extends TestCase
 
         $cookieProvider = $this->createMock(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')
-            ->with($salesChannelContext)
+            ->with(static::isInstanceOf(Request::class), $salesChannelContext)
             ->willReturn($expectedCookieGroups);
 
         $cookieRoute = new CookieRoute($cookieProvider);
@@ -276,7 +276,7 @@ class CookieRouteTest extends TestCase
 
         $cookieProvider = $this->createMock(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')
-            ->with($salesChannelContext)
+            ->with(static::isInstanceOf(Request::class), $salesChannelContext)
             ->willReturn($cookieGroups);
 
         $cookieRoute = new CookieRoute($cookieProvider);

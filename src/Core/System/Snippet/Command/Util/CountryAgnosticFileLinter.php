@@ -19,7 +19,6 @@ use Shopware\Core\System\Snippet\Struct\TranslationFile;
 use Shopware\Core\System\Snippet\Struct\TranslationFileCollection;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
@@ -76,14 +75,26 @@ class CountryAgnosticFileLinter
 
             $currentFileData = $isAdminTranslationFile ? $adminFileData : $coreFileData;
 
-            $formatedLanguageStruct = $this->createTranslationFile(
-                $currentFileData,
-                $file,
-                (bool) $isAdminTranslationFile,
-                $countrySpecificFileCollection,
+            $currentDomain = $currentFileData['domain'] ?? 'administration';
+            $locale = str_replace('_', '-', $currentFileData['locale']);
+            $isBase = !$isAdminTranslationFile && !empty($currentFileData['isBase']);
+
+            $translationFile = new TranslationFile(
+                $file->getFilename(),
+                $file->getPath(),
+                $currentDomain,
+                $locale,
+                $currentFileData['language'],
+                $currentFileData['script'] ?? null,
+                $currentFileData['region'] ?? null,
+                $isBase,
             );
 
-            $languageFiles->add($formatedLanguageStruct);
+            if ($translationFile->region) {
+                $countrySpecificFileCollection->add($translationFile);
+            }
+
+            $languageFiles->add($translationFile);
         }
 
         return $this->processAgnosticFiles(new LintedTranslationFileStruct(
@@ -176,40 +187,5 @@ class CountryAgnosticFileLinter
         }
 
         return $extensionPaths;
-    }
-
-    /**
-     * @param array{
-     *     domain?: string,
-     *     locale: string,
-     *     language: string,
-     *     script: ?string,
-     *     region: ?string,
-     *     isBase?: ?string,
-     * } $currentFileData
-     */
-    private function createTranslationFile(
-        array $currentFileData,
-        SplFileInfo $file,
-        bool $isAdminTranslationFile,
-        TranslationFileCollection $countrySpecificFileCollection
-    ): TranslationFile {
-        $currentDomain = $currentFileData['domain'] ?? 'administration';
-        $translationFile = new TranslationFile(
-            $file->getFilename(),
-            $file->getPath(),
-            $currentDomain,
-            str_replace('_', '-', $currentFileData['locale']),
-            $currentFileData['language'],
-            $currentFileData['script'] ?: null,
-            $currentFileData['region'] ?: null,
-            !$isAdminTranslationFile && !empty($currentFileData['isBase']),
-        );
-
-        if ($translationFile->region) {
-            $countrySpecificFileCollection->add($translationFile);
-        }
-
-        return $translationFile;
     }
 }

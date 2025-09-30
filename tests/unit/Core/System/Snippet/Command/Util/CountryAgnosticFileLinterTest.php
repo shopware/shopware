@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Struct\LintedTranslationFileOptions;
 use Shopware\Core\System\Snippet\Struct\LintedTranslationFileStruct;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -44,13 +45,16 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     public function testCheckTranslationFiles(): void
     {
-        $options = new LintedTranslationFileOptions(
-            false,
-            false,
-            [],
-            [],
-            self::FIXTURES_PATH,
-        );
+        $input = $this->createMock(InputInterface::class);
+        $input->method('getOption')->willReturnMap([
+            ['fix', false],
+            ['all', false],
+            ['extensions', ''],
+            ['ignore', ''],
+            ['dir', self::FIXTURES_PATH],
+        ]);
+
+        $options = LintedTranslationFileOptions::fromInputInterface($input);
         $lintedFileStruct = $this->fileLinter->checkTranslationFiles($options);
 
         static::assertCount(18, $lintedFileStruct->getCompleteCollection());
@@ -67,13 +71,16 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     public function testFixFilenames(): void
     {
-        $options = new LintedTranslationFileOptions(
-            true,
-            false,
-            [],
-            [],
-            self::FIXTURES_PATH,
-        );
+        $input = $this->createMock(InputInterface::class);
+        $input->method('getOption')->willReturnMap([
+            ['fix', true],
+            ['all', false],
+            ['extensions', ''],
+            ['ignore', ''],
+            ['dir', self::FIXTURES_PATH],
+        ]);
+
+        $options = LintedTranslationFileOptions::fromInputInterface($input);
         $lintedFileStruct = $this->fileLinter->checkTranslationFiles($options);
         $hydratedFileStruct = $this->hydrateFixingCollection($lintedFileStruct);
         $this->fileLinter->fixFilenames($hydratedFileStruct);

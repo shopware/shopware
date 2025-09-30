@@ -16,7 +16,7 @@ readonly class LintedTranslationFileOptions
      * @param list<string> $extensionPaths
      * @param list<string> $ignoredPaths
      */
-    public function __construct(
+    private function __construct(
         public bool $isFix = false,
         public bool $isAll = false,
         public array $extensionPaths = [],

@@ -137,7 +137,7 @@ class LintTranslationFilesCommand extends Command
             return self::SUCCESS;
         }
 
-        $io->error('Every country-specific translation file must have a corresponding agnostic file. Example: `messages.de-DE.json` requires `messages.de.json`'); // ToDo: Replace with docs
+        $io->error('Every country-specific translation file must have a corresponding agnostic file. Example: `messages.de-DE.json` requires `messages.de.json`');
 
         return self::FAILURE;
     }

@@ -94,9 +94,6 @@ async function createWrapper(privileges = [], repo = mockCustomFieldRepository()
                 },
                 stubs: {
                     'mt-card': true,
-                    'sw-empty-state': {
-                        template: '<div></div>',
-                    },
                     'sw-simple-search-field': {
                         template: '<div></div>',
                     },
@@ -127,6 +124,15 @@ async function createWrapper(privileges = [], repo = mockCustomFieldRepository()
                     'mt-number-field': true,
                     'sw-custom-field-detail': true,
                     'sw-select-field': true,
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                 },
             },
         },

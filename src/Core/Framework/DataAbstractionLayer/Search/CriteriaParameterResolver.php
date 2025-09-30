@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @experimental stableVersion:v6.8.0 feature:STORE_API_CACHE
+ *
  * Service for resolving request parameters from either _criteria or direct request parameters.
  * Ensures parameters are parsed only once per request and cached in request attributes.
  * To be used for working with parameters described in Criteria and ProductListingCriteria OpenAPI spec.
@@ -25,9 +27,10 @@ class CriteriaParameterResolver
 
     /**
      * Get parameter by key:
-     * - If request method is GET and _criteria parameter is present, return value from decoded _criteria parameters
-     * - Otherwise, return value from $request->get(...)
-     * - If parameter is not present in either, return $default
+     * - If request method is GET and _criteria parameter is present:
+     *   - return value from decoded _criteria parameters if present
+     *   - Otherwise, return $default
+     * - Otherwise, return value from $request->get(...), utilizing standard request bag priority, with $default as fallback
      */
     public function getParameter(Request $request, string $key, mixed $default = null): mixed
     {

@@ -1,4 +1,4 @@
-## 6.7.3.0
+# 6.7.3.0
 ## Migration from controller variables to activeRoute
 Replace `controllerName` and `controllerAction` with `activeRoute`:
 * Twig: Use `activeRoute` instead of `controllerName`/`controllerAction`
@@ -72,31 +72,6 @@ to
 new CustomerEmailUnique(salesChannelContext: $context)
 ```
 
-# Next Major Version Changes
-## Removal of `$options` parameter in custom validator's constraints
-
-The `$options` of all Shopware's custom validator constraint are removed, if you use one of them, please use named argument instead
-
-```php
-// Before:
-new CustomerEmailUnique(['salesChannelContext' => $context])
-```
-to
-
-```php
-new CustomerEmailUnique(salesChannelContext: $context)
-```
-
-Affected constraints are:
-
-```
-\Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique
-\Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches
-\Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification
-\Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode
-\Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists
-\Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists
-```
 ## Refactor of providing cookies
 
 The providing of cookies has been refactored.

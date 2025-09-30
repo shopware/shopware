@@ -20,17 +20,17 @@ return [
         // Will be typed in Symfony 8 (maybe)
         preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
 
-        // Version related const values changed for 7.3 update
+        // Version-related const values changed for the 7.3 update
         preg_quote('Value of constant Symfony\Component\HttpKernel\Kernel', '/'),
 
-        // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+        // Cannot be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
         'An enum expression .* is not supported in .*',
 
         // Incorrectly deprecated
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
         preg_quote('The return type of Shopware\Core\Content\Product\ProductException::productNotFound() changed from self|Shopware\Core\Content\Product\Exception\ProductNotFoundException to Shopware\Core\Content\Product\Exception\ProductNotFoundException', '/'),
 
-        // Expected to be appended when new event is added
+        // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
         // Adding optional parameters to a constructor is not a BC
@@ -56,7 +56,7 @@ return [
         // Only new additions
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*to array \((\n.*)*skipCartPersistence(.*\n.*)*skipPrimaryOrderIds(.*\n.*)*automaticPromotionDeletionNotices',
 
-        // No break as mixed is the top type and every other type is a subtype of mixed
+        // No break as mixed is the top type, and every other type is a subtype of mixed
         preg_quote('The parameter $value of Shopware\Storefront\Event\StorefrontRenderEvent#setParameter() changed from no type to mixed', '/'),
 
         // No break as the `{get,set}SeoLink()` changes have not been released
@@ -131,7 +131,12 @@ return [
         preg_quote('CHANGED: Parameter 1 of Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent#__construct() changed name from salesChannelContext to request', '/'),
 
         // Moved endpoint to Shopware\Core\Framework\Sso\Controller\SsoController to not have a hard dependency between admin and core packages
-        // It was never intended to be used outside of SaaS in it's initial release (still marked experimental / internal everywhere else, only this one method was forgotten)
+        // It was never intended to be used outside of SaaS in its initial release (still marked experimental / internal everywhere else, only this one method was forgotten)
         preg_quote('REMOVED: Method Shopware\Administration\Controller\AdministrationController#ssoAuth() was removed', '/'),
+
+        // The "parts" arrays of these events could contain values that are not correctly represented in the getter and add methods. Those are necessary fixes, otherwise type errors will occur.
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent#get() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#get() changed from string|null', '/'),
+        preg_quote('CHANGED: The parameter $value of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#add() changed from string', '/'),
     ],
 ];

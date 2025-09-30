@@ -367,7 +367,7 @@ class StructEncoder implements ResetInterface
 
     private function fetchBlockedCustomFields(): void
     {
-        /** @var array<string, string>[] */
+        /** @var list<array<string, string>> */
         $blockedCustomFields = $this->connection->fetchAllAssociative(
             '# struct-encoder::fetch-blocked-custom-fields
             SELECT

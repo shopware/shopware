@@ -58,7 +58,7 @@ class LintTranslationFilesCommand extends Command
             'ignore',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Excludes the specified paths relative to "src", "custom", or, if specified, the provided bundles. Values are comma-separated.',
+            'Excludes the specified paths relative to "src", or, if specified, the provided bundle paths. Values are comma-separated.',
             '',
         );
 

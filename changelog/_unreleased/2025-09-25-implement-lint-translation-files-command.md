@@ -14,7 +14,7 @@ ___
 # Upgrade Information
 ## Snippet Validation command
 * The command `snippets:validate` has been renamed to `translation:validate`. Please refrain from using the old command as it will be removed in future versions.
-
+___
 # Next Major Version Changes
 ## SnippetValidator
 * The class `Shopware\Core\System\Snippet\SnippetValidator` is marked internal and supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.

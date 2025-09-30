@@ -7,15 +7,17 @@ export default async function initializeLocaleService() {
     const localeFactory = factoryContainer.locale;
     const snippetService = Shopware.Service('snippetService');
 
-    if (snippetService) {
-        const locales = await snippetService.getLocales();
-
-        Object.values(locales).forEach((locale) => {
-            localeFactory.register(locale, {});
-        });
-
-        await snippetService.getSnippets(localeFactory);
+    if (!snippetService) {
+        throw new Error('Snippet service not found. Snippets could not be loaded');
     }
+
+    const locales = await snippetService.getLocales();
+
+    Object.values(locales).forEach((locale) => {
+        localeFactory.register(locale, {});
+    });
+
+    await snippetService.getSnippets(localeFactory);
 
     return localeFactory;
 }

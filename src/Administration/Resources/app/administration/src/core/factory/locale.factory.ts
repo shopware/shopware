@@ -30,7 +30,7 @@ export type Snippets = {
  */
 export type SnippetRegistry = {
     [locale: string]: Snippets;
-}
+};
 
 /**
  * Registry which holds all locales including the interface translations

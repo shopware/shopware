@@ -329,6 +329,7 @@ declare global {
     interface InitPostContainer extends SubContainer<'init-post'> {}
     interface InitPreContainer extends SubContainer<'init-pre'> {
         state: $TSFixMe;
+        apiServices: Promise<typeof ApiServiceFactory>;
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'> {

@@ -492,7 +492,7 @@ class AdministrationControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $jsonResponse->getStatusCode());
 
         $content = $jsonResponse->getContent();
-        static::assertNotFalse($jsonResponse->getContent());
+        static::assertNotFalse($content);
 
         $actualLocales = \json_decode($content, true);
         static::assertEquals($expectedLocales, $actualLocales);

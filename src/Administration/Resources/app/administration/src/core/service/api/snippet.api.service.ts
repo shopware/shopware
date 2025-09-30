@@ -24,15 +24,16 @@ class SnippetApiService extends ApiService {
     async getFilter(): Promise<SnippetFilter> {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient.get(`/_action/${this.getApiBasePath()}/filter`, {
-            headers,
-        })
-        .then((response: AxiosResponse<SnippetFilter>) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/filter`, {
+                headers,
+            })
+            .then((response: AxiosResponse<SnippetFilter>) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
-    async getSnippets(localeFactory: typeof LocaleFactory, code: string|null = null): Promise<void> {
+    async getSnippets(localeFactory: typeof LocaleFactory, code: string | null = null): Promise<void> {
         const headers = this.getBasicHeaders();
         const locale = code || localeFactory.getLastKnownLocale();
 
@@ -47,7 +48,10 @@ class SnippetApiService extends ApiService {
                 const registry = localeFactory.getLocaleRegistry();
 
                 Object.entries(snippetRegistry).forEach(
-                    ([localeKey, snippets]) => {
+                    ([
+                        localeKey,
+                        snippets,
+                    ]) => {
                         const fnName = registry.has(localeKey) ? 'extend' : 'register';
 
                         localeFactory[fnName](localeKey, snippets);

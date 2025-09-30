@@ -1,14 +1,11 @@
 import { test } from '@fixtures/AcceptanceTest';
-import {satisfies} from 'compare-versions';
 
 test('As an admin user, I want to have an overview of my assigned rules, so that I can easily see where they are used and easily assign new ones', { tag: '@Rule' }, async ({
     TestDataService,
     ShopAdmin,
     AdminRuleDetail,
     AdminShippingDetail,
-    InstanceMeta,
 }) => {
-    test.skip(satisfies(InstanceMeta.version, '>6.7.3'), 'Locators do not work until upcoming meteor change in 6.7.3.0');
     const rule = await TestDataService.createBasicRule();
     const shippingMethod = await TestDataService.createBasicShippingMethod({availabilityRuleId: rule.id});
 

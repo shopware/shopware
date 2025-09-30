@@ -37,6 +37,7 @@ jobs:
           repo: shopware/rufus
           workflow: Downstream
           ref: .auto
+          refFallback: 6.6.x
           timeout: 30m
           token-scope: shopware
           identity: ShopwareDownstream
@@ -61,6 +62,7 @@ jobs:
           repo: shopware/SwagCommercial
           workflow: Downstream
           ref: .auto
+          refFallback: 6.6.x
           timeout: 40m
           token-scope: shopware
           identity: ShopwareDownstream

@@ -24,7 +24,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
 
 {% block document_recipient %}
-    {% if config.displayCompanyAddress %}
+    {% if config.displayReturnAddress %}
         <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
     {% endif %}
 

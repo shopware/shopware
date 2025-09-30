@@ -11,58 +11,17 @@ use Shopware\Core\Framework\Struct\Struct;
 class Filter extends Struct
 {
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filtered;
-
-    /**
-     * @var list<Aggregation>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $aggregations;
-
-    /**
-     * @var DALFilter
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filter;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $exclude;
-
-    /**
      * @param list<Aggregation> $aggregations
      * @param int|float|string|bool|array<mixed>|null $values
      */
     public function __construct(
-        string $name,
-        bool $filtered,
-        array $aggregations,
-        DALFilter $filter,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
-        protected $values,
-        bool $exclude = true
+        protected string $name,
+        protected bool $filtered,
+        protected array $aggregations,
+        protected DALFilter $filter,
+        protected int|float|string|bool|array|null $values,
+        protected bool $exclude = true
     ) {
-        $this->name = $name;
-        $this->filtered = $filtered;
-        $this->aggregations = $aggregations;
-        $this->filter = $filter;
-        $this->exclude = $exclude;
     }
 
     public function getName(): string
@@ -89,11 +48,9 @@ class Filter extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will return native type
-     *
      * @return int|float|string|bool|array<mixed>|null
      */
-    public function getValues()
+    public function getValues(): int|float|string|bool|array|null
     {
         return $this->values;
     }

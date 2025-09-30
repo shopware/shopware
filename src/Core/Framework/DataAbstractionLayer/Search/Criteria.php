@@ -26,6 +26,8 @@ class Criteria extends Struct implements \Stringable
 
     final public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
+    final public const STATE_DISABLE_SEARCH_INFO = 'disableSearchInfo';
+
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
@@ -94,9 +96,14 @@ class Criteria extends Struct implements \Stringable
     protected ?string $term = null;
 
     /**
-     * @var array<string, array<string, string>>|null
+     * @var array<string, list<string>>|null
      */
     protected ?array $includes = null;
+
+    /**
+     * @var array<string, list<string>>|null
+     */
+    protected ?array $excludes = null;
 
     protected ?string $title = null;
 
@@ -525,7 +532,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string, array<string, string>>|null $includes
+     * @param array<string, list<string>>|null $includes
      */
     public function setIncludes(?array $includes): void
     {
@@ -533,11 +540,29 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return array<string, array<string, string>>|null
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will be native
+     *
+     * @return array<string, list<string>>|null
      */
     public function getIncludes()
     {
         return $this->includes;
+    }
+
+    /**
+     * @param array<string, list<string>>|null $excludes
+     */
+    public function setExcludes(?array $excludes): void
+    {
+        $this->excludes = $excludes;
+    }
+
+    /**
+     * @return array<string, list<string>>|null
+     */
+    public function getExcludes(): ?array
+    {
+        return $this->excludes;
     }
 
     public function getApiAlias(): string

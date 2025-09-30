@@ -148,6 +148,6 @@ class RuleConditionHasRuleConfigRule implements Rule
             return false;
         }
 
-        return $class->isSubclassOf(ShopwareRule::class);
+        return $class->is(ShopwareRule::class);
     }
 }

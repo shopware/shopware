@@ -13,7 +13,6 @@ async function createWrapper() {
                 'sw-tabs-item': true,
                 'sw-customer-address-form': true,
                 'sw-custom-field-set-renderer': true,
-                'sw-button': true,
             },
             provide: {
                 repositoryFactory: {
@@ -46,10 +45,6 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get customer information on creation', async () => {

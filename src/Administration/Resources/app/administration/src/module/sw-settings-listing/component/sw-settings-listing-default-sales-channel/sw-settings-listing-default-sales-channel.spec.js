@@ -54,7 +54,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                         'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
                         'sw-field-error': true,
                         'sw-highlight-text': true,
-                        'sw-icon': true,
                         'sw-label': true,
                         'sw-loader': true,
                         'sw-modal': true,
@@ -70,9 +69,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                         'sw-settings-listing-visibility-detail': true,
-                        'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                        'sw-button': true,
+
                         'sw-ai-copilot-badge': true,
                         'sw-help-text': true,
                         'sw-product-variant-info': true,
@@ -96,10 +93,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render data correctly at Default Sales Channel card when there is no default sales channel data', async () => {

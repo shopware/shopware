@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
@@ -38,9 +39,9 @@ class FlowFactoryTest extends TestCase
         $flowFactory = new FlowFactory([$orderStorer]);
         $flow = $flowFactory->create($awareEvent);
 
-        static::assertEquals($ids->get('orderId'), $flow->getStore('orderId'));
+        static::assertSame($ids->get('orderId'), $flow->getStore('orderId'));
         static::assertInstanceOf(SystemSource::class, $flow->getContext()->getSource());
-        static::assertEquals(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
+        static::assertSame(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
     }
 
     public function testRestore(): void
@@ -50,12 +51,12 @@ class FlowFactoryTest extends TestCase
         $order->setId($ids->get('orderId'));
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->expects(static::once())
-            ->method('get')
-            ->willReturn($order);
+        $entitySearchResult->expects($this->once())
+            ->method('getEntities')
+            ->willReturn(new OrderCollection([$order]));
 
         $orderRepo = $this->createMock(EntityRepository::class);
-        $orderRepo->expects(static::once())
+        $orderRepo->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
@@ -73,9 +74,9 @@ class FlowFactoryTest extends TestCase
         $flow = $flowFactory->restore('checkout.order.placed', $awareEvent->getContext(), $storedData);
 
         static::assertInstanceOf(OrderEntity::class, $flow->getData('order'));
-        static::assertEquals($ids->get('orderId'), $flow->getData('order')->getId());
+        static::assertSame($ids->get('orderId'), $flow->getData('order')->getId());
 
         static::assertInstanceOf(SystemSource::class, $flow->getContext()->getSource());
-        static::assertEquals(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
+        static::assertSame(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
     }
 }

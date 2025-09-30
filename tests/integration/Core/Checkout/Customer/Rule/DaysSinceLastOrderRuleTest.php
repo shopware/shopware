@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -38,8 +41,14 @@ class DaysSinceLastOrderRuleTest extends TestCase
     use KernelTestBehaviour;
     use OrderFixture;
 
+    /**
+     * @var EntityRepository<RuleCollection>
+     */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     private Context $context;
@@ -138,9 +147,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     public function testCustomerMetaFieldSubscriber(): void
     {
-        /** @var EntityRepository $orderRepository */
+        /** @var EntityRepository<OrderCollection> $orderRepository */
         $orderRepository = static::getContainer()->get('order.repository');
-        /** @var EntityRepository $customerRepository */
+        /** @var EntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = static::getContainer()->get('customer.repository');
         $defaultContext = Context::createDefaultContext();
         $orderId = Uuid::randomHex();
@@ -192,7 +201,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     private function createTestOrderAndReturnCustomer(): CustomerEntity
     {
-        /** @var EntityRepository $customerRepository */
+        /** @var EntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = static::getContainer()->get('customer.repository');
         $orderRepository = static::getContainer()->get('order.repository');
 

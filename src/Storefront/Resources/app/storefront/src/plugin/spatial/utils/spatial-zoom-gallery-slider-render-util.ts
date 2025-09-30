@@ -53,7 +53,8 @@ export default class SpatialZoomGallerySliderRenderUtil {
         // initialize the util once the slider is created & initialized
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         this.zoomModalPlugin.$emitter.subscribe('initSlider', () => {
-            this.plugin.initViewer(true);
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.plugin.initViewer();
         });
     }
 
@@ -101,8 +102,9 @@ export default class SpatialZoomGallerySliderRenderUtil {
             `[${SpatialZoomGallerySliderRenderUtil.options.zoomSliderPositionAttribute}="${this.plugin.sliderIndex}"]`
         );
 
-        this.plugin.initViewer(false);
         this.initViewer();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.plugin.initViewer();
     }
 
     /**

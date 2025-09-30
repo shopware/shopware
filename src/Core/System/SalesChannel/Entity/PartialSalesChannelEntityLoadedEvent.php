@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends SalesChannelEntityLoadedEvent<PartialEntity>
+ */
 #[Package('discovery')]
 class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent
 {
@@ -15,19 +18,11 @@ class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent
      */
     public function __construct(
         EntityDefinition $definition,
-        protected array $entities,
+        array $entities,
         SalesChannelContext $context
     ) {
         parent::__construct($definition, $entities, $context);
 
         $this->name = $this->definition->getEntityName() . '.partial_loaded';
-    }
-
-    /**
-     * @return PartialEntity[]
-     */
-    public function getEntities(): array
-    {
-        return $this->entities;
     }
 }

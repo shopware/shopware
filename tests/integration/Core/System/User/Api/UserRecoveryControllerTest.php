@@ -42,7 +42,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testUpdateUserPasswordWithInvalidHash(): void
@@ -59,7 +59,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testCreateUserRecovery(): void
@@ -89,7 +89,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $criteria = new Criteria();
         $criteria->setLimit(1);

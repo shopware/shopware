@@ -12,6 +12,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
@@ -71,13 +73,16 @@ class AppLifecycleTest extends TestCase
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
 
         $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->expects(static::never())->method('upsert');
+        $appRepository->expects($this->never())->method('upsert');
 
-        $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, new StaticSourceResolver());
+        /** @var StaticEntityRepository<LanguageCollection> */
+        $languageRepository = new StaticEntityRepository([]);
+
+        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, null, new StaticSourceResolver());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
-        $appLifecycle->install($manifest, false, Context::createDefaultContext());
+        $appLifecycle->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 
     public function testUpdateNotCompatibleApp(): void
@@ -86,17 +91,21 @@ class AppLifecycleTest extends TestCase
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
 
         $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->expects(static::never())->method('upsert');
+        $appRepository->expects($this->never())->method('upsert');
 
-        $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, new StaticSourceResolver());
+        /** @var StaticEntityRepository<LanguageCollection> */
+        $languageRepository = new StaticEntityRepository([]);
+
+        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, null, new StaticSourceResolver());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
-        $appLifecycle->update($manifest, ['id' => 'test', 'roleId' => 'test'], Context::createDefaultContext());
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'test', 'roleId' => 'test'], Context::createDefaultContext());
     }
 
     public function testInstallSavesSnippetsGiven(): void
     {
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -144,7 +153,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->install($manifest, false, Context::createDefaultContext());
+        $appLifecycle->install($manifest, new AppInstallParameters(activate: false), Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
@@ -152,6 +161,7 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallSavesNoSnippetsGiven(): void
     {
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -190,7 +200,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->install($manifest, false, Context::createDefaultContext());
+        $appLifecycle->install($manifest, new AppInstallParameters(false), Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
@@ -198,6 +208,7 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateSavesNoSnippetsGiven(): void
     {
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -234,7 +245,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
@@ -242,6 +253,7 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateSavesSnippets(): void
     {
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -288,7 +300,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
@@ -298,6 +310,7 @@ class AppLifecycleTest extends TestCase
     {
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/config', __DIR__ . '/../_fixtures/Resources/noconfighere');
 
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -333,15 +346,19 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->update($manifest, ['id' => $appId, 'roleId' => 'roleId'], Context::createDefaultContext());
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => $appId, 'roleId' => 'roleId'], Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
 
-        static::assertEquals([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $appRepository->upserts[1]);
+        static::assertSame([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $appRepository->upserts[1]);
 
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/noconfighere', __DIR__ . '/../_fixtures/Resources/config');
     }
 
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
+     */
     private function getAppLifecycle(
         EntityRepository $appRepository,
         EntityRepository $languageRepository,
@@ -465,7 +482,7 @@ class AppLifecycleTest extends TestCase
         $persister = $this->createMock(AppAdministrationSnippetPersister::class);
 
         $persister
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('updateSnippets')
             ->with($appEntities, $expectedSnippets, Context::createDefaultContext());
 

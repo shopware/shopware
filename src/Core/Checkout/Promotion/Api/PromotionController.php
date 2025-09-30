@@ -2,17 +2,21 @@
 
 namespace Shopware\Core\Checkout\Promotion\Api;
 
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('checkout')]
 class PromotionController extends AbstractController
 {
@@ -34,7 +38,11 @@ class PromotionController extends AbstractController
     {
         $codePattern = (string) $request->query->get('codePattern');
         if ($codePattern === '') {
-            throw RoutingException::missingRequestParameter('codePattern');
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw RoutingException::missingRequestParameter('codePattern'); // @phpstan-ignore-line shopware.domainException
+            }
+            throw PromotionException::missingRequestParameter('codePattern');
         }
         $amount = $request->query->getInt('amount');
 
@@ -69,7 +77,11 @@ class PromotionController extends AbstractController
     {
         $codePattern = (string) $request->query->get('codePattern');
         if ($codePattern === '') {
-            throw RoutingException::missingRequestParameter('codePattern');
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw RoutingException::missingRequestParameter('codePattern'); // @phpstan-ignore-line shopware.domainException
+            }
+            throw PromotionException::missingRequestParameter('codePattern');
         }
 
         return new JsonResponse($this->codeService->getPreview($codePattern));

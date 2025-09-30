@@ -70,9 +70,6 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-popover': {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
@@ -93,7 +90,6 @@ async function createWrapper() {
                     },
                     'sw-loader': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-highlight-text': true,
                     'sw-product-variant-info': true,

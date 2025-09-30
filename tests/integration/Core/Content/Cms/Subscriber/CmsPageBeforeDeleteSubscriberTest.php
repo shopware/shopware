@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -25,6 +26,9 @@ class CmsPageBeforeDeleteSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CmsPageCollection>
+     */
     private EntityRepository $cmsPageRepository;
 
     private SystemConfigService $systemConfigService;
@@ -50,7 +54,7 @@ class CmsPageBeforeDeleteSubscriberTest extends TestCase
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $defaultCmsPageId, TestDefaults::SALES_CHANNEL);
 
         $id = $this->cmsPageRepository->searchIds(new Criteria([$cmsPageId]), Context::createDefaultContext())->firstId();
-        static::assertEquals($cmsPageId, $id);
+        static::assertSame($cmsPageId, $id);
 
         // delete cms page which is not default
         $this->cmsPageRepository->delete([['id' => $cmsPageId]], Context::createDefaultContext());
@@ -72,7 +76,7 @@ class CmsPageBeforeDeleteSubscriberTest extends TestCase
         try {
             $this->cmsPageRepository->delete([['id' => $cmsPageId]], Context::createDefaultContext());
         } catch (CmsException $exception) {
-            static::assertEquals(CmsException::DELETION_OF_DEFAULT_CODE, $exception->getErrorCode());
+            static::assertSame(CmsException::DELETION_OF_DEFAULT_CODE, $exception->getErrorCode());
             $exceptionWasThrown = true;
         } finally {
             if (!$exceptionWasThrown) {
@@ -93,7 +97,7 @@ class CmsPageBeforeDeleteSubscriberTest extends TestCase
         try {
             $this->cmsPageRepository->delete([['id' => $cmsPageId]], Context::createDefaultContext());
         } catch (CmsException $exception) {
-            static::assertEquals(CmsException::DELETION_OF_DEFAULT_CODE, $exception->getErrorCode());
+            static::assertSame(CmsException::DELETION_OF_DEFAULT_CODE, $exception->getErrorCode());
             $exceptionWasThrown = true;
         } finally {
             if (!$exceptionWasThrown) {

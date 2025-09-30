@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -57,15 +56,11 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertEquals(403, $response->getStatusCode());
+        static::assertSame(403, $response->getStatusCode());
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertEquals($response['errors'][0]['code'], RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE);
-        } else {
-            static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN');
-        }
+        static::assertSame($response['errors'][0]['code'], RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE);
     }
 
     #[DataProvider('provideContentData')]
@@ -82,7 +77,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
+        static::assertSame(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $this->assertReviewCount(1);
 
@@ -104,7 +99,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
+        static::assertSame(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $this->assertReviewCount(1);
 
@@ -124,12 +119,12 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertEquals(400, $response->getStatusCode());
+        static::assertSame(400, $response->getStatusCode());
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($response['errors'][0]['source']['pointer'], '/title');
-        static::assertEquals($response['errors'][1]['source']['pointer'], '/content');
+        static::assertSame($response['errors'][0]['source']['pointer'], '/title');
+        static::assertSame($response['errors'][1]['source']['pointer'], '/content');
     }
 
     public function testCustomerValidation(): void
@@ -234,11 +229,11 @@ class ProductReviewSaveRouteTest extends TestCase
 
     private function assertReviewCount(int $expected): void
     {
-        $count = static::getContainer()
+        $count = (int) static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
 
-        static::assertEquals($expected, $count);
+        static::assertSame($expected, $count);
     }
 
     private function createData(): void
@@ -285,6 +280,6 @@ class ProductReviewSaveRouteTest extends TestCase
             ->get(Connection::class)
             ->fetchOne('SELECT content FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
 
-        static::assertEquals($expectedContent, $content);
+        static::assertSame($expectedContent, $content);
     }
 }

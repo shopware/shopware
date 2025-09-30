@@ -84,8 +84,8 @@ class MigrationLoaderTest extends TestCase
         static::assertNull($migrations[0]['message']);
         static::assertNotNull($migrations[0]['class']);
         static::assertNotNull($migrations[0]['creation_timestamp']);
-        static::assertEquals(1, $migrationsObjects[0]->getCreationTimestamp());
-        static::assertEquals(2, $migrationsObjects[1]->getCreationTimestamp());
+        static::assertSame(1, $migrationsObjects[0]->getCreationTimestamp());
+        static::assertSame(2, $migrationsObjects[1]->getCreationTimestamp());
     }
 
     public function testItGetsCorrectMigrationTimestamps(): void
@@ -94,8 +94,8 @@ class MigrationLoaderTest extends TestCase
         $migrations = $collection->getActiveMigrationTimestamps();
 
         static::assertCount(2, $migrations);
-        static::assertEquals(1, $migrations[0]);
-        static::assertEquals(2, $migrations[1]);
+        static::assertSame(1, $migrations[0]);
+        static::assertSame(2, $migrations[1]);
     }
 
     public function testThatInvalidMigrationClassesThrowOnLazyInit(): void

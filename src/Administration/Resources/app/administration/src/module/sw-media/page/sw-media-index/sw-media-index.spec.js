@@ -10,8 +10,6 @@ async function createWrapper() {
             stubs: {
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
-                'sw-icon': true,
-                'sw-button': true,
                 'sw-page': {
                     template: '<div><slot name="smart-bar-actions"></slot></div>',
                 },
@@ -51,11 +49,6 @@ async function createWrapper() {
 describe('src/module/sw-media/page/sw-media-index', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the default accept value', async () => {

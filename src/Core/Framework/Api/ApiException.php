@@ -34,10 +34,13 @@ class ApiException extends HttpException
     public const API_UNSUPPORTED_ASSOCIATION_FIELD = 'FRAMEWORK__API_UNSUPPORTED_ASSOCIATION_FIELD_EXCEPTION';
     public const API_INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__INVALID_SYNC_OPERATION';
     public const API_INVALID_SCHEMA_DEFINITION_EXCEPTION = 'FRAMEWORK__INVALID_SCHEMA_DEFINITION';
+    public const API_SCHEMA_DEFINITION_NOT_READABLE = 'FRAMEWORK__SCHEMA_DEFINITION_NOT_READABLE';
 
     public const API_NOT_EXISTING_RELATION_EXCEPTION = 'FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION';
 
     public const API_UNSUPPORTED_OPERATION_EXCEPTION = 'FRAMEWORK__UNSUPPORTED_OPERATION_EXCEPTION';
+
+    public const API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT = 'FRAMEWORK__UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT';
     public const API_INVALID_VERSION_ID = 'FRAMEWORK__INVALID_VERSION_ID';
     public const API_TYPE_PARAMETER_INVALID = 'FRAMEWORK__API_TYPE_PARAMETER_INVALID';
     public const API_APP_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__APP_ID_PARAMETER_IS_MISSING';
@@ -61,6 +64,8 @@ class ApiException extends HttpException
     public const API_ROUTES_ARE_LOADED_ALREADY = 'FRAMEWORK__API_ROUTES_ARE_LOADED_ALREADY';
 
     public const API_NOTIFICATION_THROTTLED = 'FRAMEWORK__NOTIFICATION_THROTTLED';
+
+    public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
 
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
@@ -246,6 +251,15 @@ class ApiException extends HttpException
         );
     }
 
+    public static function unsupportedStoreApiSchemaEndpoint(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT,
+            'The Store-API does not support the entity schema endpoint. Use `/store-api/_info/openapi3.json` for the OpenAPI specification.'
+        );
+    }
+
     public static function invalidVersionId(string $versionId): self
     {
         return new self(
@@ -309,6 +323,15 @@ class ApiException extends HttpException
             self::API_UNABLE_GENERATE_BUNDLE,
             'Unable to generate bundle directory for bundle "{{ bundleName }}".',
             ['bundleName' => $bundleName]
+        );
+    }
+
+    public static function schemaDefinitionNotReadable(string $filename): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_SCHEMA_DEFINITION_NOT_READABLE,
+            \sprintf('Can\'t read schema file "%s"', $filename),
         );
     }
 
@@ -408,6 +431,16 @@ class ApiException extends HttpException
             'Notification throttled for {{ seconds }} seconds.',
             ['seconds' => $waitTime],
             $e
+        );
+    }
+
+    public static function directoryWasNotCreated(string $directory): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_DIRECTORY_NOT_CREATED,
+            'Directory "{{ directory }}" was not created.',
+            ['directory' => $directory]
         );
     }
 }

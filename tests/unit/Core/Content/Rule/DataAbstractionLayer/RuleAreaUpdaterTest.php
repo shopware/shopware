@@ -118,14 +118,14 @@ class RuleAreaUpdaterTest extends TestCase
             ['areas', json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA])],
             ['id', Uuid::fromHexToBytes($id)],
         ];
-        $matcher = static::exactly(\count($params));
+        $matcher = $this->exactly(\count($params));
         $statement->expects($matcher)
             ->method('bindValue')
             ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
             });
-        $statement->expects(static::once())->method('executeStatement')->willReturn(1);
+        $statement->expects($this->once())->method('executeStatement')->willReturn(1);
         $this->connection->method('prepare')->willReturn($statement);
 
         $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);
@@ -189,7 +189,7 @@ class RuleAreaUpdaterTest extends TestCase
         ]), []);
 
         $resultStatement = $this->createMock(Result::class);
-        $resultStatement->expects(static::once())->method('fetchAllAssociative')->willReturn([]);
+        $resultStatement->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
         $this->connection->method('executeQuery')
             ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD], 'flowTypes' => ['orderTags']]))
             ->willReturn($resultStatement);

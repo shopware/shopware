@@ -259,7 +259,7 @@ class ProductEntity extends Entity implements \Stringable
 
     public function __toString(): string
     {
-        return (string) $this->getName();
+        return (string) ($this->getTranslation('name') ?? $this->getName());
     }
 
     public function getProductReviews(): ?ProductReviewCollection

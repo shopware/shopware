@@ -9,10 +9,10 @@
             gap="32px"
         >
             {% block sw_custom_field_set_renderer_card_form_renderer_change_field %}
-            <sw-checkbox-field
+            <mt-checkbox
                 class="sw-bulk-edit-custom-fields__change"
                 :label="$tc('sw-bulk-edit.product.customFields.changeLabel', {name: getInlineSnippet(customField.config.label)}, 0)"
-                @update:value="toggleItemCheck($event, customField)"
+                @update:checked="toggleItemCheck($event, customField)"
             />
             {% endblock %}
 

@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 

@@ -7,11 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Command\UserListCommand;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -23,11 +23,7 @@ class UserListCommandTest extends TestCase
     public function testWithNoUsers(): void
     {
         /** @var StaticEntityRepository<UserCollection> $repo */
-        $repo = new StaticEntityRepository(
-            [
-                new UserCollection(),
-            ]
-        );
+        $repo = new StaticEntityRepository([new UserCollection()]);
 
         $command = new UserListCommand($repo);
         $commandTester = new CommandTester($command);
@@ -42,18 +38,7 @@ class UserListCommandTest extends TestCase
 
     public function testWithUsers(): void
     {
-        $ids = new IdsCollection();
-
-        /** @var StaticEntityRepository<UserCollection> $repo */
-        $repo = new StaticEntityRepository([
-            new UserCollection([
-                $this->createUser($ids->get('user1'), 'guy@shopware.com', 'guy', 'Guy', 'Marbello'),
-                $this->createUser($ids->get('user2'), 'jen@shopware.com', 'jen', 'Jen', 'Dalimil', ['Moderator', 'CS']),
-            ]),
-        ]);
-
-        $command = new UserListCommand($repo);
-        $commandTester = new CommandTester($command);
+        $commandTester = $this->prepareCommandTester();
         $commandTester->execute([]);
 
         $commandTester->assertCommandIsSuccessful();
@@ -64,20 +49,27 @@ class UserListCommandTest extends TestCase
         static::assertStringContainsString('Jen Dalimil', $output);
     }
 
-    public function testWithJson(): void
+    public function testAclRolesNotLoadedException(): void
     {
-        $ids = new IdsCollection();
-
+        $userName = 'guy';
+        $userId = Uuid::randomHex();
         /** @var StaticEntityRepository<UserCollection> $repo */
         $repo = new StaticEntityRepository([
             new UserCollection([
-                $this->createUser($ids->get('user1'), 'guy@shopware.com', 'guy', 'Guy', 'Marbello'),
-                $this->createUser($ids->get('user2'), 'jen@shopware.com', 'jen', 'Jen', 'Dalimil', ['Moderator', 'CS']),
+                $this->createUser('guy@shopware.com', $userName, 'Guy', 'Marbello', id: $userId),
             ]),
         ]);
 
         $command = new UserListCommand($repo);
         $commandTester = new CommandTester($command);
+
+        $this->expectExceptionObject(MaintenanceException::aclRolesNotLoaded($userId, $userName));
+        $commandTester->execute([]);
+    }
+
+    public function testWithJson(): void
+    {
+        $commandTester = $this->prepareCommandTester();
         $commandTester->execute(['--json' => true]);
 
         $commandTester->assertCommandIsSuccessful();
@@ -89,25 +81,41 @@ class UserListCommandTest extends TestCase
         static::assertStringContainsString('Jen Dalimil', $output);
     }
 
+    private function prepareCommandTester(): CommandTester
+    {
+        /** @var StaticEntityRepository<UserCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new UserCollection([
+                $this->createUser('guy@shopware.com', 'guy', 'Guy', 'Marbello', true),
+                $this->createUser('jen@shopware.com', 'jen', 'Jen', 'Dalimil', false, ['Moderator', 'CS']),
+            ]),
+        ]);
+
+        $command = new UserListCommand($repo);
+
+        return new CommandTester($command);
+    }
+
     /**
      * @param array<string> $roles
      */
     private function createUser(
-        string $id,
         string $email,
         string $username,
         string $firstName,
         string $secondName,
+        bool $isAdmin = false,
         ?array $roles = null,
+        ?string $id = null,
     ): UserEntity {
         $user = new UserEntity();
-        $user->setId($id);
+        $user->setId($id ?? Uuid::randomHex());
         $user->setEmail($email);
         $user->setActive(true);
         $user->setUsername($username);
         $user->setFirstName($firstName);
         $user->setLastName($secondName);
-        $user->setAdmin($roles === null);
+        $user->setAdmin($isAdmin);
         $user->setCreatedAt(new \DateTime());
 
         if ($roles) {

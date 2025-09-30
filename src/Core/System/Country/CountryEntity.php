@@ -21,142 +21,47 @@ class CountryEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $iso;
+    protected ?string $iso = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingAvailable;
+    protected bool $shippingAvailable;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $iso3;
+    protected ?string $iso3 = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayStateInRegistration;
+    protected bool $displayStateInRegistration;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $forceStateInRegistration;
+    protected bool $forceStateInRegistration;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $checkVatIdPattern;
+    protected bool $checkVatIdPattern;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $vatIdPattern;
+    protected ?string $vatIdPattern = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $vatIdRequired;
+    protected ?bool $vatIdRequired = null;
 
     protected TaxFreeConfig $customerTax;
 
     protected TaxFreeConfig $companyTax;
 
-    /**
-     * @var CountryStateCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $states;
+    protected ?CountryStateCollection $states = null;
 
-    /**
-     * @var CountryTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?CountryTranslationCollection $translations = null;
 
-    /**
-     * @var OrderAddressCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderAddresses;
+    protected ?OrderAddressCollection $orderAddresses = null;
 
-    /**
-     * @var CustomerAddressCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerAddresses;
+    protected ?CustomerAddressCollection $customerAddresses = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var TaxRuleCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
+    protected ?TaxRuleCollection $taxRules = null;
 
-    /**
-     * @var CurrencyCountryRoundingCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyCountryRoundings;
+    protected ?CurrencyCountryRoundingCollection $currencyCountryRoundings = null;
 
     protected bool $postalCodeRequired;
 

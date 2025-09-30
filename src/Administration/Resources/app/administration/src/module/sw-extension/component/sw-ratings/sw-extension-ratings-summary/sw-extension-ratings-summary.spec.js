@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { MtProgressBar } from '@shopware-ag/meteor-component-library';
 
 /**
  * @sw-package checkout
@@ -12,7 +13,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
             {
                 global: {
                     stubs: {
-                        'sw-progress-bar': await wrapTestComponent('sw-progress-bar', { sync: true }),
+                        'mt-progress-bar': MtProgressBar,
                         'sw-extension-rating-stars': true,
                     },
                     provide: {
@@ -54,7 +55,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
     it('should display with of progress bars correctly', async () => {
         const wrapper = await createWrapper();
 
-        const progressBarValues = wrapper.findAll('.sw-progress-bar__value');
+        const progressBarValues = wrapper.findAll('.mt-progress-bar__fill');
 
         expect(progressBarValues.at(0).attributes('style')).toBe('width: 25%;');
         expect(progressBarValues.at(1).attributes('style')).toBe('width: 50%;');

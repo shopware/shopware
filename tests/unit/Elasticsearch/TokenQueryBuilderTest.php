@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -29,9 +30,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
-use Shopware\Elasticsearch\Product\SearchConfigLoader;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\TokenQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -48,13 +49,16 @@ class TokenQueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
+        $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
+
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
             new CustomFieldServiceMock([
                 'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
-            ])
+            ]),
+            $storage
         );
     }
 
@@ -86,7 +90,7 @@ class TokenQueryBuilderTest extends TestCase
             'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
         ]);
 
-        $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
 
@@ -110,6 +114,32 @@ class TokenQueryBuilderTest extends TestCase
                     'ranking' => 500,
                 ]),
             ]),
+        ]);
+
+        static::assertSame($expected, $query->toArray());
+    }
+
+    public function testBuildWithSynonyms(): void
+    {
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false, prefixMatch: false),
+            self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
+        ];
+
+        $term = 'foo';
+
+        $context = Context::createDefaultContext();
+        $context->assign([
+            'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
+        ]);
+
+        $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
+
+        static::assertNotNull($query);
+
+        $expected = self::bool([
+            self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false, prefixMatch: false),
+            self::nested('tags', self::textMatch(field: 'tags.name', query: 'foo', boost: 500, andSearch: false)),
         ]);
 
         static::assertSame($expected, $query->toArray());
@@ -148,7 +178,7 @@ class TokenQueryBuilderTest extends TestCase
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
 
         static::assertNotNull($query);
-        static::assertEquals($expected, $query->toArray());
+        static::assertSame($expected, $query->toArray());
     }
 
     /**
@@ -218,10 +248,7 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo',
             'expected' => self::bool([
-                self::disMax([
-                    self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false),
-                    self::textMatch('name', 'foo', 800, self::SECOND_LANGUAGE_ID, andSearch: false),
-                ]),
+                self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false),
                 self::nested('tags', self::textMatch('tags.name', 'foo', 500, andSearch: false)),
                 self::nested('categories', self::disMax([
                     self::textMatch('categories.name', 'foo', 200, Defaults::LANGUAGE_SYSTEM, andSearch: false),
@@ -239,10 +266,7 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foo 2023',
             'expected' => self::bool([
-                self::disMax([
-                    self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                    self::textMatch('name', 'foo 2023', 800, self::SECOND_LANGUAGE_ID, false),
-                ]),
+                self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
                 self::textMatch('ean', 'foo 2023', 2000, null, false),
                 self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
             ]),
@@ -328,9 +352,9 @@ class TokenQueryBuilderTest extends TestCase
         );
     }
 
-    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true): SearchFieldConfig
+    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true, bool $prefixMatch = true): SearchFieldConfig
     {
-        return new SearchFieldConfig($field, $ranking, $tokenize, $and);
+        return new SearchFieldConfig($field, $ranking, $tokenize, $and, $prefixMatch);
     }
 
     /**
@@ -373,7 +397,7 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private static function textMatch(string $field, string|int|float $query, int|float $boost, ?string $languageId = null, ?bool $tokenized = true, ?bool $andSearch = true, bool $explain = false): array
+    private static function textMatch(string $field, string|int|float $query, int|float $boost, ?string $languageId = null, ?bool $tokenized = true, ?bool $andSearch = true, bool $explain = false, ?bool $prefixMatch = true): array
     {
         $languageField = $field;
 
@@ -385,8 +409,11 @@ class TokenQueryBuilderTest extends TestCase
 
         $queries = [
             self::match($languageField . '.search', $query, $boost, $tokenized ? 'auto' : 1, $andSearch),
-            self::matchPhrasePrefix($languageField . '.search', $query, $boost * 0.6),
         ];
+
+        if ($prefixMatch) {
+            $queries[] = self::matchPhrasePrefix($languageField . '.search', $query, $boost * 0.6);
+        }
 
         if ($tokenized && $tokenCount === 1) {
             $queries[] = self::match($languageField . '.ngram', $query, $boost * 0.4, null, $andSearch);
@@ -414,6 +441,10 @@ class TokenQueryBuilderTest extends TestCase
             'query' => $query,
             'boost' => (float) $boost,
         ];
+
+        if (preg_match('/\d{3,}/', (string) $query)) {
+            $fuzziness = 0;
+        }
 
         if ($fuzziness !== null) {
             $payload['fuzziness'] = $fuzziness;
@@ -490,8 +521,8 @@ class CustomFieldServiceMock extends CustomFieldService
     {
     }
 
-    public function getCustomField(string $attributeName): ?Field
+    public function getCustomField(string $attributeName): Field
     {
-        return $this->config[$attributeName] ?? null;
+        return $this->config[$attributeName];
     }
 }

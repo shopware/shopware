@@ -16,7 +16,6 @@ async function createWrapper(privileges = []) {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-alert': true,
                     'sw-users-permissions-detailed-permissions-grid': true,
                     'sw-users-permissions-detailed-additional-permissions': true,
                 },
@@ -37,11 +36,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detailed', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable the detailed permission grid when no aclPrivileges exists', async () => {
         const wrapper = await createWrapper();
 
@@ -61,7 +55,7 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detail
     it('should show an alert which contains the help text', async () => {
         const wrapper = await createWrapper();
 
-        const alert = wrapper.find('sw-alert-stub');
+        const alert = wrapper.find('[role="banner"]');
         expect(alert.text()).toBe('sw-users-permissions.roles.view.detailed.alertText');
     });
 });

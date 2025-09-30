@@ -106,7 +106,8 @@ export default {
             return entries.map((state) => {
                 return {
                     id: state.technicalName,
-                    name: state.translated.name,
+                    value: state.technicalName,
+                    label: state.translated.name,
                 };
             });
         },

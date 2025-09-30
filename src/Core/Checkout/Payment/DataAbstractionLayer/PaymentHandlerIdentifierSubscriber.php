@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Payment\PaymentEvents;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -23,9 +25,11 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<PaymentMethodEntity|PartialEntity> $event
+     */
     public function formatHandlerIdentifier(EntityLoadedEvent $event): void
     {
-        /** @var Entity $entity */
         foreach ($event->getEntities() as $entity) {
             $entity->assign([
                 'shortName' => $this->getShortName($entity),
@@ -42,7 +46,6 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
             return $entity->get('handlerIdentifier');
         }
 
-        /** @var string|null $firstHandlerIdentifier */
         $firstHandlerIdentifier = array_shift($explodedHandlerIdentifier);
         $lastHandlerIdentifier = array_pop($explodedHandlerIdentifier);
         if ($firstHandlerIdentifier === null || $lastHandlerIdentifier === null) {

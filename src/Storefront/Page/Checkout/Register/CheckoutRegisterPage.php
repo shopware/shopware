@@ -12,33 +12,13 @@ use Shopware\Storefront\Page\Page;
 #[Package('framework')]
 class CheckoutRegisterPage extends Page
 {
-    /**
-     * @var CountryCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countries;
+    protected CountryCollection $countries;
 
-    /**
-     * @var CustomerAddressEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $address;
+    protected ?CustomerAddressEntity $address = null;
 
-    /**
-     * @var SalutationCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutations;
+    protected SalutationCollection $salutations;
 
-    /**
-     * @var Cart
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cart;
+    protected Cart $cart;
 
     public function getCountries(): CountryCollection
     {

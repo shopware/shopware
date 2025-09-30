@@ -1,15 +1,4 @@
-{# @deprecated tag:v6.7.0 - variable `currentPage` will be removed #}
-{% if not feature('v6.7.0.0') %}
-    {% set currentPage = searchResult.page %}
-{% endif %}
-
-{# @deprecated tag:v6.7.0 - variable `paginationConfig` will not be json encoded #}
-{% if feature('v6.7.0.0') %}
-    {% set paginationConfig = { page: searchResult.page } %}
-{% else %}
-    {% set paginationConfig = { page: searchResult.page }|json_encode %}
-{% endif %}
-
+{% set paginationConfig = { page: searchResult.page } %}
 
 {% if disableEmptyFilter is not defined %}
     {% set disableEmptyFilter = config('core.listing.disableEmptyFilterOptions') %}
@@ -32,12 +21,7 @@
 {% block product_listing %}
     <div class="cms-element-product-listing-wrapper"
          data-listing-pagination="true"
-        {% if feature('v6.7.0.0') %}
          data-listing-pagination-options="{{ paginationConfig|json_encode }}"
-        {% else %}
-         {# ludtwig-ignore html-string-quotation #}
-         data-listing-pagination-options='{{ paginationConfig }}'
-        {% endif %}
          data-listing="true"
          data-listing-options="{{ listingPagination|json_encode }}">
         {% block element_product_listing_wrapper_content %}
@@ -47,20 +31,11 @@
                         <div class="cms-element-product-listing-actions row justify-content-between">
                             <div class="col-md-auto">
                                 {% block element_product_listing_pagination_nav_top %}
-                                    {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
-                                    {% if feature('v6.7.0.0') %}
-                                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                            entities: searchResult,
-                                            fallbackUrl: paginationFallbackUrl,
-                                            paginationLocation: 'top',
-                                        } %}
-                                    {% else %}
-                                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                            entities: searchResult,
-                                            criteria: searchResult.criteria,
-                                            paginationLocation: feature('ACCESSIBILITY_TWEAKS') ? 'top' : null,
-                                        } %}
-                                    {% endif %}
+                                    {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                        entities: searchResult,
+                                        fallbackUrl: paginationFallbackUrl,
+                                        paginationLocation: 'top',
+                                    } %}
                                 {% endblock %}
                             </div>
 
@@ -77,15 +52,16 @@
                 {% endif %}
 
                 {% block element_product_listing_row %}
-                    {% set ariaLiveText %}{% apply spaceless %}
-                        {% if searchResult.total > searchResult.limit %}
-                            {{ 'listing.filterPanelAriaLivePaginated'|trans({'%count%': searchResult.elements|length, '%total%': searchResult.total})|sw_sanitize }}
-                        {% else %}
-                            {{ 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize }}
-                        {% endif %}
-                    {% endapply %}{% endset %}
+                    {% if searchResult.total > searchResult.limit %}
+                        {% set ariaLiveText = 'listing.filterPanelAriaLivePaginated'|trans({
+                            '%count%': searchResult.elements|length,
+                            '%total%': searchResult.total}
+                        )|sw_sanitize %}
+                    {% else %}
+                        {% set ariaLiveText = 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize %}
+                    {% endif %}
 
-                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{ ariaLiveText }}"{% if searchResult.total > 0 %} role="list"{% endif %}>
+                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}"{% if searchResult.total > 0 %} role="list"{% endif %}>
                         {% if searchResult.total > 0 %}
                             {% block element_product_listing_col %}
                                 {% for product in searchResult %}
@@ -116,19 +92,10 @@
 
                 {% if searchResult.total > searchResult.limit %}
                     {% block element_product_listing_pagination_nav_bottom %}
-                        {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
-                        {% if feature('v6.7.0.0') %}
-                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                entities: searchResult,
-                                paginationLocation: 'bottom',
-                            } %}
-                        {% else %}
-                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                entities: searchResult,
-                                criteria: searchResult.criteria,
-                                paginationLocation: 'bottom',
-                            } %}
-                        {% endif %}
+                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                            entities: searchResult,
+                            paginationLocation: 'bottom',
+                        } %}
                     {% endblock %}
                 {% endif %}
             </div>

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class OrderDocumentTypeRule extends FlowRule
@@ -21,6 +21,8 @@ class OrderDocumentTypeRule extends FlowRule
 
     /**
      * @param list<string> $documentIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

@@ -57,7 +57,7 @@ class TrackingEventClientTest extends TestCase
 
         $lastRequest = $mockHandler->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
-        static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
+        static::assertSame('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
         static::assertEquals(
             [
                 'instanceId' => 'test-instance-id',
@@ -88,7 +88,7 @@ class TrackingEventClientTest extends TestCase
 
         $lastRequest = $mockHandler->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
-        static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
+        static::assertSame('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
         static::assertEquals(
             [
                 'instanceId' => 'test-instance-id',

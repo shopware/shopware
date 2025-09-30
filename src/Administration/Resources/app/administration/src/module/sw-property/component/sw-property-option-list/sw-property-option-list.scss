@@ -21,11 +21,11 @@
         .sw-property-option-list__delete-button {
             border-color: $color-crimson-500;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-crimson-500;
             }
 
-            &.sw-button--disabled {
+            &.mt-button--disabled {
                 opacity: 0.2;
             }
         }

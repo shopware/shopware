@@ -4,7 +4,6 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-empty-state';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -51,11 +50,18 @@ async function createWrapper(privileges = []) {
             },
             mocks: {
                 $tc: (key) => key,
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
@@ -71,10 +77,8 @@ async function createWrapper(privileges = []) {
                   </div>
                 `,
                 },
-                'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
                 'sw-context-menu-item': true,
-                'sw-loader': await Shopware.Component.build('sw-loader'),
-                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-modal': true,
                 'sw-skeleton': true,
                 'sw-product-variants-overview': true,
@@ -83,8 +87,6 @@ async function createWrapper(privileges = []) {
                 'sw-product-modal-variant-generation': true,
                 'sw-product-modal-delivery': true,
                 'sw-product-add-properties-modal': true,
-                'sw-icon': true,
-                'sw-button-deprecated': true,
             },
         },
     });
@@ -193,17 +195,6 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         store.creationStates = 'is-physical';
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            isLoading: false,
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display a customized empty state if there are neither variants nor properties', async () => {
         const wrapper = await createWrapper();
 
@@ -216,8 +207,8 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state__title').text()).toBe('sw-product.variations.emptyStatePropertyTitle');
-        expect(wrapper.find('.sw-empty-state__description-content').text()).toBe(
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-product.variations.emptyStatePropertyTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe(
             'sw-product.variations.emptyStatePropertyDescription',
         );
     });
@@ -251,8 +242,8 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             },
         });
         await flushPromises();
-        const criteria = new Criteria(1, null);
-        criteria.addFilter(
+        const criteria = new Criteria(1, 500);
+        criteria.addFields('name').addFilter(
             Criteria.equalsAny('id', [
                 'id-1',
                 'id-2',
@@ -266,5 +257,83 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                 name: 'group-1',
             },
         ]);
+    });
+
+    it('should correctly load and merge paginated results', async () => {
+        const wrapper = await createWrapper();
+        const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');
+
+        await wrapper.setData({ limit: 5 });
+
+        // Mock repository to return paginated data
+        wrapper.vm.groupRepository.search = jest
+            .fn()
+            .mockResolvedValueOnce({
+                total: 12,
+                length: 5,
+                map: (fn) =>
+                    [
+                        { id: '1', name: 'group-1' },
+                        { id: '2', name: 'group-2' },
+                        { id: '3', name: 'group-3' },
+                        { id: '4', name: 'group-4' },
+                        { id: '5', name: 'group-5' },
+                    ].map(fn),
+            })
+            .mockResolvedValueOnce({
+                total: 7,
+                length: 5,
+                map: (fn) =>
+                    [
+                        { id: '6', name: 'group-6' },
+                        { id: '7', name: 'group-7' },
+                        { id: '8', name: 'group-8' },
+                        { id: '9', name: 'group-9' },
+                        { id: '10', name: 'group-10' },
+                    ].map(fn),
+            })
+            .mockResolvedValueOnce({
+                total: 2,
+                length: 2,
+                map: (fn) =>
+                    [
+                        { id: '11', name: 'group-11' },
+                        { id: '12', name: 'group-12' },
+                    ].map(fn),
+            });
+
+        wrapper.vm.loadConfigSettingGroups = jest.fn();
+
+        await flushPromises();
+
+        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledTimes(3);
+        expect(loadGroupsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle cases where total items are less than limit', async () => {
+        const wrapper = await createWrapper();
+        const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');
+
+        await wrapper.setData({ limit: 5 });
+
+        wrapper.vm.groupRepository.search = jest.fn().mockResolvedValueOnce({
+            total: 3,
+            length: 3,
+            map: (fn) =>
+                [
+                    { id: '1', name: 'group-1' },
+                    { id: '2', name: 'group-2' },
+                    { id: '3', name: 'group-3' },
+                ].map(fn),
+        });
+
+        wrapper.vm.loadConfigSettingGroups = jest.fn();
+        wrapper.vm.loadGroups = jest.fn();
+
+        await flushPromises();
+
+        // Expect only one API call since everything fits in the first page
+        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledTimes(1);
+        expect(loadGroupsSpy).toHaveBeenCalledTimes(1);
     });
 });

@@ -15,7 +15,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -117,9 +116,9 @@ class EditOrderPageTest extends TestCase
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
 
-        // Get customer from USA rule
+        // Get digital products rule
         $ruleCriteria = new Criteria();
-        $ruleCriteria->addFilter(new EqualsFilter('name', 'Customers from USA'));
+        $ruleCriteria->addFilter(new EqualsFilter('name', 'Shopping cart / Order with digital products'));
 
         /** @var EntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = static::getContainer()->get('rule.repository');
@@ -150,12 +149,7 @@ class EditOrderPageTest extends TestCase
         $this->createCustomPaymentMethod($context, ['position' => 0]);
         $this->createCustomPaymentMethod($context, ['position' => 4]);
 
-        if (Feature::isActive('ACCESSIBILITY_TWEAKS')) {
-            $context->getSalesChannel()->setPaymentMethodId($primaryMethod->getId());
-        } else {
-            // replace active payment method with a new one
-            $context->assign(['paymentMethod' => $primaryMethod]);
-        }
+        $context->getSalesChannel()->setPaymentMethodId($primaryMethod->getId());
 
         $page = $this->getPageLoader()->load($request, $context);
         $paymentMethods = \array_values($page->getPaymentMethods()->getElements());

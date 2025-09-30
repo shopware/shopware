@@ -129,7 +129,7 @@ class LineItemFactoryRegistry
             ->add('removable', new Type('bool'))
             ->add('label', new Type('string'))
             ->add('referencedId', new Type('string'))
-            ->add('coverId', new Type('string'), new EntityExists(['entity' => MediaDefinition::ENTITY_NAME, 'context' => Context::createDefaultContext()]))
+            ->add('coverId', new Type('string'), new EntityExists(entity: MediaDefinition::ENTITY_NAME, context: Context::createDefaultContext()))
             ->addSub(
                 'priceDefinition',
                 (new DataValidationDefinition())

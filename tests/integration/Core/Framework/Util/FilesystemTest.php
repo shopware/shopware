@@ -69,7 +69,7 @@ class FilesystemTest extends TestCase
 
         $fs = new Filesystem($this->root);
 
-        static::assertEquals($this->root . '/file1.php', $fs->realpath('file1.php'));
+        static::assertSame($this->root . '/file1.php', $fs->realpath('file1.php'));
     }
 
     public function testRealPath(): void
@@ -79,7 +79,7 @@ class FilesystemTest extends TestCase
 
         $fs = new Filesystem($this->root);
 
-        static::assertEquals($this->root . '/folder/file1.php', $fs->realpath('folder/../folder/file1.php'));
+        static::assertSame($this->root . '/folder/file1.php', $fs->realpath('folder/../folder/file1.php'));
     }
 
     public function testPath(): void
@@ -90,9 +90,9 @@ class FilesystemTest extends TestCase
         $this->io->touch($this->root . '/folder/file2.php');
         $this->io->touch($this->root . '/file1.php');
 
-        static::assertEquals($this->root . '/file1.php', $fs->path('file1.php'));
-        static::assertEquals($this->root . '/folder/file2.php', $fs->path('folder', 'file2.php'));
-        static::assertEquals($this->root . '/folder/file3.php', $fs->path('folder', 'file3.php')); // file does not exist but still works
+        static::assertSame($this->root . '/file1.php', $fs->path('file1.php'));
+        static::assertSame($this->root . '/folder/file2.php', $fs->path('folder', 'file2.php'));
+        static::assertSame($this->root . '/folder/file3.php', $fs->path('folder', 'file3.php')); // file does not exist but still works
     }
 
     public function testReadThrowsAnExceptionWhenFileDoesNotExist(): void
@@ -110,7 +110,7 @@ class FilesystemTest extends TestCase
 
         $this->io->dumpFile($this->root . '/file.php', 'somecontent');
 
-        static::assertEquals('somecontent', $fs->read('file.php'));
+        static::assertSame('somecontent', $fs->read('file.php'));
     }
 
     public function testFindFiles(): void

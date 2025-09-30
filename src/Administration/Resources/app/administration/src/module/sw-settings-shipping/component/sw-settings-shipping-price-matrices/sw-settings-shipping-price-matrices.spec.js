@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @sw-package checkout
@@ -18,25 +19,23 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
                             sync: true,
                         }),
-                        'sw-card': true,
-                        'sw-alert': true,
+                        'mt-card': {
+                            template: '<div><slot /><slot name="grid" /></div>',
+                        },
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,
-                        'sw-icon': true,
                         'sw-popover': true,
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-context-button': await wrapTestComponent('sw-context-button', {
                             sync: true,
                         }),
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                        'sw-number-field': {
-                            template: '<input type="number" v-model="value" />',
+                        'mt-number-field': {
+                            template: '<input type="number" v-model="modelValue" v-bind="$attrs" />',
                             props: [
-                                'value',
+                                'modelValue',
                                 'size',
                             ],
                         },
@@ -158,12 +157,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         };
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render one shipping price matrix', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -177,7 +170,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await flushPromises();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(1);
     });
@@ -195,7 +188,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await nextTick();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(2);
     });
@@ -216,7 +209,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await nextTick();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(5);
     });
@@ -232,8 +225,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             ],
         };
 
-        const addPriceMatrixButton = wrapper.find('.sw-settings-shipping-price-matrices__actions .sw-button');
-        expect(addPriceMatrixButton.attributes('disabled')).toBeFalsy();
+        const addPriceMatrixButton = wrapper.findByText(
+            'button',
+            'sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix',
+        );
+        expect(addPriceMatrixButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should duplicate the price matrix', async () => {
@@ -342,6 +338,17 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         wrapper.vm.onAddNewPriceGroup();
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('null');
+    });
+
+    it('should set quantityStart to 0 when creating a new price group', async () => {
+        const wrapper = await createWrapper();
+        const shippingMethod = {
+            prices: new EntityCollection(),
+        };
+        wrapper.vm.$data.shippingMethod = shippingMethod;
+
+        wrapper.vm.onAddNewPriceGroup();
+        expect(shippingMethod.prices[0].quantityStart).toBe(0);
     });
 
     it('should show all rules with matching prices', async () => {
@@ -485,7 +492,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     it('should add a new pricing rule and change the values', async () => {
         const wrapper = await wrapperWithAllPrices();
 
-        const addNewPriceRuleButton = wrapper.find('.sw-settings-shipping-price-matrix__top-container .sw-button__content');
+        const addNewPriceRuleButton = wrapper.findByText('button', 'sw-settings-shipping.priceMatrix.addNewShippingPrice');
         expect(addNewPriceRuleButton.text()).toBe('sw-settings-shipping.priceMatrix.addNewShippingPrice');
 
         let lastRowStart = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityStart input');

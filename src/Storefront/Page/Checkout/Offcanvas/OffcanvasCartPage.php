@@ -10,19 +10,9 @@ use Shopware\Storefront\Page\Page;
 #[Package('framework')]
 class OffcanvasCartPage extends Page
 {
-    /**
-     * @var Cart
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var ShippingMethodCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethods;
+    protected ShippingMethodCollection $shippingMethods;
 
     public function getCart(): Cart
     {

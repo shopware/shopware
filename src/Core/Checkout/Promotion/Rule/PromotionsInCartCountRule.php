@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class PromotionsInCartCountRule extends Rule
@@ -21,6 +21,9 @@ class PromotionsInCartCountRule extends Rule
 
     protected int $count;
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         ?int $count = null

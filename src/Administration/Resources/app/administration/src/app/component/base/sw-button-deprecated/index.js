@@ -1,8 +1,6 @@
 import './sw-button.scss';
 import template from './sw-button.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -15,8 +13,10 @@ const { Component } = Shopware;
  * <sw-button>
  *     Button
  * </sw-button>
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead.
  */
-Component.register('sw-button-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -127,4 +127,4 @@ Component.register('sw-button-deprecated', {
             return attributes;
         },
     },
-});
+};

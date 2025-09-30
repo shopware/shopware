@@ -32,8 +32,6 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     'sw-help-center': true,
                     'sw-language-switch': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
-                    'sw-button': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing', {
                         sync: true,
                     }),
@@ -49,6 +47,7 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     i18n: true,
                     'sw-app-actions': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'sw-bulk-edit-modal': true,
                     'sw-data-grid-column-boolean': true,
@@ -87,7 +86,11 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     mixins: [
                         Mixin.getByName('listing'),
                     ],
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 ...additionalOptions,
             },
@@ -184,7 +187,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
-        expect(createButton.attributes().disabled).toBe('true');
+        expect(createButton.attributes('disabled')).toBeDefined();
 
         const entityListing = wrapper.findComponent('.sw-settings-product-feature-sets-list-grid');
         expect(entityListing.props().allowInlineEdit).toBe(false);
@@ -207,7 +210,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
-        expect(createButton.attributes().disabled).toBe('true');
+        expect(createButton.attributes('disabled')).toBeDefined();
 
         const entityListing = wrapper.findComponent('.sw-settings-product-feature-sets-list-grid');
         expect(entityListing.props().allowInlineEdit).toBe(true);
@@ -251,7 +254,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         await flushPromises();
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
-        expect(createButton.attributes().disabled).toBe('true');
+        expect(createButton.attributes('disabled')).toBeDefined();
 
         const entityListing = wrapper.findComponent('.sw-settings-product-feature-sets-list-grid');
         expect(entityListing.props().allowInlineEdit).toBe(false);

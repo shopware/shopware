@@ -208,7 +208,7 @@ class ImportExportService
         $logEntity->setActivity($activity);
         $logEntity->setState(Progress::STATE_PROGRESS);
         $logEntity->setProfileId($profile->getId());
-        $logEntity->setProfileName($profile->getTranslation('label'));
+        $logEntity->setProfileName($profile->getTechnicalName());
         $logEntity->setFileId($file->getId());
         $logEntity->setRecords(0);
         $logEntity->setConfig($this->getConfig($profile, $config));
@@ -252,7 +252,7 @@ class ImportExportService
         $parameters['enclosure'] = $profileEntity->getEnclosure();
         $parameters['sourceEntity'] = $profileEntity->getSourceEntity();
         $parameters['fileType'] = $profileEntity->getFileType();
-        $parameters['profileName'] = $profileEntity->getTranslation('label');
+        $parameters['profileName'] = $profileEntity->getTechnicalName();
 
         return [
             'mapping' => $config['mapping'] ?? $profileEntity->getMapping(),

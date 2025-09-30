@@ -19,6 +19,11 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
                 stubs: {
@@ -33,11 +38,10 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-context-menu-item': true,
-                    'sw-button': true,
                     'sw-entity-listing': {
                         props: [
                             'items',
@@ -63,10 +67,8 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>`,
                     },
-                    'sw-empty-state': true,
                     'router-link': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-language-info': true,
                     'sw-language-switch': true,
                 },
@@ -101,6 +103,9 @@ async function createWrapper(privileges = []) {
                         },
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
+                        },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
                         },
                     },
                 },
@@ -153,7 +158,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create with create permission', async () => {
@@ -315,11 +320,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 

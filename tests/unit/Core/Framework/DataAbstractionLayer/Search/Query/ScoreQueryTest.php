@@ -24,6 +24,7 @@ class ScoreQueryTest extends TestCase
 
         $decoded = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($decoded);
         static::assertArrayHasKey('score', $decoded);
         static::assertSame(100, $decoded['score']);
         static::assertArrayHasKey('query', $decoded);

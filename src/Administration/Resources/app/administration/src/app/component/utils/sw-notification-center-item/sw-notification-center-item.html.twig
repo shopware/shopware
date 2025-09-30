@@ -12,11 +12,14 @@
         {% endblock %}
         {% block sw_notification_center_item_header_timestamp %}
         <p class="sw-notification-center-item__timestamp">
-            <sw-time-ago :date="notification.timestamp" />
+            <sw-time-ago
+                :date="notification.timestamp"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </p>
         {% endblock %}
         {% block sw_notification_center_item_header_delete %}
-        <sw-icon
+        <mt-icon
             class="sw-notification-center-item__delete"
             name="regular-times-xs"
             size="12px"
@@ -30,7 +33,7 @@
         {% block sw_notification_center_item_content_message %}
         <p
             class="sw-notification-center-item__message"
-            v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+            v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
         ></p>
         {% endblock %}
         {% block sw_notification_center_item_loader %}
@@ -59,13 +62,14 @@
                 class="sw-notification-center-item__actions-item-container"
             >
                 {% block sw_notification_center_item_actions_item %}
-                <sw-button
+                <mt-button
                     block
                     size="small"
+                    variant="secondary"
                     @click="handleAction(action)"
                 >
                     {{ action.label }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </div>
             {% endblock %}

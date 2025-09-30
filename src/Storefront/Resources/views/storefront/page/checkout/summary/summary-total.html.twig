@@ -7,8 +7,7 @@
 
     {% block page_checkout_summary_total_value %}
         <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
-            {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-            {{ summary.price.rawTotal|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') and summary.price.taxStatus == 'gross' %}{{ 'general.star'|trans|sw_sanitize|trim }}{% endif %}
+            {{ summary.price.rawTotal|currency }}
         </dd>
     {% endblock %}
 {% endblock %}

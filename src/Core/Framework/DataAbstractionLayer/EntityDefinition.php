@@ -56,13 +56,13 @@ abstract class EntityDefinition
 
     private EntityDefinition|false|null $parentDefinition = false;
 
-    private string $className;
-
     private ?FieldVisibility $fieldVisibility = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Method will be removed as it does nothing
+     */
     public function __construct()
     {
-        $this->className = static::class;
     }
 
     /**
@@ -103,6 +103,20 @@ abstract class EntityDefinition
                 $this->fields = null;
 
                 return;
+            }
+        }
+    }
+
+    /**
+     * @internal
+     * Intended for use only in plugin lifecycle processes. Avoid using it for other cases as it can have unintended side effects.
+     */
+    final public function removeExtensions(string $namespacePrefix): void
+    {
+        foreach ($this->extensions as $key => $extension) {
+            if (\str_starts_with($extension::class, $namespacePrefix)) {
+                unset($this->extensions[$key]);
+                $this->fields = null;
             }
         }
     }
@@ -152,7 +166,7 @@ abstract class EntityDefinition
                 }
 
                 if (!$this->hasAssociationWithStorageName($field->getStorageName(), $new)) {
-                    throw new \Exception(\sprintf('FkField %s has no configured OneToOneAssociationField or ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
+                    throw new \Exception(\sprintf('FkField %s has no configured OneToOneAssociationField or ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->getClass()));
                 }
 
                 $fields->add($field);
@@ -172,6 +186,11 @@ abstract class EntityDefinition
 
                 break;
             }
+        }
+
+        foreach ($this->extensions as $extension) {
+            // To prevent adding or removing fields we use a new FieldCollection which just contains the references to the fields
+            $extension->modifyFields(new FieldCollection($fields));
         }
 
         $this->fields = $fields->compile($this->registry);

@@ -100,8 +100,8 @@
     background: none;
     cursor: pointer;
 
-    &.sw-button:hover:not(.sw-button--disabled),
-    &.sw-button:hover:not([disabled]) {
+    &.mt-button:hover:not(.mt-button--disabled),
+    &.mt-button:hover:not([disabled]) {
         background: transparent;
         border-color: transparent;
     }

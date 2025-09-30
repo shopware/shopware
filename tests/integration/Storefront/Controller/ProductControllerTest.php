@@ -8,9 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -101,7 +104,7 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
         static::assertInstanceOf(JsonResponse::class, $response);
-        static::assertEquals($productId, $content['productId']);
+        static::assertSame($productId, $content['productId']);
         static::assertStringContainsString($productId, $content['url']);
     }
 
@@ -230,7 +233,11 @@ class ProductControllerTest extends TestCase
         $controller = static::getContainer()->get(ProductController::class);
 
         if ($shouldThrowException) {
-            $this->expectException(ProductNotFoundException::class);
+            if (!Feature::isActive('v6.8.0.0')) {
+                $this->expectException(ProductNotFoundException::class);
+            } else {
+                $this->expectException(ProductException::class);
+            }
         }
 
         $response = $controller->index($context, $this->createDetailRequest($context, $this->ids->get($requestVariant)));
@@ -250,27 +257,27 @@ class ProductControllerTest extends TestCase
         $crawler->filter('.product-detail-configurator .product-detail-configurator-option-label')
             ->each(static function (Crawler $option) use ($blue, $green, $red, $xl, $l, &$blueFound, &$greenFound, &$redFound, &$xlFound, &$lFound, &$mFound): void {
                 if ($option->innerText() === 'blue') {
-                    static::assertEquals($blue, $option->matches('.is-combinable'));
+                    static::assertSame($blue, $option->matches('.is-combinable'));
                     $blueFound = true;
                 }
 
                 if ($option->innerText() === 'green') {
-                    static::assertEquals($green, $option->matches('.is-combinable'));
+                    static::assertSame($green, $option->matches('.is-combinable'));
                     $greenFound = true;
                 }
 
                 if ($option->innerText() === 'red') {
-                    static::assertEquals($red, $option->matches('.is-combinable'));
+                    static::assertSame($red, $option->matches('.is-combinable'));
                     $redFound = true;
                 }
 
                 if ($option->innerText() === 'xl') {
-                    static::assertEquals($xl, $option->matches('.is-combinable'));
+                    static::assertSame($xl, $option->matches('.is-combinable'));
                     $xlFound = true;
                 }
 
                 if ($option->innerText() === 'l') {
-                    static::assertEquals($l, $option->matches('.is-combinable'));
+                    static::assertSame($l, $option->matches('.is-combinable'));
                     $lFound = true;
                 }
 
@@ -292,12 +299,11 @@ class ProductControllerTest extends TestCase
      */
     public static function variantProvider(): iterable
     {
-        // TODO: Executing those cases will lead to a Twig error, caused by the cache_rework. Needs further investigation
-        //        yield 'test color: red - size: xl' => ['a.1', true, false, true, true, true]; // a.1 all options should be normal
-        //        yield 'test color: green - size: xl' => ['a.2', true, false, true, true, false]; // a.2 green and xl should be gray
-        //        yield 'test color: red - size: l' => ['a.3', false, true, true, true, true]; // a.3 all options should be normal except blue
-        //        yield 'test color: green - size: l' => ['a.4', false, true, true, true, false]; // a.4 xl and blue should be gray
-        //        yield 'test color: blue - size: xl' => ['a.5', true, false, true, false, true]; // a.5 l, green should be gray
+        yield 'test color: red - size: xl' => ['a.1', true, false, true, true, true]; // a.1 all options should be normal
+        yield 'test color: green - size: xl' => ['a.2', true, false, true, true, false]; // a.2 green and xl should be gray
+        yield 'test color: red - size: l' => ['a.3', false, true, true, true, true]; // a.3 all options should be normal except blue
+        yield 'test color: green - size: l' => ['a.4', false, true, true, true, false]; // a.4 xl and blue should be gray
+        yield 'test color: blue - size: xl' => ['a.5', true, false, true, false, true]; // a.5 l, green should be gray
         yield 'test color: blue - size: l' => ['a.6', false, false, false, false, false, true]; // a.6 xl should throw exception
         yield 'test color: red - size: m' => ['a.7', false, false, false, false, false, true]; // a.7 m should throw exception
         yield 'test color: green - size: m' => ['a.8', false, false, false, false, false, true]; // a.8 m should throw exception
@@ -362,11 +368,14 @@ class ProductControllerTest extends TestCase
 
     private function createDetailRequest(SalesChannelContext $context, string $productId): Request
     {
-        $request = new Request();
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $context->getSalesChannelId());
-        $request->attributes->set('productId', $productId);
+        $request = Request::create((string) EnvironmentHelper::getVariable('APP_URL'));
+        $request->attributes->add([
+            RequestTransformer::STOREFRONT_URL => $_SERVER['APP_URL'],
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $context->getSalesChannelId(),
+            'productId' => $productId,
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+        ]);
 
         static::getContainer()->get('request_stack')->push($request);
 
@@ -439,10 +448,6 @@ class ProductControllerTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $repo = static::getContainer()->get('customer.repository');
 

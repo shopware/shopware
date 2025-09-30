@@ -3,14 +3,12 @@
 namespace Shopware\Core\System\UsageData;
 
 use Shopware\Core\Framework\Api\Context\ContextSource;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRevokedException;
-use Shopware\Core\System\UsageData\Exception\ShopIdChangedException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -125,23 +123,6 @@ class UsageDataException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::SYSTEM__USAGE_DATA_FAILED_TO_LOAD_DEFAULT_ALLOW_LIST,
             'Failed to load default allow list',
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 will be removed with no replacement
-     */
-    public static function shopIdChanged(): self
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, '6.7.0.0')
-        );
-
-        return new ShopIdChangedException(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::SYSTEM__USAGE_DATA_SHOP_ID_CHANGED,
-            'shopId changed'
         );
     }
 }

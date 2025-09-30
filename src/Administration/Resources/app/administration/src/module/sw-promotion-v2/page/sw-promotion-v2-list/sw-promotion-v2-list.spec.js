@@ -6,20 +6,28 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper() {
+    const repositoryClone = jest.fn(() => Promise.resolve({ id: 'new-promotion-id' }));
+
     return mount(await wrapTestComponent('sw-promotion-v2-list', { sync: true }), {
         global: {
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
+            },
             stubs: {
                 'sw-page': {
                     template:
                         '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
                 },
-                'sw-button': true,
                 'sw-entity-listing': true,
-                'sw-promotion-v2-empty-state-hero': true,
                 'sw-context-menu-item': true,
                 'sw-search-bar': true,
                 'sw-language-switch': true,
-                'sw-icon': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
             },
@@ -29,7 +37,7 @@ async function createWrapper() {
                         search: () => Promise.resolve([]),
                         get: () => Promise.resolve([]),
                         create: () => {},
-                        clone: jest.fn(() => Promise.resolve({ id: 'new-promotion-id' })),
+                        clone: repositoryClone,
                     }),
                 },
                 searchRankingService: {
@@ -40,6 +48,9 @@ async function createWrapper() {
                     },
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
+                    },
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
                     },
                 },
             },
@@ -55,7 +66,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         const smartBarButton = wrapper.find('.sw-promotion-v2-list__smart-bar-button-add');
 
         expect(smartBarButton.exists()).toBeTruthy();
-        expect(smartBarButton.attributes().disabled).toBeTruthy();
+        expect(smartBarButton.attributes('disabled')).toBeDefined();
     });
 
     it('should enable create button when privilege available', async () => {
@@ -75,6 +86,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
         await wrapper.setData({
             isLoading: false,
+            total: 2,
         });
 
         const element = wrapper.find('sw-entity-listing-stub');
@@ -96,6 +108,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
         await wrapper.setData({
             isLoading: false,
+            total: 2,
         });
 
         const element = wrapper.find('sw-entity-listing-stub');
@@ -118,6 +131,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
         await wrapper.setData({
             isLoading: false,
+            total: 2,
         });
 
         const element = wrapper.find('sw-entity-listing-stub');
@@ -215,12 +229,10 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-promotion-v2-empty-state-hero-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
-        expect(emptyState.attributes().description).toBe('sw-empty-state.messageNoResultSubline');
+        expect(wrapper.find('.mt-empty-state')).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-empty-state.messageNoResultSubline');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
@@ -249,6 +261,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
                     individualCodePattern: '',
                     individualCodes: null,
                     active: false,
+                    orderCount: 0,
+                    ordersPerCustomerCount: null,
                 },
             },
             Shopware.Context.api,
@@ -258,5 +272,41 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
             name: 'sw.promotion.v2.detail',
             params: { id: 'new-promotion-id' },
         });
+    });
+
+    it('should return correct tooltip for delete button', async () => {
+        const wrapper = await createWrapper();
+
+        const promotionWithOrders = { orderCount: 1 };
+        const promotionWithoutOrders = { orderCount: 0 };
+
+        const tooltipWithOrders = wrapper.vm.deleteDisabledTooltip(promotionWithOrders);
+        expect(tooltipWithOrders).toEqual({
+            showDelay: 300,
+            message: 'sw-promotion-v2.list.deleteDisabledToolTip',
+            disabled: false,
+        });
+
+        const tooltipWithoutOrders = wrapper.vm.deleteDisabledTooltip(promotionWithoutOrders);
+        expect(tooltipWithoutOrders).toEqual({
+            showDelay: 300,
+            message: 'sw-promotion-v2.list.deleteDisabledToolTip',
+            disabled: true,
+        });
+    });
+
+    it('should disable bulk delete with undeletable promotions', async () => {
+        const wrapper = await createWrapper();
+
+        const promotionWithOrders = { orderCount: 1 };
+        const promotionWithoutOrders = { orderCount: 0 };
+
+        wrapper.vm.updateSelection({ 0: promotionWithoutOrders });
+        await flushPromises();
+        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBe('true');
+
+        wrapper.vm.updateSelection({ 0: promotionWithoutOrders, 1: promotionWithOrders });
+        await flushPromises();
+        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBe('false');
     });
 });

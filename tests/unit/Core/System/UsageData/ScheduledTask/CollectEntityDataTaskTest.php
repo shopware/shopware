@@ -16,11 +16,11 @@ class CollectEntityDataTaskTest extends TestCase
 {
     public function testItHandlesCorrectTask(): void
     {
-        static::assertEquals('usage_data.entity_data.collect', CollectEntityDataTask::getTaskName());
+        static::assertSame('usage_data.entity_data.collect', CollectEntityDataTask::getTaskName());
     }
 
     public function testItIsRescheduledEvery24Hours(): void
     {
-        static::assertEquals(60 * 60 * 24, CollectEntityDataTask::getDefaultInterval());
+        static::assertSame(60 * 60 * 24, CollectEntityDataTask::getDefaultInterval());
     }
 }

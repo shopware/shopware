@@ -22,7 +22,7 @@ use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
 #[Package('framework')]
 class NoReturnSetterMethodWithFluentSettersRule implements Rule
 {
-    public function __construct(private NoReturnSetterMethodRule $baseRule)
+    public function __construct(private readonly NoReturnSetterMethodRule $baseRule)
     {
     }
 

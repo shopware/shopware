@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Telemetry\Metrics\Transport;
 
-use IteratorAggregate;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Factory\MetricTransportFactoryInterface;
@@ -11,7 +10,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 /**
  * @template MetricTransport of MetricTransportInterface
  *
- * @implements IteratorAggregate<int, MetricTransport>
+ * @implements \IteratorAggregate<int, MetricTransport>
  *
  * @internal
  */

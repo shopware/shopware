@@ -2,9 +2,18 @@
 
 .sw-order-detail-details {
     &__customer-comment,
+    &__internal-comment,
     &__shipping-address,
     &__billing-address,
     &__promotion {
         grid-column: 1 / span 2;
+    }
+
+    &__field-hint {
+        display: flex;
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-tertiary-default);
+        align-items: center;
+        gap: var(--scale-size-8);
     }
 }

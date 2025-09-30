@@ -7,13 +7,16 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class WeekdayRule extends Rule
 {
     final public const RULE_NAME = 'dayOfWeek';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?int $dayOfWeek = null
@@ -32,7 +35,7 @@ class WeekdayRule extends Rule
     {
         return [
             'operator' => RuleConstraints::stringOperators(false),
-            'dayOfWeek' => [new NotBlank(), new Range(['min' => 1, 'max' => 7])],
+            'dayOfWeek' => [new NotBlank(), new Range(min: 1, max: 7)],
         ];
     }
 

@@ -8,29 +8,13 @@ use Shopware\Core\Framework\Log\Package;
 class Translations
 {
     /**
-     * @var array<string, string|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $german;
-
-    /**
-     * @var array<string, string|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $english;
-
-    /**
      * @param array<string, string|null> $german
      * @param array<string, string|null> $english
      */
     public function __construct(
-        array $german,
-        array $english
+        protected array $german,
+        protected array $english
     ) {
-        $this->german = $german;
-        $this->english = $english;
     }
 
     /**

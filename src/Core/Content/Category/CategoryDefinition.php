@@ -132,8 +132,8 @@ class CategoryDefinition extends EntityDefinition
             (new BoolField('visible', 'visible'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
 
-            (new BoolField('cmsPageIdSwitched', 'cmsPageIdSwitched'))->addFlags(new Runtime(), new ApiAware()),
-            (new IntField('visibleChildCount', 'visibleChildCount'))->addFlags(new Runtime(), new ApiAware()),
+            (new BoolField('cms_page_id_switched', 'cmsPageIdSwitched'))->addFlags(new Runtime(), new ApiAware()),
+            (new IntField('visible_child_count', 'visibleChildCount'))->addFlags(new Runtime(), new ApiAware()),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
@@ -171,8 +171,6 @@ class CategoryDefinition extends EntityDefinition
             new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id'),
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware()),
-
-            (new IntField('visible_child_count', 'visibleChildCount'))->addFlags(new Runtime(), new ApiAware()),
         ]);
     }
 }

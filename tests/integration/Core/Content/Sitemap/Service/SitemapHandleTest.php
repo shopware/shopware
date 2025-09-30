@@ -32,7 +32,7 @@ class SitemapHandleTest extends TestCase
         $url->setIdentifier(Uuid::randomHex());
 
         $fileSystem = $this->createMock(Filesystem::class);
-        $fileSystem->expects(static::never())->method('write');
+        $fileSystem->expects($this->never())->method('write');
 
         $this->handle = new SitemapHandle(
             $fileSystem,
@@ -55,7 +55,7 @@ class SitemapHandleTest extends TestCase
         $url->setIdentifier(Uuid::randomHex());
 
         $fileSystem = $this->createMock(Filesystem::class);
-        $fileSystem->expects(static::once())->method('write');
+        $fileSystem->expects($this->once())->method('write');
 
         $this->handle = new SitemapHandle(
             $fileSystem,
@@ -83,7 +83,7 @@ class SitemapHandleTest extends TestCase
         }
 
         $fileSystem = $this->createMock(Filesystem::class);
-        $fileSystem->expects(static::atLeast(3))->method('write');
+        $fileSystem->expects($this->atLeast(3))->method('write');
 
         $this->handle = new SitemapHandle(
             $fileSystem,

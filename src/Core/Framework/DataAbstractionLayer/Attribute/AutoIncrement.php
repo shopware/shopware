@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class AutoIncrement extends Field
+final class AutoIncrement extends Field
 {
     public const TYPE = 'auto-increment';
 

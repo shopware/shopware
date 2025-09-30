@@ -1,8 +1,7 @@
-import template from './sw-order-document-settings-invoice-modal.html.twig';
-
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
+import template from './sw-order-document-settings-invoice-modal.html.twig';
 
 const { Mixin } = Shopware;
 
@@ -15,6 +14,17 @@ export default {
     mixins: [
         Mixin.getByName('notification'),
     ],
+
+    computed: {
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = value;
+            },
+        },
+    },
 
     created() {
         this.createdComponent();

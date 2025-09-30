@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\MySQL\Comparator;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -85,7 +86,7 @@ class MigrationQueryGeneratorTest extends TestCase
         $queries = $this->generator->generateQueries($entityDefinition);
 
         static::assertCount(2, $queries);
-        static::assertStringContainsString('CREATE TABLE test (id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, priority INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, test2_id VARCHAR(255) NOT NULL, PRIMARY KEY(id))', $queries[0]);
+        static::assertStringContainsString('CREATE TABLE test (id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, priority INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, test2_id VARCHAR(255) NOT NULL, PRIMARY KEY (`id`))', $queries[0]);
         static::assertStringContainsString('ALTER TABLE test ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
     }
 
@@ -98,7 +99,9 @@ class MigrationQueryGeneratorTest extends TestCase
         $table->addColumn('created_at', 'datetime');
         $table->addColumn('updated_at', 'datetime');
 
-        $table->setPrimaryKey(['id']);
+        $pk = PrimaryKeyConstraint::editor();
+        $pk->setQuotedColumnNames('id');
+        $table->addPrimaryKeyConstraint($pk->create());
 
         $table->addIndex(['name']);
 
@@ -117,7 +120,9 @@ class MigrationQueryGeneratorTest extends TestCase
         $table->addColumn('test2_id', 'string', ['length' => 255]);
 
         $table->addForeignKeyConstraint('test2', ['test2_id'], ['id'], [], 'fk_column_id');
-        $table->setPrimaryKey(['id']);
+        $pk = PrimaryKeyConstraint::editor();
+        $pk->setQuotedColumnNames('id');
+        $table->addPrimaryKeyConstraint($pk->create());
 
         $table->addIndex(['priority']);
 

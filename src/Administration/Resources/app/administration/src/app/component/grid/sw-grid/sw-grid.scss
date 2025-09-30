@@ -22,7 +22,7 @@ $sw-grid-table-row-color-background: $color-white;
     grid-template-rows: auto;
     border: 1px solid $sw-grid-item-color-border;
 
-    .sw-card & {
+    .mt-card & {
         border: none;
         border-top: 1px solid $sw-grid-item-color-border;
     }
@@ -159,5 +159,10 @@ $sw-grid-table-row-color-background: $color-white;
         .sw-media-field-picker .sw-simple-search-field {
             margin-bottom: 15px;
         }
+    }
+
+    .mt-field--checkbox,
+    .mt-field {
+        margin-bottom: 0;
     }
 }

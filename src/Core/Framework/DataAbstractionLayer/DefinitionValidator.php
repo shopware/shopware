@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -95,11 +96,15 @@ class DefinitionValidator
         'elasticsearch_index_task',
         'increment',
         'messenger_messages',
+        'messenger_stats',
         'payment_token',
         'refresh_token',
         'usage_data_entity_deletion',
         'one_time_tasks',
         'invalidation_tags',
+        'subscription_cart',
+        'oauth_user',
+        'theme_runtime_config',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [
@@ -199,6 +204,7 @@ class DefinitionValidator
                 );
             }
 
+            // @phpstan-ignore variable.implicitArray (The `notices` were accidentally omitted during a refactor of the class, we should add them back later to the output)
             $notices[$definitionClass] = array_merge_recursive(
                 $violations[$definitionClass],
                 $this->validateDataFieldNotPrefixedByEntityName($definition)
@@ -276,9 +282,7 @@ class DefinitionValidator
 
             if ($property->getDocComment()
                 && (str_contains($property->getDocComment(), '@internal')
-                    || str_contains($property->getDocComment(), '@deprecated')
-                    /** @deprecated tag:v6.7.0 check can be removed if everything is natively typed, otherwise this would skip a lot of properties */
-                    && !str_contains($property->getDocComment(), 'natively typed'))
+                    || str_contains($property->getDocComment(), '@deprecated'))
             ) {
                 continue;
             }
@@ -345,7 +349,7 @@ class DefinitionValidator
             if ($field instanceof BoolField) {
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
-                $getterMethods[] = 'has' . (string) preg_replace('/^has/', '', $propertyName);
+                $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
             }
 
             $hasGetter = false;
@@ -366,7 +370,7 @@ class DefinitionValidator
                 $functionViolations[] = \sprintf('No getter function for property %s in %s', $propertyName, $struct);
             }
 
-            if (!$field->is(Runtime::class) && !$reflection->hasMethod($setter)) {
+            if (!$field->isAny([Runtime::class, Computed::class]) && !$reflection->hasMethod($setter)) {
                 $functionViolations[] = \sprintf('No setter function for property %s in %s', $propertyName, $struct);
             }
         }
@@ -1124,8 +1128,8 @@ class DefinitionValidator
             $fks = $manager->listTableForeignKeys($reference->getEntityName());
 
             foreach ($fks as $fk) {
-                if ($fk->getForeignTableName() !== $definition->getEntityName()
-                    || !\in_array($association->getReferenceField(), $fk->getLocalColumns(), true)
+                if ($fk->getReferencedTableName()->toString() !== $definition->getEntityName()
+                    || !\in_array($association->getReferenceField(), $fk->getReferencingColumnNames(), true)
                 ) {
                     continue;
                 }
@@ -1138,7 +1142,7 @@ class DefinitionValidator
                     continue;
                 }
 
-                if (\in_array($fk->onDelete(), self::DELETE_FLAG_TO_ACTION_MAPPING[$deleteFlag::class], true)) {
+                if (\in_array($fk->getOnDeleteAction()->value, self::DELETE_FLAG_TO_ACTION_MAPPING[$deleteFlag::class], true)) {
                     continue;
                 }
 
@@ -1151,7 +1155,7 @@ class DefinitionValidator
                     $association->getPropertyName(),
                     $definition->getEntityName(),
                     $deleteFlag::class,
-                    $fk->onDelete()
+                    $fk->getOnDeleteAction()->value
                 );
             }
         }

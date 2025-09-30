@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\LandingPage\DataAbstractionLayer;
 
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,6 +20,8 @@ class LandingPageIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<LandingPageCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

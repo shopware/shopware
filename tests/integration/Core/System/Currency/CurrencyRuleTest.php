@@ -60,11 +60,11 @@ class CurrencyRuleTest extends TestCase
             $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $errors);
 
-            static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
-            static::assertEquals(NotBlank::IS_BLANK_ERROR, $errors[0]['code']);
+            static::assertSame('/0/value/currencyIds', $errors[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $errors[0]['code']);
 
-            static::assertEquals('/0/value/operator', $errors[1]['source']['pointer']);
-            static::assertEquals(NotBlank::IS_BLANK_ERROR, $errors[1]['code']);
+            static::assertSame('/0/value/operator', $errors[1]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $errors[1]['code']);
         }
     }
 
@@ -86,8 +86,8 @@ class CurrencyRuleTest extends TestCase
             $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $errors);
 
-            static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
-            static::assertEquals(NotBlank::IS_BLANK_ERROR, $errors[0]['code']);
+            static::assertSame('/0/value/currencyIds', $errors[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $errors[0]['code']);
         }
     }
 
@@ -109,8 +109,8 @@ class CurrencyRuleTest extends TestCase
             $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $errors);
 
-            static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
-            static::assertEquals(Type::INVALID_TYPE_ERROR, $errors[0]['code']);
+            static::assertSame('/0/value/currencyIds', $errors[0]['source']['pointer']);
+            static::assertSame(Type::INVALID_TYPE_ERROR, $errors[0]['code']);
         }
     }
 
@@ -132,13 +132,13 @@ class CurrencyRuleTest extends TestCase
             $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(3, $errors);
 
-            static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
-            static::assertEquals('/0/value/currencyIds', $errors[1]['source']['pointer']);
-            static::assertEquals('/0/value/currencyIds', $errors[2]['source']['pointer']);
+            static::assertSame('/0/value/currencyIds', $errors[0]['source']['pointer']);
+            static::assertSame('/0/value/currencyIds', $errors[1]['source']['pointer']);
+            static::assertSame('/0/value/currencyIds', $errors[2]['source']['pointer']);
 
-            static::assertEquals(ArrayOfUuid::INVALID_TYPE_CODE, $errors[0]['code']);
-            static::assertEquals(ArrayOfUuid::INVALID_TYPE_CODE, $errors[1]['code']);
-            static::assertEquals(ArrayOfUuid::INVALID_TYPE_CODE, $errors[2]['code']);
+            static::assertSame(ArrayOfUuid::INVALID_TYPE_CODE, $errors[0]['code']);
+            static::assertSame(ArrayOfUuid::INVALID_TYPE_CODE, $errors[1]['code']);
+            static::assertSame(ArrayOfUuid::INVALID_TYPE_CODE, $errors[2]['code']);
         }
     }
 
@@ -160,11 +160,11 @@ class CurrencyRuleTest extends TestCase
             $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $errors);
 
-            static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
-            static::assertEquals('/0/value/currencyIds', $errors[1]['source']['pointer']);
+            static::assertSame('/0/value/currencyIds', $errors[0]['source']['pointer']);
+            static::assertSame('/0/value/currencyIds', $errors[1]['source']['pointer']);
 
-            static::assertEquals(ArrayOfUuid::INVALID_TYPE_CODE, $errors[0]['code']);
-            static::assertEquals(ArrayOfUuid::INVALID_TYPE_CODE, $errors[1]['code']);
+            static::assertSame(ArrayOfUuid::INVALID_TYPE_CODE, $errors[0]['code']);
+            static::assertSame(ArrayOfUuid::INVALID_TYPE_CODE, $errors[1]['code']);
         }
     }
 

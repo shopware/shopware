@@ -37,7 +37,7 @@ class ProductSearchBuilderTest extends TestCase
         $request->query->set('search', 'This search term\'s length is over 20 characters');
 
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('notice')
             ->with(
                 'The search term "{term}" was trimmed because it exceeded the maximum length of {maxLength} characters.',
@@ -46,7 +46,7 @@ class ProductSearchBuilderTest extends TestCase
                     'maxLength' => 20,
                 ]
             );
-        $termInterpreter->expects(static::once())
+        $termInterpreter->expects($this->once())
             ->method('interpret')
             ->with('This search term\'s l', static::isInstanceOf(Context::class));
         $searchBuilder->build($request, $criteria, $mockSalesChannelContext);

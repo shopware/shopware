@@ -16,9 +16,18 @@
     }
 
     &__info {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-gap: 28px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 28px;
+    }
+
+    &__info > * {
+        flex: 1 1 300px;
+    }
+
+    &__info div:empty {
+        display: none;
     }
 
     .sw-card {

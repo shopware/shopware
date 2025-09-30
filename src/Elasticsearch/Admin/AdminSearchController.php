@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,18 +19,19 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('inventory')]
-final class AdminSearchController
+final readonly class AdminSearchController
 {
     public function __construct(
-        private readonly AdminSearcher $searcher,
-        private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly JsonEntityEncoder $entityEncoder,
-        private readonly AdminElasticsearchHelper $adminEsHelper
+        private AdminSearcher $searcher,
+        private DefinitionInstanceRegistry $definitionRegistry,
+        private JsonEntityEncoder $entityEncoder,
+        private AdminElasticsearchHelper $adminEsHelper
     ) {
     }
 
-    #[Route(path: '/api/_admin/es-search', name: 'api.admin.es-search', methods: ['POST'], defaults: ['_routeScope' => ['administration']])]
+    #[Route(path: '/api/_admin/es-search', name: 'api.admin.es-search', methods: ['POST'])]
     public function elastic(Request $request, Context $context): Response
     {
         if ($this->adminEsHelper->getEnabled() === false) {

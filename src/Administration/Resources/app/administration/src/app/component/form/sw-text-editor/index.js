@@ -2,8 +2,6 @@ import { reactive } from 'vue';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -36,7 +34,7 @@ const { Component } = Shopware;
  *      :is-inline-edit="true"
  *  />
  */
-Component.register('sw-text-editor', {
+export default {
     template,
 
     inject: ['feature'],
@@ -1096,4 +1094,4 @@ Component.register('sw-text-editor', {
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },
     },
-});
+};

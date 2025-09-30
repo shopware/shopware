@@ -242,6 +242,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
     // eslint-disable-next-line no-warning-comments
     // TODO: Fix this test results diffe local from pipeline
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('newsletter_recipient: should list all required fields with depth 3', async () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('newsletter_recipient', 3);
 

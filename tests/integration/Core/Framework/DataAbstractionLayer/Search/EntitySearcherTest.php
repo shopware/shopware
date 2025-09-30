@@ -5,13 +5,17 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -31,8 +35,14 @@ class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<PropertyGroupCollection>
+     */
     private EntityRepository $groupRepository;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
@@ -79,9 +89,9 @@ class EntitySearcherTest extends TestCase
 
         $result = static::getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(100, $result->getScore($ids->get('john')));
-        static::assertEquals(200, $result->getScore($ids->get('john.doe')));
-        static::assertEquals(100, $result->getScore($ids->get('doe')));
+        static::assertSame(100.0, $result->getScore($ids->get('john')));
+        static::assertSame(200.0, $result->getScore($ids->get('john.doe')));
+        static::assertSame(100.0, $result->getScore($ids->get('doe')));
     }
 
     public function testIdSearchResultHelpers(): void
@@ -113,7 +123,7 @@ class EntitySearcherTest extends TestCase
         }
         static::assertInstanceOf(\RuntimeException::class, $exception);
 
-        static::assertEquals([], $result->getDataOfId('not-exists'));
+        static::assertSame([], $result->getDataOfId('not-exists'));
         static::assertSame($context, $result->getContext());
         static::assertEquals($criteria, $result->getCriteria());
     }
@@ -150,8 +160,8 @@ class EntitySearcherTest extends TestCase
         static::assertArrayHasKey($ids->get('p2'), $data);
         static::assertArrayHasKey('productNumber', $data[$ids->get('p2')]);
         static::assertArrayHasKey('autoIncrement', $data[$ids->get('p2')]);
-        static::assertEquals($increments[$ids->get('p1')], $data[$ids->get('p1')]['autoIncrement']);
-        static::assertEquals($increments[$ids->get('p2')], $data[$ids->get('p2')]['autoIncrement']);
+        static::assertSame((int) $increments[$ids->get('p1')], $data[$ids->get('p1')]['autoIncrement']);
+        static::assertSame((int) $increments[$ids->get('p2')], $data[$ids->get('p2')]['autoIncrement']);
     }
 
     public function testTotalCountWithSearchTerm(): void
@@ -480,7 +490,7 @@ class EntitySearcherTest extends TestCase
 
         $result = $searcher->search(static::getContainer()->get(TaxDefinition::class), $criteria, Context::createDefaultContext());
 
-        static::assertEquals($expected, $result->getIds());
+        static::assertSame($expected, $result->getIds());
     }
 
     public function testSortingWithToMany(): void
@@ -524,7 +534,7 @@ class EntitySearcherTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             [$ids->get('product-2'), $ids->get('product-1')],
             $result->getIds()
         );
@@ -567,7 +577,7 @@ class EntitySearcherTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('productId', array_values($ids->getList(['product-1', 'product-2']))));
 
-        /** @var EntityRepository $productCategoryRepository */
+        /** @var EntityRepository<EntityCollection<Entity>> $productCategoryRepository */
         $productCategoryRepository = static::getContainer()->get('product_category.repository');
         $result = $productCategoryRepository
             ->searchIds($criteria, Context::createDefaultContext());
@@ -575,10 +585,10 @@ class EntitySearcherTest extends TestCase
         static::assertIsArray($result->getIds());
         static::assertNotEmpty($result->getIds());
 
-        foreach ($result->getIds() as $ids) {
-            static::assertIsArray($ids);
-            static::assertArrayHasKey('productId', $ids);
-            static::assertArrayHasKey('categoryId', $ids);
+        foreach ($result->getIds() as $resultIds) {
+            static::assertIsArray($resultIds);
+            static::assertArrayHasKey('productId', $resultIds);
+            static::assertArrayHasKey('categoryId', $resultIds);
         }
     }
 
@@ -597,9 +607,9 @@ class EntitySearcherTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         // connection should not be used if limit is 0
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('executeQuery');
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('getDatabasePlatform');
 
         $searcher = new EntitySearcher(
@@ -614,6 +624,6 @@ class EntitySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 }

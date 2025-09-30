@@ -33,7 +33,7 @@ class AssetBundleRegistrationCompilerPassTest extends TestCase
         $container->setDefinition('assets.packages', $service);
 
         $container->setDefinition('shopware.asset.asset_without_versioning', new Definition(Package::class));
-        $container->setDefinition('shopware.asset.asset.version_strategy', new Definition(EmptyVersionStrategy::class));
+        $container->setDefinition('shopware.asset.public.version_strategy', new Definition(EmptyVersionStrategy::class));
 
         $compilerPass = new AssetBundleRegistrationCompilerPass();
 

@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -83,6 +85,9 @@ class AddressValidator2Test extends TestCase
         return new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());
     }
 
+    /**
+     * @return EntityRepository<EntityCollection<Entity>>&MockObject
+     */
     private function getRepositoryMock(?IdSearchResult $result): EntityRepository&MockObject
     {
         $repository = $this->createMock(EntityRepository::class);

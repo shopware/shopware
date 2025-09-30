@@ -105,6 +105,17 @@ function getNameAndExtensionFromUrl(urlObject: URL): {
     return splitFileNameAndExtension(ref);
 }
 
+function getFilenameFromResponse(response: { headers?: { [key: string]: string } }): string | null {
+    const header = response.headers?.['content-disposition'];
+    if (!header) return null;
+
+    const filenameStarMatch = header.match(/filename\*=UTF-8''([^;]+)/);
+    if (filenameStarMatch) return filenameStarMatch[1];
+
+    const filenameMatch = header.match(/filename="?([^"]+)"?/);
+    return filenameMatch ? filenameMatch[1] : null;
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     readFileAsArrayBuffer,
@@ -112,4 +123,5 @@ export default {
     readFileAsText,
     getNameAndExtensionFromFile,
     getNameAndExtensionFromUrl,
+    getFilenameFromResponse,
 };

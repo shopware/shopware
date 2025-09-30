@@ -8,16 +8,24 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class ChangeSet extends Struct
 {
+    /**
+     * @var array<string, mixed>
+     */
     protected array $state = [];
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $after = [];
 
-    protected bool $isDelete;
-
+    /**
+     * @param array<string, mixed> $state
+     * @param array<string, mixed> $payload
+     */
     public function __construct(
         array $state,
         array $payload,
-        bool $isDelete
+        protected bool $isDelete
     ) {
         $this->state = $state;
 
@@ -33,7 +41,6 @@ class ChangeSet extends Struct
             }
             $this->after[$property] = $after;
         }
-        $this->isDelete = $isDelete;
     }
 
     /**

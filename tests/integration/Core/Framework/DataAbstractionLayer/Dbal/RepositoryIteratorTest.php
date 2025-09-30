@@ -44,7 +44,7 @@ class RepositoryIteratorTest extends TestCase
                 $criteria->getFilters()
             );
             static::assertCount(0, $criteria->getPostFilters());
-            static::assertEquals($offset, $criteria->getOffset());
+            static::assertSame($offset, $criteria->getOffset());
             ++$offset;
         }
     }
@@ -94,6 +94,6 @@ class RepositoryIteratorTest extends TestCase
         while ($iterator->fetchIds()) {
             ++$totalFetchedIds;
         }
-        static::assertEquals($totalFetchedIds, 3);
+        static::assertSame($totalFetchedIds, 3);
     }
 }

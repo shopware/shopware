@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
- *
  * @extends StoreApiResponse<BreadcrumbCollection>
  */
 #[Package('inventory')]

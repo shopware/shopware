@@ -2,8 +2,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 // @ts-ignore
 import type NativeEventEmitter from 'src/helper/emitter.helper';
-import type { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { loadThreeJs } from './utils/spatial-threejs-load-util';
+import { loadDIVE } from './utils/spatial-dive-load-util';
 
 /**
  * @package innovation
@@ -13,55 +12,45 @@ import { loadThreeJs } from './utils/spatial-threejs-load-util';
 // @ts-ignore
 export default class SpatialBaseViewerPlugin extends Plugin {
 
-    protected rendering : boolean;
+    protected rendering = false;
 
     public canvas: HTMLCanvasElement | undefined;
-    public camera: PerspectiveCamera | undefined;
-    public scene: Scene | undefined;
-    public renderer: WebGLRenderer | undefined;
-
-    public clock: Clock | undefined;
 
     public ready = false;
     $emitter: NativeEventEmitter;
+
+    public options!: {
+        modelUrl: string;
+        sliderPosition: number;
+        lightIntensity: number;
+    };
+
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    protected dive: import('@shopware-ag/dive/quickview').QuickView | undefined;
 
     /**
      * initialize plugin
      */
     public async init() {
-        await loadThreeJs();
+        await loadDIVE();
 
-        this.initViewer(true);
+        await this.initViewer();
     }
 
     /**
      * initialize the viewer
      * @param force - Will reinitialize the viewer entirely. Otherwise, only the canvas and renderer will be reinitialized.
      */
-    public initViewer(force: boolean) {
+    public async initViewer() {
         this.setReady(false);
         // @ts-ignore
         this.canvas = this.el as HTMLCanvasElement;
         this.canvas.tabIndex = 0;
-        if (this.camera == undefined || force) {
-            // eslint-disable-next-line
-            this.camera = new window.threeJs.PerspectiveCamera( 70, this.canvas.clientWidth / this.canvas.clientHeight, 0.01, 10 );
-        }
-        if (this.scene == undefined || force) {
-            // eslint-disable-next-line
-            this.scene = new window.threeJs.Scene();
+
+        if (this.dive == undefined) {
+            this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas, displayFloor: true, lightIntensity: this.options.lightIntensity });
         }
 
-        this.rendering = false;
-
-        // eslint-disable-next-line
-        this.clock = new window.threeJs.Clock();
-
-        // eslint-disable-next-line
-        this.renderer = new window.threeJs.WebGLRenderer({
-            canvas: this.canvas,
-            antialias: true,
-        });
         // @ts-ignore
         this.$emitter.publish('Viewer/initViewer');
     }
@@ -77,7 +66,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         // start render loop
         this.rendering = true;
-        requestAnimationFrame(this.render.bind(this));
+        this.dive?.start();
 
         // Add classes to canvas parent
         this.canvas?.parentElement?.classList.add('spatial-canvas-rendering');
@@ -98,6 +87,8 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         // stop render loop
         this.rendering = false;
 
+        this.dive?.stop();
+
         // Remove classes from canvas parent
         this.canvas?.parentElement?.classList.remove('spatial-canvas-rendering');
 
@@ -105,34 +96,6 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         // @ts-ignore
         this.$emitter.publish('Viewer/stopRendering');
     }
-
-    /**
-     * Render loop
-     * @private
-     */
-    private render() {
-        if (!this.rendering) {
-            return;
-        }
-        requestAnimationFrame(this.render.bind(this));
-        if (!this.clock) {
-            return;
-        }
-        const delta = this.clock.getDelta();
-
-        this.preRender(delta);
-        if (this.camera != undefined && this.scene != undefined && this.renderer != undefined) {
-            this.renderer.render(this.scene, this.camera);
-        }
-
-        this.postRender(delta);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    protected preRender(delta: number) {}
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    protected postRender(delta: number) {}
 
     public setReady(ready: boolean) {
         if (this.ready === ready) {

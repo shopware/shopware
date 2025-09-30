@@ -41,61 +41,28 @@
     {% endblock %}
 
     {% block sw_cms_element_product_box_config_layout_select %}
-    <sw-select-field
-        v-model:value="element.config.boxLayout.value"
+    <mt-select
+        v-model="element.config.boxLayout.value"
         :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-    >
-        {% block sw_cms_element_product_box_config_layout_select_options %}
-        <option value="standard">
-            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
-        </option>
-        <option value="image">
-            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}
-        </option>
-        <option value="minimal">
-            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}
-        </option>
-        {% endblock %}
-    </sw-select-field>
+        :options="boxLayoutOptions"
+    />
     {% endblock %}
 
     {% block sw_cms_element_product_box_config_displaymode_select %}
-    <sw-select-field
-        v-model:value="element.config.displayMode.value"
+    <mt-select
+        v-model="element.config.displayMode.value"
         :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-    >
-        {% block sw_cms_element_product_box_config_displaymode_select_options %}
-        <option value="standard">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
-        </option>
-        <option value="cover">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-        </option>
-        <option value="contain">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}
-        </option>
-        {% endblock %}
-    </sw-select-field>
+        :options="displayModeOptions"
+    />
     {% endblock %}
 
     {% block sw_cms_element_product_box_config_settings_vertical_align %}
-    <sw-select-field
-        v-model:value="element.config.verticalAlign.value"
+    <mt-select
+        v-model="element.config.verticalAlign.value"
         :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-    >
-        {% block sw_cms_element_product_box_config_settings_vertical_align_options %}
-        <option value="flex-start">
-            {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
-        </option>
-        <option value="center">
-            {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
-        </option>
-        <option value="flex-end">
-            {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
-        </option>
-        {% endblock %}
-    </sw-select-field>
+        :options="verticalAlignOptions"
+    />
     {% endblock %}
 </div>
 {% endblock %}

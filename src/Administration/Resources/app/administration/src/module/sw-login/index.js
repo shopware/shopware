@@ -2,16 +2,21 @@
  * @sw-package framework
  */
 
-import './page/index';
-import './view/sw-login-login';
-import './view/sw-login-recovery';
-import './view/sw-login-recovery-info';
-import './view/sw-login-recovery-recovery';
+import de from './snippet/de.json';
+import en from './snippet/en.json';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
+const { Component, Module } = Shopware;
 
-const { Module } = Shopware;
+/** @private */
+Component.register('sw-login-recovery', () => import('./view/sw-login-recovery'));
+/** @private */
+Component.register('sw-login-recovery-recovery', () => import('./view/sw-login-recovery-recovery'));
+/** @private */
+Component.register('sw-login-recovery-info', () => import('./view/sw-login-recovery-info'));
+/** @private */
+Component.register('sw-login-login', () => import('./view/sw-login-login'));
+/** @private */
+Component.register('sw-login', () => import('./page/index'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-login', {
@@ -24,8 +29,8 @@ Module.register('sw-login', {
     color: '#F19D12',
 
     snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB,
+        'de-DE': de,
+        'en-GB': en,
     },
 
     routes: {

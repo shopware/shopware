@@ -3,3 +3,12 @@
         margin: 15px -30px -20px;
     }
 }
+
+.sw-modal__footer {
+    .sw-settings-snippet-list__delete-modal-delete-all-checkbox {
+        display: flex;
+        justify-content: flex-end;
+        width: fit-content;
+        white-space: nowrap;
+    }
+}

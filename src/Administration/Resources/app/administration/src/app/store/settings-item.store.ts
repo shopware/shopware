@@ -41,7 +41,6 @@ const settingsItems = Shopware.Store.register({
                 system: [],
                 account: [],
                 plugins: [],
-                shop: [],
             },
         };
     },

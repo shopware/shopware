@@ -9,12 +9,14 @@ use Shopware\Core\Checkout\Promotion\Gateway\Template\ActiveDateRange;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
  */
 #[CoversClass(PermittedAutomaticPromotions::class)]
+#[Package('checkout')]
 class PermittedAutomaticPromotionsTest extends TestCase
 {
     private SalesChannelEntity $salesChannel;

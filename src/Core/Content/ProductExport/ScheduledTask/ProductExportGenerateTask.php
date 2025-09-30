@@ -17,4 +17,9 @@ class ProductExportGenerateTask extends ScheduledTask
     {
         return 60;
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

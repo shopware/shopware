@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import type Bottle from 'bottlejs';
 import type { App } from 'vue';
 import { reactive } from 'vue';
@@ -850,6 +851,17 @@ class ApplicationBootstrapper {
 
         // To keep permissions reactive no matter if empty or not
         extension.permissions = permissions ?? reactive({});
+
+        // Check if extension is a plugin, then it has full permissions access
+        if (extension.type === 'plugin') {
+            extension.permissions = {
+                additional: ['*'],
+                create: ['*'],
+                read: ['*'],
+                update: ['*'],
+                delete: ['*'],
+            };
+        }
 
         Shopware.Store.get('extensions').addExtension(extension);
     }

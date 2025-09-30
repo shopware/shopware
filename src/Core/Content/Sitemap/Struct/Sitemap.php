@@ -8,29 +8,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class Sitemap extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filename;
+    protected \DateTimeInterface $created;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $created;
-
-    /**
-     * @throws \Exception
-     */
     public function __construct(
-        string $filename,
+        protected string $filename,
         private int $urlCount,
-        ?\DateTimeInterface $created = null
+        ?\DateTimeInterface $created = null,
     ) {
-        $this->filename = $filename;
         $this->created = $created ?: new \DateTime('NOW', new \DateTimeZone('UTC'));
     }
 

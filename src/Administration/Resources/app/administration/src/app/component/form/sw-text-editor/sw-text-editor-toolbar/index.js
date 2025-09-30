@@ -1,7 +1,7 @@
 import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
 
-const { Component, Utils } = Shopware;
+const { Utils } = Shopware;
 
 /**
  * @sw-package framework
@@ -9,7 +9,7 @@ const { Component, Utils } = Shopware;
  *
  * @private
  */
-Component.register('sw-text-editor-toolbar', {
+export default {
     template,
 
     emits: [
@@ -195,6 +195,10 @@ Component.register('sw-text-editor-toolbar', {
             }
 
             if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
+                return;
+            }
+
+            if (path.some((element) => element.classList?.contains('mt-select-result-list-popover-wrapper'))) {
                 return;
             }
 
@@ -478,4 +482,4 @@ Component.register('sw-text-editor-toolbar', {
             button.expanded = !button.expanded;
         },
     },
-});
+};

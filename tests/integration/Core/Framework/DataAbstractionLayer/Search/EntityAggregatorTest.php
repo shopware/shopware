@@ -13,6 +13,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -168,22 +169,22 @@ class EntityAggregatorTest extends TestCase
 
         $bucket = $categoryAgg->get('');
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
         static::assertNull($bucket->getResult());
 
         $bucket = $categoryAgg->get($this->ids->get('c-1'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(3, $bucket->getCount());
+        static::assertSame(3, $bucket->getCount());
         static::assertNull($bucket->getResult());
 
         $bucket = $categoryAgg->get($this->ids->get('c-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
         static::assertNull($bucket->getResult());
 
         $bucket = $categoryAgg->get($this->ids->get('c-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(2, $bucket->getCount());
+        static::assertSame(2, $bucket->getCount());
         static::assertNull($bucket->getResult());
     }
 
@@ -221,7 +222,7 @@ class EntityAggregatorTest extends TestCase
         // validation of not assigned category
         $bucket = $categoryAgg->get('');
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
 
         $manufacturerAgg = $bucket->getResult();
         static::assertInstanceOf(TermsResult::class, $manufacturerAgg);
@@ -230,12 +231,12 @@ class EntityAggregatorTest extends TestCase
         static::assertTrue($manufacturerAgg->has($this->ids->get('m-3')));
         $bucket = $manufacturerAgg->get($this->ids->get('m-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
 
         // validation of category 1
         $bucket = $categoryAgg->get($this->ids->get('c-1'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(3, $bucket->getCount());
+        static::assertSame(3, $bucket->getCount());
 
         $manufacturerAgg = $bucket->getResult();
         static::assertInstanceOf(TermsResult::class, $manufacturerAgg);
@@ -245,15 +246,15 @@ class EntityAggregatorTest extends TestCase
 
         $bucket = $manufacturerAgg->get($this->ids->get('m-1'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
         $bucket = $manufacturerAgg->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(2, $bucket->getCount());
+        static::assertSame(2, $bucket->getCount());
 
         // validation of category 2
         $bucket = $categoryAgg->get($this->ids->get('c-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
 
         $manufacturerAgg = $bucket->getResult();
         static::assertInstanceOf(TermsResult::class, $manufacturerAgg);
@@ -262,12 +263,12 @@ class EntityAggregatorTest extends TestCase
 
         $bucket = $manufacturerAgg->get($this->ids->get('m-1'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
 
         // validation of category 3
         $bucket = $categoryAgg->get($this->ids->get('c-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(2, $bucket->getCount());
+        static::assertSame(2, $bucket->getCount());
 
         $manufacturerAgg = $bucket->getResult();
         static::assertInstanceOf(TermsResult::class, $manufacturerAgg);
@@ -276,7 +277,7 @@ class EntityAggregatorTest extends TestCase
 
         $bucket = $manufacturerAgg->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(2, $bucket->getCount());
+        static::assertSame(2, $bucket->getCount());
     }
 
     public function testTermsAggregationWithSorting(): void
@@ -573,7 +574,7 @@ class EntityAggregatorTest extends TestCase
         $max = $result->get('max-price');
         static::assertInstanceOf(MaxResult::class, $max);
 
-        static::assertEquals(250, $max->getMax());
+        static::assertSame('250.0000', $max->getMax());
     }
 
     public function testMaxAggregationWithTermsAggregation(): void
@@ -610,21 +611,21 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(MaxResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $max = $bucket->getResult();
-        static::assertEquals(50, $max->getMax());
+        static::assertSame('50.0000', $max->getMax());
 
         $bucket = $manufacturers->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(MaxResult::class, $bucket->getResult());
         static::assertSame(3, $bucket->getCount());
         $max = $bucket->getResult();
-        static::assertEquals(200, $max->getMax());
+        static::assertSame('200.0000', $max->getMax());
 
         $bucket = $manufacturers->get($this->ids->get('m-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(MaxResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $max = $bucket->getResult();
-        static::assertEquals(250, $max->getMax());
+        static::assertSame('250.0000', $max->getMax());
     }
 
     public function testMinAggregation(): void
@@ -646,7 +647,7 @@ class EntityAggregatorTest extends TestCase
         $min = $result->get('min-price');
         static::assertInstanceOf(MinResult::class, $min);
 
-        static::assertEquals(50, $min->getMin());
+        static::assertSame('50.0000', $min->getMin());
     }
 
     public function testMinAggregationWithTermsAggregation(): void
@@ -683,21 +684,21 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(MinResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $min = $bucket->getResult();
-        static::assertEquals(50, $min->getMin());
+        static::assertSame('50.0000', $min->getMin());
 
         $bucket = $manufacturers->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(MinResult::class, $bucket->getResult());
         static::assertSame(3, $bucket->getCount());
         $min = $bucket->getResult();
-        static::assertEquals(100, $min->getMin());
+        static::assertSame('100.0000', $min->getMin());
 
         $bucket = $manufacturers->get($this->ids->get('m-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(MinResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $min = $bucket->getResult();
-        static::assertEquals(250, $min->getMin());
+        static::assertSame('250.0000', $min->getMin());
     }
 
     public function testCountAggregation(): void
@@ -719,7 +720,7 @@ class EntityAggregatorTest extends TestCase
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(3, $count->getCount());
+        static::assertSame(3, $count->getCount());
     }
 
     public function testCountAggregationWithTermsAggregation(): void
@@ -757,21 +758,21 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(CountResult::class, $bucket->getResult());
         static::assertSame(3, $bucket->getCount());
         $count = $bucket->getResult();
-        static::assertEquals(2, $count->getCount());
+        static::assertSame(2, $count->getCount());
 
         $bucket = $categories->get($this->ids->get('c-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(CountResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $count = $bucket->getResult();
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
 
         $bucket = $categories->get($this->ids->get('c-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(CountResult::class, $bucket->getResult());
         static::assertSame(2, $bucket->getCount());
         $count = $bucket->getResult();
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
     }
 
     public function testCountAggregationWithScoreQuery(): void
@@ -794,7 +795,7 @@ class EntityAggregatorTest extends TestCase
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
     }
 
     public function testCountAggregationWithScoreQueryAndAssociation(): void
@@ -818,7 +819,7 @@ class EntityAggregatorTest extends TestCase
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
     }
 
     public function testCountAggregationWithScoreCombinedWithFilter(): void
@@ -847,12 +848,12 @@ class EntityAggregatorTest extends TestCase
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
 
         $count = $result->get('count-manufacturer2');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
     }
 
     public function testStatsAggregation(): void
@@ -874,10 +875,10 @@ class EntityAggregatorTest extends TestCase
         $stats = $result->get('stats-price');
         static::assertInstanceOf(StatsResult::class, $stats);
 
-        static::assertEquals(50, $stats->getMin());
-        static::assertEquals(250, $stats->getMax());
-        static::assertEquals(150, $stats->getAvg());
-        static::assertEquals(750, $stats->getSum());
+        static::assertSame('50.0000', $stats->getMin());
+        static::assertSame('250.0000', $stats->getMax());
+        static::assertSame(150.0, $stats->getAvg());
+        static::assertSame(750.0, $stats->getSum());
     }
 
     public function testStatsAggregationWithScoreQuery(): void
@@ -900,10 +901,10 @@ class EntityAggregatorTest extends TestCase
         $stats = $result->get('stats-price');
         static::assertInstanceOf(StatsResult::class, $stats);
 
-        static::assertEquals(50, $stats->getMin());
-        static::assertEquals(50, $stats->getMax());
-        static::assertEquals(50, $stats->getAvg());
-        static::assertEquals(50, $stats->getSum());
+        static::assertSame('50.0000', $stats->getMin());
+        static::assertSame('50.0000', $stats->getMax());
+        static::assertSame(50.0, $stats->getAvg());
+        static::assertSame(50.0, $stats->getSum());
     }
 
     public function testStatsAggregationWithTermsAggregation(): void
@@ -940,30 +941,30 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(StatsResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $stats = $bucket->getResult();
-        static::assertEquals(50, $stats->getMin());
-        static::assertEquals(50, $stats->getMax());
-        static::assertEquals(50, $stats->getAvg());
-        static::assertEquals(50, $stats->getSum());
+        static::assertSame('50.0000', $stats->getMin());
+        static::assertSame('50.0000', $stats->getMax());
+        static::assertSame(50.0, $stats->getAvg());
+        static::assertSame(50.0, $stats->getSum());
 
         $bucket = $manufacturers->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(StatsResult::class, $bucket->getResult());
         static::assertSame(3, $bucket->getCount());
         $stats = $bucket->getResult();
-        static::assertEquals(100, $stats->getMin());
-        static::assertEquals(200, $stats->getMax());
-        static::assertEquals(150, $stats->getAvg());
-        static::assertEquals(450, $stats->getSum());
+        static::assertSame('100.0000', $stats->getMin());
+        static::assertSame('200.0000', $stats->getMax());
+        static::assertSame(150.0, $stats->getAvg());
+        static::assertSame(450.0, $stats->getSum());
 
         $bucket = $manufacturers->get($this->ids->get('m-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(StatsResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $stats = $bucket->getResult();
-        static::assertEquals(250, $stats->getMin());
-        static::assertEquals(250, $stats->getMax());
-        static::assertEquals(250, $stats->getAvg());
-        static::assertEquals(250, $stats->getSum());
+        static::assertSame('250.0000', $stats->getMin());
+        static::assertSame('250.0000', $stats->getMax());
+        static::assertSame(250.0, $stats->getAvg());
+        static::assertSame(250.0, $stats->getSum());
     }
 
     public function testEntityAggregation(): void
@@ -1105,7 +1106,7 @@ class EntityAggregatorTest extends TestCase
         $price = $result->get('avg-price');
         static::assertInstanceOf(AvgResult::class, $price);
 
-        static::assertEquals(75, $price->getAvg());
+        static::assertSame(75.0, $price->getAvg());
     }
 
     #[DataProvider('dateHistogramProvider')]
@@ -1293,25 +1294,25 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(AvgResult::class, $bucket->getResult());
 
         $avg = $bucket->getResult();
-        static::assertEquals(75, $avg->getAvg());
+        static::assertSame(75.0, $avg->getAvg());
 
         $bucket = $histogram->get('2019-06-01 00:00:00');
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(AvgResult::class, $bucket->getResult());
         $avg = $bucket->getResult();
-        static::assertEquals(150, $avg->getAvg());
+        static::assertSame(150.0, $avg->getAvg());
 
         $bucket = $histogram->get('2020-09-01 00:00:00');
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(AvgResult::class, $bucket->getResult());
         $avg = $bucket->getResult();
-        static::assertEquals(200, $avg->getAvg());
+        static::assertSame(200.0, $avg->getAvg());
 
         $bucket = $histogram->get('2021-12-01 00:00:00');
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(AvgResult::class, $bucket->getResult());
         $avg = $bucket->getResult();
-        static::assertEquals(250, $avg->getAvg());
+        static::assertSame(250.0, $avg->getAvg());
     }
 
     public function testAggregateNonExistingShouldFail(): void
@@ -1345,6 +1346,19 @@ class EntityAggregatorTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('foo?foo', 'taxRate'));
+
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+
+        $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
+    }
+
+    public function testAggregationNameWithDisallowedNameNested(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+
+        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation('foo?foo', 'taxRate')));
 
         static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
 

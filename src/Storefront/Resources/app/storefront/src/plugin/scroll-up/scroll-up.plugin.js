@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import Debouncer from 'src/helper/debouncer.helper';
-import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * @sw-package framework
@@ -23,8 +22,16 @@ export default class ScrollUpPlugin extends Plugin {
          * scroll up button visible at position
          */
         visiblePos: 250,
+
+        /**
+         * Class will be set when the scroll up button is shown.
+         */
         visibleCls: 'is-visible',
 
+        /**
+         * ID of the element that should be focused after scrolling up.
+         */
+        topElementId: 'page-top',
     };
 
     init() {
@@ -93,7 +100,7 @@ export default class ScrollUpPlugin extends Plugin {
      * @returns {void}
      */
     _focusFirstElement() {
-        const element = DomAccess.getFirstFocusableElement();
+        const element = document.getElementById(this.options.topElementId);
 
         window.focusHandler.setFocus(element, { preventScroll: true });
     }

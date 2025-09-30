@@ -1,15 +1,15 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
-import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
 /**
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
  *
- * @package content
+ * @package framework
  */
 export default class FormAutoSubmitPlugin extends Plugin {
     static options = {
@@ -53,6 +53,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
 
         if (this.options.useAjax) {
@@ -155,7 +156,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
     /**
      * on submit callback for the form
      *
-     * @param event
+     * @param {Event} event
      *
      * @private
      */
@@ -168,15 +169,63 @@ export default class FormAutoSubmitPlugin extends Plugin {
         this._saveFocusState(event.target);
 
         if (!this.formSubmittedByCaptcha) {
-            this.sendAjaxFormSubmit();
+            this.sendAjaxFormSubmit(event);
         }
     }
 
-    sendAjaxFormSubmit() {
-        const data = FormSerializeUtil.serialize(this._form);
-        const action = DomAccess.getAttribute(this._form, 'action');
+    /**
+     * submits the form via ajax
+     *
+     * @param {Event|undefined} event
+     */
+    sendAjaxFormSubmit(event) {
+        let action = this._form.getAttribute('action');
+        let method = this._form.getAttribute('method');
 
-        this._client.post(action, data, this._onAfterAjaxSubmit.bind(this));
+        const submitter = event?.submitter || event?.currentTarget;
+        if (submitter?.hasAttribute('formAction')) {
+            action = submitter.getAttribute('formAction');
+        }
+        if (submitter?.hasAttribute('formMethod')) {
+            method = submitter.getAttribute('formMethod').toLowerCase();
+        }
+
+        if (method === 'get') {
+            fetch(action, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(response => this._onAfterAjaxSubmit(response));
+        } else {
+            fetch(action, {
+                method: method ?? 'post',
+                body: this._getFormData(),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(content => this._onAfterAjaxSubmit(content));
+        }
+    }
+
+    /**
+     * serializes the form
+     * and appends the redirect parameter
+     *
+     * @returns {FormData}
+     *
+     * @private
+     */
+    _getFormData() {
+        /** @type FormData **/
+        const data = FormSerializeUtil.serialize(this._form);
+
+        if (this.options.redirectTo) {
+            data.append('redirectTo', this.options.redirectTo);
+        } else if (this.options.forwardTo) {
+            data.append('forwardTo', this.options.forwardTo);
+        }
+
+        return data;
     }
 
     /**
@@ -189,7 +238,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
      */
     _onAfterAjaxSubmit(response) {
         PageLoadingIndicatorUtil.remove();
-        const replaceContainer = DomAccess.querySelector(document, this.options.ajaxContainerSelector);
+        const replaceContainer = document.querySelector(this.options.ajaxContainerSelector);
         replaceContainer.innerHTML = response;
         window.PluginManager.initializePlugins();
 

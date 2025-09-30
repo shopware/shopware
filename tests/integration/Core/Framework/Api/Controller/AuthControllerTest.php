@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,19 +40,19 @@ class AuthControllerTest extends TestCase
         $client->request('GET', '/api/tax');
         static::assertNotFalse($client->getResponse()->getContent());
 
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         static::assertNotFalse($client->getResponse()->getContent());
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $response['errors'][0]['status']);
-        static::assertEquals(
+        static::assertSame(Response::HTTP_UNAUTHORIZED, (int) $response['errors'][0]['status']);
+        static::assertSame(
             'The resource owner or authorization server denied the request.',
             $response['errors'][0]['title']
         );
-        static::assertEquals('Missing token in "Authorization" header', $response['errors'][0]['detail']);
+        static::assertSame('Missing token in "Authorization" header', $response['errors'][0]['detail']);
     }
 
     public function testCreateTokenWithInvalidCredentials(): void
@@ -66,16 +67,16 @@ class AuthControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         static::assertNotFalse($client->getResponse()->getContent());
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, (int) $response['errors'][0]['status']);
 
-        static::assertEquals(OAuthServerException::invalidCredentials()->getMessage(), $response['errors'][0]['title']);
+        static::assertSame(OAuthServerException::invalidCredentials()->getMessage(), $response['errors'][0]['title']);
     }
 
     public function testAccessWithInvalidToken(): void
@@ -86,19 +87,19 @@ class AuthControllerTest extends TestCase
         ]);
         $client->request('GET', '/api/tax');
 
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
 
         static::assertNotFalse($client->getResponse()->getContent());
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $response['errors'][0]['status']);
-        static::assertEquals(
+        static::assertSame(Response::HTTP_UNAUTHORIZED, (int) $response['errors'][0]['status']);
+        static::assertSame(
             'The resource owner or authorization server denied the request.',
             $response['errors'][0]['title']
         );
-        static::assertEquals('The JWT string must have two dots', $response['errors'][0]['detail']);
+        static::assertSame('The JWT string must have two dots', $response['errors'][0]['detail']);
     }
 
     public function testAccessWithExpiredToken(): void
@@ -110,14 +111,14 @@ class AuthControllerTest extends TestCase
         );
         $client->request('GET', '/api/tax');
 
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
         static::assertNotFalse($client->getResponse()->getContent());
 
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $response['errors'][0]['status']);
+        static::assertSame(Response::HTTP_UNAUTHORIZED, (int) $response['errors'][0]['status']);
     }
 
     public function testAccessProtectedResourceWithToken(): void
@@ -125,7 +126,7 @@ class AuthControllerTest extends TestCase
         $this->getBrowser()->request('GET', '/api/tax');
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_OK,
             $this->getBrowser()->getResponse()->getStatusCode(),
             $this->getBrowser()->getResponse()->getContent()
@@ -152,16 +153,16 @@ class AuthControllerTest extends TestCase
 
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_BAD_REQUEST,
             $client->getResponse()->getStatusCode(),
             print_r($client->getResponse()->getContent(), true)
         );
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
-        static::assertEquals('The refresh token is invalid.', $response['errors'][0]['title']);
-        static::assertEquals('Cannot decrypt the refresh token', $response['errors'][0]['detail']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, (int) $response['errors'][0]['status']);
+        static::assertSame('The refresh token is invalid.', $response['errors'][0]['title']);
+        static::assertSame('Cannot decrypt the refresh token', $response['errors'][0]['detail']);
     }
 
     public function testRevokedRefreshToken(): void
@@ -196,7 +197,7 @@ class AuthControllerTest extends TestCase
 
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_BAD_REQUEST,
             $client->getResponse()->getStatusCode(),
             print_r($client->getResponse()->getContent(), true)
@@ -204,9 +205,9 @@ class AuthControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
-        static::assertEquals('The refresh token is invalid.', $response['errors'][0]['title']);
-        static::assertEquals('Token has been revoked', $response['errors'][0]['detail']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, (int) $response['errors'][0]['status']);
+        static::assertSame('The refresh token is invalid.', $response['errors'][0]['title']);
+        static::assertSame('Token has been revoked', $response['errors'][0]['detail']);
     }
 
     public function testRefreshToken(): void
@@ -245,6 +246,7 @@ class AuthControllerTest extends TestCase
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($data);
         static::assertArrayHasKey(
             'access_token',
             $data,
@@ -268,6 +270,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
         static::assertArrayHasKey(
             'access_token',
             $data,
@@ -289,7 +292,7 @@ class AuthControllerTest extends TestCase
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_OK,
             $this->getBrowser()->getResponse()->getStatusCode(),
             $this->getBrowser()->getResponse()->getContent()
@@ -385,7 +388,7 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(UnencryptedToken::class, $parsedAccessToken);
         $scopes = $parsedAccessToken->claims()->get('scopes');
 
-        static::assertEquals(['admin'], $scopes);
+        static::assertSame(['admin'], $scopes);
     }
 
     public function testSuperAdminScopeRemovedOnRefreshToken(): void
@@ -510,7 +513,7 @@ class AuthControllerTest extends TestCase
         $client->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
         $client->request('GET', '/api/tax');
 
-        static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
     public function testIntegrationAuthInvalid(): void
@@ -657,7 +660,7 @@ class AuthControllerTest extends TestCase
         ];
 
         $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
     }
 
     public function testUnauthorizedWithPasswordGrantTypeWhenTokenExpired(): void
@@ -677,7 +680,7 @@ class AuthControllerTest extends TestCase
         $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($browser->getResponse()->getContent());
 
-        static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
         $token = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertIsString($accessToken = $token['access_token']);
@@ -710,7 +713,7 @@ class AuthControllerTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepository $integrationRepository */
+        /** @var EntityRepository<IntegrationCollection> $integrationRepository */
         $integrationRepository = static::getContainer()->get('integration.repository');
 
         $integrationRepository->update([

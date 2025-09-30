@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -43,7 +44,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
@@ -74,7 +74,7 @@ abstract class AbstractImportExportTestCase extends TestCase
     {
         $this->productRepository = static::getContainer()->get('product.repository');
 
-        $this->listener = static::getContainer()->get(EventDispatcherInterface::class);
+        $this->listener = static::getContainer()->get('event_dispatcher');
     }
 
     /**
@@ -92,6 +92,8 @@ abstract class AbstractImportExportTestCase extends TestCase
 
     /**
      * @param array<string, bool> $configOverrides
+     *
+     * @return MockRepository<CustomerCollection>
      */
     protected function runCustomerImportWithConfigAndMockedRepository(array $configOverrides): MockRepository
     {
@@ -119,22 +121,22 @@ abstract class AbstractImportExportTestCase extends TestCase
         $pipeFactory = static::getContainer()->get(PipeFactory::class);
         $readerFactory = static::getContainer()->get(CsvReaderFactory::class);
         $writerFactory = static::getContainer()->get(CsvFileWriterFactory::class);
-        $eventDispatcher = static::getContainer()->get(EventDispatcherInterface::class);
 
+        /** @var MockRepository<CustomerCollection> */
         $mockRepository = new MockRepository(static::getContainer()->get(CustomerDefinition::class));
 
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
             static::getContainer()->get('shopware.filesystem.private'),
-            static::getContainer()->get('event_dispatcher'),
+            $this->listener,
             static::getContainer()->get(Connection::class),
             $mockRepository,
             $pipeFactory->create($logEntity),
             $readerFactory->create($logEntity),
             $writerFactory->create($logEntity),
             static::getContainer()->get(FileService::class),
-            new OneByOneImportStrategy($eventDispatcher, $mockRepository),
+            new OneByOneImportStrategy($this->listener, $mockRepository),
             5,
             5
         );
@@ -340,7 +342,7 @@ abstract class AbstractImportExportTestCase extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }

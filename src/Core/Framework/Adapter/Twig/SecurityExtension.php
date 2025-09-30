@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -40,22 +41,22 @@ class SecurityExtension extends AbstractExtension
      */
     public function map(?iterable $array, string|callable|\Closure $function): ?array
     {
-        if ($array === null) {
+        if ($array === null || !\is_callable($function)) {
             return null;
         }
 
-        if (\is_array($function)) {
-            $function = implode('::', $function);
-        }
-
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $function));
+            throw AdapterException::securityFunctionNotAllowed($function);
         }
 
         $result = [];
         foreach ($array as $key => $value) {
-            // @phpstan-ignore-next-line
-            $result[$key] = $function($value);
+            if (\is_string($function)) {
+                // Custom functions
+                $result[$key] = $function($value);
+            } else {
+                $result[$key] = $function($value, $key);
+            }
         }
 
         return $result;
@@ -76,7 +77,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $function));
+            throw AdapterException::securityFunctionNotAllowed($function);
         }
 
         if (!\is_array($array)) {
@@ -104,7 +105,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $arrow));
+            throw AdapterException::securityFunctionNotAllowed($arrow);
         }
 
         if (\is_array($array)) {
@@ -133,7 +134,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $arrow));
+            throw AdapterException::securityFunctionNotAllowed($arrow);
         }
 
         if ($array instanceof \Traversable) {

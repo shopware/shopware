@@ -41,9 +41,12 @@ class SortingListingProcessorTest extends TestCase
     #[DataProvider('prepareProvider')]
     public function testPrepare(string $sorting, bool $testWithAvailableSortings, array $expected): void
     {
+        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
+        $sortingRepository = new StaticEntityRepository([$this->buildSortings()]);
+
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            new StaticEntityRepository([$this->buildSortings()])
+            $sortingRepository
         );
 
         $processor->prepare(
@@ -55,7 +58,8 @@ class SortingListingProcessorTest extends TestCase
         static::assertEquals($expected, $criteria->getSorting());
     }
 
-    public function testPrepareDefaultSearchResultSorting(): void
+    #[DataProvider('prepareDefaultSearchResultSortingProvider')]
+    public function testPrepareDefaultSearchResultSorting(Request $requested): void
     {
         $productSorting = new ProductSortingEntity();
         $productSorting->setId(Uuid::randomHex());
@@ -86,7 +90,7 @@ class SortingListingProcessorTest extends TestCase
         );
 
         $processor->prepare(
-            new Request(['search' => 'test']),
+            $requested,
             $criteria = new Criteria(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -97,16 +101,63 @@ class SortingListingProcessorTest extends TestCase
         ], $criteria->getSorting());
     }
 
+    #[DataProvider('prepareDefaultSearchResultSortingProvider')]
+    public function testPrepareWithFallbackSorting(Request $requested): void
+    {
+        $productSorting = new ProductSortingEntity();
+        $productSorting->setId(Uuid::randomHex());
+        $productSorting->assign([
+            'key' => 'name-asc',
+            'fields' => [
+                ['field' => 'name', 'priority' => 1, 'order' => 'ASC'],
+            ],
+        ]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn(
+            new EntitySearchResult(
+                ProductSortingDefinition::ENTITY_NAME,
+                1,
+                new ProductSortingCollection([$productSorting]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([
+                'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
+            ]),
+            $repository
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm('test');
+        $processor->prepare(
+            $requested,
+            $criteria,
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertEquals([
+            new FieldSorting('name', FieldSorting::ASCENDING),
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+            new FieldSorting('id', FieldSorting::ASCENDING),
+        ], $criteria->getSorting());
+    }
+
     #[DataProvider('processProvider')]
     public function testProcess(string $requested, ?string $expected): void
     {
         $sortings = $this->buildSortings();
 
+        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
+        $sortingRepository = new StaticEntityRepository([$sortings]);
+
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            new StaticEntityRepository([
-                $sortings,
-            ])
+            $sortingRepository
         );
 
         $result = new ProductListingResult($requested, 1, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
@@ -118,7 +169,7 @@ class SortingListingProcessorTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        static::assertEquals($expected, $result->getSorting());
+        static::assertSame($expected, $result->getSorting());
     }
 
     #[DataProvider('wrongSortingTypeProvider')]
@@ -126,11 +177,14 @@ class SortingListingProcessorTest extends TestCase
     {
         $this->expectException(ProductException::class);
 
+        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
+        $sortingRepository = new StaticEntityRepository([
+            $this->buildSortings(),
+        ]);
+
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            new StaticEntityRepository([
-                $this->buildSortings(),
-            ])
+            $sortingRepository
         );
 
         $processor->prepare(
@@ -138,6 +192,17 @@ class SortingListingProcessorTest extends TestCase
             new Criteria(),
             $this->createMock(SalesChannelContext::class)
         );
+    }
+
+    public static function prepareDefaultSearchResultSortingProvider(): \Generator
+    {
+        yield 'Search term in post request' => [
+            'requested' => new Request([], ['search' => 'test']),
+        ];
+
+        yield 'Search term in query' => [
+            'requested' => new Request(['search' => 'test']),
+        ];
     }
 
     public static function prepareProvider(): \Generator

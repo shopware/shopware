@@ -12,7 +12,6 @@ const createWrapper = async () => {
         {
             global: {
                 stubs: {
-                    'sw-card': true,
                     'sw-entity-single-select': true,
                     'sw-single-select': true,
                 },

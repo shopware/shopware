@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Exception\MetricNotSupportedExcept
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 
 /**
- * @experimental feature:TELEMETRY_METRICS stableVersion:v6.7.0
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
 interface MetricTransportInterface

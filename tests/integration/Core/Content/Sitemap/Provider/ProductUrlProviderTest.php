@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -42,6 +43,9 @@ class ProductUrlProviderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
@@ -191,7 +195,7 @@ class ProductUrlProviderTest extends TestCase
 
         $host = $this->getHost($this->salesChannelContext);
         $urlGenerate = $this->getComparisonUrl($canonicalProductId);
-        static::assertEquals($urlGenerate, $host . '/' . $urls[0]->getLoc());
+        static::assertSame($urlGenerate, $host . '/' . $urls[0]->getLoc());
     }
 
     public function testContainsOutOfStockCloseoutProducts(): void

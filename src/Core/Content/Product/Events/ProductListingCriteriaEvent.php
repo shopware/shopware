@@ -13,35 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ProductListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var Request
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $request;
-
-    /**
-     * @var Criteria
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $criteria;
-
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
-
     public function __construct(
-        Request $request,
-        Criteria $criteria,
-        SalesChannelContext $context
+        protected Request $request,
+        protected Criteria $criteria,
+        protected SalesChannelContext $context,
     ) {
-        $this->request = $request;
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getRequest(): Request

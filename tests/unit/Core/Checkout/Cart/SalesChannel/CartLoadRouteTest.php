@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(CartLoadRoute::class)]
+#[Package('checkout')]
 class CartLoadRouteTest extends TestCase
 {
     public function testLoadCartCreatesNewCart(): void
@@ -25,14 +27,14 @@ class CartLoadRouteTest extends TestCase
         $newCart = new Cart('test');
         $factory = $this->createMock(CartFactory::class);
         $factory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createNew')
             ->with('test')
             ->willReturn($newCart);
 
         $persister = $this->createMock(AbstractCartPersister::class);
         $persister
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with('test')
             ->willThrowException(CartException::tokenNotFound('test'));
@@ -40,14 +42,14 @@ class CartLoadRouteTest extends TestCase
         $calculatedCart = new Cart('calculated');
         $calculator = $this->createMock(CartCalculator::class);
         $calculator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('calculate')
             ->with($newCart, $this->createMock(SalesChannelContext::class))
             ->willReturn($calculatedCart);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getToken')
             ->willReturn('test');
 

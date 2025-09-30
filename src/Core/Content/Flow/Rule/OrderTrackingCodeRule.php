@@ -9,13 +9,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class OrderTrackingCodeRule extends FlowRule
 {
     public const RULE_NAME = 'orderTrackingCode';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $isSet = false)
     {
         parent::__construct();

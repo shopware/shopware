@@ -1,5 +1,3 @@
-import type { ACTION } from '../constant/flow.constant';
-
 /**
  * @sw-package after-sales
  */
@@ -25,7 +23,7 @@ type EntityActions =
     | 'SET_CUSTOMER_GROUP_CUSTOM_FIELD'
     | 'ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE';
 
-type EntityActionName = (typeof ACTION)[EntityActions];
+type EntityActionName = (typeof Shopware.Constants.FLOW.ACTION)[EntityActions];
 
 const swFlowStore = Shopware.Store.register('swFlow', {
     state: () => ({
@@ -291,7 +289,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
         },
 
         fetchTriggerActions() {
-            void Service('businessEventService')
+            return Service('businessEventService')
                 .getBusinessEvents()
                 .then((result: Events) => {
                     this.triggerEvents = result;

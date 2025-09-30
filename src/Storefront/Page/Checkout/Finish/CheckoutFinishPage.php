@@ -9,26 +9,13 @@ use Shopware\Storefront\Page\Page;
 #[Package('framework')]
 class CheckoutFinishPage extends Page
 {
-    /**
-     * @var OrderEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
+    protected OrderEntity $order;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $changedPayment = false;
+    protected bool $changedPayment = false;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentFailed = false;
+    protected bool $paymentFailed = false;
+
+    protected bool $logoutCustomer = false;
 
     public function getOrder(): OrderEntity
     {
@@ -58,5 +45,15 @@ class CheckoutFinishPage extends Page
     public function setPaymentFailed(bool $paymentFailed): void
     {
         $this->paymentFailed = $paymentFailed;
+    }
+
+    public function isLogoutCustomer(): bool
+    {
+        return $this->logoutCustomer;
+    }
+
+    public function setLogoutCustomer(bool $logoutCustomer): void
+    {
+        $this->logoutCustomer = $logoutCustomer;
     }
 }

@@ -5,12 +5,10 @@
 import template from './sw-list-price-field.html.twig';
 import './sw-list-price-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-list-price-field', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -201,7 +199,7 @@ Component.register('sw-list-price-field', {
                 const price = this.priceForCurrency;
 
                 if (price) {
-                    this.$set(price, 'regulationPrice', newValue);
+                    price.regulationPrice = newValue;
                 }
             },
         },
@@ -280,4 +278,4 @@ Component.register('sw-list-price-field', {
             return Number(priceRounded);
         },
     },
-});
+};

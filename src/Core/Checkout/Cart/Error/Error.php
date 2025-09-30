@@ -25,6 +25,27 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     final public const LEVEL_ERROR = 20;
 
+    private ?string $translatedMessage = null;
+
+    /**
+     * The trace has to be cleaned up to remove service references that are not serializable.
+     *
+     * @return array<string, mixed>
+     */
+    public function __serialize(): array
+    {
+        $ref = new \ReflectionClass($this);
+
+        $data = [];
+        foreach ($ref->getProperties() as $property) {
+            $data[$property->getName()] = $property->getValue($this);
+        }
+
+        unset($data['trace']);
+
+        return $data;
+    }
+
     abstract public function getId(): string;
 
     abstract public function getMessageKey(): string;
@@ -62,6 +83,16 @@ abstract class Error extends \Exception implements \JsonSerializable
         return true;
     }
 
+    public function getTranslatedMessage(): ?string
+    {
+        return $this->translatedMessage;
+    }
+
+    public function setTranslatedMessage(string $translatedMessage): void
+    {
+        $this->translatedMessage = $translatedMessage;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -71,6 +102,7 @@ abstract class Error extends \Exception implements \JsonSerializable
         $data['key'] = $this->getId();
         $data['level'] = $this->getLevel();
         $data['message'] = $this->getMessage();
+        $data['translatedMessage'] = $this->getTranslatedMessage();
         $data['messageKey'] = $this->getMessageKey();
         $data['parameters'] = $this->getParameters();
         $data['block'] = $this->blockOrder();

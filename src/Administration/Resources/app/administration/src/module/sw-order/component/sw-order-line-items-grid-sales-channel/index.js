@@ -44,6 +44,18 @@ export default {
             type: Boolean,
             default: false,
         },
+
+        title: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
+        positionIdentifier: {
+            type: String,
+            required: false,
+            default: 'sw-order-line-items-grid-sales-channel',
+        },
     },
 
     data() {
@@ -263,6 +275,14 @@ export default {
             }
 
             this.$refs.dataGrid.resetSelection();
+        },
+
+        onDeleteItem(item) {
+            if (item.label === '') {
+                Store.get('swOrder').removeEmptyLineItem(item.id);
+            } else {
+                this.$emit('on-remove-items', [item.id]);
+            }
         },
 
         itemCreatedFromProduct(item) {

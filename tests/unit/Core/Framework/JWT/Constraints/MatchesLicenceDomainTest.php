@@ -61,7 +61,7 @@ class MatchesLicenceDomainTest extends TestCase
 
         $configService = $this->createMock(SystemConfigService::class);
         $configService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->with(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN)
             ->willReturn($returnDomain);

@@ -34,10 +34,10 @@ class ContainsFilterTest extends TestCase
         $filter = new ContainsFilter('foo', 'bar');
         $clone = clone $filter;
 
-        static::assertEquals($filter->jsonSerialize(), $clone->jsonSerialize());
-        static::assertEquals($filter->getField(), $clone->getField());
-        static::assertEquals($filter->getFields(), $clone->getFields());
-        static::assertEquals($filter->getValue(), $clone->getValue());
+        static::assertSame($filter->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($filter->getField(), $clone->getField());
+        static::assertSame($filter->getFields(), $clone->getFields());
+        static::assertSame($filter->getValue(), $clone->getValue());
         static::assertNotSame($filter, $clone);
     }
 }

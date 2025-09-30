@@ -22,11 +22,11 @@ class ThemeFilesystemResolverTest extends TestCase
     {
         $kernel = $this->createMock(Kernel::class);
         $bundle = new MockStorefront();
-        $kernel->expects(static::once())->method('getBundles')->willReturn([
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
             'Storefront' => $bundle,
         ]);
 
-        $kernel->expects(static::once())->method('getBundle')->willReturnMap([
+        $kernel->expects($this->once())->method('getBundle')->willReturnMap([
             ['Storefront', $bundle],
         ]);
 
@@ -38,7 +38,7 @@ class ThemeFilesystemResolverTest extends TestCase
         $pluginConfig = new StorefrontPluginConfiguration('Storefront');
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals($bundle->getPath(), $fs->location);
+        static::assertSame($bundle->getPath(), $fs->location);
     }
 
     public function testGetFilesystemDelegatesToAppSourceResolverForApps(): void
@@ -54,19 +54,19 @@ class ThemeFilesystemResolverTest extends TestCase
 
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals('/app-root', $fs->location);
+        static::assertSame('/app-root', $fs->location);
     }
 
     public function testGetFilesystemForPluginUsesBundleBasePath(): void
     {
         $kernel = $this->createMock(Kernel::class);
         $bundle = $this->createMock(BundleInterface::class);
-        $bundle->expects(static::once())->method('getPath')->willReturn('/some/project/custom/plugins/CoolPlugin');
-        $kernel->expects(static::once())->method('getBundles')->willReturn([
+        $bundle->expects($this->once())->method('getPath')->willReturn('/some/project/custom/plugins/CoolPlugin');
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
             'CoolPlugin' => $bundle,
         ]);
 
-        $kernel->expects(static::once())->method('getBundle')->willReturnMap([
+        $kernel->expects($this->once())->method('getBundle')->willReturnMap([
             ['CoolPlugin', $bundle],
         ]);
 
@@ -79,6 +79,6 @@ class ThemeFilesystemResolverTest extends TestCase
 
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals('/some/project/custom/plugins/CoolPlugin', $fs->location);
+        static::assertSame('/some/project/custom/plugins/CoolPlugin', $fs->location);
     }
 }

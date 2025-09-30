@@ -33,7 +33,7 @@ class CustomEntityEntity extends Entity
     /**
      * @var array<string, array<mixed>>|null
      */
-    protected ?array $flags;
+    protected ?array $flags = null;
 
     protected ?\DateTimeInterface $deletedAt = null;
 

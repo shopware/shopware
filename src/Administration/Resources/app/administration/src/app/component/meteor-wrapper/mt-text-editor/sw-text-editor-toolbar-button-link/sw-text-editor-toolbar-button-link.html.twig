@@ -18,7 +18,10 @@
         <template #default>
             <mt-loader v-if="isLoading" />
 
-            <div v-else class="sw-text-editor__link-modal">
+            <div
+                v-else
+                class="sw-text-editor__link-modal"
+            >
                 <mt-select
                     :label="$t('sw-text-editor-toolbar-button-link.linkType')"
                     :options="linkOptions"
@@ -86,10 +89,10 @@
                 <mt-switch
                     v-if="showOpenInNewTabToggle"
                     :label="$t('sw-text-editor-toolbar-button-link.openInNewTab')"
-                    :checked="linkTarget === '_blank'"
+                    :model-value="linkTarget === '_blank'"
                     :aria-label="$t('sw-text-editor-toolbar-button-link.openInNewTab')"
                     class="sw-text-editor-toolbar-button-link__open-in-new-tab-switch"
-                    @change="
+                    @update:model-value="
                         (checked) => {
                             linkTarget = checked ? '_blank' : null;
                         }
@@ -97,10 +100,9 @@
                 />
 
                 <mt-switch
-                    :checked="displayAsButton"
+                    v-model="displayAsButton"
                     :label="$tc('sw-text-editor-toolbar-button-link.displayAsButton')"
                     class="sw-text-editor-toolbar-button-link__display-as-button-switch"
-                    @change="displayAsButton = !displayAsButton"
                 />
 
                 <mt-select
@@ -123,7 +125,10 @@
                 </div>
 
                 <div class="sw-text-editor__link-modal-footer-right">
-                    <mt-modal-close as="mt-button" variant="secondary">
+                    <mt-modal-close
+                        as="mt-button"
+                        variant="secondary"
+                    >
                         {{ $t("global.default.cancel") }}
                     </mt-modal-close>
 

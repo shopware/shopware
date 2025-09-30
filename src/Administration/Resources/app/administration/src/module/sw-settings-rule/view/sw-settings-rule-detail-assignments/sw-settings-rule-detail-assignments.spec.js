@@ -132,18 +132,17 @@ async function createWrapper(
                         'sw-settings-rule-add-assignment-modal',
                     ),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-card': await wrapTestComponent('sw-card'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-button': await wrapTestComponent('sw-button'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'router-link': {
                         template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
                         props: ['to'],
@@ -153,7 +152,6 @@ async function createWrapper(
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-pagination': true,
@@ -190,6 +188,15 @@ async function createWrapper(
                         stopEventListener: jest.fn(),
                     },
                 },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
+                },
             },
         },
     );
@@ -200,7 +207,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         jest.clearAllMocks();
     });
 
-    it.skip('should prepare association entities list', async () => {
+    it('should prepare association entities list', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.associationEntities).toEqual(
@@ -219,7 +226,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         );
     });
 
-    it.skip.each([
+    it.each([
         { name: 'default api', defaultApi: true },
         { name: 'custom api', defaultApi: false },
     ])('should load association data for defined entities: $name', async ({ defaultApi }) => {
@@ -262,7 +269,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         );
     });
 
-    it.skip('should throw error if loading association data fails', async () => {
+    it('should throw error if loading association data fails', async () => {
         const wrapper = await createWrapper(defaultProps, ['product'], {
             search: jest.fn(() => {
                 return Promise.reject(new Error('Error'));
@@ -279,7 +286,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         });
     });
 
-    it.skip('should render an entity-listing for each entity when all entities have results', async () => {
+    it('should render an entity-listing for each entity when all entities have results', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -293,7 +300,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBe(false);
     });
 
-    it.skip('should render an entity-listing also if no assignment is found', async () => {
+    it('should render an entity-listing also if no assignment is found', async () => {
         const wrapper = await createWrapper(defaultProps, []);
         await flushPromises();
 
@@ -301,13 +308,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .router-link').exists()).toBe(false);
 
         // Expect empty states to be present
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-product img').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
 
         // Loader should not be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBe(false);
     });
 
-    it.skip('should render an empty-state when none of the associated entities returns a result', async () => {
+    it('should render an empty-state when none of the associated entities returns a result', async () => {
         const wrapper = await createWrapper(defaultProps, []);
         await flushPromises();
 
@@ -315,7 +322,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBeFalsy();
     });
 
-    it.skip('should render names of product variants', async () => {
+    it('should render names of product variants', async () => {
         const wrapper = await await createWrapper();
         await flushPromises();
 
@@ -342,7 +349,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         });
     });
 
-    it.skip('should have the right link inside the template', async () => {
+    it('should have the right link inside the template', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -358,7 +365,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(detailRouteAttribute).toBe(testConfig.product.detailRoute);
     });
 
-    it.skip.each([
+    it.each([
         {
             name: 'not assigned total (true)',
             total: 0,
@@ -392,10 +399,10 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const addButton = wrapper.find('.sw-settings-rule-detail-assignments__add-button');
 
         expect(addButton.exists()).toBe(true);
-        expect(addButton.attributes('disabled') === '').toBe(disabled);
+        expect(addButton.attributes('disabled') !== undefined).toBe(disabled);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'has association', associationName: 'test' },
         { name: 'has no association', associationName: null },
     ])('should assign tooltip config to add button: $name', async ({ name, associationName }) => {
@@ -418,7 +425,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(addButton.attributes('tooltip-mock-disabled')).toBe('true');
     });
 
-    it.skip.each([
+    it.each([
         { name: 'render', expected: true },
         { name: 'not render', expected: false },
     ])('should $name deletion', async ({ expected }) => {
@@ -445,7 +452,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-context-menu-item--danger').exists()).toBe(expected);
     });
 
-    it.skip('should open/close delete modal', async () => {
+    it('should open/close delete modal', async () => {
         ruleAssignmentServiceMock.getConfiguration.mockImplementationOnce(() => {
             return {
                 ...testConfig,
@@ -475,7 +482,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__delete-modal').exists()).toBe(false);
     });
 
-    it.skip('should open/close add modal', async () => {
+    it('should open/close add modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -491,7 +498,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-add-assignment-modal').exists()).toBe(false);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'default api', defaultApi: true },
         { name: 'custom api', defaultApi: false },
     ])('should refresh assignment data after entities saved: $name', async ({ defaultApi }) => {
@@ -533,7 +540,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(apis).toContainEqual(defaultApi ? Context.api : testConfig.product.api());
     });
 
-    it.skip('should not refresh assignment data when no context is given', async () => {
+    it('should not refresh assignment data when no context is given', async () => {
         ruleAssignmentServiceMock.getConfiguration.mockImplementationOnce(() => {
             return {
                 ...testConfig,
@@ -553,7 +560,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(repository.search).toHaveBeenCalledTimes(1);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'default api', defaultApi: true, type: 'many-to-many' },
         { name: 'custom api', defaultApi: false, type: 'many-to-many' },
         { name: 'one-to-many', defaultApi: false, type: 'one-to-many' },
@@ -610,7 +617,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(repositoryOverwriteMock.search).toHaveBeenCalledTimes(2);
     });
 
-    it.skip('should delete multiple items', async () => {
+    it('should delete multiple items', async () => {
         ruleAssignmentServiceMock.getConfiguration.mockImplementationOnce(() => {
             return {
                 ...testConfig,
@@ -637,13 +644,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper(defaultProps, ['product'], repositoryOverwriteMock);
         await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').setChecked(true);
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').setChecked(true);
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').trigger('click');
 
         await wrapper.find('.sw-settings-rule-detail-assignments__entity-listing .link-danger').trigger('click');
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(true);
-        await wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal .sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'global.default.remove').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(false);
@@ -652,7 +659,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(repositoryOverwriteMock.search).toHaveBeenCalledTimes(4);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'default api', defaultApi: true },
         { name: 'custom api', defaultApi: false },
     ])('should filter entities by search term: $name', async ({ defaultApi }) => {
@@ -691,7 +698,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         jest.clearAllTimers();
     });
 
-    it.skip('should set router link', async () => {
+    it('should set router link', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 

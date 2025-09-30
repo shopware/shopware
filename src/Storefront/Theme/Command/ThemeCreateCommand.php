@@ -64,7 +64,7 @@ class ThemeCreateCommand extends Command
 
         $directory = \sprintf('%s/custom/%splugins/%s', $this->projectDir, $staticPrefix, $pluginName);
 
-        if (file_exists($directory)) {
+        if (\is_dir($directory)) {
             $io->error(\sprintf('Plugin directory %s already exists', $directory));
 
             return self::FAILURE;

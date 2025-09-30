@@ -83,6 +83,8 @@ export default {
                 });
             }
 
+            entityFields.sort((a, b) => a.label.localeCompare(b.label));
+
             return entityFields;
         },
 

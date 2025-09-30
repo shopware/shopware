@@ -50,13 +50,8 @@ The sliding direction can be left or right.
         padding: $spacer-sm $spacer;
         text-align: left;
 
-        &:focus {
-            box-shadow: none;
-        }
-
-        &,
-        .icon {
-            color: $gray-600;
+        &:focus-visible {
+            box-shadow: $focus-ring-box-shadow-inset;
         }
     }
 

@@ -98,7 +98,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $printedIssues[$changelog->getDefinition()->getIssue()] = $changelog->getDefinition()->getIssue();
         }
 
-        $latestTag = $this->findLastestTag();
+        $latestTag = $this->findLatestTag();
         if ($latestTag) {
             foreach ($this->getFixCommits($latestTag) as $issue) {
                 if (isset($printedIssues[$issue['fixes'][0]])) {

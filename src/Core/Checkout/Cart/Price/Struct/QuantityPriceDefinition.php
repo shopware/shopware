@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * A QuantityPriceDefinition is the most common PriceDefinition type and is used for all prices which increase or decrease
- * based on a item quantity. These Definitions are used for LineItems created from Products. They do not depend on
+ * based on an item quantity. These Definitions are used for LineItems created from Products. They do not depend on
  * other PriceDefinitions in a calculation process.
  */
 #[Package('checkout')]
@@ -63,6 +63,9 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $this->quantity = $quantity;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         $taxRules = array_map(

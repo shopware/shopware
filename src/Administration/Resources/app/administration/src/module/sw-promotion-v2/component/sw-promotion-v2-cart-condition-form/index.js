@@ -42,6 +42,9 @@ export default {
             return this.repositoryFactory.create('promotion_setgroup');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         ruleFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -78,6 +81,36 @@ export default {
         isEditingDisabled() {
             return this.promotion === null || !this.acl.can('promotion.editor');
         },
+
+        packagerOptions() {
+            return this.packagers.map((packager) => {
+                return {
+                    id: packager.key,
+                    value: packager.key,
+                    label: packager.name,
+                };
+            });
+        },
+
+        sorterOptions() {
+            return this.sorters.map((sorter) => {
+                return {
+                    id: sorter.key,
+                    value: sorter.key,
+                    label: sorter.name,
+                };
+            });
+        },
+
+        setGroupCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addAssociation('setGroupRules');
+
+            criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -106,10 +139,7 @@ export default {
         },
 
         loadSetGroups() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
-
-            this.promotionGroupRepository.search(criteria).then((groups) => {
+            this.promotionGroupRepository.search(this.setGroupCriteria).then((groups) => {
                 this.promotion.setgroups = groups;
             });
         },

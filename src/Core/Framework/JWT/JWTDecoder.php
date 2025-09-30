@@ -6,7 +6,7 @@ use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
-use Lcobucci\JWT\Validation\ConstraintViolation;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
 use Shopware\Core\Framework\Log\Package;
 
@@ -21,12 +21,15 @@ final class JWTDecoder
         return $this->parseToken($jwt)->claims()->all();
     }
 
+    /**
+     * @throws JWTException
+     */
     public function validate(string $jwt, Constraint ...$constraints): void
     {
         try {
             $validator = new Validator();
             $validator->assert($this->parseToken($jwt), ...$constraints);
-        } catch (ConstraintViolation $e) {
+        } catch (RequiredConstraintsViolated $e) {
             throw JWTException::invalidJwt($e->getMessage(), $e);
         }
     }

@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
- *
  * @extends Collection<Breadcrumb>
  */
 #[Package('inventory')]

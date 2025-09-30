@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 
@@ -86,7 +85,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
 
-            const imgPath = 'administration/static/img/cms';
+            const imgPath = 'administration/administration/static/img/cms';
 
             return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${sections[0].type}.png`)})`;
         },

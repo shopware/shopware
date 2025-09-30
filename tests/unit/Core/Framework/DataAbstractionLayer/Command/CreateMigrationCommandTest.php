@@ -52,35 +52,35 @@ class CreateMigrationCommandTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $definition = $this->createMock(EntityDefinition::class);
-        $registry->expects(static::exactly(\count($entities)))->method('getByEntityName')->willReturn($definition);
+        $registry->expects($this->exactly(\count($entities)))->method('getByEntityName')->willReturn($definition);
 
         $queries = ['CREATE TABLE test_entity (id INT);'];
 
-        $queryGenerator->expects(static::exactly(\count($entities)))->method('generateQueries')->willReturn($queries);
+        $queryGenerator->expects($this->exactly(\count($entities)))->method('generateQueries')->willReturn($queries);
 
         if ($bundle !== null) {
             $kernel->method('getBundle')->with($bundle)->willReturn($this->getBundle());
         }
 
-        $fileRendererInvocation = static::exactly(\count($entities));
+        $fileRendererInvocation = $this->exactly(\count($entities));
 
         $migrationFileRenderer
             ->expects($fileRendererInvocation)
             ->method('render')
             ->willReturnCallback(function (string $namespace, string $className) use ($expectedNamespaces, $expectedClassNames, $fileRendererInvocation) {
-                static::assertEquals($expectedNamespaces[$fileRendererInvocation->numberOfInvocations() - 1], $namespace);
-                static::assertEquals($expectedClassNames[$fileRendererInvocation->numberOfInvocations() - 1], $className);
+                static::assertSame($expectedNamespaces[$fileRendererInvocation->numberOfInvocations() - 1], $namespace);
+                static::assertSame($expectedClassNames[$fileRendererInvocation->numberOfInvocations() - 1], $className);
 
                 return 'Migration file content';
             });
 
-        $filesystemInvocation = static::exactly(\count($entities));
+        $filesystemInvocation = $this->exactly(\count($entities));
 
         $filesystem
             ->expects($filesystemInvocation)
             ->method('dumpFile')
             ->willReturnCallback(function (string $path) use ($filesystemInvocation, $expectedPaths): void {
-                static::assertEquals($expectedPaths[$filesystemInvocation->numberOfInvocations() - 1], $path);
+                static::assertSame($expectedPaths[$filesystemInvocation->numberOfInvocations() - 1], $path);
             });
 
         $input = [

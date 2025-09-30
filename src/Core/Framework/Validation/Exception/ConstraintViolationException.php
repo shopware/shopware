@@ -13,6 +13,9 @@ class ConstraintViolationException extends ShopwareHttpException
 {
     private readonly ConstraintViolationList $violations;
 
+    /**
+     * @param array<mixed> $inputData
+     */
     public function __construct(
         ConstraintViolationList $violations,
         private readonly array $inputData
@@ -52,6 +55,9 @@ class ConstraintViolationException extends ShopwareHttpException
         return $violations;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getInputData(): array
     {
         return $this->inputData;
@@ -97,6 +103,12 @@ class ConstraintViolationException extends ShopwareHttpException
         /** @var ConstraintViolation $violation */
         foreach ($violations as $key => $violation) {
             if ($constraint = $violation->getConstraint()) {
+                try {
+                    $errorCode = $constraint->getErrorName($violation->getCode() ?? '');
+                } catch (\InvalidArgumentException) {
+                    $errorCode = $violation->getCode();
+                }
+
                 $violations->remove($key);
                 $violations->add(new ConstraintViolation(
                     $violation->getMessage(),
@@ -106,7 +118,7 @@ class ConstraintViolationException extends ShopwareHttpException
                     $violation->getPropertyPath(),
                     $violation->getInvalidValue(),
                     $violation->getPlural(),
-                    'VIOLATION::' . $constraint->getErrorName($violation->getCode() ?? ''),
+                    'VIOLATION::' . $errorCode,
                     $constraint
                 ));
             }

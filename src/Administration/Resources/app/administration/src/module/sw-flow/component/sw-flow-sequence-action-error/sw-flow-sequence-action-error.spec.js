@@ -26,7 +26,6 @@ async function createWrapper() {
                 stubs: {
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-icon': true,
                     'sw-context-menu': {
                         template: '<div><slot></slot></div>',
                     },

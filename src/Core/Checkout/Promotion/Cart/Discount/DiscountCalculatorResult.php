@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 class DiscountCalculatorResult
 {
     /**
-     * @param DiscountCompositionItem[] $compositionItems
+     * @param list<DiscountCompositionItem> $compositionItems
      */
     public function __construct(
         private readonly CalculatedPrice $price,
@@ -24,7 +24,7 @@ class DiscountCalculatorResult
     }
 
     /**
-     * @return DiscountCompositionItem[]
+     * @return list<DiscountCompositionItem>
      */
     public function getCompositionItems(): array
     {

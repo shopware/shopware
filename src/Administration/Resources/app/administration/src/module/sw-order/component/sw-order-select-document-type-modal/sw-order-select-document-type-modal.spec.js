@@ -92,8 +92,6 @@ async function createWrapper(customData = {}) {
                     },
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-field-error': true,
                     'sw-help-text': true,
                     'router-link': true,
@@ -126,11 +124,6 @@ async function createWrapper(customData = {}) {
 }
 
 describe('src/module/sw-order/component/sw-order-select-document-type-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable storno and credit note if there is no invoice exists', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

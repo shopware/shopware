@@ -20,13 +20,13 @@ class DocsAppEventCommandTest extends TestCase
     public function testUptoDateEventDoc(): void
     {
         // Always check if the docs are up-to-date for the current minor branch
-        Feature::skipTestIfActive('v6.7.0.0', $this);
+        Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $docsAppEventCommand = static::getContainer()->get(DocsAppEventCommand::class);
 
         $savedContents = @file_get_contents($docsAppEventCommand->getListEventPath()) ?: '';
 
-        static::assertEquals(
+        static::assertSame(
             Hasher::hash($savedContents, 'md5'),
             Hasher::hash($docsAppEventCommand->render(), 'md5'),
             'The webhook events app system document is not up to date' . \PHP_EOL

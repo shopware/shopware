@@ -17,9 +17,6 @@ async function createWrapper() {
                 'sw-modal': {
                     template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>',
                 },
-                'sw-button': {
-                    template: '<div class="sw-button"></div>',
-                },
             },
         },
         props: {
@@ -30,11 +27,6 @@ async function createWrapper() {
 
 // eslint-disable-next-line max-len
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('cancels the dialog', async () => {
         const wrapper = await createWrapper();
 

@@ -18,6 +18,10 @@ export default {
             from: 'swOrderDetailOnSaveEdits',
             default: null,
         },
+        swOrderDetailAskAndSaveEdits: {
+            from: 'swOrderDetailAskAndSaveEdits',
+            default: () => true,
+        },
         acl: {
             from: 'acl',
             default: null,
@@ -78,7 +82,7 @@ export default {
                     return this.liveOrder.updatedBy;
                 }
 
-                if (this.liveOrder.createdBy) {
+                if (this.liveOrder.createdBy && !this.liveOrder.updatedAt) {
                     return this.liveOrder.createdBy;
                 }
             }
@@ -147,17 +151,29 @@ export default {
                     return this.order.transactions[i];
                 }
             }
-            return this.order.transactions.last();
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.transactions.last();
+            }
+
+            return this.order.primaryOrderTransaction;
         },
 
         delivery() {
-            return this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         currencyFilter() {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -171,6 +187,10 @@ export default {
         savedSuccessful() {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
+                Store.get('swOrderDetail').setLoading([
+                    'states',
+                    false,
+                ]);
             }
         },
 
@@ -332,9 +352,14 @@ export default {
                 });
         },
 
-        onStateSelected(stateType, actionName) {
+        async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 
@@ -355,10 +380,19 @@ export default {
             this.currentActionName = null;
             this.currentStateType = null;
             this.showModal = false;
+
+            Store.get('swOrderDetail').setLoading([
+                'states',
+                false,
+            ]);
         },
 
         onLeaveModalConfirm(docIds, sendMail = true) {
             this.showModal = false;
+            Store.get('swOrderDetail').setLoading([
+                'states',
+                true,
+            ]);
 
             let transition = null;
 
@@ -397,6 +431,12 @@ export default {
                     })
                     .catch((error) => {
                         this.createStateChangeErrorNotification(error);
+                    })
+                    .finally(() => {
+                        Store.get('swOrderDetail').setLoading([
+                            'states',
+                            false,
+                        ]);
                     });
             }
 

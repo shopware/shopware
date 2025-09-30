@@ -23,7 +23,7 @@ class DashboardControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('load')
             ->with($context, $since, $paid, $timezone)
             ->willReturn([

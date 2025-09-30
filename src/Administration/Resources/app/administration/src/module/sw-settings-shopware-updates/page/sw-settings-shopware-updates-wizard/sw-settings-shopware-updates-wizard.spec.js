@@ -138,8 +138,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         ),
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-card-view': await wrapTestComponent('sw-card-view'),
-                        'sw-card': await wrapTestComponent('sw-card'),
-                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                         'sw-ignore-class': true,
                         'sw-settings-shopware-updates-info': {
                             template: '<div></div>',
@@ -150,14 +148,9 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-loader': {
                             template: '<div></div>',
                         },
-                        'sw-icon': {
-                            template: '<div></div>',
-                        },
                         'router-link': {
                             template: '<a></a>',
                         },
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-color-badge': await wrapTestComponent('sw-color-badge'),
                         'sw-app-actions': true,
                         'sw-extension-component-section': true,
@@ -165,7 +158,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-modal': {
                             template: '<div><slot name="modal-footer"></slot></div>',
                         },
-                        'sw-progress-bar': true,
+                        'mt-progress-bar': true,
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
@@ -173,11 +166,12 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-field-error': true,
                         'sw-base-field': true,
                         'sw-app-topbar-button': true,
+                        'sw-app-topbar-sidebar': true,
                         'sw-help-center-v2': true,
                         'sw-empty-state': true,
                         'sw-data-grid-column-boolean': true,
                         'sw-context-button': true,
-                        'sw-alert': true,
+
                         'sw-radio-field': true,
                         'sw-ai-copilot-badge': true,
                         'sw-context-menu-item': true,
@@ -194,10 +188,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         await flushPromises();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have three green color badges and one red one', async () => {
         const allGreenColorBadges = wrapper.findAll('.sw-color-badge.is--success');
         const allRedColorBadges = wrapper.findAll('.sw-color-badge.is--error');
@@ -207,7 +197,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     });
 
     it('should disable the button if one requirement is not met', async () => {
-        const button = wrapper.find('.smart-bar__actions .sw-button');
+        const button = wrapper.findByText('button', 'sw-settings-shopware-updates.infos.startUpdate');
 
         expect(button.attributes('disabled')).toBeDefined();
     });

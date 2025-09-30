@@ -3,39 +3,52 @@
  */
 import { mount } from '@vue/test-utils';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
+import Entity from 'src/core/data/entity.data';
 import EntityCollection from '../../../../core/data/entity-collection.data';
 import uuid from '../../../../../test/_helper_/uuid';
 
-function importExportProfiles() {
-    return new EntityCollection(
-        '/import_export_profile',
-        'category',
-        null,
-        { isShopwareContext: true },
-        [
-            {
-                id: uuid.get('profile-0'),
-                name: 'profile-0',
-                config: {},
-                translated: {
-                    label: 'profile-0-label',
-                },
-            },
-            {
-                id: uuid.get('profile-1'),
-                name: 'profile-1',
-                config: {},
-                translated: {
-                    label: 'profile-1-label',
-                },
-            },
-        ],
-        2,
-        null,
-    );
-}
+global.repositoryFactoryMock.responses.addResponse({
+    method: 'Post',
+    url: '/search/import-export-profile',
+    status: 200,
+    response: { data: [] },
+});
 
-async function createWrapper(profiles = null) {
+const importExportProfileFixture = new EntityCollection(
+    '/import_export_profile',
+    'category',
+    null,
+    { isShopwareContext: true },
+    [
+        {
+            id: uuid.get('profile-0'),
+            name: 'profile-0',
+            config: {},
+            translated: {
+                label: 'profile-0-label',
+            },
+        },
+        {
+            id: uuid.get('profile-1'),
+            name: 'profile-1',
+            config: {},
+            translated: {
+                label: 'profile-1-label',
+            },
+        },
+    ],
+    2,
+    null,
+);
+
+const repositoryMock = {
+    search: () => Promise.resolve(importExportProfileFixture),
+    create: jest.fn(() => new Entity(uuid.get('new-profile'), 'import_export_profile', {})),
+    get: (id) => Promise.resolve(importExportProfileFixture.get(id)),
+    delete: (id) => Promise.resolve(importExportProfileFixture.remove(id)),
+};
+
+async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-import-export-view-profiles', {
             sync: true,
@@ -43,22 +56,22 @@ async function createWrapper(profiles = null) {
         {
             global: {
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-simple-search-field': true,
+                    'sw-import-export-new-profile-wizard': await wrapTestComponent('sw-import-export-new-profile-wizard'),
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-import-export-new-profile-wizard-general-page': true,
+                    'sw-import-export-new-profile-wizard-csv-page': true,
+                    'sw-import-export-new-profile-wizard-mapping-page': true,
+                    'sw-wizard': true,
+                    'sw-wizard-page': true,
+                    'sw-wizard-dot-navigation': true,
+                    'sw-simple-search-field': true,
                     'sw-import-export-edit-profile-modal': {
                         template: `
                         <div class="sw-import-export-edit-profile-modal"></div>
                     `,
                     },
-                    'sw-import-export-new-profile-wizard': {
-                        template: `
-                        <div class="sw-import-export-new-profile-wizard"></div>
-                    `,
-                    },
-                    'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': {
@@ -68,7 +81,6 @@ async function createWrapper(profiles = null) {
                     'router-link': true,
                     'sw-bulk-edit-modal': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
@@ -77,25 +89,10 @@ async function createWrapper(profiles = null) {
                     'sw-provide': true,
                 },
                 provide: {
+                    importExportProfileMapping: {},
                     importExport: new ImportExportService(),
                     repositoryFactory: {
-                        create() {
-                            return {
-                                search() {
-                                    return profiles;
-                                },
-                                create() {
-                                    return Promise.resolve();
-                                },
-                                get(id) {
-                                    return profiles.get(id);
-                                },
-                                delete(id) {
-                                    profiles.remove(id);
-                                    return Promise.resolve();
-                                },
-                            };
-                        },
+                        create: () => repositoryMock,
                     },
                     shortcutService: {
                         stopEventListener: () => {},
@@ -108,32 +105,20 @@ async function createWrapper(profiles = null) {
 }
 
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
-    let wrapper;
+    it('should open the new profile wizard when creating a new profile', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
-    const responses = global.repositoryFactoryMock.responses;
-
-    beforeEach(async () => {
-        responses.addResponse({
-            method: 'Post',
-            url: '/search/import-export-profile',
-            status: 200,
-            response: { data: [] },
-        });
-    });
-
-    it.skip('should open the new profile wizard when creating a new profile', async () => {
-        wrapper = await createWrapper(importExportProfiles());
-
-        expect(wrapper.find('.sw-import-export-new-profile-wizard').exists()).toBe(false);
-
-        const createProfileButton = wrapper.find('.sw-import-export-view-profiles__create-action');
-        await createProfileButton.trigger('click');
+        await wrapper.find('.sw-import-export-view-profiles__create-action').trigger('click');
+        await flushPromises();
 
         expect(wrapper.find('.sw-import-export-new-profile-wizard').exists()).toBe(true);
+        expect(repositoryMock.create).toHaveBeenNthCalledWith(1);
+        expect(wrapper.vm.selectedProfile.getEntityName()).toBe('import_export_profile');
     });
 
-    it.skip('should open the edit modal when editing a profile', async () => {
-        wrapper = await createWrapper(importExportProfiles());
+    it('should open the edit modal when editing a profile', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const editProfileModal = wrapper.find('.sw-import-export-edit-profile-modal');
@@ -151,8 +136,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(editProfileModal.attributes('show')).toBe('true');
     });
 
-    it.skip('should delete a profile', async () => {
-        wrapper = await createWrapper(importExportProfiles());
+    it('should delete a profile', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.vm.profiles).toHaveLength(2);
@@ -163,7 +148,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         await createProfileButton.trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-button--danger').click();
+        document.body.querySelector('.mt-button--critical').click();
         await flushPromises();
 
         expect(wrapper.vm.profiles).toHaveLength(1);

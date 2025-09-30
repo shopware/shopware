@@ -71,6 +71,11 @@ trait EntityCustomFieldsTrait
         return $this->customFields[$field] ?? null;
     }
 
+    public function getTranslatedCustomFieldsValue(string $field): mixed
+    {
+        return $this->translated['customFields'][$field] ?? null;
+    }
+
     /**
      * @param array<mixed>|null $customFields
      */

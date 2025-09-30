@@ -10,19 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class OffcanvasCartPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var OffcanvasCartPage
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
-
     public function __construct(
-        OffcanvasCartPage $page,
+        protected OffcanvasCartPage $page,
         SalesChannelContext $salesChannelContext,
         Request $request
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

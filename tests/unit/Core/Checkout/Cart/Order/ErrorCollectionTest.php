@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(ErrorCollection::class)]
+#[Package('checkout')]
 class ErrorCollectionTest extends TestCase
 {
     public function testErrorTypes(): void

@@ -9,8 +9,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCityRule;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -74,6 +77,24 @@ class ShippingCityRuleTest extends TestCase
         } else {
             static::assertFalse($match);
         }
+    }
+
+    public function testMatchThrowsException(): void
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CustomerException::class);
+        }
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        $shippingLocation = new ShippingLocation(new CountryEntity(), null, new CustomerAddressEntity());
+        $salesChannelContext->method('getShippingLocation')->willReturn($shippingLocation);
+
+        (new ShippingCityRule())->match(
+            new CheckoutRuleScope($salesChannelContext)
+        );
     }
 
     /**

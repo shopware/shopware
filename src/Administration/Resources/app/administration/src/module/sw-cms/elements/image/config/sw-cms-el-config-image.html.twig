@@ -25,13 +25,13 @@
                     :src="demoValue.url"
                     alt=""
                 >
-                <sw-alert
+                <mt-banner
                     v-else
                     class="sw-cms-el-config-image__preview-info"
                     variant="info"
                 >
                     {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
-                </sw-alert>
+                </mt-banner>
             </div>
         </template>
     </sw-cms-mapping-field>
@@ -44,72 +44,46 @@
     {% endblock %}
 
     {% block sw_cms_element_image_config_display_mode %}
-    <sw-select-field
-        v-model:value="element.config.displayMode.value"
+    <mt-select
+        v-model="element.config.displayMode.value"
         class="sw-cms-el-config-image__display-mode"
         :label="$tc('sw-cms.elements.general.config.label.displayMode')"
         :help-text="$tc('sw-cms.elements.general.config.helpText.displayMode')"
-        @update:value="onChangeDisplayMode"
-    >
-        <option value="standard">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
-        </option>
-        <option value="stretch">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}
-        </option>
-        <option value="cover">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-        </option>
-    </sw-select-field>
+        :options="displayModeOptions"
+        @update:model-value="onChangeDisplayMode"
+    />
     {% endblock %}
 
     <template v-if="element.config.displayMode.value === 'cover'">
         {% block sw_cms_element_image_config_min_height %}
-        <sw-text-field
-            v-model:value="element.config.minHeight.value"
+
+        <mt-text-field
+            v-model="element.config.minHeight.value"
             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
             :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
-            @update:value="onChangeMinHeight"
+            @update:model-value="onChangeMinHeight"
         />
         {% endblock %}
     </template>
 
     {% block sw_cms_element_image_config_vertical_align %}
-    <sw-select-field
-        v-model:value="element.config.verticalAlign.value"
+    <mt-select
+        v-model="element.config.verticalAlign.value"
         :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
         :disabled="['cover'].includes(element.config.displayMode.value)"
-    >
-        <option value="flex-start">
-            {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
-        </option>
-        <option value="center">
-            {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
-        </option>
-        <option value="flex-end">
-            {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
-        </option>
-    </sw-select-field>
+        :options="verticalAlignOptions"
+    />
     {% endblock %}
 
     {% block sw_cms_element_image_config_horizontal_align %}
-    <sw-select-field
-        v-model:value="element.config.horizontalAlign.value"
+    <mt-select
+        v-model="element.config.horizontalAlign.value"
         :label="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
         :disabled="element.config.displayMode.value === 'cover'"
-    >
-        <option value="flex-start">
-            {{ $tc('sw-cms.elements.general.config.label.horizontalAlignLeft') }}
-        </option>
-        <option value="center">
-            {{ $tc('sw-cms.elements.general.config.label.horizontalAlignCenter') }}
-        </option>
-        <option value="flex-end">
-            {{ $tc('sw-cms.elements.general.config.label.horizontalAlignRight') }}
-        </option>
-    </sw-select-field>
+        :options="horizontalAlignOptions"
+    />
     {% endblock %}
 
     {% block sw_cms_element_image_config_link %}
@@ -117,8 +91,9 @@
         <sw-dynamic-url-field
             v-model:value="element.config.url.value"
         />
-        <sw-switch-field
-            v-model:value="element.config.newTab.value"
+
+        <mt-switch
+            v-model="element.config.newTab.value"
             class="sw-cms-el-config-image__link-tab"
             :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"
         />
@@ -127,9 +102,9 @@
 
     <mt-switch
         class="sw-cms-el-config-image__is-decorative"
-        :checked="element.config.isDecorative.value"
+        :model-value="element.config.isDecorative.value"
         :label="$tc('sw-cms.elements.image.config.label.isDecorative')"
-        @change="onChangeIsDecorative"
+        @update:model-value="onChangeIsDecorative"
     />
 
     {% block sw_cms_element_image_config_media_modal %}

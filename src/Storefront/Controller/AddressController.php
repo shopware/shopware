@@ -2,21 +2,17 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractUpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -25,11 +21,14 @@ use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Address\AddressEditorModalStruct;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoadedHook;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
@@ -46,7 +45,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class AddressController extends StorefrontController
 {
@@ -63,9 +62,8 @@ class AddressController extends StorefrontController
         private readonly AbstractListAddressRoute $listAddressRoute,
         private readonly AbstractUpsertAddressRoute $updateAddressRoute,
         private readonly AbstractDeleteAddressRoute $deleteAddressRoute,
-        private readonly AbstractChangeCustomerProfileRoute $updateCustomerProfileRoute,
         private readonly AbstractContextSwitchRoute $contextSwitchRoute,
-        private readonly SalesChannelContextService $salesChannelContextService
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService
     ) {
     }
 
@@ -109,49 +107,25 @@ class AddressController extends StorefrontController
             throw UuidException::invalidUuid($addressId);
         }
 
-        if (!Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            $success = true;
-        }
-
         try {
             if ($type === self::ADDRESS_TYPE_SHIPPING) {
                 $this->accountService->setDefaultShippingAddress($addressId, $context, $customer);
-
-                if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-                    $this->addFlash(self::SUCCESS, $this->trans('account.addressDefaultChanged'));
-                }
+                $this->addFlash(self::SUCCESS, $this->trans('account.addressDefaultChanged'));
             } elseif ($type === self::ADDRESS_TYPE_BILLING) {
                 $this->accountService->setDefaultBillingAddress($addressId, $context, $customer);
-
-                if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-                    $this->addFlash(self::SUCCESS, $this->trans('account.addressDefaultChanged'));
-                }
+                $this->addFlash(self::SUCCESS, $this->trans('account.addressDefaultChanged'));
             } else {
-                if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-                    $this->addFlash(self::DANGER, $this->trans('account.addressDefaultNotChanged'));
-                } else {
-                    $success = false;
-                }
+                $this->addFlash(self::DANGER, $this->trans('account.addressDefaultNotChanged'));
             }
         } catch (AddressNotFoundException) {
-            if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-                $this->addFlash(self::DANGER, $this->trans('account.addressDefaultNotChanged'));
-            } else {
-                $success = false;
-            }
+            $this->addFlash(self::DANGER, $this->trans('account.addressDefaultNotChanged'));
         }
 
-        if (!Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return new RedirectResponse(
-                $this->generateUrl('frontend.account.address.page', ['changedDefaultAddress' => $success ?? ''])
-            );
-        }
-
-        return new RedirectResponse($this->generateUrl('frontend.account.address.page'));
+        return $this->redirectToRoute('frontend.account.address.page');
     }
 
     #[Route(path: '/account/address/switch', name: 'frontend.account.address.switch-default', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
-    public function checkoutSwitchDefaultAddress(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): RedirectResponse
+    public function checkoutSwitchDefaultAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         match ($data->get('type')) {
             self::ADDRESS_TYPE_SHIPPING => $this->accountService->setDefaultShippingAddress($data->get('id'), $context, $customer),
@@ -168,9 +142,9 @@ class AddressController extends StorefrontController
 
         $this->addFlash(self::SUCCESS, $this->trans('account.addressDefaultChanged'));
 
-        return new RedirectResponse(
-            $this->generateUrl('frontend.account.addressmanager.get')
-        );
+        $request->request->set('redirectTo', $request->request->get('redirectTo', 'frontend.account.addressmanager.get'));
+
+        return $this->createActionResponse($request);
     }
 
     #[Route(path: '/account/address/create', name: 'frontend.account.address.create', options: ['seo' => false], defaults: ['_loginRequired' => true], methods: ['POST'])]
@@ -188,13 +162,9 @@ class AddressController extends StorefrontController
                 $customer
             );
 
-            if (!Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-                return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressSaved' => true]));
-            }
-
             $this->addFlash(self::SUCCESS, $this->trans('account.addressSaved'));
 
-            return new RedirectResponse($this->generateUrl('frontend.account.address.page'));
+            return $this->redirectToRoute('frontend.account.address.page');
         } catch (ConstraintViolationException $formViolations) {
         }
 
@@ -209,110 +179,41 @@ class AddressController extends StorefrontController
         );
     }
 
-    /*
-    * @deprecated tag:v6.7.0 - Will be removed. Use `AddressController::addressManager` instead
-    */
-    #[Route(path: '/widgets/account/address-book', name: 'frontend.account.addressbook', options: ['seo' => true], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
-    public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(
-                __CLASS__,
-                __METHOD__,
-                'v6.7.0.0',
-                'AddressController::addressManager'
-            )
-        );
-
-        $viewData = new AddressEditorModalStruct();
-        $params = [];
-
-        try {
-            $page = $this->addressListingPageLoader->load($request, $context, $customer);
-            $this->hook(new AddressBookWidgetLoadedHook($page, $context));
-            $viewData->setPage($page);
-
-            $this->handleChangeableAddresses($viewData, $dataBag, $context, $customer);
-            $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
-            $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
-            $this->handleCustomerVatIds($dataBag, $context, $customer);
-        } catch (ConstraintViolationException $formViolations) {
-            $params['formViolations'] = $formViolations;
-            $params['postedData'] = $dataBag->get('address');
-        } catch (\Exception) {
-            $viewData->setSuccess(false);
-            $viewData->setMessages([
-                'type' => self::DANGER,
-                'text' => $this->trans('error.message-default'),
-            ]);
-        }
-
-        if ($request->get('redirectTo') || $request->get('forwardTo')) {
-            return $this->createActionResponse($request);
-        }
-        $params = array_merge($params, $viewData->getVars());
-
-        $response = $this->renderStorefront(
-            '@Storefront/storefront/component/address/address-editor-modal.html.twig',
-            $params
-        );
-
-        $response->headers->set('x-robots-tag', 'noindex');
-
-        return $response;
-    }
-
     #[Route(path: '/account/address/delete/{addressId}', name: 'frontend.account.address.delete', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
     public function deleteAddress(string $addressId, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        if (!Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            $success = true;
-        }
-
         if (!$addressId) {
             throw RoutingException::missingRequestParameter('addressId');
         }
 
         try {
             $this->deleteAddressRoute->delete($addressId, $context, $customer);
-
-            if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-                $this->addFlash(self::SUCCESS, $this->trans('account.addressDeleted'));
-            }
+            $this->addFlash(self::SUCCESS, $this->trans('account.addressDeleted'));
         } catch (InvalidUuidException|AddressNotFoundException|CannotDeleteDefaultAddressException|CustomerException) {
-            if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-                $this->addFlash(self::DANGER, $this->trans('account.addressNotDeleted'));
-            } else {
-                $success = false;
-            }
+            $this->addFlash(self::DANGER, $this->trans('account.addressNotDeleted'));
         }
 
-        if (!Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressDeleted' => $success ?? '']));
-        }
-
-        return new RedirectResponse($this->generateUrl('frontend.account.address.page'));
+        return $this->redirectToRoute('frontend.account.address.page');
     }
 
     #[Route(path: '/widgets/account/address-manager/switch', name: 'frontend.account.addressmanager.switch', options: ['seo' => true], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
-    public function addressManagerSwitch(RequestDataBag $dataBag, SalesChannelContext $context): Response
+    public function addressManagerSwitch(Request $request, SalesChannelContext $context): Response
     {
-        if (!$dataBag->get(SalesChannelContextService::SHIPPING_ADDRESS_ID)) {
-            $dataBag->remove(SalesChannelContextService::SHIPPING_ADDRESS_ID);
+        if (!$request->request->get(SalesChannelContextService::SHIPPING_ADDRESS_ID)) {
+            $request->request->remove(SalesChannelContextService::SHIPPING_ADDRESS_ID);
         }
 
-        if (!$dataBag->get(SalesChannelContextService::BILLING_ADDRESS_ID)) {
-            $dataBag->remove(SalesChannelContextService::BILLING_ADDRESS_ID);
+        if (!$request->request->get(SalesChannelContextService::BILLING_ADDRESS_ID)) {
+            $request->request->remove(SalesChannelContextService::BILLING_ADDRESS_ID);
         }
 
-        $this->contextSwitchRoute->switchContext($dataBag, $context);
+        $this->contextSwitchRoute->switchContext(new RequestDataBag($request->request->all()), $context);
 
         $this->addFlash(self::SUCCESS, $this->trans('account.addressSuccessfulChange'));
 
-        return new RedirectResponse(
-            $this->generateUrl('frontend.checkout.confirm.page')
-        );
+        $request->request->set('redirectTo', $request->request->get('redirectTo', 'frontend.checkout.confirm.page'));
+
+        return $this->createActionResponse($request);
     }
 
     #[Route(path: '/widgets/account/address-manager', name: 'frontend.account.addressmanager.get', options: ['seo' => true], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['GET'])]
@@ -326,7 +227,11 @@ class AddressController extends StorefrontController
 
         $response = $this->renderStorefront(
             '@Storefront/storefront/component/address/address-manager-modal.html.twig',
-            $viewData->getVars()
+            [
+                ...$viewData->getVars(),
+                'redirectTo' => $request->query->get('redirectTo', 'frontend.checkout.confirm.page'),
+                'redirectParameters' => $request->query->get('redirectParameters'),
+            ],
         );
 
         $response->headers->set('x-robots-tag', 'noindex');
@@ -351,18 +256,21 @@ class AddressController extends StorefrontController
             $params['postedAddress'] = $this->getById($addressId, $context, $customer);
         }
 
+        /** @var RequestDataBag|null $addressData */
+        $addressData = $dataBag->get('address');
+
         try {
             // if there is no data in the dataBag, the create form will be rendered
-            if ($dataBag->count() !== 0) {
-                $dataBag->set('id', $addressId);
-                $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
+            if ($addressData !== null && $addressData->count() !== 0) {
+                $addressData->set('id', $addressId);
+                $this->handleAddressCreation($viewData, $addressData, $context, $customer);
                 $this->addFlash(self::SUCCESS, $this->trans('account.addressSaved'));
 
                 return new NoContentResponse();
             }
         } catch (ConstraintViolationException $formViolations) {
             $params['formViolations'] = $formViolations;
-            $params['postedAddress'] = $dataBag;
+            $params['postedAddress'] = $addressData;
         } catch (\Throwable) {
             $viewData->setSuccess(false);
             $viewData->setMessages([
@@ -393,143 +301,32 @@ class AddressController extends StorefrontController
         SalesChannelContext $context,
         CustomerEntity $customer
     ): void {
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            $response = $this->updateAddressRoute->upsert(
-                $dataBag->get('id'),
-                $dataBag->toRequestDataBag(),
-                $context,
-                $customer
-            );
+        $response = $this->updateAddressRoute->upsert(
+            $dataBag->get('id'),
+            $dataBag->toRequestDataBag(),
+            $context,
+            $customer
+        );
 
-            $addressId = $response->getAddress()->getId();
+        $addressId = $response->getAddress()->getId();
 
-            $viewData->setAddressId($addressId);
-            $viewData->setSuccess(true);
-            $viewData->setMessages(['type' => 'success', 'text' => $this->trans('account.addressSaved')]);
+        $viewData->setAddressId($addressId);
+        $viewData->setSuccess(true);
+        $viewData->setMessages(['type' => 'success', 'text' => $this->trans('account.addressSaved')]);
 
-            if (!$viewData->isChangeShipping() && !$viewData->isChangeBilling()) {
-                return;
-            }
-
-            $requestDataBag = new RequestDataBag();
-            $requestDataBag->set(
-                $viewData->isChangeShipping()
-                    ? SalesChannelContextService::SHIPPING_ADDRESS_ID
-                    : SalesChannelContextService::BILLING_ADDRESS_ID,
-                $addressId
-            );
-
-            $this->contextSwitchRoute->switchContext($requestDataBag, $context);
-        } else {
-            /** @var DataBag|null $addressData */
-            $addressData = $dataBag->get('address');
-
-            if ($addressData === null) {
-                return;
-            }
-
-            $response = $this->updateAddressRoute->upsert(
-                $addressData->get('id'),
-                $addressData->toRequestDataBag(),
-                $context,
-                $customer
-            );
-
-            $addressId = $response->getAddress()->getId();
-
-            $addressType = null;
-
-            if ($viewData->isChangeBilling()) {
-                $addressType = self::ADDRESS_TYPE_BILLING;
-            } elseif ($viewData->isChangeShipping()) {
-                $addressType = self::ADDRESS_TYPE_SHIPPING;
-            }
-
-            // prepare data to set newly created address as customers default
-            if ($addressType) {
-                $dataBag->set('selectAddress', new RequestDataBag([
-                    'id' => $addressId,
-                    'type' => $addressType,
-                ]));
-            }
-
-            $viewData->setAddressId($addressId);
-            $viewData->setSuccess(true);
-            $viewData->setMessages(['type' => 'success', 'text' => $this->trans('account.addressSaved')]);
-        }
-    }
-
-    private function handleChangeableAddresses(
-        AddressEditorModalStruct $viewData,
-        RequestDataBag $dataBag,
-        SalesChannelContext $context,
-        CustomerEntity $customer
-    ): void {
-        $changeableAddresses = $dataBag->get('changeableAddresses');
-
-        if (!$changeableAddresses instanceof DataBag) {
+        if (!$viewData->isChangeShipping() && !$viewData->isChangeBilling()) {
             return;
         }
 
-        $viewData->setChangeShipping((bool) $changeableAddresses->get('changeShipping'));
-        $viewData->setChangeBilling((bool) $changeableAddresses->get('changeBilling'));
+        $requestDataBag = new RequestDataBag();
+        $requestDataBag->set(
+            $viewData->isChangeShipping()
+                ? SalesChannelContextService::SHIPPING_ADDRESS_ID
+                : SalesChannelContextService::BILLING_ADDRESS_ID,
+            $addressId
+        );
 
-        $addressId = $dataBag->get('id');
-
-        if (!$addressId) {
-            return;
-        }
-
-        $viewData->setAddress($this->getById($addressId, $context, $customer));
-    }
-
-    /**
-     * @throws CustomerNotLoggedInException
-     * @throws InvalidUuidException
-     */
-    private function handleAddressSelection(
-        AddressEditorModalStruct $viewData,
-        RequestDataBag $dataBag,
-        SalesChannelContext $context,
-        CustomerEntity $customer
-    ): void {
-        $selectedAddress = $dataBag->get('selectAddress');
-        if (!$selectedAddress instanceof DataBag) {
-            return;
-        }
-
-        $addressType = $selectedAddress->get('type');
-        $addressId = $selectedAddress->get('id');
-
-        if (!Uuid::isValid($addressId)) {
-            throw UuidException::invalidUuid($addressId);
-        }
-
-        $success = true;
-
-        try {
-            if ($addressType === self::ADDRESS_TYPE_SHIPPING) {
-                $address = $this->getById($addressId, $context, $customer);
-                $customer->setDefaultShippingAddress($address);
-                $this->accountService->setDefaultShippingAddress($addressId, $context, $customer);
-            } elseif ($addressType === self::ADDRESS_TYPE_BILLING) {
-                $address = $this->getById($addressId, $context, $customer);
-                $customer->setDefaultBillingAddress($address);
-                $this->accountService->setDefaultBillingAddress($addressId, $context, $customer);
-            } else {
-                $success = false;
-            }
-        } catch (AddressNotFoundException) {
-            $success = false;
-        }
-
-        if ($success) {
-            $this->addFlash(self::SUCCESS, $this->trans('account.addressDefaultChanged'));
-        } else {
-            $this->addFlash(self::DANGER, $this->trans('account.addressDefaultNotChanged'));
-        }
-
-        $viewData->setSuccess($success);
+        $this->contextSwitchRoute->switchContext($requestDataBag, $context);
     }
 
     private function getById(
@@ -552,30 +349,5 @@ class AddressController extends StorefrontController
         }
 
         return $address;
-    }
-
-    private function handleCustomerVatIds(
-        RequestDataBag $dataBag,
-        SalesChannelContext $context,
-        CustomerEntity $customer
-    ): void {
-        $dataBagVatIds = $dataBag->get('vatIds');
-        if (!$dataBagVatIds instanceof DataBag) {
-            return;
-        }
-
-        $newVatIds = $dataBagVatIds->all();
-        $oldVatIds = $customer->getVatIds() ?? [];
-        if (!array_diff($newVatIds, $oldVatIds) && !array_diff($oldVatIds, $newVatIds)) {
-            return;
-        }
-
-        $dataCustomer = CustomerTransformer::transform($customer);
-        $dataCustomer['vatIds'] = $newVatIds;
-        $dataCustomer['accountType'] = $customer->getCompany() === null ? CustomerEntity::ACCOUNT_TYPE_PRIVATE : CustomerEntity::ACCOUNT_TYPE_BUSINESS;
-
-        $newDataBag = new RequestDataBag($dataCustomer);
-
-        $this->updateCustomerProfileRoute->change($newDataBag, $context, $customer);
     }
 }

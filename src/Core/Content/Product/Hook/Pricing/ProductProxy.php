@@ -29,7 +29,7 @@ class ProductProxy implements \ArrayAccess
     }
 
     /**
-     * The `__get()` function allows access to all properties of the [SalesChannelProductEntity](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Product/SalesChannel/SalesChannelProductEntity.php)
+     * The `__get()` function allows access to all properties of the [SalesChannelProductEntity](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Product/SalesChannel/SalesChannelProductEntity.php)
      *
      * @param string $name Name of the property to access
      *
@@ -67,6 +67,7 @@ class ProductProxy implements \ArrayAccess
             'calculatedCheapestPrice' => $this->calculatedCheapestPrice(),
             'calculatedPrice' => $this->calculatedPrice(),
             'calculatedPrices' => $this->calculatedPrices(),
+            // @phpstan-ignore property.dynamicName (Allow the dynamic access for sales channel product fields)
             default => $this->product->$property,
         };
     }

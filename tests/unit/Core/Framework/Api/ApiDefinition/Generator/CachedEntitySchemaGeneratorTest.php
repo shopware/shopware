@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Log\Package;
@@ -37,7 +38,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
 
     public function testSupportsCallsInnerServiceSupports(): void
     {
-        $this->entitySchemaGenerator->expects(static::once())
+        $this->entitySchemaGenerator->expects($this->once())
             ->method('supports')
             ->with('foo')
             ->willReturn(false);
@@ -47,12 +48,12 @@ class CachedEntitySchemaGeneratorTest extends TestCase
 
     public function testGenerateCallsInnerServiceGenerate(): void
     {
-        $this->entitySchemaGenerator->expects(static::once())
+        $this->entitySchemaGenerator->expects($this->once())
             ->method('generate')
             ->willThrowException(new \RuntimeException());
 
         static::expectException(\RuntimeException::class);
-        $this->cachedEntitySchemaGenerator->generate([], 'api', 'json', null);
+        $this->cachedEntitySchemaGenerator->generate([], DefinitionService::API, 'json', null);
     }
 
     public function testGetSchemaUtilizesCacheIfPresent(): void
@@ -63,7 +64,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
             ],
         ];
 
-        $this->cache->expects(static::once())
+        $this->cache->expects($this->once())
             ->method('get')
             ->willReturn($result);
 
@@ -77,10 +78,10 @@ class CachedEntitySchemaGeneratorTest extends TestCase
                 'buz' => null,
             ],
         ];
-        $this->entitySchemaGenerator->expects(static::once())
+        $this->entitySchemaGenerator->expects($this->once())
             ->method('getSchema')
             ->willReturn($result);
-        $this->cache->expects(static::once())
+        $this->cache->expects($this->once())
             ->method('get')
             ->willReturn($this->entitySchemaGenerator->getSchema([]));
 

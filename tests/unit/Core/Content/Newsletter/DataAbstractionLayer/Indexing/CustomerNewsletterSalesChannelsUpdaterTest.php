@@ -36,7 +36,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             ],
         ]);
 
-        $this->connection->expects(static::never())->method('executeStatement');
+        $this->connection->expects($this->never())->method('executeStatement');
 
         $indexing = new CustomerNewsletterSalesChannelsUpdater($this->connection);
         $indexing->updateCustomersRecipient([Uuid::randomHex()]);
@@ -57,7 +57,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 
         $ids = $this->getNewsLetterIds($newsletterIds);
 
-        $this->connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): int {
+        $this->connection->expects($this->once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): int {
             static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
             static::assertSame([
@@ -88,7 +88,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         ]);
 
         $ids = $this->getNewsLetterIds($newsletterIds);
-        $this->connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): int {
+        $this->connection->expects($this->once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): int {
             static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
             static::assertSame([

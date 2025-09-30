@@ -10,7 +10,7 @@ class BillingAddressBlockedError extends Error
 {
     private const KEY = 'billing-address-blocked';
 
-    public function __construct(private readonly string $name)
+    public function __construct(protected readonly string $name)
     {
         $this->message = \sprintf(
             'Billings to billing address %s are not possible.',

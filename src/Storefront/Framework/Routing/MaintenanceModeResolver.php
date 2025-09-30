@@ -14,26 +14,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class MaintenanceModeResolver
 {
     /**
-     * @var RequestStack
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $requestStack;
-
-    /**
-     * @var CoreMaintenanceModeResolver
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $maintenanceModeResolver;
-
-    /**
      * @internal
      */
-    public function __construct(RequestStack $requestStack, CoreMaintenanceModeResolver $maintenanceModeResolver)
-    {
-        $this->requestStack = $requestStack;
-        $this->maintenanceModeResolver = $maintenanceModeResolver;
+    public function __construct(
+        protected RequestStack $requestStack,
+        protected CoreMaintenanceModeResolver $maintenanceModeResolver,
+    ) {
     }
 
     /**
@@ -106,7 +92,7 @@ class MaintenanceModeResolver
         $main = $this->requestStack->getMainRequest();
         $whitelist = $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST) ?? '';
 
-        /** @var string[] $allowedIps */
+        /** @var list<string> $allowedIps */
         $allowedIps = Json::decodeToList((string) $whitelist);
 
         return $this->maintenanceModeResolver->isClientAllowed($request, $allowedIps);

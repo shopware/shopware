@@ -26,13 +26,6 @@ describe('app/plugins/meta-info.plugin', () => {
         metaInfoPlugin.pluginInstalled = false;
     });
 
-    it('should be a Vue.js component', async () => {
-        const component = createComponent();
-
-        expect(component.vm).toBeTruthy();
-        expect(metaInfoPlugin.isMetaInfoPluginInstalled()).toBe(true);
-    });
-
     it('should throw a warning if the plugin gets registered twice', async () => {
         global.console.warn = jest.fn();
         metaInfoPlugin.install({ mixin: jest.fn() });

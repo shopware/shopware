@@ -19,9 +19,14 @@ const templateFiles = allFiles.filter((file) => {
     return file.match(/^.*\.html\.twig$/);
 });
 
+// eslint-disable-next-line no-undef
+const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
+    ignore: ['**/node_modules/**'],
+});
+
 describe('Administration meta tests', () => {
     describe('check for test files', () => {
-        it.skip.each(testAbleFiles)('should have a spec file for "%s"', (file) => {
+        it.each(testAbleFiles)('should have a spec file for "%s"', (file) => {
             // Match 0 holds the whole file path
             // Match 1 holds the last folder name e.g. "adapter"
             // Match 2 holds the file name e.g. "view.adapter.ts"
@@ -91,24 +96,24 @@ describe('Administration meta tests', () => {
             expect(fileIsTested).toBeTruthy();
         });
 
-        it.skip.each(missingTests)('should have an corresponding src file for entry in baseline: "%s"', (file) => {
+        it.each(missingTests)('should have an corresponding src file for entry in baseline: "%s"', (file) => {
             expect(testAbleFiles.some((tFile) => tFile.includes(file))).toBe(true);
         });
     });
 
     describe('check package.json', () => {
-        it.skip('should have engine information in package.json', () => {
+        it('should have engine information in package.json', () => {
             expect(typeof packageJson).toBe('object');
             expect(packageJson.hasOwnProperty('engines')).toBe(true);
             expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
-            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0');
+            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0');
             expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
             expect(packageJson.engines.npm).toBe('>=10.0.0');
         });
     });
 
     describe('check extension sdk public api', () => {
-        it.skip('should not break position identifiers', () => {
+        it('should not break position identifiers', () => {
             const result = [];
             templateFiles.forEach((file) => {
                 const fileContent = fs.readFileSync(file, {
@@ -119,10 +124,12 @@ describe('Administration meta tests', () => {
                 }
 
                 // Find all position identifiers in the file and add them to the result
-                [...fileContent.matchAll(/position-identifier="(.*)"/gm)]
+                [...fileContent.matchAll(/position-identifier="(.+)"/gm)]
                     .map((match) => match[1])
                     .forEach((match) => {
-                        result.push(match);
+                        if (match !== '' && match !== 'null') {
+                            result.push(match);
+                        }
                     });
             });
 
@@ -139,7 +146,7 @@ describe('Administration meta tests', () => {
             ).toHaveLength(positionIdentifiers.length);
         });
 
-        it.skip('should not break data sets', () => {
+        it('should not break data sets', () => {
             const result = [];
             testAbleFiles.forEach((file) => {
                 const fileContent = fs.readFileSync(file, {
@@ -172,7 +179,7 @@ describe('Administration meta tests', () => {
             ).toHaveLength(dataSetIds.length);
         });
 
-        it.skip('should not remove existing blocks', () => {
+        it('should not remove existing blocks', () => {
             const blocks = extractBlocks(templateFiles);
             const removedBlocks = blocksList.filter((block) => !blocks.includes(block));
 
@@ -182,14 +189,27 @@ describe('Administration meta tests', () => {
             ).toHaveLength(0);
         });
 
-        it.skip('should have new blocks in the blocks list', () => {
+        it('should have new blocks in the blocks list', () => {
             const blocks = extractBlocks(templateFiles);
             const newBlocks = blocks.filter((block) => !blocksList.includes(block));
 
             expect(
                 newBlocks,
-                `New blocks have been added. Please run 'generate-block-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
+                `New blocks have been added. Please run 'generate-blocks-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
             ).toHaveLength(0);
+        });
+    });
+
+    describe('forbidden Vue.js component smoke test', () => {
+        it.each(testFiles)('%s must not contain the generic Vue.js component smoke test', (file) => {
+            const content = fs.readFileSync(file, 'utf-8');
+
+            const forbiddenPattern = /(?:it|test)\(\s*['"`]should be a Vue\.js component['"`]\s*,/;
+
+            expect(forbiddenPattern.test(content)).toBe(
+                false,
+                `Found forbidden Vue.js smoke-test in ${path.relative(process.cwd(), file)}`,
+            );
         });
     });
 });

@@ -52,13 +52,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-state-machine/component/sw-settings-state-machine-state-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it("should handle onCancel and emit 'modal-close'", async () => {
         const wrapper = await createWrapper();
         await flushPromises();

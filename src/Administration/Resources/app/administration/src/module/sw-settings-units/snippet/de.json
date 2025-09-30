@@ -1,0 +1,36 @@
+{
+  "sw-settings-units": {
+    "detail": {
+      "fieldLabels": {
+        "name": "Name der Produkteinheit",
+        "shortCode": "Kurzform"
+      }
+    },
+    "general": {
+      "mainMenuItemGeneral": "Produkteinheiten",
+      "placeholderSearchBar": "Durchsuche alle Produkteinheiten ...",
+      "createNewUnit": "Produkteinheit erstellen",
+      "disableAddNewUnitMessage": "Neue Produkteinheiten können nur in der System-Standardsprache angelegt werden."
+    },
+    "grid": {
+      "columnName": "Produkteinheit",
+      "columnShortCode": "Kurzform",
+      "contextMenuDelete": "Löschen"
+    },
+    "empty-state": {
+      "title": "Noch keine Produkteinheiten vorhanden",
+      "subline": "Verwaltung von Produkteinheiten."
+    },
+    "notification": {
+      "successMessage": "Die Produkteinheit wurde erfolgreich gespeichert.",
+      "errorMessage": "Die Produkteinheit konnte nicht gespeichert werden. Überprüfe, ob alle Felder ausgefüllt sind."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "scale_unit": {
+        "label": "Produkteinheiten"
+      }
+    }
+  }
+}

@@ -21,6 +21,18 @@ Thumbs.db
 /.vscode/
 !/.vscode/settings.json
 
+# AI/LLM Development Tools
+.claude/
+.cursor/
+.cursorrules
+.tabnine/
+.ai/
+.llm/
+.aider/
+.aiderignore
+.kite/
+.codewhispererignore
+
 # Composer
 /composer.phar
 /auth.json
@@ -96,6 +108,17 @@ app/config/parameters.yml
 .env.test
 .env.e2e
 .env.dev
+
+# Local AI/LLM overrides
+*.local.md
+*.cursorignore.local
+*.cursorindexingignore.local
+*.tabnineignore.local
+
+# AI/LLM Documentation
+CLAUDE.md
+GEMINI.md
+
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 src/Core/DevOps/Locust/fixtures/*
@@ -112,6 +135,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 !build/artifacts/.gitkeep
 tests/integration/Core/Framework/Plugin/_fixtures/SwagFashionTheme.zip
 tests/integration/Core/Framework/Plugin/_fixtures/TestShippingApp.zip
+.jest
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache
@@ -152,9 +176,17 @@ http-client.private.env.json
 .direnv/
 .phpbench/*
 
+# Vector databases
+*.vdb
+*.vdb.local
+*.vectordb
+
 # Devenv
 .devenv*
 devenv.local.nix
 
 # danger.php
 danger.phar
+
+# Vite deps
+**/.tmp/vite/*

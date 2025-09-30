@@ -66,7 +66,11 @@ async function createWrapper(privileges = []) {
                     feature: {
                         isActive: () => true,
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
 
                 stubs: {
@@ -92,9 +96,9 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
@@ -120,8 +124,6 @@ async function createWrapper(privileges = []) {
                     'sw-language-switch': true,
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
-                    'sw-button': true,
                     'sw-checkbox-field': true,
                 },
             },
@@ -130,13 +132,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/page/sw-settings-country-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to view a country', async () => {
         const wrapper = await createWrapper([
             'country.viewer',
@@ -166,7 +161,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
         const createButton = wrapper.find('.sw-settings-country-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a country', async () => {

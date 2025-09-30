@@ -92,16 +92,14 @@ async function createWrapper(props = defaultProps) {
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-settings-rule-category-tree': true,
                     'router-link': true,
                     'sw-loader': true,
                     'sw-card-filter': true,
                     'sw-product-variant-info': true,
-                    'sw-icon': true,
                     'sw-pagination': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
@@ -130,7 +128,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
         jest.clearAllMocks();
     });
 
-    it.skip('should close modal', async () => {
+    it('should close modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -140,7 +138,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
         expect(wrapper.emitted()).toHaveProperty('close-add-modal');
     });
 
-    it.skip.each([
+    it.each([
         {
             name: 'category entity',
             entityName: 'category',
@@ -160,7 +158,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
         expect(wrapper.find('.sw-settings-rule-add-assignment-modal').attributes('variant')).toBe(expected);
     });
 
-    it.skip('should render category tree when entity is of category', async () => {
+    it('should render category tree when entity is of category', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
             entityContext: {
@@ -174,13 +172,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
         expect(wrapper.find('sw-settings-rule-category-tree-stub').exists()).toBe(true);
     });
 
-    it.skip('should change selection', async () => {
+    it('should change selection', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-rule-add-assignment-listing__card').exists()).toBe(true);
 
-        const checkbox = wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input');
+        const checkbox = wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(false);
         await checkbox.setChecked(true);
@@ -192,7 +190,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
         });
     });
 
-    it.skip('should initialize component: category entity', async () => {
+    it('should initialize component: category entity', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
             entityContext: {
@@ -206,7 +204,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
         expect(entityRepositoryMock.search).toHaveBeenCalledTimes(0);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'default api', defaultApi: true },
         { name: 'custom entity api', defaultApi: false },
     ])('should initialize component: other entity: $name', async ({ defaultApi }) => {
@@ -235,7 +233,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
         ]);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'default api', defaultApi: true },
         { name: 'custom entity api', defaultApi: false },
     ])('should update entities on add: $name', async ({ defaultApi }) => {
@@ -279,7 +277,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
         expect(wrapper.emitted()).toHaveProperty('entities-saved');
     });
 
-    it.skip.each([
+    it.each([
         { name: 'default api', defaultApi: true },
         { name: 'custom entity api', defaultApi: false },
     ])('should insert entities on add: $name', async ({ defaultApi }) => {

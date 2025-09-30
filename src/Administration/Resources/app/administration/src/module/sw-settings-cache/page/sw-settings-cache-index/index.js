@@ -123,6 +123,19 @@ export default {
 
             return this.cacheInfo.cacheAdapter;
         },
+
+        indexingMethodOptions() {
+            return [
+                {
+                    label: this.$tc('sw-settings-cache.section.indexingModeOptionSkipLabel'),
+                    value: 'skip',
+                },
+                {
+                    label: this.$tc('sw-settings-cache.section.indexingModeOptionOnlyLabel'),
+                    value: 'only',
+                },
+            ];
+        },
     },
 
     created() {
@@ -273,27 +286,6 @@ export default {
 
                 only.push(...selectedUpdaters);
             }
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        flipIndexers() {
-            const leafs = [];
-
-            // eslint-disable-next-line no-restricted-syntax
-            for (const [
-                indexerName,
-                updaters,
-            ] of Object.entries(this.indexers)) {
-                if (updaters.length > 0) {
-                    leafs.push(...updaters);
-                } else {
-                    leafs.push(indexerName);
-                }
-            }
-
-            this.indexerSelection = leafs.filter((entry) => this.indexerSelection.indexOf(entry) === -1);
         },
     },
 };

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -58,12 +60,12 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
         return $apps;
     }
 
-    public function install(Manifest $manifest, bool $activate, Context $context): void
+    public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void
     {
         $this->toBeInstalled[$manifest->getMetadata()->getName()] = $manifest;
     }
 
-    public function update(Manifest $manifest, array $app, Context $context): void
+    public function update(Manifest $manifest, AppUpdateParameters $parameters, array $app, Context $context): void
     {
         $this->toBeUpdated[$manifest->getMetadata()->getName()] = $manifest;
     }

@@ -51,9 +51,7 @@ async function createWrapper(privileges = []) {
                 stubs: {
                     'sw-modal': true,
                     'sw-sortable-list': true,
-                    'sw-button': true,
                     'sw-button-process': true,
-                    'sw-icon': true,
                     'sw-media-preview-v2': true,
                 },
             },
@@ -62,13 +60,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should save reordered methods', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

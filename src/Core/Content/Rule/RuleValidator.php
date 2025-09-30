@@ -262,7 +262,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<int|string> $parameters
+     * @param array<string> $parameters
      */
     private function buildViolation(
         string $messageTemplate,

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigEntity;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
@@ -60,7 +61,7 @@ class EntityDispatchServiceTest extends TestCase
 
     public function testItReturnsCorrectAppConfigKey(): void
     {
-        static::assertEquals(
+        static::assertSame(
             'usageData-entitySync-lastRun-sales_channel',
             EntityDispatchService::getLastRunKeyForEntity('sales_channel')
         );
@@ -84,6 +85,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchCollectEntityDataMessage();
@@ -91,6 +93,33 @@ class EntityDispatchServiceTest extends TestCase
         $messages = $messageBus->getMessages();
         static::assertCount(1, $messages);
         static::assertEquals(new CollectEntityDataMessage('current-shop-id'), $messages[0]->getMessage());
+    }
+
+    public function testItDoesNotDispatchesCollectEntityDataMessageIfCollectionIsDisabled(): void
+    {
+        $messageBus = new CollectingMessageBus();
+
+        $entityDispatchService = new EntityDispatchService(
+            new EntityDefinitionService(
+                [
+                    $this->registry->get(ProductDefinition::class),
+                    $this->registry->get(SalesChannelDefinition::class),
+                ],
+                new UsageDataAllowListService(),
+            ),
+            new ArrayKeyValueStorage(),
+            $messageBus,
+            $this->createConsentService(true, null),
+            $this->createGatewayStatusService(true),
+            $this->shopIdProvider,
+            new StaticSystemConfigService([]),
+            false,
+        );
+
+        $entityDispatchService->dispatchCollectEntityDataMessage();
+
+        $messages = $messageBus->getMessages();
+        static::assertCount(0, $messages);
     }
 
     public function testItStoresTheCorrectLastRunDateForEachEntity(): void
@@ -113,6 +142,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         static::assertNull($appConfig->get('usageData-entitySync-lastRun-product'));
@@ -128,7 +158,7 @@ class EntityDispatchServiceTest extends TestCase
         /* The message->getRunDate is not 100% equal to the one stored in the storage because
          * the last 3 decimals are lost in the formatting.
          */
-        static::assertEquals(
+        static::assertSame(
             $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             $appConfig->get('usageData-entitySync-lastRun-product'),
         );
@@ -136,9 +166,9 @@ class EntityDispatchServiceTest extends TestCase
         $salesChannelMessage = $messages[1]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $salesChannelMessage);
 
-        static::assertEquals(
-            $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        static::assertSame(
             $appConfig->get('usageData-entitySync-lastRun-sales_channel'),
+            $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         );
     }
 
@@ -163,11 +193,12 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             $systemConfigService,
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
 
-        static::assertEquals(
+        static::assertSame(
             $expectedLastRunDate?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             $systemConfigService->get('core.usageData.lastEntitySyncRunDate'),
         );
@@ -194,6 +225,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         // first run
@@ -201,7 +233,7 @@ class EntityDispatchServiceTest extends TestCase
 
         $messages = $messageBus->getMessages();
         $messageCountFirstRun = \count($messages);
-        static::assertEquals(2, $messageCountFirstRun);
+        static::assertSame(2, $messageCountFirstRun);
 
         // second run --> should not start another run as the time has not changed
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -237,6 +269,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         // first run
@@ -280,6 +313,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -290,16 +324,16 @@ class EntityDispatchServiceTest extends TestCase
         $productMessage = $messages[0]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $productMessage);
 
-        static::assertEquals('product', $productMessage->entityName);
+        static::assertSame('product', $productMessage->entityName);
         static::assertNull($productMessage->lastRun);
-        static::assertEquals($now, $productMessage->runDate);
+        static::assertSame($now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $productMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         $salesChannelMessage = $messages[1]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $salesChannelMessage);
 
-        static::assertEquals('sales_channel', $salesChannelMessage->entityName);
+        static::assertSame('sales_channel', $salesChannelMessage->entityName);
         static::assertNull($salesChannelMessage->lastRun);
-        static::assertEquals($now, $salesChannelMessage->runDate);
+        static::assertSame($now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $salesChannelMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     public function testItAddsLastRunDateIfExists(): void
@@ -324,6 +358,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
         $storedScLastRunDatetime = new \DateTimeImmutable($lastScRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
@@ -335,22 +370,22 @@ class EntityDispatchServiceTest extends TestCase
         $productMessage = $messages[0]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $productMessage);
 
-        static::assertEquals('product', $productMessage->entityName);
+        static::assertSame('product', $productMessage->entityName);
         static::assertNull($productMessage->lastRun);
-        static::assertEquals($now, $productMessage->runDate);
+        static::assertSame($now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $productMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         $salesChannelMessage = $messages[1]->getMessage();
         static::assertInstanceOf(IterateEntityMessage::class, $salesChannelMessage);
 
-        static::assertEquals('sales_channel', $salesChannelMessage->entityName);
-        static::assertEquals($storedScLastRunDatetime, $salesChannelMessage->lastRun);
-        static::assertEquals($now, $salesChannelMessage->runDate);
+        static::assertSame('sales_channel', $salesChannelMessage->entityName);
+        static::assertSame($storedScLastRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $salesChannelMessage->lastRun?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame($now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $salesChannelMessage->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     public function testReturnsEarlyIfGatewayDoesNotAllowPush(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
+        $messageBusMock->expects($this->never())->method('dispatch');
 
         $entityDispatchService = new EntityDispatchService(
             new EntityDefinitionService(
@@ -366,6 +401,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(false),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -374,7 +410,7 @@ class EntityDispatchServiceTest extends TestCase
     public function testReturnsEarlyIfNoEntitiesAreRegistered(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
+        $messageBusMock->expects($this->never())->method('dispatch');
 
         $entityDispatchService = new EntityDispatchService(
             new EntityDefinitionService([], new UsageDataAllowListService()),
@@ -384,6 +420,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -392,7 +429,7 @@ class EntityDispatchServiceTest extends TestCase
     public function testReturnsEarlyIfNoConsentIsGiven(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
+        $messageBusMock->expects($this->never())->method('dispatch');
 
         $entityDispatchService = new EntityDispatchService(
             new EntityDefinitionService(
@@ -408,6 +445,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -416,7 +454,7 @@ class EntityDispatchServiceTest extends TestCase
     public function testItReturnsEarlyIfCollectEntityMessageHasDifferentShopId(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
+        $messageBusMock->expects($this->never())->method('dispatch');
 
         $entityDispatchService = new EntityDispatchService(
             new EntityDefinitionService(
@@ -432,6 +470,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(false),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('old-shop-id'));
@@ -455,6 +494,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -466,7 +506,7 @@ class EntityDispatchServiceTest extends TestCase
             $message = $envelope->getMessage();
             static::assertInstanceOf(IterateEntityMessage::class, $message);
             static::assertNull($message->lastRun);
-            static::assertEquals(Operation::CREATE, $message->operation);
+            static::assertSame(Operation::CREATE, $message->operation);
         }
     }
 
@@ -489,6 +529,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -527,6 +568,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -576,7 +618,7 @@ class EntityDispatchServiceTest extends TestCase
             ++$foundMessages[$message->entityName][$message->operation->value];
         }
 
-        static::assertEquals($expectedMessages, $foundMessages);
+        static::assertSame($expectedMessages, $foundMessages);
     }
 
     public function testResetLastRunDateForAllEntities(): void
@@ -605,6 +647,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->resetLastRunDateForAllEntities();
@@ -655,13 +698,14 @@ class EntityDispatchServiceTest extends TestCase
     private function createConsentService(bool $isApprovalGiven, ?\DateTimeImmutable $lastConsentDate, \DateTimeImmutable $now = new \DateTimeImmutable()): ConsentService
     {
         $systemConfigEntity = new SystemConfigEntity();
+        $systemConfigEntity->setId('test-id');
         if ($lastConsentDate) {
             $systemConfigEntity->setUpdatedAt($lastConsentDate);
         }
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->method('first')
-            ->willReturn($systemConfigEntity);
+        $entitySearchResult->method('getEntities')
+            ->willReturn(new SystemConfigCollection([$systemConfigEntity]));
 
         $systemConfigRepository = $this->createMock(EntityRepository::class);
         $systemConfigRepository->method('search')
@@ -687,7 +731,7 @@ class EntityDispatchServiceTest extends TestCase
     private function createGatewayStatusService(bool $isAcceptingEntities): GatewayStatusService&MockObject
     {
         $service = $this->createMock(GatewayStatusService::class);
-        $service->expects(static::any())->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
+        $service->expects($this->any())->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
 
         return $service;
     }

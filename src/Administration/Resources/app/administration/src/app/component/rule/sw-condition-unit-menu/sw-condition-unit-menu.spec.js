@@ -14,7 +14,6 @@ async function createWrapper({ type, value, visibleValue }) {
         global: {
             renderStubDefaultSlot: true,
             stubs: {
-                'sw-icon': true,
                 'sw-popover': true,
             },
         },

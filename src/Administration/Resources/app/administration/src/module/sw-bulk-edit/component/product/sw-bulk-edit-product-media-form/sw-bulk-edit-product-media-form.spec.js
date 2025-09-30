@@ -22,7 +22,6 @@ async function createWrapper() {
                     'sw-media-upload-v2': true,
                     'sw-media-preview-v2': true,
                     'sw-product-media-form': true,
-                    'sw-icon': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
@@ -79,11 +78,6 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
         product.getEntityName = () => 'T-Shirt';
 
         Shopware.Store.get('swProductDetail').product = product;
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the sw-media-upload-v2 component', async () => {

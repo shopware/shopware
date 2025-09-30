@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\TestDefaults;
 
@@ -29,15 +30,15 @@ class LicenseHostChangedSubscriberTest extends TestCase
         $systemConfigService->set('core.store.licenseHost', 'host');
         $systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t');
 
-        /** @var EntityRepository $userRepository */
+        /** @var EntityRepository<UserCollection> $userRepository */
         $userRepository = static::getContainer()->get('user.repository');
 
-        /** @var UserEntity $adminUser */
-        $adminUser = $userRepository->search(new Criteria(), $context)->first();
+        $user = $userRepository->search(new Criteria(), $context)->first();
+        static::assertInstanceOf(UserEntity::class, $user);
 
         $userRepository->create([
             [
-                'localeId' => $adminUser->getLocaleId(),
+                'localeId' => $user->getLocaleId(),
                 'username' => 'admin2',
                 'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'admin2',
@@ -46,7 +47,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
                 'storeToken' => null,
             ],
             [
-                'localeId' => $adminUser->getLocaleId(),
+                'localeId' => $user->getLocaleId(),
                 'username' => 'admin3',
                 'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'admin3',

@@ -28,9 +28,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -81,10 +81,10 @@ class ProductCartProcessorTest extends TestCase
         static::assertInstanceOf(DeliveryInformation::class, $lineItem->getDeliveryInformation());
 
         $info = $lineItem->getDeliveryInformation();
-        static::assertEquals(100, $info->getWeight());
-        static::assertEquals(101, $info->getHeight());
-        static::assertEquals(102, $info->getWidth());
-        static::assertEquals(103, $info->getLength());
+        static::assertSame(100.0, $info->getWeight());
+        static::assertSame(101.0, $info->getHeight());
+        static::assertSame(102.0, $info->getWidth());
+        static::assertSame(103.0, $info->getLength());
     }
 
     public function testDeliveryInformationWithEmptyWeight(): void
@@ -169,7 +169,7 @@ class ProductCartProcessorTest extends TestCase
 
         $cart = $result->getCart();
 
-        static::assertEquals($valid, \in_array($ids->get('rule-1'), $context->getRuleIds(), true));
+        static::assertSame($valid, \in_array($ids->get('rule-1'), $context->getRuleIds(), true));
 
         $lineItem = static::getContainer()->get(ProductLineItemFactory::class)
             ->create(['id' => $ids->get('test'), 'referencedId' => $ids->get('test')], $context);
@@ -181,12 +181,12 @@ class ProductCartProcessorTest extends TestCase
 
         $lineItem = $cart->getLineItems()->first();
         static::assertNotNull($lineItem);
-        static::assertEquals('product', $lineItem->getType());
-        static::assertEquals($ids->get('test'), $lineItem->getReferencedId());
+        static::assertSame('product', $lineItem->getType());
+        static::assertSame($ids->get('test'), $lineItem->getReferencedId());
 
         /** @var CalculatedPrice $calcPrice */
         $calcPrice = $lineItem->getPrice();
-        static::assertEquals($price, $calcPrice->getTotalPrice());
+        static::assertSame($price, $calcPrice->getTotalPrice());
     }
 
     /**
@@ -319,7 +319,7 @@ class ProductCartProcessorTest extends TestCase
      * @param array<string, mixed> $productData
      * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
      */
-    #[DataProvider('productFeatureProdiver')]
+    #[DataProvider('productFeatureProvider')]
     #[Group('slow')]
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
     {
@@ -348,7 +348,7 @@ class ProductCartProcessorTest extends TestCase
             unset($expectedFeature['value']['price'], $feature['value']['price']);
         }
 
-        static::assertEquals($expectedFeature, $feature);
+        static::assertSame($expectedFeature, $feature);
     }
 
     /**
@@ -358,7 +358,7 @@ class ProductCartProcessorTest extends TestCase
      *     2: array{type: string, value: mixed, label: string}
      *     }[]
      */
-    public static function productFeatureProdiver(): array
+    public static function productFeatureProvider(): array
     {
         return [
             [
@@ -589,7 +589,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
-        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertSame($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
     }
@@ -628,11 +628,11 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
         static::assertInstanceOf(LineItem::class, $actualProduct);
-        static::assertEquals($quantityExpected, $actualProduct->getQuantity());
+        static::assertSame($quantityExpected, $actualProduct->getQuantity());
         if ($errorKey !== null) {
             $error = $service->getCart($token, $context)->getErrors()->first();
             static::assertNotNull($error);
-            static::assertEquals($errorKey, $error->getMessageKey());
+            static::assertSame($errorKey, $error->getMessageKey());
         }
     }
 
@@ -690,7 +690,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
-        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertSame($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
     }
@@ -722,7 +722,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
-        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertSame($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
     }
@@ -820,7 +820,6 @@ class ProductCartProcessorTest extends TestCase
 
     public function testTaxFreeIsConsideredOnMultipleCalculations(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
         static::getContainer()->get('currency.repository')->upsert([['id' => Defaults::CURRENCY, 'taxFreeFrom' => 1]], Context::createDefaultContext());
         $context = $this->getContext();
         $this->createProduct();
@@ -904,7 +903,7 @@ class ProductCartProcessorTest extends TestCase
      */
     private function getCountryIds(): array
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<CountryCollection> $repository */
         $repository = static::getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(2)
@@ -947,10 +946,6 @@ class ProductCartProcessorTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()->get('customer.repository')->upsert([$customer], Context::createDefaultContext());
 
@@ -1075,6 +1070,7 @@ class ProductCartProcessorTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => self::TEST_LOCALE_ID,
                         'code' => self::TEST_LANGUAGE_LOCALE_CODE,

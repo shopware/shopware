@@ -37,21 +37,14 @@ async function createWrapper() {
                 'sw-pagination': await wrapTestComponent('sw-pagination'),
                 'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-checkbox-field': {
                     template: '<div class="checkbox"></div>',
                 },
                 'sw-empty-state': true,
-                'mt-text-field': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'mt-button': true,
                 'router-link': true,
                 'sw-loader': true,
                 'sw-select-field': true,
@@ -163,12 +156,6 @@ async function createWrapper() {
 describe('components/base/sw-property-search', () => {
     afterEach(async () => {
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a pagination element inside group grid', async () => {
@@ -356,7 +343,7 @@ describe('components/base/sw-property-search', () => {
 
         jest.useFakeTimers();
 
-        const searchInput = wrapper.find('.sw-block-field__block input');
+        const searchInput = wrapper.find('.mt-block-field__block input');
         await searchInput.setValue('test');
         await searchInput.trigger('input');
 
@@ -389,7 +376,7 @@ describe('components/base/sw-property-search', () => {
 
         jest.useFakeTimers();
 
-        const searchInput = wrapper.find('.sw-block-field__block input');
+        const searchInput = wrapper.find('.mt-block-field__block input');
         await searchInput.setValue('property-A');
         await searchInput.trigger('input');
 

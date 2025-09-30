@@ -38,7 +38,7 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
 
         $event = $this->buildEvent();
         $this->gateway
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sendLogs')
             ->with([]);
 
@@ -83,7 +83,7 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
         $event = $this->buildEvent();
 
         $this->gateway
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sendLogs')
             ->with([$failedPayload->serialize(), $slowPayload->serialize()]);
 

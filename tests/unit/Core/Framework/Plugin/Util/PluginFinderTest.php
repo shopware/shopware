@@ -60,9 +60,9 @@ class PluginFinderTest extends TestCase
         static::assertInstanceOf(PluginFromFileSystemStruct::class, $plugins['Swag\Test']);
         static::assertTrue($plugins['Swag\Test']->getManagedByComposer());
         // path is still local if it exists
-        static::assertEquals(__DIR__ . '/_fixture/LocallyInstalledPlugins/SwagTest', $plugins['Swag\Test']->getPath());
+        static::assertSame(__DIR__ . '/_fixture/LocallyInstalledPlugins/SwagTest', $plugins['Swag\Test']->getPath());
         // version info is still from local, as that might be more up to date
-        static::assertEquals('v1.0.2', $plugins['Swag\Test']->getComposerPackage()->getPrettyVersion());
+        static::assertSame('v1.0.2', $plugins['Swag\Test']->getComposerPackage()->getPrettyVersion());
     }
 
     public function testComposerPackageFromPluginIsUsedIfNoLocalInstalledVersionExists(): void
@@ -77,8 +77,8 @@ class PluginFinderTest extends TestCase
         static::assertInstanceOf(PluginFromFileSystemStruct::class, $plugins['Swag\Test2']);
         static::assertTrue($plugins['Swag\Test2']->getManagedByComposer());
         // path is still local if it exists
-        static::assertEquals(__DIR__ . '/_fixture/ComposerProject/vendor/swag/test2', $plugins['Swag\Test2']->getPath());
+        static::assertSame(__DIR__ . '/_fixture/ComposerProject/vendor/swag/test2', $plugins['Swag\Test2']->getPath());
         // version info is still from local, as that might be more up to date
-        static::assertEquals('v2.0.1', $plugins['Swag\Test2']->getComposerPackage()->getPrettyVersion());
+        static::assertSame('v2.0.1', $plugins['Swag\Test2']->getComposerPackage()->getPrettyVersion());
     }
 }

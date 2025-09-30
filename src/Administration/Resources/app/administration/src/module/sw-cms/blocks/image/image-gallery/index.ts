@@ -1,5 +1,3 @@
-import CMS from '../../../constant/sw-cms.constant';
-
 /**
  * @private
  * @sw-package discovery
@@ -24,8 +22,8 @@ Shopware.Service('cmsService').registerCmsBlock({
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',
-        marginLeft: '20px',
-        marginRight: '20px',
+        marginLeft: null,
+        marginRight: null,
         sizingMode: 'boxed',
     },
     slots: {
@@ -41,21 +39,21 @@ Shopware.Service('cmsService').registerCmsBlock({
                                 url: null,
                                 newTab: false,
                                 mediaId: null,
-                                fileName: CMS.MEDIA.previewMountain,
+                                fileName: Shopware.Constants.CMS.MEDIA.previewMountain,
                                 mediaUrl: null,
                             },
                             {
                                 url: null,
                                 newTab: false,
                                 mediaId: null,
-                                fileName: CMS.MEDIA.previewGlasses,
+                                fileName: Shopware.Constants.CMS.MEDIA.previewGlasses,
                                 mediaUrl: null,
                             },
                             {
                                 url: null,
                                 newTab: false,
                                 mediaId: null,
-                                fileName: CMS.MEDIA.previewPlant,
+                                fileName: Shopware.Constants.CMS.MEDIA.previewPlant,
                                 mediaUrl: null,
                             },
                         ],

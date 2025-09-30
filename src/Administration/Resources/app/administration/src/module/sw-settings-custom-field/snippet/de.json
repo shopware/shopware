@@ -1,0 +1,129 @@
+{
+  "sw-settings-custom-field": {
+    "general": {
+      "description": "Zusatzfelder hier verwalten.",
+      "mainMenuItemGeneral": "Zusatzfelder",
+      "placeholderSearchBar": "Durchsuche alle Zusatzfelder ...",
+      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann später nicht mehr verändert werden.",
+      "tooltipType": "Der Typ kann später nicht mehr verändert werden."
+    },
+    "error": {
+      "CUSTOM_FIELD_NAME_INVALID": "Ungültiger Name: Es sind nur Buchstaben, Zahlen oder Unterstriche zulässig, und der Name muss mit einem Buchstaben oder einem Unterstrich beginnen."
+    },
+    "set": {
+      "list": {
+        "textHeadline": "Zusatzfelder",
+        "textDeleteConfirm": "Möchtest Du das Set \"{name}\" wirklich löschen?",
+        "buttonAdd": "Set anlegen",
+        "columnName": "Label",
+        "contextMenuEdit": "Bearbeiten",
+        "buttonDelete": "Löschen",
+        "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
+        "messageEmpty": "Noch keine Zusatzfelder.",
+        "helpTextGlobalSet": "Dieses Set ist global und kann nicht verändert werden."
+      },
+      "detail": {
+        "labelTechnicalName": "Technischer Name",
+        "labelPosition": "Position",
+        "textHeadline": "Zusatzfeld-Set",
+        "buttonSave": "Speichern",
+        "titleCardInformation": "Set-Informationen",
+        "labelName": "Set-Name",
+        "placeholderName": "Namen eingeben ...",
+        "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
+        "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
+        "messageCustomFieldsEmpty": "Noch keine Zusatzfelder.",
+        "addCustomField": "Neues Zusatzfeld",
+        "buttonApply": "Speichern",
+        "labelEntities": "Verwenden für",
+        "placeholderEntities": "Verwendung hinzufügen ...",
+        "messageNameNotUnique": "Der technische Name existiert bereits.",
+        "entityTypeRequired": "Bitte wähle einen Objekttypen.",
+        "emptyStateDescription": "Speichere das Set bevor du Zusatzfelder hinzfügen kannst."
+      }
+    },
+    "customField": {
+      "detail": {
+        "titleNewCustomField": "Neues Zusatzfeld anlegen",
+        "titleEditCustomField": "Zusatzfeld bearbeiten",
+        "buttonEditApply": "Änderungen übernehmen",
+        "labelCustomFieldType": "Typ",
+        "placeholderCustomFieldType": "Wähle aus ...",
+        "labelTechnicalName": "Technischer Name",
+        "labelLabel": "Label",
+        "buttonAddOption": "Option hinzufügen",
+        "labelDeleteOption": "löschen",
+        "labelOption": "Option {count}:",
+        "labelPlaceholder": "Platzhalter",
+        "labelMax": "Maximum",
+        "labelMin": "Minimum",
+        "labelStep": "Schrittweite",
+        "labelFloat": "Gleitkommazahlenfeld",
+        "labelInt": "Ganzzahlenfeld",
+        "labelNumberType": "Zahlentyp",
+        "labelDatetime": "Datum-/Zeitfeld",
+        "labelDate": "Datum",
+        "labelTime": "Zeit",
+        "labelDateType": "Typ",
+        "labelHelpText": "Hilfetext",
+        "labelTimeForm": "24-Stunden-Zeitformat",
+        "labelCustomFieldPosition": "Position",
+        "labelMultiSelect": "Mehrfachauswahl",
+        "helpTextMultiSelect": "Die Mehrfachauswahloption kann nach Erstellen des Zusatzfeldes nicht mehr geändert werden.",
+        "labelEntityTypeSelect": "Objekttyp",
+        "helpTextEntitySelect": "Der Objekttyp kann nach Erstellen des Zusatzfeldes nicht mehr geändert werden.",
+        "tooltipCustomFieldPosition": "Steuert die Position des Zusatzfeldes auf den Detailseiten.",
+        "infoText": "Wenn Du ein Zusatzfeld erstellst, wird ein entsprechender Textbaustein in allen Deinen Textbaustein-Sets erstellt. Du findest den Textbaustein unter dem Namen \"customFields.{name}\".",
+        "labelAllowCustomerWrite": "Modifizierbar über Store API",
+        "tooltipAllowCustomerWrite": "Wenn diese Option aktiviert ist, kann die Store-API dieses Feld ändern. Dies kann verwendet werden, um benutzerdefinierte Daten zu speichern, wenn neue Felder zur Storefront hinzugefügt werden. Zum Beispiel für neue Felder im Registrierungsformular.",
+        "labelAllowCartExpose": "Verfügbar in Warenkörben",
+        "tooltipAllowCartExpose": "Aktivieren, um dieses Zusatzfeld in den Daten von Warenkorb-Positionen verfügbar zu machen. Dies ist Voraussetzung für die initiale Verwendung dieses benutzerdefinierten Feldes im Rule Builder oder in eigenen Templates.",
+        "tooltipCartExposeDisabled": "Diese Einstellung kann zur Zeit nicht geändert werden, da das Zusatzfeld noch von einer oder mehreren Bedingungen im Rule Builder verwendet wird.",
+        "labelStoreApiAware": "Sichtbar in Store API",
+        "tooltipStoreApiAware": "Wenn diese Option aktiviert ist, wird dieses Feld in der Store-API sichtbar sein. Diese Option kann deaktiviert werden, um benutzerdefinierte Daten nur intern zu speichern und nicht über die Store API verfügbar zu machen."
+      },
+      "list": {
+        "labelCustomFieldLabel": "Label",
+        "labelCustomFieldType": "Typ",
+        "labelCustomFieldPosition": "Position",
+        "contextMenuCustomFieldResetDelete": "Wiederherstellen",
+        "contextMenuCustomFieldView": "Editieren",
+        "contextMenuCustomFieldDelete": "Löschen",
+        "titleDeleteAction": "Zusatzfeld löschen | Zusatzfelder löschen",
+        "textDeleteActionConfirmation": "Bist Du sicher, dass Du dieses Zusatzfeld löschen möchtest? | Bist Du sicher, dass Du diese {count} Zusatzfelder löschen möchtest?"
+      },
+      "entity": {
+        "product": "Produkt",
+        "category": "Kategorie",
+        "shippingMethod": "Liefermethode",
+        "paymentMethod": "Zahlungsmethode",
+        "country": "Land",
+        "customer": "Kunde",
+        "salesChannel": "Verkaufskanal",
+        "manufacturer": "Hersteller",
+        "dynamicProductGroup": "Dynamische Produktgruppe",
+        "shoppingExperienceLayout": "Erlebniswelt-Layout"
+      }
+    },
+    "types": {
+      "select": "Auswahlfeld",
+      "entity": "Objektauswahl",
+      "text": "Textfeld",
+      "number": "Zahlenfeld",
+      "media": "Medienfeld",
+      "date": "Datum- / Zeitfeld",
+      "checkbox": "Checkbox",
+      "switch": "Aktiv-Schalter",
+      "textEditor": "Text-Editor",
+      "colorpicker": "Farbauswahlwerkzeug",
+      "price": "Preisfeld"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "custom_field": {
+        "label": "Zusatzfelder"
+      }
+    }
+  }
+}

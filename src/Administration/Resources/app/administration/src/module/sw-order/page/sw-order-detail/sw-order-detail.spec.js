@@ -52,8 +52,6 @@ async function createWrapper(order = {}) {
                             <slot name="content"></slot>
                         </div>`,
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-label': true,
                 'sw-skeleton': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
@@ -63,14 +61,14 @@ async function createWrapper(order = {}) {
                             <slot></slot>
                         </div>`,
                 },
-                'sw-alert': true,
+
                 'sw-loader': true,
                 'router-view': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
-                'sw-icon': true,
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
+                'sw-order-save-changes-beforehand-modal': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
             },
@@ -89,11 +87,6 @@ async function createWrapper(order = {}) {
 
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should remove version id when beforeunload event is triggered', async () => {
         wrapper = await createWrapper();
@@ -119,10 +112,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     it('should contain manual label', async () => {
         wrapper = await createWrapper();
-        await wrapper.setData({ identifier: '1', createdById: '2' });
+        await wrapper.setData({ identifier: '1' });
 
         Shopware.Store.get('swOrderDetail').order = {
             orderNumber: 1,
+            createdById: '2',
         };
         await nextTick();
 
@@ -232,7 +226,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(convertedProductLineItems).toContainEqual(previouslyConvertedLineItem);
     });
 
-    it('should apply promotions on save and recalculate', async () => {
+    it('should not apply promotions on save and recalculate', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
             type: 'product',
@@ -278,10 +272,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         await wrapper.vm.onSaveAndRecalculate();
         expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
-        expect(wrapper.vm.orderService.toggleAutomaticPromotions).toHaveBeenCalled();
+        expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
     });
 
-    it('should apply promotions on recalculate and reload', async () => {
+    it('should not apply promotions on recalculate and reload', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
             type: 'product',
@@ -327,10 +321,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         await wrapper.vm.onRecalculateAndReload();
 
-        expect(wrapper.vm.promotionsToDelete).toHaveLength(1);
-        expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(1);
+        expect(wrapper.vm.promotionsToDelete).toHaveLength(0);
+        expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(0);
         expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
-        expect(wrapper.vm.orderService.toggleAutomaticPromotions).toHaveBeenCalled();
+        expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
     });
 
     it('should delete promotions on save edits', async () => {
@@ -384,6 +378,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should handle order address update', async () => {
         wrapper = await createWrapper({
             id: 'order123',
+            primaryOrderDelivery: {
+                id: 'delivery123',
+            },
             deliveries: [
                 {
                     id: 'delivery123',
@@ -467,5 +464,53 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         expect(createNewVersionIdMock).toHaveBeenCalled();
         expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
+    });
+
+    it('should ask for saving confirmation before continuing', async () => {
+        wrapper = await createWrapper();
+        const onSaveEditsSpy = jest.fn();
+        wrapper.vm.onSaveEdits = onSaveEditsSpy;
+
+        let promise = wrapper.vm.askAndSaveEdits();
+
+        expect(wrapper.vm.askForSaveBeforehand).toBeFalsy();
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        wrapper.vm.hasOrderDeepEdit = true;
+        await flushPromises();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsCancel();
+        expect(await promise).toBe(false);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsConfirm();
+        Shopware.Store.get('swOrderDetail').savedSuccessful = true;
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).toHaveBeenCalled();
+    });
+
+    it('should call afterSaveFn of saveAndReload', async () => {
+        wrapper = await createWrapper();
+
+        let promiseResolved = false;
+        const afterSaveFn = jest.fn(() =>
+            new Promise((r) => {
+                r();
+            }).then(() => {
+                promiseResolved = true;
+            }),
+        );
+
+        await wrapper.vm.saveAndReload(afterSaveFn);
+
+        expect(afterSaveFn).toHaveBeenCalledTimes(1);
+        expect(promiseResolved).toBe(true);
     });
 });

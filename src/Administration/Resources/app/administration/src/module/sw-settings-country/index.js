@@ -1,14 +1,10 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import './component/sw-settings-country-address-handling';
-import './component/sw-settings-country-new-snippet-modal';
-import './component/sw-multi-snippet-drag-and-drop';
-import './component/sw-settings-country-preview-template';
 
 import './acl';
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-country-list', () => import('./page/sw-settings-country-list'));
@@ -29,6 +25,19 @@ Shopware.Component.register(
     'sw-settings-country-currency-hamburger-menu',
     () => import('./component/sw-settings-country-currency-hamburger-menu'),
 );
+Shopware.Component.register(
+    'sw-settings-country-preview-template',
+    () => import('./component/sw-settings-country-preview-template'),
+);
+Shopware.Component.register(
+    'sw-settings-country-new-snippet-modal',
+    () => import('./component/sw-settings-country-new-snippet-modal'),
+);
+Shopware.Component.register(
+    'sw-settings-country-address-handling',
+    () => import('./component/sw-settings-country-address-handling'),
+);
+Shopware.Component.register('sw-multi-snippet-drag-and-drop', () => import('./component/sw-multi-snippet-drag-and-drop'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -38,7 +47,7 @@ Module.register('sw-settings-country', {
     title: 'sw-settings-country.general.mainMenuItemGeneral',
     description: 'Country section in the settings module',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'country',
 
@@ -148,14 +157,7 @@ Module.register('sw-settings-country', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'localization';
-        },
+        group: 'localization',
         to: 'sw.settings.country.index',
         icon: 'regular-map',
         privilege: 'country.viewer',

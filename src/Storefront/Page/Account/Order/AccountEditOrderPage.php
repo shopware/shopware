@@ -17,11 +17,11 @@ class AccountEditOrderPage extends Page
 
     protected PromotionCollection $activePromotions;
 
-    protected ?string $deepLinkCode;
+    protected ?string $deepLinkCode = null;
 
     protected bool $paymentChangeable = true;
 
-    protected ?string $errorCode;
+    protected ?string $errorCode = null;
 
     public function getOrder(): OrderEntity
     {

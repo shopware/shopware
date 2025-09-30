@@ -20,12 +20,14 @@
     {% block sw_users_permissions_role_detail_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_users_permissions_role_detail_smart_bar_actions_button_cancel %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_users_permissions_role_detail_smart_bar_actions_button_save %}

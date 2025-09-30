@@ -30,7 +30,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
 {
     public function testItReturnsTheCorrectName(): void
     {
-        static::assertEquals('cartTotalPurchasePrice', (new CartTotalPurchasePriceRule())->getName());
+        static::assertSame('cartTotalPurchasePrice', (new CartTotalPurchasePriceRule())->getName());
     }
 
     public function testRulesDoesNotMatchIfScopeNotCartRuleScope(): void
@@ -57,7 +57,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
             'amount' => $total,
         ]);
 
-        static::assertEquals($matches, $rule->match($ruleScope));
+        static::assertSame($matches, $rule->match($ruleScope));
     }
 
     /**
@@ -95,7 +95,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
 
         static::assertEquals([
             'operator' => [new NotBlank(),
-                new Choice([
+                new Choice(choices: [
                     Rule::OPERATOR_EQ,
                     Rule::OPERATOR_LTE,
                     Rule::OPERATOR_GTE,
@@ -121,14 +121,14 @@ class CartTotalPurchasePriceRuleTest extends TestCase
         $configData = $config->getData();
 
         static::assertArrayHasKey('operatorSet', $configData);
-        static::assertEquals([
+        static::assertSame([
             'operators' => RuleConfig::OPERATOR_SET_NUMBER,
             'isMatchAny' => false,
         ], $configData['operatorSet']);
 
         static::assertArrayHasKey('fields', $configData);
         static::assertCount(2, $configData['fields']);
-        static::assertEquals([
+        static::assertSame([
             'type' => [
                 'name' => 'type',
                 'type' => 'single-select',

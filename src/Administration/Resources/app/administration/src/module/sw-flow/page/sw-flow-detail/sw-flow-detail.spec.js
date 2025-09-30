@@ -115,7 +115,11 @@ const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
     ]);
 });
 
-async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}) {
+const businessEventServiceMock = {
+    getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
+};
+
+async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
     return mount(
         await wrapTestComponent('sw-flow-detail', {
             sync: true,
@@ -184,6 +188,7 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     ruleConditionDataProviderService: {
                         getRestrictedRules: () => Promise.resolve([]),
                     },
+                    ...customProvides,
                 },
                 mocks: {
                     $route: { params: param, query: query },
@@ -209,12 +214,7 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     }),
                     'router-view': true,
                     'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-skeleton': true,
-                    'sw-alert': true,
                     'sw-flow-leave-page-modal': true,
                     'sw-tabs': {
                         template: `
@@ -230,7 +230,6 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                         </div>
                     `,
                     },
-                    'sw-icon': true,
                     'router-link': true,
                     'sw-loader': true,
                 },
@@ -244,9 +243,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         Shopware.Store.get('swFlow').setSequences(getSequencesCollection(sequencesFixture));
 
         Shopware.Service().register('businessEventService', () => {
-            return {
-                getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
-            };
+            return businessEventServiceMock;
         });
     });
 
@@ -579,5 +576,87 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequences).toHaveLength(4);
         expect(sequences[0]).toHaveProperty('rule');
         expect(sequences[0].rule).toEqual({ id: '1111', name: 'test rule' });
+    });
+
+    it('should display an error when trying to save an empty flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper();
+        const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(notificationSpy).toHaveBeenNthCalledWith(1, {
+            message: 'sw-flow.flowNotification.emptyFields.general',
+        });
+    });
+
+    it('should wait for FlowData and TriggerEventsData requests before executing getDataForActionDescription', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        let resolveEvents;
+        const eventsPromise = new Promise((resolve) => {
+            resolveEvents = () => resolve(mockBusinessEvents);
+        });
+
+        let resolveFlowData;
+        const flowDataPromise = new Promise((resolve) => {
+            resolveFlowData = () =>
+                resolve({
+                    id: ID_FLOW,
+                    name: 'Flow 1',
+                    eventName: 'checkout.customer',
+                    sequences: getSequencesCollection([]),
+                });
+        });
+
+        const customBusinessEventServiceMock = {
+            getBusinessEvents: jest.fn().mockReturnValue(eventsPromise),
+        };
+
+        const customRepositoryFactoryMock = {
+            create: (entity) => {
+                if (entity === 'flow') {
+                    return {
+                        get: () => flowDataPromise,
+                    };
+                }
+                return {
+                    create: () => ({}),
+                    search: () => Promise.resolve([]),
+                };
+            },
+        };
+
+        const wrapper = await createWrapper(
+            {},
+            {},
+            ID_FLOW,
+            true,
+            {},
+            {
+                businessEventService: customBusinessEventServiceMock,
+                repositoryFactory: customRepositoryFactoryMock,
+            },
+        );
+
+        await flushPromises();
+
+        const actionDescriptionSpy = jest.spyOn(wrapper.vm, 'getDataForActionDescription');
+
+        expect(actionDescriptionSpy).not.toHaveBeenCalled();
+
+        resolveEvents();
+        await flushPromises();
+        expect(actionDescriptionSpy).not.toHaveBeenCalled();
+
+        resolveFlowData();
+        await flushPromises();
+        expect(actionDescriptionSpy).toHaveBeenCalled();
+
+        actionDescriptionSpy.mockRestore();
     });
 });

@@ -27,11 +27,11 @@
     }
 
     .sw-tree-item .sw-tree-item__element {
-        & > .sw-tree-item__actions .sw-button {
+        & > .sw-tree-item__actions .mt-button {
             display: none;
         }
 
-        &:hover > .sw-tree-item__actions .sw-button {
+        &:hover > .sw-tree-item__actions .mt-button {
             display: block;
         }
 
@@ -109,7 +109,7 @@
         display: none;
     }
 
-    .sw-icon.icon--regular-circle-xxs {
+    .mt-icon.icon--regular-circle-xxs {
         padding: 4px;
     }
 }

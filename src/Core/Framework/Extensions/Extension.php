@@ -4,19 +4,22 @@ namespace Shopware\Core\Framework\Extensions;
 
 use Psr\EventDispatcher\StoppableEventInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ExtendableTrait;
 
 /**
  * @template TResultType
- *
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
  */
 #[Package('framework')]
 abstract class Extension implements StoppableEventInterface
 {
+    use ExtendableTrait;
+
     /**
      * @var TResultType
      */
     public mixed $result = null;
+
+    public ?\Throwable $exception = null;
 
     private bool $propagationStopped = false;
 
@@ -36,6 +39,8 @@ abstract class Extension implements StoppableEventInterface
         $data = get_object_vars($this);
         unset($data['result']);
         unset($data['propagationStopped']);
+        unset($data['exception']);
+        unset($data['extensions']);
 
         return $data;
     }

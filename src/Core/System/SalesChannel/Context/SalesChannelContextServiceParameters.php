@@ -9,64 +9,16 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class SalesChannelContextServiceParameters extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $token;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $domainId;
-
-    /**
-     * @var Context|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $originalContext;
-
     public function __construct(
-        string $salesChannelId,
-        string $token,
-        ?string $languageId = null,
-        ?string $currencyId = null,
-        ?string $domainId = null,
-        ?Context $originalContext = null,
+        protected string $salesChannelId,
+        protected string $token,
+        protected ?string $languageId = null,
+        protected ?string $currencyId = null,
+        protected ?string $domainId = null,
+        protected ?Context $originalContext = null,
         protected ?string $customerId = null,
         protected ?string $imitatingUserId = null
     ) {
-        $this->salesChannelId = $salesChannelId;
-        $this->token = $token;
-        $this->languageId = $languageId;
-        $this->currencyId = $currencyId;
-        $this->domainId = $domainId;
-        $this->originalContext = $originalContext;
     }
 
     public function getSalesChannelId(): string

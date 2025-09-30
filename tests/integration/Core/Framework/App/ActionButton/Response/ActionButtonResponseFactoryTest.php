@@ -35,6 +35,8 @@ class ActionButtonResponseFactoryTest extends TestCase
         $app->setName('TestApp');
         $app->setId(Uuid::randomHex());
         $app->setAppSecret('app-secret');
+        $app->setVersion('1.0.0');
+
         $this->action = new AppAction(
             $app,
             new Source('http://shop.url', 'shop-id', '1.0.0'),

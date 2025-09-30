@@ -21,6 +21,7 @@ import { h, defineComponent } from 'vue';
 window.performance.mark = () => {};
 window.performance.measure = () => {};
 window.performance.clearMarks = () => {};
+window.performance.clearMeasures = () => {};
 
 jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
     return jest.fn();
@@ -531,7 +532,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         beforeAll(() => {
             global.allowedErrors.push({
                 method: 'warn',
-                hurensohn: true,
                 msgCheck: (_, msg) => {
                     if (typeof msg !== 'string') {
                         return false;
@@ -700,7 +700,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-button',
                 'mt-checkbox',
                 'mt-colorpicker',
-                'mt-datepicker',
                 'mt-email-field',
                 'mt-number-field',
                 'mt-password-field',
@@ -754,7 +753,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
             await flushPromises();
 
-            expect(vueAdapter.i18n.global.locale).toEqual(expectedLocale);
+            expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
         });
     });
 });

@@ -1,14 +1,30 @@
-.sw-card.sw-settings-rule-add-assignment-listing__card {
+.mt-card.sw-settings-rule-add-assignment-listing__card {
     max-width: none;
     width: 100%;
+    border: 0;
+    border-radius: 0;
     margin: 0;
 
-    .sw-card__toolbar {
-        border-top: none;
+    .sw-card-filter {
+        width: 100%;
     }
 
-    .sw-card__content {
-        padding: 0;
-        border: none;
+    .is--active {
+        color: var(--color-icon-positive-default);
+    }
+
+    .is--inactive {
+        color: var(--color-icon-critical-default);
+    }
+
+    .mt-card {
+        &__toolbar {
+            padding-bottom: 20px;
+        }
+
+        &__content {
+            border: 1px solid var(--color-border-primary-default);
+            padding: 0;
+        }
     }
 }

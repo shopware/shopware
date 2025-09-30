@@ -25,7 +25,7 @@
             cursor: not-allowed;
             opacity: 0.3;
 
-            &.is--danger .sw-icon {
+            &.is--danger .mt-icon {
                 color: $color-crimson-200;
             }
 
@@ -33,7 +33,7 @@
                 color: $color-menu-start;
             }
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-shopware-brand-200;
             }
 
@@ -47,7 +47,7 @@
         cursor: pointer;
 
         &.is--danger {
-            .sw-icon {
+            .mt-icon {
                 color: $color-crimson-500;
             }
 
@@ -61,7 +61,7 @@
         }
     }
 
-    .sw-icon {
+    .mt-icon {
         color: $color-shopware-brand-500;
         margin-right: 20px;
         position: relative;

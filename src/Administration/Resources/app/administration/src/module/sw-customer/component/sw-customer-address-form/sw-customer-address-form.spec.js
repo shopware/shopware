@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
-
-// eslint-disable-next-line import/named
-import CUSTOMER from '../../constant/sw-customer.constant';
+import Entity from 'src/core/data/entity.data';
 
 /**
  * @sw-package checkout
  */
+
+const { CUSTOMER } = Shopware.Constants;
 
 async function createWrapper() {
     const responses = global.repositoryFactoryMock.responses;
@@ -29,26 +29,22 @@ async function createWrapper() {
 
     return mount(await wrapTestComponent('sw-customer-address-form', { sync: true }), {
         props: {
-            customer: {},
-            address: {
-                _isNew: true,
+            customer: new Entity('customerId', 'customer', {
+                company: 'foo',
+            }),
+            address: new Entity('1', 'customer_address', {
                 id: '1',
-                getEntityName: () => {
-                    return 'customer_address';
-                },
-            },
+                company: 'foo',
+            }),
         },
         global: {
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-entity-single-select': true,
-                'sw-icon': true,
                 'sw-inheritance-switch': true,
                 'sw-field-copyable': true,
                 'sw-ai-copilot-badge': true,
@@ -160,7 +156,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('input[label="sw-customer.addressForm.labelCompany"]').attributes('required')).toBeDefined();
+        expect(wrapper.find('label[for="sw-field--address-company"]').classes('is--required')).toBeTruthy();
     });
 
     it('should not mark company as required when switching to private type', async () => {
@@ -173,7 +169,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').attributes('required')).toBeUndefined();
+        expect(wrapper.find('label[for="sw-field--address-company"]').classes('is--required')).toBeFalsy();
     });
 
     it('should display company, department and vat fields by default when account type is empty', async () => {
@@ -185,8 +181,8 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             address: {},
         });
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeTruthy();
-        expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeTruthy();
+        expect(wrapper.find('label[for="sw-field--address-company"]').exists()).toBeTruthy();
+        expect(wrapper.find('label[for="sw-field--address-department"]').exists()).toBeTruthy();
     });
 
     it('should hide the error field when a disabled field', async () => {
@@ -205,11 +201,11 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        const firstName = wrapper.findAll('.sw-field').at(3);
+        const firstName = wrapper.findAll('.mt-field').at(3);
 
         expect(wrapper.vm.disabled).toBe(false);
         expect(firstName.classes()).toContain('has--error');
-        expect(firstName.find('.sw-field__error').text()).toBe('This value should not be blank.');
+        expect(firstName.find('.mt-field__error').text()).toBe('This value should not be blank.');
 
         await wrapper.setProps({ disabled: true });
         await flushPromises();
@@ -258,5 +254,26 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.zipcode`);
         expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.countryStateId`);
+    });
+
+    it('should set customer company for new customer', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.customer.markAsNew();
+        wrapper.vm.address.company = 'bar';
+
+        await flushPromises();
+
+        expect(wrapper.vm.customer.company).toBe('bar');
+    });
+
+    it('should not change customer company for existing customer', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.address.company = 'bar';
+
+        await flushPromises();
+
+        expect(wrapper.vm.customer.company).toBe('foo');
     });
 });

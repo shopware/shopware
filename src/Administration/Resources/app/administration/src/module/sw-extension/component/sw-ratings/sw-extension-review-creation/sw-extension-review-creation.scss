@@ -4,8 +4,9 @@
     &__buttons {
         display: flex;
         align-items: center;
+        margin-top: var(--scale-size-24);
 
-        .sw-button:not(:last-child) {
+        .mt-button:not(:last-child) {
             margin-right: 16px;
         }
     }

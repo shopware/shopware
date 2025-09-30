@@ -14,19 +14,9 @@ class MediaDefaultFolderEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $entity;
+    protected string $entity;
 
-    /**
-     * @var MediaFolderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $folder;
+    protected ?MediaFolderEntity $folder = null;
 
     public function getEntity(): string
     {

@@ -35,7 +35,7 @@ class ElasticsearchCustomFieldsMappingEventTest extends TestCase
 
         $mappings = $event->getMappings();
 
-        static::assertEquals(
+        static::assertSame(
             ['field1' => 'text'],
             $mappings
         );

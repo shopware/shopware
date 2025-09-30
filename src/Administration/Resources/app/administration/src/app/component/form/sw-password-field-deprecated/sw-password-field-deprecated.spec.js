@@ -21,7 +21,6 @@ async function createWrapper({ provide, ...additionalOptions } = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
-                'sw-icon': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -37,13 +36,6 @@ async function createWrapper({ provide, ...additionalOptions } = {}) {
 }
 
 describe('components/form/sw-password-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('Should display placeholder as text', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

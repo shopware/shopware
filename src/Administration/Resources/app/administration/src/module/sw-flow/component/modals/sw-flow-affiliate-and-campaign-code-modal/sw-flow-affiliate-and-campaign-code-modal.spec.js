@@ -61,9 +61,6 @@ async function createWrapper() {
                         </div>
                     `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-popover': {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
@@ -85,14 +82,12 @@ async function createWrapper() {
                     },
                     'sw-loader': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-highlight-text': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-container': await wrapTestComponent('sw-container'),

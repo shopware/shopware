@@ -30,9 +30,9 @@ class MediaUploadedEventTest extends TestCase
             $context
         );
 
-        static::assertEquals('media.uploaded', $mediaUploadEvent->getName());
-        static::assertEquals($mediaId, $mediaUploadEvent->getMediaId());
-        static::assertEquals(
+        static::assertSame('media.uploaded', $mediaUploadEvent->getName());
+        static::assertSame($mediaId, $mediaUploadEvent->getMediaId());
+        static::assertSame(
             $context,
             $mediaUploadEvent->getContext()
         );
@@ -61,7 +61,7 @@ class MediaUploadedEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('mediaId', $flow->data());
-        static::assertEquals('media-id', $flow->data()['mediaId']);
+        static::assertSame('media-id', $flow->data()['mediaId']);
     }
 
     public function testGetWebhookPayload(): void
@@ -73,7 +73,7 @@ class MediaUploadedEventTest extends TestCase
             $context
         );
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'mediaId' => $mediaId,
             ],

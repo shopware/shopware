@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
@@ -22,6 +23,9 @@ class LanguageSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
     private EntityRepository $languageRepository;
 
     private LanguageSerializer $serializer;
@@ -39,12 +43,15 @@ class LanguageSerializerTest extends TestCase
 
     public function testSimple(): void
     {
-        $this->createCountry();
+        $localeId = Uuid::randomHex();
+        $this->createCountry($localeId);
 
         $config = new Config([], [], []);
         $language = [
+            'active' => true,
             'locale' => [
                 'code' => 'xx-XX',
+                'id' => $localeId,
             ],
         ];
 
@@ -53,6 +60,7 @@ class LanguageSerializerTest extends TestCase
         $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->languageRepository->getDefinition(), $serialized));
 
         static::assertSame($this->languageId, $deserialized['id']);
+        static::assertSame($localeId, $deserialized['locale']['id']);
     }
 
     public function testSupportsOnlyCountry(): void
@@ -74,13 +82,13 @@ class LanguageSerializerTest extends TestCase
         }
     }
 
-    private function createCountry(): void
+    private function createCountry(string $localeId): void
     {
-        $localeId = Uuid::randomHex();
         $this->languageRepository->upsert([
             [
                 'id' => $this->languageId,
                 'name' => 'test name',
+                'active' => true,
                 'locale' => [
                     'id' => $localeId,
                     'code' => 'xx-XX',

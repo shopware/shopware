@@ -14,16 +14,9 @@ describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
                     'sw-page': {
                         template: '<div><slot name="content"></slot></div>',
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                 },
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show a back button', async () => {

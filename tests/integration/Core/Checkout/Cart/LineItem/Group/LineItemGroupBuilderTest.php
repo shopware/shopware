@@ -27,7 +27,6 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -220,8 +219,7 @@ class LineItemGroupBuilderTest extends TestCase
 
         $result = $this->unitTestBuilder->findGroupPackages([$groupDefinition], $cart, $this->context);
 
-        /** @var LineItemQuantity[] $items */
-        $items = array_values($result->getGroupTotalResult($groupDefinition));
+        $items = $result->getGroupTotalResult($groupDefinition);
 
         static::assertCount(2, $items);
     }
@@ -240,8 +238,7 @@ class LineItemGroupBuilderTest extends TestCase
 
         $result = $this->unitTestBuilder->findGroupPackages([$groupDefinition], $cart, $this->context);
 
-        /** @var LineItemQuantity[] $items */
-        $items = array_values($result->getGroupTotalResult($groupDefinition));
+        $items = $result->getGroupTotalResult($groupDefinition);
 
         static::assertCount(6, $items);
     }
@@ -382,34 +379,34 @@ class LineItemGroupBuilderTest extends TestCase
         static::assertCount(2, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
         static::assertInstanceOf(LineItemQuantity::class, $items[1]);
-        static::assertEquals($item1->getId(), $items[0]->getLineItemId());
-        static::assertEquals($item2->getId(), $items[1]->getLineItemId());
-        static::assertEquals(3, $items[0]->getQuantity());
-        static::assertEquals(2, $items[1]->getQuantity());
+        static::assertSame($item1->getId(), $items[0]->getLineItemId());
+        static::assertSame($item2->getId(), $items[1]->getLineItemId());
+        static::assertSame(3, $items[0]->getQuantity());
+        static::assertSame(2, $items[1]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[1]);
         $items = $groupCount[1]->getItems();
         static::assertCount(1, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
-        static::assertEquals($item2->getId(), $items[0]->getLineItemId());
-        static::assertEquals(4, $items[0]->getQuantity());
+        static::assertSame($item2->getId(), $items[0]->getLineItemId());
+        static::assertSame(4, $items[0]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[2]);
         $items = $groupCount[2]->getItems();
         static::assertCount(2, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
         static::assertInstanceOf(LineItemQuantity::class, $items[1]);
-        static::assertEquals($item2->getId(), $items[0]->getLineItemId());
-        static::assertEquals($item3->getId(), $items[1]->getLineItemId());
-        static::assertEquals(1, $items[0]->getQuantity());
-        static::assertEquals(2, $items[1]->getQuantity());
+        static::assertSame($item2->getId(), $items[0]->getLineItemId());
+        static::assertSame($item3->getId(), $items[1]->getLineItemId());
+        static::assertSame(1, $items[0]->getQuantity());
+        static::assertSame(2, $items[1]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[3]);
         $items = $groupCount[3]->getItems();
         static::assertCount(1, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
-        static::assertEquals($item3->getId(), $items[0]->getLineItemId());
-        static::assertEquals(2, $items[0]->getQuantity());
+        static::assertSame($item3->getId(), $items[0]->getLineItemId());
+        static::assertSame(2, $items[0]->getQuantity());
     }
 
     /**
@@ -419,13 +416,11 @@ class LineItemGroupBuilderTest extends TestCase
     #[Group('lineitemgroup')]
     public function testPackagerNotFound(): void
     {
-        static::markTestSkipped('#6556');
-
         $cart = $this->buildCart(3);
 
         $group = $this->buildGroup('UNKNOWN', 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
-        $this->expectException(PromotionException::class);
+        $this->expectExceptionObject(CartException::lineItemGroupPackagerNotFoundException('UNKNOWN'));
 
         $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
     }
@@ -437,13 +432,11 @@ class LineItemGroupBuilderTest extends TestCase
     #[Group('lineitemgroup')]
     public function testSorterNotFound(): void
     {
-        static::markTestSkipped('#6556');
-
         $cart = $this->buildCart(3);
 
         $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, 'UNKNOWN', new RuleCollection());
 
-        $this->expectException(PromotionException::class);
+        $this->expectExceptionObject(CartException::lineItemGroupSorterNotFoundException('UNKNOWN'));
 
         $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
     }

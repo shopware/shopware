@@ -9,12 +9,13 @@
         :inherited-value="parentProduct.metaTitle"
     >
         <template #content="props">
-            <sw-text-field
+
+            <mt-text-field
                 :placeholder="$tc('sw-product.seoForm.placeholderMetaTitle')"
                 :error="productMetaTitleError"
                 :disabled="props.isInherited || !allowEdit"
-                :value="props.currentValue"
-                @update:value="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>
@@ -29,12 +30,12 @@
         :inherited-value="parentProduct.metaDescription"
     >
         <template #content="props">
-            <sw-textarea-field
+            <mt-textarea
                 :placeholder="$tc('sw-product.seoForm.placeholderMetaDescription')"
                 :error="productMetaDescriptionError"
                 :disabled="props.isInherited || !allowEdit"
-                :value="props.currentValue"
-                @update:value="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>
@@ -49,12 +50,13 @@
         :inherited-value="parentProduct.keywords"
     >
         <template #content="props">
-            <sw-text-field
+
+            <mt-text-field
                 :placeholder="$tc('sw-product.seoForm.placeholderKeywords')"
                 :error="productKeywordsError"
                 :disabled="props.isInherited || !allowEdit"
-                :value="props.currentValue"
-                @update:value="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>
@@ -64,8 +66,9 @@
     <template v-if="!hasParent && hasVariants">
 
         {% block sw_product_seo_form_canonical_url_switch %}
-        <sw-switch-field
-            v-model:value="canonicalProductSwitchEnabled"
+
+        <mt-switch
+            v-model="canonicalProductSwitchEnabled"
             :label="$tc('sw-product.seoForm.labelCanonicalUrlMode')"
         />
         {% endblock %}

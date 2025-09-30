@@ -59,26 +59,20 @@ async function createWrapper(privileges = [], props = {}) {
                     'sw-page': {
                         template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-sidebar': true,
                     'sw-sidebar-media-item': true,
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-text-field': {
                         props: ['disabled'],
                         template: '<input class="sw-field" :disabled="disabled" />',
                     },
-                    'sw-number-field': {
+                    'mt-number-field': {
                         props: ['disabled'],
                         template: '<input class="sw-field" :disabled="disabled" />',
                     },
-                    'sw-switch-field': {
-                        props: ['disabled'],
-                        template: '<input class="sw-field" :disabled="disabled" />',
-                    },
-                    'sw-textarea-field': {
+                    'mt-textarea': {
                         props: ['disabled'],
                         template: '<input class="sw-field sw-textarea-field" :disabled="disabled" />',
                     },
@@ -227,5 +221,10 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         await flushPromises();
         wrapper.vm.loadEntityData();
         expect(spy).toHaveBeenCalled();
+    });
+
+    it('should initialize shipping price with quantityStart=0 after creating component', async () => {
+        const wrapper = await createWrapper([]);
+        expect(wrapper.vm.shippingMethod.quantityStart).toBe(0);
     });
 });

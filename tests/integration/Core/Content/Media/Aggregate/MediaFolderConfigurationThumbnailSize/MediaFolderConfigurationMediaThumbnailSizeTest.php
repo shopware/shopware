@@ -54,7 +54,7 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         static::assertInstanceOf(MediaFolderConfigurationEntity::class, $configuration);
         $sizes = $configuration->getMediaThumbnailSizes();
         static::assertInstanceOf(MediaThumbnailSizeCollection::class, $sizes);
-        static::assertEquals(1, $sizes->count());
+        static::assertCount(1, $sizes);
         static::assertNotNull($sizes->get($sizeId));
     }
 
@@ -92,7 +92,7 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         static::assertInstanceOf(MediaThumbnailSizeEntity::class, $size);
         $configurations = $size->getMediaFolderConfigurations();
         static::assertInstanceOf(MediaFolderConfigurationCollection::class, $configurations);
-        static::assertEquals(1, $configurations->count());
+        static::assertCount(1, $configurations);
         static::assertNotNull($configurations->get($confId));
     }
 }

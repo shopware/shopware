@@ -15,8 +15,9 @@
     <div class="sw-order-state-change-modal-attach-documents__button-wrapper">
         <div>
             {% block sw_order_state_change_modal_attach_documents_send_mail_switch %}
-            <sw-switch-field
-                v-model:value="sendMail"
+
+            <mt-switch
+                v-model="sendMail"
                 class="sw-order-state-change-modal-attach-documents__switch"
                 :label="$tc('sw-order.stateCard.labelSendMailSwitch')"
             />
@@ -24,14 +25,14 @@
         </div>
 
         {% block sw_order_state_change_modal_attach_documents_button %}
-        <sw-button
+        <mt-button
             class="sw-order-state-change-modal-attach-documents__button"
             variant="primary"
             size="small"
             @click="onConfirm"
         >
             {{ $tc('sw-order.stateCard.labelSelectStateButton') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

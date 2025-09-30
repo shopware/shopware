@@ -202,7 +202,9 @@ const swOrderStore = Shopware.Store.register({
                 throw new Error('Invalid context token');
             }
 
-            return Service('cartStoreService').cancelCart(salesChannelId, contextToken);
+            return Service('cartStoreService')
+                .cancelCart(salesChannelId, contextToken)
+                .then(() => this.$reset());
         },
 
         updateCustomerContext({

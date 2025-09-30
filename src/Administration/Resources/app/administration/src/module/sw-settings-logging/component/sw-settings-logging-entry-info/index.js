@@ -25,7 +25,7 @@ export default {
 
     computed: {
         displayString() {
-            return JSON.stringify(this.logEntry.context, null, 2);
+            return this.logEntry.context ? JSON.stringify(this.logEntry.context, null, 2) : '';
         },
     },
 

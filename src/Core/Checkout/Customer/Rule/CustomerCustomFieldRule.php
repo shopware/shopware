@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerCustomFieldRule extends Rule
@@ -28,6 +28,8 @@ class CustomerCustomFieldRule extends Rule
 
     /**
      * @param array<string, string|array<string, string>> $renderedField
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

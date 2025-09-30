@@ -50,6 +50,11 @@ class CartService implements ResetInterface
         $this->cart[$cart->getToken()] = $cart;
     }
 
+    public function hasCart(string $token): bool
+    {
+        return isset($this->cart[$token]);
+    }
+
     public function createNew(string $token): Cart
     {
         $cart = $this->cartFactory->createNew($token);
@@ -63,7 +68,7 @@ class CartService implements ResetInterface
         bool $caching = true,
         bool $taxed = false
     ): Cart {
-        if ($caching && isset($this->cart[$token])) {
+        if ($caching && $this->hasCart($token)) {
             return $this->cart[$token];
         }
 

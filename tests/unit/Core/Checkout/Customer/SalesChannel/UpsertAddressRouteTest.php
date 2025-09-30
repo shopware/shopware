@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -45,12 +46,12 @@ class UpsertAddressRouteTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $address = new CustomerAddressEntity();
         $address->setId(Uuid::randomHex());
-        $result->method('first')->willReturn($address);
+        $result->method('getEntities')->willReturn(new CustomerAddressCollection([$address]));
 
         $addressRepository = $this->createMock(EntityRepository::class);
         $addressRepository->method('search')->willReturn($result);
         $addressRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturnCallback(function (array $data) {
                 static::assertSame(['mapped' => 1], $data[0]['customFields']);
@@ -111,7 +112,7 @@ class UpsertAddressRouteTest extends TestCase
         $address->setId(Uuid::randomHex());
         $address->setSalutationId($salutationId);
 
-        $addressRepository->expects(static::once())->method('search')->willReturn(
+        $addressRepository->expects($this->once())->method('search')->willReturn(
             new EntitySearchResult(
                 'customer_address',
                 1,

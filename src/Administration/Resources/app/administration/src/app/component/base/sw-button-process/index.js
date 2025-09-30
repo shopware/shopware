@@ -1,8 +1,6 @@
 import template from './sw-button-process.html.twig';
 import './sw-button-process.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -16,7 +14,7 @@ const { Component } = Shopware;
  *     Button
  * </sw-button-process>
  */
-Component.register('sw-button-process', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -57,4 +55,4 @@ Component.register('sw-button-process', {
             }, this.animationTimeout);
         },
     },
-});
+};

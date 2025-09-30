@@ -63,7 +63,7 @@ class StaticEntityRepository extends EntityRepository
 
         try {
             $definition->getFields();
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             $registry = new StaticDefinitionInstanceRegistry(
                 [$definition],
                 Validation::createValidator(),

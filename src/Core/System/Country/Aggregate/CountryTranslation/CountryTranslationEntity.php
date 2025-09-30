@@ -12,31 +12,16 @@ class CountryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var CountryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
     /**
      * @var array<array<string, array<string, string>>>|null
      */
-    protected ?array $addressFormat = [];
+    protected ?array $addressFormat = null;
 
     public function getCountryId(): string
     {

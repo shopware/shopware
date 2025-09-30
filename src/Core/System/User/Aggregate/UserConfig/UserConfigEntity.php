@@ -12,43 +12,16 @@ class UserConfigEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $key;
+    protected string $key;
 
     /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string, mixed>|null
      */
-    protected $value;
+    protected ?array $value = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $userId;
+    protected string $userId;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $user;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
+    protected ?UserEntity $user = null;
 
     public function getKey(): string
     {
@@ -60,11 +33,17 @@ class UserConfigEntity extends Entity
         $this->key = $key;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getValue(): ?array
     {
         return $this->value;
     }
 
+    /**
+     * @param array<string, mixed>|null $value
+     */
     public function setValue(?array $value): void
     {
         $this->value = $value;

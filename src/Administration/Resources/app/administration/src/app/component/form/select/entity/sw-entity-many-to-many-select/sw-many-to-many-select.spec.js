@@ -34,9 +34,6 @@ const createSelect = async (
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-label': true,
@@ -47,7 +44,6 @@ const createSelect = async (
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'sw-button': true,
                     'sw-inheritance-switch': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
@@ -69,12 +65,6 @@ const createSelect = async (
 };
 
 describe('components/sw-entity-many-to-many-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createSelect();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should use the provided associations in the criteria', async () => {
         const criteria = new Criteria(1, 25);
         criteria.addAssociation('testAssociation');

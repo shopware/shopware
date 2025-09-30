@@ -78,6 +78,7 @@ export default {
 
             criteria.addFilter(Criteria.equals('visibilities.salesChannelId', this.salesChannelId));
             criteria.addFilter(Criteria.equals('active', true));
+            criteria.setTotalCountMode(0);
 
             return criteria;
         },

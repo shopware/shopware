@@ -1,14 +1,19 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 
 export default class AddToCartByNumberEvent extends AnalyticsEvent
 {
-    supports(controllerName, actionName) {
-        return controllerName === 'checkout' && actionName === 'cartpage';
+    /**
+     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
+     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
+     * @param {string} activeRoute
+     * @returns {boolean}
+     */
+    supports(controllerName, actionName, activeRoute) {
+        return activeRoute === 'frontend.checkout.cart.page';
     }
 
     execute() {
-        const addToCartForm = DomAccessHelper.querySelector(document, '.cart-add-product', false);
+        const addToCartForm = document.querySelector('.cart-add-product');
         if (!addToCartForm) {
             return;
         }
@@ -21,7 +26,7 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
             return;
         }
 
-        const input = DomAccessHelper.querySelector(event.currentTarget, '.form-control');
+        const input = event.currentTarget.querySelector('.form-control');
 
         gtag('event', 'add_to_cart', {
             'items': [

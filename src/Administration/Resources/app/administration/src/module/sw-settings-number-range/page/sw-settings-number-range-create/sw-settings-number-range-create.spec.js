@@ -55,19 +55,14 @@ async function createWrapper() {
                         <slot />
                     </div>`,
                     },
-                    'sw-button': {
-                        template: '<div class="sw-button"><slot /></div>',
-                        props: ['disabled'],
-                    },
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot /></div>',
                         props: ['disabled'],
                     },
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot /></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot /></div>',
                     },
-                    'sw-switch-field': true,
-                    'sw-number-field': true,
+
                     'sw-text-field': {
                         template: '<div class="sw-field"></div>',
                         props: ['disabled'],
@@ -94,7 +89,7 @@ async function createWrapper() {
                         />
                       `,
                     },
-                    'sw-alert': true,
+
                     'sw-skeleton': true,
                     'sw-language-switch': true,
                     'sw-custom-field-set-renderer': true,
@@ -105,13 +100,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-create', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be has number range', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

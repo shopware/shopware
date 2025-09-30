@@ -35,6 +35,19 @@
         border-radius: 3px;
     }
 
+    .sw-cms-el-form-contact,
+    .sw-cms-el-form-newsletter, {
+        &__privacy,
+        &__note {
+            font-size: 16px;
+            margin: 16px 0;
+
+            > a {
+                font-size: 16px;
+            }
+        }
+    }
+
     .sw-cms-el-form-contact-form-group {
         display: flex;
         justify-content: space-between;

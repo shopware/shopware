@@ -289,9 +289,9 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         $media = $imageStruct->getMedia();
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals('shopware', $media->getFileName());
-        static::assertEquals('image/jpeg', $media->getMimeType());
-        static::assertEquals('jpg', $media->getFileExtension());
+        static::assertSame('shopware', $media->getFileName());
+        static::assertSame('image/jpeg', $media->getMimeType());
+        static::assertSame('jpg', $media->getFileExtension());
     }
 
     public function testMediaWithRemote(): void

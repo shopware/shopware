@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 /**
  * @sw-package discovery
@@ -88,7 +89,6 @@ async function createWrapper(customPropsData = {}) {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-label': await wrapTestComponent('sw-label'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-icon': true,
                     'sw-tree': await wrapTestComponent('sw-tree'),
                     'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                     'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),
@@ -96,8 +96,6 @@ async function createWrapper(customPropsData = {}) {
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
                     },
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-context-menu-item': {
                         template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
@@ -121,12 +119,6 @@ async function createWrapper(customPropsData = {}) {
 }
 
 describe('src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to remove the snippet', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -151,7 +143,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
 
         const treeItemChildren = wrapper.find('.tree-items .sw-tree-item__children');
 
-        await treeItemChildren.find('.sw-tree-item__element .sw-button').trigger('click');
+        await findByText(treeItemChildren, 'button', 'sw-settings-country.detail.buttonInsertSnippet').trigger('click');
 
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([

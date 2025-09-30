@@ -16,47 +16,17 @@ class NumberRangeTypeEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $typeName;
+    protected string $typeName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $global;
+    protected bool $global;
 
-    /**
-     * @var NumberRangeCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $numberRanges;
+    protected ?NumberRangeCollection $numberRanges = null;
 
-    /**
-     * @var NumberRangeSalesChannelEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $numberRangeSalesChannels;
+    protected ?NumberRangeSalesChannelEntity $numberRangeSalesChannels = null;
 
-    /**
-     * @var NumberRangeTypeTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?NumberRangeTypeTranslationCollection $translations = null;
 
     public function getTypeName(): string
     {

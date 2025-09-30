@@ -39,7 +39,7 @@ class Filesystem
     {
         try {
             $permission = mb_substr(\sprintf('%o', $fileInfo->getPerms()), -4);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // cannot get permissions...
             return;
         }

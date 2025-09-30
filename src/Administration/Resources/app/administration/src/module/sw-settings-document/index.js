@@ -38,7 +38,7 @@ Module.register('sw-settings-document', {
                 parentPath: 'sw.settings.document.index',
             },
             props: {
-                default: (route) => ({ documentConfigId: route.params.id }),
+                default: (route) => ({ documentConfigId: route.params.id.toLowerCase() }),
             },
         },
         create: {

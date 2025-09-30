@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -47,6 +48,7 @@ class UserListCommand extends Command
         $context = Context::createCLIContext();
 
         $criteria = new Criteria();
+        $criteria->addAssociation('aclRoles');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
         $result = $this->userRepository->search($criteria, $context);
@@ -82,9 +84,9 @@ class UserListCommand extends Command
      *     'date_created': string
      * }>
      */
-    private function mapUsersToJson(UserCollection $collection): array
+    private function mapUsersToJson(UserCollection $users): array
     {
-        return array_values($collection->map(function (UserEntity $user) {
+        return array_values($users->map(function (UserEntity $user) {
             return [
                 ...$this->mapUser($user),
                 'active' => $user->getActive(),
@@ -105,14 +107,14 @@ class UserListCommand extends Command
      *     'date_created': string
      * }>
      */
-    private function mapUsersToConsole(UserCollection $collection): array
+    private function mapUsersToConsole(UserCollection $users): array
     {
-        return array_values($collection->map(function (UserEntity $user) {
+        return array_values($users->map(function (UserEntity $user) {
             return [
                 ...$this->mapUser($user),
                 'active' => $user->getActive(),
-                'roles' => implode(',', $this->roles($user)),
-                'created' => $user->getCreatedAt()?->format('M j, y, g:i a') ?? '',
+                'roles' => implode(', ', $this->roles($user)),
+                'created' => $user->getCreatedAt()?->format('M j, Y, H:i') ?? '',
             ];
         }));
     }
@@ -125,25 +127,29 @@ class UserListCommand extends Command
      *     'name': string,
      * }
      */
-    private function mapUser(UserEntity $entity): array
+    private function mapUser(UserEntity $user): array
     {
         return [
-            'id' => $entity->getId(),
-            'email' => $entity->getEmail(),
-            'username' => $entity->getUsername(),
-            'name' => $entity->getFirstName() . ' ' . $entity->getLastName(),
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername(),
+            'name' => $user->getFirstName() . ' ' . $user->getLastName(),
         ];
     }
 
     /**
      * @return list<string>
      */
-    private function roles(UserEntity $entity): array
+    private function roles(UserEntity $user): array
     {
-        if ($entity->isAdmin()) {
+        if ($user->isAdmin()) {
             return ['admin'];
         }
+        $aclRoles = $user->getAclRoles();
+        if ($aclRoles === null) {
+            throw MaintenanceException::aclRolesNotLoaded($user->getId(), $user->getUsername());
+        }
 
-        return array_values($entity->getAclRoles()->map(fn (AclRoleEntity $role) => $role->getName()));
+        return array_values($aclRoles->map(fn (AclRoleEntity $role) => $role->getName()));
     }
 }

@@ -1,23 +1,11 @@
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-extension-my-extensions-listing-controls', {
             sync: true,
         }),
-        {
-            global: {
-                stubs: {
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                    'sw-select-field': {
-                        template: '<div><slot /></div>',
-                    },
-                    'sw-base-field': true,
-                    'sw-field-error': true,
-                },
-            },
-        },
     );
 }
 
@@ -29,7 +17,7 @@ describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-c
     it('should emit an event when clicking the switch', async () => {
         const wrapper = await createWrapper();
 
-        const switchField = wrapper.find('.sw-field--switch input[type="checkbox"]');
+        const switchField = wrapper.find('.mt-switch input[type="checkbox"]');
         await switchField.setChecked();
 
         const emittedEvent = wrapper.emitted()['update:active-state'];
@@ -40,16 +28,13 @@ describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-c
         const wrapper = await createWrapper();
         expect(wrapper.vm.selectedSortingOption).toBe('updated-at');
 
-        const allSortingOptions = wrapper.findAll('option');
-        const sortingOption = allSortingOptions.at(2);
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-extension.my-extensions.listing.controls.filterOptions.name-asc',
+            '.mt-select__selection',
+        );
 
-        await wrapper.setData({
-            selectedSortingOption: sortingOption.element.value,
-        });
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.selectedSortingOption).toEqual(sortingOption.element.value);
+        expect(wrapper.vm.selectedSortingOption).toBe('name-asc');
         expect(wrapper.emitted()).toHaveProperty('update:sorting-option');
     });
 });

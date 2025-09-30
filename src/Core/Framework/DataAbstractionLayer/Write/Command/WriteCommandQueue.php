@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
@@ -86,7 +87,7 @@ class WriteCommandQueue
             ++$counter;
 
             if ($counter === 50) {
-                throw new ImpossibleWriteOrderException(array_keys($commands));
+                throw DataAbstractionLayerException::impossibleWriteOrder(array_keys($commands));
             }
 
             foreach ($commands as $definition => $defCommands) {
@@ -137,7 +138,7 @@ class WriteCommandQueue
 
         foreach ($commands as $command) {
             if (!$command instanceof $class) {
-                throw new WriteTypeIntendException($definition, $class, $command::class);
+                throw DataAbstractionLayerException::writeTypeIntendError($definition, $class, $command::class);
             }
         }
     }
@@ -199,9 +200,7 @@ class WriteCommandQueue
             if ($key instanceof VersionField || $key instanceof ReferenceVersionField) {
                 continue;
             }
-            if (!$key instanceof StorageAware) {
-                throw new \RuntimeException();
-            }
+            \assert($key instanceof StorageAware);
 
             $mapped[] = (string) $key->getSerializer()->decode($key, $primaryKey[$key->getStorageName()]);
         }
@@ -217,6 +216,11 @@ class WriteCommandQueue
     {
         // this definition has no foreign keys
         if (!isset($foreignKeys[$entity])) {
+            return false;
+        }
+
+        // JSON update commands can not reference foreign keys (verified by DB constraints)
+        if ($command instanceof JsonUpdateCommand) {
             return false;
         }
 

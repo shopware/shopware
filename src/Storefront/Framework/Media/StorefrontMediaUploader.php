@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -39,7 +40,8 @@ class StorefrontMediaUploader
             $file->getPathname(),
             $file->getMimeType() ?? '',
             $file->getClientOriginalExtension(),
-            $file->getSize() ?: 0
+            $file->getSize() ?: 0,
+            Hasher::hashFile($file->getPathname(), 'md5'),
         );
 
         $mediaId = $this->mediaService->createMediaInFolder($folder, $context, $isPrivate);

@@ -26,14 +26,6 @@ async function createWrapper() {
                     id: 'action-name',
                 },
             },
-            global: {
-                stubs: {
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
-                    'sw-icon': true,
-                },
-            },
         },
     );
 }

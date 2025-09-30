@@ -6,13 +6,13 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -41,13 +41,15 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['administration']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('framework')]
 class AdministrationController extends AbstractController
 {
     private readonly bool $esAdministrationEnabled;
 
     private readonly bool $esStorefrontEnabled;
+
+    private readonly bool $productStreamIndexingEnabled;
 
     /**
      * @internal
@@ -57,7 +59,7 @@ class AdministrationController extends AbstractController
      * @param EntityRepository<CurrencyCollection> $currencyRepository
      */
     public function __construct(
-        private readonly TemplateFinder $finder,
+        private readonly TemplateFinderInterface $finder,
         private readonly FirstRunWizardService $firstRunWizardService,
         private readonly SnippetFinderInterface $snippetFinder,
         private readonly array $supportedApiVersions,
@@ -72,6 +74,7 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
+        private readonly string $serviceRegistryUrl,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -81,6 +84,9 @@ class AdministrationController extends AbstractController
         $this->esStorefrontEnabled = $params->has('elasticsearch.enabled')
             ? $params->get('elasticsearch.enabled')
             : false;
+        $this->productStreamIndexingEnabled = $params->has('shopware.product_stream.indexing')
+            ? $params->get('shopware.product_stream.indexing')
+            : true;
     }
 
     #[Route(path: '/%shopware_administration.path_name%', name: 'administration.index', defaults: ['auth_required' => false], methods: ['GET'])]
@@ -98,8 +104,6 @@ class AdministrationController extends AbstractController
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
             'systemCurrencyId' => Defaults::CURRENCY,
-            // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
-            'disableExtensions' => EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false),
             'systemCurrencyISOCode' => $defaultCurrency?->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardService->frwShouldRun(),
@@ -108,6 +112,8 @@ class AdministrationController extends AbstractController
             'adminEsEnable' => $this->esAdministrationEnabled,
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
+            'serviceRegistryUrl' => $this->serviceRegistryUrl,
+            'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
         ]);
     }
 
@@ -146,7 +152,7 @@ class AdministrationController extends AbstractController
         try {
             $publicAssetBaseUrl = $this->fileSystem->publicUrl('/');
             $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
-        } catch (FilesystemException $e) {
+        } catch (FilesystemException) {
             return new Response('Plugin index.html not found', Response::HTTP_NOT_FOUND);
         }
 
@@ -184,7 +190,6 @@ class AdministrationController extends AbstractController
 
                 break;
             default:
-                /** @var PreResetExcludedSearchTermEvent $preResetExcludedSearchTermEvent */
                 $preResetExcludedSearchTermEvent = $this->eventDispatcher->dispatch(new PreResetExcludedSearchTermEvent($searchConfigId, [], $context));
                 $defaultExcludedTerm = $preResetExcludedSearchTermEvent->getExcludedTerms();
         }
@@ -232,7 +237,7 @@ class AdministrationController extends AbstractController
 
         if ($customer->getBoundSalesChannel()) {
             $message .= ' in the Sales Channel {{ salesChannel }}';
-            $params['{{ salesChannel }}'] = $customer->getBoundSalesChannel()->getName();
+            $params['{{ salesChannel }}'] = (string) $customer->getBoundSalesChannel()->getName();
         }
 
         $violations = new ConstraintViolationList();
@@ -324,10 +329,7 @@ class AdministrationController extends AbstractController
 
         $criteria->addFilter(new EqualsFilter('email', $email));
         $criteria->addFilter(new EqualsFilter('guest', false));
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('id', $customerId)]
-        ));
+        $criteria->addFilter(new NotEqualsFilter('id', $customerId));
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('boundSalesChannelId', null),

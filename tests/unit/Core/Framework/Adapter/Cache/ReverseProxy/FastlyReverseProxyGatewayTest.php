@@ -170,7 +170,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
 
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('critical')
             ->with('Error while flushing fastly cache', ['error' => $message, 'urls' => ['/']]);
 

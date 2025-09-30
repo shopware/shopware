@@ -23,12 +23,12 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-text-field': true,
-                'sw-switch-field': true,
+
                 'sw-colorpicker': true,
                 'sw-cms-mapping-field': true,
                 'sw-media-upload-v2': true,
                 'sw-media-modal-v2': true,
-                'sw-alert': true,
+
                 'sw-upload-listener': true,
             },
         },

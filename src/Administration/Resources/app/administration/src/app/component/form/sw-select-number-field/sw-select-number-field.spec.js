@@ -11,7 +11,6 @@ async function createWrapper(additionalOptions = {}) {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -34,11 +33,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/form/sw-select-number-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should emit the value as a number', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

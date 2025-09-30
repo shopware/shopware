@@ -1,5 +1,5 @@
 includes:
-    - ../../../../../vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
     - extension.neon
     - rules.neon
 
@@ -11,6 +11,24 @@ parameters:
     reportUnmatchedIgnoredErrors: true
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
+    reportAnyTypeWideningInVarTag: true
+
+    # Would otherwise flag usage of internal classes from different namespaces
+    featureToggles:
+        internalTag: false
+
+    # For stricter testing those should be set to true at some point
+    reportMaybesInMethodSignatures: false
+
+    # For stricter testing those should be set to true at some point
+    strictRules:
+        booleansInConditions: false
+        booleansInLoopConditions: false
+        requireParentConstructorCall: false
+        disallowedEmpty: false
+        disallowedShortTernary: false
+        dynamicCallOnStaticMethod: false
+        strictArrayFilter: false
 
     type_perfect:
         no_mixed_property: true
@@ -32,10 +50,9 @@ rules:
 
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
 
-    # complexity rules
-    - Symplify\PHPStanRules\Rules\NoDynamicNameRule
-
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
-    - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
+
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
+

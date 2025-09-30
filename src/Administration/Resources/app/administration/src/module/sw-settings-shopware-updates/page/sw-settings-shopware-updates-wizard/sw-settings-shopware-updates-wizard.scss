@@ -1,24 +1,21 @@
 .sw-settings-shopware-updates-wizard {
+    &__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
     .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
         height: initial;
         min-height: 42px;
     }
 
     .sw-changelog {
-        .sw-alert__icon {
-            left: 25px;
-            top: 27px;
-        }
-
-        .sw-alert__title {
-            margin-left: 26px;
-        }
-
         h3 {
             margin-bottom: 0;
         }
 
-        .sw-button.sw-button--ghost {
+        .mt-button.mt-button--ghost {
             margin-top: 20px;
         }
     }
@@ -29,7 +26,7 @@
         text-align: center;
     }
 
-    .sw-progress-bar {
+    .mt-progress-bar {
         margin-bottom: 8px;
     }
 
@@ -62,7 +59,7 @@
     .sw-settings-shopware-updates-check__start-update-actions {
         margin-left: auto;
 
-        .sw-button:not(:last-child) {
+        .mt-button:not(:last-child) {
             margin-right: 6px;
         }
     }

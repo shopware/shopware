@@ -49,18 +49,18 @@ class ContactFormValidationFactoryTest extends TestCase
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),
-                        new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]),
+                        new EntityExists(entity: 'salutation', context: $context->getContext()),
                     ],
                     'email' => [new NotBlank(), new Email()],
                     'subject' => [new NotBlank()],
                     'comment' => [new NotBlank()],
                     'firstName' => [
                         new NotBlank(),
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'lastName' => [
                         new NotBlank(),
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'phone' => [new NotBlank()],
                 ]);
@@ -73,16 +73,16 @@ class ContactFormValidationFactoryTest extends TestCase
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),
-                        new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]),
+                        new EntityExists(entity: 'salutation', context: $context->getContext()),
                     ],
                     'email' => [new NotBlank(), new Email()],
                     'subject' => [new NotBlank()],
                     'comment' => [new NotBlank()],
                     'firstName' => [
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'lastName' => [
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                 ]);
             },

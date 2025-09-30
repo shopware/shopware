@@ -14,7 +14,7 @@ Shopware.Component.extend(
 );
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-customer-group', {
@@ -48,7 +48,7 @@ Module.register('sw-settings-customer-group', {
             props: {
                 default(route) {
                     return {
-                        customerGroupId: route.params.id,
+                        customerGroupId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -64,14 +64,7 @@ Module.register('sw-settings-customer-group', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'customer';
-        },
+        group: 'customer',
         to: 'sw.settings.customer.group.index',
         icon: 'regular-users',
         privilege: 'customer_groups.viewer',

@@ -14,6 +14,11 @@
         }
     }
 
+    &__tab-settings-rotate-switch,
+    &__tab-settings-rotate-autoplay {
+        margin-bottom: 0;
+    }
+
     .sw-select-result .sw-select-result__result-item-text {
         display: block;
 
@@ -69,4 +74,8 @@
     .sw-product-stream-grid-preview__toolbar {
         border-top: 0;
     }
+}
+
+.sw-product-stream-modal-preview {
+    z-index: 1001;
 }

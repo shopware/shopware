@@ -134,7 +134,7 @@ class DocsAppEventCommand extends Command
             $eventsDoc[] = new HookableEventDoc(
                 $eventName,
                 Hookable::HOOKABLE_EVENTS_DESCRIPTION[$class],
-                '-',
+                Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class] ? '`' . implode('` `', Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class]) . '`' : '-',
                 null,
             );
         }

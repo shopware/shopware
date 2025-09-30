@@ -61,6 +61,7 @@
             <argument type="service" id="cms_page.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute" public="true">
@@ -75,12 +76,6 @@
         <service id="Shopware\Core\Content\Cms\Subscriber\UnusedMediaSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Cms\Subscriber\CmsLinksForStoreApiSubscriber">
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

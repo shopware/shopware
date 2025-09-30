@@ -28,9 +28,6 @@ async function createWrapper() {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-product-variants-delivery-order': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-icon': true,
                 'sw-product-variants-delivery-media': true,
                 'sw-product-variants-delivery-listing': true,
                 'sw-loader': true,
@@ -41,14 +38,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery', () => {
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an disabled save button', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
@@ -57,7 +46,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 
         expect(saveButton.exists()).toBeTruthy();
-        expect(saveButton.classes()).toContain('sw-button--disabled');
+        expect(saveButton.attributes('disabled')).toBeDefined();
     });
 
     it('should have an enabled save button', async () => {
@@ -70,7 +59,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 
         expect(saveButton.exists()).toBeTruthy();
-        expect(saveButton.classes()).not.toContain('sw-button--disabled');
+        expect(saveButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should be able to allow save storefront presentation modal', async () => {
@@ -82,7 +71,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 
         expect(saveButton.exists()).toBeTruthy();
-        expect(saveButton.classes()).not.toContain('sw-button--disabled');
+        expect(saveButton.attributes('disabled')).toBeUndefined();
         await saveButton.trigger('click');
         const emitted = wrapper.emitted()['configuration-close'];
         expect(emitted).toBeTruthy();

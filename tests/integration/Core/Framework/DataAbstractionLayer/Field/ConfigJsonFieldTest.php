@@ -93,14 +93,14 @@ EOF;
         $result = $searcher->search($this->configJsonDefinition, $criteria, $context);
 
         static::assertCount(1, $result->getIds());
-        static::assertEquals([$stringId], $result->getIds());
+        static::assertSame([$stringId], $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data.foo', 'bar'));
         $result = $searcher->search($this->configJsonDefinition, $criteria, $context);
 
         static::assertCount(1, $result->getIds());
-        static::assertEquals([$objectId], $result->getIds());
+        static::assertSame([$objectId], $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data', 'not found'));

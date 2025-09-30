@@ -47,11 +47,6 @@ trait SurchargeTrait
         return new DiscountFacade($item);
     }
 
-    private function getItems(): LineItemCollection
-    {
-        return $this->items;
-    }
-
     private function buildSurchargeDefinition(string $type, float|PriceCollection|string|int $value, string $key): PriceDefinitionInterface
     {
         if ($type === PercentagePriceDefinition::TYPE) {

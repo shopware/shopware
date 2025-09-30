@@ -22,9 +22,9 @@ test('Shop customer should be able to see the product image in the Storefront.',
     OpenSearchSuggestPage,
     Login,
     Logout,
+    HomeProduct,
 }) => {
-
-    const product = await TestDataService.createBasicProduct();
+    const product = HomeProduct;
     const media = await TestDataService.createMediaPNG();
 
     await TestDataService.assignProductMedia(product.id, media.id);

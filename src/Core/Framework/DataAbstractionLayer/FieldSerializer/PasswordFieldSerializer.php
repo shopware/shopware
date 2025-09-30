@@ -33,7 +33,7 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        private SystemConfigService $configService
+        private readonly SystemConfigService $configService,
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -86,11 +86,11 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
 
         $minPasswordLength = $this->configService->getInt($configKey);
 
-        if ($minPasswordLength === 0) {
+        if ($minPasswordLength < 1) {
             return $constraints;
         }
 
-        $constraints[] = new Length(['min' => $minPasswordLength]);
+        $constraints[] = new Length(min: $minPasswordLength);
 
         return $constraints;
     }

@@ -25,7 +25,7 @@ async function createWrapper() {
                     },
                     'sw-tabs-item': true,
                     'sw-entity-single-select': true,
-                    'sw-alert': true,
+
                     'sw-product-variant-info': true,
                     'sw-select-result': true,
                     'sw-select-field': true,
@@ -104,7 +104,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
         await flushPromises();
 
         const productSelector = wrapper.find('sw-entity-single-select-stub');
-        const alert = wrapper.find('sw-alert-stub');
+        const alert = wrapper.find('[role="banner"]');
 
         expect(productSelector.exists()).toBeFalsy();
         expect(alert.exists()).toBeTruthy();

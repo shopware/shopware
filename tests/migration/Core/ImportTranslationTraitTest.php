@@ -67,9 +67,9 @@ class ImportTranslationTraitTest extends TestCase
         static::assertArrayHasKey($ids->get('german'), $translations);
         static::assertArrayHasKey($ids->get('en-2'), $translations);
 
-        static::assertEquals('en name', $translations[Defaults::LANGUAGE_SYSTEM]['name']);
-        static::assertEquals('en name', $translations[$ids->get('en-2')]['name']);
-        static::assertEquals('de name', $translations[$ids->get('german')]['name']);
+        static::assertSame('en name', $translations[Defaults::LANGUAGE_SYSTEM]['name']);
+        static::assertSame('en name', $translations[$ids->get('en-2')]['name']);
+        static::assertSame('de name', $translations[$ids->get('german')]['name']);
     }
 
     private function createLanguages(IdsCollection $ids): void

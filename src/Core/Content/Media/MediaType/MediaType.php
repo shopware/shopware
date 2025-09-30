@@ -8,19 +8,12 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 abstract class MediaType extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $flags = [];
+    protected array $flags = [];
 
     public function getName(): string
     {
@@ -41,6 +34,9 @@ abstract class MediaType extends Struct
         return $this;
     }
 
+    /**
+     * @param array<string> $flags
+     */
     public function addFlags(array $flags): self
     {
         $this->flags = array_merge($this->flags, $flags);
@@ -50,15 +46,12 @@ abstract class MediaType extends Struct
 
     public function is(string $input): bool
     {
-        foreach ($this->flags as $flag) {
-            if ($flag === $input) {
-                return true;
-            }
-        }
-
-        return false;
+        return \in_array($input, $this->flags, true);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getFlags(): array
     {
         return $this->flags;

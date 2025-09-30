@@ -5,7 +5,7 @@
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-settings-media', () => import('./page/sw-settings-media'));
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-media', {
@@ -29,14 +29,7 @@ Module.register('sw-settings-media', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'content';
-        },
+        group: 'content',
         to: 'sw.settings.media.index',
         icon: 'regular-image',
         privilege: 'system.system_config',

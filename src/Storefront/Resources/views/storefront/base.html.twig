@@ -1,24 +1,26 @@
 {# @sw-package framework #}
-
-{# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
-
-{% block base_doctype %}
-<!DOCTYPE html>
-{% endblock %}
+{% block base_doctype %}<!DOCTYPE html>{% endblock %}
 
 {% block base_html %}
-<html lang="{{ context.saleschannel.languages.first.translationCode.code }}"
+<html lang="{{ context.languageInfo.localeCode }}"
       itemscope="itemscope"
       itemtype="https://schema.org/WebPage">
 {% endblock %}
+
+{# Set variable to "true" to enable HMR (hot page reloading) mode #}
+{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
 
 {% block base_head %}
     {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
 {% endblock %}
 
 {% block base_body %}
-    <body class="{% block base_body_classes %}is-ctl-{% if controllerName is not empty %}{{ controllerName|lower }}{% endif %} is-act-{% if controllerAction is not empty %}{{ controllerAction|lower }}{% endif %}{% endblock %}">
+    {# @deprecated tag:v6.8.0 - CSS classes `is-ctl-*` and `is-act-*` will be removed, use `is-active-route-*` instead. #}
+    <body class="{% block base_body_classes %}
+        {%- if controllerName is not empty -%}is-ctl-{{ controllerName|lower }} {% endif -%}
+        {%- if controllerAction is not empty -%}is-act-{{ controllerAction|lower }} {% endif -%}
+        {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'.': '-'}) }}{%- endif -%}
+    {%- endblock %}">
 
     {% block base_body_skip_to_content %}
         {% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {
@@ -38,9 +40,13 @@
             </noscript>
         {% endblock %}
 
-        {{ render_esi(url('frontend.header')) }}
+        {% block base_esi_header %}
+            {{ render_esi(path('frontend.header', { headerParameters: headerParameters }), { ignore_errors: false } ) }}
+        {% endblock %}
 
+        {# @deprecated tag:v6.8.0 - Block will be removed. The active styling class `.active` is set by navbar.plugin.js. #}
         {% block base_navigation_styling %}
+            {# @deprecated tag:v6.8.0 - File will be removed. The active styling class `.active` is set by navbar.plugin.js. #}
             {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
         {% endblock %}
 
@@ -74,7 +80,9 @@
             </main>
         {% endblock %}
 
-        {{ render_esi(url('frontend.footer')) }}
+        {% block base_esi_footer %}
+            {{ render_esi(path('frontend.footer', { footerParameters: footerParameters }), { ignore_errors: false } ) }}
+        {% endblock %}
 
     {% endblock %}
 

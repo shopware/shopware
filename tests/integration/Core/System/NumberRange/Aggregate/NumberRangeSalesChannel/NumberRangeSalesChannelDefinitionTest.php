@@ -104,8 +104,8 @@ class NumberRangeSalesChannelDefinitionTest extends TestCase
         $numberRangeSalesChannel = $getNumberRangeSalesChannels->first();
 
         static::assertInstanceOf(NumberRangeSalesChannelEntity::class, $numberRangeSalesChannel);
-        static::assertEquals($numberRangeId, $numberRangeSalesChannel->getNumberRangeId());
-        static::assertEquals(TestDefaults::SALES_CHANNEL, $numberRangeSalesChannel->getSalesChannelId());
-        static::assertEquals($numberRangeId, $numberRangeSalesChannel->getNumberRangeTypeId());
+        static::assertSame($numberRangeId, $numberRangeSalesChannel->getNumberRangeId());
+        static::assertSame(TestDefaults::SALES_CHANNEL, $numberRangeSalesChannel->getSalesChannelId());
+        static::assertSame($numberRangeId, $numberRangeSalesChannel->getNumberRangeTypeId());
     }
 }

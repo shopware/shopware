@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
@@ -9,6 +10,7 @@ export default class GuestWishlistPagePlugin extends Plugin {
     init() {
         ElementLoadingIndicatorUtil.create(this.el);
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.httpClient = new HttpClient();
         this._getWishlistStorage();
 
@@ -38,25 +40,32 @@ export default class GuestWishlistPagePlugin extends Plugin {
             .sort((a, b) => b.dateTime - a.dateTime)
             .map(item => item.productId);
 
-        this.httpClient.post(this.options.pageletRouter.path, JSON.stringify({
-            productIds,
-        }), response => {
-            this.el.innerHTML = response;
-            const forms = this.el.querySelectorAll('form.product-wishlist-form');
+        fetch(this.options.pageletRouter.path, {
+            method: 'POST',
+            body: JSON.stringify({ productIds }),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.text())
+            .then(content => {
+                this.el.innerHTML = content;
+                const forms = this.el.querySelectorAll('form.product-wishlist-form');
 
-            if (!forms || forms.length !== productIds.length) {
-                this._cleanInvalidGuestProductIds(productIds, forms);
-            }
+                if (!forms || forms.length !== productIds.length) {
+                    this._cleanInvalidGuestProductIds(productIds, forms);
+                }
 
-            if (forms && forms.length > 0) {
-                forms.forEach(form => {
-                    this._removeGuestProductFormHandler(form);
-                });
-            }
+                if (forms && forms.length > 0) {
+                    forms.forEach(form => {
+                        this._removeGuestProductFormHandler(form);
+                    });
+                }
 
-            ElementLoadingIndicatorUtil.remove(this.el);
-            window.PluginManager.initializePlugins();
-        });
+                ElementLoadingIndicatorUtil.remove(this.el);
+                window.PluginManager.initializePlugins();
+            });
     }
 
     /**

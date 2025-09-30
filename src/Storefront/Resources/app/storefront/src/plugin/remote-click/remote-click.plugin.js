@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
-import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * this plugin is used to remotely click on another element
@@ -65,8 +64,8 @@ export default class RemoteClickPlugin extends Plugin {
         }
 
         let target = this.options.selector;
-        if (!DomAccess.isNode(this.options.selector)) {
-            target = DomAccess.querySelector(document, this.options.selector);
+        if (!(this.options.selector instanceof HTMLElement)) {
+            target = document.querySelector(this.options.selector);
         }
 
         if (this.options.scrollToElement) {
@@ -112,7 +111,7 @@ export default class RemoteClickPlugin extends Plugin {
         const elementScrollOffset = rect.top + window.scrollY;
         let offset = elementScrollOffset - this.options.scrollOffset;
 
-        const fixedHeader = DomAccess.querySelector(document, this.options.fixedHeaderSelector, false);
+        const fixedHeader = document.querySelector(this.options.fixedHeaderSelector);
         if (fixedHeader) {
             const headerRect = fixedHeader.getBoundingClientRect();
             offset -= headerRect.height;

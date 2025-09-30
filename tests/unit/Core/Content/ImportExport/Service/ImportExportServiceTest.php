@@ -54,7 +54,7 @@ class ImportExportServiceTest extends TestCase
         );
 
         static::assertSame($profileId, $log->getProfileId());
-        static::assertSame('Test Profile', $log->getProfileName());
+        static::assertSame('test_profile', $log->getProfileName());
     }
 
     private function createImportExportService(string $profileId): ImportExportService
@@ -63,7 +63,7 @@ class ImportExportServiceTest extends TestCase
         $profile->setId($profileId);
         $profile->setUniqueIdentifier($profileId);
         $profile->setType(ImportExportProfileEntity::TYPE_IMPORT);
-        $profile->setTranslated(['label' => 'Test Profile']);
+        $profile->setTechnicalName('test_profile');
         $profile->setConfig([]);
         $profile->setSourceEntity(ProductDefinition::ENTITY_NAME);
         $profile->setFileType('text/csv');

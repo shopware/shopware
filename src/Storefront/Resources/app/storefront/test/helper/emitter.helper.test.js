@@ -103,7 +103,7 @@ describe('NativeEventEmitter tests', () => {
         });
 
         test('namespaced events', (done) => {
-            const noop = jest.mock();
+            const noop = jest.fn();
             const eventName = 'foo';
 
             // sort will order uppercase characters before lowercase

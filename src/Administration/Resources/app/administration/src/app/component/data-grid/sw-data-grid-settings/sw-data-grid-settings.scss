@@ -1,7 +1,7 @@
-.sw-button.sw-button--square.sw-data-grid-settings__trigger {
+.mt-button.mt-button--square.sw-data-grid-settings__trigger {
     width: 32px;
 
-    .sw-icon {
+    .mt-icon {
         padding-top: 2px;
         padding-right: 1px;
         padding-bottom: 2px;
@@ -16,6 +16,9 @@
 
     .sw-data-grid__settings-container {
         padding: 10px 18px;
+        display: flex;
+        flex-flow: column nowrap;
+        row-gap: 10px;
     }
 
     .sw_context_menu_divider {
@@ -32,10 +35,6 @@
         display: flex;
         align-items: center;
 
-        &:not(:last-child) {
-            margin-bottom: 10px;
-        }
-
         .sw-data-grid__settings-column-item-controls {
             margin-left: auto;
             flex-shrink: 0;
@@ -51,8 +50,8 @@
         margin-top: 0;
     }
 
-    .sw-field--checkbox,
-    .sw-field--switch {
+    .mt-field--checkbox,
+    .mt-field--switch {
         margin-bottom: 5px;
 
         &:last-child,
@@ -63,5 +62,10 @@
 
     .columns-list-move {
         transition: transform 0.2s ease-in-out;
+    }
+
+    .mt-switch {
+        margin-bottom: 0;
+        min-height: 0;
     }
 }

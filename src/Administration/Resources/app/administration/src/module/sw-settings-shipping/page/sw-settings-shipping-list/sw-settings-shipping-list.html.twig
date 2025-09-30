@@ -17,9 +17,10 @@
         {% block sw_settings_shipping_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_shipping_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }} <sw-icon
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="12px"
             /> {{ $tc('sw-settings-shipping.list.textHeadline') }}
             {% endblock %}
 
@@ -39,13 +40,14 @@
     {% block sw_settings_shipping_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_shipping_list_smart_bar_actions_add %}
-        <sw-button
-            :router-link="{ name: 'sw.settings.shipping.create' }"
+        <mt-button
             :disabled="!acl.can('shipping.creator') || undefined"
             variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.shipping.create' })"
         >
             {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -59,9 +61,20 @@
     <template #content>
         {% block sw_settings_shipping_list_content %}
         <div class="sw-settings-shipping-list__content">
+            {% block sw_settings_shipping_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                :icon="$route.meta.$module.icon"
+                class="mt-empty-state--center"
+                :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-shipping.list.messageEmpty')"
+                :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            />
+            {% endblock %}
+
             {% block sw_settings_shipping_list_grid %}
             <sw-entity-listing
-                v-if="entitySearchable"
+                v-else-if="entitySearchable"
                 ref="swSettingsTaxGrid"
                 :items="shippingMethods"
                 :columns="columns"
@@ -85,24 +98,24 @@
                 >
                     {% block sw_settings_shipping_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.active"
+                        <mt-checkbox
+                            v-model:checked="item.active"
                         />
                     </template>
                     {% endblock %}
 
                     {% block sw_settings_shipping_list_grid_columns_active_content %}
                     <template v-else>
-                        <sw-icon
+                        <mt-icon
                             v-if="item.active"
                             name="regular-checkmark-xs"
-                            small
+                            size="16px"
                             class="is--active"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-else
                             name="regular-times-s"
-                            small
+                            size="16px"
                             class="is--inactive"
                         />
                     </template>
@@ -175,22 +188,23 @@
                         {% block sw_settings_shipping_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_settings_shipping_list_delete_modal_cancel %}
-                            <sw-button
+                            <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_settings_shipping_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-shipping.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}
@@ -199,31 +213,6 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
-            {% endblock %}
-
-            {% block sw_settings_shipping_list_empty_state %}
-            <template v-if="!isLoading && !total">
-                <sw-empty-state
-                    v-if="isValidTerm(term)"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                >
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
-
-                <sw-empty-state
-                    v-else
-                    :title="$tc('sw-settings-shipping.list.messageEmpty')"
-                />
-            </template>
             {% endblock %}
         </div>
         {% endblock %}

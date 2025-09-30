@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -16,40 +18,25 @@ class MediaThumbnailEntity extends Entity
 
     protected ?string $path = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be native `int` type
-     */
-    protected $width;
+    protected int $width;
+
+    protected int $height;
+
+    protected ?string $url = '';
 
     /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be native `int` type
+     * @deprecated tag:v6.8.0 - Will be non-nullable
      */
-    protected $height;
+    protected ?string $mediaId;
+
+    protected ?MediaEntity $media = null;
 
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.8.0 - Will be non-nullable
      */
-    protected $url = '';
+    protected ?string $mediaThumbnailSizeId = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaId;
-
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaThumbnailSizeEntity $mediaThumbnailSize = null;
 
     public function getWidth(): int
     {
@@ -71,11 +58,21 @@ class MediaThumbnailEntity extends Entity
         $this->height = $height;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getUrl(): string
     {
+        if ($this->url === null) {
+            return '';
+        }
+
         return $this->url;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-extension - parameter $url will be nullable
+     */
     public function setUrl(string $url): void
     {
         $this->url = $url;
@@ -83,6 +80,12 @@ class MediaThumbnailEntity extends Entity
 
     public function getMediaId(): string
     {
+        if (!isset($this->mediaId)) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
+
+            return '';
+        }
+
         return $this->mediaId;
     }
 
@@ -101,11 +104,38 @@ class MediaThumbnailEntity extends Entity
         $this->media = $media;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be only string and condition will be removed
+     */
+    public function getMediaThumbnailSizeId(): ?string
+    {
+        if (!isset($this->mediaThumbnailSizeId)) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaThumbnailSizeId must not be null');
+
+            return null;
+        }
+
+        return $this->mediaThumbnailSizeId;
+    }
+
+    public function setMediaThumbnailSizeId(string $mediaThumbnailSizeId): void
+    {
+        $this->mediaThumbnailSizeId = $mediaThumbnailSizeId;
+    }
+
+    public function getMediaThumbnailSize(): ?MediaThumbnailSizeEntity
+    {
+        return $this->mediaThumbnailSize;
+    }
+
+    public function setMediaThumbnailSize(MediaThumbnailSizeEntity $mediaThumbnailSize): void
+    {
+        $this->mediaThumbnailSize = $mediaThumbnailSize;
+    }
+
     public function getIdentifier(): string
     {
-        $identifier = \sprintf('%dx%d', $this->getWidth(), $this->getHeight());
-
-        return $identifier;
+        return \sprintf('%dx%d', $this->getWidth(), $this->getHeight());
     }
 
     public function getPath(): string

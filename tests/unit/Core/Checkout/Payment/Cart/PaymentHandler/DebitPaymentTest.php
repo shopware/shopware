@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @deprecated tag:v6.8.0 - will be removed without replacement
+ *
  * @internal
  */
 #[Package('checkout')]

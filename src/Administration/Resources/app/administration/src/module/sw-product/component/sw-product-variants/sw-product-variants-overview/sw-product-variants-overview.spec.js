@@ -8,14 +8,36 @@ let repositoryFactoryMock;
 let repositoryFactoryCreateMock;
 
 async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {}) {
+    const productMediaRepositoryMock = {
+        create: jest.fn(() => {
+            return {
+                _isNew: true,
+                mediaId: null,
+                position: null,
+                productId: null,
+                media: null,
+            };
+        }),
+        save: jest.fn(() => Promise.resolve()),
+        syncDeleted: jest.fn(() => Promise.resolve()),
+        search: jest.fn(() => Promise.resolve([])),
+        get: jest.fn(() => Promise.resolve({})),
+    };
+
     repositoryFactoryCreateMock = {
         search: () => Promise.resolve([]),
         save: jest.fn(() => Promise.resolve([])).mockName('repositoryFactory save'),
         get: () => Promise.resolve({}),
         syncDeleted: () => Promise.resolve({}),
+        create: jest.fn(() => ({})), // General create mock
     };
     repositoryFactoryMock = {
-        create: jest.fn(() => repositoryFactoryCreateMock),
+        create: jest.fn((entityName) => {
+            if (entityName === 'product_media') {
+                return productMediaRepositoryMock;
+            }
+            return repositoryFactoryCreateMock;
+        }),
         ...repositoryFactoryOverride,
     };
 
@@ -32,7 +54,11 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         global: {
             provide: {
                 repositoryFactory: repositoryFactoryMock,
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
                 configService: {
                     getConfig: () =>
                         Promise.resolve({
@@ -65,11 +91,6 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                     sync: true,
                 }),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
                 'sw-tree': await wrapTestComponent('sw-tree', {
                     sync: true,
@@ -83,7 +104,6 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-inheritance-switch': true,
                 'sw-price-field': true,
                 'sw-price-preview': true,
-                'sw-number-field': true,
                 'sw-text-field': true,
                 'sw-product-variants-media-upload': true,
                 'sw-upload-listener': true,
@@ -132,10 +152,34 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     beforeEach(() => {
         global.activeAclRoles = [];
 
+        const mockMediaEntity = {
+            id: 'media-id-123',
+            position: 1,
+            fileName: 'test-image',
+            fileExtension: 'jpg',
+            url: 'http://example.com/test-image.jpg',
+        };
+
+        const mockProductMediaEntity = {
+            id: 'product-media-assoc-id-1',
+            mediaId: mockMediaEntity.id,
+            media: mockMediaEntity,
+            position: mockMediaEntity.position,
+        };
+
+        const productMediaCollection = new Shopware.Data.EntityCollection(
+            '/product/72bfaf5d90214ce592715a9649d8760a/media',
+            'product_media',
+            Shopware.Context.api,
+            null,
+            [mockProductMediaEntity],
+        );
+
         const product = {
             id: '72bfaf5d90214ce592715a9649d8760a',
-            media: [],
+            media: productMediaCollection,
         };
+
         product.getEntityName = () => 'T-Shirt';
 
         Shopware.Store.register({
@@ -194,16 +238,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         });
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an disabled generate variants button', async () => {
         const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
-        expect(generateVariantsButton.classes('sw-button--disabled')).toBeTruthy();
+        expect(generateVariantsButton.attributes('disabled')).toBeDefined();
     });
 
     it('should have an enabled generate variants button', async () => {
@@ -212,7 +251,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
-        expect(generateVariantsButton.classes('sw-button--disabled')).toBeFalsy();
+        expect(generateVariantsButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should enable selection deleting of list variants', async () => {
@@ -485,9 +524,97 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const deleteModal = wrapper.find('.sw-product-variants-overview__delete-modal');
         expect(deleteModal.exists()).toBe(true);
 
-        await wrapper.find('.sw-product-variants-overview__delete-modal .sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.generatedListDeleteModalButtonDelete').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should contain a currencyColumns computed property', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.Store.get('swProductDetail').currencies = undefined;
+
+        expect(wrapper.vm.currencyColumns).toEqual([]);
+
+        Shopware.Store.get('swProductDetail').currencies = [
+            {
+                id: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                name: 'Euro',
+                isSystemDefault: true,
+                translated: {
+                    name: 'Euro',
+                },
+            },
+            {
+                id: 'b7d2554b0ce847cd82f3ac9bd1c0dfcb',
+                name: 'Dollar',
+                isSystemDefault: false,
+                translated: {
+                    name: 'Dollar',
+                },
+            },
+        ];
+
+        expect(wrapper.vm.currencyColumns).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfca.net',
+                    label: 'Euro',
+                    visible: true,
+                }),
+                expect.objectContaining({
+                    property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfcb.net',
+                    label: 'Dollar',
+                    visible: false,
+                }),
+            ]),
+        );
+    });
+
+    it('should correctly create a new product_media entity when media inheritance is removed', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mockVariant = {
+            id: 'variant-id-1',
+            media: new Shopware.Data.EntityCollection('/product/variant-id-1/media', 'product_media', Shopware.Context.api),
+        };
+
+        const storeProductMedia = Shopware.Store.get('swProductDetail').product.media.first();
+        const mediaItemToUnInherit = storeProductMedia
+            ? storeProductMedia.media
+            : {
+                  id: 'fallback-media-id',
+                  position: 1,
+              };
+
+        const mockProductMediaRepositoryCreate = jest.fn(() => {
+            return {
+                _isNew: true,
+                mediaId: null,
+                position: null,
+                productId: null,
+                media: null,
+            };
+        });
+
+        wrapper.vm.productMediaRepository.create = mockProductMediaRepositoryCreate;
+
+        await wrapper.vm.onMediaInheritanceRemove(mockVariant, mediaItemToUnInherit);
+
+        expect(mockProductMediaRepositoryCreate).toHaveBeenCalledTimes(1);
+        expect(mockProductMediaRepositoryCreate).toHaveBeenCalledWith(Shopware.Context.api);
+
+        expect(mockVariant.media).toHaveLength(1);
+
+        const newProductMedia = mockVariant.media.at(0);
+        expect(newProductMedia).toBeDefined();
+        expect(newProductMedia.mediaId).toBe(mediaItemToUnInherit.id);
+        expect(newProductMedia.position).toBe(mediaItemToUnInherit.position);
+        expect(newProductMedia.productId).toBe('72bfaf5d90214ce592715a9649d8760a');
+
+        expect(newProductMedia.media).toEqual(mediaItemToUnInherit);
+        expect(newProductMedia._isNew).toBe(true);
     });
 });

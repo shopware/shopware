@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class LineItemOfManufacturerRule extends Rule
@@ -23,6 +23,8 @@ class LineItemOfManufacturerRule extends Rule
 
     /**
      * @param list<string> $manufacturerIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

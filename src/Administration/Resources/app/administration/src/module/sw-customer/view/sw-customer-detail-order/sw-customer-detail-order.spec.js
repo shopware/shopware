@@ -38,8 +38,8 @@ async function createWrapper(orderData = []) {
             },
 
             stubs: {
-                'sw-card': {
-                    template: `<div class="sw-card">
+                'mt-card': {
+                    template: `<div class="mt-card">
                     <slot name="toolbar"></slot>
                     <slot name="grid"></slot>
                     <slot></slot>
@@ -48,10 +48,7 @@ async function createWrapper(orderData = []) {
                 'sw-card-filter': {
                     template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
                 },
-                'sw-empty-state': true,
                 'sw-entity-listing': true,
-                'sw-button': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-time-ago': true,
                 'sw-context-menu-item': true,
@@ -74,12 +71,8 @@ describe('module/sw-customer/view/sw-customer-detail-order.spec.js', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show empty state', async () => {
-        const emptyState = wrapper.find('sw-empty-state-stub');
+        const emptyState = wrapper.find('.mt-empty-state');
         const cardFilter = wrapper.find('.sw-card-filter');
 
         expect(emptyState.exists()).toBeTruthy();

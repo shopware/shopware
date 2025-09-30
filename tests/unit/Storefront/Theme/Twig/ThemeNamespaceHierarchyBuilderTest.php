@@ -40,7 +40,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     {
         $events = $this->builder->getSubscribedEvents();
 
-        static::assertEquals([
+        static::assertSame([
             KernelEvents::REQUEST,
             KernelEvents::EXCEPTION,
             DocumentTemplateRendererParameterEvent::class,
@@ -86,7 +86,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         ];
         $connectionMock = $this->createMock(Connection::class);
         if (\array_key_exists('context', $parameters)) {
-            $connectionMock->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects($this->exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
         }
         $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 
@@ -145,16 +145,16 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 
     public function testItReturnsItsInputIfNoThemesAreSet(): void
     {
-        $bundles = ['a', 'b'];
+        $bundles = ['a' => 1, 'b' => 2];
 
-        $hierarchy = $this->builder->buildNamespaceHierarchy(['a', 'b']);
+        $hierarchy = $this->builder->buildNamespaceHierarchy(['a' => 1, 'b' => 2]);
 
-        static::assertEquals($bundles, $hierarchy);
+        static::assertSame($bundles, $hierarchy);
     }
 
     public function testItPassesBundlesAndThemesToBuilder(): void
     {
-        $bundles = ['a', 'b'];
+        $bundles = ['a' => 1, 'b' => 2];
 
         $request = Request::createFromGlobals();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'TestTheme');
@@ -164,8 +164,8 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $hierarchy = $this->builder->buildNamespaceHierarchy($bundles);
 
         static::assertEquals([
-            'Storefront' => true,
-            'TestTheme' => true,
+            'Storefront' => 1,
+            'TestTheme' => 1,
         ], $hierarchy);
     }
 
@@ -219,13 +219,19 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 class TestInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     /**
-     * @param array<string> $bundles
-     * @param array<string> $themes
+     * @param array<string, int> $bundles
+     * @param array<int|string, bool> $themes
      *
-     * @return array<string>
+     * @return array<string, int>
      */
     public function build(array $bundles, array $themes): array
     {
-        return $themes;
+        // Convert boolean theme values to integer priorities for test purposes
+        $result = [];
+        foreach ($themes as $key => $value) {
+            $result[(string) $key] = $value === true ? 1 : 0;
+        }
+
+        return $result;
     }
 }

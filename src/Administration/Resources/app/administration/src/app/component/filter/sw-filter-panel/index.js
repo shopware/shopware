@@ -5,12 +5,10 @@
 import template from './sw-filter-panel.html.twig';
 import './sw-filter-panel.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-filter-panel', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -147,7 +145,7 @@ Component.register('sw-filter-panel', {
         },
 
         getBreadcrumb(item) {
-            if (item.breadcrumb) {
+            if (item.breadcrumb?.length > 0) {
                 return item.breadcrumb.join(' / ');
             }
             return item.translated?.name || item.name;
@@ -161,4 +159,4 @@ Component.register('sw-filter-panel', {
             return item.translated?.name || item.name;
         },
     },
-});
+};

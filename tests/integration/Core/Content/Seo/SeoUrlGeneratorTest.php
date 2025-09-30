@@ -216,13 +216,13 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertArrayHasKey($ids->get('red'), $urls);
 
         // name = parent | number = parent
-        static::assertEquals('parent/parent', $urls[$ids->get('parent')]);
+        static::assertSame('parent/parent', $urls[$ids->get('parent')]);
 
         // name = red | number = red
-        static::assertEquals('red/red', $urls[$ids->get('red')]);
+        static::assertSame('red/red', $urls[$ids->get('red')]);
 
         // name = parent | number = green
-        static::assertEquals('parent/green', $urls[$ids->get('green')]);
+        static::assertSame('parent/green', $urls[$ids->get('green')]);
     }
 
     public function testTemplateWithMultipleVariantOptions(): void
@@ -258,7 +258,7 @@ class SeoUrlGeneratorTest extends TestCase
 
         $expected = ['parent', 'tshirt-red', 'tshirt-green-xl'];
         foreach ($result as $index => $seoUrl) {
-            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
+            static::assertSame($expected[$index], $seoUrl->getSeoPathInfo());
         }
     }
 
@@ -284,7 +284,7 @@ class SeoUrlGeneratorTest extends TestCase
 
         $expected = ['test-category-shopware-product'];
         foreach ($result as $index => $seoUrl) {
-            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
+            static::assertSame($expected[$index], $seoUrl->getSeoPathInfo());
         }
     }
 
@@ -308,7 +308,7 @@ class SeoUrlGeneratorTest extends TestCase
 
         $expected = ['my-producT'];
         foreach ($result as $index => $seoUrl) {
-            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
+            static::assertSame($expected[$index], $seoUrl->getSeoPathInfo());
         }
     }
 

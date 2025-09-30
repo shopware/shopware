@@ -35,13 +35,13 @@
                 class="sw-cms-el-config-cross-selling__tab-content"
             >
                 {% block sw_cms_element_cross_selling_config_content_warning_text %}
-                <sw-alert
+                <mt-banner
                     v-if="isProductPageType"
                     class="sw-cms-el-config-cross-selling__warning-text"
                     variant="info"
                 >
                     {{ $tc('sw-cms.elements.crossSelling.config.infoText.productDetailElement') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_content_products %}
@@ -94,42 +94,25 @@
                 class="sw-cms-el-config-cross-selling__tab-options"
             >
                 {% block sw_cms_element_cross_selling_config_options_box_layout %}
-                <sw-select-field
-                    v-model:value="element.config.boxLayout.value"
+                <mt-select
+                    v-model="element.config.boxLayout.value"
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-                >
-                    <option value="standard">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
-                    </option>
-                    <option value="image">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}
-                    </option>
-                    <option value="minimal">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}
-                    </option>
-                </sw-select-field>
+                    :options="boxLayoutOptions"
+                />
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_options_display_mode %}
-                <sw-select-field
-                    v-model:value="element.config.displayMode.value"
+                <mt-select
+                    v-model="element.config.displayMode.value"
                     :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-                >
-                    <option value="standard">
-                        {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
-                    </option>
-                    <option value="cover">
-                        {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-                    </option>
-                    <option value="contain">
-                        {{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}
-                    </option>
-                </sw-select-field>
+                    :options="displayModeOptions"
+                />
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_options_min_width %}
-                <sw-text-field
-                    v-model:value="element.config.elMinWidth.value"
+
+                <mt-text-field
+                    v-model="element.config.elMinWidth.value"
                     :label="$tc('sw-cms.elements.crossSelling.config.label.minWidth')"
                     :placeholder="$tc('sw-cms.elements.crossSelling.config.placeholder.minWidth')"
                 />

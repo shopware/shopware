@@ -82,9 +82,7 @@ export default {
         },
 
         isEmittedFromChildren(target) {
-            return this.$children.some((child) => {
-                return child.$el === target || child.$el.contains(target);
-            });
+            return this.$refs.componentRef?.contains(target) ?? false;
         },
 
         emitSelectionCleared(originalDomEvent) {

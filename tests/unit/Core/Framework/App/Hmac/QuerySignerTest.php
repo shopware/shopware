@@ -31,14 +31,14 @@ class QuerySignerTest extends TestCase
 
         $localeProvider = $this->createMock(LocaleProvider::class);
         $localeProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getLocaleFromContext')
             ->with($context)
             ->willReturn('en-GB');
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
             ->willReturn('shopId');
 
@@ -46,6 +46,7 @@ class QuerySignerTest extends TestCase
         $app->setName('extension-1');
         $app->setAppSecret('devSecret');
         $app->setId(Uuid::randomHex());
+        $app->setVersion('1.0.0');
 
         $querySigner = new QuerySigner('http://shop.url', '1.0.0', $localeProvider, $shopIdProvider, $inAppPurchase);
         $signedQuery = $querySigner->signUri('http://app.url/?foo=bar', $app, $context);
@@ -60,6 +61,7 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('sw-context-language', $url);
         static::assertArrayHasKey('sw-user-language', $url);
         static::assertArrayHasKey('shopware-shop-signature', $url);
+        static::assertArrayHasKey('app-version', $url);
 
         static::assertSame('shopId', $url['shop-id']);
         static::assertSame('http://shop.url', $url['shop-url']);
@@ -68,6 +70,7 @@ class QuerySignerTest extends TestCase
         static::assertSame('a6a4063ffda65516983ad40e8dc91db6', $url['in-app-purchases']);
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $url['sw-context-language']);
         static::assertSame('en-GB', $url['sw-user-language']);
+        static::assertSame('1.0.0', $url['app-version']);
     }
 
     public function testThrowsWithoutAppSecret(): void

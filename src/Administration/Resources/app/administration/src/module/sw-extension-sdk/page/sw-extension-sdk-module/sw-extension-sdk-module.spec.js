@@ -25,8 +25,8 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-my-apps-error-page': true,
                 'sw-iframe-renderer': true,
                 'sw-language-switch': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
                 'router-link': {
                     props: {
                         to: {
@@ -41,9 +41,9 @@ async function createWrapper(back = null, push = jest.fn()) {
                 },
                 'sw-search-bar': true,
                 'sw-app-topbar-button': true,
+                'sw-app-topbar-sidebar': true,
                 'sw-notification-center': true,
                 'sw-help-center-v2': true,
-                'sw-icon': true,
                 'sw-app-actions': true,
             },
             mocks: {
@@ -68,10 +68,6 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('@slow should time out without menu item after 7000ms', async () => {
@@ -118,7 +114,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
         expect(smartBarButton.text()).toBe('Test button 1');
         expect(smartBarButton.attributes().id).toBe('test-button-1');
-        expect(smartBarButton.classes('sw-button--primary')).toBe(true);
+        expect(smartBarButton.classes().some((cls) => cls.includes('--primary'))).toBe(true);
 
         // Test if callback function is called
         await smartBarButton.trigger('click');

@@ -145,7 +145,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                     },
                     stubs: {
                         'sw-page': true,
-                        'sw-button': true,
                         'sw-language-switch': true,
                         'sw-settings-listing-option-general-info': true,
                         'sw-settings-listing-option-criteria-grid': true,
@@ -160,10 +159,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable the save button if no criteria exists', async () => {

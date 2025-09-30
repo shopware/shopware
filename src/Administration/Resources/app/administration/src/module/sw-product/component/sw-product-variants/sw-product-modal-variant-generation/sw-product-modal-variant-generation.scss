@@ -66,7 +66,7 @@
             display: flex;
             align-items: center;
 
-            .sw-field--switch {
+            .mt-switch {
                 margin: 0 80px 0 80px;
             }
         }
@@ -87,11 +87,6 @@
             padding: 0;
             max-height: 1024px;
             height: 80vh;
-
-            .sw-alert {
-                width: auto;
-                margin: 24px;
-            }
 
             .sw-tabs .sw-tabs__custom-content {
                 padding: 10px 0;

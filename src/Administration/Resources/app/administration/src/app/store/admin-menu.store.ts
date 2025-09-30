@@ -19,7 +19,7 @@ const adminMenuStore = Shopware.Store.register({
         /**
          * The expanded state of the sidebar menu
          */
-        isExpanded: true,
+        isExpanded: localStorage.getItem('sw-admin-menu-expanded') !== 'false',
         /**
          * The entries that are currently expanded in the sidebar menu
          */
@@ -56,12 +56,14 @@ const adminMenuStore = Shopware.Store.register({
          */
         collapseSidebar() {
             this.isExpanded = false;
+            localStorage.setItem('sw-admin-menu-expanded', 'false');
         },
         /**
          * Collapses the sidebar menu
          */
         expandSidebar() {
             this.isExpanded = true;
+            localStorage.setItem('sw-admin-menu-expanded', 'true');
         },
     },
 

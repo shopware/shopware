@@ -8,14 +8,15 @@ use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\TransactionalAction;
 use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\StateMachineException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -86,7 +87,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             foreach ($transitions as $machine => $toPlace) {
                 $this->transitState((string) $machine, $orderId, (string) $toPlace, $context);
             }
-        } catch (StateMachineException $e) {
+        } catch (FlowException $e) {
             throw TransactionFailedException::because($e);
         } finally {
             $context->removeState(self::FORCE_TRANSITION);
@@ -95,7 +96,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
     /**
      * @throws IllegalTransitionException
-     * @throws StateMachineException
+     * @throws FlowException
      */
     private function transitState(string $machine, string $orderId, string $toPlace, Context $context): void
     {
@@ -104,16 +105,26 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         }
 
         $data = new ParameterBag();
-        if ($machine === self::ORDER) {
-            $machineId = $orderId;
-        } elseif ($machine === self::ORDER_DELIVERY) {
-            $machineId = $this->getMachineIdFromOrderDelivery($orderId);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            if ($machine === self::ORDER) {
+                $machineId = $orderId;
+            } elseif ($machine === self::ORDER_DELIVERY) {
+                $machineId = $this->getMachineIdFromOrderDelivery($orderId, $context);
+            } else {
+                $machineId = $this->getMachineId($machine, $orderId);
+            }
         } else {
-            $machineId = $this->getMachineId($machine, $orderId);
+            $machineId = match ($machine) {
+                self::ORDER => $orderId,
+                self::ORDER_DELIVERY => $this->getMachineIdFromOrderDelivery($orderId, $context),
+                self::ORDER_TRANSACTION => $this->getMachineIdFromOrderTransaction($orderId, $context),
+                default => $this->getMachineId($machine, $orderId),
+            };
         }
 
         if (!$machineId) {
-            throw StateMachineException::stateMachineNotFound($machine);
+            throw FlowException::stateMachineNotFound($machine);
         }
 
         $actionName = $this->getAvailableActionName($machine, $machineId, $toPlace);
@@ -135,7 +146,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
                 return;
             default:
-                throw StateMachineException::stateMachineNotFound($machine);
+                throw FlowException::stateMachineNotFound($machine);
         }
     }
 
@@ -150,19 +161,13 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         ) ?: null;
     }
 
-    /**
-     * Returns the Id of the primary delivery of the given order.
-     * This is the order delivery with the highest shipping costs as Shopware creates additional order deliveries with
-     * negative shipping costs when applying a discount to the shipping costs. Just using the first or last order delivery
-     * without sorting first can result in the wrong order delivery to be used.
-     */
-    private function getMachineIdFromOrderDelivery(string $orderId): ?string
+    private function getMachineIdFromOrderDelivery(string $orderId, Context $context): ?string
     {
         return $this->connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
             [
                 'id' => Uuid::fromHexToBytes($orderId),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ],
         ) ?: null;
     }
@@ -217,5 +222,16 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         );
 
         return $id ?: null;
+    }
+
+    private function getMachineIdFromOrderTransaction(string $orderId, Context $context): ?string
+    {
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_TRANSACTION . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
+            ]
+        ) ?: null;
     }
 }

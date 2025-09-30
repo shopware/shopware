@@ -1,16 +1,3 @@
-import { mount } from '@vue/test-utils';
-
-function runGenericCmsTest(component) {
-    beforeAll(async () => {
-        await setupCmsEnvironment();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = mount(component);
-        expect(wrapper.vm).toBeTruthy();
-    });
-}
-
 function runCmsBlockRegistryTest(config) {
     beforeAll(async () => {
         await setupCmsEnvironment();
@@ -74,4 +61,4 @@ async function setupCmsEnvironment() {
  * @private
  * @sw-package discovery
  */
-export { runGenericCmsTest, runCmsBlockRegistryTest, runCmsElementRegistryTest, setupCmsEnvironment };
+export { runCmsBlockRegistryTest, runCmsElementRegistryTest, setupCmsEnvironment };

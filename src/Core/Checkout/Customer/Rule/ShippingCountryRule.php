@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Country\CountryDefinition;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class ShippingCountryRule extends Rule
@@ -22,6 +22,8 @@ class ShippingCountryRule extends Rule
 
     /**
      * @param list<string>|null $countryIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

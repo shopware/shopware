@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,6 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(FindProductVariantRoute::class)]
 class FindProductVariantRouteTest extends TestCase
 {
+    /**
+     * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
+     */
     private MockObject&SalesChannelRepository $productRepositoryMock;
 
     private FindProductVariantRoute $route;
@@ -94,8 +98,8 @@ class FindProductVariantRouteTest extends TestCase
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
-        static::assertEquals($options, $response->getFoundCombination()->getOptions());
+        static::assertSame($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
+        static::assertSame($options, $response->getFoundCombination()->getOptions());
     }
 
     public function testLoadFirstVariantNotFound(): void
@@ -149,7 +153,7 @@ class FindProductVariantRouteTest extends TestCase
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
+        static::assertSame($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
     }
 
     public function testLoadNoVariantFound(): void
@@ -206,7 +210,7 @@ class FindProductVariantRouteTest extends TestCase
         try {
             $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
         } catch (VariantNotFoundException $e) {
-            static::assertEquals('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $e->getErrorCode());
+            static::assertSame('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $e->getErrorCode());
 
             throw $e;
         }

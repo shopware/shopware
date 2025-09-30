@@ -48,13 +48,7 @@ Component.register('sw-sales-channel-detail-theme', {
         'salesChannel.extensions.themes': {
             deep: true,
             handler() {
-                if (!this.salesChannel || !this.salesChannel.extensions || this.salesChannel.extensions.themes.length < 1) {
-                    return;
-                }
-
-                this.theme = this.salesChannel.extensions.themes[0];
-
-                this.getTheme(this.theme.id);
+                this.getTheme(this.salesChannel?.extensions?.themes[0]?.id);
             }
         }
     },
@@ -65,9 +59,7 @@ Component.register('sw-sales-channel-detail-theme', {
 
     methods: {
         createdComponent() {
-            if (!this.salesChannel ||
-                !this.salesChannel.extensions ||
-                this.salesChannel.extensions.themes.length < 1) {
+            if (!this.salesChannel?.extensions?.themes[0]) {
                 return;
             }
 
@@ -111,43 +103,6 @@ Component.register('sw-sales-channel-detail-theme', {
 
             await this.getTheme(themeId);
             this.salesChannel.extensions.themes[0] = this.theme;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - will be removed
-         */
-        onCloseChangeModal() {
-            this.showChangeModal = false;
-            this.newThemeId = null;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - will be removed
-         */
-        onConfirmChange() {
-            if (this.newThemeId) {
-                this.onThemeSelect(this.newThemeId);
-            }
-
-            this.showChangeModal = false;
-            this.newThemeId = null;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - will be removed
-         */
-        onThemeSelect(selectedThemeId) {
-            this.isLoading = true;
-            this.getTheme(selectedThemeId);
-            this.themeService.assignTheme(selectedThemeId, this.salesChannel.id).then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-theme-manager.general.titleError'),
-                    message: this.$tc('sw-theme-manager.general.messageSaveError')
-                });
-                this.isLoading = false;
-            });
         },
     },
 });

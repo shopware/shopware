@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -33,11 +32,6 @@ class StorefrontPluginConfiguration extends Struct
     protected FileCollection $scriptFiles;
 
     protected ?string $storefrontEntryFilepath = null;
-
-    /**
-     * @deprecated tag:v6.7.0 property will be removed
-     */
-    protected string $basePath;
 
     /**
      * @var array<int, string>
@@ -133,26 +127,6 @@ class StorefrontPluginConfiguration extends Struct
     public function setStorefrontEntryFilepath(?string $storefrontEntryFilepath): void
     {
         $this->storefrontEntryFilepath = $storefrontEntryFilepath;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed, get base path via `\Shopware\Storefront\Theme\ThemeFilesystemResolver`
-     */
-    public function getBasePath(): string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.7.0.0'));
-
-        return $this->basePath ?? '';
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed with no alternative
-     */
-    public function setBasePath(string $basePath): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.7.0.0'));
-
-        $this->basePath = $basePath;
     }
 
     /**

@@ -23,7 +23,7 @@ class SCSSValidator
         if (!\array_key_exists('value', $data)
             || !isset($data['value'])
             || $data['value'] === ''
-            || $data['value'] === false) {
+            || ($data['value'] === false && !\in_array($data['type'], ['checkbox', 'switch', 'boolean', 'bool'], true))) {
             return null;
         }
 
@@ -31,19 +31,18 @@ class SCSSValidator
             return $data['value'];
         }
 
+        /**
+         * The types textarea, url and media are not validated, because
+         * the textarea and url fields are wrapped as strings in the SCSS compiler,
+         * and the media field is just using the media url as a string.
+         */
         return match ($data['type'] ?? 'text') {
             'checkbox', 'switch' => self::validateTypeCheckbox($data['value']),
             'color' => self::validateTypeColor($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
             'fontFamily' => self::validateFontFamily($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
+            'text' => self::validateTypeText($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
             default => $data['value'],
         };
-    }
-
-    private static function isHex(string $hexCode): bool
-    {
-        preg_match('/^[a-f0-9]*$/i', $hexCode, $parsed);
-
-        return isset($parsed[0]) && $parsed[0] === $hexCode;
     }
 
     /**
@@ -74,27 +73,39 @@ class SCSSValidator
     {
         try {
             $css = self::initVariables($value, '#000') . \PHP_EOL;
-            $css .= 'body{background-color: ' . $value . ';color: darken(' . $value . ', 10%)}';
-            $parsed = $compiler->compileString(new CompilerConfiguration(['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]), $css);
+            $css .= 'body{background-color:' . $value . ';color: darken(' . $value . ', 10%)}';
+
+            $parsed = $compiler->compileString(
+                new CompilerConfiguration(
+                    ['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]
+                ),
+                $css
+            );
+
             preg_match('/body\{background-color:(.*);/i', $parsed, $parsedValue);
 
-            if (
-                !self::isValidColorName($value)
-                || !isset($parsedValue[1])
-                || $parsedValue[1] !== $value
-            ) {
-                if (
-                    !empty($parsedValue[1])
-                    && $parsedValue[1] !== $value
-                ) {
-                    return $parsedValue[1];
-                }
+            /**
+             * If the parsed value is not a valid color, throw an exception.
+             */
+            if (!isset($parsedValue[1]) || !self::isValidColorName($parsedValue[1])) {
+                throw ThemeException::InvalidScssValue($value, $type, $name);
+            }
 
+            /**
+             * The SCSS compiler has an issue and compiles invalid hsl and rgb colors to hex.
+             * Therefore the compiler does not crash, and the parsed value is valid, but the original color is invalid.
+             * This could lead to compiler crashes at a later stage, for example, when using the color in a mixin.
+             */
+            if ((str_starts_with($value, 'hsl') && !self::isHSL($value))
+                || (str_starts_with($value, 'rgb') && !self::isRGB($value))) {
                 throw ThemeException::InvalidScssValue($value, $type, $name);
             }
 
             return $value;
         } catch (\Throwable $exception) {
+            /**
+             * If the color could not be compiled at all, throw an exception.
+             */
             if ($sanitize !== true) {
                 throw ThemeException::InvalidScssValue($value, $type, $name);
             }
@@ -106,9 +117,14 @@ class SCSSValidator
     private static function validateFontFamily(AbstractScssCompiler $compiler, bool $sanitize, mixed $value, string $name, string $type): mixed
     {
         $value = str_replace('\'', '"', $value);
-        $css = 'body{font-family: ' . $value . ';--my-font: ' . $value . '}';
+        $css = 'body{font-family:' . $value . ';--my-font: ' . $value . '}';
         try {
-            $parsed = $compiler->compileString(new CompilerConfiguration(['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]), $css);
+            $parsed = $compiler->compileString(
+                new CompilerConfiguration(
+                    ['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]
+                ),
+                $css
+            );
             preg_match('/body\{font-family:(.*);/i', $parsed, $parsedValue);
 
             if (
@@ -132,19 +148,34 @@ class SCSSValidator
         }
     }
 
+    private static function validateTypeText(AbstractScssCompiler $compiler, bool $sanitize, mixed $value, string $name, string $type): mixed
+    {
+        $css = '$' . $name . ': ' . $value . ';';
+
+        try {
+            $compiler->compileString(
+                new CompilerConfiguration(
+                    ['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]
+                ),
+                $css
+            );
+
+            return $value;
+        } catch (\Throwable $exception) {
+            if ($sanitize !== true) {
+                throw ThemeException::InvalidScssValue(addslashes($value), $type, $name);
+            }
+
+            return 'inherit';
+        }
+    }
+
     private static function isValidColorName(mixed $value): bool
     {
-        return (
-            str_starts_with($value, '#')
-            && self::isHex(substr($value, 1))
-        ) || str_starts_with($value, 'rgb')
-                || str_starts_with($value, 'rgba')
-                || str_starts_with($value, 'hsl')
-                || str_starts_with($value, 'hsla')
-                || (
-                    !str_starts_with($value, '#')
-                    && Colors::colorNameToRGBa($value) !== null
-                );
+        return (str_starts_with($value, '#') && self::isHex(substr($value, 1)))
+            || (str_starts_with($value, 'hsl') && self::isHSL($value))
+            || (str_starts_with($value, 'rgb') && self::isRGB($value))
+            || (!str_starts_with($value, '#') && Colors::colorNameToRGBa($value) !== null);
     }
 
     private static function initVariables(string $value, string $varVal): string
@@ -171,5 +202,87 @@ class SCSSValidator
         }
 
         return $vars;
+    }
+
+    private static function isHex(string $hexCode): bool
+    {
+        preg_match('/^[a-f0-9]*$/i', $hexCode, $parsed);
+
+        return isset($parsed[0]) && $parsed[0] === $hexCode;
+    }
+
+    /**
+     * Validates if the given HSL code is valid.
+     *
+     * It supports both classic and modern syntax.
+     * Will forward to isHSLA for classic syntax with 'hsla'.
+     */
+    private static function isHSL(string $hslCode): bool
+    {
+        if (!str_starts_with($hslCode, 'hsl')) {
+            return false;
+        }
+
+        if (str_starts_with($hslCode, 'hsla')) {
+            return self::isHSLA($hslCode);
+        }
+
+        $hue = '(?:360(?:\.0+)?|3[0-5]\d(?:\.\d+)?|[12]\d{2}(?:\.\d+)?|[1-9]?\d(?:\.\d+)?)';
+        $percent = '(?:100|[1-9]?\d)%';
+        $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
+
+        // Modern: hsl(h s% l% / a?)  (spaces; optional / alpha)
+        $patternModern = '/^hsl\(\s*' . $hue . '(?:deg)?\s+' . $percent . '\s+' . $percent . '(?:\s*\/\s*' . $alpha . ')?\s*\)$/i';
+
+        // Legacy: hsl(h, s%, l%)  (commas; no alpha)
+        $patternLegacy = '/^hsl\(\s*' . $hue . '(?:deg)?\s*,\s*' . $percent . '\s*,\s*' . $percent . '\s*\)$/i';
+
+        return preg_match($patternModern, $hslCode) === 1 || preg_match($patternLegacy, $hslCode) === 1;
+    }
+
+    /**
+     * Validates if the given HSLA code is valid.
+     */
+    private static function isHSLA(string $hslaCode): bool
+    {
+        $hue = '(?:360(?:\.0+)?|3[0-5]\d(?:\.\d+)?|[12]\d{2}(?:\.\d+)?|[1-9]?\d(?:\.\d+)?)';
+        $percent = '(?:100|[1-9]?\d)%';
+        $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
+
+        // Legacy HSLA: hsla(h, s%, l%, a)
+        $patternHsla = '/^hsla\(\s*' . $hue . '(?:deg)?\s*,\s*' . $percent . '\s*,\s*' . $percent . '\s*,\s*' . $alpha . '\s*\)$/i';
+
+        return preg_match($patternHsla, $hslaCode) === 1;
+    }
+
+    /**
+     * Validates if the given RGB code is valid.
+     *
+     * It supports both classic and modern syntax.
+     * Will forward to isRGBA for classic syntax with 'rgba'.
+     */
+    private static function isRGB(string $rgbCode): bool
+    {
+        if (!str_starts_with($rgbCode, 'rgb')) {
+            return false;
+        }
+
+        if (str_starts_with($rgbCode, 'rgba')) {
+            return self::isRGBA($rgbCode);
+        }
+
+        $patternRgb = '/^rgb\(\s*(?:(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s+(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s+(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)(?:\s*\/\s*(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%))?|(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%))\s*\)$/i';
+
+        return preg_match($patternRgb, $rgbCode) === 1;
+    }
+
+    /**
+     * Validates if the given RGBA code is valid.
+     */
+    private static function isRGBA(string $rgbaCode): bool
+    {
+        $patternRgba = '/^rgba\(\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)\s*\)$/i';
+
+        return preg_match($patternRgba, $rgbaCode) === 1;
     }
 }

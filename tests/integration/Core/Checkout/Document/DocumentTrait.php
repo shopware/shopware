@@ -7,7 +7,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -129,14 +131,14 @@ trait DocumentTrait
 
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
-        /** @var EntityRepository $documentTypeRepository */
+        /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
             Context::createDefaultContext()
         )->firstId();
 
-        /** @var EntityRepository $documentBaseConfigRepository */
+        /** @var EntityRepository<DocumentBaseConfigCollection> $documentBaseConfigRepository */
         $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
 
         $criteria = new Criteria();
@@ -178,7 +180,7 @@ trait DocumentTrait
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 
-        /** @var EntityRepository $documentTypeRepository */
+        /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
@@ -210,7 +212,7 @@ trait DocumentTrait
             ];
         }
 
-        /** @var EntityRepository $documentBaseConfigRepository */
+        /** @var EntityRepository<DocumentBaseConfigCollection> $documentBaseConfigRepository */
         $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }

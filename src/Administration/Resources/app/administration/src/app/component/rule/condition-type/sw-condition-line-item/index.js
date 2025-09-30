@@ -14,7 +14,8 @@ const { EntityCollection, Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-line-item :condition="condition" :level="0"></sw-condition-line-item>
  */
-Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -103,4 +104,4 @@ Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
             this.products = productCollection;
         },
     },
-});
+};

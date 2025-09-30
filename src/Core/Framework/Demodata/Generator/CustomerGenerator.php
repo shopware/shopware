@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -32,6 +34,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,
@@ -94,6 +98,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             'addresses' => [
                 [
                     'id' => $shippingAddressId,
@@ -182,6 +187,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'addresses' => $addresses,
                 'tags' => $this->getTags($tags),
                 'createdAt' => $randomDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
 
             $payload[] = $customer;

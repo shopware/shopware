@@ -61,6 +61,73 @@ export default {
         autoplayTimeoutDefault() {
             return this.cmsService.getCmsElementConfigByName('image-slider').defaultConfig.autoplayTimeout.value;
         },
+
+        displayModeValueOptions() {
+            return [
+                {
+                    value: 'standard',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    value: 'contain',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeContain'),
+                },
+                {
+                    value: 'cover',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                },
+            ];
+        },
+        verticalAlignValueOptions() {
+            return [
+                {
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
+
+        navigationArrowsValueOptions() {
+            return [
+                {
+                    value: 'none',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                },
+                {
+                    value: 'inside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                },
+                {
+                    value: 'outside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                },
+            ];
+        },
+
+        navigationDotsValueOptions() {
+            return [
+                {
+                    value: 'none',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                },
+                {
+                    value: 'inside',
+                    label: this.$tc('-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                },
+                {
+                    value: 'outside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                },
+            ];
+        },
     },
 
     created() {
@@ -125,6 +192,7 @@ export default {
             sliderItems.value.push({
                 mediaUrl: mediaItem.url,
                 mediaId: mediaItem.id,
+                ariaLabel: null,
                 url: null,
                 newTab: false,
             });
@@ -166,6 +234,7 @@ export default {
                 this.element.config.sliderItems.value.push({
                     mediaUrl: item.url,
                     mediaId: item.id,
+                    ariaLabel: null,
                     url: null,
                     newTab: false,
                 });
@@ -240,6 +309,12 @@ export default {
 
         onChangeIsDecorative(value) {
             this.element.config.isDecorative.value = value;
+
+            this.$emit('element-update', this.element);
+        },
+
+        onChangeUseFetchPriorityOnFirstItem(value) {
+            this.element.config.useFetchPriorityOnFirstItem.value = value;
 
             this.$emit('element-update', this.element);
         },

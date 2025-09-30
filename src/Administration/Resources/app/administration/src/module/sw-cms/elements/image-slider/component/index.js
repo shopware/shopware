@@ -34,7 +34,7 @@ export default {
             columnCount: 7,
             columnWidth: 90,
             sliderPos: 0,
-            imgPath: '/administration/static/img/cms/preview_mountain_large.jpg',
+            imgPath: '/administration/administration/static/img/cms/preview_mountain_large.jpg',
             imgSrc: '',
         };
     },

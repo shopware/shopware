@@ -39,12 +39,10 @@
                             {% block component_shipping_method_description %}
                                 <div class="shipping-method-description">
                                     <strong>{{ shipping.translated.name }}</strong>
-                                    {% if shipping.translated.description and (shipping.id is same as(selectedShippingMethodId) or not feature('ACCESSIBILITY_TWEAKS')) %}
+                                    {% if shipping.translated.description and shipping.id is same as(selectedShippingMethodId) %}
                                         {% set shippingDescription = shipping.translated.description|raw %}
 
-                                        {% if not shipping.id is same as(selectedShippingMethodId) and not feature('ACCESSIBILITY_TWEAKS') %}
-                                            {% set shippingDescription = (shippingDescription|length > 75 ? shippingDescription[:75] ~ ' ...' : shippingDescription) %}
-                                        {% endif %}
+                                        {% set shippingDescription = (shippingDescription|length > 75 ? shippingDescription[:75] ~ ' ...' : shippingDescription) %}
 
                                         <p class="mb-0" title="{{ shipping.translated.description|raw }}">{{ shippingDescription }}</p>
                                     {% endif %}

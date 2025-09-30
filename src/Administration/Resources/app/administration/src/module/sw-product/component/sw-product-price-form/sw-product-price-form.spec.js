@@ -127,7 +127,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                     'sw-select-field': true,
                     'sw-internal-link': true,
                     'router-link': true,
-                    'sw-icon': true,
                     'sw-maintain-currencies-modal': true,
                 },
                 // eslint-enable max-len

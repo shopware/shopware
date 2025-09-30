@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
@@ -16,13 +20,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTyp
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[Package('framework')]
 class DataAbstractionLayerException extends HttpException
@@ -54,6 +63,7 @@ class DataAbstractionLayerException extends HttpException
     public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
+    public const EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE = 'FRAMEWORK__EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
     public const MISSING_FIELD_VALUE = 'FRAMEWORK__MISSING_FIELD_VALUE';
     public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
@@ -62,6 +72,7 @@ class DataAbstractionLayerException extends HttpException
     public const NOT_AN_INSTANCE_OF_ENTITY_COLLECTION = 'FRAMEWORK__NOT_AN_INSTANCE_OF_ENTITY_COLLECTION';
     public const REFERENCE_FIELD_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_NOT_FOUND';
     public const NO_ID_FOR_ASSOCIATION = 'FRAMEWORK__NO_ID_FOR_ASSOCIATION';
+    public const MISSING_ASSOCIATION = 'FRAMEWORK__MISSING_ASSOCIATION';
     public const NO_INVERSE_ASSOCIATION_FOUND = 'FRAMEWORK__NO_INVERSE_ASSOCIATION_FOUND';
     public const NOT_SUPPORTED_FIELD_FOR_AGGREGATION = 'FRAMEWORK__NOT_SUPPORTED_FIELD_FOR_AGGREGATION';
     public const INVALID_DATE_FORMAT = 'FRAMEWORK__INVALID_DATE_FORMAT';
@@ -78,6 +89,25 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_CHUNK_SIZE = 'FRAMEWORK__INVALID_CHUNK_SIZE';
     public const HOOK_INJECTION_EXCEPTION = 'FRAMEWORK__HOOK_INJECTION_EXCEPTION';
     public const FRAMEWORK_DEPRECATED_DEFINITION_CALL = 'FRAMEWORK__DEPRECATED_DEFINITION_CALL';
+    public const UNSUPPORTED_QUERY_FILTER = 'FRAMEWORK__UNSUPPORTED_QUERY_FILTER';
+    public const INVALID_SORT_DIRECTION = 'FRAMEWORK__INVALID_SORT_DIRECTION';
+    public const PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND = 'FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND';
+    public const ENTITY_NOT_VERSIONABLE = 'FRAMEWORK__DAL_ENTITY_NOT_VERSIONABLE';
+    public const INVALID_UUID = 'FRAMEWORK__DAL_INVALID_UUID';
+
+    public const DBAL_UNMAPPED_FIELD = 'FRAMEWORK__DBAL_UNMAPPED_FIELD';
+
+    public const DBAL_UNEXPECTED_FIELD_TYPE = 'FRAMEWORK__DBAL_UNEXPECTED_FIELD_TYPE';
+
+    public const DBAL_INVALID_IDENTIFIER = 'FRAMEWORK__DBAL_INVALID_IDENTIFIER';
+    public const DBAL_MISSING_VERSION_FIELD = 'FRAMEWORK__DBAL_MISSING_VERSION_FIELD';
+    public const DBAL_NO_TRANSLATION_DEFINITION = 'FRAMEWORK__DBAL_NO_TRANSLATION_DEFINITION';
+    public const DBAL_MISSING_TRANSLATED_STORAGE_AWARE_PROPERTY = 'FRAMEWORK__DBAL_MISSING_TRANSLATED_STORAGE_AWARE_PROPERTY';
+    public const DBAL_PRIMARY_KEY_NOT_STORAGE_AWARE = 'FRAMEWORK__DBAL_PRIMARY_KEY_NOT_STORAGE_AWARE';
+    public const DBAL_ONLY_STORAGE_AWARE_FIELDS_IN_READ_CONDITION = 'FRAMEWORK__DBAL_ONLY_STORAGE_AWARE_FIELDS_IN_READ_CONDITION';
+    public const DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED = 'FRAMEWORK__DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED';
+    public const DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND = 'FRAMEWORK__DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND';
+    public const DBAL_CANNOT_BUILD_ACCESSOR = 'FRAMEWORK__DBAL_CANNOT_BUILD_ACCESSOR';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -97,6 +127,26 @@ class DataAbstractionLayerException extends HttpException
             'Unknown or bad CronInterval format "{{ cronIntervalString }}".',
             ['cronIntervalString' => $cronIntervalString],
         );
+    }
+
+    public static function writeTypeIntendError(
+        EntityDefinition $definition,
+        string $expectedClass,
+        string $actualClass
+    ): self {
+        return new WriteTypeIntendException(
+            $definition,
+            $expectedClass,
+            $actualClass
+        );
+    }
+
+    /**
+     * @param list<string> $remainingEntities
+     */
+    public static function impossibleWriteOrder(array $remainingEntities): self
+    {
+        return new ImpossibleWriteOrderException($remainingEntities);
     }
 
     public static function invalidDateIntervalFormat(
@@ -396,6 +446,16 @@ class DataAbstractionLayerException extends HttpException
         return new MissingTranslationLanguageException($path, $index);
     }
 
+    public static function invalidUuid(string $uuid): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_UUID,
+            'Invalid UUID provided: {{ uuid }}',
+            ['uuid' => $uuid]
+        );
+    }
+
     public static function canNotFindAttribute(string $attribute, string $property): self
     {
         return new self(
@@ -413,6 +473,19 @@ class DataAbstractionLayerException extends HttpException
             self::EXPECTED_ARRAY_WITH_TYPE,
             \sprintf('Expected data at %s to be of the type array, %s given', $path, $type),
             ['path' => $path, 'type' => $type]
+        );
+    }
+
+    public static function expectedFieldValueOfTypeWithValue(
+        Field $field,
+        string $expectedType,
+        string $actualValue
+    ): self {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE,
+            'Expected value of {{ fieldClass }} to be of type "{{ expectedType }}", got "{{ actualValue }}".',
+            ['fieldClass' => $field::class, 'expectedType' => $expectedType, 'actualValue' => $actualValue]
         );
     }
 
@@ -588,6 +661,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    public static function missingAssociation(string $entityName, string $propertyName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ASSOCIATION,
+            'Can not find association by property name {{ propertyName }} in entity {{ entityName }}',
+            ['entityName' => $entityName, 'propertyName' => $propertyName]
+        );
+    }
+
     public static function noInverseAssociationFound(string $propertyName): self
     {
         return new self(
@@ -689,6 +772,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    public static function unsupportedQueryFilter(string $query): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNSUPPORTED_QUERY_FILTER,
+            'Unsupported query {{ query }}',
+            ['query' => $query]
+        );
+    }
+
     public static function versionFieldNotFound(string $field): self
     {
         return new self(
@@ -709,17 +802,208 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    public static function invalidSortingDirection(string $direction): self
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new InvalidSortingDirectionException($direction);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_SORT_DIRECTION,
+            'The given sort direction "{{ direction }}" is invalid.',
+            ['direction' => $direction]
+        );
+    }
+
     /**
-     * @internal
-     *
-     * @deprecated tag:v6.7.0 - reason:remove-subscriber - remove method completely not used anymore
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
-    public static function deprecatedDefinitionCall(): self
+    public static function configNotFound(): self|\Shopware\Elasticsearch\Product\ElasticsearchProductException
+    {
+        if (!Feature::isActive('v6.8.0.0') && class_exists('\Shopware\Elasticsearch\Product\ElasticsearchProductException')) {
+            return \Shopware\Elasticsearch\Product\ElasticsearchProductException::configNotFound();
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND,
+            'Configuration for product search definition not found',
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unmappedField(string $field, EntityDefinition $definition): self|UnmappedFieldException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnmappedFieldException($field, $definition);
+        }
+
+        $fieldParts = explode('.', $field);
+        $name = array_pop($fieldParts);
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DBAL_UNMAPPED_FIELD,
+            'Field "{{ field }}" in entity "{{ entity }}" was not found.',
+            ['field' => $name, 'entity' => $definition->getEntityName()]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unexpectedFieldType(string $field, string $expectedField): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \RuntimeException(\sprintf('Expected field "%s" to be instance of %s', $field, $expectedField));
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_UNEXPECTED_FIELD_TYPE,
+            'Expected field "{{ field }}" to be instance of {{ expectedField }}',
+            ['field' => $field, 'expectedField' => $expectedField]
+        );
+    }
+
+    public static function invalidIdentifier(string $identifier): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException('Backtick not allowed in identifier');
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DBAL_INVALID_IDENTIFIER,
+            'Backtick not allowed in identifier "{{ identifier }}"',
+            ['identifier' => $identifier]
+        );
+    }
+
+    public static function missingVersionField(string $definitionClass): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \RuntimeException('Missing `VersionField` in `' . $definitionClass . '`');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_MISSING_VERSION_FIELD,
+            'Missing `VersionField` in "{{ definitionClass }}"',
+            ['definitionClass' => $definitionClass]
+        );
+    }
+
+    public static function entityNotVersionable(string $entityName): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::FRAMEWORK_DEPRECATED_DEFINITION_CALL,
-            'Method getDefinitionClass is deprecated. Use getEntityName instead.'
+            self::ENTITY_NOT_VERSIONABLE,
+            'Entity {{ entityName }} is not versionable',
+            ['entityName' => $entityName]
         );
+    }
+
+    public static function noTranslationDefinition(string $entityName): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \RuntimeException(\sprintf('Entity %s has no translation definition', $entityName));
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_NO_TRANSLATION_DEFINITION,
+            'Entity "{{ entityName }}" has no translation definition',
+            ['entityName' => $entityName]
+        );
+    }
+
+    public static function missingTranslatedStorageAwareProperty(string $propertyName, string $translationEntityName): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \RuntimeException(\sprintf('Missing translated storage aware property %s in %s', $propertyName, $translationEntityName));
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_MISSING_TRANSLATED_STORAGE_AWARE_PROPERTY,
+            'Missing translated storage aware property "{{ propertyName }}" in "{{ translationEntityName }}"',
+            ['propertyName' => $propertyName, 'translationEntityName' => $translationEntityName]
+        );
+    }
+
+    public static function primaryKeyNotStorageAware(): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \RuntimeException('Primary key fields has to be an instance of StorageAware');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_PRIMARY_KEY_NOT_STORAGE_AWARE,
+            'Primary key fields has to be an instance of StorageAware'
+        );
+    }
+
+    public static function onlyStorageAwareFieldsInReadCondition(): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \RuntimeException('Only storage aware fields are supported in read condition');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_ONLY_STORAGE_AWARE_FIELDS_IN_READ_CONDITION,
+            'Only storage aware fields are supported in read condition'
+        );
+    }
+
+    public static function onlyStorageAwareFieldsAsTranslated(): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \RuntimeException('Only storage aware fields are supported as translated field');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED,
+            'Only storage aware fields are supported as translated field'
+        );
+    }
+
+    public static function fieldAccessorBuilderNotFound(string $propertyName): self|FieldAccessorBuilderNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new FieldAccessorBuilderNotFoundException($propertyName);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND,
+            'Field accessor builder not found for property "{{ propertyName }}"',
+            ['propertyName' => $propertyName]
+        );
+    }
+
+    public static function cannotBuildAccessor(string $propertyName, string $root): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \RuntimeException(\sprintf('Can not build accessor for field "%s" on root "%s"', $propertyName, $root));
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_CANNOT_BUILD_ACCESSOR,
+            'Can not build accessor for field "{{ propertyName }}" on root "{{ root }}"',
+            ['propertyName' => $propertyName, 'root' => $root]
+        );
+    }
+
+    public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
+    {
+        return new UnexpectedTypeException($constraint, $expectedType);
     }
 }

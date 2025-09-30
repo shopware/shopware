@@ -21,15 +21,15 @@
             @click="changeMode(disabled)"
             @keydown.enter="changeMode(disabled)"
         >
-            <sw-icon
+            <mt-icon
                 v-if="sslActive"
                 name="regular-lock"
-                :small="true"
+                size="16px"
             />
-            <sw-icon
+            <mt-icon
                 v-else
                 name="regular-lock-open"
-                :small="true"
+                size="16px"
             />
             {{ urlPrefix }}
         </span>

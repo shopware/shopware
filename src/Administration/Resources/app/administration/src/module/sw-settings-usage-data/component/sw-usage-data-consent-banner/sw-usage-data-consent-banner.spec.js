@@ -21,19 +21,13 @@ async function createWrapper(canBeHidden = false, isPrivileged = true) {
             },
             global: {
                 stubs: {
-                    'sw-icon': await wrapTestComponent('sw-icon', {
-                        sync: true,
-                    }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-external-link': true,
                     'sw-internal-link': true,
                     'sw-help-text': true,
                     i18n: true,
-                    'i18n-t': true,
-                    'sw-icon-deprecated': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
                     'router-link': true,
                     'sw-loader': true,
                 },

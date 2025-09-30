@@ -48,11 +48,6 @@ trait DiscountTrait
         return new DiscountFacade($item);
     }
 
-    private function getItems(): LineItemCollection
-    {
-        return $this->items;
-    }
-
     /**
      * @param float|PriceCollection|string|int|null $value
      */

@@ -168,7 +168,7 @@ class UserRecoveryServiceTest extends TestCase
 
         $passwordAfter = $userAfter->getPassword();
 
-        static::assertNotEquals($passwordBefore, $passwordAfter);
+        static::assertNotSame($passwordBefore, $passwordAfter);
     }
 
     public function testGetUserByHash(): void

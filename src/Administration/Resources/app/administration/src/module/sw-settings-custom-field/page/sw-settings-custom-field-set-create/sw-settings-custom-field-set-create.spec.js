@@ -44,9 +44,7 @@ async function createWrapper() {
                     'sw-page': true,
                     'sw-empty-state': true,
                     'sw-custom-field-set-detail-base': true,
-                    'sw-button': true,
                     'sw-button-process': true,
-                    'sw-card': true,
                     'sw-card-view': true,
                     'sw-skeleton': true,
                 },
@@ -60,10 +58,6 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should handle route enter', async () => {

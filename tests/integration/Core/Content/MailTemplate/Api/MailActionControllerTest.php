@@ -116,7 +116,7 @@ class MailActionControllerTest extends TestCase
                 ],
             );
 
-        static::assertEquals(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     private function createCustomer(Context $context): string

@@ -62,7 +62,6 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-switch-field': true,
                     'sw-select-field': {
                         template:
                             '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
@@ -76,11 +75,10 @@ async function createWrapper() {
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-dynamic-url-field': true,
-                    'sw-alert': true,
+
                     'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'mt-switch': true,
                 },
                 provide: {

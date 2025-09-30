@@ -48,7 +48,7 @@ class ExtensionStructTest extends TestCase
         $categorizedPermissions = $serializedExtension['permissions'];
 
         static::assertCount(3, $categorizedPermissions);
-        static::assertEquals([
+        static::assertSame([
             'product',
             'promotion',
             'other',

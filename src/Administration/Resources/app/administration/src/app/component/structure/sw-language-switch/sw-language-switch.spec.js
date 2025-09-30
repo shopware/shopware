@@ -25,14 +25,9 @@ describe('src/app/component/structure/sw-language-switch', () => {
                         </div>
                     `,
                     },
-                    'sw-button': true,
                 },
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should change the language', async () => {
@@ -131,6 +126,6 @@ describe('src/app/component/structure/sw-language-switch', () => {
         await wrapper.vm.onInput('456');
 
         const saveButton = wrapper.find('#sw-language-switch-save-changes-button');
-        expect(saveButton.attributes().disabled).toBe('true');
+        expect(saveButton.attributes('disabled')).toBeDefined();
     });
 });

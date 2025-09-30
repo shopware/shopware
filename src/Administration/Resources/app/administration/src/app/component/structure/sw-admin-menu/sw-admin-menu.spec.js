@@ -44,9 +44,6 @@ async function createWrapper(options = {}) {
     return mount(await wrapTestComponent('sw-admin-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
-                },
                 'sw-version': true,
                 'sw-admin-menu-item': await wrapTestComponent('sw-admin-menu-item'),
                 'sw-loader': true,
@@ -55,6 +52,8 @@ async function createWrapper(options = {}) {
                 'router-link': {
                     template: '<div class="router-link"><slot /></div>',
                 },
+                'mt-link': true,
+                'mt-icon': true,
             },
             provide: {
                 menuService,
@@ -129,10 +128,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the snippet for the admin title', async () => {
@@ -456,6 +451,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         const flyoutItem = wrapper.findComponent(
             '.sw-admin-menu_flyout-holder .navigation-list-item__sw-second-level-first',
         );
-        expect(flyoutItem.findAll('.sw-icon')).toHaveLength(0);
+        expect(flyoutItem.findAll('.mt-icon')).toHaveLength(0);
     });
 });

@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type { Editor } from '@tiptap/vue-3';
 // eslint-disable-next-line max-len
 import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/components/form/mt-text-editor/_internal/mt-text-editor-toolbar';
@@ -19,7 +18,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
  * @status ready
  * @description Custom link button for the Meteor text editor.
  */
-Shopware.Component.register('sw-text-editor-toolbar-button-link', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [

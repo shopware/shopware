@@ -105,6 +105,7 @@ async function createWrapper() {
                         };
                     },
                 },
+                swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
             stubs: {
                 'sw-order-state-select-v2': true,
@@ -113,10 +114,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-card': await wrapTestComponent('sw-card', {
-                    sync: true,
-                }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-time-ago': {
                     template: '<div class="sw-time-ago"></div>',
                     props: ['date'],

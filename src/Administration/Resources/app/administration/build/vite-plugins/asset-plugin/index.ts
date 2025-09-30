@@ -2,16 +2,20 @@ import path from 'path';
 import fs from 'fs';
 import { contentType } from 'mime-types';
 import type { Plugin } from 'vite';
-import { copyDir } from '../utils';
+import { copyDir, ExtensionDefinition } from '../utils';
 
 /**
  * @sw-package framework
  * @private
  *
- * This plugin simply copies the static folder into public for production and
- * serves the assets for the dev server.
+ * This plugin serves static assets for the administration and administration extensions.
+ *
+ * In production, it copies assets from Resources/app/administration/static into Resources/public/administration/static,
+ * which are then copied over into their respective <root>/public/bundles/<bundle>/administration/static directory in a later build step.
+ *
+ * In development, it directly serves the static assets from Resources/app/administration/static over the vite server.
  */
-export default function viteAssetPlugin(isProd: boolean, adminDir: string): Plugin {
+export default function viteAssetPlugin(isProd: boolean, adminDir: string, extensions: ExtensionDefinition[] = []): Plugin {
     // Copy over all static assets for production
     if (isProd) {
         return {
@@ -34,19 +38,19 @@ export default function viteAssetPlugin(isProd: boolean, adminDir: string): Plug
         name: 'shopware-vite-plugin-serve-multiple-static',
 
         configureServer(server) {
+            /**
+             * The mapping is used to serve static assets from the platform/extension source directory (e.g. Resources/app/administration/static)
+             * during development mode instead of their public directory, which is only updated during build.
+             */
             const staticMappings = [
                 {
                     directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/static',
+                    publicPath: '/bundles/administration/administration/static',
                 },
-                {
-                    directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/administration/static',
-                },
-                {
-                    directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/bundles/administration/static',
-                },
+                ...extensions.map((extension) => ({
+                    directory: path.resolve(extension.basePath, 'Resources/app/administration/static'),
+                    publicPath: `/bundles/${extension.technicalFolderName}/administration/static`,
+                })),
             ];
 
             server.middlewares.use((req, res, next) => {

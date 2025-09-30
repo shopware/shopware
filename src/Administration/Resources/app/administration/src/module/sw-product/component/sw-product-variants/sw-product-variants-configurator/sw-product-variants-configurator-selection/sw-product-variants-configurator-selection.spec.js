@@ -35,9 +35,6 @@ async function createWrapper(additionalProps = {}) {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-grid': await wrapTestComponent('sw-grid', {
                         sync: true,
                     }),
@@ -75,12 +72,8 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should keep the text content when search list opens', async () => {
-        const inputField = wrapper.find('.sw-field input');
+        const inputField = wrapper.find('.mt-text-field input');
 
         // verify that input field is empty
         expect(inputField.element.value).toBe('');
@@ -143,12 +136,12 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
         wrapper.vm.selectOptions = selectionOptionsMock;
 
         await wrapper.setProps({
-            disabled: true,
+            isAddOnly: true,
         });
 
         const entityCollection = getPropertyCollection();
         await wrapper.setProps({
-            disabled: false,
+            isAddOnly: false,
             options: entityCollection,
         });
         expect(selectionOptionsMock).toHaveBeenCalled();

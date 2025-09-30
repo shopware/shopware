@@ -61,7 +61,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'showStagingBanner' => $this->showStagingBanner,
             ],
             'themeId' => $themeId, /** Not used in Twig template directly, but in @see \Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::getThemeId */
+            /** @deprecated tag:v6.8.0 - Will be removed. Use the "activeRoute" variable instead */
             'controllerName' => $controllerName,
+            /** @deprecated tag:v6.8.0 - Will be removed. Use the "activeRoute" variable instead */
             'controllerAction' => $controllerAction,
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
@@ -90,14 +92,10 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
     private function minSearchLength(SalesChannelContext $context): int
     {
-        $query = $this->connection->createQueryBuilder();
-
-        $query->select('min_search_length')
-            ->from('product_search_config')
-            ->where('language_id = :id')
-            ->setParameter('id', Uuid::fromHexToBytes($context->getLanguageId()));
-
-        $min = (int) $query->executeQuery()->fetchOne();
+        $min = (int) $this->connection->fetchOne(
+            'SELECT `min_search_length` FROM `product_search_config` WHERE `language_id` = :id',
+            ['id' => Uuid::fromHexToBytes($context->getLanguageId())]
+        );
 
         return $min ?: AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
     }
@@ -113,6 +111,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         ) ?: '';
 
         $navigationPathIdList = array_filter(explode('|', $path));
+        $navigationPathIdList = array_diff($navigationPathIdList, [$context->getSalesChannel()->getNavigationCategoryId()]);
 
         return array_values($navigationPathIdList);
     }

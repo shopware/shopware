@@ -45,7 +45,11 @@ async function createWrapper(privileges = []) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
 
                 stubs: {
@@ -71,9 +75,9 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
@@ -110,9 +114,7 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-language-switch': true,
-                    'sw-button': true,
                     'sw-context-menu-item': true,
                     'sw-skeleton': true,
                 },
@@ -122,13 +124,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new salutation if have a creator privilege', async () => {
         const wrapper = await createWrapper([
             'salutation.creator',
@@ -147,7 +142,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
         const createButton = wrapper.find('.sw-settings-salutation-list__create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should not be able to create a new salutation if have privileges which do not contain creator privilege', async () => {
@@ -159,7 +154,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
         const createButton = wrapper.find('.sw-settings-salutation-list__create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a salutation if have a editor privilege', async () => {

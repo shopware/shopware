@@ -2,30 +2,19 @@
 
 namespace Shopware\Administration\DependencyInjection;
 
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\AbstractMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\MigrationSource;
-use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 #[Package('framework')]
-class AdministrationMigrationCompilerPass implements CompilerPassInterface
+class AdministrationMigrationCompilerPass extends AbstractMigrationReplacementCompilerPass
 {
-    public function process(ContainerBuilder $container): void
+    protected function getMigrationPath(): string
     {
-        $migrationPath = \dirname(__DIR__) . '/Migration';
+        return \dirname(__DIR__);
+    }
 
-        // configure migration directories
-        $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
-        $migrationSourceV4->addMethodCall('addDirectory', [$migrationPath . '/V6_4', 'Shopware\Administration\Migration\V6_4']);
-
-        $majors = ['V6_5', 'V6_6'];
-        foreach ($majors as $major) {
-            $migrationPathV5 = $migrationPath . '/' . $major;
-
-            if (\is_dir($migrationPathV5)) {
-                $migrationSource = $container->getDefinition(MigrationSource::class . '.core.' . $major);
-                $migrationSource->addMethodCall('addDirectory', [$migrationPathV5, 'Shopware\Administration\Migration\\' . $major]);
-            }
-        }
+    protected function getMigrationNamespacePart(): string
+    {
+        return 'Administration';
     }
 }

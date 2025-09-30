@@ -33,7 +33,7 @@ class TemplateLoaderTest extends TestCase
         $templates = $templateLoader->getTemplatePathsForApp($this->manifest);
         \sort($templates);
 
-        static::assertEquals(
+        static::assertSame(
             ['storefront/layout/header/header.html.twig', 'storefront/layout/header/logo.html.twig', 'storefront/page/sitemap/sitemap.xml.twig'],
             $templates
         );

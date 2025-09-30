@@ -12,10 +12,12 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
@@ -208,7 +210,11 @@ class LineItemActualStockRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        $this->expectException(UnsupportedValueException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CartException::class);
+        }
         $this->expectExceptionMessage('Unsupported value of type NULL in Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule');
 
         $goodsCountRule->match($scope);
@@ -222,6 +228,22 @@ class LineItemActualStockRuleTest extends TestCase
 
         static::assertIsArray($result['operatorSet']['operators']);
         static::assertSame('stock', $result['fields']['stock']['name']);
+    }
+
+    public function testMatchThrowsException(): void
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CartException::class);
+        }
+
+        (new LineItemActualStockRule())->match(
+            new LineItemScope(
+                new LineItem(Uuid::randomHex(), 'product'),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
     }
 
     private function createLineItemWithStock(int $stock): LineItem

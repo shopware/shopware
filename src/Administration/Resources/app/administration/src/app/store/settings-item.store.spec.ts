@@ -17,14 +17,13 @@ describe('settings-item.store', () => {
             general: [],
             localization: [],
             plugins: [],
-            shop: [],
             system: [],
         });
     });
 
     it('should add item', () => {
         Shopware.Store.get('settingsItems').addItem({
-            group: 'shop',
+            group: 'commerce',
             name: 'item1',
             icon: 'icon',
             label: 'Item Example',
@@ -33,9 +32,9 @@ describe('settings-item.store', () => {
             },
         });
 
-        expect(store.settingsGroups.shop).toStrictEqual([
+        expect(store.settingsGroups.commerce).toStrictEqual([
             {
-                group: 'shop',
+                group: 'commerce',
                 name: 'item1',
                 icon: 'icon',
                 label: 'Item Example',

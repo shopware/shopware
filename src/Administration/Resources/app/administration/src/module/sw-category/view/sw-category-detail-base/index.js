@@ -16,7 +16,7 @@ export default {
     ],
 
     mixins: [
-        'placeholder',
+        Shopware.Mixin.getByName('placeholder'),
     ],
 
     props: {

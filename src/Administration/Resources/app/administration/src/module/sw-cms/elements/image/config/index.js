@@ -41,6 +41,66 @@ export default {
 
             return this.element.config.media.value;
         },
+
+        displayModeOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'standard',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    id: 2,
+                    value: 'stretch',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStretch'),
+                },
+                {
+                    id: 3,
+                    value: 'cover',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                },
+            ];
+        },
+
+        verticalAlignOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    id: 2,
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    id: 3,
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
+
+        horizontalAlignOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignLeft'),
+                },
+                {
+                    id: 2,
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignCenter'),
+                },
+                {
+                    id: 3,
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignRight'),
+                },
+            ];
+        },
     },
 
     created() {

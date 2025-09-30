@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -50,6 +52,9 @@ class ScriptRuleTest extends TestCase
      */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     /**
@@ -373,7 +378,7 @@ class ScriptRuleTest extends TestCase
 
     private function setupApp(Manifest $manifest): void
     {
-        $this->appLifecycle->install($manifest, false, $this->context);
+        $this->appLifecycle->install($manifest, new AppInstallParameters(activate: false), $this->context);
 
         $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->first();
         static::assertInstanceOf(AppEntity::class, $app);

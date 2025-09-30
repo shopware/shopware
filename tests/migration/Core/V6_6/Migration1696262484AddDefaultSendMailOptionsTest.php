@@ -58,13 +58,13 @@ class Migration1696262484AddDefaultSendMailOptionsTest extends TestCase
 
         $connection->executeStatement($sql, $params);
 
-        static::assertEquals('-bs', $this->getValue($connection));
+        static::assertSame('-bs', $this->getValue($connection));
 
         $migration = new Migration1696262484AddDefaultSendMailOptions();
         $migration->update($connection);
         $migration->update($connection);
 
-        static::assertEquals('-bs', $this->getValue($connection));
+        static::assertSame('-bs', $this->getValue($connection));
     }
 
     public function testDefaultValue(): void
@@ -88,13 +88,13 @@ class Migration1696262484AddDefaultSendMailOptionsTest extends TestCase
 
         $connection->executeStatement($sql, $params);
 
-        static::assertEquals('-t', $this->getValue($connection));
+        static::assertSame('-t', $this->getValue($connection));
 
         $migration = new Migration1696262484AddDefaultSendMailOptions();
         $migration->update($connection);
         $migration->update($connection);
 
-        static::assertEquals('-t -i', $this->getValue($connection));
+        static::assertSame('-t -i', $this->getValue($connection));
     }
 
     private function getValue(Connection $connection): string|false

@@ -18,7 +18,7 @@ class SystemIsInstalledCommandTest extends TestCase
     public function testInstalled(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllAssociative')->with('SHOW COLUMNS FROM migration');
+        $connection->expects($this->once())->method('fetchAllAssociative')->with('SHOW COLUMNS FROM migration');
 
         $command = new SystemIsInstalledCommand($connection);
         $tester = new CommandTester($command);
@@ -29,7 +29,7 @@ class SystemIsInstalledCommandTest extends TestCase
     public function testNotInstalled(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllAssociative')->willThrowException(new \Exception('Not existing table'));
+        $connection->expects($this->once())->method('fetchAllAssociative')->willThrowException(new \Exception('Not existing table'));
 
         $command = new SystemIsInstalledCommand($connection);
         $tester = new CommandTester($command);

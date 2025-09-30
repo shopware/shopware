@@ -25,7 +25,7 @@ class RuleConfigControllerTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
@@ -35,13 +35,13 @@ class RuleConfigControllerTest extends TestCase
         $customerGroupRouleConfig = $content[$customerGroupRuleName];
 
         static::assertCount(2, $customerGroupRouleConfig['operatorSet']['operators']);
-        static::assertEquals(RuleConfig::OPERATOR_SET_STRING, $customerGroupRouleConfig['operatorSet']['operators']);
+        static::assertSame(RuleConfig::OPERATOR_SET_STRING, $customerGroupRouleConfig['operatorSet']['operators']);
         static::assertTrue($customerGroupRouleConfig['operatorSet']['isMatchAny']);
 
         static::assertCount(1, $customerGroupRouleConfig['fields']);
 
-        static::assertEquals('customerGroupIds', $customerGroupRouleConfig['fields']['customerGroupIds']['name']);
-        static::assertEquals('multi-entity-id-select', $customerGroupRouleConfig['fields']['customerGroupIds']['type']);
-        static::assertEquals(CustomerGroupDefinition::ENTITY_NAME, $customerGroupRouleConfig['fields']['customerGroupIds']['config']['entity']);
+        static::assertSame('customerGroupIds', $customerGroupRouleConfig['fields']['customerGroupIds']['name']);
+        static::assertSame('multi-entity-id-select', $customerGroupRouleConfig['fields']['customerGroupIds']['type']);
+        static::assertSame(CustomerGroupDefinition::ENTITY_NAME, $customerGroupRouleConfig['fields']['customerGroupIds']['config']['entity']);
     }
 }

@@ -59,8 +59,7 @@
                                             {% block buy_widget_price_block_table_body_cell_reference_price %}
                                                 {% if price.referencePrice is not null %}
                                                     <td class="product-block-prices-cell product-block-prices-cell-thin">
-                                                        {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                                                        {{ price.referencePrice.price|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
+                                                        {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
                                                     </td>
                                                 {% endif %}
                                             {% endblock %}
@@ -90,8 +89,7 @@
             {% set isRegulationPrice = price.regulationPrice != null %}
 
             <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                {{ price.unitPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
+                {{ price.unitPrice|currency }}
             </p>
 
             {% if isListPrice %}
@@ -107,8 +105,7 @@
                         <span class="product-detail-list-price-wrapper">
                             {% if beforeListPriceSnippetExists %}{{'listing.beforeListPrice'|trans|trim}}{% endif %}
 
-                            {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                            <span{% if not (afterListPriceSnippetExists or beforeListPriceSnippetExists) %} class="list-price-price"{% endif %}>{{ listPrice.price|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</span>
+                            <span{% if not (afterListPriceSnippetExists or beforeListPriceSnippetExists) %} class="list-price-price"{% endif %}>{{ listPrice.price|currency }}</span>
 
                             {% if afterListPriceSnippetExists %}
                                 {{'listing.afterListPrice'|trans|trim}}
@@ -121,8 +118,7 @@
             {% endif %}
             {% if isRegulationPrice %}
                 <span class="product-detail-list-price-wrapper">
-                    {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                    <span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</span>
+                    <span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
                 </span>
             {% endif %}
         {% endblock %}
@@ -145,8 +141,7 @@
                     {% if price.referencePrice is not null %}
                         {% block buy_widget_price_unit_reference_content %}
                             <span class="price-unit-reference-content">
-                                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                                ({{ price.referencePrice.price|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
+                                ({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
                             </span>
                         {% endblock %}
                     {% endif %}

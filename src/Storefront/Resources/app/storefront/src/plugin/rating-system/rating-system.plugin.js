@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * @package content
@@ -15,8 +14,8 @@ export default class RatingSystemPlugin extends Plugin {
     };
 
     init() {
-        this._ratingPoints = DomAccess.querySelectorAll(this.el, '[' + this.options.reviewPointAttr + ']');
-        this._textWrappers = DomAccess.querySelectorAll(this.el, '[' + this.options.ratingTextAttr + ']', false);
+        this._ratingPoints = this.el.querySelectorAll('[' + this.options.reviewPointAttr + ']');
+        this._textWrappers = this.el.querySelectorAll('[' + this.options.ratingTextAttr + ']');
 
         this._maxRating = null;
 
@@ -89,11 +88,7 @@ export default class RatingSystemPlugin extends Plugin {
      * @return {number}
      */
     getRating() {
-        const points = DomAccess.querySelectorAll(
-            this.el,
-            `[${this.options.reviewPointAttr}].${this.options.activeClass}`,
-            false
-        );
+        const points = this.el.querySelectorAll(`[${this.options.reviewPointAttr}].${this.options.activeClass}`);
 
         return points ? points.length : 0;
     }

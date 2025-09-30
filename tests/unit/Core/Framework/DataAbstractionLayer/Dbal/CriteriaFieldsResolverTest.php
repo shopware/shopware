@@ -50,7 +50,7 @@ class CriteriaFieldsResolverTest extends TestCase
 
         $result = $resolver->resolve($criteria, $this->registry->get(TestDefinition::class));
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public static function resolveFieldsProvider(): \Generator

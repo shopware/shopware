@@ -1,19 +1,19 @@
 {% block sw_data_grid_column_boolean %}
 <div class="sw-data-grid-column-boolean">
-    <sw-checkbox-field
+    <mt-checkbox
         v-if="isInlineEdit"
-        v-model:value="currentValue"
+        v-model:checked="currentValue"
         :disabled="disabled"
     />
 
     <template v-else>
-        <sw-icon
+        <mt-icon
             v-if="currentValue"
             name="regular-checkmark-xs"
-            small
+            size="16px"
             class="is--active"
         />
-        <sw-icon
+        <mt-icon
             v-else
             name="regular-times-s"
             class="is--inactive"

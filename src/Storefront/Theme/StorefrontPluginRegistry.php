@@ -12,10 +12,10 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal and not implement StorefrontPluginRegistryInterface
+ * @internal
  */
 #[Package('framework')]
-class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, ResetInterface
+class StorefrontPluginRegistry implements ResetInterface
 {
     final public const BASE_THEME_NAME = 'Storefront';
 

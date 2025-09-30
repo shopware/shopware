@@ -7,12 +7,6 @@ import { mount } from '@vue/test-utils';
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-app-topbar-button', { sync: true }), {
         global: {
-            stubs: {
-                'sw-icon': true,
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-            },
             provide: {
                 acl: { can: () => true },
             },
@@ -28,11 +22,6 @@ const topbarButton = {
 
 describe('sw-app-topbar-button', () => {
     let wrapper = null;
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should render button correctly', async () => {
         const store = Shopware.Store.get('topBarButton');

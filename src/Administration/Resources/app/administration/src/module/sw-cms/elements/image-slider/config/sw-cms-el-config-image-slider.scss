@@ -3,8 +3,13 @@
 .sw-cms-el-config-image-slider {
     .sw-cms-el-config-image-slider__setting-option {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
         gap: 0 32px;
+    }
+
+    &__setting-auto-slide-switch > .mt-switch,
+    &__setting-auto-slide-delay > .mt-number-field {
+        margin-bottom: 0;
     }
 
     .sw-cms-el-config-image-slider__setting-display-mode {
@@ -25,6 +30,14 @@
                 object-fit: cover;
             }
         }
+    }
+
+    &__settings-link-container {
+        margin: 0 0 var(--scale-size-22) 0;
+    }
+
+    &__settings-is-decorative {
+        margin: 0;
     }
 
     .sw-cms-el-config-image-slider__settings-link-input {

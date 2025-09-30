@@ -23,8 +23,8 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
                 top: 0;
             }
 
-            &.col-3:nth-child(4n+1),
-            &.col-4:nth-child(3n+1) {
+            &.col-3:nth-child(4n + 1),
+            &.col-4:nth-child(3n + 1) {
                 border-left: 0;
             }
         }
@@ -34,7 +34,7 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
 .navigation-flyout-link {
     @include transition(padding 0.25s cubic-bezier(0, 0.77, 0.33, 1));
     color: $body-color;
-    font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, $font-size-lg);
+    font-size: $font-size-base;
     margin: 0 $spacer;
     padding: $spacer-xs 0;
 
@@ -44,7 +44,7 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
 
     &.is-level-2 {
         font-size: $font-size-base;
-        padding: $spacer-xs/2 0;
+        padding: $spacer-xs / 2 0;
     }
 
     &:hover {
@@ -65,6 +65,5 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
 
 .navigation-flyout-category-link {
     font-weight: $font-weight-bold;
-    // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
-    font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, $font-size-lg);
+    font-size: $font-size-base;
 }

@@ -169,4 +169,14 @@ class MaintenanceException extends HttpException
             ['directoryName' => $directoryName]
         );
     }
+
+    public static function aclRolesNotLoaded(string $userId, string $userName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'MAINTENANCE__ACL_ROLES_NOT_LOADED',
+            'Could not get ACL roles for user "{{ userName }}" (ID: {{ userId }})',
+            ['userId' => $userId, 'userName' => $userName],
+        );
+    }
 }

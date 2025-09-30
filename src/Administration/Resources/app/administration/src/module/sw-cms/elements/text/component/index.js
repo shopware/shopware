@@ -73,11 +73,14 @@ export default {
     methods: {
         createdComponent() {
             this.initElementConfig('text');
+            this.updateDemoValue();
         },
 
         updateDemoValue() {
             if (this.element.config.content.source === 'mapped') {
-                this.demoValue = this.getDemoValue(this.element.config.content.value);
+                const label = `<strong>${this.element.config.content.value}</strong>`;
+                const fallbackLabel = `${this.$t('sw-cms.detail.label.mappingPreview')} ${label}`;
+                this.demoValue = this.getDemoValue(this.element.config.content.value) || fallbackLabel;
             }
         },
 

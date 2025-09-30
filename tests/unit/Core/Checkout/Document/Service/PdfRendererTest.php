@@ -36,7 +36,7 @@ class PdfRendererTest extends TestCase
             new ExtensionDispatcher(new EventDispatcher())
         );
 
-        static::assertEquals('application/pdf', $pdfRenderer->getContentType());
+        static::assertSame('application/pdf', $pdfRenderer->getContentType());
     }
 
     public function testExtensionIsDispatched(): void
@@ -54,11 +54,11 @@ class PdfRendererTest extends TestCase
         $rendered->setOrder($this->getOrder());
 
         $pre = $this->createMock(CallableClass::class);
-        $pre->expects(static::once())->method('__invoke');
+        $pre->expects($this->once())->method('__invoke');
         $dispatcher->addListener(PdfRendererExtension::NAME . '.pre', $pre);
 
         $post = $this->createMock(CallableClass::class);
-        $post->expects(static::once())->method('__invoke');
+        $post->expects($this->once())->method('__invoke');
         $dispatcher->addListener(PdfRendererExtension::NAME . '.post', $post);
 
         $renderer->render($rendered);
@@ -67,7 +67,6 @@ class PdfRendererTest extends TestCase
     public function testRenderWithoutHtml(): void
     {
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
         );
@@ -76,7 +75,7 @@ class PdfRendererTest extends TestCase
         $rendered->setOrder($this->getOrder());
 
         $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::once())
+        $documentTemplateRenderer->expects($this->once())
             ->method('render')
             ->willReturn('html');
 
@@ -97,7 +96,7 @@ class PdfRendererTest extends TestCase
         static::assertSame($rendered->getContentType(), PdfRenderer::FILE_CONTENT_TYPE);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+        static::assertSame('application/pdf', $finfo->buffer($generatorOutput));
     }
 
     public function testRenderThrowException(): void
@@ -105,7 +104,6 @@ class PdfRendererTest extends TestCase
         $this->expectException(DocumentException::class);
 
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
         );

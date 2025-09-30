@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -95,10 +94,10 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
-        static::assertNotEquals($contextToken, $newContextToken);
+        static::assertNotSame($contextToken, $newContextToken);
 
         $newSessionId = $session->getId();
-        static::assertNotEquals($sessionId, $newSessionId);
+        static::assertNotSame($sessionId, $newSessionId);
 
         $oldCartExists = $connection->fetchOne('SELECT 1 FROM cart WHERE token = ?', [$contextToken]);
         static::assertFalse($oldCartExists);
@@ -127,7 +126,7 @@ class AuthControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
         static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
-        static::assertNotEquals($contextToken, $this->getSession()->get('sw-context-token'));
+        static::assertNotSame($contextToken, $this->getSession()->get('sw-context-token'));
     }
 
     public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
@@ -157,7 +156,7 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $sessionCookie = $browser->getCookieJar()->get('session-');
+        $sessionCookie = $browser->getCookieJar()->get(PlatformRequest::FALLBACK_SESSION_NAME);
         static::assertNotNull($sessionCookie);
 
         $browser->request('GET', '/account/logout', []);
@@ -222,10 +221,10 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
-        static::assertNotEquals($contextToken, $newContextToken);
+        static::assertNotSame($contextToken, $newContextToken);
 
         $newSessionId = $session->getId();
-        static::assertNotEquals($sessionId, $newSessionId);
+        static::assertNotSame($sessionId, $newSessionId);
     }
 
     public function testOneUserUseOneContextAcrossSessions(): void
@@ -261,8 +260,8 @@ class AuthControllerTest extends TestCase
         $secondTimeLoginSessionId = $secondTimeLogin->getId();
         $secondTimeLoginContextToken = $secondTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
-        static::assertNotEquals($firstTimeLoginSessionId, $secondTimeLoginSessionId);
-        static::assertNotEquals($firstTimeLoginContextToken, $secondTimeLoginContextToken);
+        static::assertNotSame($firstTimeLoginSessionId, $secondTimeLoginSessionId);
+        static::assertNotSame($firstTimeLoginContextToken, $secondTimeLoginContextToken);
     }
 
     public function testMergedHintIsAdded(): void
@@ -678,10 +677,6 @@ class AuthControllerTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');

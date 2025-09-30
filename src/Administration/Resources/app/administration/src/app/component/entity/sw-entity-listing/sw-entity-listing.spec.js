@@ -39,11 +39,9 @@ async function createWrapper(propsData = {}) {
             renderStubDefaultSlot: true,
             stubs: {
                 'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings'),
-                'sw-button': true,
                 'sw-context-button': true,
-                'sw-icon': true,
                 'sw-field': true,
-                'sw-switch-field': true,
+
                 'sw-context-menu-divider': true,
                 'sw-pagination': true,
                 'sw-checkbox-field': true,
@@ -61,11 +59,6 @@ async function createWrapper(propsData = {}) {
 }
 
 describe('src/app/component/entity/sw-entity-listing', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should enable the context menu edit item', async () => {
         const wrapper = await createWrapper();
 

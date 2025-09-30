@@ -54,7 +54,6 @@ async function createWrapper(hasError = false) {
                 },
                 'sw-media-preview-v2': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -109,14 +108,6 @@ describe('module/sw-product/component/sw-product-download-form', () => {
         // Reset error state
         Shopware.Store.get('error').system = {};
         Shopware.Store.get('error').api = {};
-    });
-
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the sw-media-upload-v2 component', async () => {

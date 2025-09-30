@@ -70,7 +70,7 @@ class FeatureDisableCommandTest extends TestCase
         $registry = new FeatureFlagRegistry($storage, new EventDispatcher(), [], true);
 
         $cacheClearer = $this->createMock(CacheClearer::class);
-        $cacheClearer->expects(static::once())->method('clear');
+        $cacheClearer->expects($this->once())->method('clear');
 
         $command = new FeatureDisableCommand($registry, $cacheClearer);
 

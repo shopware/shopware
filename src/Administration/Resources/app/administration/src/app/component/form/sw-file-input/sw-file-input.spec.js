@@ -4,21 +4,10 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-file-input';
-import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-file-input', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'mt-button': true,
-                'sw-button-deprecated': true,
-            },
-        },
         ...customOptions,
     });
 }
@@ -51,10 +40,6 @@ describe('src/app/component/form/sw-file-input', () => {
             get: fileInputValueGet,
             set: fileInputValueSet,
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('upload button should be enabled', async () => {

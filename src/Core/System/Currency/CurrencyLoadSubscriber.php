@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -21,6 +22,9 @@ class CurrencyLoadSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<CurrencyEntity|PartialEntity> $event
+     */
     public function setDefault(EntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $entity) {

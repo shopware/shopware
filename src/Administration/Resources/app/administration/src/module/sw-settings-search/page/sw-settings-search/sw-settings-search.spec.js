@@ -84,11 +84,7 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-icon': true,
                     'sw-language-switch': true,
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-card-view': {
                         template: `
                     <div class="sw-card-view">
@@ -117,13 +113,6 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not able to save product search config without editor privilege', async () => {

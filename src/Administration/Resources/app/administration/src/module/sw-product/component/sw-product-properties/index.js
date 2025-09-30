@@ -76,6 +76,13 @@ export default {
             return criteria;
         },
 
+        propertyExistsCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
+
+            return criteria;
+        },
+
         propertyColumns() {
             return [
                 {
@@ -182,6 +189,7 @@ export default {
 
         onDeletePropertyValue(propertyValue) {
             this.productProperties.remove(propertyValue.id);
+            this.getProperties();
         },
 
         onDeleteProperty(property) {
@@ -263,7 +271,7 @@ export default {
         },
 
         checkIfPropertiesExists() {
-            this.propertyOptionRepository.search(new Criteria(1, 1)).then((res) => {
+            this.propertyOptionRepository.searchIds(this.propertyExistsCriteria).then((res) => {
                 this.propertiesAvailable = res.total > 0;
             });
         },

@@ -269,8 +269,6 @@ async function createWrapper() {
                         'sw-entity-advanced-selection-modal': await wrapTestComponent('sw-entity-advanced-selection-modal'),
                         'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                         'sw-modal': await wrapTestComponent('sw-modal'),
-                        'sw-card': await wrapTestComponent('sw-card'),
-                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                         'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                         'sw-simple-search-field': {
                             template: '<div></div>',
@@ -284,19 +282,10 @@ async function createWrapper() {
                         'sw-data-grid-settings': {
                             template: '<div></div>',
                         },
-                        'sw-empty-state': {
-                            template: '<div class="sw-empty-state"></div>',
-                        },
                         'sw-pagination': {
                             template: '<div></div>',
                         },
-                        'sw-icon': {
-                            template: '<div></div>',
-                        },
                         'router-link': true,
-                        'sw-button': {
-                            template: '<div></div>',
-                        },
                         'sw-sidebar': {
                             template: '<div></div>',
                         },
@@ -338,7 +327,6 @@ async function createWrapper() {
                         'sw-filter-panel': true,
                         'sw-context-menu': true,
                         'sw-entity-advanced-selection-modal-grid': true,
-                        'mt-card': true,
                         'sw-ai-copilot-badge': true,
                     },
                 },

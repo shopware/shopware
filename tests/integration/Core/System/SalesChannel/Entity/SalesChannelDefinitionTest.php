@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
@@ -40,6 +41,9 @@ class SalesChannelDefinitionTest extends TestCase
      */
     private EntityRepository $apiRepository;
 
+    /**
+     * @var SalesChannelRepository<SalesChannelProductCollection>
+     */
     private SalesChannelRepository $salesChannelProductRepository;
 
     private AbstractSalesChannelContextFactory $factory;
@@ -123,7 +127,7 @@ class SalesChannelDefinitionTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'sales_channel.product.loaded', $listener);
 
         $context = $this->factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

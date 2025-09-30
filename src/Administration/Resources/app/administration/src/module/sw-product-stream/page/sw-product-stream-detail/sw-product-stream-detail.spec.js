@@ -90,15 +90,12 @@ async function createWrapper() {
         <slot name="content"></slot>
     </div>`,
                 },
-                'sw-button': true,
                 'sw-button-group': true,
                 'sw-button-process': true,
                 'sw-context-button': true,
-                'sw-icon': true,
                 'sw-context-menu-item': true,
                 'sw-card-view': true,
                 'sw-skeleton': true,
-                'sw-card': true,
                 'sw-language-info': true,
                 'sw-text-field': true,
                 'sw-textarea-field': true,
@@ -118,12 +115,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should fetch custom product custom fields and add them to the condition select list', async () => {
         const wrapper = await createWrapper();
 

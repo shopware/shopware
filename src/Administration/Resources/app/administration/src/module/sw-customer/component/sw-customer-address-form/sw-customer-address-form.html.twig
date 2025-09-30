@@ -6,8 +6,9 @@
         gap="0px 30px"
     >
         {% block sw_customer_address_form_company_field %}
-        <sw-text-field
-            v-model:value="address.company"
+
+        <mt-text-field
+            v-model="address.company"
             name="sw-field--address-company"
             :required="isBusinessAccountType"
             :label="$tc('sw-customer.addressForm.labelCompany')"
@@ -18,8 +19,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_department_field %}
-        <sw-text-field
-            v-model:value="address.department"
+
+        <mt-text-field
+            v-model="address.department"
             name="sw-field--address-department"
             :label="$tc('sw-customer.addressForm.labelDepartment')"
             :error="disabled ? null : addressDepartmentError"
@@ -45,8 +47,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_title_field %}
-        <sw-text-field
-            v-model:value="address.title"
+
+        <mt-text-field
+            v-model="address.title"
             name="sw-field--address-title"
             :label="$tc('sw-customer.addressForm.labelTitle')"
             :placeholder="$tc('sw-customer.addressForm.placeholderTitle')"
@@ -57,8 +60,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_first_name_field %}
-        <sw-text-field
-            v-model:value="address.firstName"
+
+        <mt-text-field
+            v-model="address.firstName"
             name="sw-field--address-firstName"
             :label="$tc('sw-customer.addressForm.labelFirstName')"
             :placeholder="$tc('sw-customer.addressForm.placeholderFirstName')"
@@ -70,8 +74,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_last_name_field %}
-        <sw-text-field
-            v-model:value="address.lastName"
+
+        <mt-text-field
+            v-model="address.lastName"
             name="sw-field--address-lastName"
             :label="$tc('sw-customer.addressForm.labelLastName')"
             :placeholder="$tc('sw-customer.addressForm.placeholderLastName')"
@@ -83,8 +88,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_street_field %}
-        <sw-text-field
-            v-model:value="address.street"
+
+        <mt-text-field
+            v-model="address.street"
             name="sw-field--address-street"
             :label="$tc('sw-customer.addressForm.labelStreet')"
             :placeholder="$tc('sw-customer.addressForm.placeholderStreet')"
@@ -96,8 +102,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_additional_address_line_1_field %}
-        <sw-text-field
-            v-model:value="address.additionalAddressLine1"
+
+        <mt-text-field
+            v-model="address.additionalAddressLine1"
             name="sw-field--address-additionalAddressLine1"
             :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
             :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine1')"
@@ -107,8 +114,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_additional_address_line_2_field %}
-        <sw-text-field
-            v-model:value="address.additionalAddressLine2"
+
+        <mt-text-field
+            v-model="address.additionalAddressLine2"
             name="sw-field--address-additionalAddressLine2"
             :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
             :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine2')"
@@ -119,8 +127,9 @@
 
         {% block sw_customer_address_form_zipcode_city_container %}
         {% block sw_customer_address_form_zipcode_field %}
-        <sw-text-field
-            v-model:value="address.zipcode"
+
+        <mt-text-field
+            v-model="address.zipcode"
             name="sw-field--address-zipcode"
             :label="$tc('sw-customer.addressForm.labelZipcode')"
             :placeholder="$tc('sw-customer.addressForm.placeholderZipcode')"
@@ -132,8 +141,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_city_field %}
-        <sw-text-field
-            v-model:value="address.city"
+
+        <mt-text-field
+            v-model="address.city"
             name="sw-field--address-city"
             :label="$tc('sw-customer.addressForm.labelCity')"
             :placeholder="$tc('sw-customer.addressForm.placeholderCity')"
@@ -184,8 +194,9 @@
         {% endblock %}
 
         {% block sw_customer_address_form_phone_number_field %}
-        <sw-text-field
-            v-model:value="address.phoneNumber"
+
+        <mt-text-field
+            v-model="address.phoneNumber"
             name="sw-field--address-phoneNumber"
             :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
             :placeholder="$tc('sw-customer.addressForm.placeholderPhoneNumber')"

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use PromotionException::invalidScopeDefinition() instead
+ */
 #[Package('checkout')]
 class InvalidScopeDefinitionException extends ShopwareHttpException
 {

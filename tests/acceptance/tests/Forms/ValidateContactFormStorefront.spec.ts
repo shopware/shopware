@@ -1,5 +1,4 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { satisfies } from 'compare-versions';
 
 test(
     'As a customer, I want to fill out and submit the contact form.',
@@ -20,7 +19,6 @@ test(
             await StorefrontContactForm.phoneInput.fill('0123456789');
             await StorefrontContactForm.subjectInput.fill('Test: Product question');
             await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
-            await StorefrontContactForm.privacyPolicyCheckbox.click();
         });
 
         await test.step('Send and validate the contact form.', async () => {
@@ -50,7 +48,7 @@ test(
         });
 
         await test.step('Send and validate the negative contact form result.', async () => {
-            await StorefrontContactForm.page.waitForLoadState('domcontentloaded');
+            await StorefrontContactForm.page.waitForLoadState('networkidle');
             await StorefrontContactForm.submitButton.click();
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 
@@ -61,12 +59,14 @@ test(
             await ShopCustomer.expects(StorefrontContactForm.phoneInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
             await ShopCustomer.expects(StorefrontContactForm.subjectInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
             await ShopCustomer.expects(StorefrontContactForm.commentInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-            await ShopCustomer.expects(StorefrontContactForm.privacyPolicyCheckbox).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
-            if (satisfies(InstanceMeta.version, '>=6.7')) {
-                await ShopCustomer.expects(StorefrontContactForm.formFieldFeedback).toHaveCount(8);
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+                await ShopCustomer.expects(StorefrontContactForm.formFieldFeedback).toHaveCount(7);
             }
+
             await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).not.toBeVisible();
         });
     }
 );
+

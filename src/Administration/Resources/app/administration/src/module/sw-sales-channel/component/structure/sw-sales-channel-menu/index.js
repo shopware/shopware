@@ -5,14 +5,13 @@
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 /**
  * @private
  */
-Component.register('sw-sales-channel-menu', {
+export default {
     template,
 
     inject: [
@@ -151,12 +150,14 @@ Component.register('sw-sales-channel-menu', {
             Shopware.Utils.EventBus.on('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.on('sw-language-switch-change-application-language', this.loadEntityData);
             Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            Shopware.Utils.EventBus.on('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
         destroyedComponent() {
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            Shopware.Utils.EventBus.off('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
         getDomainLink(salesChannel) {
@@ -177,4 +178,4 @@ Component.register('sw-sales-channel-menu', {
             window.open(storeFrontLink, '_blank');
         },
     },
-});
+};

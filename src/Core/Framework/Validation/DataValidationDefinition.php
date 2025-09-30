@@ -9,17 +9,17 @@ use Symfony\Component\Validator\Constraint;
 class DataValidationDefinition
 {
     /**
-     * @var array<string, Constraint[]>
+     * @var array<string, list<Constraint>>
      */
     private array $properties = [];
 
     /**
-     * @var DataValidationDefinition[]
+     * @var array<string, DataValidationDefinition>
      */
     private array $subDefinitions = [];
 
     /**
-     * @var DataValidationDefinition[]
+     * @var array<string, DataValidationDefinition>
      */
     private array $listDefinitions = [];
 
@@ -64,7 +64,7 @@ class DataValidationDefinition
     }
 
     /**
-     * @return array<string, Constraint[]>
+     * @return array<string, list<Constraint>>
      */
     public function getProperties(): array
     {
@@ -72,7 +72,15 @@ class DataValidationDefinition
     }
 
     /**
-     * @return DataValidationDefinition[]
+     * @return list<Constraint>
+     */
+    public function getProperty(string $name): array
+    {
+        return $this->properties[$name] ?? [];
+    }
+
+    /**
+     * @return array<string, DataValidationDefinition>
      */
     public function getSubDefinitions(): array
     {
@@ -80,7 +88,7 @@ class DataValidationDefinition
     }
 
     /**
-     * @return DataValidationDefinition[]
+     * @return array<string, DataValidationDefinition>
      */
     public function getListDefinitions(): array
     {
@@ -90,5 +98,22 @@ class DataValidationDefinition
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function merge(DataValidationDefinition $definition): self
+    {
+        foreach ($definition->getProperties() as $name => $constraints) {
+            $this->add($name, ...$constraints);
+        }
+
+        foreach ($definition->getSubDefinitions() as $name => $subDefinition) {
+            $this->addSub($name, ($this->subDefinitions[$name] ?? null)?->merge($subDefinition) ?? $subDefinition);
+        }
+
+        foreach ($definition->getListDefinitions() as $name => $listDefinition) {
+            $this->addList($name, ($this->listDefinitions[$name] ?? null)?->merge($listDefinition) ?? $listDefinition);
+        }
+
+        return $this;
     }
 }

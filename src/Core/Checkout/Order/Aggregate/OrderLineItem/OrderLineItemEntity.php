@@ -60,7 +60,7 @@ class OrderLineItemEntity extends Entity
     protected ?PriceDefinitionInterface $priceDefinition = null;
 
     /**
-     * @var array<string>|null
+     * @var array<mixed>|null
      */
     protected ?array $payload = null;
 
@@ -248,12 +248,31 @@ class OrderLineItemEntity extends Entity
         return $this->payload;
     }
 
+    public function getPayloadValue(string $key): mixed
+    {
+        if (!$this->hasPayloadValue($key)) {
+            return null;
+        }
+
+        return $this->payload[$key] ?? null;
+    }
+
+    public function hasPayloadValue(string $key): bool
+    {
+        return isset($this->payload[$key]);
+    }
+
     /**
      * @param array<string, mixed>|null $payload
      */
     public function setPayload(?array $payload): void
     {
         $this->payload = $payload;
+    }
+
+    public function setPayloadValue(string $key, mixed $value): void
+    {
+        $this->payload[$key] = $value;
     }
 
     public function getParentId(): ?string

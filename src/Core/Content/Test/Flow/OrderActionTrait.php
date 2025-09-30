@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -39,6 +40,9 @@ trait OrderActionTrait
 
     private IdsCollection $ids;
 
+    /**
+     * @var ?EntityRepository<CustomerCollection>
+     */
     private ?EntityRepository $customerRepository = null;
 
     private function createCustomerAndLogin(): void

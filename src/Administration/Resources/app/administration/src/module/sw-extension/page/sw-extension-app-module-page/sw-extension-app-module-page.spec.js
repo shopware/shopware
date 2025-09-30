@@ -22,10 +22,11 @@ async function createWrapper(props) {
                 'sw-search-bar': true,
                 'sw-app-actions': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-app-topbar-button': true,
+                'sw-app-topbar-sidebar': true,
                 'sw-help-center-v2': true,
-                'sw-icon': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
                 'router-link': true,
             },
             mocks: {

@@ -15,7 +15,7 @@ class AccountOrderPage extends Page
      */
     protected EntitySearchResult $orders;
 
-    protected ?string $deepLinkCode;
+    protected ?string $deepLinkCode = null;
 
     /**
      * @return EntitySearchResult<OrderCollection>

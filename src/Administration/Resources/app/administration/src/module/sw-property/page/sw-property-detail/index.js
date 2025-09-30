@@ -93,9 +93,9 @@ export default {
         },
 
         defaultCriteria() {
-            const criteria = new Criteria(this.page, this.limit);
+            const criteria = new Criteria();
             criteria.addAssociation('options');
-            criteria.setTerm(this.term);
+            criteria.getAssociation('options').setLimit(25);
 
             return criteria;
         },

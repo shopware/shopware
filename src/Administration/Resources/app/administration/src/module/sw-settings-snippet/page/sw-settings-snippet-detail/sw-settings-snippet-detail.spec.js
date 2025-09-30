@@ -153,8 +153,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                     },
                     stubs: {
                         'sw-page': await wrapTestComponent('sw-page'),
-                        'sw-card': await wrapTestComponent('sw-card'),
-                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                         'sw-card-view': await wrapTestComponent('sw-card-view'),
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
@@ -163,18 +161,17 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': await wrapTestComponent('sw-field-error'),
                         'sw-button-process': await wrapTestComponent('sw-button-process'),
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-skeleton': true,
                         'sw-search-bar': true,
-                        'sw-icon': true,
                         'router-link': true,
                         'sw-app-actions': true,
                         'sw-loader': true,
                         'sw-error-summary': true,
                         'sw-app-topbar-button': true,
+                        'sw-app-topbar-sidebar': true,
                         'sw-notification-center': true,
                         'sw-help-center-v2': true,
+                        'sw-context-menu-item': true,
                         'sw-context-button': true,
                         'sw-extension-component-section': true,
                         'sw-ai-copilot-badge': true,
@@ -189,12 +186,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
 
     beforeEach(() => {
         Shopware.Store.get('session').setCurrentUser({ username: 'admin' });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it.each([
@@ -230,7 +221,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         const [
             firstInput,
             secondInput,
-        ] = wrapper.findAll('input[label="sw-settings-snippet.detail.labelContent"]');
+        ] = wrapper.findAll('input[aria-label="sw-settings-snippet.detail.labelContent"]');
 
         expect(firstInput.attributes('disabled')).toBe(state);
         expect(secondInput.attributes('disabled')).toBe(state);

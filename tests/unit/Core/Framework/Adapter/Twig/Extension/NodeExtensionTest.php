@@ -49,9 +49,10 @@ class NodeExtensionTest extends TestCase
             $this->createMock(TemplateScopeDetector::class),
         );
 
-        static::assertEmpty($extension->getFunctions());
-        static::assertEmpty($extension->getFilters());
-        static::assertEmpty($extension->getNodeVisitors());
-        static::assertEmpty($extension->getTests());
+        static::assertSame([], $extension->getFunctions());
+        static::assertSame([], $extension->getFilters());
+        static::assertSame([], $extension->getNodeVisitors());
+        static::assertSame([[], []], $extension->getOperators());
+        static::assertSame([], $extension->getTests());
     }
 }

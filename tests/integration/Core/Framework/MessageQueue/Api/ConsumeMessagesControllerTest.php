@@ -64,7 +64,7 @@ class ConsumeMessagesControllerTest extends TestCase
         static::assertSame(200, $client->getResponse()->getStatusCode(), \print_r($response, true));
         static::assertArrayHasKey('handledMessages', $response);
         static::assertIsInt($response['handledMessages']);
-        static::assertEquals(1, $response['handledMessages']);
+        static::assertSame(1, $response['handledMessages']);
     }
 
     public function testMessageStatsDecrement(): void
@@ -86,6 +86,6 @@ class ConsumeMessagesControllerTest extends TestCase
         $entries = $this->incrementer->list('message_queue_stats');
 
         static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
-        static::assertEquals(0, $entries[ProductIndexingMessage::class]['count']);
+        static::assertSame(0, $entries[ProductIndexingMessage::class]['count']);
     }
 }

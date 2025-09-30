@@ -17,19 +17,19 @@ class CustomEntityEntityTest extends TestCase
         $entity = new CustomEntityEntity();
 
         $entity->setId('123');
-        static::assertEquals('123', $entity->getId());
+        static::assertSame('123', $entity->getId());
 
         $entity->setName('Test Entity');
-        static::assertEquals('Test Entity', $entity->getName());
+        static::assertSame('Test Entity', $entity->getName());
 
         $entity->setStoreApiAware(true);
         static::assertTrue($entity->getStoreApiAware());
 
         $entity->setAppId('app-123');
-        static::assertEquals('app-123', $entity->getAppId());
+        static::assertSame('app-123', $entity->getAppId());
 
         $entity->setPluginId('plugin-123');
-        static::assertEquals('plugin-123', $entity->getPluginId());
+        static::assertSame('plugin-123', $entity->getPluginId());
 
         $fields = [
             [
@@ -41,17 +41,17 @@ class CustomEntityEntityTest extends TestCase
         ];
 
         $entity->setFields($fields);
-        static::assertEquals($fields, $entity->getFields());
+        static::assertSame($fields, $entity->getFields());
 
         $flags = [];
 
         $entity->setFlags($flags);
-        static::assertEquals($flags, $entity->getFlags());
+        static::assertSame($flags, $entity->getFlags());
 
         $entity->setCustomFieldsAware(true);
         static::assertTrue($entity->getCustomFieldsAware());
 
         $entity->setLabelProperty('name');
-        static::assertEquals('name', $entity->getLabelProperty());
+        static::assertSame('name', $entity->getLabelProperty());
     }
 }

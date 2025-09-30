@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -35,6 +33,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 
 /**
  * @internal
@@ -109,311 +108,6 @@ class AddressControllerTest extends TestCase
         static::assertFalse($exists);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 remove
-     */
-    public function testCreateBillingAddressIsNewSelectedAddress(): void
-    {
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return;
-        }
-
-        [$customerId] = $this->createCustomers();
-
-        $context = static::getContainer()
-            ->get(SalesChannelContextFactory::class)
-            ->create(
-                Uuid::randomHex(),
-                TestDefaults::SALES_CHANNEL,
-                [
-                    SalesChannelContextService::CUSTOMER_ID => $customerId,
-                ]
-            );
-
-        $controller = static::getContainer()->get(AddressController::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $request->setSession($this->getSession());
-
-        static::getContainer()->get('request_stack')->push($request);
-
-        $customer1 = $context->getCustomer();
-        static::assertNotNull($customer1);
-        $oldBillingAddressId = $customer1->getDefaultBillingAddressId();
-        $oldShippingAddressId = $customer1->getDefaultShippingAddressId();
-
-        $dataBag = $this->getDataBag('billing');
-        $controller->addressBook($request, $dataBag, $context, $customer1);
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
-        static::assertInstanceOf(CustomerEntity::class, $customer);
-
-        static::assertNotSame($oldBillingAddressId, $customer->getDefaultBillingAddressId());
-        static::assertSame($oldShippingAddressId, $customer->getDefaultShippingAddressId());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 remove
-     */
-    public function testCreateShippingAddressIsNewSelectedAddress(): void
-    {
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return;
-        }
-
-        [$customerId] = $this->createCustomers();
-
-        $context = static::getContainer()
-            ->get(SalesChannelContextFactory::class)
-            ->create(
-                Uuid::randomHex(),
-                TestDefaults::SALES_CHANNEL,
-                [
-                    SalesChannelContextService::CUSTOMER_ID => $customerId,
-                ]
-            );
-
-        $controller = static::getContainer()->get(AddressController::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $request->setSession($this->getSession());
-
-        static::getContainer()->get('request_stack')->push($request);
-
-        $customer = $context->getCustomer();
-        static::assertNotNull($customer);
-        $oldBillingAddressId = $customer->getDefaultBillingAddressId();
-        $oldShippingAddressId = $customer->getDefaultShippingAddressId();
-
-        $dataBag = $this->getDataBag('shipping');
-        $controller->addressBook($request, $dataBag, $context, $customer);
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
-        static::assertInstanceOf(CustomerEntity::class, $customer);
-
-        static::assertNotSame($oldShippingAddressId, $customer->getDefaultShippingAddressId());
-        static::assertSame($oldBillingAddressId, $customer->getDefaultBillingAddressId());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 remove
-     */
-    public function testChangeVatIds(): void
-    {
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return;
-        }
-
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $salutationId = $this->getValidSalutationId();
-
-        $customer = [
-            'id' => $customerId,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultBillingAddress' => [
-                'id' => $addressId,
-                'salutationId' => $salutationId,
-                'firstName' => 'foo',
-                'lastName' => 'bar',
-                'zipcode' => '48599',
-                'city' => 'gronau',
-                'street' => 'Schillerstr.',
-                'countryId' => $this->getValidCountryId(),
-            ],
-            'company' => 'nfq',
-            'defaultShippingAddressId' => $addressId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'not12345',
-            'lastName' => 'not',
-            'firstName' => 'First name',
-            'salutationId' => $salutationId,
-            'customerNumber' => 'not',
-        ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $this->customerRepository->create([$customer], Context::createDefaultContext());
-
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
-
-        static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
-        static::assertSame($customerId, $context->getCustomerId());
-
-        $controller = static::getContainer()->get(AddressController::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        static::getContainer()->get('request_stack')->push($request);
-
-        $vatIds = ['DE123456789'];
-        $requestDataBag = new RequestDataBag(['vatIds' => $vatIds]);
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
-
-        $controller->addressBook($request, $requestDataBag, $context, $customer);
-
-        $criteria = new Criteria([$customerId]);
-
-        $customer = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
-
-        static::assertInstanceOf(CustomerEntity::class, $customer);
-        static::assertSame($vatIds, $customer->getVatIds());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 remove
-     */
-    public function testHandleViolationExceptionWhenChangeAddress(): void
-    {
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return;
-        }
-
-        $this->setPostalCodeOfTheCountryToBeRequired();
-
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $salutationId = $this->getValidSalutationId();
-
-        $customer = [
-            'id' => $customerId,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultBillingAddress' => [
-                'id' => $addressId,
-                'salutationId' => $salutationId,
-                'firstName' => 'foo',
-                'lastName' => 'bar',
-                'zipcode' => '48599',
-                'city' => 'gronau',
-                'street' => 'Schillerstr.',
-                'countryId' => $this->getValidCountryId(),
-            ],
-            'company' => 'ABC',
-            'defaultShippingAddressId' => $addressId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'not12345',
-            'lastName' => 'not',
-            'firstName' => 'First name',
-            'salutationId' => $salutationId,
-            'customerNumber' => 'not',
-        ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $this->customerRepository->create([$customer], Context::createDefaultContext());
-
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
-
-        $controller = static::getContainer()->get(AddressController::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        static::getContainer()->get('request_stack')->push($request);
-
-        $requestDataBag = new RequestDataBag([
-            'changeableAddresses' => new RequestDataBag([
-                'changeBilling' => '1',
-                'changeShipping' => '',
-            ]),
-            'addressId' => '',
-            'accountType' => '',
-            'address' => new RequestDataBag([
-                'salutationId' => $this->getValidSalutationId(),
-                'firstName' => 'not',
-                'lastName' => 'not',
-                'company' => 'not',
-                'department' => 'not',
-                'street' => 'not',
-                'zipcode' => '',
-                'city' => 'not',
-                'countryId' => $this->getValidCountryId(),
-            ]),
-        ]);
-
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
-
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
-            StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
-                $data = $event->getParameters();
-
-                static::assertArrayHasKey('formViolations', $data);
-                static::assertArrayHasKey('postedData', $data);
-            },
-            0,
-            true
-        );
-
-        $controller->addressBook($request, $requestDataBag, $context, $customer);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 remove
-     */
-    public function testHandleExceptionWhenChangeAddress(): void
-    {
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return;
-        }
-
-        $customer = $this->createCustomer();
-
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customer->getId()]);
-
-        $controller = static::getContainer()->get(AddressController::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        static::getContainer()->get('request_stack')->push($request);
-
-        $requestDataBag = new RequestDataBag([
-            'selectAddress' => new RequestDataBag([
-                'id' => 'random',
-                'type' => 'random-type',
-            ]),
-        ]);
-
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
-
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
-            StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
-                $data = $event->getParameters();
-
-                static::assertArrayHasKey('success', $data);
-                static::assertArrayHasKey('messages', $data);
-
-                static::assertFalse($data['success']);
-                static::assertSame('danger', $data['messages']['type']);
-            },
-            0,
-            true
-        );
-
-        $controller->addressBook($request, $requestDataBag, $context, $customer);
-    }
-
     public function testAddressListingPageLoadedScriptsAreExecuted(): void
     {
         $browser = $this->login();
@@ -456,106 +150,6 @@ class AddressControllerTest extends TestCase
         static::assertArrayHasKey('address-detail-page-loaded', $traces);
     }
 
-    public function testCreateShippingAddressIsActiveAddress(): void
-    {
-        if (!Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return;
-        }
-
-        [$customerId] = $this->createCustomers();
-
-        $context = static::getContainer()
-            ->get(SalesChannelContextFactory::class)
-            ->create(
-                Uuid::randomHex(),
-                TestDefaults::SALES_CHANNEL,
-                [
-                    SalesChannelContextService::CUSTOMER_ID => $customerId,
-                ]
-            );
-
-        $controller = static::getContainer()->get(AddressController::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $request->setSession($this->getSession());
-
-        static::getContainer()->get('request_stack')->push($request);
-
-        $customer = $context->getCustomer();
-        static::assertNotNull($customer);
-
-        $dataBag = new RequestDataBag([
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'not',
-            'lastName' => 'not',
-            'company' => 'not',
-            'department' => 'not',
-            'street' => 'not',
-            'zipcode' => 'not',
-            'city' => 'not',
-            'countryId' => $this->getValidCountryId(),
-        ]);
-
-        $controller->addressManagerUpsert($request, $dataBag, $context, $customer, null, self::ADDRESS_TYPE_SHIPPING);
-
-        $newContext = static::getContainer()->get(SalesChannelContextPersister::class)->load($context->getToken(), TestDefaults::SALES_CHANNEL);
-
-        static::assertIsArray($newContext);
-        static::assertArrayHasKey(SalesChannelContextService::SHIPPING_ADDRESS_ID, $newContext);
-    }
-
-    public function testCreateBillingAddressIsActiveAddress(): void
-    {
-        if (!Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            return;
-        }
-
-        [$customerId] = $this->createCustomers();
-
-        $context = static::getContainer()
-            ->get(SalesChannelContextFactory::class)
-            ->create(
-                Uuid::randomHex(),
-                TestDefaults::SALES_CHANNEL,
-                [
-                    SalesChannelContextService::CUSTOMER_ID => $customerId,
-                ]
-            );
-
-        $controller = static::getContainer()->get(AddressController::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $request->setSession($this->getSession());
-
-        static::getContainer()->get('request_stack')->push($request);
-
-        $customer = $context->getCustomer();
-        static::assertNotNull($customer);
-
-        $dataBag = new RequestDataBag([
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'not',
-            'lastName' => 'not',
-            'company' => 'not',
-            'department' => 'not',
-            'street' => 'not',
-            'zipcode' => 'not',
-            'city' => 'not',
-            'countryId' => $this->getValidCountryId(),
-        ]);
-
-        $controller->addressManagerUpsert($request, $dataBag, $context, $customer, null, self::ADDRESS_TYPE_BILLING);
-
-        $newContext = static::getContainer()->get(SalesChannelContextPersister::class)->load($context->getToken(), TestDefaults::SALES_CHANNEL);
-
-        static::assertIsArray($newContext);
-        static::assertArrayHasKey(SalesChannelContextService::BILLING_ADDRESS_ID, $newContext);
-    }
-
     public function testCheckoutSwitchDefaultShippingAddress(): void
     {
         [$id1] = $this->createCustomers();
@@ -582,7 +176,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set('type', 'shipping');
         $dataBag->set('id', $newDefaultShippingAddress);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');
@@ -652,15 +246,11 @@ class AddressControllerTest extends TestCase
             ->getEntities()
             ->first();
 
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            static::assertSame(
-                ['success' => [static::getContainer()->get('translator')->trans('account.addressSaved')]],
-                // @phpstan-ignore method.notFound
-                $this->getSession()->getFlashBag()->all()
-            );
-        } else {
-            static::assertStringContainsString('addressSaved=1', $response->getTargetUrl());
-        }
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
+        static::assertSame(
+            ['success' => [static::getContainer()->get('translator')->trans('account.addressSaved')]],
+            $this->getSession()->getFlashBag()->all()
+        );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
         static::assertInstanceOf(CustomerEntity::class, $customerNewAddress);
         static::assertNotNull($customerNewAddress->getAddresses());
@@ -693,7 +283,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set('type', 'billing');
         $dataBag->set('id', $newDefaultBillingAddress);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');
@@ -731,7 +321,7 @@ class AddressControllerTest extends TestCase
 
         static::expectException(RoutingException::class);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
     }
 
     public function testSwitchDefaultAddressWithInvalidUuid(): void
@@ -782,16 +372,11 @@ class AddressControllerTest extends TestCase
         /** @var RedirectResponse $response */
         $response = $controller->switchDefaultAddress('foo', $customer->getDefaultBillingAddressId(), $context, $customer);
 
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            static::assertSame(
-                ['danger' => [static::getContainer()->get('translator')->trans('account.addressDefaultNotChanged')]],
-                // @phpstan-ignore method.notFound
-                $this->getSession()->getFlashBag()->all()
-            );
-        } else {
-            static::assertStringContainsString('changedDefaultAddress=0', $response->getTargetUrl());
-        }
-
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
+        static::assertSame(
+            ['danger' => [static::getContainer()->get('translator')->trans('account.addressDefaultNotChanged')]],
+            $this->getSession()->getFlashBag()->all()
+        );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
     }
 
@@ -830,16 +415,11 @@ class AddressControllerTest extends TestCase
         static::assertNotNull($customer);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            static::assertSame(
-                ['success' => [static::getContainer()->get('translator')->trans('account.addressDefaultChanged')]],
-                // @phpstan-ignore method.notFound
-                $this->getSession()->getFlashBag()->all()
-            );
-        } else {
-            static::assertStringContainsString('changedDefaultAddress=1', $response->getTargetUrl());
-        }
-
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
+        static::assertSame(
+            ['success' => [static::getContainer()->get('translator')->trans('account.addressDefaultChanged')]],
+            $this->getSession()->getFlashBag()->all()
+        );
         static::assertSame($newDefaultShippingAddress, $customer->getDefaultShippingAddressId());
     }
 
@@ -877,15 +457,12 @@ class AddressControllerTest extends TestCase
 
         static::assertNotNull($customer);
         static::assertInstanceOf(CustomerEntity::class, $customer);
-        if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
-            static::assertSame(
-                ['success' => [static::getContainer()->get('translator')->trans('account.addressDefaultChanged')]],
-                // @phpstan-ignore method.notFound
-                $this->getSession()->getFlashBag()->all()
-            );
-        } else {
-            static::assertStringContainsString('changedDefaultAddress=1', $response->getTargetUrl());
-        }
+
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
+        static::assertSame(
+            ['success' => [static::getContainer()->get('translator')->trans('account.addressDefaultChanged')]],
+            $this->getSession()->getFlashBag()->all()
+        );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
         static::assertSame($newDefaultBillingAddress, $customer->getDefaultBillingAddressId());
     }
@@ -911,11 +488,9 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         $newActiveAddress = $this->createCustomerAddress($id1);
+        $request->request->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $newActiveAddress);
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $newActiveAddress);
-
-        $controller->addressManagerSwitch($dataBag, $context);
+        $controller->addressManagerSwitch($request, $context);
 
         $newContext = static::getContainer()->get(SalesChannelContextPersister::class)->load($context->getToken(), TestDefaults::SALES_CHANNEL);
 
@@ -945,11 +520,9 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         $newActiveAddress = $this->createCustomerAddress($id1);
+        $request->request->set(SalesChannelContextService::BILLING_ADDRESS_ID, $newActiveAddress);
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set(SalesChannelContextService::BILLING_ADDRESS_ID, $newActiveAddress);
-
-        $controller->addressManagerSwitch($dataBag, $context);
+        $controller->addressManagerSwitch($request, $context);
 
         $newContext = static::getContainer()->get(SalesChannelContextPersister::class)->load($context->getToken(), TestDefaults::SALES_CHANNEL);
 
@@ -985,10 +558,12 @@ class AddressControllerTest extends TestCase
         static::assertNotNull($customer);
 
         $dataBag = new RequestDataBag([
-            'firstName' => 'not',
-            'company' => 'not',
-            'department' => 'not',
-            'street' => 'not',
+            'address' => [
+                'firstName' => 'not',
+                'company' => 'not',
+                'department' => 'not',
+                'street' => 'not',
+            ],
         ]);
 
         $this->addEventListener(
@@ -1111,10 +686,6 @@ class AddressControllerTest extends TestCase
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $context = Context::createDefaultContext();
 
         /** @var EntityRepository<CustomerCollection> $repo */
@@ -1188,13 +759,6 @@ class AddressControllerTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $paymentMethodId = $this->getValidPaymentMethodId();
-            foreach ($customers as &$customer) {
-                $customer['defaultPaymentMethodId'] = $paymentMethodId;
-            }
-        }
-
         $this->customerRepository->create($customers, Context::createDefaultContext());
 
         return [$id1, $id2];
@@ -1221,29 +785,6 @@ class AddressControllerTest extends TestCase
         return $newBillingAddressId;
     }
 
-    private function getDataBag(string $type): RequestDataBag
-    {
-        return new RequestDataBag([
-            'changeableAddresses' => new RequestDataBag([
-                'changeBilling' => ($type === 'billing') ? '1' : '',
-                'changeShipping' => ($type === 'shipping') ? '1' : '',
-            ]),
-            'addressId' => '',
-            'accountType' => '',
-            'address' => new RequestDataBag([
-                'salutationId' => $this->getValidSalutationId(),
-                'firstName' => 'not',
-                'lastName' => 'not',
-                'company' => 'not',
-                'department' => 'not',
-                'street' => 'not',
-                'zipcode' => 'not',
-                'city' => 'not',
-                'countryId' => $this->getValidCountryId(),
-            ]),
-        ]);
-    }
-
     private function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
         /** @var EntityRepository<CountryCollection> $repository */
@@ -1258,14 +799,5 @@ class AddressControllerTest extends TestCase
         }
 
         return (string) $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
-    }
-
-    private function setPostalCodeOfTheCountryToBeRequired(): void
-    {
-        static::getContainer()->get(Connection::class)
-            ->executeStatement('UPDATE `country` SET `postal_code_required` = 1
-                 WHERE id = :id', [
-                'id' => Uuid::fromHexToBytes($this->getValidCountryId()),
-            ]);
     }
 }

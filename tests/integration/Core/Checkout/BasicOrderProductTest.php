@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Helper\MailEventListener;
 use Shopware\Core\Test\Integration\Traits\TestShortHands;
@@ -12,6 +13,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('checkout')]
 class BasicOrderProductTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -49,9 +51,9 @@ class BasicOrderProductTest extends TestCase
 
         $item = $this->assertProductInOrder($orderId, $product->id);
 
-        static::assertEquals(100, $item->getUnitPrice());
+        static::assertSame(100.0, $item->getUnitPrice());
 
-        static::assertEquals(100, $item->getTotalPrice());
+        static::assertSame(100.0, $item->getTotalPrice());
 
         $this->assertStock($product->id, 99, 99);
     }

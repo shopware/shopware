@@ -258,7 +258,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
             'operator' => $operator,
             'amount' => 100,
         ]);
-        $allLineItemsRule = new MatchAllLineItemsRule([], null, 'product');
+        $allLineItemsRule = new MatchAllLineItemsRule([], null, ['product']);
         $allLineItemsRule->addRule($this->rule);
 
         $lineItemCollection = new LineItemCollection($lineItems);

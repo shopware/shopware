@@ -66,7 +66,7 @@ class TaxProviderResponse extends TaxProviderResult
                 $lineItemTax = new CalculatedTaxCollection();
 
                 foreach ($taxes as $tax) {
-                    $lineItemTax->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price']));
+                    $lineItemTax->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price'], $tax['label'] ?? null));
                 }
 
                 $response->lineItemTaxes[$lineItemId] = $lineItemTax;
@@ -78,7 +78,7 @@ class TaxProviderResponse extends TaxProviderResult
                 $deliveryTax = new CalculatedTaxCollection();
 
                 foreach ($taxes as $tax) {
-                    $deliveryTax->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price']));
+                    $deliveryTax->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price'], $tax['label'] ?? null));
                 }
 
                 $response->deliveryTaxes[$deliveryId] = $deliveryTax;
@@ -89,7 +89,7 @@ class TaxProviderResponse extends TaxProviderResult
             $cartPriceTaxes = new CalculatedTaxCollection();
 
             foreach ($data['cartPriceTaxes'] as $tax) {
-                $cartPriceTaxes->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price']));
+                $cartPriceTaxes->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price'], $tax['label'] ?? null));
             }
 
             $response->cartPriceTaxes = $cartPriceTaxes;

@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 trait StorefrontPageTestBehaviour
 {
@@ -171,7 +171,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 
@@ -205,7 +210,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 
@@ -245,7 +255,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 

@@ -11,14 +11,18 @@
         gap="0px 14px"
     >
         {% block sw_order_document_settings_modal_form_document_number %}
-        <sw-text-field
-            v-model:value="documentConfig.documentNumber"
+        <mt-text-field
+            v-model="documentNumber"
+            class="sw-order-document-settings-modal__document-number"
             :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+            :error="documentNumberErrorMessage"
+            required
         />
         {% endblock %}
         {% block sw_order_document_settings_modal_form_document_date %}
-        <sw-datepicker
-            v-model:value="documentConfig.documentDate"
+        <mt-datepicker
+            v-model="documentConfig.documentDate"
+            class="sw-order-document-settings-modal__document-date"
             date-type="date"
             required
             hide-hint
@@ -31,8 +35,9 @@
 
     {% block sw_order_document_settings_modal_form_file_upload %}
     {% block sw_order_document_settings_modal_form_file_upload_toggle %}
-    <sw-switch-field
-        v-model:value="uploadDocument"
+
+    <mt-switch
+        v-model="uploadDocument"
         name="sw-field--uploadDocument"
         class="sw-order-document-settings-modal__file-toggle"
         :label="$tc('sw-order.documentModal.fileInputLabel')"
@@ -78,8 +83,8 @@
     {% block sw_order_document_settings_modal_form_additional_content %}{% endblock %}
 
     {% block sw_order_document_settings_modal_form_document_comment %}
-    <sw-textarea-field
-        v-model:value="documentConfig.documentComment"
+    <mt-textarea
+        v-model="documentConfig.documentComment"
         name="sw-field--documentConfig-documentComment"
         class="sw-order-document-settings-modal__comment"
         :label="$tc('sw-order.documentModal.labelDocumentComment')"
@@ -90,33 +95,40 @@
     <template #modal-footer>
         <sw-button-group split-button>
             {% block sw_order_document_settings_modal_form_document_footer_preview %}
-            <sw-button
+            <mt-button
                 class="sw-order-document-settings-modal__preview-button"
                 size="small"
-                :disabled="isLoadingDocument"
+                :disabled="invalidInput || isLoadingDocument"
                 :is-loading="isLoadingPreview"
+                variant="secondary"
                 @click="onPreview()"
             >
                 {{ $tc('sw-order.documentModal.labelPreview') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
-            <sw-context-button menu-width="160">
+            <sw-context-button
+                class="sw-order-document-settings-modal__preview-button-arrow"
+                :menu-width="160"
+                :disabled="invalidInput || isLoadingDocument"
+            >
                 <template #button>
-                    <sw-button
+                    <mt-button
                         square
                         size="small"
+                        variant="secondary"
+                        :disabled="invalidInput"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-chevron-down-xs"
                             size="16"
                         />
-                    </sw-button>
+                    </mt-button>
                 </template>
 
                 <sw-context-menu-item
                     class="sw-order-document-settings-modal__preview-button-html"
-                    :disabled="htmlPreviewDisabled"
+                    :disabled="invalidInput || htmlPreviewDisabled"
                     @click="onPreview('html')"
                 >
                     {{ $tc('sw-order.documentModal.labelPreviewOnlyHtml') }}
@@ -126,46 +138,49 @@
 
         <div>
             {% block sw_order_document_settings_modal_form_document_footer_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
+                :disabled="isLoadingDocument || isLoadingPreview"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_order_document_settings_modal_form_document_footer_split_button %}
             <sw-button-group split-button>
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
-                <sw-button
+                <mt-button
                     class="sw-order-document-settings-modal__create"
                     variant="primary"
                     size="small"
-                    :disabled="!documentPreconditionsFulfilled || isLoadingPreview"
+                    :disabled="invalidInput || isLoadingPreview"
                     :is-loading="isLoadingDocument"
                     @click="onCreateDocument"
                 >
                     {{ $tc('sw-order.documentModal.labelCreate') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
                 <sw-context-button
-                    :disabled="!documentPreconditionsFulfilled || undefined"
+                    class="sw-order-document-settings-modal__create-arrow"
+                    :disabled="invalidInput"
                 >
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
                     <template #button>
-                        <sw-button
+                        <mt-button
                             square
                             variant="primary"
                             size="small"
-                            :disabled="!documentPreconditionsFulfilled"
+                            :disabled="invalidInput"
                         >
-                            <sw-icon
+                            <mt-icon
                                 name="regular-chevron-down-xs"
                                 size="16"
                             />
-                        </sw-button>
+                        </mt-button>
                     </template>
                     {% endblock %}
 

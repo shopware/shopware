@@ -2,6 +2,8 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 /**
  * This plugin adds dynamic redirect parameters to the form before the form is submitted.
+ *
+ * @package framework
  */
 export default class FormAddDynamicRedirectPlugin extends Plugin {
 

@@ -19,9 +19,9 @@ class ElasticsearchProductExceptionTest extends TestCase
         $previous = new BadRequest400Exception('test');
         $e = ElasticsearchProductException::cannotChangeCustomFieldType($previous);
 
-        static::assertEquals('One or more custom fields already exist in the index with different types. Please reset the index and rebuild it.', $e->getMessage());
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE', $e->getErrorCode());
+        static::assertSame('One or more custom fields already exist in the index with different types. Please reset the index and rebuild it.', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE', $e->getErrorCode());
         static::assertSame($previous, $e->getPrevious());
     }
 }

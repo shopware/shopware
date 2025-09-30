@@ -12,67 +12,35 @@ class ProductSortingEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $key;
+    protected string $key;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $priority;
+    protected int $priority;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
     /**
      * @var array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $fields;
+    protected array $fields = [];
+
+    protected ?string $label = null;
+
+    protected ?ProductSortingTranslationCollection $translations = null;
+
+    protected bool $locked;
 
     /**
-     * @var string|null
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $fallbackSorting will be added
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
-
-    /**
-     * @var ProductSortingTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $locked;
-
-    /**
      * @return array<FieldSorting>
      */
-    public function createDalSorting(): array
+    public function createDalSorting(/* ?FieldSorting $fallbackSorting = null */): array
     {
+        $fallbackSorting = \func_num_args() === 1 ? func_get_arg(0) : null;
+
         $sorting = [];
 
         $fields = $this->fields;
-
-        if (!\is_array($fields)) {
-            $fields = [];
-        }
 
         usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 
@@ -89,6 +57,10 @@ class ProductSortingEntity extends Entity
         }
 
         $flat = array_column($fields, 'field');
+
+        if ($fallbackSorting instanceof FieldSorting && !\in_array($fallbackSorting->getField(), $flat, true)) {
+            $sorting[] = $fallbackSorting;
+        }
 
         if (\in_array('id', $flat, true)) {
             return $sorting;

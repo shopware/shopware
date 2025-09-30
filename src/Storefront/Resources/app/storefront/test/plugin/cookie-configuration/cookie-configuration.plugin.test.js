@@ -1,86 +1,73 @@
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import CookieConfiguration, { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 
-// Todo: NEXT-23270 - Remove mock ES module import of PluginManager
-jest.mock('src/plugin-system/plugin.manager', () => ({
-    __esModule: true,
-    default: {},
-}));
+const template = `
+    <div class="offcanvas-cookie">
+    <div class="offcanvas-cookie-description"></div>
 
-jest.mock('src/service/http-client.service', () => {
-    const template = `
-        <div class="offcanvas-cookie">
-        <div class="offcanvas-cookie-description"></div>
+    <div class="offcanvas-cookie-list">
+        <div class="offcanvas-cookie-group">
 
-        <div class="offcanvas-cookie-list">
-            <div class="offcanvas-cookie-group">
-
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input offcanvas-cookie-parent-input" id="cookie_Technically required" checked="checked" disabled="disabled" data-cookie-required="true">
-                </div>
-
-                <div class="offcanvas-cookie-entries">
-
-                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="cookie_session-" checked="checked" disabled="disabled" data-cookie-required="true" data-cookie="session-">
-                    </div>
-
-                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="cookie_timezone" checked="checked" disabled="disabled" data-cookie-required="true" data-cookie="timezone">
-                    </div>
-
-                </div>
-
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input offcanvas-cookie-parent-input" id="cookie_Technically required" checked="checked" disabled="disabled" data-cookie-required="true">
             </div>
 
-            <div class="offcanvas-cookie-group">
+            <div class="offcanvas-cookie-entries">
 
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input offcanvas-cookie-parent-input" id="cookie_Statistics">
+                <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="cookie_session-" checked="checked" disabled="disabled" data-cookie-required="true" data-cookie="session-">
                 </div>
 
-                <div class="offcanvas-cookie-entries">
-                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="cookie_lorem" data-cookie="lorem" data-cookie-value="1" data-cookie-expiration="30">
-                    </div>
-
-                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="cookie_ipsum" data-cookie="ipsum" data-cookie-value="1" data-cookie-expiration="30">
-                    </div>
-
-                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="cookie_dolor" data-cookie="dolor" data-cookie-value="1" data-cookie-expiration="30">
-                    </div>
-
-                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="cookie_sit" data-cookie="sit" data-cookie-value="1" data-cookie-expiration="30">
-                    </div>
+                <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="cookie_timezone" checked="checked" disabled="disabled" data-cookie-required="true" data-cookie="timezone">
                 </div>
 
             </div>
 
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block js-offcanvas-cookie-submit"></button>
-        <button type="submit" class="btn btn-primary btn-block js-offcanvas-cookie-accept-all"></button>
-    </div>
-    `;
+        <div class="offcanvas-cookie-group">
 
-    return function () {
-        return {
-            get: (url, callback) => {
-                return callback(template);
-            },
-        };
-    };
-});
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input offcanvas-cookie-parent-input" id="cookie_Statistics">
+            </div>
+
+            <div class="offcanvas-cookie-entries">
+                <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="cookie_lorem" data-cookie="lorem" data-cookie-value="1" data-cookie-expiration="30">
+                </div>
+
+                <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="cookie_ipsum" data-cookie="ipsum" data-cookie-value="1" data-cookie-expiration="30">
+                </div>
+
+                <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="cookie_dolor" data-cookie="dolor" data-cookie-value="1" data-cookie-expiration="30">
+                </div>
+
+                <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="cookie_sit" data-cookie="sit" data-cookie-value="1" data-cookie-expiration="30">
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block js-offcanvas-cookie-submit"></button>
+    <button type="submit" class="btn btn-primary btn-block js-offcanvas-cookie-accept-all"></button>
+</div>
+`;
 
 describe('CookieConfiguration plugin tests', () => {
     let plugin;
+    let originalHref;
 
     beforeEach(() => {
         window.router = {
             'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
+            'frontend.account.login.page': 'https://shop.example.com/login',
         };
 
         window.focusHandler = {
@@ -88,12 +75,27 @@ describe('CookieConfiguration plugin tests', () => {
             resumeFocusState: jest.fn(),
         };
 
-        window.PluginManager.initializePlugins = () => jest.fn();
+        window.PluginManager = {
+            initializePlugins: jest.fn(),
+            getPluginInstances: jest.fn(() => []),
+            getPluginInstancesFromElement: jest.fn(() => new Map()),
+            getPlugin: jest.fn(() => new Map([['instances', []]]))
+        };
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve(template),
+            })
+        );
 
         const container = document.createElement('div');
         plugin = new CookieConfiguration(container);
 
         plugin.openOffCanvas(() => {});
+
+        jest.spyOn(AjaxOffCanvas, 'open').mockImplementation(jest.fn());
+        jest.spyOn(AjaxOffCanvas, 'close').mockImplementation(jest.fn());
+        originalHref = window.location.href;
     });
 
     afterEach(() => {
@@ -230,11 +232,76 @@ describe('CookieConfiguration plugin tests', () => {
     });
 
     test('Ensure that it sets the `loadIntoMemory` flag is set if the accept all button is pressed ', () => {
-        const jestFn = jest.fn()
-        plugin._httpClient.get = jestFn;
-
         plugin._acceptAllCookiesFromCookieBar();
 
-        expect(jestFn).toHaveBeenCalledWith('https://shop.example.com/offcanvas', expect.any(Function));
+        expect(global.fetch).toHaveBeenCalledWith('https://shop.example.com/offcanvas', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    });
+
+    test('openRequestConsentOffCanvas sets lastTriggerElement and calls AjaxOffCanvas.open', () => {
+        document.body.innerHTML += '<button id="wishlist-btn">Add to wishlist</button>';
+        const triggerBtn = document.getElementById('wishlist-btn');
+        triggerBtn.focus();
+        plugin.openRequestConsentOffCanvas('/cookie/consent-offcanvas', 'wishlist-enabled');
+        expect(CookieConfiguration.lastTriggerElement).toBe(triggerBtn);
+        expect(AjaxOffCanvas.open).toHaveBeenCalledWith(
+            '/cookie/consent-offcanvas',
+            false,
+            expect.any(Function),
+            'left'
+        );
+        document.body.removeChild(triggerBtn);
+    });
+
+    test('_onAccept sets the cookie and closes the offcanvas', () => {
+        const setItemSpy = jest.spyOn(CookieStorage, 'setItem').mockImplementation(jest.fn());
+        plugin._onAccept('wishlist-enabled');
+        expect(setItemSpy).toHaveBeenCalledWith('wishlist-enabled', '1', 30);
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+        setItemSpy.mockRestore();
+    });
+
+    test('_onLogin closes the offcanvas and redirects', () => {
+        const originalLocation = window.location;
+        delete window.location;
+        window.location = { href: '' };
+        window.router['frontend.account.login.page'] = 'https://shop.example.com/login';
+        plugin._onLogin();
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+        expect(window.location.href).toBe('https://shop.example.com/login');
+        window.location = originalLocation;
+    });
+
+    test('_onCancel closes the offcanvas', () => {
+        plugin._onCancel();
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+    });
+
+    test('_onPreferences closes the offcanvas and opens config modal', () => {
+        const openOffCanvasSpy = jest.spyOn(plugin, 'openOffCanvas');
+        const event = { preventDefault: jest.fn() };
+        plugin._onPreferences(event);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+        expect(openOffCanvasSpy).toHaveBeenCalled();
+    });
+
+    test('openRequestConsentOffCanvas does not throw exception if .offcanvas is missing', () => {
+        plugin._getOffCanvas = jest.fn(() => ({
+            querySelectorAll: () => [],
+        }));
+        expect(() => {
+            plugin.openRequestConsentOffCanvas('/cookie/consent-offcanvas', 'wishlist-enabled');
+        }).not.toThrow();
+        expect(AjaxOffCanvas.open).toHaveBeenCalled();
+    });
+
+    test('_restoreFocus focuses the lastTriggerElement', () => {
+        const btn = document.createElement('button');
+        document.body.appendChild(btn);
+        CookieConfiguration.lastTriggerElement = btn;
+        const focusSpy = jest.spyOn(btn, 'focus');
+        plugin._restoreFocus();
+        expect(focusSpy).toHaveBeenCalled();
+        document.body.removeChild(btn);
     });
 });

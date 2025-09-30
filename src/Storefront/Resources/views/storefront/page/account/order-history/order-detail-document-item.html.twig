@@ -1,10 +1,5 @@
 {% block page_account_order_document_item_detail %}
-    {# @deprecated tag:v6.7.0 - Document item will be `<li>` instead if `<div>` #}
-    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-        <li class="row order-detail-content-row">
-    {%- else -%}
-        <div class="row order-detail-content-row" role="listitem">
-    {%- endif -%}
+    <li class="row order-detail-content-row">
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
                 {% set documentMediaFiles = [document.documentMediaFile, document.documentA11yMediaFile] %}
@@ -36,13 +31,5 @@
                 {{ document.createdAt|format_datetime('medium', 'short', locale=app.request.locale) }}
             </div>
         {% endblock %}
-
-        {# @deprecated tag:v6.7.0 - This block will be removed #}
-        {% block page_account_order_document_item_detail_view_file_btn %}{% endblock %}
-    {# @deprecated tag:v6.7.0 - Document item will be `<li>` instead if `<div>` #}
-    {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-        </div>
-    {%- else -%}
-        </li>
-    {%- endif -%}
+    </li>
 {% endblock %}

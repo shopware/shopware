@@ -19,10 +19,6 @@ describe('app/component/utils/sw-shortcut-overview', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should add the privilege attribute to some shortcut-overview-items', async () => {
         await wrapper.setData({
             showShortcutOverviewModal: true,

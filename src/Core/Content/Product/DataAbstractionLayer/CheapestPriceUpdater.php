@@ -4,12 +4,15 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 
 #[Package('framework')]
 class CheapestPriceUpdater
@@ -19,7 +22,8 @@ class CheapestPriceUpdater
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly AbstractCheapestPriceQuantitySelector $quantitySelector
+        private readonly AbstractCheapestPriceQuantitySelector $quantitySelector,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -48,6 +52,8 @@ class CheapestPriceUpdater
             $this->connection->prepare('UPDATE product SET cheapest_price_accessor = :accessor WHERE id = :id AND version_id = :version')
         );
 
+        $variantIdsUpdated = [];
+
         foreach ($all as $productId => $prices) {
             $container = new CheapestPriceContainer($prices);
 
@@ -75,12 +81,22 @@ class CheapestPriceUpdater
                     continue;
                 }
 
+                if ($variantId !== $productId) {
+                    $variantIdsUpdated[] = $variantId;
+                }
+
                 $accessorQuery->execute([
                     'accessor' => $accessor,
                     'id' => Uuid::fromHexToBytes($variantId),
                     'version' => $versionId,
                 ]);
             }
+        }
+
+        if (!empty($variantIdsUpdated)) {
+            $this->dispatcher->dispatch(new ProductIndexerEvent($variantIdsUpdated, $context, [
+                SeoUrlUpdateListener::PRODUCT_SEO_URL_UPDATER,
+            ]));
         }
     }
 

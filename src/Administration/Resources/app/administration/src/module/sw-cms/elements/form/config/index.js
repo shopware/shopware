@@ -23,6 +23,26 @@ export default {
             }
             return '';
         },
+
+        formTypeOptions() {
+            return [
+                {
+                    id: 1,
+                    value: '',
+                    label: this.$tc('sw-cms.elements.form.config.label.type'),
+                },
+                {
+                    id: 2,
+                    value: 'contact',
+                    label: this.$tc('sw-cms.elements.form.config.label.typeContact'),
+                },
+                {
+                    id: 3,
+                    value: 'newsletter',
+                    label: this.$tc('sw-cms.elements.form.config.label.typeNewsletter'),
+                },
+            ];
+        },
     },
 
     created() {

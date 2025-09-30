@@ -21,9 +21,11 @@ class PaymentDistinguishableNameSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<PaymentMethodEntity> $event
+     */
     public function addDistinguishablePaymentName(EntityLoadedEvent $event): void
     {
-        /** @var PaymentMethodEntity $payment */
         foreach ($event->getEntities() as $payment) {
             if ($payment->getTranslation('distinguishableName') === null) {
                 $payment->addTranslated('distinguishableName', $payment->getTranslation('name'));

@@ -70,18 +70,18 @@
     }
 
     &.is--disabled {
-        .sw-button {
+        .mt-button {
             background-color: $color-gray-100;
             color: lighten($color-darkgray-200, 25%);
         }
 
-        .sw-button--ghost {
+        .mt-button--ghost {
             background-color: transparent;
             border-color: lighten($color-shopware-brand-500, 20%);
             color: lighten($color-darkgray-200, 20%);
         }
 
-        .sw-button--primary {
+        .mt-button--primary {
             background: lighten($color-shopware-brand-500, 20%);
             color: lighten($color-darkgray-200, 60%);
         }

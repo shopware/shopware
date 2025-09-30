@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedHook;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedHook;
@@ -25,7 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class AccountProfileController extends StorefrontController
 {
@@ -108,7 +110,7 @@ class AccountProfileController extends StorefrontController
     }
 
     #[Route(path: '/account/profile/password', name: 'frontend.account.profile.password.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
-    public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
+    public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer, Request $request): Response
     {
         try {
             $passwordParam = $data->get('password');
@@ -122,6 +124,10 @@ class AccountProfileController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
 
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'passwordFormViolation' => true]);
+        }
+
+        if ($request->get('redirectTo') || $request->get('forwardTo')) {
+            return $this->createActionResponse($request);
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');

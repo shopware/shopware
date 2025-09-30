@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use Composer\IO\NullIO;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -27,7 +26,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Package('checkout')]
 class ExtensionLoaderTest extends TestCase
 {
@@ -94,8 +92,8 @@ class ExtensionLoaderTest extends TestCase
         static::assertNull($extension->getLocalId());
         static::assertNull($extension->getLicense());
         static::assertNull($extension->getVersion());
-        static::assertEquals($listingResponse['name'], $extension->getName());
-        static::assertEquals($listingResponse['label'], $extension->getLabel());
+        static::assertSame($listingResponse['name'], $extension->getName());
+        static::assertSame($listingResponse['label'], $extension->getLabel());
 
         static::assertInstanceOf(VariantCollection::class, $extension->getVariants());
         static::assertInstanceOf(ImageCollection::class, $extension->getImages());
@@ -118,16 +116,58 @@ class ExtensionLoaderTest extends TestCase
     {
         static::getContainer()->get(PluginService::class)->refreshPlugins(Context::createDefaultContext(), new NullIO());
 
-        /** @var PluginCollection $plugins */
-        $plugins = static::getContainer()->get('plugin.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        /** @var EntityRepository<PluginCollection> $pluginRepo */
+        $pluginRepo = static::getContainer()->get('plugin.repository');
+
+        $plugins = $pluginRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), $plugins);
 
-        /** @var ExtensionStruct $extension */
         $extension = $extensions->get('AppStoreTestPlugin');
 
-        static::assertNotNull($extension);
-        static::assertEquals('AppStoreTestPlugin', $extension->getName());
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
+        static::assertSame('AppStoreTestPlugin', $extension->getName());
+        static::assertTrue($extension->isAllowUpdate());
+
+        $pluginId = $extension->getLocalId();
+        static::assertNotNull($pluginId);
+
+        $pluginRepo->upsert([
+            [
+                'id' => $pluginId,
+                'managedByComposer' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        $plugins = $pluginRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
+
+        $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), $plugins);
+
+        $extension = $extensions->get('AppStoreTestPlugin');
+
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
+        static::assertSame('AppStoreTestPlugin', $extension->getName());
+        // update still allowed, as the plugin is not loaded from vendor folder
+        // this is the case for all plugins that `executeComposerCommands` but are still installed in /custom/plugins
+        static::assertTrue($extension->isAllowUpdate());
+
+        $pluginRepo->upsert([
+            [
+                'id' => $pluginId,
+                'path' => 'vendor/swag/app-store-test-plugin',
+            ],
+        ], Context::createDefaultContext());
+
+        $plugins = $pluginRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
+
+        $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), $plugins);
+
+        $extension = $extensions->get('AppStoreTestPlugin');
+
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
+        static::assertSame('AppStoreTestPlugin', $extension->getName());
+        // update not allowed when it is installed over composer (and not just required by composer)
+        static::assertFalse($extension->isAllowUpdate());
     }
 
     public function testUpgradeAtMapsToUpdatedAtInStruct(): void
@@ -141,7 +181,7 @@ class ExtensionLoaderTest extends TestCase
 
         $time = new \DateTime();
 
-        /** @var EntityRepository $pluginRepository */
+        /** @var EntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = static::getContainer()->get('plugin.repository');
         $pluginRepository->update([
             [
@@ -169,21 +209,31 @@ class ExtensionLoaderTest extends TestCase
             new AppCollection([$installedApp])
         );
 
-        static::assertEquals([
-            'German',
-            'British English',
-        ], $extensions->first()?->getLanguages());
-
-        static::assertSame($installedApp->getUpdatedAt(), $extensions->first()?->getUpdatedAt());
+        $firstExtension = $extensions->first();
+        static::assertNotNull($firstExtension);
+        static::assertSame(['German', 'British English'], $firstExtension->getLanguages());
+        static::assertSame($installedApp->getUpdatedAt(), $firstExtension->getUpdatedAt());
         static::assertEquals(new PermissionCollection([
             PermissionStruct::fromArray(['entity' => 'product', 'operation' => 'create']),
             PermissionStruct::fromArray(['entity' => 'product', 'operation' => 'read']),
             PermissionStruct::fromArray(['entity' => 'additional_privileges', 'operation' => 'additional:privilege']),
-        ]), $extensions->first()?->getPermissions());
+        ]), $firstExtension->getPermissions());
 
         foreach ($extensions as $extension) {
-            static::assertEquals(ExtensionStruct::EXTENSION_TYPE_APP, $extension->getType());
+            static::assertSame(ExtensionStruct::EXTENSION_TYPE_APP, $extension->getType());
         }
+    }
+
+    public function testUpdateAllowedForAppThatAreNotManagedByComposer(): void
+    {
+        $installedApp = $this->getInstalledApp();
+
+        $extensions = $this->extensionLoader->loadFromAppCollection(
+            Context::createDefaultContext(),
+            new AppCollection([$installedApp])
+        );
+
+        static::assertTrue($extensions->first()?->isAllowUpdate());
     }
 
     private function getInstalledApp(): AppEntity

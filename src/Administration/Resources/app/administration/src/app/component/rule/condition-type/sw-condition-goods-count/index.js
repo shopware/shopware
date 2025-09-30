@@ -13,7 +13,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-goods-count :condition="condition" :level="0"></sw-condition-goods-count>
  */
-Component.extend('sw-condition-goods-count', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -47,4 +48,4 @@ Component.extend('sw-condition-goods-count', 'sw-condition-base', {
             return this.conditionValueOperatorError || this.conditionValueCountError;
         },
     },
-});
+};

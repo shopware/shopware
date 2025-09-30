@@ -21,7 +21,7 @@ class CmsVersionMergeSubscriberTest extends TestCase
             BeforeVersionMergeEvent::class => 'onBeforeVersionMerge',
         ];
 
-        static::assertEquals($expectedEvents, CmsVersionMergeSubscriber::getSubscribedEvents());
+        static::assertSame($expectedEvents, CmsVersionMergeSubscriber::getSubscribedEvents());
     }
 
     /**
@@ -45,7 +45,7 @@ class CmsVersionMergeSubscriberTest extends TestCase
 
         $subscriber->onBeforeVersionMerge($event);
 
-        static::assertEquals($expectedWrites, $event->writes);
+        static::assertSame($expectedWrites, $event->writes);
     }
 
     public static function versionMergeEventDataProvider(): \Generator

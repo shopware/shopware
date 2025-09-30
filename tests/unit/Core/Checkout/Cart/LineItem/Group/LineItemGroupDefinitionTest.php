@@ -33,7 +33,7 @@ class LineItemGroupDefinitionTest extends TestCase
     {
         $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
-        static::assertEquals('ID-1', $group->getId());
+        static::assertSame('ID-1', $group->getId());
     }
 
     /**
@@ -45,7 +45,7 @@ class LineItemGroupDefinitionTest extends TestCase
     {
         $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
-        static::assertEquals('COUNT', $group->getPackagerKey());
+        static::assertSame('COUNT', $group->getPackagerKey());
     }
 
     /**
@@ -57,7 +57,7 @@ class LineItemGroupDefinitionTest extends TestCase
     {
         $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
-        static::assertEquals(2, $group->getValue());
+        static::assertSame(2.0, $group->getValue());
     }
 
     /**
@@ -69,7 +69,7 @@ class LineItemGroupDefinitionTest extends TestCase
     {
         $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
-        static::assertEquals('PRICE_ASC', $group->getSorterKey());
+        static::assertSame('PRICE_ASC', $group->getSorterKey());
     }
 
     /**

@@ -23,8 +23,8 @@ async function createWrapper({
     return mount(await wrapTestComponent('sw-landing-page-detail-base', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
@@ -37,25 +37,14 @@ async function createWrapper({
                         'disabled',
                     ],
                 },
-                'sw-switch-field': {
-                    template:
-                        '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
-                },
                 'sw-entity-tag-select': {
                     template: '<input type="select" class="sw-entity-tag-select"/>',
                     props: ['disabled'],
                 },
                 'sw-entity-multi-select': true,
                 'mt-banner': true,
-                'sw-textarea-field': true,
+                'mt-textarea': true,
                 'sw-custom-field-set-renderer': true,
-            },
-            mocks: {
-                placeholder: () => {},
             },
             computed: {
                 landingPage() {

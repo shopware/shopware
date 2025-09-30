@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Framework\Sso\Controller\SsoController" public="true">
+            <argument type="service" id="shopware.api.authorization_server"/>
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\Config\LoginConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\LoginResponseService"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\StateValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\Config\LoginConfigService">
+            <argument>%shopware.admin_login%</argument>
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\TokenService\ExternalTokenService">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\Config\LoginConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\TokenService\IdTokenParser">
+            <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\PublicKeyLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\Config\LoginConfigService"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\TokenService\PublicKeyLoader">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\Config\LoginConfigService"/>
+            <argument type="service" id="cache.object" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\UserService\UserService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\IdTokenParser"/>
+            <argument type="service" id="user.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\ExternalTokenService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService">
+            <argument type="service" id="user.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\LoginResponseService">
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\SsoService">
+            <argument type="service" id="Shopware\Core\Framework\Sso\Config\LoginConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Sso\StateValidator" />
+
+        <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService">
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="mail_template_type.repository"/>
+            <argument type="service" id="user.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument>%APP_URL%</argument>
+        </service>
+
+    </services>
+</container>

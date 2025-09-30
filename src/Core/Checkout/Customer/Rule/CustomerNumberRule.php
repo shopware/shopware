@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerNumberRule extends Rule
@@ -21,6 +21,8 @@ class CustomerNumberRule extends Rule
 
     /**
      * @param list<string>|null $numbers
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
@@ -40,7 +42,7 @@ class CustomerNumberRule extends Rule
         }
 
         if (!\is_array($this->numbers)) {
-            throw new UnsupportedValueException(\gettype($this->numbers), self::class);
+            throw CustomerException::unsupportedValue(\gettype($this->numbers), self::class);
         }
 
         return RuleComparison::stringArray($customer->getCustomerNumber(), array_map('strtolower', $this->numbers), $this->operator);

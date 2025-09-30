@@ -144,6 +144,22 @@ class CustomFieldsSerializerTest extends TestCase
                 'customFields.test_custom_field_text' => 'foobar',
             ],
         ];
+        yield 'expect values for boolean custom field' => [
+            'mappings' => [
+                new Mapping(
+                    'translations.DEFAULT.customFields.test_custom_field_boolean',
+                    'mappedKeyBoolean'
+                ),
+            ],
+            'field' => new CustomFields('custom_fields', 'customFields'),
+            'inputValue' => [
+                'test_custom_field_boolean' => true,
+            ],
+            'expected' => [
+                'customFields' => '{"test_custom_field_boolean":true}',
+                'customFields.test_custom_field_boolean' => true,
+            ],
+        ];
     }
 
     /**
@@ -262,6 +278,21 @@ class CustomFieldsSerializerTest extends TestCase
             'expected' => [
                 self::CUSTOM_FIELD_TEXT => 'hello world',
                 self::CUSTOM_FIELD_NUMBER => 99,
+            ],
+        ];
+        yield 'expect boolean value for custom field' => [
+            'mappings' => [
+                new Mapping(
+                    'translations.DEFAULT.customFields.test_custom_field_boolean',
+                    'mappedKeyBoolean'
+                ),
+            ],
+            'field' => new CustomFields('custom_fields', 'customFields'),
+            'inputValue' => [
+                'test_custom_field_boolean' => true,
+            ],
+            'expected' => [
+                'test_custom_field_boolean' => true,
             ],
         ];
     }

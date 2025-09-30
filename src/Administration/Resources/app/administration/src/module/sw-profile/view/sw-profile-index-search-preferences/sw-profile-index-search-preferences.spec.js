@@ -19,21 +19,15 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-checkbox-field': true,
                     'sw-loader': true,
                     'sw-extension-component-section': true,
-                    'sw-alert': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
                     'router-link': true,
                 },
-
                 provide: {
                     repositoryFactory: {
                         create: () => ({
@@ -64,6 +58,9 @@ async function createWrapper() {
                             };
                         },
                     },
+                    searchRankingService: {
+                        getMinSearchTermLength: () => Promise.resolve(2),
+                    },
                 },
                 attachTo: document.body,
             },
@@ -78,6 +75,18 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     beforeEach(() => {
         Shopware.Application.view.deleteReactive = () => {};
+    });
+
+    it('should get minSearchTermLength once component created', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.getMinSearchTermLength = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.getMinSearchTermLength).toHaveBeenCalledTimes(1);
+        wrapper.vm.getMinSearchTermLength.mockRestore();
     });
 
     it('should get data source once component created', async () => {

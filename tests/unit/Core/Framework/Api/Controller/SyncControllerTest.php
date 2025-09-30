@@ -45,7 +45,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], (string) \json_encode($operations));
 
         $service = $this->createMock(SyncService::class);
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('sync')
             ->willReturnCallback(function ($operations) use ($criteria) {
                 static::assertCount(1, $operations);
@@ -55,7 +55,7 @@ class SyncControllerTest extends TestCase
                 static::assertSame('delete-mapping', $operation->getKey());
                 static::assertSame('product', $operation->getEntity());
                 static::assertSame('delete', $operation->getAction());
-                static::assertEquals($criteria, $operation->getCriteria());
+                static::assertSame($criteria, $operation->getCriteria());
 
                 return new SyncResult([]);
             });
@@ -87,7 +87,7 @@ class SyncControllerTest extends TestCase
         $controller = new SyncController($service, $serializer);
 
         $response = $controller->sync($request, Context::createDefaultContext());
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
     }
 
     public function testSyncWithInvalidJson(): void

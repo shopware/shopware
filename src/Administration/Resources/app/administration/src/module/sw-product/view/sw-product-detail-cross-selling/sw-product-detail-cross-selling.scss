@@ -1,54 +1,20 @@
 @import "~scss/variables";
 
 .sw-product-detail-cross-selling {
-    &__restore-inheritance-btn {
+    & &__restore-inheritance-btn.mt-button {
         display: block;
         margin: 0 auto 40px;
-        background-color: transparent;
-        border-color: $color-module-purple-900;
-        color: $color-module-purple-900;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-module-purple-900;
         }
 
-        &:hover {
-            background-color: $color-module-purple-50;
-        }
-
-        &:active {
-            background-color: $color-module-purple-100;
-        }
-
         &:disabled,
-        &.sw-button--disabled {
-            background-color: transparent;
-            border-color: $color-module-purple-200;
-            color: $color-module-purple-200;
-
-            .sw-icon {
+        &.mt-button--disabled {
+            .mt-icon {
                 color: $color-module-purple-200;
             }
         }
-    }
-
-    &__context-button {
-        float: right;
-        padding-bottom: 20px;
-    }
-
-    &__add-btn {
-        display: block;
-        margin: 0 auto;
-    }
-
-    .sw-empty-state__description p {
-        font-size: $font-size-s;
-        margin: 20px 0;
-    }
-
-    &__parent-cross-sellings-link {
-        margin-bottom: 20px;
     }
 
     &__inherit-toggle-wrapper {
@@ -57,7 +23,7 @@
         align-items: center;
         line-height: 16px;
         font-size: $font-size-xs;
-        margin-bottom: 20px;
+        margin: 20px 0;
         color: $color-darkgray-200;
 
         &.is--inherited {
@@ -76,5 +42,10 @@
 
     &__inheritance-icon {
         margin-right: 8px;
+    }
+
+    &__cross-selling-list + .sw-tooltip--wrapper {
+        margin: 0 auto;
+        width: fit-content;
     }
 }

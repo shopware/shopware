@@ -139,8 +139,7 @@ async function createWrapper() {
                 'sw-order-customer-address-select': await wrapTestComponent('sw-order-customer-address-select', {
                     sync: true,
                 }),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                 'sw-text-field': true,
                 'sw-entity-single-select': {
                     props: ['value'],
@@ -175,19 +174,7 @@ async function createWrapper() {
                 },
                 'sw-highlight-text': true,
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-field-error': true,
-                'sw-number-field': {
-                    template: `
-                        <div class="sw-number-field">
-                            <input type="number" :value="value" @input="$emit('change', Number($event.target.value))"/>
-                            <slot name="suffix"></slot>
-                        </div>
-                    `,
-                    props: {
-                        value: 0,
-                    },
-                },
                 'sw-select-result': {
                     props: [
                         'item',
@@ -260,7 +247,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         );
         expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         await switchSameAddress.setChecked(true);
 
         expect(wrapper.vm.context.shippingAddressId).toBe('1');
@@ -275,7 +262,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         expect(switchSameAddress.element.checked).toBeFalsy();
 
         await switchSameAddress.setChecked(true);
@@ -295,7 +282,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             },
         });
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         expect(switchSameAddress.element.checked).toBeTruthy();
 
         await switchSameAddress.setChecked(false);
@@ -338,14 +325,14 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
     it('should able to select currency', async () => {
         const wrapper = await createWrapper();
 
-        let shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost');
+        let shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost .mt-field__addition:not(.is--prefix)');
         expect(shippingCostField.text()).toBe('€');
 
         const currencyInput = wrapper.findComponent('.sw-order-create-options__currency-select');
         await currencyInput.vm.$emit('update:value', 'USD');
         await flushPromises();
 
-        shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost');
+        shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost .mt-field__addition:not(.is--prefix)');
         expect(shippingCostField.text()).toBe('$');
     });
 
@@ -353,7 +340,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
 
         const shippingCostField = wrapper.findComponent('.sw-order-create-options__shipping-cost');
-        await shippingCostField.vm.$emit('update:value', 100);
+        await shippingCostField.vm.$emit('update:modelValue', 100);
 
         expect(wrapper.emitted('shipping-cost-change')).toBeTruthy();
         expect(wrapper.emitted('shipping-cost-change')[0][0]).toBe(100);

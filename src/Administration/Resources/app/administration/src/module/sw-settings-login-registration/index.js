@@ -1,7 +1,7 @@
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-settings-login-registration', () => import('./page/sw-settings-login-registration'));
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 /**
  * @sw-package fundamentals@framework
@@ -30,14 +30,7 @@ Module.register('sw-settings-login-registration', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'customer';
-        },
+        group: 'customer',
         to: 'sw.settings.login.registration.index',
         icon: 'regular-sign-in',
         privilege: 'system.system_config',

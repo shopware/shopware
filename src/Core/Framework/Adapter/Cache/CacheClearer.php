@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +12,7 @@ use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -20,6 +21,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class CacheClearer
 {
+    private const LOCK_TTL = 30;
+    private const LOCK_KEY_CONTAINER = 'container-cache-directories';
+
     /**
      * @internal
      *
@@ -34,15 +38,19 @@ class CacheClearer
         private readonly string $cacheDir,
         private readonly string $environment,
         private readonly bool $clusterMode,
+        private readonly bool $reverseHttpCacheEnabled,
         private readonly MessageBusInterface $messageBus,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly LockFactory $lockFactory,
     ) {
     }
 
     public function clear(bool $clearHttp = true): void
     {
-        foreach ($this->adapters as $adapter) {
-            $adapter->clear();
+        $this->clearObjectCache();
+
+        if ($clearHttp && $this->reverseHttpCacheEnabled) {
+            $this->reverseProxyCache?->banAll();
         }
 
         try {
@@ -53,7 +61,7 @@ class CacheClearer
         }
 
         if (!is_writable($this->cacheDir)) {
-            throw new \RuntimeException(\sprintf('Unable to write in the "%s" directory', $this->cacheDir));
+            throw AdapterException::cacheDirectoryError($this->cacheDir);
         }
 
         $this->cacheClearer->clear($this->cacheDir);
@@ -68,10 +76,6 @@ class CacheClearer
         $this->cleanupUrlGeneratorCacheFiles();
 
         $this->cleanupOldContainerCacheDirectories();
-
-        if ($clearHttp) {
-            $this->reverseProxyCache?->banAll();
-        }
     }
 
     public function clearContainerCache(): void
@@ -89,7 +93,9 @@ class CacheClearer
             $containerCaches[] = $containerPaths->getRealPath();
         }
 
-        $this->filesystem->remove($containerCaches);
+        $this->lock(function () use ($containerCaches): void {
+            $this->filesystem->remove($containerCaches);
+        }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
     }
 
     public function scheduleCacheFolderCleanup(): void
@@ -107,6 +113,13 @@ class CacheClearer
         }
     }
 
+    public function clearObjectCache(): void
+    {
+        foreach ($this->adapters as $adapter) {
+            $adapter->clear();
+        }
+    }
+
     public function prune(): void
     {
         foreach ($this->adapters as $adapter) {
@@ -118,10 +131,6 @@ class CacheClearer
 
     public function cleanupOldContainerCacheDirectories(): void
     {
-        // Don't delete other folders while paratest is running
-        if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
-            return;
-        }
         if ($this->clusterMode) {
             // In cluster mode we can't delete caches on the filesystem
             // because this only runs on one node in the cluster
@@ -136,7 +145,6 @@ class CacheClearer
         if (!$finder->hasResults()) {
             return;
         }
-
         $remove = [];
         foreach ($finder->getIterator() as $directory) {
             if ($directory->getPathname() !== $this->cacheDir) {
@@ -145,7 +153,9 @@ class CacheClearer
         }
 
         if ($remove !== []) {
-            $this->filesystem->remove($remove);
+            $this->lock(function () use ($remove): void {
+                $this->filesystem->remove($remove);
+            }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
         }
     }
 
@@ -156,6 +166,23 @@ class CacheClearer
         // if reverse proxy is not enabled, clear the http pool
         if ($this->reverseProxyCache === null) {
             $this->adapters['http']->clear();
+        }
+    }
+
+    /**
+     * Locks the execution of the closure to prevent concurrent executions.
+     *
+     * @see https://symfony.com/doc/current/components/lock.html
+     */
+    private function lock(\Closure $closure, string $key, int $timeToLive): void
+    {
+        $lock = $this->lockFactory->createLock('cache-clearer::' . $key, $timeToLive);
+
+        // The execution is blocked until the key is found or the time to live is reached.
+        if ($lock->acquire(true)) {
+            $closure();
+
+            $lock->release();
         }
     }
 

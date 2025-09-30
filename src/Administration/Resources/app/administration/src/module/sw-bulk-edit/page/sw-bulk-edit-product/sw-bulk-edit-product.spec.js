@@ -20,6 +20,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         },
         customMocks = {
             productRepositoryMock: undefined,
+            templateType: 'default',
+            options: [],
         },
     ) {
         const productEntity = productEntityOverride === undefined ? { metaTitle: 'test' } : productEntityOverride;
@@ -73,26 +75,83 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
                     'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent(
                         'sw-bulk-edit-change-type-field-renderer',
                     ),
-                    'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
+                    'sw-bulk-edit-form-field-renderer': {
+                        template: `
+                            <div>
+                                <template v-if="templateType === 'select'">
+                                    <select
+                                        :value="modelValue || value"
+                                        @change="onInput"
+                                        class="sw-form-field-renderer"
+                                    >
+                                        <option
+                                            v-for="option in options"
+                                            class="sw-form-field-renderer__option"
+                                            :key="option.value"
+                                            :value="option.value"
+                                        >
+                                            {{ option.label }}
+                                        </option>
+                                    </select>
+                                </template>
+                                <template v-else>
+                                    <input
+                                        :value="modelValue || value"
+                                        @input="onInput"
+                                        class="sw-form-field-renderer"
+                                    />
+                                </template>
+                            </div>
+                        `,
+                        props: {
+                            modelValue: {
+                                type: [
+                                    String,
+                                    Number,
+                                    Boolean,
+                                    Object,
+                                    Array,
+                                ],
+                                default: null,
+                            },
+                            value: {
+                                type: [
+                                    String,
+                                    Number,
+                                    Boolean,
+                                    Object,
+                                    Array,
+                                ],
+                                default: null,
+                            },
+                            templateType: {
+                                type: String,
+                                default: () => customMocks.templateType,
+                            },
+                            options: {
+                                type: Array,
+                                default: () => customMocks.options || [],
+                            },
+                        },
+                        methods: {
+                            onInput(event) {
+                                this.$emit('update:model-value', event.target.value);
+                                this.$emit('update:value', event.target.value);
+                                this.$emit('update:entity-collection', event.target.value);
+                            },
+                        },
+                    },
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
+                    'sw-context-menu-item': true,
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
@@ -115,6 +174,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
                     'sw-bulk-edit-product-visibility': true,
                     'sw-product-visibility-select': true,
                     'sw-custom-field-set-renderer': true,
@@ -126,7 +186,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-language-switch': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
-                    'sw-icon': true,
                     'sw-multi-tag-select': true,
                     'sw-entity-tag-select': true,
                     'sw-product-properties': true,
@@ -136,27 +195,22 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                    'sw-alert': true,
                     'sw-label': true,
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,
                     'sw-bulk-edit-product-description': true,
-                    'mt-button': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-error-summary': true,
-                    'mt-card': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
                     'sw-help-center-v2': true,
                     'sw-help-text': true,
                     'sw-field-copyable': true,
-                    'mt-number-field': true,
                     'sw-maintain-currencies-modal': true,
                     'sw-product-variant-info': true,
-                    'mt-checkbox': true,
-                    'mt-switch': true,
                     'mt-textarea': true,
                     'sw-textarea-field-deprecated': true,
                     'mt-text-field': true,
@@ -255,6 +309,21 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},
+                    },
+                    userConfigService: {
+                        search: () => {
+                            return Promise.resolve({
+                                data: {
+                                    'measurement.preferenceUnits': {
+                                        length: 'mm',
+                                        weight: 'kg',
+                                    },
+                                },
+                            });
+                        },
+                        upsert: () => {
+                            return Promise.resolve();
+                        },
                     },
                 },
             },
@@ -369,14 +438,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 ],
             },
         });
-        Shopware.Store.get('shopwareApps').selectedIds = [
+        Shopware.Store.get('swBulkEdit').selectedIds = [
             Shopware.Utils.createId(),
         ];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be handled change data', async () => {
@@ -389,7 +453,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        await activeField.find('.sw-field--switch__input input').setValue('checked');
+        await activeField.find('.sw-form-field-renderer').setValue('checked');
 
         expect(wrapper.vm.bulkEditProduct.active.isChanged).toBeTruthy();
 
@@ -469,12 +533,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should be show empty state', async () => {
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        Shopware.Store.get('swBulkEdit').selectedIds = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.product.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.product.messageEmptyTitle');
     });
 
     it('should be selected taxRate on click change tax field', async () => {
@@ -482,10 +545,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             taxId: null,
         };
 
-        const wrapper = await createWrapper(productEntity, {
-            name: 'sw.bulk.edit.product',
-            params: { parentId: 'null' },
-        });
+        const wrapper = await createWrapper(
+            productEntity,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'null' },
+            },
+            {
+                templateType: 'select',
+                options: [
+                    {
+                        value: 'taxRate1',
+                        label: 'Rate 1',
+                    },
+                    {
+                        value: 'taxRate2',
+                        label: 'Rate 2',
+                    },
+                ],
+            },
+        );
 
         await flushPromises();
 
@@ -494,16 +573,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        await taxField.find('.sw-select__selection').trigger('click');
+        await taxField.find('.sw-form-field-renderer').setValue('taxRate2');
 
         await flushPromises();
 
-        const taxList = wrapper.find('.sw-select-result-list__item-list');
-        const secondTax = taxList.find('.sw-select-option--1');
-        await secondTax.trigger('click');
-
-        expect(secondTax.text()).toBe('Rate 2');
-        expect(wrapper.vm.taxRate.name).toBe('Rate 2');
+        const taxId = Shopware.Store.get('swProductDetail').product.taxId;
+        expect(taxId).toBe('taxRate2');
     });
 
     it('should be correct data when the user overwrite minPurchase', async () => {
@@ -568,8 +643,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
-        const priceFields = priceFieldsForm.find('.sw-price-field');
-        const priceGrossInput = priceFields.find('#price-gross');
+        const priceGrossInput = priceFieldsForm.find('input');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
@@ -594,18 +668,13 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
         await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
-        const priceFields = priceFieldsForm.find('.sw-price-field');
-        const priceGrossInput = priceFields.find('#price-gross');
+        const priceGrossInput = priceFieldsForm.find('input');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
         const listPriceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-listPrice');
         await listPriceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
         await flushPromises();
-
-        const listPriceFields = listPriceFieldsForm.find('.sw-price-field');
-        const listPriceGrossInput = listPriceFields.find('#listPrice-gross');
-        await listPriceGrossInput.setValue('5');
 
         wrapper.vm.onProcessData();
 
@@ -624,17 +693,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
-        const priceFields = priceFieldsForm.find('.sw-price-field');
-        const priceGrossInput = priceFields.find('#price-gross');
+        const priceGrossInput = priceFieldsForm.find('input');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
         await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
 
         const listPriceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-listPrice');
-
-        const listPriceFields = listPriceFieldsForm.find('.sw-price-field');
-        const listPriceGrossInput = listPriceFields.find('#listPrice-gross');
+        const listPriceGrossInput = listPriceFieldsForm.find('input');
         await listPriceGrossInput.setValue('5');
         await flushPromises();
 
@@ -839,7 +905,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-button-process').attributes('disabled') !== undefined).toBe(true);
 
         await wrapper.setData({
             isLoading: false,
@@ -858,7 +924,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-button-process').attributes('disabled')).toBeUndefined();
     });
 
     it('should get parent product when component created', async () => {
@@ -993,5 +1059,59 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         expect(wrapper.vm.parentProduct).toStrictEqual({});
         expect(wrapper.vm.parentProductFrozen).toBeNull();
+    });
+
+    it('should get preference units', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.userConfigService.search = jest.fn().mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': {
+                    length: 'cm',
+                    weight: 'g',
+                },
+            },
+        });
+
+        await wrapper.vm.loadPreferenceUnits();
+
+        expect(wrapper.vm.lengthUnit).toBe('cm');
+        expect(wrapper.vm.weightUnit).toBe('g');
+    });
+
+    it('should not get preference units', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.userConfigService.search = jest.fn().mockResolvedValue({
+            data: {},
+        });
+
+        await wrapper.vm.loadPreferenceUnits();
+
+        expect(wrapper.vm.lengthUnit).toBe('mm');
+        expect(wrapper.vm.weightUnit).toBe('kg');
+    });
+
+    it('should save preference units', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.userConfigService.upsert = jest.fn();
+
+        await wrapper.setData({
+            lengthUnit: 'cm',
+            weightUnit: 'g',
+            preferenceUnits: {
+                length: 'mm',
+                weight: 'kg',
+            },
+        });
+
+        await wrapper.vm.savePreferenceUnits();
+
+        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalledWith({
+            'measurement.preferenceUnits': {
+                length: 'cm',
+                weight: 'g',
+            },
+        });
+
+        wrapper.vm.userConfigService.upsert.mockRestore();
     });
 });

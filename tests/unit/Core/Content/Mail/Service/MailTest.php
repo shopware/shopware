@@ -22,7 +22,7 @@ class MailTest extends TestCase
         $mail = new Mail();
         $mail->addAttachmentUrl('foobar');
 
-        static::assertEquals(['foobar'], $mail->getAttachmentUrls());
+        static::assertSame(['foobar'], $mail->getAttachmentUrls());
 
         $attachmentsConfig = new MailAttachmentsConfig(
             Context::createDefaultContext(),
@@ -34,6 +34,6 @@ class MailTest extends TestCase
 
         $mail->setMailAttachmentsConfig($attachmentsConfig);
 
-        static::assertEquals($attachmentsConfig, $mail->getMailAttachmentsConfig());
+        static::assertSame($attachmentsConfig, $mail->getMailAttachmentsConfig());
     }
 }

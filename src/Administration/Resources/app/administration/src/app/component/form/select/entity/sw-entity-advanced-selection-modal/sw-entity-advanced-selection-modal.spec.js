@@ -79,15 +79,12 @@ const createAdvancedSelectionModal = async (customOptions) => {
         },
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-modal': true,
-                'sw-card': true,
                 'sw-card-filter': true,
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
                 'sw-empty-state': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-simple-search-field': true,
                 'sw-context-menu': true,
                 'sw-filter-panel': true,
@@ -146,12 +143,6 @@ const createAdvancedSelectionModal = async (customOptions) => {
 };
 
 describe('components/sw-entity-advanced-selection-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const searchModal = await createAdvancedSelectionModal();
-
-        expect(searchModal.vm).toBeTruthy();
-    });
-
     it('should respect the entered search term in criteria', async () => {
         const searchModal = await createAdvancedSelectionModal();
 

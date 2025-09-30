@@ -5,7 +5,7 @@
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-settings-sitemap', () => import('./page/sw-settings-sitemap'));
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-sitemap', {
@@ -31,14 +31,7 @@ Module.register('sw-settings-sitemap', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'content';
-        },
+        group: 'content',
         to: 'sw.settings.sitemap.index',
         icon: 'regular-map',
         privilege: 'system.system_config',

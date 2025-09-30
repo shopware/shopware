@@ -1,5 +1,5 @@
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 import './acl';
 

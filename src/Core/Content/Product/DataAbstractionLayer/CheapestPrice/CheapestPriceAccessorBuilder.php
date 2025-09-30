@@ -66,7 +66,7 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
         $template = '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.#property#")) * #factor#)';
         $variables = [
             '#template#' => $template,
-            '#decimals#' => $context->getRounding()->getDecimals(),
+            '#decimals#' => (string) $context->getRounding()->getDecimals(),
         ];
 
         $template = str_replace(
@@ -90,8 +90,8 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
                 '#rule_key#' => 'rule' . $ruleId,
                 '#currency_key#' => 'currency' . $context->getCurrencyId(),
                 '#property#' => $jsonAccessor,
-                '#factor#' => 1,
-                '#multiplier#' => $multiplier,
+                '#factor#' => '1',
+                '#multiplier#' => (string) $multiplier,
             ];
 
             $select[] = str_replace(
@@ -110,8 +110,8 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
                 '#rule_key#' => 'rule' . $ruleId,
                 '#currency_key#' => 'currency' . Defaults::CURRENCY,
                 '#property#' => $jsonAccessor,
-                '#factor#' => $context->getCurrencyFactor(),
-                '#multiplier#' => $multiplier,
+                '#factor#' => (string) $context->getCurrencyFactor(),
+                '#multiplier#' => (string) $multiplier,
             ];
 
             $select[] = str_replace(

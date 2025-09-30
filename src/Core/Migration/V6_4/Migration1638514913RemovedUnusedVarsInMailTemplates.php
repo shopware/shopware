@@ -9,13 +9,14 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailSubjectUpdate;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;
@@ -27,6 +28,8 @@ class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $filesystem = new Filesystem();
+
         $connection->executeStatement('
             UPDATE `mail_template_translation`
             SET `description` = \'Anfrage zum Zurücksetzen des Passworts\'
@@ -42,10 +45,10 @@ class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep
 
         $update = new MailUpdate(
             MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE,
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/password_change/en-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/password_change/en-html.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/password_change/de-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/password_change/de-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/password_change/en-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/password_change/en-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/password_change/de-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/password_change/de-html.html.twig'),
         );
         $this->updateMail($update, $connection);
 

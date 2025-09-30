@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -18,6 +19,7 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[CoversClass(PaymentMethodValidator::class)]
+#[Package('checkout')]
 class PaymentMethodValidatorTest extends TestCase
 {
     private PaymentMethodValidator $validator;

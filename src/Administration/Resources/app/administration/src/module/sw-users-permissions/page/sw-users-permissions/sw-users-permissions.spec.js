@@ -22,7 +22,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
                         'sw-users-permissions-user-listing': true,
                         'sw-users-permissions-role-listing': true,
                         'sw-users-permissions-configuration': true,
-                        'sw-icon': true,
                         'sw-button-process': true,
                     },
                 },
@@ -30,10 +29,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
         );
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the user list', async () => {

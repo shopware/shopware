@@ -19,9 +19,9 @@ class FakeCryptKeyTest extends TestCase
     {
         $configuration = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText('test'));
         $fakeCryptKey = new FakeCryptKey($configuration);
-        static::assertEquals('', $fakeCryptKey->getKeyContents());
-        static::assertEquals('', $fakeCryptKey->getKeyPath());
-        static::assertEquals('', $fakeCryptKey->getPassPhrase());
+        static::assertSame('', $fakeCryptKey->getKeyContents());
+        static::assertSame('', $fakeCryptKey->getKeyPath());
+        static::assertSame('', $fakeCryptKey->getPassPhrase());
         static::assertSame($configuration, $fakeCryptKey->configuration);
     }
 }

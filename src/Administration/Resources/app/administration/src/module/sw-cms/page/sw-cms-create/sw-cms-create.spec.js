@@ -55,7 +55,6 @@ async function createWrapper(routeParams = {}) {
                     'sw-cms-toolbar': true,
                     'router-link': true,
                     'sw-page': true,
-                    'sw-icon': true,
                 },
                 mocks: {
                     $route: { params: routeParams },
@@ -217,5 +216,14 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-cms.create.notification.assignToEntityError',
         });
+    });
+
+    it('should call resetRelatedStores in createdComponent', async () => {
+        const wrapper = await createWrapper();
+        const resetSpy = jest.spyOn(wrapper.vm, 'resetRelatedStores');
+
+        await wrapper.vm.createdComponent();
+
+        expect(resetSpy).toHaveBeenCalledTimes(1);
     });
 });

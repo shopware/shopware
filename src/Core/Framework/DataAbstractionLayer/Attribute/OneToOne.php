@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class OneToOne extends Field
+final class OneToOne extends Field
 {
     public const TYPE = 'one-to-one';
 

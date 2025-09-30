@@ -5,12 +5,27 @@
 </div>
 
 <div v-else>
+    {% block sw_product_detail_specifications_measurement %}
+    <mt-card
+        v-if="showProductCard('measurement') && !productStates.includes('is-download')"
+        class="sw-product-detail-specification__measurement"
+        position-identifier="sw-product-detail-specifications-measurement"
+        :title="$tc('sw-product.specifications.cardTitleMeasurement')"
+    >
+        {% block sw_product_detail_specifications_measurement_content %}
+        <sw-product-measurement-form
+            :allow-edit="acl.can('product.editor')"
+        />
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+
     {% block sw_product_detail_specifications_measures_packaging %}
-    <sw-card
-        v-show="showProductCard('measures_packaging') && !productStates.includes('is-download')"
-        class="sw-product-detail-specification__measures-packaging"
+    <mt-card
+        v-if="showProductCard('selling_packaging') && !productStates.includes('is-download')"
+        class="sw-product-detail-specification__selling-packaging"
         position-identifier="sw-product-detail-specifications-measures-packaging"
-        :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
+        :title="$tc('sw-product.specifications.cardTitleSellingPackaging')"
     >
         {% block sw_product_detail_specifications_measures_packaging_content %}
         <sw-product-packaging-form
@@ -18,7 +33,7 @@
             :allow-edit="acl.can('product.editor')"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_specifications_property %}
@@ -28,7 +43,7 @@
     {% endblock %}
 
     {% block sw_product_detail_specifications_essential_characteristics %}
-    <sw-card
+    <mt-card
         v-show="showProductCard('essential_characteristics')"
         class="sw-product-detail-specification__essential-characteristics"
         position-identifier="sw-product-detail-specifications-essential-characteristics"
@@ -37,14 +52,14 @@
         {% block sw_product_detail_specifications_essential_characteristics_content %}
         <sw-product-feature-set-form :allow-edit="acl.can('product.editor')" />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_specifications_custom_products %}
     {% endblock %}
 
     {% block sw_product_detail_specifications_custom_fields %}
-    <sw-card
+    <mt-card
         v-show="showCustomFieldsCard"
         class="sw-product-detail-specification__custom-fields"
         position-identifier="sw-product-detail-specifications-custom-fields"
@@ -59,7 +74,7 @@
             :disabled="!acl.can('product.editor')"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

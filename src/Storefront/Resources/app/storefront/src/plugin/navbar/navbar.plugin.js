@@ -8,9 +8,27 @@ export default class NavbarPlugin extends Plugin {
          */
         debounceTime: 125,
         /**
+         * Class to select the main navigation items, which contain both the top level link and the dropdown navigation.
+         */
+        navItemSelector: '.nav-item',
+        /**
          * Class to select the top level links.
          */
         topLevelLinksSelector: '.main-navigation-link',
+        /**
+         * Class to select the current page to add aria label current page to it.
+         */
+        ariaCurrentPageSelector: '.nav-item-{id}-link',
+
+        /**
+         * Class to show the currently active category.
+         */
+        activeClass: 'active',
+
+        /**
+         * Array of ids representing the path to the currently active category.
+         */
+        pathIdList: [],
     };
 
     init() {
@@ -24,23 +42,37 @@ export default class NavbarPlugin extends Plugin {
         const closeEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseleave';
         const clickEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
+        this.el.addEventListener('mouseleave', this._closeAllDropdowns.bind(this));
+        this.el.addEventListener('focusout', this._restoreFocusAfterBtnClose.bind(this));
+
         this._topLevelLinks.forEach(el => {
             el.addEventListener(openEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(closeEvent, this._toggleNavbar.bind(this, el));
-            el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
+            if (el.getAttribute('href') !== null) {
+                el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
+            }
         });
 
+        window.addEventListener('load', () => {
+            this._setCurrentPage();
+        });
     }
 
     _toggleNavbar(topLevelLink, event) {
         const currentDropdown = window.bootstrap.Dropdown.getOrCreateInstance(topLevelLink);
         if (event.type === 'mouseenter') {
+            if (!currentDropdown?._menu) {
+                this._closeAllDropdowns();
+
+                return;
+            }
+
             this._isMouseOver = true;
             this._debounce(() => {
                 if (this._isMouseOver && currentDropdown?._menu && !currentDropdown._menu.classList.contains('show')) {
                     this._closeAllDropdowns();
-                    this.$emitter.publish('closeAllDropdowns');
                     currentDropdown.show();
+                    topLevelLink.blur();
                     this.$emitter.publish('showDropdown');
                 }
             }, this.options.debounceTime);
@@ -56,6 +88,8 @@ export default class NavbarPlugin extends Plugin {
                 dropdown.hide();
             }
         });
+
+        this.$emitter.publish('closeAllDropdowns');
     }
 
     /**
@@ -99,5 +133,51 @@ export default class NavbarPlugin extends Plugin {
      */
     _clearDebounce() {
         clearTimeout(this._debouncer);
+    }
+
+    /**
+     * Sets the active class and aria-current attribute on the configured selectors.
+     * @private
+     */
+    _setCurrentPage() {
+        if (window.activeNavigationId) {
+            const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
+            const activeNavItem = this.el.querySelector(navItemSelector);
+
+            if (activeNavItem) {
+                activeNavItem.setAttribute('aria-current', 'page');
+                activeNavItem.classList.add(this.options.activeClass);
+            }
+        }
+
+        this.options.pathIdList.forEach((id) => {
+            const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', id);
+            const activeNavItem = this.el.querySelector(navItemSelector);
+
+            if (activeNavItem) {
+                activeNavItem.classList.add(this.options.activeClass);
+            }
+        });
+    }
+
+    /**
+     * Restores focus to the main-navigation link related to the currently active dropdown navigation.
+     * The focus state is lost when closing the dropdown via button using a keyboard.
+     *
+     * @param {FocusEvent} event
+     * @return {void}
+     */
+    _restoreFocusAfterBtnClose(event) {
+        if (event.relatedTarget || event.target.matches(this.options.topLevelLinksSelector)) {
+            return;
+        }
+
+        const link = event.target.closest(this.options.navItemSelector)?.querySelector(this.options.topLevelLinksSelector);
+
+        if (!link) {
+            return;
+        }
+
+        window.focusHandler.setFocus(link);
     }
 }

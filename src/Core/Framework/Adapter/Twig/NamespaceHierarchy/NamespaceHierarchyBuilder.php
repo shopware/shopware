@@ -16,6 +16,9 @@ class NamespaceHierarchyBuilder
     {
     }
 
+    /**
+     * @return array<string, int>
+     */
     public function buildHierarchy(): array
     {
         $hierarchy = [];

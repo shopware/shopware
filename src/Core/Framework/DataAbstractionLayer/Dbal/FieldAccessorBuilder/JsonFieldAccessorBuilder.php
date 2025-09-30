@@ -61,7 +61,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             'JSON_EXTRACT(%s.%s, %s)',
             EntityDefinitionQueryHelper::escape($root),
             EntityDefinitionQueryHelper::escape($field->getStorageName()),
-            (string) $this->connection->quote('$' . $jsonPath)
+            $this->connection->quote('$' . $jsonPath)
         );
 
         $embeddedField = $this->getField($jsonPath, $field->getPropertyMapping());
@@ -112,7 +112,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         if ($field instanceof BoolField) {
             return \sprintf(
-                'IF(JSON_UNQUOTE(%s) != "true" && JSON_UNQUOTE(%s) = 0, 0, 1)',
+                'IF(JSON_UNQUOTE(%s) != "true" AND JSON_UNQUOTE(%s) = 0, 0, 1)',
                 $jsonValueExpr,
                 $jsonValueExpr
             );

@@ -57,8 +57,6 @@ async function createWrapper(privileges = []) {
         <slot></slot>
     </div>`,
                     },
-                    'sw-button': true,
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-entity-listing': {
                         props: ['items'],
@@ -79,20 +77,13 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new currency', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-currency-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create a new currency', async () => {

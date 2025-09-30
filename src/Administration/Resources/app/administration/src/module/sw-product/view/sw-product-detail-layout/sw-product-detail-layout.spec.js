@@ -56,7 +56,7 @@ async function createWrapper(privileges = []) {
                 },
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-product-layout-assignment': true,

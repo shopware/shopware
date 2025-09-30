@@ -42,11 +42,14 @@ async function createWrapper() {
                 },
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),
                 'sw-textarea-field': true,
-                'sw-button': true,
-                'sw-icon': true,
+                'sw-time-ago': true,
             },
             provide: {
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
         },
     });

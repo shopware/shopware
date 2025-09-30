@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -18,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * @internal
  */
 #[Group('store-api')]
+#[Package('checkout')]
 class PaymentMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -82,45 +84,6 @@ class PaymentMethodRouteTest extends TestCase
         static::assertSame(3, $response['total']);
         static::assertArrayHasKey('name', $response['elements'][0]);
         static::assertArrayNotHasKey('id', $response['elements'][0]);
-    }
-
-    public function testFilteredOutGet(): void
-    {
-        $this->browser
-            ->request(
-                'GET',
-                '/store-api/payment-method?onlyAvailable=1',
-            );
-
-        static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(2, $response['total']);
-        static::assertCount(2, $response['elements']);
-        static::assertNotContains($this->ids->get('payment3'), array_column($response['elements'], 'id'));
-
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(PaymentMethodRouteHook::HOOK_NAME, $traces);
-    }
-
-    public function testFilteredOutPost(): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/payment-method',
-                ['onlyAvailable' => 1],
-            );
-
-        static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(2, $response['total']);
-        static::assertCount(2, $response['elements']);
-        static::assertNotContains($this->ids->get('payment3'), array_column($response['elements'], 'id'));
-
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(PaymentMethodRouteHook::HOOK_NAME, $traces);
     }
 
     private function createData(): void

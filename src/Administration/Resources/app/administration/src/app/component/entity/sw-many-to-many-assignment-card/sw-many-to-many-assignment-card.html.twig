@@ -1,5 +1,5 @@
 {% block sw_entity_many_to_many_assignment_card %}
-<sw-card
+<mt-card
     class="sw-many-to-many-assignment-card"
     position-identifier="sw-many-to-many-assignment"
     v-bind="$attrs"
@@ -76,13 +76,19 @@
                                             name="result-label-property"
                                             v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
                                         >
-
+                                            <sw-product-variant-info
+                                                v-if="displayVariants"
+                                                :variations="item.variation"
+                                                :highlighted="true"
+                                                :search-term="searchTerm"
+                                            >
+                                                {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                            </sw-product-variant-info>
                                             <sw-highlight-text
-                                                v-if="highlightSearchTerm"
+                                                v-else-if="highlightSearchTerm"
                                                 :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
                                                 :search-term="searchTerm"
                                             />
-
                                             <template v-else>
                                                 {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                             </template>
@@ -163,7 +169,7 @@
                             v-else-if="!!searchTerm"
                             class="sw-many-to-many-assignment-card__empty-state"
                         >
-                            <sw-icon
+                            <mt-icon
                                 name="regular-search"
                                 size="20px"
                             />
@@ -195,5 +201,5 @@
         </slot>
     </template>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

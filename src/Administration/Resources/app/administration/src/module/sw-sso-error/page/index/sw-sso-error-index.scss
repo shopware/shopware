@@ -1,0 +1,61 @@
+@import "~scss/variables";
+
+.sw-sso-error {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--scale-size-24);
+    background-color: var(--color-elevation-surface-default);
+    transition: background-color 0.15s ease-in-out;
+    overflow: auto;
+
+    .sw-sso-error__image-container {
+        text-align: center;
+        margin-bottom: var(--scale-size-24);
+    }
+
+    .sw-sso-error-card {
+        width: 420px;
+
+        .lock-icon {
+            background-color: var(--color-background-primary-disabled);
+            border-radius: var(--border-radius-xs);
+            width: var(--scale-size-48);
+            height: var(--scale-size-48);
+            padding: 12px 0 0 13px;
+        }
+
+        .sw-sso-error__title {
+            color: var(--color-text-primary-default);
+            font-weight: var(--font-weight-bold);
+            margin: var(--scale-size-24) var(--scale-size-0) var(--scale-size-8) var(--scale-size-0);
+        }
+
+        .sw-sso-error__description {
+            line-height: var(--font-line-height-xs);
+            color: var(--color-text-secondary-default);
+        }
+
+        .sw-sso-error-card__button-container {
+            margin: var(--scale-size-24) var(--scale-size-0) var(--scale-size-20) var(--scale-size-0);
+        }
+
+        .sw-sso-error-card__small-text {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary-default);
+            line-height: var(--font-line-height-2xs);
+        }
+
+        .sw-sso-error-card__small-text-email {
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary-default);
+            line-height: var(--font-line-height-2xs);
+        }
+
+        .sw-sso-error__loading-indicator {
+            height: var(--scale-size-40);
+        }
+    }
+}

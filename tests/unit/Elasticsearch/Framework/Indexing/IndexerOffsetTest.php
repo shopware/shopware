@@ -26,21 +26,21 @@ class IndexerOffsetTest extends TestCase
             $timestamp
         );
 
-        static::assertEquals(ProductDefinition::ENTITY_NAME, $offset->getDefinition());
+        static::assertSame(ProductDefinition::ENTITY_NAME, $offset->getDefinition());
         static::assertTrue($offset->hasNextDefinition());
         static::assertSame($timestamp, $offset->getTimestamp());
         static::assertNull($offset->getLastId());
 
         $offset->selectNextDefinition();
 
-        static::assertEquals(ProductManufacturerDefinition::ENTITY_NAME, $offset->getDefinition());
+        static::assertSame(ProductManufacturerDefinition::ENTITY_NAME, $offset->getDefinition());
         static::assertEmpty($offset->getDefinitions());
         static::assertFalse($offset->hasNextDefinition());
 
         $offset->resetDefinitions();
 
-        static::assertEquals(ProductDefinition::ENTITY_NAME, $offset->getDefinition());
-        static::assertEquals(
+        static::assertSame(ProductDefinition::ENTITY_NAME, $offset->getDefinition());
+        static::assertSame(
             [
                 ProductManufacturerDefinition::ENTITY_NAME,
             ],
@@ -48,7 +48,7 @@ class IndexerOffsetTest extends TestCase
         );
 
         $offset->setLastId(['offset' => 42]);
-        static::assertEquals(['offset' => 42], $offset->getLastId());
+        static::assertSame(['offset' => 42], $offset->getLastId());
     }
 
     public function testSerialize(): void

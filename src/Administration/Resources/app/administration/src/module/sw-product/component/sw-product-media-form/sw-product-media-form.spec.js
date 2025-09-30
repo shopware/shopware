@@ -53,7 +53,6 @@ async function createWrapper() {
                 'sw-media-preview-v2': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -105,14 +104,6 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         product.getEntityName = () => 'T-Shirt';
 
         Shopware.Store.get('swProductDetail').product = product;
-    });
-
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the sw-media-upload-v2 component', async () => {

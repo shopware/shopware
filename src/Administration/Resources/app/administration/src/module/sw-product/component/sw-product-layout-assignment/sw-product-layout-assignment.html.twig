@@ -42,41 +42,44 @@
         {% block sw_product_layout_assignment_buttons %}
         <div class="sw-product-layout-assignment__buttons">
             {% block sw_product_layout_assignment_button_add %}
-            <sw-button
+            <mt-button
                 class="sw-product-layout-assignment__button"
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="openLayoutModal"
             >
                 {{ cmsPage ? $tc('sw-product.layoutAssignment.textChangeLayout') : $tc('sw-product.layoutAssignment.textAssignLayout') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_layout_assignment_button_edit %}
-            <sw-button
+            <mt-button
                 class="sw-product-layout-assignment__button"
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="openInPageBuilder"
             >
                 {{ cmsPage ? $tc('sw-product.layoutAssignment.textEditInDesigner') : $tc('sw-product.layoutAssignment.textCreateNewLayout') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_layout_assignment_button_delete %}
-            <sw-button
+            <mt-button
                 v-if="cmsPage"
                 class="sw-product-layout-assignment__button"
                 square
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="onLayoutReset"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}

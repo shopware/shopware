@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Service;
 
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
-use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -24,6 +24,7 @@ class ConfigurationService
      * @internal
      *
      * @param BundleInterface[] $bundles
+     * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
         private readonly iterable $bundles,
@@ -35,7 +36,7 @@ class ConfigurationService
     }
 
     /**
-     * @throws ConfigurationNotFoundException
+     * @throws SystemConfigException
      * @throws \InvalidArgumentException
      * @throws BundleConfigNotFoundException
      *

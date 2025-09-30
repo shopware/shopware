@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -147,9 +147,10 @@ class FileSaver
 
         $event = new MediaPathChangedEvent($context);
 
-        $event->media(
+        $event->mediaWithMimeType(
             mediaId: $media->getId(),
-            path: $path
+            path: $path,
+            mimeType: $media->getMimeType()
         );
 
         $updateData = [
@@ -177,10 +178,11 @@ class FileSaver
 
             if (!empty($thumbnails)) {
                 foreach ($thumbnails as $thumbnailId => $thumbnailPath) {
-                    $event->thumbnail(
+                    $event->thumbnailWithMimeType(
                         mediaId: $media->getId(),
                         thumbnailId: $thumbnailId,
-                        path: $thumbnailPath
+                        path: $thumbnailPath,
+                        mimeType: $media->getMimeType()
                     );
                 }
 
@@ -246,7 +248,7 @@ class FileSaver
         $path = $media->getPath();
 
         $event = new MediaPathChangedEvent($context);
-        $event->media(mediaId: $media->getId(), path: $path);
+        $event->mediaWithMimeType(mediaId: $media->getId(), path: $path, mimeType: $media->getMimeType());
 
         try {
             $this->getFileSystem($media)->writeStream($path, $stream);
@@ -290,11 +292,8 @@ class FileSaver
             'fileName' => $destination,
             'metaData' => $metadata,
             'mediaTypeRaw' => serialize($mediaType),
+            'uploadedAt' => new \DateTime(),
         ];
-
-        if ($media->getUploadedAt() === null) {
-            $data['uploadedAt'] = new \DateTime();
-        }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
             $this->mediaRepository->update([$data], $context);
@@ -423,10 +422,7 @@ class FileSaver
             [
                 new EqualsFilter('fileName', $destination),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new NotFilter(
-                    NotFilter::CONNECTION_AND,
-                    [new EqualsFilter('id', $media->getId())]
-                ),
+                new NotEqualsFilter('id', $media->getId()),
             ]
         ));
 

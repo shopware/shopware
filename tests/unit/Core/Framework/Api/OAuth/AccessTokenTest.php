@@ -18,15 +18,15 @@ class AccessTokenTest extends TestCase
 {
     public function testToken(): void
     {
-        $client = new ApiClient('administration', true, 'test');
+        $client = new ApiClient('administration', true, 'test', true);
         $token = new AccessToken(
             $client,
             [],
             'test'
         );
 
-        static::assertEquals('test', $token->getUserIdentifier());
-        static::assertEquals('administration', $token->getClient()->getIdentifier());
+        static::assertSame('test', $token->getUserIdentifier());
+        static::assertSame('administration', $token->getClient()->getIdentifier());
         static::assertCount(0, $token->getScopes());
 
         $config = JWTConfigurationFactory::createJWTConfiguration();
@@ -34,7 +34,7 @@ class AccessTokenTest extends TestCase
         $token->setClient($client);
         $token->setPrivateKey(new FakeCryptKey($config));
         $token->setIdentifier('administration');
-        static::assertEquals('administration', $token->getIdentifier());
+        static::assertSame('administration', $token->getIdentifier());
         static::assertSame($client, $token->getClient());
         $token->setExpiryDateTime(new \DateTimeImmutable());
 

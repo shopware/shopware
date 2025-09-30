@@ -44,7 +44,7 @@ async function createWrapper() {
                     },
                     'sw-tabs-item': true,
                     'sw-entity-single-select': true,
-                    'sw-alert': true,
+
                     'sw-product-variant-info': true,
                     'sw-select-result': true,
                     'sw-select-field': true,
@@ -91,7 +91,7 @@ describe('module/sw-cms/elements/buy-box/config', () => {
         const wrapper = await createWrapper();
 
         const productSelector = wrapper.find('sw-entity-single-select-stub');
-        const alert = wrapper.find('sw-alert-stub');
+        const alert = wrapper.find('[role="banner"]');
 
         expect(productSelector.exists()).toBeFalsy();
         expect(alert.exists()).toBeTruthy();

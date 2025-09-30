@@ -11,9 +11,7 @@ async function createWrapper() {
         }),
         {
             global: {
-                stubs: {
-                    'sw-alert': true,
-                },
+                stubs: {},
             },
         },
     );

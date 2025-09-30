@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
 
 /**
- * @experimental feature:TELEMETRY_METRICS stableVersion:v6.7.0
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
 class Meter

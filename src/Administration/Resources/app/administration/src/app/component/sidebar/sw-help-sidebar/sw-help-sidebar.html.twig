@@ -1,0 +1,121 @@
+{% block sw_help_sidebar %}
+<transition
+    v-if="showHelpSidebar"
+    v-bind="$attrs"
+    appear
+    name="sw-help-sidebar__fade"
+>
+    <div
+        class="sw-help-sidebar"
+        role="button"
+        tabindex="0"
+        @mousedown="mouseDown"
+        @keyup.esc="escKey"
+    >
+        <div
+            ref="helpSidebarContainer"
+            class="sw-help-sidebar__container"
+            tabindex="-1"
+        >
+            <div class="sw-help-sidebar__header">
+                <h3 class="sw-help-sidebar__headline">
+                    {{ $tc('help-center.sidebar.title') }}
+                </h3>
+
+                <button
+                    class="sw-help-sidebar__button-close"
+                    :aria-label="$tc('help-center.sidebar.ariaLabelButtonClose')"
+                    @click="closeHelpSidebar"
+                >
+                    <mt-icon
+                        name="times-xs"
+                        size="var(--scale-size-12)"
+                        color="var(--color-icon-primary-default)"
+                    />
+                </button>
+            </div>
+
+            <div class="sw-help-sidebar__body">
+                <div class="sw-help-sidebar__navigation">
+                    <sw-extension-component-section
+                        position-identifier="sw-help-sidebar__navigation"
+                    />
+                </div>
+
+                <div class="sw-help-sidebar__support">
+                    <h4 class="sw-help-sidebar__support-title">
+                        {{ $tc('help-center.sidebar.support.title') }}
+                    </h4>
+
+                    {% block sw_help_sidebar_support_content %}
+                    <ul class="sw-help-sidebar__support-content">
+                        {% block sw_help_sidebar_support_documentation %}
+                        <li class="sw-help-sidebar__support-item">
+                            <sw-external-link
+                                class="sw-help-sidebar__support-item-link"
+                                :href="$tc('help-center.sidebar.support.documentation.href')"
+                            >
+                                <mt-icon
+                                    class="sw-help-sidebar__support-item-icon"
+                                    name="solid-content"
+                                    color="var(--color-icon-primary-default)"
+                                    size="var(--scale-size-16)"
+                                    aria-hidden="true"
+                                />
+                                {{ $tc('help-center.sidebar.support.documentation.text') }}
+                            </sw-external-link>
+                        </li>
+                        {% endblock %}
+
+                        {% block sw_help_sidebar_support_create_support_request %}
+                        <li class="sw-help-sidebar__support-item">
+                            <sw-external-link
+                                class="sw-help-sidebar__support-item-link"
+                                :href="$tc('help-center.sidebar.support.createSupportRequest.href')"
+                            >
+                                <mt-icon
+                                    class="sw-help-sidebar__support-item-icon"
+                                    name="solid-comments"
+                                    color="var(--color-icon-primary-default)"
+                                    size="var(--scale-size-16)"
+                                    aria-hidden="true"
+                                />
+                                {{ $tc('help-center.sidebar.support.createSupportRequest.text') }}
+                            </sw-external-link>
+                        </li>
+                        {% endblock %}
+
+                        {% block sw_help_sidebar_support_placeholder %}
+                        {% endblock %}
+                    </ul>
+                    {% endblock %}
+                </div>
+            </div>
+
+            <div class="sw-help-sidebar__footer">
+                <div class="sw-help-sidebar__shortcut">
+                    <mt-button
+                        v-tooltip="{
+                            message: $tc('sw-shortcut-overview.iconTooltip', { key: 'Shift + ?' }, 0),
+                            appearance: 'light',
+                            position: 'top',
+                            zIndex: 1600,
+                        }"
+                        class="sw-help-sidebar__shortcut-button"
+                        :aria-label="$tc('help-center.sidebar.ariaLabelButtonShortcut')"
+                        variant="secondary"
+                        @click="openShortcutModal"
+                    >
+                        <mt-icon
+                            name="solid-keyboard"
+                            color="var(--color-icon-primary-default)"
+                            size="var(--scale-size-16)"
+                        />
+                        {{ $tc('sw-shortcut-overview.title') }}
+                    </mt-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</transition>
+{% endblock %}

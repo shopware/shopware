@@ -8,14 +8,10 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-search-preferences-modal', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
                 'sw-data-grid': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-checkbox-field': true,
-                'mt-button': true,
             },
             provide: {
                 searchPreferencesService: {
@@ -55,10 +51,6 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
         Shopware.Application.view.deleteReactive = () => {};
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get data source once component created', async () => {

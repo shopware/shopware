@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer;
 
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,17 +12,20 @@ use Shopware\Core\Framework\Log\Package;
 class SerializerRegistry
 {
     /**
-     * @var AbstractEntitySerializer[]
+     * @var array<AbstractEntitySerializer>
      */
     private readonly array $entitySerializers;
 
     /**
-     * @var AbstractFieldSerializer[]
+     * @var array<AbstractFieldSerializer>
      */
     private readonly array $fieldSerializers;
 
     /**
      * @internal
+     *
+     * @param iterable<AbstractEntitySerializer> $entitySerializers
+     * @param iterable<AbstractFieldSerializer> $fieldSerializers
      */
     public function __construct(
         iterable $entitySerializers,
@@ -41,7 +45,7 @@ class SerializerRegistry
             }
         }
 
-        throw new \RuntimeException('There should be a fallback serializer');
+        throw ImportExportException::serializerNotFound($entity);
     }
 
     public function getFieldSerializer(Field $field): AbstractFieldSerializer
@@ -54,11 +58,11 @@ class SerializerRegistry
             }
         }
 
-        throw new \RuntimeException('There should be a fallback serializer');
+        throw ImportExportException::serializerNotFound($field::class);
     }
 
     /**
-     * @return AbstractEntitySerializer[]
+     * @return array<AbstractEntitySerializer>
      */
     public function getAllEntitySerializers(): array
     {
@@ -66,7 +70,7 @@ class SerializerRegistry
     }
 
     /**
-     * @return AbstractFieldSerializer[]
+     * @return array<AbstractFieldSerializer>
      */
     public function getAllFieldSerializers(): array
     {

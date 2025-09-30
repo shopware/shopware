@@ -1,10 +1,9 @@
+/**
+ * @sw-package after-sales
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
-
-/**
- * @sw-package checkout
- */
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -40,6 +39,7 @@ const documentFixture = {
     },
     config: {
         documentNumber: '1000',
+        documentDate: '2023/01/01',
     },
     id: 'document1',
     deepLinkCode: 'abcd',
@@ -89,16 +89,9 @@ const documentTypeFixture = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card', {
-                    sync: true,
-                }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
-                },
                 'sw-card-section': {
                     template: '<div class="sw-card-section"><slot></slot></div>',
                 },
@@ -112,11 +105,9 @@ async function createWrapper() {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': true,
-                'sw-context-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
                 'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', {
                     sync: true,
                 }),
@@ -148,9 +139,8 @@ async function createWrapper() {
                 },
                 'sw-radio-field': true,
                 'sw-datepicker': true,
-                'sw-icon': true,
                 'sw-textarea-field': true,
-                'sw-switch-field': true,
+
                 'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                 'sw-loader': true,
                 'sw-extension-component-section': true,
@@ -164,6 +154,7 @@ async function createWrapper() {
                 'sw-media-upload-v2': true,
                 'sw-media-modal-v2': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
+                'sw-time-ago': true,
             },
             provide: {
                 documentService: {
@@ -206,12 +197,21 @@ async function createWrapper() {
                         searchIds: () => Promise.resolve([]),
                     }),
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             mocks: {
                 $route: {
                     query: '',
                     name: 'sw.order.detail.documents',
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
                 },
             },
             directives: {
@@ -233,6 +233,8 @@ async function createWrapper() {
             isLoading: false,
         },
     });
+    await flushPromises();
+    return wrapper;
 }
 
 describe('src/module/sw-order/component/sw-order-document-card', () => {
@@ -251,12 +253,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         setActivePinia(createPinia());
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled create new button', async () => {
@@ -609,6 +605,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
+
+        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        expect(wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').element.value).toBe('1000');
+
         await wrapper.find('.sw-order-document-settings-modal__send-button').trigger('click');
         await flushPromises();
 
@@ -634,6 +634,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
+
+        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        expect(wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').element.value).toBe('1000');
+
         await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
         await flushPromises();
 

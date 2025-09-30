@@ -48,6 +48,6 @@ class DateHistogramAggregationTest extends TestCase
 
         $clone = clone $aggregation;
 
-        static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
     }
 }

@@ -23,6 +23,30 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testUpdateSetsColumnToNullable(): void
+    {
+        $exists = $this->columnExists();
+
+        if (!$exists) {
+            $this->addColumn();
+        }
+
+        $migration = new Migration1737430168RemoveFileTypeOfDocumentTable();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $fileTypeColumn = $this->connection->fetchAssociative(
+            'SHOW COLUMNS FROM `document` WHERE `Field` LIKE "file_type"',
+        );
+        static::assertIsArray($fileTypeColumn);
+
+        static::assertSame('YES', $fileTypeColumn['Null']);
+
+        if (!$exists) {
+            $migration->updateDestructive($this->connection);
+        }
+    }
+
     public function testUpdateDestructiveRemovesColumn(): void
     {
         $exists = $this->columnExists();
@@ -45,7 +69,7 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
     private function addColumn(): void
     {
         $this->connection->executeStatement(
-            'ALTER TABLE `document` ADD COLUMN `file_type` VARCHAR(255) DEFAULT NULL'
+            'ALTER TABLE `document` ADD COLUMN `file_type` VARCHAR(255) NOT NULL'
         );
     }
 

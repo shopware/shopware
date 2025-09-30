@@ -12,26 +12,11 @@ class NumberRangeStateEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $numberRangeId;
+    protected string $numberRangeId;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lastValue;
+    protected int $lastValue;
 
-    /**
-     * @var NumberRangeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $numberRange;
+    protected ?NumberRangeEntity $numberRange = null;
 
     public function getNumberRangeId(): string
     {

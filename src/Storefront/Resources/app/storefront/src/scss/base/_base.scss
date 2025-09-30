@@ -13,35 +13,6 @@ html {
         overflow: hidden;
     }
 
-    // used by viewport detection helper to determine the current viewport
-    // @deprecated tag:v6.7.0 - ViewportDetectionHelper will use CSS variable `--sw-current-breakpoint` instead of content from <html> :before element.
-    @if not feature('ACCESSIBILITY_TWEAKS') {
-        &::before {
-            position: absolute;
-            top: -100%;
-            font-size: 0;
-
-            @include media-breakpoint-only(xs) {
-                content: 'xs';
-            }
-            @include media-breakpoint-only(sm) {
-                content: 'sm';
-            }
-            @include media-breakpoint-only(md) {
-                content: 'md';
-            }
-            @include media-breakpoint-only(lg) {
-                content: 'lg';
-            }
-            @include media-breakpoint-only(xl) {
-                content: 'xl';
-            }
-            @include media-breakpoint-only(xxl) {
-                content: 'xxl';
-            }
-        }
-    }
-
     /* stylelint-disable selector-class-pattern -- allow BEM here as it is a generated class name from the administration
      * sw-text-editor component adds a column selector to configure the width of table columns
      * this must no be shown in the storefront as it breaks table layouts

@@ -16,7 +16,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-code-editor': true,
-                    'sw-alert': true,
                 },
             },
             props: {
@@ -35,11 +34,6 @@ async function createWrapper() {
 describe('src/module/sw-cms/elements/html/config', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should update element onBlur', async () => {

@@ -1,0 +1,41 @@
+.mt-banner.sw-settings-services-dashboard-banner__content {
+    max-width: 960px;
+    margin: var(--scale-size-32) auto;
+    color: var(--color-text-primary-default);
+
+    h3 {
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xl);
+    }
+
+    .mt-banner__close {
+        color: var(--color-text-primary-default);
+    }
+
+    .mt-button {
+        margin-top: var(--scale-size-16);
+    }
+
+    .sw-settings-services-dashboard-banner__content {
+        display: grid;
+        grid-template-columns: 1fr 0.45fr;
+    }
+}
+
+.sw-settings-services-dashboard-banner__graphic--light {
+    display: block;
+}
+
+.sw-settings-services-dashboard-banner__graphic--dark {
+    display: none;
+}
+
+[data-theme="dark"] {
+    .sw-settings-services-dashboard-banner__graphic--light {
+        display: none;
+    }
+
+    .sw-settings-services-dashboard-banner__graphic--dark {
+        display: block;
+    }
+}

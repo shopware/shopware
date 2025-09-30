@@ -39,16 +39,16 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
             'Storefront',
         ];
 
-        $this->connection->expects(static::exactly(2))->method('fetchAssociative')->willReturnOnConsecutiveCalls($expectedDB, []);
+        $this->connection->expects($this->exactly(2))->method('fetchAssociative')->willReturnOnConsecutiveCalls($expectedDB, []);
 
         $salesChannelId = Uuid::randomHex();
 
         $actualTheme = $this->themeLoader->load($salesChannelId);
-        static::assertEquals($expectedTheme, $actualTheme);
+        static::assertSame($expectedTheme, $actualTheme);
 
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
-        static::assertEquals([], $secondAttempt);
+        static::assertSame([], $secondAttempt);
     }
 
     public function testLoadMultiple(): void
@@ -80,14 +80,14 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
             'Storefront',
         ];
 
-        $this->connection->expects(static::exactly(4))->method('fetchAssociative')->willReturnOnConsecutiveCalls($expectedDB1, $expectedDB2, $expectedDB3, []);
+        $this->connection->expects($this->exactly(4))->method('fetchAssociative')->willReturnOnConsecutiveCalls($expectedDB1, $expectedDB2, $expectedDB3, []);
         $salesChannelId = Uuid::randomHex();
 
         $actualTheme = $this->themeLoader->load($salesChannelId);
-        static::assertEquals($expectedTheme, $actualTheme);
+        static::assertSame($expectedTheme, $actualTheme);
 
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
-        static::assertEquals([], $secondAttempt);
+        static::assertSame([], $secondAttempt);
     }
 }

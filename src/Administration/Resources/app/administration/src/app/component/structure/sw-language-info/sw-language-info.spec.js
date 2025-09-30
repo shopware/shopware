@@ -43,10 +43,6 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the languageId', async () => {
         expect(wrapper.vm.languageId).toBe('123456789');
     });

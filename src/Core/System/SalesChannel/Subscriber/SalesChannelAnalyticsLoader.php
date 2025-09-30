@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Subscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 
 /**
@@ -14,6 +14,9 @@ use Shopware\Storefront\Event\StorefrontRenderEvent;
 #[Package('discovery')]
 class SalesChannelAnalyticsLoader
 {
+    /**
+     * @param EntityRepository<SalesChannelAnalyticsCollection> $salesChannelAnalyticsRepository
+     */
     public function __construct(
         private readonly EntityRepository $salesChannelAnalyticsRepository,
     ) {
@@ -32,8 +35,7 @@ class SalesChannelAnalyticsLoader
         $criteria = new Criteria([$analyticsId]);
         $criteria->setTitle('sales-channel::load-analytics');
 
-        /** @var SalesChannelAnalyticsEntity|null $analytics */
-        $analytics = $this->salesChannelAnalyticsRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $analytics = $this->salesChannelAnalyticsRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
 
         $event->setParameter('storefrontAnalytics', $analytics);
     }

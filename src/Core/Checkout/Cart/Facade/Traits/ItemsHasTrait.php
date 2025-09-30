@@ -41,9 +41,4 @@ trait ItemsHasTrait
 
         return false;
     }
-
-    private function getItems(): LineItemCollection
-    {
-        return $this->items;
-    }
 }

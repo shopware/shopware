@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
@@ -36,6 +37,9 @@ class ProductExportGeneratorTest extends TestCase
 {
     private MockObject&ProductStreamBuilderInterface $productStreamBuilder;
 
+    /**
+     * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
+     */
     private MockObject&SalesChannelRepository $productRepository;
 
     private MockObject&ProductExportRendererInterface $productExportRender;
@@ -84,9 +88,9 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExport = $this->getProductExportEntity();
 
-        $this->contextPersister->expects(static::once())->method('save');
-        $this->salesChannelContextService->expects(static::once())->method('get');
-        $this->parserFactory->expects(static::once())->method('getParser');
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get');
+        $this->parserFactory->expects($this->once())->method('getParser');
 
         $generator = new ProductExportGenerator(
             $this->productStreamBuilder,
@@ -116,14 +120,14 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExport = $this->getProductExportEntity();
 
-        $this->contextPersister->expects(static::once())->method('save');
-        $this->salesChannelContextService->expects(static::once())->method('get');
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get');
 
         $errorMessage = 'error message';
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->method('parse')
             ->willThrowException(new \Exception($errorMessage));
-        $this->parserFactory->expects(static::once())
+        $this->parserFactory->expects($this->once())
             ->method('getParser')
             ->willReturn($twigVariableParser);
 

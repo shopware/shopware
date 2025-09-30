@@ -25,7 +25,7 @@ class CompilerConfigurationTest extends TestCase
             'test' => 'value',
         ]);
 
-        static::assertEquals('value', $config->getValue('test'));
+        static::assertSame('value', $config->getValue('test'));
     }
 
     public function testGetWholeConfiguration(): void
@@ -34,7 +34,7 @@ class CompilerConfigurationTest extends TestCase
             'test' => 'value',
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             'test' => 'value',
         ], $config->getConfiguration());
     }

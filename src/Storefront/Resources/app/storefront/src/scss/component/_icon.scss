@@ -217,10 +217,11 @@ Credit: https://github.com/FortAwesome/Font-Awesome
     }
 }
 
-.is-right {
+.is-right,
+.offcanvas-end {
     .offcanvas-close {
         svg {
-            top: 0.3rem;
+            top: 0.25rem;
         }
     }
 }

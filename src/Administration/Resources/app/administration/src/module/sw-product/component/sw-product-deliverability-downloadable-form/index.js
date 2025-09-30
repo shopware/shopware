@@ -42,6 +42,14 @@ export default {
             return Shopware.Store.get('swProductDetail').showModeSetting;
         },
 
+        showStockSetting() {
+            if (this.product.isCloseout !== null || !this.parentProduct?.id) {
+                return this.product.isCloseout;
+            }
+
+            return this.parentProduct.isCloseout;
+        },
+
         ...mapPropertyErrors('product', [
             'stock',
             'deliveryTimeId',

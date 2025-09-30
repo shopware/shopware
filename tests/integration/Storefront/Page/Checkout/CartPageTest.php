@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
@@ -58,7 +59,8 @@ class CartPageTest extends TestCase
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(StorefrontCartFacade::class),
             $route,
-            static::getContainer()->get(CountryRoute::class)
+            static::getContainer()->get(CountryRoute::class),
+            static::getContainer()->get(Translator::class)
         );
 
         $context = $this->createSalesChannelContextWithNavigation();

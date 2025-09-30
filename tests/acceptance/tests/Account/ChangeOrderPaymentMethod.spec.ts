@@ -21,11 +21,20 @@ test('Customers can update the payment method for an existing order in the store
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText('Invoice');
-    
+
     await orderItemLocators.orderActionsButton.click();
     await orderItemLocators.orderChangePaymentMethodButton.click();
 
+    const invoiceInputValue = await StorefrontCheckoutOrderEdit.getPaymentMethodButton('Invoice').getAttribute('value');
     await StorefrontCheckoutOrderEdit.getPaymentMethodButton(newPaymentMethod.name).click();
+
+    const paymentMethodInput = ShopCustomer.page.locator('input[type=hidden][name="paymentMethodId"]');
+    await ShopCustomer.expects(paymentMethodInput).not.toHaveValue(invoiceInputValue, { timeout: 15_000 });
+
+    // for some reason checking the state of the inputs actually changes the state of the inputs
+    await ShopCustomer.expects(StorefrontCheckoutOrderEdit.getPaymentMethodButton('Invoice')).not.toBeChecked();
+    await ShopCustomer.expects(StorefrontCheckoutOrderEdit.getPaymentMethodButton(newPaymentMethod.name)).toBeChecked();
+
     await StorefrontCheckoutOrderEdit.completePaymentButton.click();
 
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());

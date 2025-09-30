@@ -10,8 +10,5 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class SpatialObjectType extends MediaType
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name = 'SPATIAL_OBJECT';
+    protected string $name = 'SPATIAL_OBJECT';
 }

@@ -8,8 +8,6 @@ test(
     InstanceMeta,
 }) => {
     test.skip(InstanceMeta.isSaaS, 'Cache invalidation does not happen immediately on SaaS');
-    test.skip(InstanceMeta.features['ACCESSIBILITY_TWEAKS'], 'Blocked by https://shopware.atlassian.net/browse/NEXT-40635, ' +
-        'https://shopware.atlassian.net/browse/NEXT-40156');
 
     await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});
     const product = await TestDataService.createBasicProduct();
@@ -35,7 +33,7 @@ test(
 
     await test.step('Navigate to the product page and verify the cookie banner', async () => {
         const productListItemLocators = await StorefrontHome.getListingItemByProductName(product.name);
-        await productListItemLocators.productImage.click();
+        await productListItemLocators.productName.click();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
     });
 });

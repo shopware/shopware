@@ -1,0 +1,102 @@
+<div class="sw-settings-services-hero">
+    <sw-settings-services-framed-icon
+        class="sw-settings-services-hero__image-editor-left"
+        :image-url="assets.imageEditor"
+        size="var(--scale-size-56)"
+    />
+    <sw-settings-services-framed-icon
+        class="sw-settings-services-hero__copilot-left"
+        :image-url="assets.copilot"
+        size="var(--scale-size-80)"
+    />
+    <sw-settings-services-framed-icon
+        class="sw-settings-services-hero__preview-generator-left"
+        :image-url="assets.previewGenerator"
+        size="var(--scale-size-40)"
+    />
+    <sw-settings-services-framed-icon
+        class="sw-settings-services-hero__copilot-right"
+        :image-url="assets.copilot"
+        size="var(--scale-size-40)"
+    />
+    <sw-settings-services-framed-icon
+        class="sw-settings-services-preview-generator-right"
+        :image-url="assets.previewGenerator"
+        size="var(--scale-size-80)"
+    />
+    <sw-settings-services-framed-icon
+        class="sw-settings-services-hero__image-editor-right"
+        :image-url="assets.imageEditor"
+        size="var(--scale-size-56)"
+    />
+
+    <div class="sw-settings-services-hero__gradient">
+        <div class="sw-settings-services-hero__content">
+            <h3>{{  $t('sw-settings-services.sw-settings-services-hero.title') }}</h3>
+
+            <p>{{ $t('sw-settings-services.sw-settings-services-hero.intro') }}</p>
+
+            <ul class="sw-settings-services-hero__bullet-points">
+                <li>
+                    <mt-icon
+                        name="solid-check-circle"
+                        size="var(--scale-size-16)"
+                        color="var(--color-icon-positive-default)"
+                    />
+                    <span>{{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-integrated') }}</span>
+                </li>
+                <li>
+                    <mt-icon
+                        name="solid-check-circle"
+                        size="var(--scale-size-16)"
+                        color="var(--color-icon-positive-default)"
+                    />
+                    <span>{{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-flexible') }}</span>
+                </li>
+                <li>
+                    <mt-icon
+                        name="solid-check-circle"
+                        size="var(--scale-size-16)"
+                        color="var(--color-icon-positive-default)"
+                    />
+                    <span>{{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-transparent') }}</span>
+                </li>
+                <li>
+                    <mt-icon
+                        name="solid-check-circle"
+                        size="var(--scale-size-16)"
+                        color="var(--color-icon-positive-default)"
+                    />
+                    <span>{{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-scalable') }}</span>
+                </li>
+            </ul>
+
+            <div class="sw-settings-services-hero__actions">
+                <mt-button
+                    variant="secondary"
+                    :link="feedbackLink"
+                >
+                    {{ $t('sw-settings-services.sw-settings-services-hero.give-feedback')}}
+
+                    <template #iconBack="{ size }">
+                        <mt-icon
+                            name="solid-external-link"
+                            :size="size"
+                        />
+                    </template>
+                </mt-button>
+
+                <mt-link
+                    as="a"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    :href="documentationLink"
+                    type="external"
+                >
+                    {{ $t('sw-settings-services.sw-settings-services-hero.learn-more') }}
+                </mt-link>
+            </div>
+        </div>
+    </div>
+    <div class="sw-settings-services-hero__border-bottom"></div>
+</div>

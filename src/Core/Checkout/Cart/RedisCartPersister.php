@@ -43,16 +43,15 @@ class RedisCartPersister extends AbstractCartPersister
 
     public function load(string $token, SalesChannelContext $context): Cart
     {
-        /** @var string|bool|array<mixed> $value */
         $value = $this->redis->get(self::PREFIX . $token);
 
-        if ($value === false || !\is_string($value)) {
+        if (!\is_string($value)) {
             throw CartException::tokenNotFound($token);
         }
 
         try {
-            $value = \unserialize($value);
-        } catch (\Exception) {
+            $value = @\unserialize($value);
+        } catch (\Throwable) {
             throw CartException::tokenNotFound($token);
         }
 
@@ -62,7 +61,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         try {
             $content = $this->compressor->unserialize($value['content'], (int) $value['compressed']);
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // When we can't decode it, we have to delete it
             throw CartException::tokenNotFound($token);
         }
@@ -89,8 +88,6 @@ class RedisCartPersister extends AbstractCartPersister
     {
         $shouldPersist = $this->shouldPersist($cart);
 
-        $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
-
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
 
         $this->eventDispatcher->dispatch($event);
@@ -103,6 +100,8 @@ class RedisCartPersister extends AbstractCartPersister
         $content = $this->serializeCart($cart, $context);
 
         $this->redis->set(self::PREFIX . $cart->getToken(), $content, ['EX' => $this->expireDays * 86400]);
+
+        $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
     public function delete(string $token, SalesChannelContext $context): void
@@ -131,9 +130,11 @@ class RedisCartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart, SalesChannelContext $context): string
     {
         $errors = $cart->getErrors();
-        $data = $cart->getData();
+        if (!$cart->getBehavior()?->hasPermission(self::PERSIST_CART_ERROR_PERMISSION)) {
+            $cart->setErrors(new ErrorCollection());
+        }
 
-        $cart->setErrors(new ErrorCollection());
+        $data = $cart->getData();
         $cart->setData(null);
 
         $this->cartSerializationCleaner->cleanupCart($cart);

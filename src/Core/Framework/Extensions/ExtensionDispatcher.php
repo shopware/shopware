@@ -5,17 +5,14 @@ namespace Shopware\Core\Framework\Extensions;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
- */
 #[Package('framework')]
-final class ExtensionDispatcher
+final readonly class ExtensionDispatcher
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly EventDispatcherInterface $dispatcher
+        private EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -27,6 +24,11 @@ final class ExtensionDispatcher
     public static function post(string $name): string
     {
         return $name . '.post';
+    }
+
+    public static function error(string $name): string
+    {
+        return $name . '.error';
     }
 
     /**
@@ -41,7 +43,20 @@ final class ExtensionDispatcher
         $this->dispatcher->dispatch($extension, self::pre($name));
 
         if (!$extension->isPropagationStopped()) {
-            $extension->result = $function(...$extension->getParams());
+            try {
+                $extension->result = $function(...$extension->getParams());
+            } catch (\Throwable $e) {
+                $extension->exception = $e;
+
+                $extension->resetPropagation();
+
+                $this->dispatcher->dispatch($extension, self::error($name));
+
+                // if the extensions want to gracefully handle the exception, they can put in a result, otherwise we rethrow the exception
+                if ($extension->result === null) {
+                    throw $e;
+                }
+            }
         }
 
         $extension->resetPropagation();

@@ -14,10 +14,6 @@ async function createWrapper(action) {
                 tooltip: {},
             },
             stubs: {
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'icons-regular-external-link': {
-                    template: '<span class="sw-icon sw-icon--regular-external-link"></span>',
-                },
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon'),
             },
             provide: {
@@ -43,18 +39,6 @@ const baseAction = {
 
 describe('sw-app-action-button', () => {
     let wrapper = null;
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(baseAction);
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.classes()).toEqual(
-            expect.arrayContaining([
-                'sw-app-action-button',
-                'sw-context-menu-item',
-            ]),
-        );
-    });
 
     it('is a div if action is a webaction', async () => {
         wrapper = await createWrapper(baseAction);

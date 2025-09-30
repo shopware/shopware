@@ -31,6 +31,6 @@ class ElasticsearchRegistryTest extends TestCase
         static::assertFalse($registry->has('category'));
         static::assertNull($registry->get('category'));
 
-        static::assertEquals(['product'], $registry->getDefinitionNames());
+        static::assertSame(['product'], $registry->getDefinitionNames());
     }
 }

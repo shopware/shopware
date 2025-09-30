@@ -8,15 +8,19 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -27,6 +31,40 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(ProductStreamUpdater::class)]
 class ProductStreamUpdaterTest extends TestCase
 {
+    public function testUpdaterCanBeDisabled(): void
+    {
+        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock->expects($this->never())->method(static::anything());
+
+        $messageBusMock = $this->createMock(MessageBusInterface::class);
+        $messageBusMock->expects($this->never())->method(static::anything());
+
+        /** @var StaticEntityRepository<ProductCollection> $repo */
+        $repo = new StaticEntityRepository([]);
+
+        $updater = new ProductStreamUpdater(
+            $connectionMock,
+            new ProductDefinition(),
+            $repo,
+            $messageBusMock,
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            false
+        );
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createCLIContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_stream', [
+                    new EntityWriteResult('product-1', [], 'test', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createCLIContext()),
+            ]),
+            []
+        );
+
+        $updater->updateProducts(['1', '2'], Context::createDefaultContext());
+        $updater->update($containerEvent);
+    }
+
     /**
      * @param string[] $ids
      * @param array<int, array<string, bool|string>> $filters
@@ -38,10 +76,13 @@ class ProductStreamUpdaterTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($filters);
 
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
+
+        /** @var StaticEntityRepository<ProductCollection> */
         $repository = new StaticEntityRepository([
             function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
                 static::assertEquals($criteria, $actualCriteria);
@@ -56,7 +97,8 @@ class ProductStreamUpdaterTest extends TestCase
             new ProductDefinition(),
             $repository,
             $this->createMock(MessageBusInterface::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class)
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            true
         );
 
         $updater->updateProducts($ids, $context);
@@ -76,19 +118,23 @@ class ProductStreamUpdaterTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchOne')
             ->willReturn(current(array_column($filters, 'api_filter')));
 
-        $criteria->setLimit(150);
-        $criteria->addSorting(new FieldSorting('autoIncrement'));
-        $filters = $criteria->getFilters();
-        array_pop($filters);
-        $criteria->resetFilters();
-        $criteria->addFilter(...$filters);
-        $criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GTE => 0]));
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn($ids);
+
+        // 1 time to insert the new mapping, 1 time to update the product table with the new stream ids
+        $connection
+            ->expects($this->exactly(2))
+            ->method('transactional')
+            ->withAnyParameters();
 
         $definition = new ProductDefinition();
+        /** @var StaticEntityRepository<ProductCollection> */
         $repository = new StaticEntityRepository([
             function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
                 static::assertEquals($criteria, $actualCriteria);
@@ -101,7 +147,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
         $manyToManyFieldUpdater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with($definition->getEntityName(), $ids, Context::createDefaultContext(), 'streamIds');
 
@@ -110,7 +156,8 @@ class ProductStreamUpdaterTest extends TestCase
             $definition,
             $repository,
             $this->createMock(MessageBusInterface::class),
-            $manyToManyFieldUpdater
+            $manyToManyFieldUpdater,
+            true
         );
 
         $updater->handle($message);
@@ -137,7 +184,6 @@ class ProductStreamUpdaterTest extends TestCase
             ],
             (new Criteria())->addFilter(
                 new EqualsFilter('product.active', true),
-                new EqualsAnyFilter('id', [$id])
             ),
         ];
 
@@ -160,7 +206,6 @@ class ProductStreamUpdaterTest extends TestCase
                     new RangeFilter('product.price', [RangeFilter::LTE => 50]),
                     new RangeFilter('product.prices.price', [RangeFilter::LTE => 50]),
                 ]),
-                new EqualsAnyFilter('id', [$id])
             ),
         ];
 
@@ -189,7 +234,6 @@ class ProductStreamUpdaterTest extends TestCase
                         new RangeFilter('product.prices.price', [RangeFilter::LTE => 50]),
                     ]),
                 ]),
-                new EqualsAnyFilter('id', [$id])
             ),
         ];
 
@@ -218,7 +262,6 @@ class ProductStreamUpdaterTest extends TestCase
                         new RangeFilter('product.prices.price.percentage', [RangeFilter::LTE => 50]),
                     ]),
                 ]),
-                new EqualsAnyFilter('id', [$id])
             ),
         ];
     }

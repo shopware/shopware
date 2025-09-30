@@ -18,7 +18,7 @@ async function createWrapper(
         {
             group: 'system',
             to: 'sw.settings.store.index',
-            icon: 'default-device-laptop',
+            icon: 'regular-laptop',
             id: 'sw-settings-store',
             name: 'settings-store',
             label: 'c',
@@ -27,7 +27,7 @@ async function createWrapper(
         {
             group: 'system',
             to: 'sw.settings.user.list',
-            icon: 'default-avatar-single',
+            icon: 'regular-user',
             id: 'sw-settings-user',
             name: 'settings-user',
             label: 'a',
@@ -36,7 +36,7 @@ async function createWrapper(
         {
             group: 'system',
             to: 'sw.settings.foo.list',
-            icon: 'default-avatar-single',
+            icon: 'regular-user',
             id: 'sw-settings-foo',
             name: 'settings-foo',
             label: 'b',
@@ -45,7 +45,7 @@ async function createWrapper(
         {
             group: 'shop',
             to: 'sw.settings.snippet.index',
-            icon: 'default-object-globe',
+            icon: 'regular-globe',
             id: 'sw-settings-snippet',
             name: 'settings-snippet',
             label: 'h',
@@ -54,7 +54,7 @@ async function createWrapper(
         {
             group: 'shop',
             to: 'sw.settings.listing.index',
-            icon: 'default-symbol-products',
+            icon: 'regular-products',
             id: 'sw-settings-listing',
             name: 'settings-listing',
             label: 's',
@@ -77,7 +77,7 @@ async function createWrapper(
                     id: Shopware.Utils.createId(),
                 },
             },
-            icon: 'default-object-books',
+            icon: 'regular-books',
             id: 'sw-extension-books',
             name: 'settings-app-book',
             label: {
@@ -93,7 +93,7 @@ async function createWrapper(
                     id: Shopware.Utils.createId(),
                 },
             },
-            icon: 'default-object-books',
+            icon: 'regular-books',
             id: 'sw-extension-briefcase',
             name: 'settings-app-briefcase',
             label: {
@@ -131,15 +131,12 @@ async function createWrapper(
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-settings-item': await wrapTestComponent('sw-settings-item'),
                     'router-link': {
                         template: '<a><slot></slot></a>',
-                    },
-                    'sw-icon': {
-                        template: '<span></span>',
                     },
                     'sw-extension-component-section': true,
                 },
@@ -151,6 +148,10 @@ async function createWrapper(
                             return privileges.includes(key);
                         },
                     },
+                    userConfigService: {
+                        search: jest.fn().mockResolvedValue({ data: {} }),
+                        upsert: jest.fn().mockResolvedValue(),
+                    },
                 },
             },
         },
@@ -160,11 +161,6 @@ async function createWrapper(
 describe('module/sw-settings/page/sw-settings-index', () => {
     beforeEach(async () => {
         Shopware.Store.get('settingsItems').settingsGroups = {};
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain any settings items', async () => {
@@ -204,7 +200,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
                 settingsGroup,
                 settingsItems,
             ]) => {
-                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-group-${settingsGroup}`);
                 const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
                 // check, that all settings items were rendered
@@ -222,7 +218,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const settingsItemToAdd = {
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'b',
@@ -239,7 +235,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
                 settingsGroup,
                 settingsItems,
             ]) => {
-                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-group-${settingsGroup}`);
                 const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
                 expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
@@ -255,7 +251,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const settingsItemToAdd = {
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'b',
@@ -276,7 +272,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             privilege: 'system.foo_bar',
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'b',
@@ -297,7 +293,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             privilege: 'system.foo_bar',
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'b',
@@ -313,96 +309,11 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         expect(barSetting).toBeUndefined();
     });
 
-    it('should hide icon background when backgroundEnabled is false', async () => {
-        const settingsItemToAdd = {
-            group: 'shop',
-            to: 'sw.bar.index',
-            icon: 'bar',
-            id: 'settings-background-disabled',
-            name: 'settings-background-disabled',
-            label: 'b',
-            backgroundEnabled: false,
-        };
-
-        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
-
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
-
-        settingsGroups.forEach(
-            ([
-                settingsGroup,
-                settingsItems,
-            ]) => {
-                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
-                const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
-
-                settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
-                    const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
-
-                    if (settingsItems[index].backgroundEnabled === false) {
-                        // eslint-disable-next-line jest/no-conditional-expect
-                        expect(iconClasses).not.toContain('background--enabled');
-                    } else {
-                        // eslint-disable-next-line jest/no-conditional-expect
-                        expect(iconClasses).toContain('background--enabled');
-                    }
-                });
-            },
-        );
-    });
-
-    it('should not hide the tab when user has access to any settings inside the tab', async () => {
-        const settingsItemToAdd = {
-            privilege: 'system.foo_bar',
-            group: 'shop',
-            to: 'sw.bar.index',
-            icon: 'bar',
-            id: 'sw-settings-bar',
-            name: 'settings-bar',
-            label: 'b',
-        };
-
-        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
-
-        const wrapper = await createWrapper('system.foo_bar');
-
-        const systemTab = wrapper.find('.sw-settings__tab-system');
-        const shopTab = wrapper.find('.sw-settings__tab-shop');
-
-        expect(systemTab.exists()).toBe(false);
-        expect(shopTab.exists()).toBe(true);
-    });
-
-    it('should hide the tab when user has no access to any settings inside the tab', async () => {
-        const settingsItemToAdd = {
-            privilege: 'system.foo_bar',
-            group: 'system',
-            to: 'sw.bar.index',
-            icon: 'bar',
-            id: 'sw-settings-bar',
-            name: 'settings-bar',
-            label: 'b',
-        };
-
-        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
-
-        const wrapper = await createWrapper('system.foo_bar');
-
-        const systemTab = wrapper.find('.sw-settings__tab-system');
-        const shopTab = wrapper.find('.sw-settings__tab-shop');
-
-        expect(systemTab.exists()).toBe(true);
-        expect(shopTab.exists()).toBe(false);
-    });
-
     it('should correctly resolve dynamic group functions and add the item', async () => {
         const settingsItemToAdd = {
             group: () => 'dynamicGroup',
             to: 'sw.dynamic.index',
-            icon: 'dynamic-icon',
+            icon: 'regular-storefront',
             id: 'sw-dynamic-setting',
             name: 'settings-dynamic',
             label: 'Dynamic Setting',
@@ -424,7 +335,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             privilege: 'system.foo_bar',
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar-icon',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'Bar Setting',
@@ -437,5 +348,95 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         const barSetting = shopGroup.find((setting) => setting.id === 'sw-settings-bar');
         expect(barSetting).toBeDefined();
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should load user config for banner on created', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        expect(userConfigService.search).toHaveBeenCalledWith(['settings.hideRenameBanner']);
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should show banner by default when no config is set', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        userConfigService.search.mockResolvedValueOnce({ data: {} });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(false);
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should hide banner when config is set to true', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        userConfigService.search.mockResolvedValueOnce({
+            data: {
+                'settings.hideRenameBanner': {
+                    value: true,
+                },
+            },
+        });
+
+        await wrapper.vm.getUserConfig();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should show banner when config is set to false', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        userConfigService.search.mockResolvedValueOnce({
+            data: {
+                'settings.hideRenameBanner': {
+                    data: false,
+                },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(false);
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should toggle banner visibility and save config', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        userConfigService.search.mockResolvedValueOnce({
+            data: {
+                'settings.hideRenameBanner': {
+                    value: true,
+                },
+            },
+        });
+
+        await wrapper.vm.getUserConfig();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
+
+        await wrapper.vm.onCloseSettingRenameBanner();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
+        expect(userConfigService.upsert).toHaveBeenCalledWith({
+            'settings.hideRenameBanner': {
+                value: true,
+            },
+        });
     });
 });

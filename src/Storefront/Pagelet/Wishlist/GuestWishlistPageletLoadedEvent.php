@@ -10,19 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class GuestWishlistPageletLoadedEvent extends PageletLoadedEvent
 {
-    /**
-     * @var GuestWishlistPagelet
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pagelet;
-
     public function __construct(
-        GuestWishlistPagelet $pagelet,
+        protected GuestWishlistPagelet $pagelet,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

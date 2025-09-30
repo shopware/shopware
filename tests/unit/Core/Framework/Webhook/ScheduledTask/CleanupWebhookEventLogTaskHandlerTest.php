@@ -19,7 +19,7 @@ class CleanupWebhookEventLogTaskHandlerTest extends TestCase
     {
         $cleaner = $this->createMock(WebhookCleanup::class);
 
-        $cleaner->expects(static::once())->method('removeOldLogs');
+        $cleaner->expects($this->once())->method('removeOldLogs');
 
         $handler = new CleanupWebhookEventLogTaskHandler(
             $this->createMock(EntityRepository::class),

@@ -68,6 +68,78 @@ export default {
         isProductPage() {
             return (this.cmsPageState?.currentPage?.type ?? '') === 'product_detail';
         },
+
+        displayModeValueOptions() {
+            return [
+                { value: 'standard', label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard') },
+                { value: 'contain', label: this.$tc('sw-cms.elements.general.config.label.displayModeContain') },
+                { value: 'cover', label: this.$tc('sw-cms.elements.general.config.label.displayModeCover') },
+            ];
+        },
+
+        verticalAlignValueOptions() {
+            return [
+                {
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
+
+        navigationArrowsValueOptions() {
+            return [
+                {
+                    value: 'none',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                },
+                {
+                    value: 'inside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                },
+                {
+                    value: 'outside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                },
+            ];
+        },
+
+        navigationDotsValueOptions() {
+            return [
+                {
+                    value: 'none',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                },
+                {
+                    value: 'inside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                },
+                {
+                    value: 'outside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                },
+            ];
+        },
+
+        galleryPositionValueOptions() {
+            return [
+                {
+                    value: 'left',
+                    label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionLeft'),
+                },
+                {
+                    value: 'underneath',
+                    label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionUnderneath'),
+                },
+            ];
+        },
     },
 
     watch: {
@@ -289,6 +361,12 @@ export default {
             ) {
                 this.element.config.verticalAlign.value = null;
             }
+
+            this.$emit('element-update', this.element);
+        },
+
+        onChangeUseFetchPriorityOnFirstItem(value) {
+            this.element.config.useFetchPriorityOnFirstItem.value = value;
 
             this.$emit('element-update', this.element);
         },

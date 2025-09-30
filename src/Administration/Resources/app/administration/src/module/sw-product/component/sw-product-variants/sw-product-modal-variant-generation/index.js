@@ -91,6 +91,7 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        // @deprecated tag:v6.8.0 - Will be removed, no longer needed
         progressInPercentage() {
             return this.actualProgress / (this.maxProgress * 100);
         },
@@ -110,7 +111,7 @@ export default {
 
         buttonVariant() {
             if (this.variantsNumber <= 0) {
-                return 'danger';
+                return 'critical';
             }
             return 'primary';
         },

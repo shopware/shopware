@@ -137,7 +137,6 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                             template: '<div></div>',
                         },
                         'sw-language-switch': true,
-                        'sw-button': true,
                         'sw-settings-listing-option-general-info': true,
                         'sw-settings-listing-option-criteria-grid': true,
                         'sw-settings-listing-delete-modal': true,
@@ -151,10 +150,6 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should create a product sorting entity', async () => {

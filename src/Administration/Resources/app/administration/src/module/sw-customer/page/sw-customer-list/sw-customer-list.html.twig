@@ -35,7 +35,7 @@
     {% block sw_customer_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_customer_list_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('customer.creator'),
@@ -44,10 +44,11 @@
             class="sw-customer-list__button-create"
             variant="primary"
             :disabled="!acl.can('customer.creator') || undefined"
-            :router-link="{ name: 'sw.customer.create' }"
+            size="default"
+            @click="$router.push({ name: 'sw.customer.create' })"
         >
             {{ $tc('sw-customer.list.buttonAddCustomer') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -59,9 +60,22 @@
     <template #content>
         {% block sw_customer_list_content %}
         <div class="sw-customer-list__content">
+
+            {% block sw_customer_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                class="mt-empty-state--center"
+                :icon="$route.meta.$module.icon"
+                :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-customer.list.messageEmpty')"
+                :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : ''"
+                :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="filterCriteria.length || isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            />
+            {% endblock %}
+
             {% block sw_customer_list_grid %}
             <sw-entity-listing
-                v-if="isLoading || (customers && entitySearchable)"
+                v-else-if="isLoading || (customers && entitySearchable)"
                 ref="swCustomerGrid"
                 class="sw-customer-list-grid"
                 identifier="sw-customer-list"
@@ -102,8 +116,9 @@
                     {% block sw_customer_list_grid_inline_edit_name %}
                     <template v-if="isInlineEdit">
                         {% block sw_customer_list_grid_inline_edit_first_name %}
-                        <sw-text-field
-                            v-model:value="item.firstName"
+
+                        <mt-text-field
+                            v-model="item.firstName"
                             name="sw-field--item-firstName"
                             class="sw-customer-list__inline-edit-first-name"
                             :size="compact ? 'small' : 'default'"
@@ -111,8 +126,9 @@
                         {% endblock %}
 
                         {% block sw_customer_list_grid_inline_edit_last_name %}
-                        <sw-text-field
-                            v-model:value="item.lastName"
+
+                        <mt-text-field
+                            v-model="item.lastName"
                             name="sw-field--item-lastName"
                             class="sw-customer-list__inline-edit-last-name"
                             :size="compact ? 'small' : 'default'"
@@ -189,8 +205,8 @@
                 <template #column-active="{ item, isInlineEdit }">
                     {% block sw_customer_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.active"
+                        <mt-checkbox
+                            v-model:checked="item.active"
                             name="sw-field--item-active"
                         />
                     </template>
@@ -198,20 +214,26 @@
 
                     {% block sw_customer_list_grid_columns_active_content %}
                     <template v-else>
-                        <sw-icon
+                        <mt-icon
                             v-if="item.active"
                             name="regular-checkmark-xs"
-                            small
+                            size="16px"
                             class="is--active"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-else
                             name="regular-times-s"
-                            small
+                            size="16px"
                             class="is--inactive"
                         />
                     </template>
                     {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_customer_list_grid_columns_createdAt %}
+                <template #column-createdAt="{ item }">
+                    <sw-time-ago :date="item.createdAt" />
                 </template>
                 {% endblock %}
 
@@ -270,22 +292,23 @@
                         <template #modal-footer>
 
                             {% block sw_customer_list_delete_modal_cancel %}
-                            <sw-button
+                            <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_customer_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-customer.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}
@@ -354,44 +377,6 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
-            {% endblock %}
-
-            {% block sw_customer_list_empty_state %}
-            <template v-if="!isLoading && !total">
-                <sw-empty-state
-                    v-if="filterCriteria.length || isValidTerm(term)"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                >
-                    <template #icon>
-                        <img
-                            :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
-                            :alt="$tc('sw-empty-state.messageNoResultTitle')"
-                        >
-                    </template>
-
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
-                <sw-empty-state
-                    v-else
-                    :title="$tc('sw-customer.list.messageEmpty')"
-                >
-                    <template #icon>
-                        <img
-                            :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
-                            :alt="$tc('sw-customer.list.messageEmpty')"
-                        >
-                    </template>
-                </sw-empty-state>
-            </template>
             {% endblock %}
         </div>
         {% endblock %}

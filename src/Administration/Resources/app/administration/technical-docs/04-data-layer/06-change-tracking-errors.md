@@ -1,6 +1,6 @@
 # Change Tracking and Error Handling
 
-Shopware 6 Administration provides sophisticated change tracking through the Changeset Generator and comprehensive error handling through the Error Resolver. These systems ensure data integrity, optimize API performance, and provide meaningful feedback to users.
+Shopware 6 Administration provides change tracking through the Changeset Generator and comprehensive error handling through the Error Resolver. These systems ensure data integrity, optimize API performance, and provide meaningful feedback to users.
 
 ## Changeset Generator
 
@@ -209,7 +209,7 @@ let originValue = castValueToNullIfNecessary(origin[fieldName]);
 
 ## Error Handling System
 
-The Error Resolver maps API errors to specific entity fields and provides user-friendly error messages.
+The Error Resolver maps API errors to specific entity fields and provides user-friendly error messages. However, in practice, error handling is largely automated through repository operations and helper functions.
 
 ### Error Resolver Architecture
 
@@ -224,6 +224,7 @@ class ErrorResolver {
     
     /**
      * Handle write errors from API responses
+     * This is called automatically by repository operations
      */
     handleWriteErrors(changeset, { errors } = {}) {
         if (!errors) {
@@ -237,10 +238,194 @@ class ErrorResolver {
 }
 ```
 
+### Automatic Error Handling by Repositories
+
+**Important**: Repository operations automatically handle error processing and reset API errors. Manual error store manipulation is rarely needed in practice.
+
+```typescript
+// ✅ Repositories automatically handle error processing
+async saveCustomerGroup() {
+    this.isLoading = true;
+    
+    try {
+        // Repository automatically:
+        // 1. Resets previous API errors for this entity
+        // 2. Processes any validation errors from the API response
+        // 3. Maps errors to specific fields using the ErrorResolver
+        await this.customerGroupRepository.save(this.customerGroup);
+        
+        this.isSaveSuccessful = true;
+    } catch (error) {
+        // Errors are already processed and stored
+        // No manual error handling needed for field-specific errors
+        this.createNotificationError({
+            message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
+        });
+    } finally {
+        this.isLoading = false;
+    }
+}
+```
+
+### Field Error Mapping with mapPropertyErrors
+
+The most common pattern for handling field errors in Vue components is using the `mapPropertyErrors` helper:
+
+```javascript
+// Component import
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
+export default {
+    // Map errors for specific entity fields
+    computed: {
+        ...mapPropertyErrors('customerGroup', ['name']),
+        // This creates computed properties like:
+        // customerGroupNameError: returns error for customerGroup.name field
+        
+        // For multiple fields:
+        ...mapPropertyErrors('product', [
+            'name',
+            'productNumber', 
+            'price',
+            'taxId'
+        ]),
+        // Creates: productNameError, productProductNumberError, etc.
+    }
+};
+```
+
+### Real-World Usage Patterns
+
+#### Basic Entity Save with Error Handling
+```vue
+<template>
+    <div>
+        <sw-field
+            v-model="customerGroup.name"
+            :error="customerGroupNameError"
+            :disabled="isLoading"
+            label="Customer Group Name"
+            required
+        />
+        
+        <sw-button
+            :disabled="isLoading"
+            @click="onSave"
+        >
+            Save Customer Group
+        </sw-button>
+    </div>
+</template>
+
+<script>
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
+export default {
+    inject: ['repositoryFactory'],
+    
+    data() {
+        return {
+            customerGroup: null,
+            isLoading: false,
+            isSaveSuccessful: false
+        };
+    },
+    
+    computed: {
+        customerGroupRepository() {
+            return this.repositoryFactory.create('customer_group');
+        },
+        
+        // Automatically maps field errors from the error store
+        ...mapPropertyErrors('customerGroup', ['name']),
+    },
+    
+    methods: {
+        async onSave() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            try {
+                // Repository automatically handles:
+                // - Error store cleanup for this entity
+                // - Changeset generation
+                // - API error processing and mapping
+                await this.customerGroupRepository.save(this.customerGroup);
+                
+                this.isSaveSuccessful = true;
+            } catch (error) {
+                // Field-specific errors are already processed and available
+                // via mapPropertyErrors computed properties
+                this.createNotificationError({
+                    message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
+                });
+            } finally {
+                this.isLoading = false;
+            }
+        }
+    }
+};
+</script>
+```
+
+#### Advanced Error Handling for Complex Forms
+```javascript
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
+export default {
+    computed: {
+        // Map errors for main entity
+        ...mapPropertyErrors('product', [
+            'name',
+            'productNumber',
+            'price',
+            'taxId',
+            'manufacturerId'
+        ]),
+        
+        // Map errors for associated entities
+        ...mapPropertyErrors('manufacturer', ['name']),
+    },
+    
+    methods: {
+        async saveProduct() {
+            try {
+                // Save main product - errors are handled automatically
+                await this.productRepository.save(this.product);
+                
+                // Save associated manufacturer if modified
+                if (this.manufacturer && this.manufacturerRepository.hasChanges(this.manufacturer)) {
+                    await this.manufacturerRepository.save(this.manufacturer);
+                }
+                
+                this.isSaveSuccessful = true;
+                
+            } catch (error) {
+                // Handle specific error codes if needed
+                const errorCode = error.response?.data?.errors?.[0]?.code;
+                
+                if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
+                    this.createNotificationError({
+                        message: this.$t('sw-product.notification.duplicateProductNumber'),
+                    });
+                    return;
+                }
+                
+                // Generic error handling
+                this.createNotificationError({
+                    message: this.$tc('global.notification.notificationSaveErrorMessage'),
+                });
+            }
+        }
+    }
+};
+```
+
 ### Error Classification
 
-#### Write Index Parsing
+#### Automatic Write Index Parsing
 ```typescript
+// This happens automatically in the ErrorResolver
 reduceErrorsByWriteIndex(errors) {
     let writeErrors = { system: [] };
     
@@ -254,12 +439,10 @@ reduceErrorsByWriteIndex(errors) {
         // Parse error pointer to extract write index and field
         const segments = current.source.pointer.split('/');
         
-        // Remove first empty element
         if (segments[0] === '') {
             segments.shift();
         }
         
-        // Extract write index (batch operation index)
         const writeIndex = segments[0];
         const fieldPath = segments.slice(1).join('.');
         
@@ -277,8 +460,9 @@ reduceErrorsByWriteIndex(errors) {
 }
 ```
 
-#### Error Mapping to Entities
+#### Automatic Error Mapping to Entities
 ```typescript
+// Automatically called by repository operations
 handleErrors(writeErrors, changeset) {
     Object.keys(writeErrors).forEach(writeIndex => {
         if (writeIndex === 'system') return;
@@ -289,172 +473,51 @@ handleErrors(writeErrors, changeset) {
         if (!entityData) return;
         
         errors.forEach(({ field, error }) => {
-            // Map error to specific entity and field
+            // Automatically map error to specific entity and field
             this.mapErrorToEntity(entityData.entity, field, error);
         });
     });
 }
 ```
 
-### Field-Specific Error Handling
+### Manual Error Store Access (Rarely Needed)
+
+In most cases, you don't need to manually interact with the error store. However, if needed:
 
 ```typescript
-mapErrorToEntity(entity, fieldPath, error) {
-    const segments = fieldPath.split('.');
-    const fieldName = segments[0];
-    
-    // Store error in global error store
-    Shopware.Store.get('error').addApiError({
-        expression: `${entity.getEntityName()}.${entity.id}.${fieldName}`,
-        error: error
-    });
-    
-    // Handle nested field errors (associations)
-    if (segments.length > 1) {
-        const associationName = segments[0];
-        const nestedFieldPath = segments.slice(1).join('.');
-        
-        if (entity[associationName]) {
-            this.mapErrorToEntity(entity[associationName], nestedFieldPath, error);
-        }
-    }
-}
-```
-
-### Delete Error Handling
-
-```typescript
-handleDeleteError(errors) {
-    errors.forEach(({ error, entityName, id }) => {
-        const shopwareError = new this.ShopwareError(error);
-        
-        // Add system-level error notification
-        Shopware.Store.get('error').addSystemError({
-            error: shopwareError,
-        });
-        
-        // Add entity-specific error for UI feedback
-        Shopware.Store.get('error').addApiError({
-            expression: `${entityName}.${id}`,
-            error: shopwareError,
-        });
-    });
-}
-```
-
-## Error Store Integration
-
-### Global Error State Management
-
-```typescript
-// Access error store
+// Only use when repository patterns don't apply
 const errorStore = Shopware.Store.get('error');
 
-// Reset all API errors
+// Manual error reset (usually unnecessary)
 errorStore.resetApiErrors();
 
-// Add system error (global notification)
-errorStore.addSystemError({
-    error: new Shopware.Classes.ShopwareError({
-        code: 'CUSTOM_ERROR',
-        detail: 'Custom error message'
-    })
-});
-
-// Add field-specific error
-errorStore.addApiError({
-    expression: 'product.product-id-123.name',
-    error: new Shopware.Classes.ShopwareError({
-        code: 'VALIDATION_ERROR',
-        detail: 'Product name is required'
-    })
-});
-```
-
-### Entity Error Retrieval
-
-```typescript
-// Get all errors for a specific entity
+// Manual error retrieval (prefer mapPropertyErrors)
 const entityErrors = errorStore.getApiErrorsForEntity(product);
-
-// Structure of entityErrors:
-// {
-//     'name': [ShopwareError, ...],
-//     'price': [ShopwareError, ...],
-//     'manufacturer.name': [ShopwareError, ...]
-// }
-
-// Use in Vue components for form validation
-export default {
-    computed: {
-        nameErrors() {
-            const errors = this.errorStore.getApiErrorsForEntity(this.product);
-            return errors.name || [];
-        },
-        
-        hasErrors() {
-            const errors = this.errorStore.getApiErrorsForEntity(this.product);
-            return Object.keys(errors).length > 0;
-        }
-    },
-    
-    methods: {
-        getFieldError(fieldName) {
-            const errors = this.errorStore.getApiErrorsForEntity(this.product);
-            return errors[fieldName] ? errors[fieldName][0].detail : null;
-        }
-    }
-};
 ```
 
 ## Practical Usage Examples
 
-### Save Operation with Error Handling
-
+### Standard Save Operation
 ```typescript
-async saveProduct(product) {
+async saveEntity() {
     try {
-        // Clear previous errors
-        Shopware.Store.get('error').resetApiErrors();
+        // ✅ Repository handles all error processing automatically
+        await this.repository.save(this.entity);
         
-        // Attempt to save
-        await this.productRepository.save(product, this.context);
-        
-        // Success feedback
-        this.showSuccessNotification('Product saved successfully');
+        this.showSuccessNotification();
         
     } catch (error) {
-        // Errors are automatically processed by ErrorResolver
-        // and stored in the error store
-        
-        // Get field-specific errors for UI display
-        const fieldErrors = Shopware.Store.get('error').getApiErrorsForEntity(product);
-        
-        if (Object.keys(fieldErrors).length > 0) {
-            this.showValidationErrors(fieldErrors);
-        } else {
-            // System error
-            this.showErrorNotification('Failed to save product');
-        }
+        // ✅ Field errors are already mapped and available via mapPropertyErrors
+        // Only handle system-level errors or specific error codes here
+        this.handleSaveError(error);
     }
-}
-
-showValidationErrors(fieldErrors) {
-    Object.keys(fieldErrors).forEach(fieldName => {
-        const errors = fieldErrors[fieldName];
-        errors.forEach(error => {
-            console.error(`${fieldName}: ${error.detail}`);
-        });
-    });
 }
 ```
 
 ### Bulk Operation Error Handling
-
 ```typescript
 async saveBulkProducts(products) {
     try {
-        // Use sync service for bulk operations
         const syncService = Shopware.Service('syncService');
         
         const operations = products.map(product => ({
@@ -466,164 +529,45 @@ async saveBulkProducts(products) {
         await syncService.sync(operations);
         
     } catch (error) {
-        // Bulk operation errors include write indices
+        // Bulk operation errors are automatically processed
+        // Field-specific errors are available via mapPropertyErrors
         if (error.response?.data?.errors) {
             const errors = error.response.data.errors;
             
-            // Group errors by write index (batch position)
-            const errorsByIndex = {};
-            errors.forEach(err => {
-                if (err.source?.pointer) {
-                    const writeIndex = err.source.pointer.split('/')[1];
-                    if (!errorsByIndex[writeIndex]) {
-                        errorsByIndex[writeIndex] = [];
-                    }
-                    errorsByIndex[writeIndex].push(err);
-                }
-            });
-            
-            // Map errors back to specific products
-            Object.keys(errorsByIndex).forEach(index => {
-                const productIndex = parseInt(index);
-                const product = products[productIndex];
-                const productErrors = errorsByIndex[index];
-                
-                console.error(`Product ${product.name} errors:`, productErrors);
-            });
+            // Handle specific error patterns if needed
+            this.processBulkErrors(errors);
         }
     }
 }
 ```
 
-### Form Validation Integration
-
-```vue
-<template>
-    <div>
-        <sw-field
-            v-model="product.name"
-            :error="getFieldError('name')"
-            :disabled="isLoading"
-            label="Product Name"
-            required
-        />
-        
-        <sw-field
-            v-model="product.price"
-            :error="getFieldError('price')"
-            :disabled="isLoading"
-            label="Price"
-            type="number"
-        />
-        
-        <sw-button
-            :disabled="hasErrors || isLoading"
-            @click="saveProduct"
-        >
-            Save Product
-        </sw-button>
-    </div>
-</template>
-
-<script>
-export default {
-    inject: ['repositoryFactory'],
-    
-    data() {
-        return {
-            product: null,
-            isLoading: false
-        };
-    },
-    
-    computed: {
-        errorStore() {
-            return Shopware.Store.get('error');
-        },
-        
-        hasErrors() {
-            if (!this.product) return false;
-            const errors = this.errorStore.getApiErrorsForEntity(this.product);
-            return Object.keys(errors).length > 0;
-        }
-    },
-    
-    methods: {
-        getFieldError(fieldName) {
-            if (!this.product) return null;
-            
-            const errors = this.errorStore.getApiErrorsForEntity(this.product);
-            const fieldErrors = errors[fieldName];
-            
-            return fieldErrors && fieldErrors.length > 0 ? 
-                { message: fieldErrors[0].detail } : null;
-        },
-        
-        async saveProduct() {
-            this.isLoading = true;
-            
-            try {
-                this.errorStore.resetApiErrors();
-                await this.productRepository.save(this.product, this.context);
-                this.$emit('save-success');
-            } catch (error) {
-                // Errors automatically handled by ErrorResolver
-                this.$emit('save-error', error);
-            } finally {
-                this.isLoading = false;
-            }
-        }
-    }
-};
-</script>
-```
-
 ## Performance Considerations
 
-### Changeset Optimization
+### Repository Optimization
 
 ```typescript
-// ✅ Good: Batch multiple changes before save
-product.name = 'New Name';
-product.description = 'New Description';
-product.active = true;
-await productRepository.save(product, context); // Single changeset generation
+// ✅ Good: Repository automatically manages error state
+await this.repository.save(entity); // Handles errors efficiently
 
-// ❌ Avoid: Multiple saves for related changes
-product.name = 'New Name';
-await productRepository.save(product, context); // Changeset 1
-product.description = 'New Description';
-await productRepository.save(product, context); // Changeset 2
+// ❌ Unnecessary: Manual error store manipulation
+// errorStore.resetApiErrors(); // Repository does this automatically
+// await this.repository.save(entity);
 ```
 
 ### Error Handling Performance
 
 ```typescript
-// ✅ Good: Reset errors strategically
-// Reset only before operations that might generate new errors
-errorStore.resetApiErrors();
-await repository.save(entity, context);
+// ✅ Good: Use mapPropertyErrors for automatic field error mapping
+computed: {
+    ...mapPropertyErrors('product', ['name', 'price']),
+}
 
-// ❌ Avoid: Excessive error store clearing
-// Don't reset errors on every component update
+// ❌ Avoid: Manual error store access in computed properties
+computed: {
+    nameError() {
+        // This is less efficient than mapPropertyErrors
+        const errors = this.errorStore.getApiErrorsForEntity(this.product);
+        return errors.name ? errors.name[0] : null;
+    }
+}
 ```
-
-## Best Practices
-
-### Change Tracking
-1. **Let the system handle change detection automatically**
-2. **Batch related changes before saving**
-3. **Use entity.reset() to discard changes**
-4. **Monitor entity.isModified() for UI state**
-
-### Error Handling
-1. **Always handle save/delete operation errors**
-2. **Provide field-specific error feedback**
-3. **Clear errors before retry operations**
-4. **Use system errors for global notifications**
-
-### Performance
-1. **Minimize entity cloning and copying**
-2. **Batch operations when possible**
-3. **Clear error stores when appropriate**
-4. **Use error store selectively for UI binding**

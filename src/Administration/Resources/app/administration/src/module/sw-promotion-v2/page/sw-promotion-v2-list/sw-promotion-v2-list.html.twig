@@ -72,7 +72,7 @@
                 class="mt-empty-state--center"
                 :icon="$route.meta.$module.icon"
                 :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-promotion-v2.list.titleEmpty')"
-                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : ''"
+                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
                 :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
                 :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
             >

@@ -65,8 +65,8 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ IdProvide
         await expect(page.getByLabel('Default system language:')).toContainText('English (United States of America)');
         await expect(page.getByLabel('Default currency:')).toContainText('Dollar (US)');
         await expect(page.getByLabel('Default country:')).toContainText('United States of America');
-        await expect(page.getByRole('checkbox', { name: 'English (US)' })).toBeChecked();
-        await expect(page.getByRole('checkbox', { name: 'English (US)' })).toBeDisabled();
+        await expect(page.getByRole('checkbox', { name: 'English (United States of America)' })).toBeChecked();
+        await expect(page.getByRole('checkbox', { name: 'English (United States of America)' })).toBeDisabled();
         await expect(page.getByRole('checkbox', { name: 'Dollar (US)' })).toBeChecked();
 
         await page.getByLabel('Admin email:').fill('admin@example.com');

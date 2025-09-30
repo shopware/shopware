@@ -133,5 +133,15 @@ return [
         // Moved endpoint to Shopware\Core\Framework\Sso\Controller\SsoController to not have a hard dependency between admin and core packages
         // It was never intended to be used outside of SaaS in it's initial release (still marked experimental / internal everywhere else, only this one method was forgotten)
         preg_quote('REMOVED: Method Shopware\Administration\Controller\AdministrationController#ssoAuth() was removed', '/'),
+
+        // The "parts" arrays of these events could contain values that are not correctly represented in the getter and add methods. Those are necessary fixes, otherwise type errors will occur.
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent#get() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#get() changed from string|null', '/'),
+        preg_quote('CHANGED: The parameter $value of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#add() changed from string', '/'),
+
+        // The property was wrongly added as it introduced a dependency on the Storefront package
+        preg_quote('REMOVED: Property Shopware\Core\Content\Media\MediaEntity#$themes was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Content\Media\MediaEntity#getThemes() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Content\Media\MediaEntity#setThemes() was removed', '/'),
     ],
 ];

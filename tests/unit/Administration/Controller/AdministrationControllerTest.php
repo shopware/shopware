@@ -464,7 +464,7 @@ class AdministrationControllerTest extends TestCase
 
         $request = new Request(query: ['locale' => 'en-GB']);
         $response = $controller->snippets($request);
-        $snippets = \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)['en-GB'];
+        $snippets = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['en-GB'];
 
         static::assertCount(2, $snippets);
         static::assertArrayHasKey('global', $snippets);

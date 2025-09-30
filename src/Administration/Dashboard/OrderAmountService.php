@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @internal
@@ -19,6 +20,7 @@ readonly class OrderAmountService
     public function __construct(
         private Connection $connection,
         private CashRounding $rounding,
+        #[Autowire(param: 'shopware.dbal.time_zone_support_enabled')]
         private bool $timeZoneSupportEnabled,
     ) {
     }

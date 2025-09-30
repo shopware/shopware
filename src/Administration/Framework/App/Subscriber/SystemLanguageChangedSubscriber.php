@@ -14,6 +14,7 @@ use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\Locale\LocaleException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -27,7 +28,9 @@ readonly class SystemLanguageChangedSubscriber implements EventSubscriberInterfa
      * @param EntityRepository<AppAdministrationSnippetCollection> $snippetRepository
      */
     public function __construct(
+        #[Autowire(service: 'locale.repository')]
         private EntityRepository $localeRepository,
+        #[Autowire(service: 'app_administration_snippet.repository')]
         private EntityRepository $snippetRepository,
     ) {
     }

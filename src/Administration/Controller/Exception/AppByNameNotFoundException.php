@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class AppByNameNotFoundException extends ShopwareHttpException
 {
+    /**
+     * @internal
+     */
     public function __construct(string $appName)
     {
         parent::__construct(

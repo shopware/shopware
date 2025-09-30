@@ -8,10 +8,12 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
+use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -32,6 +34,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,22 +62,31 @@ class AdministrationController extends AbstractController
      * @param EntityRepository<CurrencyCollection> $currencyRepository
      */
     public function __construct(
+        #[Autowire(service: TemplateFinder::class)]
         private readonly TemplateFinderInterface $finder,
         private readonly FirstRunWizardService $firstRunWizardService,
+        #[Autowire(service: SnippetFinder::class)]
         private readonly SnippetFinderInterface $snippetFinder,
+        #[Autowire(param: 'kernel.supported_api_versions')]
         private readonly array $supportedApiVersions,
         private readonly KnownIpsCollectorInterface $knownIpsCollector,
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
+        #[Autowire(param: 'kernel.shopware_core_dir')]
         private readonly string $shopwareCoreDir,
+        #[Autowire(service: 'customer.repository')]
         private readonly EntityRepository $customerRepository,
+        #[Autowire(service: 'currency.repository')]
         private readonly EntityRepository $currencyRepository,
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
+        #[Autowire(service: 'shopware.filesystem.asset')]
         private readonly FilesystemOperator $fileSystem,
+        #[Autowire(env: 'SERVICE_REGISTRY_URL')]
         private readonly string $serviceRegistryUrl,
+        #[Autowire(param: 'shopware.api.refresh_token_ttl')]
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled

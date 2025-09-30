@@ -13,10 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -32,7 +34,9 @@ class AdminProductStreamController extends AbstractController
      */
     public function __construct(
         private readonly ProductDefinition $productDefinition,
+        #[Autowire(service: 'sales_channel.product.repository')]
         private readonly SalesChannelRepository $salesChannelProductRepository,
+        #[Autowire(service: SalesChannelContextService::class)]
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly RequestCriteriaBuilder $criteriaBuilder
     ) {

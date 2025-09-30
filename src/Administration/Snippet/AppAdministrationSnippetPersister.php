@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @internal
@@ -24,7 +25,9 @@ readonly class AppAdministrationSnippetPersister
      * @param EntityRepository<LocaleCollection> $localeRepository
      */
     public function __construct(
+        #[Autowire(service: 'app_administration_snippet.repository')]
         private EntityRepository $appAdministrationSnippetRepository,
+        #[Autowire(service: 'locale.repository')]
         private EntityRepository $localeRepository,
         private CacheInvalidator $cacheInvalidator
     ) {

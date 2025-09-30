@@ -13,6 +13,7 @@ use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPathCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -33,8 +34,10 @@ class SnippetFinder implements SnippetFinderInterface
     ];
 
     public function __construct(
+        #[Autowire(service: 'kernel')]
         private readonly Kernel $kernel,
         private readonly Connection $connection,
+        #[Autowire(service: 'shopware.filesystem.private')]
         private readonly Filesystem $translationReader,
         private readonly TranslationConfig $translationConfig,
         private readonly TranslationLoader $translationLoader,

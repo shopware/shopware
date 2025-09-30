@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,6 +36,7 @@ class AdminExtensionApiController extends AbstractController
     public function __construct(
         private readonly Executor $executor,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
+        #[Autowire(service: 'app.repository')]
         private readonly EntityRepository $appRepository,
         private readonly QuerySigner $querySigner
     ) {

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[Package('framework')]
 class MissingShopUrlException extends ShopwareHttpException
 {
+    /**
+     * @internal
+     */
     public function __construct()
     {
         parent::__construct('Failed to retrieve the shop url.');

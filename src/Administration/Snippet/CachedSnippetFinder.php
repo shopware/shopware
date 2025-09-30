@@ -4,6 +4,7 @@ namespace Shopware\Administration\Snippet;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[Package('discovery')]
 class CachedSnippetFinder implements SnippetFinderInterface
@@ -15,6 +16,7 @@ class CachedSnippetFinder implements SnippetFinderInterface
      */
     public function __construct(
         private readonly SnippetFinder $snippetFinder,
+        #[Autowire(service: 'cache.object')]
         private readonly AdapterInterface $cache
     ) {
     }

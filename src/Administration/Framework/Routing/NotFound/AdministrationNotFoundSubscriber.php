@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Framework\Routing\NotFound;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,9 @@ readonly class AdministrationNotFoundSubscriber implements EventSubscriberInterf
      * @internal
      */
     public function __construct(
+        #[Autowire(param: 'shopware_administration.path_name')]
         private string $adminPath,
+        #[Autowire(service: 'service_container')]
         private ContainerInterface $container,
     ) {
     }

@@ -6,6 +6,7 @@ use Pentatrion\ViteBundle\Service\FileAccessor;
 use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\PackageInterface as AssetPackage;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -24,7 +25,9 @@ class ViteFileAccessorDecorator extends FileAccessor
      * @internal
      */
     public function __construct(
+        #[Autowire(param: 'pentatrion_vite.configs')]
         array $configs,
+        #[Autowire(service: 'shopware.asset.asset')]
         private readonly AssetPackage $package,
         private readonly KernelInterface $kernel,
         private readonly Filesystem $filesystem,

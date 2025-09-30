@@ -20,6 +20,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +36,7 @@ class UserConfigController extends AbstractController
      * @param EntityRepository<UserConfigCollection> $userConfigRepository
      */
     public function __construct(
+        #[Autowire(service: 'user_config.repository')]
         private readonly EntityRepository $userConfigRepository,
         private readonly Connection $connection
     ) {

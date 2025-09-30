@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('framework')]
@@ -17,8 +18,10 @@ class AdministrationRouteScope extends AbstractRouteScope implements ApiContextR
     /**
      * @internal
      */
-    public function __construct(string $administrationPathName = self::ALLOWED_PATH)
-    {
+    public function __construct(
+        #[Autowire(param: 'shopware.administration.path_name')]
+        string $administrationPathName = self::ALLOWED_PATH
+    ) {
         $this->allowedPaths = [$administrationPathName, ApiRouteScope::ALLOWED_PATH];
     }
 

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -24,8 +25,10 @@ class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
      *
      * @param EntityRepository<UserConfigCollection> $userConfigRepository
      */
-    public function __construct(private readonly EntityRepository $userConfigRepository)
-    {
+    public function __construct(
+        #[Autowire(service: 'user_config.repository')]
+        private readonly EntityRepository $userConfigRepository
+    ) {
     }
 
     public static function getSubscribedEvents(): array

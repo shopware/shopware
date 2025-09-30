@@ -111,7 +111,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new MessengerMiddlewareCompilerPass());
         $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
         $container->addCompilerPass(new TwigEnvironmentCompilerPass());
-        $container->addCompilerPass(new RouteScopeCompilerPass());
+        $container->addCompilerPass(new RouteScopeCompilerPass(), PassConfig::TYPE_BEFORE_REMOVING, 0);
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new AssetBundleRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());

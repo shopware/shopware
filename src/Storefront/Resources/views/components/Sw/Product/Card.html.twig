@@ -22,8 +22,6 @@
     }
 }) %}
 
-{#{{ dump(cardCVA) }}#}
-
 {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
 <div class="{{ cardCVA.apply({ layout, mediaDisplay }, attributes.render('class')) }}">
@@ -40,7 +38,7 @@
                         {{ ...attributes.nested('media').defaults({
                             media: product.cover.media,
                             height: mediaHeight,
-                            class: 'card-img-top product-card-media object-fit-cover',
+                            class: 'card-img-top product-card-media object-fit-contain',
                             sizes: '800px',
                             loading: 'lazy'
                         }) }}
@@ -81,7 +79,7 @@
 
                 {% if config('core.listing.showReview') and product.ratingAverage %}
                     <twig:Slot name="rating">
-                        <twig:Sw:Rating:Stars :stars="product.ratingAverage" />
+                        <twig:Sw:Rating:Stars class="mb-2" :stars="product.ratingAverage" />
                     </twig:Slot>
                 {% endif %}
 
@@ -91,10 +89,14 @@
                     </twig:Slot>
                 {% endif %}
 
+                <p class="sw-product-card__description fs-6 mb-0">
+                    {{ product.translated.description|striptags|raw|u.truncate(255, '...') }}
+                </p>
+
                 <twig:Slot name="body-bottom"></twig:Slot>
             </div>
 
-            <div {{ attributes.nested('footer').defaults({ class: 'product-card-footer card-footer border-0' }) }}>
+            <div {{ attributes.nested('footer').defaults({ class: 'product-card-footer card-footer border-0 pt-0' }) }}>
 
                 <twig:Slot name="footer-top"></twig:Slot>
 

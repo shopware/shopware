@@ -54,19 +54,25 @@ class ListingOptions extends window.PluginBaseClass {
             button.classList.remove('is--active');
         });
 
-        this._listingCards?.forEach((card) => {
-            card.classList.remove(...Object.values(this._listingVariants));
-            card.classList.add(this._listingVariants[layout]);
-            event.currentTarget.classList.add('is--active');
-        });
+        event.currentTarget.classList.add('is--active');
+        this._listGrid.classList.add('is--layout-transition');
 
-        if (layout === 'horizontal') {
-            this._listGrid.classList.remove('columns-4');
-            this._listGrid.classList.add('columns-1');
-        } else if (layout === 'default') {
-            this._listGrid.classList.remove('columns-1');
-            this._listGrid.classList.add('columns-4');
-        }
+        setTimeout(() => {
+            this._listingCards?.forEach((card) => {
+                card.classList.remove(...Object.values(this._listingVariants));
+                card.classList.add(this._listingVariants[layout]);
+            });
+
+            if (layout === 'horizontal') {
+                this._listGrid.classList.remove('columns-4');
+                this._listGrid.classList.add('columns-1');
+            } else if (layout === 'default') {
+                this._listGrid.classList.remove('columns-1');
+                this._listGrid.classList.add('columns-4');
+            }
+
+            this._listGrid.classList.remove('is--layout-transition');
+        }, 200);
 
         url.searchParams.set('layout', layout);
         history.pushState(null, '', url);

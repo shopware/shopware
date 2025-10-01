@@ -138,6 +138,7 @@ export default Mixin.register(
                 Object.keys(fallbackConfig).forEach((configKey) => {
                     if (!Object.prototype.hasOwnProperty.call(this.element.config, configKey)
                         && Object.prototype.hasOwnProperty.call(fallbackConfig, configKey)) {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                         this.element.config[configKey] = fallbackConfig[configKey];
                     }
                 });

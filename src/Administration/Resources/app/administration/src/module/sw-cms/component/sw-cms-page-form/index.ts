@@ -113,7 +113,9 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const hasChanges = block.slots.some((element) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 const elementChanges = getObjectDiff(this.entityConfig[element.id], element.config);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 return Object.keys(elementChanges).length > 0;
             });
 

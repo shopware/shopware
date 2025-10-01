@@ -135,11 +135,12 @@ export default Mixin.register(
                 )
 
                 this.element.config = this.element.config || {};
-                for (const configKey in fallbackConfig) {
-                    if (!this.element.config.hasOwnProperty(configKey) && fallbackConfig.hasOwnProperty(configKey)) {
+                Object.keys(fallbackConfig).forEach((configKey) => {
+                    if (!Object.prototype.hasOwnProperty.call(this.element.config, configKey)
+                        && Object.prototype.hasOwnProperty.call(fallbackConfig, configKey)) {
                         this.element.config[configKey] = fallbackConfig[configKey];
                     }
-                }
+                });
             },
 
             initElementData(elementName: string) {

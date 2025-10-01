@@ -100,13 +100,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            for (const element of block.slots) {
-                if (this.entityConfig.hasOwnProperty(element.id)) {
-                    return false;
-                }
-            }
+            const hasOwnConfig = block.slots.some((element) => {
+                return Object.prototype.hasOwnProperty.call(this.entityConfig, element.id);
+            });
 
-            return true;
+            return !hasOwnConfig;
         },
 
         restoreBlockInheritance(block: Entity<'cms_block'>) {
@@ -114,27 +112,22 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            let hasChanges = false;
-            for (const element of block.slots) {
+            const hasChanges = block.slots.some((element) => {
                 const elementChanges = getObjectDiff(this.entityConfig[element.id], element.config);
-
-                if (Object.keys(elementChanges).length) {
-                    hasChanges = true;
-                    break;
-                }
-            }
+                return Object.keys(elementChanges).length > 0;
+            });
 
             if (!hasChanges) {
-                for (const element of block.slots) {
+                block.slots.forEach((element) => {
                     delete this.entityConfig[element.id];
-                }
+                });
 
                 return;
             }
 
-            for (const element of block.slots) {
+            block.slots.forEach((element) => {
                 this.restoreBlockInheritanceIds.push(element.id);
-            }
+            });
         },
 
         removeBlockInheritance(block: Entity<'cms_block'>) {
@@ -142,9 +135,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            for (const element of block.slots) {
+            block.slots.forEach((element) => {
                 this.entityConfig[element.id] = cloneDeep(element.config) || {};
-            }
+            });
         },
 
         slotConfig(slot: Entity<'cms_slot'>) {
@@ -161,21 +154,21 @@ export default Shopware.Component.wrapComponentConfig({
 
             const defaultConfig = this.cmsElements[slot.type]?.defaultConfig;
             if (defaultConfig instanceof Object && slotElement.config) {
-                for (const configKey in defaultConfig) {
-                    if (!slotElement.config.hasOwnProperty(configKey)) {
+                Object.keys(defaultConfig).forEach((configKey) => {
+                    if (!Object.prototype.hasOwnProperty.call(slotElement.config, configKey)) {
                         // @ts-expect-error
                         slotElement.config[configKey] = defaultConfig[configKey];
                     }
-                }
+                });
             }
 
             return slotElement;
         },
 
         onConfirmRestoreBlockInheritance() {
-            for (const elementId of this.restoreBlockInheritanceIds) {
+            this.restoreBlockInheritanceIds.forEach((elementId) => {
                 delete this.entityConfig[elementId];
-            }
+            });
 
             this.restoreBlockInheritanceIds = [];
         },

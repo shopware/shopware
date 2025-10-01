@@ -85,6 +85,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
                 value: null,
             },
             overrideFromCategory: 'bar',
+            overrideFromProp: 'foo',
         };
 
         const wrapper = await createWrapper(defaultElement, 'sw.category.detail');

@@ -70,6 +70,7 @@ async function createWrapper() {
                     },
                     'sw-inheritance-switch': true,
                     'sw-extension-component-section': true,
+                    'mt-card': true,
                 },
                 provide: {
                     cmsService: {
@@ -161,6 +162,7 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
                         },
                         'sw-inheritance-switch': true,
                         'sw-extension-component-section': true,
+                        'mt-card': true,
                     },
                     provide: {
                         cmsService: {
@@ -210,6 +212,7 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
                         },
                         'sw-inheritance-switch': true,
                         'sw-extension-component-section': true,
+                        'mt-card': true,
                     },
                     provide: {
                         cmsService: {

@@ -26,6 +26,13 @@ export type Snippets = {
 };
 
 /**
+ * @private
+ */
+export type SnippetRegistry = {
+    [locale: string]: Snippets;
+};
+
+/**
  * Registry which holds all locales including the interface translations
  */
 const localeRegistry = new Map<string, Snippets>();

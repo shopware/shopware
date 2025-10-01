@@ -10,6 +10,7 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     StorefrontAccountAddresses,
     StorefrontAccountOrder,
     Login,
+    
 
 }) => {
     const countryId = await DefaultSalesChannel.salesChannel.countryId;
@@ -52,14 +53,14 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
 
     await test.step('Create screenshot of account overview page in storefront.', async () => {
         await ShopCustomer.attemptsTo(Login(customer));
-        await ShopCustomer.expects(StorefrontAccount.overviewLink).toBeVisible();
+        await ShopCustomer.expects(StorefrontAccount.navigation.overviewLink).toBeVisible();
         await ShopCustomer.expects(StorefrontAccount.page).toHaveScreenshot('Account-Overview-Page.png', {
             fullPage: true,
         });
     });
 
     await test.step('Create screenshot of account profile page in storefront.', async () => {
-        await StorefrontAccount.yourProfileLink.click();
+        await StorefrontAccount.navigation.yourProfileLink.click();
         await ShopCustomer.expects(StorefrontAccountProfile.changePasswordButton).toBeVisible();
         await ShopCustomer.expects(StorefrontAccountProfile.page).toHaveScreenshot('Account-Profile-Page.png', {
             fullPage: true,
@@ -67,7 +68,7 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     });
 
     await test.step('Create screenshot of account addresses page in storefront.', async () => {
-        await StorefrontAccountProfile.addressesLink.click();
+        await StorefrontAccountProfile.navigation.addressesLink.click();
         await ShopCustomer.expects(StorefrontAccountAddresses.addNewAddressButton).toBeVisible();
         await ShopCustomer.expects(StorefrontAccountAddresses.page).toHaveScreenshot('Account-Addresses-Page.png', {
             fullPage: true,
@@ -75,7 +76,7 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     });
 
     await test.step('Create screenshot of account order page in storefront.', async () => {
-        await StorefrontAccountAddresses.ordersLink.click();
+        await StorefrontAccountAddresses.navigation.ordersLink.click();
         await ShopCustomer.expects(StorefrontAccountOrder.noOrdersAlert).toBeVisible();
         await ShopCustomer.expects(StorefrontAccountOrder.page).toHaveScreenshot('Account-Order-Page.png', {
             fullPage: true,

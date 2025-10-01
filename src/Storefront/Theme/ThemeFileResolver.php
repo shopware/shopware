@@ -2,15 +2,16 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Twig\Components\UxComponent;
+use Shopware\Storefront\Framework\Twig\Components\UxComponentHelper;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Framework\Twig\Components\UxComponentHelper;
 
 #[Package('framework')]
 class ThemeFileResolver
@@ -114,12 +115,13 @@ class ThemeFileResolver
 
     /**
      * Resolves theme files by processing both direct file paths and namespaced imports
-     * 
+     *
      * @param StorefrontPluginConfiguration $themeConfig The theme configuration to resolve files for
      * @param StorefrontPluginConfigurationCollection $configurationCollection Collection of all available theme configurations
      * @param bool $onlySourceFiles Whether to only include source files (true) or also compiled files (false)
-     * @param callable $configFileResolver Function to get the initial file collection (either style or script files)
+     * @param callable(StorefrontPluginConfiguration, bool): FileCollection $configFileResolver Function to get the initial file collection (either style or script files)
      * @param array<int, string> $included List of already included files to prevent duplicates
+     *
      * @return FileCollection Collection of resolved files
      */
     private function resolve(
@@ -159,7 +161,7 @@ class ThemeFileResolver
         // Second pass: process each file
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
-            
+
             // Handle direct file paths (not starting with @)
             if (!$this->isInclude($filepath)) {
                 if (\is_file($filepath)) {
@@ -189,12 +191,12 @@ class ThemeFileResolver
                 foreach ($configurationCollection->getNoneThemes() as $plugin) {
                     foreach ($this->resolve(
                         $fileType,
-                        $plugin, 
-                        $configurationCollection, 
-                        $onlySourceFiles, 
-                        $configFileResolver, 
-                        $nextIncluded) as $item) {
-
+                        $plugin,
+                        $configurationCollection,
+                        $onlySourceFiles,
+                        $configFileResolver,
+                        $nextIncluded
+                    ) as $item) {
                         $resolvedFiles->add($item);
                     }
                 }
@@ -208,10 +210,20 @@ class ThemeFileResolver
                 }
 
                 foreach ($this->uxComponentHelper->getComponents() as $component) {
-                    $componentPath = $fileType === self::SCRIPT_FILES ? $component->getScriptPath() : $component->getStylePath();
+                    /** @var UxComponent $component */
+                    if ($fileType === self::SCRIPT_FILES) {
+                        /** @var string|null $componentPath */
+                        $componentPath = $component->getScriptPath();
+                    } else {
+                        /** @var string|null $componentPath */
+                        $componentPath = $component->getStylePath();
+                    }
 
                     if ($componentPath !== null) {
-                        $resolvedFiles->add(new File($componentPath, [], $component->getRelativeNamespaceDirectory()));
+                        $namespaceDir = $component->getRelativeNamespaceDirectory();
+                        // Use null for assetName if the namespace directory is empty to avoid double slashes
+                        $assetName = $namespaceDir !== '' ? $namespaceDir : null;
+                        $resolvedFiles->add(new File($componentPath, [], $assetName));
                     }
                 }
 

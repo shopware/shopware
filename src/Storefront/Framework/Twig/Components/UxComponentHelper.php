@@ -2,50 +2,42 @@
 
 namespace Shopware\Storefront\Framework\Twig\Components;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Twig\Components\UxComponent;
-use Shopware\Storefront\Framework\Twig\Components\UxComponentCollection;
-use Symfony\UX\TwigComponent\ComponentFactory;
-use Symfony\UX\TwigComponent\ComponentMetadata;
-use Symfony\UX\TwigComponent\Twig\PropsNode;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Path;
-use Doctrine\DBAL\Connection; 
-use Twig\Environment;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\UX\TwigComponent\ComponentFactory;
 
 #[Package('framework')]
 class UxComponentHelper
 {
     private const MAIN_NAMESPACE = 'Storefront';
 
+    /**
+     * @param array<string, array{path: string}> $bundlesMetadata
+     *
+     * @internal
+     */
     public function __construct(
         private string $componentDirectory,
         private string $projectDir,
         private array $bundlesMetadata,
-        private Environment $twig,
         private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
         private readonly ComponentFactory $componentFactory,
         private readonly Connection $connection,
     ) {
-        $this->componentDirectory = $componentDirectory ?? 'Resources/views/components';
     }
 
-    public function getComponents($includeMetadata = false, $includeProperties = false): UxComponentCollection
+    public function getComponents(bool $includeMetadata = false): UxComponentCollection
     {
         $components = new UxComponentCollection();
-        foreach ($this->findAnonymousComponents() as $component) {
 
-            if ($includeMetadata || $includeProperties) {
+        foreach ($this->findComponentsByTemplate() as $component) {
+            if ($includeMetadata) {
                 $componentMetadata = $this->componentFactory->metadataFor($component->getName());
-
-                if ($includeMetadata) {
-                    $component->setMetadata($componentMetadata);
-                }
-    
-                if ($includeProperties) {
-                    $component->setProperties($this->getAnonymousComponentProperties($componentMetadata));
-                }
+                $component->setMetadata($componentMetadata);
             }
 
             $components->add($component);
@@ -54,9 +46,28 @@ class UxComponentHelper
         return $components;
     }
 
-    public function findAnonymousComponents(): array
+    public function getComponentFromTemplate(SplFileInfo $template, string $componentNamespace): UxComponent
     {
-        $dirs = array_merge($this->getBundleDirs(), $this->getAppDirs());
+        $componentName = $this->getComponentNameFromPath($template->getRelativePathname());
+
+        $component = new UxComponent(
+            $componentName,
+            $template->getRealPath(),
+            $componentNamespace
+        );
+
+        return $component;
+    }
+
+    /**
+     * @return array<string, UxComponent>
+     */
+    private function findComponentsByTemplate(): array
+    {
+        $dirs = array_merge(
+            $this->getBundleDirs(),
+            $this->getAppDirs()
+        );
 
         $components = [];
         $finderTemplates = new Finder();
@@ -67,7 +78,7 @@ class UxComponentHelper
         ;
 
         foreach ($finderTemplates as $template) {
-            $componentNamespace = $dirs[Path::getDirectory($template->getRealPath())] ?? self::MAIN_NAMESPACE;
+            $componentNamespace = $this->getComponentNamespace($template->getRealPath(), $dirs);
             $component = $this->getComponentFromTemplate($template, $componentNamespace);
 
             $components[$component->getName()] = $component;
@@ -76,15 +87,40 @@ class UxComponentHelper
         return $components;
     }
 
+    /**
+     * @param array<string, string> $dirs
+     */
+    private function getComponentNamespace(string $templatePath, array $dirs): string
+    {
+        // Find the closest matching parent directory.
+        $templateDir = Path::getDirectory($templatePath);
+
+        // Check for exact match first.
+        if (isset($dirs[$templateDir])) {
+            return $dirs[$templateDir];
+        }
+
+        // Check if template is under any of the registered bundle directories.
+        foreach ($dirs as $dir => $namespace) {
+            if (str_starts_with($templateDir, $dir)) {
+                return $namespace;
+            }
+        }
+
+        return self::MAIN_NAMESPACE;
+    }
+
+    /**
+     * @return array<string, string>
+     */
     private function getBundleDirs(): array
     {
-        $namespaceHierarchy = $this->namespaceHierarchyBuilder->buildHierarchy();   
+        $namespaceHierarchy = $this->namespaceHierarchyBuilder->buildHierarchy();
         $namespaces = array_keys($namespaceHierarchy);
 
         $dirs = [];
 
         foreach ($namespaces as $namespace) {
-
             if (!isset($this->bundlesMetadata[$namespace])) {
                 continue;
             }
@@ -102,6 +138,9 @@ class UxComponentHelper
         return $dirs;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getAppDirs(): array
     {
         $dirs = [];
@@ -110,17 +149,20 @@ class UxComponentHelper
             SELECT
                 `app_template`.`path` AS `path`,
                 `app`.`name` AS `namespace`,
-                `app`.`path` AS `appPath`	
+                `app`.`path` AS `appPath`
             FROM `app_template`
             INNER JOIN `app` ON `app_template`.`app_id` = `app`.`id`
-            WHERE `app_template`.`active` = 1 AND `app`.`active` = 1 
+            WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
             AND `app_template`.`path` LIKE "%components/%"
         ');
 
-        foreach ($templates as $template) 
-        {
+        foreach ($templates as $template) {
             $appPath = $this->getAbsoluteAppPath($template['appPath']);
             $componentDir = $this->getComponentAppDir($appPath, $template['path']);
+
+            if ($componentDir === null) {
+                continue;
+            }
 
             $dirs[$componentDir] = $template['namespace'];
         }
@@ -128,68 +170,7 @@ class UxComponentHelper
         return $dirs;
     }
 
-    public function getAnonymousComponentProperties(ComponentMetadata $metadata): array
-    {
-        $source = $this->twig->load($metadata->getTemplate())->getSourceContext();
-        $tokenStream = $this->twig->tokenize($source);
-        $moduleNode = $this->twig->parse($tokenStream);
-
-        $propsNode = null;
-        foreach ($moduleNode->getNode('body') as $bodyNode) {
-            foreach ($bodyNode as $node) {
-                if (PropsNode::class === $node::class) {
-                    $propsNode = $node;
-                    break 2;
-                }
-            }
-        }
-        if (!$propsNode instanceof PropsNode) {
-            return [];
-        }
-
-        $propertyNames = $propsNode->getAttribute('names');
-        $properties = array_combine($propertyNames, $propertyNames);
-        foreach ($propertyNames as $propName) {
-            if ($propsNode->hasNode($propName)
-                && ($valueNode = $propsNode->getNode($propName))
-                && $valueNode->hasAttribute('value')
-            ) {
-                $value = $valueNode->getAttribute('value');
-                if (\is_bool($value)) {
-                    $value = $value ? 'true' : 'false';
-                } else {
-                    $value = json_encode($value);
-                }
-                $properties[$propName] = $propName.' = '.$value;
-            }
-        }
-
-        return $properties;
-    }
-
-    public function getComponentFromTemplate($template, string $componentNamespace) 
-    {
-        $componentName = $this->getComponentNameFromPath($template->getRelativePathname());
-
-        $component = new UxComponent(
-            $componentName,
-            $template->getRealPath(),
-            $componentNamespace
-        );
-
-        return $component;
-    }
-
-    private function getNamespacePath($namespace)
-    {
-        if (!isset($this->bundlesMetadata[$namespace])) {
-            return null;
-        }
-
-        return $this->bundlesMetadata[$namespace]['path'];
-    }
-
-    private function getAbsoluteAppPath($appPath) 
+    private function getAbsoluteAppPath(string $appPath): ?string
     {
         $absolutePath = Path::join($this->projectDir, $appPath);
 
@@ -200,14 +181,18 @@ class UxComponentHelper
         return $absolutePath;
     }
 
-    private function getComponentAppDir($appPath, $templatePath) 
+    private function getComponentAppDir(?string $appPath, string $templatePath): ?string
     {
+        if ($appPath === null) {
+            return null;
+        }
+
         $path = $this->getComponentAppPath($appPath, $templatePath);
 
         return Path::getDirectory($path);
     }
 
-    private function getComponentAppPath($appPath, $templatePath) 
+    private function getComponentAppPath(string $appPath, string $templatePath): string
     {
         if (str_starts_with($templatePath, 'components/')) {
             $templatePath = str_replace('components/', '', $templatePath);
@@ -216,7 +201,7 @@ class UxComponentHelper
         return Path::join($appPath, $this->componentDirectory, $templatePath);
     }
 
-    private function getComponentNameFromPath($templateRelativePath) 
+    private function getComponentNameFromPath(string $templateRelativePath): string
     {
         if (str_starts_with($templateRelativePath, 'components/')) {
             $templateRelativePath = str_replace('components/', '', $templateRelativePath);

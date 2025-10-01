@@ -542,7 +542,6 @@ class ApplicationBootstrapper {
             'login',
             'baseComponents',
             'coreDirectives',
-            'apiServices',
             'locale',
             'store',
         ];

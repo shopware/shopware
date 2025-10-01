@@ -26,17 +26,17 @@ test('As a shop customer, I want to accept only the technically required cookies
 
     await test.step('Verify cookies after saving default consent settings', async () => {
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.find(c => c.name == 'google-analytics-enabled')).not.toBeDefined();
-        ShopCustomer.expects(allCookies.find(c => c.name == 'google-ads-enabled')).not.toBeDefined();
-        ShopCustomer.expects(allCookies.length).toEqual(3);
+        ShopCustomer.expects(allCookies.find(c => c.name === 'google-analytics-enabled')).not.toBeDefined();
+        ShopCustomer.expects(allCookies.find(c => c.name === 'google-ads-enabled')).not.toBeDefined();
+        ShopCustomer.expects(allCookies.length).toEqual(4);
     });
 
     await test.step('Verify cookies persist after page reload', async () => {
         await StorefrontHome.page.reload();
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.find(c => c.name == 'google-analytics-enabled')).not.toBeDefined();
-        ShopCustomer.expects(allCookies.find(c => c.name == 'google-ads-enabled')).not.toBeDefined();
-        ShopCustomer.expects(allCookies.length).toEqual(3);
+        ShopCustomer.expects(allCookies.find(c => c.name === 'google-analytics-enabled')).not.toBeDefined();
+        ShopCustomer.expects(allCookies.find(c => c.name === 'google-ads-enabled')).not.toBeDefined();
+        ShopCustomer.expects(allCookies.length).toEqual(4);
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
     });
 });

@@ -1,5 +1,6 @@
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
+
 const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 
 /**
@@ -155,14 +156,14 @@ export default Shopware.Component.wrapComponentConfig({
             const slotElement = cloneDeep(slot);
 
             if (this.entityConfig[slot.id]) {
-                slotElement['config'] = this.entityConfig[slot.id];
+                slotElement.config = this.entityConfig[slot.id];
             }
 
             const defaultConfig = this.cmsElements[slot.type]?.defaultConfig;
             if (defaultConfig instanceof Object && slotElement.config) {
                 for (const configKey in defaultConfig) {
                     if (!slotElement.config.hasOwnProperty(configKey)) {
-                        // @ts-ignore
+                        // @ts-expect-error
                         slotElement.config[configKey] = defaultConfig[configKey];
                     }
                 }

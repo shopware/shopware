@@ -975,7 +975,8 @@ export default {
 
             this.isSaveSuccessful = false;
 
-            // Explicitly set the slot config to null, as the DAL would convert it to an empty array, instead of an empty object
+            // Explicitly set the slot config to null, as the DAL would convert it to an empty array,
+            // instead of an empty object
             if (this.product.slotConfig && Object.keys(this.product.slotConfig).length === 0) {
                 this.product.slotConfig = null;
             }

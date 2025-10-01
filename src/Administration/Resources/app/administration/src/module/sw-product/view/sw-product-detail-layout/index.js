@@ -7,7 +7,7 @@ import './sw-product-detail-layout.scss';
 
 const { Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { cloneDeep, merge, get } = Utils.object;
+const { get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -178,8 +178,9 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, as the listener is not needed anymore, will also not be called anymore, i.e. removed from the template
+         * @deprecated tag:v6.8.0 - Will be removed, as the listener is not needed anymore,
+         * will also not be called anymore, i.e. should be removed from the twig template
          */
-        elementUpdate(element) {},
+        elementUpdate() {},
     },
 };

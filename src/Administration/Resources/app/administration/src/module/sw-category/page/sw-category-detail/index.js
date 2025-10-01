@@ -618,7 +618,8 @@ export default {
         async onSave() {
             this.isSaveSuccessful = false;
 
-            // Explicitly set the slot config to null, as the DAL would convert it to an empty array, instead of an empty object
+            // Explicitly set the slot config to null, as the DAL would convert it to an empty array,
+            // instead of an empty object
             if (this.category.slotConfig && Object.keys(this.category.slotConfig).length === 0) {
                 this.category.slotConfig = null;
             }
@@ -695,7 +696,8 @@ export default {
         onSaveLandingPage() {
             this.isSaveSuccessful = false;
 
-            // Explicitly set the slot config to null, as the DAL would convert it to an empty array, instead of an empty object
+            // Explicitly set the slot config to null, as the DAL would convert it to an empty array,
+            // instead of an empty object
             if (this.landingPage.slotConfig && Object.keys(this.landingPage.slotConfig).length === 0) {
                 this.landingPage.slotConfig = null;
             }

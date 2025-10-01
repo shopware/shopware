@@ -25,6 +25,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     public const SCOPE_PLATFORM = 'Platform';
 
     public const SCOPE_PLUGINS = 'Plugins';
+
     private const ADMINISTRATION_BUNDLE_NAME = 'Administration';
 
     /**

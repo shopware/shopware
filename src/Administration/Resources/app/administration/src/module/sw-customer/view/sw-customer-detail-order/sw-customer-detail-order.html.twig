@@ -93,19 +93,12 @@
 
     {% block sw_customer_detail_order_card_grid_empty_state %}
     <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
-        <sw-empty-state
-            :title="emptyTitle"
-            :absolute="false"
-            :subline="$tc('sw-customer.detailOrder.emptySubline')"
+        <mt-empty-state
+            icon="solid-shopping-bag"
+            :headline="emptyTitle"
+            :description="$tc('sw-customer.detailOrder.emptySubline')"
         >
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
-                    :alt="emptyTitle"
-                >
-            </template>
-
-            <template #actions>
+            <template #button>
                 {% block sw_customer_detail_order_card_grid_empty_state_action %}
                 <mt-button
                     v-tooltip="{
@@ -123,7 +116,7 @@
                 </mt-button>
                 {% endblock %}
             </template>
-        </sw-empty-state>
+        </mt-empty-state>
     </template>
     {% endblock %}
 </mt-card>

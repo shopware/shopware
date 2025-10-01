@@ -92,9 +92,6 @@ async function createWrapper() {
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
-                },
                 'sw-card-section': {
                     template: '<div class="sw-card-section"><slot></slot></div>',
                 },
@@ -210,6 +207,11 @@ async function createWrapper() {
                 $route: {
                     query: '',
                     name: 'sw.order.detail.documents',
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
                 },
             },
             directives: {

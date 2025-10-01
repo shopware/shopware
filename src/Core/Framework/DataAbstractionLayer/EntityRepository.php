@@ -203,6 +203,7 @@ class EntityRepository
         $criteria = clone $criteria;
 
         /** @var TEntityCollection $entities */
+        // @phpstan-ignore varTag.type (phpstan can't detect that TEntityCollection is always an EntityCollection<Entity>)
         $entities = $this->reader->read($this->definition, $criteria, $context);
 
         if ($criteria->getFields() === []) {

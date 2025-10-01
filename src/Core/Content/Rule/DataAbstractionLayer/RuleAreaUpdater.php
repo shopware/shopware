@@ -190,7 +190,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array<array<string>>>
+     * @return array<string, array<string, string>>
      */
     private function getAreas(array $ids, CompiledFieldCollection $associationFields): array
     {
@@ -215,7 +215,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             ArrayParameterType::STRING
         );
 
-        /** @var array<string, array<array<string>>> $result */
+        /** @var array<string, array<string, string>> $result */
         $result = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
 
         return $result;

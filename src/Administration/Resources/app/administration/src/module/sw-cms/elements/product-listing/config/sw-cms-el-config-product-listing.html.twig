@@ -281,19 +281,12 @@
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_empty_state %}
-                    <sw-empty-state
+                    <mt-empty-state
                         v-else
-                        :absolute="false"
-                        :title="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
-                        :subline="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
-                    >
-                        <template #icon>
-                            <img
-                                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                                alt="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
-                            >
-                        </template>
-                    </sw-empty-state>
+                        icon="solid-products"
+                        :headline="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
+                        :description="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
+                    />
                     {% endblock %}
                 </div>
                 {% endblock %}

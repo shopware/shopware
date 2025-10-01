@@ -132,7 +132,7 @@ class VersionManager
 
     public function createVersion(EntityDefinition $definition, string $id, WriteContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        $versionId = $versionId ?? Uuid::randomHex();
+        $versionId ??= Uuid::randomHex();
         $versionData = ['id' => $versionId];
 
         if ($name) {

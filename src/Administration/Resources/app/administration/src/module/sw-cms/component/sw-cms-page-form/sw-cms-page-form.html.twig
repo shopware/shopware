@@ -138,7 +138,7 @@
                     {% block sw_cms_page_form_card_content %}
                     <div
                         v-for="(element, blockIndex) in block.slots"
-                        :blockIndex="blockIndex"
+                        :key="blockIndex"
                         class="sw-cms-page-form__element-config"
                         :disabled="isInherited(block)"
                     >

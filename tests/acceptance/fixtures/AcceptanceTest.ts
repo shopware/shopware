@@ -2,13 +2,8 @@ import { test as ShopwareTestSuite, mergeTests } from '@shopware-ag/acceptance-t
 import { test as shopCustomerTasks } from '@tasks/ShopCustomerTasks';
 import { test as shopAdminTasks } from '@tasks/ShopAdminTasks';
 import { test as HomeProducts } from './HomeProducts';
-
+import { test as CustomTranslation } from './CustomTranslation';
 
 export * from '@shopware-ag/acceptance-test-suite';
 
-export const test = mergeTests(
-    ShopwareTestSuite,
-    shopCustomerTasks,
-    shopAdminTasks,
-    HomeProducts,
-);
+export const test = mergeTests(ShopwareTestSuite, shopCustomerTasks, shopAdminTasks, HomeProducts, CustomTranslation);

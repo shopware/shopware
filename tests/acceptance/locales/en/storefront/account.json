@@ -1,0 +1,10 @@
+{
+  "profile": {
+    "title": "My Account",
+    "edit": "Edit Profile"
+  },
+  "orders": {
+    "title": "My Orders"
+  }
+}
+

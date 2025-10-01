@@ -3,12 +3,15 @@
     "lib": ["ESNext"],
     "esModuleInterop": true,
     "types": ["node"],
+    "module": "esnext",
+    "target": "es2022",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       "@fixtures/*": ["fixtures/*"],
       "@page-objects/*": ["page-objects/*"],
       "@tasks/*": ["tasks/*"],
-      "@data/*": ["test-data/*"],
+      "@data/*": ["test-data/*"]
     }
   }
 }

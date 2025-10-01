@@ -1,0 +1,8 @@
+{
+  "create": {
+    "save": "Save",
+    "selectLayout": "Select layout",
+    "add": "Add",
+    "sortByName": "Sort by: Name Type Created"
+  }
+}

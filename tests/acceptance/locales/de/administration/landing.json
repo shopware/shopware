@@ -1,0 +1,8 @@
+{
+  "create": {
+    "save": "Speichern",
+    "selectLayout": "Layout auswählen",
+    "add": "Hinzufügen",
+    "sortByName": "Sortieren nach: Name Typ Erstellt"
+  }
+}

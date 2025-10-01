@@ -1,0 +1,8 @@
+{
+  "payment": {
+    "invoice": "Invoice"
+  },
+  "shipping": {
+    "standard": "Standard"
+  }
+}

@@ -5,7 +5,8 @@
 The test suite is build with **Playwright**. For detailed information have a look into the [official documentation](https://playwright.dev/docs/intro).
 
 ## Prerequisites
-- Node.js 18-22
+
+-   Node.js 18-22
 
 ## Setup
 
@@ -90,7 +91,64 @@ You can point playwright to a different admin url by setting `ADMIN_URL`. The de
 ADMIN_URL=http://localhost:8080
 ```
 
+## Language-Agnostic Testing
+
+The test suite supports multiple languages for both browser UI and translation content, enabling tests to run in different locales.
+
+### Usage
+
+Run tests in different languages using environment variables:
+
+```bash
+# German locale (browser UI + translations)
+lang=de npx playwright test --headed
+
+# English (default)
+npx playwright test
+```
+
+### Supported Locales
+
+**Translation Resources**: `en` (English), `de` (German)  
+**Browser UI**: `en`, `de`, `fr`, `es`, `it`, `nl`, `pt`
+
+### Creating Language-Specific Tests
+
+Use the `CustomTranslation` fixture for type-safe translations:
+
+```typescript
+import { test } from '../fixtures/CustomTranslation';
+
+test('localized test', async ({ Translate, ShopAdmin }) => {
+    const saveText = Translate('administration:common:button.save');
+    await ShopAdmin.expects(page.getByText(saveText)).toBeVisible();
+});
+```
+
+```typescript
+import { test } from '@fixtures/AcceptanceTest';
+
+test(
+    'Example test',
+    { tag: '@Order @Account' },
+    async ({ ShopCustomer, StorefrontAccountOrder, TestDataService, Login, Translate }) => {
+        await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText(
+            Translate('administration:order:status.open')
+        );
+    }
+);
+```
+
+### Adding New Languages
+
+1. **Create translation files**: `locales/{lang}/administration/*.json`, `locales/{lang}/storefront/*.json`
+2. **Update locales index**: Add imports and exports in `locales/index.ts`
+3. **Browser UI support** is automatic for common languages
+
+Translation keys use colon-separated hierarchical format: `namespace:section:key` (e.g., `administration:common:button.save`).
+
 ## Debugging with Traces
+
 Debugging failing tests within the pipeline is very easy now. Simply open the failed job within the pipeline of your merge request. In the right sidebar you will find a section called "Job artifacts". Click on the "Browse" button and navigate to the artifacts of the test you want to debug. Download the `trace.zip` file. You can open the trace in your local Playwright UI mode or simply go to [trace.playwright.dev](https://trace.playwright.dev/) and drop your trace there to get a debug mode within your browser.
 
 ## Test Strategy
@@ -172,13 +230,15 @@ With every test scenario our goal is to create a well-structured and comprehensi
 We achieve this by using a lightweight actor pattern on top of Playwright which enables us to write test scenarios in a readable way, that non-tech people are able to understand. We describe the concept in more detail in the following section.
 
 #### Write meaningful test descriptions
+
 Playwright provides a powerful feature, `test.step`, to write meaningful and structured test descriptions.
 This method allows you to describe test steps in a human-readable way, making it easier to understand test scenarios and debug failures.
-- **Use Descriptive Names**: Clearly describe each step’s purpose. The name should explain what the step does or what it's verifying.  
-- **Group Related Actions**: Combine logically related actions and assertions into a single step. For example, navigating to a page, filling out a form, or verifying multiple conditions.  
-- **Keep Steps Focused**: Each step should perform a single, well-defined task. If a step is too complex, break it into smaller steps.  
-- **Improve Error Localization**: Well-defined steps help pinpoint exactly where a test is failing, making debugging more efficient.  
-- **Maintain Consistency**: Use `test.step` consistently across your test suite to ensure a uniform structure, making tests easier to read and maintain.
+
+-   **Use Descriptive Names**: Clearly describe each step’s purpose. The name should explain what the step does or what it's verifying.
+-   **Group Related Actions**: Combine logically related actions and assertions into a single step. For example, navigating to a page, filling out a form, or verifying multiple conditions.
+-   **Keep Steps Focused**: Each step should perform a single, well-defined task. If a step is too complex, break it into smaller steps.
+-   **Improve Error Localization**: Well-defined steps help pinpoint exactly where a test is failing, making debugging more efficient.
+-   **Maintain Consistency**: Use `test.step` consistently across your test suite to ensure a uniform structure, making tests easier to read and maintain.
 
 ```JavaScript
 test('As a customer, I must be able to change my email via account.', { tag: '@Account' }, async ({ }) => {
@@ -218,9 +278,9 @@ await shopCustomer.expects(checkoutConfirmPage.grandTotalPrice).toHaveText('€9
 
 You can see that the scenario of adding a promotion code to the cart can be defined by just three simple steps that are written in a way which also non-technical people would comprehend. This is possible due to the actor pattern which uses an object-oriented way to perform actions and assert results. It is also complemented by the syntax of Playwright itself, as its methods already make use of quite a ubiquitous language. You can see the following patterns:
 
--   **Actor** *goes to* a **page**.
--   **Actor** *attempts to* perform a **task**.
--   **Actor** *expects* a certain result.
+-   **Actor** _goes to_ a **page**.
+-   **Actor** _attempts to_ perform a **task**.
+-   **Actor** _expects_ a certain result.
 
 Every artifact can easily be accessed in each test scenario via the dependency injection of Playwright. That is, because every artifact is provided via Playwright [fixtures](https://playwright.dev/docs/test-fixtures). To create a full test with the example from above that makes use of an actor, task, page object and data fixture could look like this:
 
@@ -245,16 +305,19 @@ test('Registered shop customer uses a promotion code during checkout.', async ({
 **Note:** It is important to import the test method from our main fixture class `'@fixtures/AcceptanceTest'` to have access to all Shopware-specific fixtures. You can import all Playwright specific methods from there as it is used as a wrapper for Playwright, just as Playwright recommends it within their [fixture documentation](https://playwright.dev/docs/test-fixtures).
 
 #### Tasks
+
 The tasks are a central part of adding behaviour logic to your test scenarios. They contain the most test logic. The advantage of abstracting the logic in smaller tasks is, that you can reuse them in different scenarios. If the behaviour of a certain task changes, you just have to fix the corresponding task fixture and all scenarios that make use of this specific task will automatically be adjusted.
 
 To make the tasks available via Playwright fixtures it is important that they are created in a certain way. Otherwise, you couldn't use them via the dependency injection of your test, and they would not fit into the language of the actor pattern. To make it easier for creating new tasks in the right way, there is a npx command that you can use to simply create a new file with the necessary boilerplate code. The files for the tasks are put into different directories to structure them by actors and domains. You can specify the directory structure within the command.
 
-Command:  
+Command:
+
 ```
 npx createTask <actor>/<domain>/<task>
 ```
 
-Example:  
+Example:
+
 ```
 npx createTask ShopCustomer/Checkout/SubmitOrder
 ```
@@ -270,7 +333,7 @@ export const SubmitOrder = base.extend({
             return async function SubmitOrder() {
 
                 // Add your test content here
-                
+
             }
         };
 
@@ -299,25 +362,28 @@ This will execute the test code of the task. In addition, it will automatically 
 
 ## Playwright Visual Tests
 
-Visual testing ensures that your application's UI remains consistent and free from unintended changes. Playwright also provides built-in capabilities for visual regression testing. 
+Visual testing ensures that your application's UI remains consistent and free from unintended changes. Playwright also provides built-in capabilities for visual regression testing.
 
 ### Capturing and Comparing Screenshots
+
 Playwright enables visual testing by capturing and comparing screenshots using the `toHaveScreenshot` method:
+
 ```JavaScript
- await expect(page).toHaveScreenshot() 
+ await expect(page).toHaveScreenshot()
 ```
 
 This method can be customized with various options. For a full list of available options, refer to the [official Playwright documentation](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)
 
-
 **Note:** When running visual tests for the first time, you may encounter an error like this:
+
 ```
 Error: A snapshot doesn't exist at {TEST_OUTPUT_PATH}, writing actual.
 ```
+
 This is expected since there is no baseline image to compare against. Playwright automatically saves the first screenshot, which can then be used as a reference for future tests.
 
-
 ### Updating Screenshots
+
 If your UI changes intentionally, you may need to update the reference (base image) screenshots.
 To update the reference screenshot you can use the **--update-snapshots** flag (or **-u**) flag.
 
@@ -332,22 +398,24 @@ npx playwright test -u "**/test_name*.spec.ts"
 ```
 
 ### Debugging Visual Tests
+
 The best way to debug visual test failures is by reviewing the "Actual" and "Expected" images in the Playwright HTML report or any other reporting tool you use. The "Diff" view highlights discrepancies between screenshots, making it easier to identify differences.
 
-
 ### Configuring Sensitivity in Visual Tests
+
 By default, Playwright detects even a **1-pixel difference**, which might be too strict depending on your design needs. You can fine-tune visual comparison settings using these options:
-- maxDiffPixelRatio – Acceptable ratio of different pixels compared to the total number of pixels (range: `0` to `1`).
-- maxDiffPixels – Maximum number of differing pixels allowed.
-- threshold – Defines the intensity change required for a pixel to be considered different (`0` to `1`, default: `0.2`).
-These settings can be applied per test or globally in **playwright.config.ts** file.
 
+-   maxDiffPixelRatio – Acceptable ratio of different pixels compared to the total number of pixels (range: `0` to `1`).
+-   maxDiffPixels – Maximum number of differing pixels allowed.
+-   threshold – Defines the intensity change required for a pixel to be considered different (`0` to `1`, default: `0.2`).
+    These settings can be applied per test or globally in **playwright.config.ts** file.
 
-### Best Practices for Visual Testing 
-- **Handling dynamic elements:**  
-  - Replace dynamic text content (e.g., usernames, prices) with `***` using `ReplaceElementsForScreenshot` to mask sensitive or frequently changing information.  
-  - Use `HideElementsForScreenshot` for elements where replacing text content is not feasible—such as those with dynamic color or style changes—to hide them while preserving layout integrity.
-- **Ensure environmental consistency** – Match OS versions, time zones, and rendering environments between your local machine and the test runner.
-- **Adjust sensitivity thresholds** – Modify `maxDiffPixels` and `threshold` based on your project’s requirements.
-- **Handle lazy-loaded elements** – Extend `toHaveScreenshot()` with an additional timeout if necessary.
-- **Wait for page stability** – Ensure the page is fully loaded and in the correct state before capturing screenshots (e.g., scroll to the target element if needed).
+### Best Practices for Visual Testing
+
+-   **Handling dynamic elements:**
+    -   Replace dynamic text content (e.g., usernames, prices) with `***` using `ReplaceElementsForScreenshot` to mask sensitive or frequently changing information.
+    -   Use `HideElementsForScreenshot` for elements where replacing text content is not feasible—such as those with dynamic color or style changes—to hide them while preserving layout integrity.
+-   **Ensure environmental consistency** – Match OS versions, time zones, and rendering environments between your local machine and the test runner.
+-   **Adjust sensitivity thresholds** – Modify `maxDiffPixels` and `threshold` based on your project’s requirements.
+-   **Handle lazy-loaded elements** – Extend `toHaveScreenshot()` with an additional timeout if necessary.
+-   **Wait for page stability** – Ensure the page is fully loaded and in the correct state before capturing screenshots (e.g., scroll to the target element if needed).

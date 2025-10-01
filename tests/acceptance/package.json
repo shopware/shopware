@@ -29,6 +29,7 @@
     "@shopware-ag/acceptance-test-suite": "11.30.0",
     "@shopware/api-client": "1.3.0",
     "lighthouse": "12.8.2",
+    "i18next": "^25.5.2",
     "playwright-lighthouse": "4.0.0"
   }
 }

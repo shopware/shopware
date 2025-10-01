@@ -31,6 +31,26 @@ if (process.env.DATABASE_URL) {
     }
 }
 
+// Simple language (cmd line) -> LANGUAGE -> LANG (system) -> fallback to 'en'
+const LOCALES = { de: 'de-DE', en: 'en-US', fr: 'fr-FR', es: 'es-ES', it: 'it-IT', nl: 'nl-NL', pt: 'pt-PT' };
+
+function getLanguage(): string {
+    let lang = process.env.lang || process.env.LANGUAGE || process.env.LANG || 'en';
+    // Normalize (en_US.UTF-8 -> en, de_DE -> de, etc.)
+    return lang.split(/[_.-]/)[0].toLowerCase();
+}
+
+function getLocaleConfig() {
+    const lang = getLanguage();
+    const browserLocale = LOCALES[lang as keyof typeof LOCALES] || 'en-US';
+    const browserArgs =
+        lang !== 'en' && LOCALES[lang as keyof typeof LOCALES]
+            ? [`--lang=${browserLocale}`, `--accept-lang=${browserLocale},${lang};q=0.9,en;q=0.8`]
+            : [];
+
+    return { lang, browserLocale, browserArgs };
+}
+
 // make sure APP_URL ends with a slash
 process.env['APP_URL'] = process.env['APP_URL'].replace(/\/+$/, '') + '/';
 if (process.env['ADMIN_URL']) {
@@ -63,6 +83,8 @@ export default defineConfig({
         baseURL: process.env['APP_URL'],
         trace: 'on-first-retry',
         video: 'off',
+        // Set browser locale based on environment variables
+        locale: getLocaleConfig().browserLocale,
     },
 
     // We abuse this to wait for the external webserver
@@ -86,7 +108,11 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
                 launchOptions: {
-                    args: ['--remote-debugging-port=9222'],
+                    args: [
+                        '--remote-debugging-port=9222',
+                        // Set browser UI language based on environment variables
+                        ...getLocaleConfig().browserArgs,
+                    ],
                 },
             },
             dependencies: ['Setup'],

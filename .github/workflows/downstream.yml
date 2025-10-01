@@ -33,7 +33,7 @@ jobs:
         if: steps.sts.outputs.token
         with:
           repo: shopware/rufus
-          workflow: Downstream
+          workflow: .github/workflows/downstream.yml
           ref: .auto
           timeout: 30m
           token: ${{ steps.sts.outputs.token }}

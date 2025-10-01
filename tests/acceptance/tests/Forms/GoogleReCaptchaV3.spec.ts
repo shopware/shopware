@@ -4,7 +4,7 @@ const reCaptcha_V3_site_key = '6LeNJ-UqAAAAAPmLzX0ekQuuv7f4HR8FVyaF4FrR';
 const reCaptcha_V3_secret_key = '6LeNJ-UqAAAAAGIxrxNBjVvQwPUZ6_DJxWlqXC9u';
 
 test.skip('As a customer, I can perform a registration by validating to be not a robot via the Google reCaptcha V3.',
-    { tag: '@form @Registration @Captcha' },
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountLogin,
@@ -50,7 +50,7 @@ test.skip('As a customer, I can perform a registration by validating to be not a
 );
 
 test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V3 even after a false input.',
-    { tag: '@form @Registration @Captcha' },
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountLogin,
@@ -133,7 +133,7 @@ test.skip('As a customer, I can perform a registration that is validated by the 
 );
 
 test.skip('As a customer, I want to fill out and submit the contact form that is validated by the invisible Google reCaptcha V3.',
-    { tag: '@form @contact @Captcha' },
+    { tag: ['@Form', '@Contact', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontHome,

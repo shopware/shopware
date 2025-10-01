@@ -1,16 +1,18 @@
 {
-  "sw-inactivity-login": {
-    "general": {
-      "mainMenuItemIndex": "Sitzung abgelaufen",
-      "description": "Inaktivitäts-Anmeldung"
-    },
-    "modal": {
-      "title": "Um sicherzugehen, haben wir dich abgemeldet",
-      "actions": {
-        "backToLogin": "Zurück zur Anmeldung"
+  "global": {
+    "sw-inactivity-login": {
+      "general": {
+        "mainMenuItemIndex": "Sitzung abgelaufen",
+        "description": "Inaktivitäts-Anmeldung"
       },
-      "errors": {
-        "password": "Falsches Passwort"
+      "modal": {
+        "title": "Um sicherzugehen, haben wir dich abgemeldet",
+        "actions": {
+          "backToLogin": "Zurück zur Anmeldung"
+        },
+        "errors": {
+          "password": "Falsches Passwort"
+        }
       }
     }
   }

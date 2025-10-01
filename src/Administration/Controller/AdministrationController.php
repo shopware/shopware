@@ -138,6 +138,7 @@ class AdministrationController extends AbstractController
 
         if ($locale !== 'en-GB') {
             $snippets['en-GB'] = $this->snippetFinder->findSnippets('en-GB');
+            $snippets = $this->filterByAuthentication($request, $snippets, 'en-GB');
         }
 
         $snippets = $this->filterByAuthentication($request, $snippets, $locale);

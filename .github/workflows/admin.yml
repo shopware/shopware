@@ -65,6 +65,11 @@ jobs:
           install-admin: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cache-test
+          path: ./src/Administration/Resources/app/administration/node_modules
+          retention-days: 3
       - name: Run Jest Admin ${{ matrix.test-type }}
         run: npm --prefix src/Administration/Resources/app/administration run ${{ matrix.test-type }} -- --silent
       - name: Upload coverage

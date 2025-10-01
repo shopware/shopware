@@ -18,18 +18,20 @@ test('As a customer, I can perform a registration by validating to be not a robo
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
-        await TestDataService.setSystemConfig({
-            'core.basicInformation.activeCaptchasV2': {
-                googleReCaptchaV2: {
-                    name: 'googleReCaptchaV2',
-                    isActive: true,
-                    config: {
-                        siteKey: reCaptcha_V2_site_key,
-                        secretKey: reCaptcha_V2_secret_key,
-                        invisible: false,
+        await test.step('Configure reCAPTCHA V2', async () => {
+            await TestDataService.setSystemConfig({
+                'core.basicInformation.activeCaptchasV2': {
+                    googleReCaptchaV2: {
+                        name: 'googleReCaptchaV2',
+                        isActive: true,
+                        config: {
+                            siteKey: reCaptcha_V2_site_key,
+                            secretKey: reCaptcha_V2_secret_key,
+                            invisible: false,
+                        },
                     },
                 },
-            },
+            });
         });
 
         const customer = { email: `${IdProvider.getIdPair().uuid}@test.com` };
@@ -67,6 +69,15 @@ test('As a customer, I can perform a registration by validating to be not a robo
 
         await test.step('Customer attempts to register again after validating via the reCaptcha V2', async () => {
             await ShopCustomer.attemptsTo(Register(customer));
+
+            // Wait for navigation or registration to complete
+            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
+
+            // Check if we're on the account page or if there are any errors
+            const currentUrl = StorefrontAccountLogin.page.url();
+            console.log('Current URL after registration:', currentUrl);
+
+            // Look for the customer email on the page
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         });
     }
@@ -287,7 +298,14 @@ test('As a customer, I want to fill out and submit the contact form that is vali
 
         await test.step('Send and validate the contact form.', async () => {
             const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
+                (response) => {
+                    try {
+                        const url = new URL(response.url());
+                        return url.pathname.endsWith('/form/contact') && response.request().method() === 'POST';
+                    } catch {
+                        return false;
+                    }
+                }
             );
 
             await StorefrontContactForm.submitButton.click();

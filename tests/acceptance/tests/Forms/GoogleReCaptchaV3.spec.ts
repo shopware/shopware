@@ -9,11 +9,11 @@ test.skip('As a customer, I can perform a registration by validating to be not a
         ShopCustomer,
         StorefrontAccountLogin,
         StorefrontAccount,
-        StorefrontHome,
         TestDataService,
         IdProvider,
         Register,
-        InstanceMeta ,
+        InstanceMeta,
+        acceptTechnicalRequiredCookies,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -36,21 +36,7 @@ test.skip('As a customer, I can perform a registration by validating to be not a
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await test.step('Verify reCaptcha script is not loaded before cookie consent', async () => {
-            const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-            await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('data-src');
-            await ShopCustomer.expects(reCaptchaScript).not.toHaveAttribute('src');
-        });
-
-        await test.step('Accept technical required cookies to enable reCaptcha script loading', async () => {
-            await StorefrontHome.consentOnlyTechnicallyRequiredButton.click();
-            await StorefrontHome.page.waitForSelector('#recaptcha-script[src]');
-        });
-
-        await test.step('Verify reCaptcha script is loaded after cookie consent', async () => {
-            const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-            await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('src');
-        });
+        await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
 
         const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
 
@@ -69,10 +55,10 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         ShopCustomer,
         StorefrontAccountLogin,
         StorefrontAccount,
-        StorefrontHome,
         TestDataService,
         IdProvider,
-        InstanceMeta ,
+        InstanceMeta,
+        acceptTechnicalRequiredCookies,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -106,23 +92,7 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         await test.step('Customer goes to registration page', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-            await test.step('Verify reCaptcha script is not loaded before cookie consent', async () => {
-                const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-                await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('data-src');
-                await ShopCustomer.expects(reCaptchaScript).not.toHaveAttribute('src');
-            });
-
-            await test.step('Accept technical required cookies to enable reCaptcha script loading', async () => {
-                await StorefrontHome.consentOnlyTechnicallyRequiredButton.click();
-
-                // Wait for the script to be loaded after cookie consent
-                await StorefrontHome.page.waitForSelector('#recaptcha-script[src]');
-            });
-
-            await test.step('Verify reCaptcha script is loaded after cookie consent', async () => {
-                const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-                await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('src');
-            });
+            await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
 
             const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
             await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
@@ -170,7 +140,8 @@ test.skip('As a customer, I want to fill out and submit the contact form that is
         StorefrontContactForm,
         DefaultSalesChannel,
         TestDataService,
-        InstanceMeta ,
+        InstanceMeta,
+        acceptTechnicalRequiredCookies,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -192,21 +163,7 @@ test.skip('As a customer, I want to fill out and submit the contact form that is
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
 
-            await test.step('Verify reCaptcha script is not loaded before cookie consent', async () => {
-                const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-                await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('data-src');
-                await ShopCustomer.expects(reCaptchaScript).not.toHaveAttribute('src');
-            });
-
-            await test.step('Accept technical required cookies to enable reCaptcha script loading', async () => {
-                await StorefrontHome.consentOnlyTechnicallyRequiredButton.click();
-                await StorefrontHome.page.waitForSelector('#recaptcha-script[src]', { state: 'attached' });
-            });
-
-            await test.step('Verify reCaptcha script is loaded after cookie consent', async () => {
-                const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-                await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('src');
-            });
+            await acceptTechnicalRequiredCookies(StorefrontHome);
 
             await StorefrontHome.contactFormLink.click();
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
@@ -227,7 +184,7 @@ test.skip('As a customer, I want to fill out and submit the contact form that is
 
         await test.step('Send and validate the contact form.', async () => {
             const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env['APP_URL']}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
+                `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
             );
 
             await StorefrontContactForm.submitButton.click();

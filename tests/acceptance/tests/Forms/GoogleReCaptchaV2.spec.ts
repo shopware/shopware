@@ -9,11 +9,11 @@ test('As a customer, I can perform a registration by validating to be not a robo
         ShopCustomer,
         StorefrontAccountLogin,
         StorefrontAccount,
-        StorefrontHome,
         TestDataService,
         IdProvider,
         Register,
-        InstanceMeta ,
+        InstanceMeta,
+        acceptTechnicalRequiredCookies,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -36,26 +36,21 @@ test('As a customer, I can perform a registration by validating to be not a robo
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await test.step('Verify reCaptcha script is not loaded before cookie consent', async () => {
-            const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-            await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('data-src');
-            await ShopCustomer.expects(reCaptchaScript).not.toHaveAttribute('src');
-        });
-
-        await test.step('Accept technical required cookies to enable reCaptcha script loading', async () => {
-            await StorefrontHome.consentOnlyTechnicallyRequiredButton.click();
-            await StorefrontHome.page.waitForSelector('#recaptcha-script[src]', { state: 'attached' });
-        });
-
-        await test.step('Verify reCaptcha script is loaded after cookie consent', async () => {
-            const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-            await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('src');
-        });
-
         const reCaptchaContainer = StorefrontAccountLogin.page.locator('.captcha-google-re-captcha-v2').first();
         const reCaptchaInput = reCaptchaContainer.locator('.grecaptcha-v2-input').first();
         const reCaptchaFrame = reCaptchaContainer.locator('iframe').first();
         const reCaptchaCheckbox = reCaptchaFrame.contentFrame().getByRole('checkbox', { name: `I'm not a robot` });
+
+        await test.step('Verify the reCaptcha V2 is not loaded', async () => {
+            await ShopCustomer.expects(reCaptchaInput).not.toBeVisible();
+            await ShopCustomer.expects(reCaptchaFrame).not.toBeVisible();
+            await ShopCustomer.expects(reCaptchaCheckbox).not.toBeVisible();
+        });
+
+        await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
+
+        await ShopCustomer.page.waitForLoadState('networkidle');
+        await ShopCustomer.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
 
         await test.step('Customer attempts to register without validating via the reCaptcha V2', async () => {
             await ShopCustomer.attemptsTo(Register(customer));
@@ -83,11 +78,11 @@ test('As a customer, I can perform a registration by validating to be not a robo
         ShopCustomer,
         StorefrontAccountLogin,
         StorefrontAccount,
-        StorefrontHome,
         TestDataService,
         IdProvider,
         Register,
-        InstanceMeta ,
+        InstanceMeta,
+        acceptTechnicalRequiredCookies,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -110,23 +105,21 @@ test('As a customer, I can perform a registration by validating to be not a robo
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await test.step('Verify reCaptcha script is not loaded before cookie consent', async () => {
-            const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-            await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('data-src');
-            await ShopCustomer.expects(reCaptchaScript).not.toHaveAttribute('src');
+        const reCaptchaContainer = StorefrontAccountLogin.page.locator('.captcha-google-re-captcha-v2').first();
+        const reCaptchaInput = reCaptchaContainer.locator('.grecaptcha-v2-input').first();
+        const reCaptchaFrame = reCaptchaContainer.locator('iframe').first();
+        const reCaptchaCheckbox = reCaptchaFrame.contentFrame().getByRole('checkbox', { name: `I'm not a robot` });
+
+        await test.step('Verify the reCaptcha V2 is not loaded', async () => {
+            await ShopCustomer.expects(reCaptchaInput).not.toBeVisible();
+            await ShopCustomer.expects(reCaptchaFrame).not.toBeVisible();
+            await ShopCustomer.expects(reCaptchaCheckbox).not.toBeVisible();
         });
 
-        await test.step('Accept technical required cookies to enable reCaptcha script loading', async () => {
-            await StorefrontHome.consentOnlyTechnicallyRequiredButton.click();
+        await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
 
-            // Wait for the script to be loaded after cookie consent
-            await StorefrontHome.page.waitForSelector('#recaptcha-script[src]', { state: 'attached' });
-        });
-
-        await test.step('Verify reCaptcha script is loaded after cookie consent', async () => {
-            const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-            await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('src');
-        });
+        await ShopCustomer.page.waitForLoadState('networkidle');
+        await ShopCustomer.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
 
         const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
 
@@ -145,10 +138,10 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         ShopCustomer,
         StorefrontAccountLogin,
         StorefrontAccount,
-        StorefrontHome,
         TestDataService,
         IdProvider,
-        InstanceMeta ,
+        InstanceMeta,
+        acceptTechnicalRequiredCookies,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -182,21 +175,21 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         await test.step('Customer goes to registration page', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-            await test.step('Verify reCaptcha script is not loaded before cookie consent', async () => {
-                const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-                await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('data-src');
-                await ShopCustomer.expects(reCaptchaScript).not.toHaveAttribute('src');
+            const reCaptchaContainer = StorefrontAccountLogin.page.locator('.captcha-google-re-captcha-v2').first();
+            const reCaptchaInput = reCaptchaContainer.locator('.grecaptcha-v2-input').first();
+            const reCaptchaFrame = reCaptchaContainer.locator('iframe').first();
+            const reCaptchaCheckbox = reCaptchaFrame.contentFrame().getByRole('checkbox', { name: `I'm not a robot` });
+
+            await test.step('Verify the reCaptcha V2 is not loaded', async () => {
+                await ShopCustomer.expects(reCaptchaInput).not.toBeVisible();
+                await ShopCustomer.expects(reCaptchaFrame).not.toBeVisible();
+                await ShopCustomer.expects(reCaptchaCheckbox).not.toBeVisible();
             });
 
-            await test.step('Accept technical required cookies to enable reCaptcha script loading', async () => {
-                await StorefrontHome.consentOnlyTechnicallyRequiredButton.click();
-                await StorefrontHome.page.waitForSelector('#recaptcha-script[src]');
-            });
+            await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
 
-            await test.step('Verify reCaptcha script is loaded after cookie consent', async () => {
-                const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-                await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('src');
-            });
+            await ShopCustomer.page.waitForLoadState('networkidle');
+            await ShopCustomer.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
 
             const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
             await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
@@ -244,7 +237,8 @@ test('As a customer, I want to fill out and submit the contact form that is vali
         StorefrontContactForm,
         DefaultSalesChannel,
         TestDataService,
-        InstanceMeta ,
+        InstanceMeta,
+        acceptTechnicalRequiredCookies,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -272,17 +266,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
                 await ShopCustomer.expects(reCaptchaScript).not.toHaveAttribute('src');
             });
 
-            await test.step('Accept technical required cookies to enable reCaptcha script loading', async () => {
-                await StorefrontHome.consentOnlyTechnicallyRequiredButton.click();
-
-            // Wait for the script to be loaded after cookie consent
-            await StorefrontHome.page.waitForSelector('#recaptcha-script[src]', { state: 'attached' });
-            });
-
-            await test.step('Verify reCaptcha script is loaded after cookie consent', async () => {
-                const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-                await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('src');
-            });
+            await acceptTechnicalRequiredCookies(StorefrontHome);
 
             await StorefrontHome.contactFormLink.click();
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
@@ -303,7 +287,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
 
         await test.step('Send and validate the contact form.', async () => {
             const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env['APP_URL']}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
+                `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
             );
 
             await StorefrontContactForm.submitButton.click();

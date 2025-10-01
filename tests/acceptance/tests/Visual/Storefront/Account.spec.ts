@@ -1,5 +1,4 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { hideElements } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     ShopCustomer,
@@ -42,11 +41,10 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
         },
     });
 
+    await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
+
     await test.step('Create screenshot of account login page in storefront.', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-        hideElements(StorefrontAccountLogin.page, [
-            '.cookie-permission-container',
-        ]);
         await ShopCustomer.expects(StorefrontAccountLogin.page).toHaveScreenshot('Account-Login-Page.png', {
             fullPage: true,
         });
@@ -55,9 +53,6 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     await test.step('Create screenshot of account overview page in storefront.', async () => {
         await ShopCustomer.attemptsTo(Login(customer));
         await ShopCustomer.expects(StorefrontAccount.overviewLink).toBeVisible();
-        hideElements(StorefrontAccountLogin.page, [
-            '.cookie-permission-container',
-        ]);
         await ShopCustomer.expects(StorefrontAccount.page).toHaveScreenshot('Account-Overview-Page.png', {
             fullPage: true,
         });
@@ -66,9 +61,6 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     await test.step('Create screenshot of account profile page in storefront.', async () => {
         await StorefrontAccount.yourProfileLink.click();
         await ShopCustomer.expects(StorefrontAccountProfile.changePasswordButton).toBeVisible();
-        hideElements(StorefrontAccountLogin.page, [
-            '.cookie-permission-container',
-        ]);
         await ShopCustomer.expects(StorefrontAccountProfile.page).toHaveScreenshot('Account-Profile-Page.png', {
             fullPage: true,
         });
@@ -77,9 +69,6 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     await test.step('Create screenshot of account addresses page in storefront.', async () => {
         await StorefrontAccountProfile.addressesLink.click();
         await ShopCustomer.expects(StorefrontAccountAddresses.addNewAddressButton).toBeVisible();
-        hideElements(StorefrontAccountLogin.page, [
-            '.cookie-permission-container',
-        ]);
         await ShopCustomer.expects(StorefrontAccountAddresses.page).toHaveScreenshot('Account-Addresses-Page.png', {
             fullPage: true,
         });
@@ -88,9 +77,6 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     await test.step('Create screenshot of account order page in storefront.', async () => {
         await StorefrontAccountAddresses.ordersLink.click();
         await ShopCustomer.expects(StorefrontAccountOrder.noOrdersAlert).toBeVisible();
-        hideElements(StorefrontAccountLogin.page, [
-            '.cookie-permission-container',
-        ]);
         await ShopCustomer.expects(StorefrontAccountOrder.page).toHaveScreenshot('Account-Order-Page.png', {
             fullPage: true,
         });

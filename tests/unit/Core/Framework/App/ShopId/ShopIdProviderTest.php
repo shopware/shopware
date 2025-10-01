@@ -15,7 +15,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
@@ -60,11 +60,17 @@ class ShopIdProviderTest extends TestCase
                 return true;
             }));
 
+        $appUrlVerifier = $this->createMock(AppUrlVerifier::class);
+        $appUrlVerifier->expects($this->once())
+            ->method('verify')
+            ->willReturn(true);
+
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
             $this->createMock(Connection::class),
             $this->createMock(FingerprintGenerator::class),
+            $appUrlVerifier,
             '',
         );
 
@@ -88,13 +94,14 @@ class ShopIdProviderTest extends TestCase
 
         $shopIdV2Config = [
             'id' => $shopIdV1Config['value'],
-            'fingerprints' => [],
+            'fingerprints' => [AppUrl::IDENTIFIER => 'https://foo.bar'],
             'version' => 2,
-            'url_verification_status' => [
-                'state' => 'pending',
-                'lastVerifiedAt' => null,
-            ],
         ];
+
+        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
+        $fingerprintGenerator->expects($this->any())
+            ->method('takeFingerprints')
+            ->willReturn([AppUrl::IDENTIFIER => 'https://foo.bar']);
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($matcher = $this->exactly(6))
@@ -118,11 +125,18 @@ class ShopIdProviderTest extends TestCase
             ->method('set')
             ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $shopIdV2Config);
 
+        $appUrlVerifier = $this->createMock(AppUrlVerifier::class);
+        $appUrlVerifier->expects($this->once())
+            ->method('verify')
+            ->with(static::callback(fn (ShopId $shopId) => $shopId->getFingerprint(AppUrl::IDENTIFIER) === 'https://foo.bar'))
+            ->willReturn(true);
+
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
             $this->createMock(Connection::class),
-            $this->createMock(FingerprintGenerator::class),
+            $fingerprintGenerator,
+            $appUrlVerifier,
             '',
         );
 
@@ -139,7 +153,7 @@ class ShopIdProviderTest extends TestCase
 
     public function testThrowsIfFingerprintsHaveChangedAndHasAppsRegisteredAtAppServers(): void
     {
-        $shopId = ShopId::v2('1234567890', [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2('1234567890');
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->once())
@@ -172,6 +186,7 @@ class ShopIdProviderTest extends TestCase
             new CollectingEventDispatcher(),
             $connection,
             $fingerprintGenerator,
+            $this->createMock(AppUrlVerifier::class),
             '',
         );
 
@@ -186,7 +201,6 @@ class ShopIdProviderTest extends TestCase
             [
                 AppUrl::IDENTIFIER => 'https://old.url',
             ],
-            UrlVerificationStatus::newPending()
         );
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
@@ -221,11 +235,18 @@ class ShopIdProviderTest extends TestCase
                 AppUrl::IDENTIFIER => 'https://new.url',
             ]);
 
+        $appUrlVerifier = $this->createMock(AppUrlVerifier::class);
+        $appUrlVerifier->expects($this->once())
+            ->method('verify')
+            ->with(static::callback(fn (ShopId $shopId) => $shopId->getFingerprint(AppUrl::IDENTIFIER) === 'https://new.url'))
+            ->willReturn(true);
+
         $provider = new ShopIdProvider(
             $systemConfigService,
             new CollectingEventDispatcher(),
             $connection,
             $fingerprintGenerator,
+            $appUrlVerifier,
             '',
         );
 
@@ -252,6 +273,7 @@ class ShopIdProviderTest extends TestCase
             $eventDispatcher = new CollectingEventDispatcher(),
             $this->createMock(Connection::class),
             $this->createMock(FingerprintGenerator::class),
+            $this->createMock(AppUrlVerifier::class),
             '',
         );
 

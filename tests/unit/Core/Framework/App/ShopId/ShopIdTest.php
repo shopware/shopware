@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopId;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -57,7 +56,7 @@ class ShopIdTest extends TestCase
             'app_url' => 'APP_URL',
         ];
 
-        $shopId = ShopId::v2('123456789', $fingerprints, UrlVerificationStatus::newPassed());
+        $shopId = ShopId::v2('123456789', $fingerprints);
 
         static::assertSame($fingerprints['sales_channel_domain_urls'], $shopId->getFingerprint('sales_channel_domain_urls'));
         static::assertSame($fingerprints['app_url'], $shopId->getFingerprint('app_url'));

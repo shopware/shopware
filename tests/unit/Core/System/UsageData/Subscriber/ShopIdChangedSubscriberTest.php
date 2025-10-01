@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\System\UsageData\Consent\BannerService;
@@ -80,8 +79,8 @@ class ShopIdChangedSubscriberTest extends TestCase
 
         $shopIdChangedSubscriber->handleShopIdChanged(
             new ShopIdChangedEvent(
-                ShopId::v2('newShopId', [], UrlVerificationStatus::newPassed()),
-                ShopId::v2('oldShopId', [], UrlVerificationStatus::newPassed())
+                ShopId::v2('newShopId'),
+                ShopId::v2('oldShopId')
             ),
         );
     }
@@ -125,8 +124,8 @@ class ShopIdChangedSubscriberTest extends TestCase
 
         $shopIdChangedSubscriber->handleShopIdChanged(
             new ShopIdChangedEvent(
-                ShopId::v2('newShopId', [], UrlVerificationStatus::newPassed()),
-                ShopId::v2('newShopId', [], UrlVerificationStatus::newPassed())
+                ShopId::v2('newShopId'),
+                ShopId::v2('newShopId')
             ),
         );
     }

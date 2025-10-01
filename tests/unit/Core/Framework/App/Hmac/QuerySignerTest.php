@@ -11,7 +11,6 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
@@ -38,7 +37,7 @@ class QuerySignerTest extends TestCase
             ->with($context)
             ->willReturn('en-GB');
 
-        $shopId = ShopId::v2('shopId', [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2('shopId');
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->expects($this->once())

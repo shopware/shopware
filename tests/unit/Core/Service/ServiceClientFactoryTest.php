@@ -13,7 +13,6 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\ServiceClientFactory;
@@ -143,7 +142,7 @@ class ServiceClientFactoryTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->appPayloadServiceHelper->method('buildSource')
-            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('shopid', [], UrlVerificationStatus::newPassed()), new FingerprintComparisonResult([], [], 75)));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('shopid'), new FingerprintComparisonResult([], [], 75)));
 
         $this->expectException(ShopIdChangeSuggestedException::class);
         $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);

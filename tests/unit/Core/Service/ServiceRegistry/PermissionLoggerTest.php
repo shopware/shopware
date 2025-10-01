@@ -7,7 +7,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Service\Message\LogPermissionToRegistryMessage;
 use Shopware\Core\Service\Permission\ConsentState;
 use Shopware\Core\Service\Permission\PermissionsConsent;
@@ -78,7 +77,7 @@ class PermissionLoggerTest extends TestCase
             grantedAt: new \DateTime('2025-06-13 12:00:00')
         );
 
-        $shopId = ShopId::v2('test-shop-id', [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2('test-shop-id');
         $licenseHost = 'https://example.com';
 
         $this->shopIdProvider
@@ -141,7 +140,7 @@ class PermissionLoggerTest extends TestCase
             grantedAt: new \DateTime('2025-06-13 12:00:00')
         );
 
-        $shopId = ShopId::v2('test-shop-id', [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2('test-shop-id');
 
         $this->shopIdProvider
             ->expects($this->once())

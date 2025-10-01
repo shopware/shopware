@@ -15,7 +15,6 @@ use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\Payload\SourcedPayloadInterface;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -42,7 +41,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testBuildSource(): void
     {
-        $shopId = ShopId::v2($this->ids->get('shop-id'), [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures([
             'TestApp' => ['purchase-1', 'purchase-2'],
             'AnotherApp' => ['purchase-3'],
@@ -106,7 +105,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testCreateRequestOptionsWithNoParams(): void
     {
-        $shopId = ShopId::v2($this->ids->get('shop-id'), [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $context = Context::createDefaultContext();
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $entityEncoder = $this->createMock(JsonEntityEncoder::class);
@@ -148,7 +147,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testCreateRequestOptionsWithAdditionalParams(): void
     {
-        $shopId = ShopId::v2($this->ids->get('shop-id'), [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $context = Context::createDefaultContext();
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $entityEncoder = $this->createMock(JsonEntityEncoder::class);

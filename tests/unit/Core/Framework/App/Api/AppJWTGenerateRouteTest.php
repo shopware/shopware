@@ -9,7 +9,6 @@ use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Generator;
 
@@ -52,7 +51,7 @@ class AppJWTGenerateRouteTest extends TestCase
 
     public function testGenerate(): void
     {
-        $shopId = ShopId::v2('shop-id', [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2('shop-id');
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')

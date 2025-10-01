@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppSystemMisconfigurationException;
+use Shopware\Core\Framework\App\Exception\AppUrlVerificationFailed;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -30,19 +32,18 @@ class ShopIdProvider implements ResetInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly Connection $connection,
         private readonly FingerprintGenerator $fingerprintGenerator,
+        private readonly AppUrlVerifier $appUrlVerifier,
         private readonly string $appUrl,
     ) {
     }
 
-    public function getShopIdUnchecked(): ShopId
+    public function getShopIdWithoutVerification(): ShopId
     {
-        if ($this->shopId) {
-            return $this->shopId;
+        try {
+            return $this->getShopId();
+        } catch (AppUrlVerificationFailed $e) {
+            return $e->getShopId();
         }
-
-        $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
-
-        return $this->shopId;
     }
 
     /**
@@ -67,7 +68,7 @@ class ShopIdProvider implements ResetInterface
             $this->regenerateAndSetShopId($this->shopId->id);
         }
 
-        if ($this->shopId->urlVerificationStatus->failed()) {
+        if (!$this->appUrlVerifier->verify($this->shopId)) {
             throw AppException::appUrlVerificationFailed($this->shopId, $this->appUrl);
         }
 
@@ -79,7 +80,6 @@ class ShopIdProvider implements ResetInterface
         $shopId = ShopId::v2(
             $existingShopId ?? Random::getAlphanumericString(16),
             $this->fingerprintGenerator->takeFingerprints(),
-            UrlVerificationStatus::newPending(),
         );
 
         $this->setShopId($shopId);

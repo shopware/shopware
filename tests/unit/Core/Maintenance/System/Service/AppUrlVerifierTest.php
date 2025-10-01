@@ -3,16 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
-use GuzzleHttp\Handler\MockHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier as CoreAppUrlVerifier;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
  * @internal
@@ -24,51 +21,67 @@ class AppUrlVerifierTest extends TestCase
 
     private ShopIdProvider&MockObject $shopIdProvider;
 
+    private CoreAppUrlVerifier&MockObject $appUrlVerifier;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $this->appUrlVerifier = $this->createMock(CoreAppUrlVerifier::class);
     }
 
-    //    public function testAppUrlReachableReturnsTrueIfAppEnvIsNotProd(): void
-    //    {
-    //        $verifier = new AppUrlVerifier($this->connection, $this->shopIdProvider);
-    //
-    //        static::assertTrue($verifier->isAppUrlReachable());
-    //    }
-    //
-    //    public function testAppUrlReachableReturnsTrueIfAppUrlCheckIsDisabled(): void
-    //    {
-    //        $verifier = new AppUrlVerifier($this->connection, $this->shopIdProvider);
-    //
-    //        static::assertTrue($verifier->isAppUrlReachable());
-    //    }
+    public function testAppUrlReachableReturnsTrueIfAppEnvIsNotProd(): void
+    {
+        $verifier = new AppUrlVerifier(
+            $this->connection,
+            $this->shopIdProvider,
+            $this->appUrlVerifier,
+            'dev',
+            true
+        );
 
-    //    public function testAppUrlReachableReturnsTrueIfRequestIsMadeToSameDomain(): void
-    //    {
-    //        $verifier = new AppUrlVerifier($this->connection, 'prod', false, $this->shopIdProvider);
-    //
-    //        $request = SymfonyRequest::create(EnvironmentHelper::getVariable('APP_URL') . '/api/_info/config');
-    //
-    //        static::assertTrue($verifier->isAppUrlReachable($request));
-    //
-    //        //        $request = $this->mockHandler->getLastRequest();
-    //        //        static::assertNull($request);
-    //    }
+        static::assertTrue($verifier->isAppUrlReachable());
+    }
+
+    public function testAppUrlReachableReturnsTrueIfAppUrlCheckIsDisabled(): void
+    {
+        $verifier = new AppUrlVerifier(
+            $this->connection,
+            $this->shopIdProvider,
+            $this->appUrlVerifier,
+            'dev',
+            false
+        );
+
+        static::assertTrue($verifier->isAppUrlReachable());
+    }
 
     public function testAppUrlReachableReturnsTrueIfAppUrlIsReachable(): void
     {
         $shopId = ShopId::v2(
-            'shop-id',
-            [],
-            UrlVerificationStatus::newPassed()
+            'shop-id'
         );
 
+        $this->appUrlVerifier->expects($this->once())
+            ->method('getCurrentState')
+            ->willReturn(null);
+
         $this->shopIdProvider->expects($this->once())
-            ->method('getShopIdUnchecked')
+            ->method('getShopId')
             ->willReturn($shopId);
 
-        $verifier = new AppUrlVerifier($this->connection, $this->shopIdProvider);
+        $this->appUrlVerifier->expects($this->once())
+            ->method('forceVerify')
+            ->with($shopId)
+            ->willReturn(true);
+
+        $verifier = new AppUrlVerifier(
+            $this->connection,
+            $this->shopIdProvider,
+            $this->appUrlVerifier,
+            'prod',
+            false
+        );
 
         static::assertTrue($verifier->isAppUrlReachable());
     }
@@ -76,16 +89,29 @@ class AppUrlVerifierTest extends TestCase
     public function testAppUrlReachableReturnsFalseWhenNotReachable(): void
     {
         $shopId = ShopId::v2(
-            'shop-id',
-            [],
-            UrlVerificationStatus::newFailed()
+            'shop-id'
         );
 
+        $this->appUrlVerifier->expects($this->once())
+            ->method('getCurrentState')
+            ->willReturn(null);
+
         $this->shopIdProvider->expects($this->once())
-            ->method('getShopIdUnchecked')
+            ->method('getShopId')
             ->willReturn($shopId);
 
-        $verifier = new AppUrlVerifier($this->connection, $this->shopIdProvider);
+        $this->appUrlVerifier->expects($this->once())
+            ->method('forceVerify')
+            ->with($shopId)
+            ->willReturn(false);
+
+        $verifier = new AppUrlVerifier(
+            $this->connection,
+            $this->shopIdProvider,
+            $this->appUrlVerifier,
+            'prod',
+            false
+        );
 
         static::assertFalse($verifier->isAppUrlReachable());
     }
@@ -96,7 +122,13 @@ class AppUrlVerifierTest extends TestCase
             ->method('fetchOne')
             ->willReturn('0');
 
-        $verifier = new AppUrlVerifier($this->connection, $this->shopIdProvider);
+        $verifier = new AppUrlVerifier(
+            $this->connection,
+            $this->shopIdProvider,
+            $this->appUrlVerifier,
+            'prod',
+            false
+        );
 
         static::assertFalse($verifier->hasAppsThatNeedAppUrl());
     }
@@ -107,7 +139,13 @@ class AppUrlVerifierTest extends TestCase
             ->method('fetchOne')
             ->willReturn('1');
 
-        $verifier = new AppUrlVerifier($this->connection, $this->shopIdProvider);
+        $verifier = new AppUrlVerifier(
+            $this->connection,
+            $this->shopIdProvider,
+            $this->appUrlVerifier,
+            'prod',
+            false
+        );
 
         static::assertTrue($verifier->hasAppsThatNeedAppUrl());
     }

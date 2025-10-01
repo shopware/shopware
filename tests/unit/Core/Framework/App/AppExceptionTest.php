@@ -11,7 +11,6 @@ use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -183,7 +182,7 @@ class AppExceptionTest extends TestCase
 
     public function testShopIdChangeSuggested(): void
     {
-        $e = AppException::shopIdChangeSuggested(ShopId::v2('123456789', [], UrlVerificationStatus::newPending()), $comparisonResult = new FingerprintComparisonResult([], [], 75));
+        $e = AppException::shopIdChangeSuggested(ShopId::v2('123456789'), $comparisonResult = new FingerprintComparisonResult([], [], 75));
 
         static::assertInstanceOf(ShopIdChangeSuggestedException::class, $e);
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());

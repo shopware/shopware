@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -151,7 +150,7 @@ class TemplateDataSubscriberTest extends TestCase
         $this->shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('123', [], UrlVerificationStatus::newPassed()), new FingerprintComparisonResult([], [], 75)));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('123'), new FingerprintComparisonResult([], [], 75)));
 
         $this->subscriber->addShopIdParameter($event);
     }
@@ -169,7 +168,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->method('getActiveApps')
             ->willReturn(['someApp']);
 
-        $shopId = ShopId::v2('123', [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2('123');
         $this->shopIdProvider
             ->expects($this->once())
             ->method('getShopId')

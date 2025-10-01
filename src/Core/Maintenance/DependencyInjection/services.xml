@@ -70,9 +70,10 @@
 
         <service id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
             <argument>%kernel.environment%</argument>
             <argument>%env(bool:APP_URL_CHECK_DISABLED)%</argument>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\System\Service\ShopConfigurator">

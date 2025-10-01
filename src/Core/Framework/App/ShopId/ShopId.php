@@ -21,7 +21,6 @@ readonly class ShopId implements \Stringable
     private function __construct(
         public string $id,
         public array $fingerprints,
-        public UrlVerificationStatus $urlVerificationStatus,
         public int $version = 2,
     ) {
     }
@@ -31,15 +30,6 @@ readonly class ShopId implements \Stringable
         return $this->id;
     }
 
-    public function withUrlVerificationResult(bool $result): self
-    {
-        return static::v2(
-            $this->id,
-            $this->fingerprints,
-            $result ? UrlVerificationStatus::newPassed() : UrlVerificationStatus::newFailed()
-        );
-    }
-
     public function getFingerprint(string $identifier): ?string
     {
         return $this->fingerprints[$identifier] ?? null;
@@ -47,15 +37,15 @@ readonly class ShopId implements \Stringable
 
     public static function v1(string $id, string $appUrl): self
     {
-        return new self($id, [AppUrl::IDENTIFIER => $appUrl], UrlVerificationStatus::newPending(), 1);
+        return new self($id, [AppUrl::IDENTIFIER => $appUrl], 1);
     }
 
     /**
      * @param array<string, string> $fingerprints
      */
-    public static function v2(string $id, array $fingerprints, UrlVerificationStatus $urlVerificationStatus): self
+    public static function v2(string $id, array $fingerprints = []): self
     {
-        return new self($id, $fingerprints, $urlVerificationStatus, 2);
+        return new self($id, $fingerprints, 2);
     }
 
     /**
@@ -71,9 +61,6 @@ readonly class ShopId implements \Stringable
             return self::v2(
                 $config['id'],
                 $config['fingerprints'],
-                isset($config['url_verification_status'])
-                    ? UrlVerificationStatus::fromArray($config['url_verification_status'])
-                    : UrlVerificationStatus::newPending()
             );
         }
 
@@ -84,10 +71,6 @@ readonly class ShopId implements \Stringable
      * @return array{
      *    id: string,
      *    fingerprints: array<string, string>,
-     *    url_verification_status: array{
-     *        state: string,
-     *        lastVerifiedAt: string|null
-     *    },
      *    version: int
      * }
      */
@@ -96,7 +79,6 @@ readonly class ShopId implements \Stringable
         return [
             'id' => $this->id,
             'fingerprints' => $this->fingerprints,
-            'url_verification_status' => $this->urlVerificationStatus->toArray(),
             'version' => $this->version,
         ];
     }

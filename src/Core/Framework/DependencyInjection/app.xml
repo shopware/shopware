@@ -31,6 +31,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\FingerprintGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
             <argument type="string">%env(APP_URL)%</argument>
 
             <tag name="kernel.reset" method="reset"/>
@@ -712,21 +713,45 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\ShopId\ShopController" public="true">
+        <service id="Shopware\Core\Framework\App\Api\ShopController" public="true">
             <argument type="service" id="cache.app"/>
+            <argument type="service" id="shopware.rate_limiter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\ShopId\AppUrlVerifier">
+        <service id="Shopware\Core\Framework\App\Url\AppUrlVerifier">
             <argument type="service" id="cache.app"/>
             <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="lock.factory"/>
 
         </service>
 
-        <service id="Shopware\Core\Framework\App\ShopId\VerifyAppUrlListener">
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\AppUrlVerifier"/>
+        <service id="Shopware\Core\Framework\App\Subscriber\VerifyAppUrlListener">
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
 
             <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ScheduledTask\VerifyAppUrlTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\AppUrlVerificationStatusCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\AppUrlVerifyCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
+
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

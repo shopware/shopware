@@ -23,7 +23,6 @@ use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\ShopId\UrlVerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -66,7 +65,7 @@ class PaymentPayloadServiceTest extends TestCase
             ->method('getByEntityName')
             ->willReturn($definition);
 
-        $shopId = ShopId::v2($this->ids->get('shop-id'), [], UrlVerificationStatus::newPending());
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')

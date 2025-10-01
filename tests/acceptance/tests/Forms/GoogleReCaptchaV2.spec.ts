@@ -301,19 +301,15 @@ test('As a customer, I want to fill out and submit the contact form that is vali
         await ShopCustomer.expects(async () => {
             await test.step('Send and validate the contact form.', async () => {
                 const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                    `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
-                );
-        await test.step('Send and validate the contact form.', async () => {
-            const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                (response) => {
-                    try {
-                        const url = new URL(response.url());
-                        return url.pathname.endsWith('/form/contact') && response.request().method() === 'POST';
-                    } catch {
-                        return false;
+                    (response) => {
+                        try {
+                            const url = new URL(response.url());
+                            return url.pathname.endsWith('/form/contact') && response.request().method() === 'POST';
+                        } catch {
+                            return false;
+                        }
                     }
-                }
-            );
+                );
 
                 await StorefrontContactForm.submitButton.click();
                 const contactFormResponse = await contactFormPromise;

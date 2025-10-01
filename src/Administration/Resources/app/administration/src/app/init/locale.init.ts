@@ -9,7 +9,7 @@ export default async function initializeLocaleService() {
 
     if (!snippetService) {
         // eslint-disable-next-line no-console
-        console.info('Snippet service not found. Snippets could not be loaded');
+        console.warn('Snippet service not found. Snippets could not be loaded');
 
         return localeFactory;
     }

@@ -10,6 +10,7 @@ describe('src/app/init/locale.init.ts', () => {
     });
 
     it('should register the locale factory with correct snippet languages', async () => {
+        global.console.warn = jest.fn();
         await initializeLocaleService();
 
         expect(Shopware.Application.getContainer('factory').locale).toEqual(

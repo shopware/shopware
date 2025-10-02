@@ -5,4 +5,4 @@ author_email: info@campit.be
 author_github: wannevancamp
 ---
 # Core
-* Added gitignore when creating the scaffold for a plugin with `plugin:create`
+* Added `.gitignore` when creating the scaffold for a plugin with `plugin:create`

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Extension\CheckoutCartRuleLoaderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
@@ -222,20 +223,16 @@ class CartRuleLoader implements ResetInterface
         $country = $context->getShippingLocation()->getCountry();
         $customer = $context->getCustomer();
 
-        // Check if customer is a B2B customer (has company)
-        $isB2BCustomer = $customer && !empty($customer->getCompany());
+        if ($customer?->getAccountType() == CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country)
+                && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
 
-        if ($isB2BCustomer) {
-            // For B2B customers, only check company tax settings
-            $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country) && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
-            
             if ($isReachedCompanyTaxFreeAmount) {
                 return CartPrice::TAX_STATE_FREE;
             }
         } else {
-            // For B2C customers (no company), only check customer tax settings
             $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
-            
+
             if ($isReachedCustomerTaxFreeAmount) {
                 return CartPrice::TAX_STATE_FREE;
             }

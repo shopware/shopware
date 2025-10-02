@@ -42,9 +42,12 @@
             border-top: 1px solid var(--color-border-secondary-default);
         }
 
+        &-tree-container {
+            height: calc(100% - 171px);
+        }
+
         &-container__tree {
             border: none;
-            height: calc(100% - 171px);
 
             .sw-tree__content {
                 height: 100%;

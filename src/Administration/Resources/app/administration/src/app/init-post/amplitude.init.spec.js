@@ -45,15 +45,20 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             [
                 new TelemetryEvent('page_change', {
                     from: { name: 'sw.dashboard.index', path: '/sw/dashboard/index' },
-                    to: { name: 'sw.product.index', path: '/sw/product/index' },
+                    to: {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        fullPath: '/sw-product/index?order=asc&page=1&limit=50',
+                    },
                 }),
                 {
                     eventName: 'Page Viewed',
                     properties: {
-                        sw_route_from: 'sw.dashboard.index',
-                        href_route_from: '/sw/dashboard/index',
-                        sw_route_to: 'sw.product.index',
-                        href_route_to: '/sw/product/index',
+                        sw_route_from_name: 'sw.dashboard.index',
+                        sw_route_from_href: '/sw/dashboard/index',
+                        sw_route_to_name: 'sw.product.index',
+                        sw_route_to_href: '/sw/product/index',
+                        sw_route_to_query: 'order=asc&page=1&limit=50',
                     },
                 },
             ],

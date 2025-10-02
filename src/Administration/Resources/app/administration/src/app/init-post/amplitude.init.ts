@@ -47,10 +47,11 @@ export default function (): Promise<void> {
 
         if (isEventOfType('page_change', telemetryEvent)) {
             amplitude.track('Page Viewed', {
-                sw_route_from: telemetryEvent.detail.eventData.from.name,
-                href_route_from: telemetryEvent.detail.eventData.from.path,
-                sw_route_to: telemetryEvent.detail.eventData.to.name,
-                href_route_to: telemetryEvent.detail.eventData.to.path,
+                sw_route_from_name: telemetryEvent.detail.eventData.from.name,
+                sw_route_from_href: telemetryEvent.detail.eventData.from.path,
+                sw_route_to_name: telemetryEvent.detail.eventData.to.name,
+                sw_route_to_href: telemetryEvent.detail.eventData.to.path,
+                sw_route_to_query: telemetryEvent.detail.eventData.to.fullPath.split('?')[1],
             });
             return;
         }

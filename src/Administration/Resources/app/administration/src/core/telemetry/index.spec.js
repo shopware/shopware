@@ -176,15 +176,15 @@ describe('src/core/telemetry/index.js', () => {
             telemetry.initialize();
             telemetry.addListener(listener);
 
-            const element = document.createElement('a');
-            element.setAttribute('id', 'tested-element');
-            element.setAttribute('href', '/test-page');
-            element.setAttribute('target', '_blank');
-            document.body.appendChild(element);
+            const link = document.createElement('a');
+            link.setAttribute('id', 'tested-element');
+            link.setAttribute('href', '/test-page');
+            link.setAttribute('target', '_blank');
+            document.body.appendChild(link);
 
             await flushPromises();
 
-            element.click();
+            link.click();
             expect(listener).toHaveBeenCalled();
 
             const telemetryEvent = listener.mock.calls[0][0];

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Flow\Event\Xml\CustomEvents;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
@@ -23,6 +24,7 @@ class FlowEventPersisterTest extends TestCase
 {
     private FlowEventPersister $flowEventPersister;
 
+    /** @var EntityRepository<AppFlowEventCollection>&MockObject */
     private EntityRepository&MockObject $flowEventsRepositoryMock;
 
     private Connection&MockObject $connectionMock;

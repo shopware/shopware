@@ -89,7 +89,8 @@ class JsonApiType extends JsonFactoryBase
         ];
 
         $fields = new ResponseFields(
-            $request->get('includes', [])
+            $request->get('includes', []),
+            $request->get('excludes', []),
         );
 
         $aggregations = [];

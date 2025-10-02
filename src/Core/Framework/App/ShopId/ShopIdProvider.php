@@ -3,14 +3,13 @@
 namespace Shopware\Core\Framework\App\ShopId;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
@@ -19,10 +18,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @phpstan-import-type ShopIdV2Config from ShopId
  */
 #[Package('framework')]
-class ShopIdProvider
+class ShopIdProvider implements ResetInterface
 {
     final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
     final public const SHOP_ID_SYSTEM_CONFIG_KEY_V2 = 'core.app.shopIdV2';
+
+    private ?ShopId $shopId = null;
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
@@ -33,27 +34,28 @@ class ShopIdProvider
     }
 
     /**
-     * @throws AppUrlChangeDetectedException
+     * @throws ShopIdChangeSuggestedException
      */
     public function getShopId(): string
     {
-        $shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
+        if ($this->shopId) {
+            return $this->shopId->id;
+        }
 
-        if ($this->hasAppUrlChanged($shopId)) {
+        $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
+
+        $fingerprintsComparison = $this->fingerprintGenerator->matchFingerprints($this->shopId->fingerprints);
+        if (!$fingerprintsComparison->isMatching()) {
             if ($this->hasAppsRegisteredAtAppServers()) {
-                throw new AppUrlChangeDetectedException(
-                    $shopId->getFingerprint(AppUrl::IDENTIFIER) ?? '',
-                    $this->loadAppUrlFromEnvironment(),
-                    $shopId
-                );
+                throw AppException::shopIdChangeSuggested($this->shopId, $fingerprintsComparison);
             }
 
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
-            $this->regenerateAndSetShopId($shopId->id);
+            $this->regenerateAndSetShopId($this->shopId->id);
         }
 
-        return $shopId->id;
+        return $this->shopId->id;
     }
 
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
@@ -73,7 +75,14 @@ class ShopIdProvider
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY);
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
 
+        $this->reset();
+
         $this->eventDispatcher->dispatch(new ShopIdDeletedEvent());
+    }
+
+    public function reset(): void
+    {
+        $this->shopId = null;
     }
 
     private function setShopId(ShopId $shopId): void
@@ -95,13 +104,6 @@ class ShopIdProvider
         return (int) $this->connection->fetchOne('SELECT COUNT(id) FROM app WHERE app_secret IS NOT NULL') > 0;
     }
 
-    private function hasAppUrlChanged(ShopId $shopId): bool
-    {
-        return $this->fingerprintGenerator
-                ->compare($shopId->fingerprints)
-                ->getMismatchingFingerprint(AppUrl::IDENTIFIER) instanceof FingerprintMismatch;
-    }
-
     private function fetchShopIdFromSystemConfig(): ?ShopId
     {
         /** @var ShopIdV2Config|null $shopIdV2 */
@@ -119,16 +121,5 @@ class ShopIdProvider
         }
 
         return null;
-    }
-
-    private function loadAppUrlFromEnvironment(): string
-    {
-        $appUrl = EnvironmentHelper::getVariable('APP_URL');
-
-        if (!\is_string($appUrl)) {
-            throw AppException::appUrlNotConfigured();
-        }
-
-        return $appUrl;
     }
 }

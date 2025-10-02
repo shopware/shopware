@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -340,8 +341,10 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     /**
      * @param array<CategoryEntity> $categoryEntityCollection1
      * @param array<CategoryEntity> $categoryEntityCollection2
+     *
+     * @return EntityRepository<CategoryCollection>&MockObject
      */
-    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository
+    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository&MockObject
     {
         $categoryRepositoryMock = $this->createMock(EntityRepository::class);
         $categoryRepositoryMock->method('search')->willReturnOnConsecutiveCalls(

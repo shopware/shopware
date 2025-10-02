@@ -202,7 +202,7 @@ class TranslatorTest extends TestCase
         yield 'without request' => [
             $snippetSetId,
             null,
-            \sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
+            \sprintf('translation.catalog.%s.%s-en-GB', 'DEFAULT', $snippetSetId),
         ];
         yield 'without snippetSetId' => [
             null,
@@ -213,13 +213,13 @@ class TranslatorTest extends TestCase
         yield 'without salesChannelId' => [
             $snippetSetId,
             self::createRequest(null, $snippetSetId),
-            \sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
+            \sprintf('translation.catalog.%s.%s-en-GB', 'DEFAULT', $snippetSetId),
         ];
 
         yield 'with injectSettings' => [
             $snippetSetId,
             null,
-            \sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId),
+            \sprintf('translation.catalog.%s.%s-en-GB', $salesChannelId, $snippetSetId),
             $salesChannelId, // Inject salesChannelId using injectSettings method
         ];
     }

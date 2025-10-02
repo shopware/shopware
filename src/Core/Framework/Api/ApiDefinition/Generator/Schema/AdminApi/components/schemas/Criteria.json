@@ -99,11 +99,20 @@
                         "description": "List of ids to search for",
                         "items": { "type": "string" }
                     },
-                    "includes": { "$ref": "#/components/schemas/Includes" }
+                    "includes": { "$ref": "#/components/schemas/Includes" },
+                    "excludes": { "$ref": "#/components/schemas/Excludes" }
                 }
             },
             "Includes": {
-                "description": "Specify the fields that should be returned for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Note that the include fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons.",
+                "description": "Specify the fields that should be returned for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Fields will not be included, if they are also specified in the excludes. Note that the include fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons.",
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                }
+            },
+            "Excludes": {
+                "description": "Specify the fields that should be excluded from the response for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Note that the exclude fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons.",
                 "type": "object",
                 "additionalProperties": {
                     "type": "array",

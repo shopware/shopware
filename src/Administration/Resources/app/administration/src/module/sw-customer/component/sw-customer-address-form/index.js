@@ -1,6 +1,5 @@
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
-import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
@@ -127,7 +126,7 @@ export default {
         },
 
         isBusinessAccountType() {
-            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+            return this.customer?.accountType === Shopware.Constants.CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
 

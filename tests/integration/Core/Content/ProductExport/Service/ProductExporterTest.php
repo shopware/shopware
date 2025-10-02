@@ -7,6 +7,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExporter;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
@@ -31,6 +32,9 @@ class ProductExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductExportCollection>
+     */
     private EntityRepository $repository;
 
     private Context $context;

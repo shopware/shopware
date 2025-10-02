@@ -68,7 +68,6 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
     private function endEvent(string $generatedValue, string $type, Context $context, ?string $salesChannelId, bool $preview): string
     {
-        /** @var NumberRangeGeneratedEvent $generatedEvent */
         $generatedEvent = $this->eventDispatcher->dispatch(
             new NumberRangeGeneratedEvent($generatedValue, $type, $context, $salesChannelId, $preview),
             NumberRangeEvents::NUMBER_RANGE_GENERATED

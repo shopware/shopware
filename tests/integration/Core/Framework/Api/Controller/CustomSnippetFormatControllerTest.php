@@ -19,7 +19,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     {
         $url = '/api/_action/custom-snippet';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->jsonRequest('GET', $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -55,7 +55,7 @@ class CustomSnippetFormatControllerTest extends TestCase
 
         $url = '/api/_action/custom-snippet';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->jsonRequest('GET', $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -98,7 +98,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     {
         $url = '/api/_action/custom-snippet/render';
         $client = $this->getBrowser();
-        $client->request('POST', $url, [], [], [], json_encode($payload, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', $url, $payload);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);

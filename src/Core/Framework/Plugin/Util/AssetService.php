@@ -120,8 +120,8 @@ class AssetService
             $bundle = $this->getBundle($bundleName);
 
             if ($bundle instanceof Plugin) {
-                foreach ($this->getAdditionalBundles($bundle) as $bundle) {
-                    $this->removeAssets($bundle->getName());
+                foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
+                    $this->removeAssets($additionalBundle->getName());
                 }
             }
         } catch (PluginNotFoundException) {

@@ -1,14 +1,24 @@
 @import "~scss/variables";
 
 $sw-context-button-color-text: var(--color-icon-primary-default);
-$sw-context-button-border-radius: $border-radius-default;
-$sw-context-button-color-border: $color-gray-300;
-$sw-context-button-color-disabled: $color-gray-100;
+$sw-context-button-border-radius: var(--border-radius-xs);
+$sw-context-button-color-border: var(--color-border-primary-default);
+$sw-context-button-color-disabled: var(--color-icon-primary-disabled);
 
 .sw-context-button {
     display: inline-block;
     position: relative;
     color: $sw-context-button-color-text;
+
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline-offset: var(--scale-size-2);
+        border-radius: var(--border-radius-xs);
+
+        .sw-context-button__button {
+            border-color: $sw-context-button-color-border;
+        }
+    }
 
     &.is--disabled {
         .sw-context-button__button {
@@ -28,9 +38,9 @@ $sw-context-button-color-disabled: $color-gray-100;
         border: 1px solid transparent;
         border-radius: $sw-context-button-border-radius;
         cursor: pointer;
-        height: 24px;
+        height: var(--scale-size-24);
         line-height: $line-height-sm;
-        padding: 0 8px;
+        padding: 0 var(--scale-size-8);
         outline: none;
 
         .mt-icon {

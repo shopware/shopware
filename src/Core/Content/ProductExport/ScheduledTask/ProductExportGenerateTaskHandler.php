@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -11,9 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -26,6 +29,10 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     * @param EntityRepository<ProductExportCollection> $productExportRepository
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
@@ -45,7 +52,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         foreach ($salesChannelIds as $salesChannelId) {
             $productExports = $this->fetchProductExports($salesChannelId);
 
-            if (\count($productExports) === 0) {
+            if ($productExports->count() === 0) {
                 continue;
             }
 
@@ -81,10 +88,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             ->getIds();
     }
 
-    /**
-     * @return array<ProductExportEntity>
-     */
-    private function fetchProductExports(string $salesChannelId): array
+    private function fetchProductExports(string $salesChannelId): ProductExportCollection
     {
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
 
@@ -110,10 +114,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 )
             );
 
-        /**
-         * @var array<ProductExportEntity>
-         */
-        return $this->productExportRepository->search($criteria, $salesChannelContext->getContext())->getElements();
+        return $this->productExportRepository->search($criteria, $salesChannelContext->getContext())->getEntities();
     }
 
     private function shouldBeRun(ProductExportEntity $productExport, \DateTimeImmutable $now): bool

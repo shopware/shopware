@@ -25,6 +25,7 @@ class Migration1754295570DocumentActivateReturnAddressTest extends TestCase
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->connection->update('document_base_config', ['config' => '{}']);
+        $this->connection->update('document_base_config', ['config' => null], ['name' => 'cancellation_invoice']);
     }
 
     public function testMigration(): void
@@ -34,10 +35,12 @@ class Migration1754295570DocumentActivateReturnAddressTest extends TestCase
         $migration->update($this->connection);
 
         $documentConfig = $this->connection->executeQuery('SELECT config FROM document_base_config;')->fetchAllAssociative();
+
         array_walk(
             $documentConfig,
             function (array $arr): void {
                 $arr['config'] = json_decode($arr['config'], true, 512, \JSON_THROW_ON_ERROR);
+
                 static::assertTrue($arr['config']['displayReturnAddress']);
             }
         );

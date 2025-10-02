@@ -8,6 +8,7 @@ import ApiService from 'src/core/service/api.service';
 type ExtensionVariantType = 'rent' | 'buy' | 'free';
 type ExtensionType = 'app' | 'plugin';
 type ExtensionSource = 'local' | 'store';
+type ExtensionRentDuration = 1 | 12;
 
 type ExtensionStoreActionHeaders = BasicHeaders & {
     'sw-language-id'?: string;
@@ -19,6 +20,7 @@ interface DiscountCampaign {
     endDate: string | null;
     discount: number;
     discountedPrice: number | null;
+    discountedPricePerMonth: number | null;
     discountAppliesForMonths: number | null;
 }
 
@@ -26,6 +28,8 @@ interface ExtensionVariant {
     id: number;
     type: ExtensionVariantType;
     netPrice: number;
+    netPricePerMonth: number;
+    duration: ExtensionRentDuration;
     trialPhaseIncluded: boolean;
     discountCampaign: DiscountCampaign | null;
 }
@@ -75,7 +79,7 @@ interface Extension {
     icon: string | null;
     iconRaw: string | null;
     categories: StoreCategory[] | null;
-    permissions: Array<{ entity: string; operation: string }> | null;
+    permissions: { [key: string]: Array<{ entity: string; operation: string }> } | null;
     active: boolean;
     type: ExtensionType;
     isTheme: boolean;

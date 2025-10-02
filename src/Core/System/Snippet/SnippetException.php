@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +36,8 @@ class SnippetException extends HttpException
     final public const SNIPPET_TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXIST = 'SYSTEM__TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXISTS';
 
     final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXIST = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS';
+
+    final public const SNIPPET_TRANSLATION_METADATA_DOWNLOAD_FAILED = 'SYSTEM__TRANSLATION_METADATA_DOWNLOAD_FAILED';
 
     final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_IS_EMPTY = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_IS_EMPTY';
 
@@ -164,6 +167,20 @@ class SnippetException extends HttpException
             'Translation configuration file does not exist: "{{ file }}".',
             [
                 'file' => $file,
+            ],
+            $previous
+        );
+    }
+
+    public static function translationMetadataDownloadFailed(Uri $uri, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SNIPPET_TRANSLATION_METADATA_DOWNLOAD_FAILED,
+            'Failed to download translation metadata from "{{ uri }}": {{ error }}',
+            [
+                'uri' => (string) $uri,
+                'error' => $previous?->getMessage() ?? 'Unknown error',
             ],
             $previous
         );

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -36,6 +37,9 @@ class ProductStreamUpdaterTest extends TestCase
      */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<ProductStreamCollection>
+     */
     private EntityRepository $productStreamRepository;
 
     private SalesChannelContext $salesChannel;

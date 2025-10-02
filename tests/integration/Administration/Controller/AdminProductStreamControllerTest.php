@@ -63,13 +63,10 @@ class AdminProductStreamControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_admin/product-stream-preview/' . TestDefaults::SALES_CHANNEL,
-            [],
-            [],
-            [],
-            json_encode($data) ?: ''
+            $data
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -123,13 +120,10 @@ class AdminProductStreamControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_admin/product-stream-preview/' . TestDefaults::SALES_CHANNEL,
-            [],
-            [],
-            [],
-            json_encode($data) ?: ''
+            $data
         );
         $response = $this->getBrowser()->getResponse();
 

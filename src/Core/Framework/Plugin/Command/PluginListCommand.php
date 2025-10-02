@@ -84,6 +84,8 @@ class PluginListCommand extends Command
             $io->comment(\sprintf('Filtering for: %s', $filter));
         }
 
+        $composerInstalledAndRegistered = [];
+
         foreach ($plugins as $plugin) {
             $pluginActive = $plugin->getActive();
             $pluginInstalled = $plugin->getInstalledAt();

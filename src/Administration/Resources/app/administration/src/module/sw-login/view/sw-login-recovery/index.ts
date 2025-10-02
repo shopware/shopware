@@ -13,8 +13,6 @@ const { Component } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: ['userRecoveryService'],
-
     emits: ['is-loading'],
 
     data() {
@@ -43,7 +41,7 @@ export default Component.wrapComponentConfig({
         sendRecoveryMail() {
             this.$emit('is-loading');
 
-            this.userRecoveryService
+            Shopware.Service('userRecoveryService')
                 .createRecovery(this.email)
                 .then(() => {
                     this.displayRecoveryInfo();

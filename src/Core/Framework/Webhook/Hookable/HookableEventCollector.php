@@ -2,45 +2,24 @@
 
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
-use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity as EntityAttribute;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class HookableEventCollector
+class HookableEventCollector implements ResetInterface
 {
-    final public const HOOKABLE_ENTITIES = [
-        ProductDefinition::ENTITY_NAME,
-        ProductPriceDefinition::ENTITY_NAME,
-        CategoryDefinition::ENTITY_NAME,
-        SalesChannelDefinition::ENTITY_NAME,
-        SalesChannelDomainDefinition::ENTITY_NAME,
-        CustomerDefinition::ENTITY_NAME,
-        CustomerAddressDefinition::ENTITY_NAME,
-        OrderDefinition::ENTITY_NAME,
-        OrderAddressDefinition::ENTITY_NAME,
-        DocumentDefinition::ENTITY_NAME,
-        MediaDefinition::ENTITY_NAME,
-    ];
-
     private const PRIVILEGES = 'privileges';
 
     /**
@@ -48,12 +27,24 @@ class HookableEventCollector
      */
     private array $hookableEventNamesWithPrivileges = [];
 
+    /**
+     * @var array<string>|null
+     */
+    private ?array $hookableEntities = null;
+
+    /**
+     * @param iterable<EntityDefinition|Entity> $hookableEntityDefinitions
+     */
     public function __construct(
         private readonly BusinessEventCollector $businessEventCollector,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly iterable $hookableEntityDefinitions
     ) {
     }
 
+    /**
+     * @return array<array<array<string>>>
+     */
     public function getHookableEventNamesWithPrivileges(Context $context): array
     {
         if (!$this->hookableEventNamesWithPrivileges) {
@@ -87,7 +78,7 @@ class HookableEventCollector
     public function getEntityWrittenEventNamesWithPrivileges(): array
     {
         $entityWrittenEventNames = [];
-        foreach (self::HOOKABLE_ENTITIES as $entity) {
+        foreach ($this->getHookableEntities() as $entity) {
             $privileges = [
                 self::PRIVILEGES => [$entity . ':' . AclRoleDefinition::PRIVILEGE_READ],
             ];
@@ -99,6 +90,50 @@ class HookableEventCollector
         return $entityWrittenEventNames;
     }
 
+    /**
+     * Dynamically discovers all hookable entities by checking for services tagged with 'shopware.entity.hookable'.
+     *
+     * @return array<string>
+     */
+    public function getHookableEntities(): array
+    {
+        if ($this->hookableEntities !== null) {
+            return $this->hookableEntities;
+        }
+
+        $hookableEntities = [];
+
+        foreach ($this->hookableEntityDefinitions as $definition) {
+            if ($definition instanceof EntityDefinition) {
+                $hookableEntities[] = $definition->getEntityName();
+            } elseif ($definition instanceof Entity) {
+                $reflection = new \ReflectionClass($definition::class);
+                $collection = $reflection->getAttributes(EntityAttribute::class);
+
+                if (empty($collection)) {
+                    continue;
+                }
+
+                /** @var EntityAttribute $instance */
+                $instance = $collection[0]->newInstance();
+                $hookableEntities[] = $instance->name;
+            }
+        }
+
+        $this->hookableEntities = array_unique($hookableEntities);
+
+        return $this->hookableEntities;
+    }
+
+    public function reset(): void
+    {
+        $this->hookableEventNamesWithPrivileges = [];
+        $this->hookableEntities = null;
+    }
+
+    /**
+     * @return array<string, array{privileges: list<string>}>
+     */
     private function getEventNamesWithPrivileges(Context $context): array
     {
         return array_merge(
@@ -108,6 +143,9 @@ class HookableEventCollector
         );
     }
 
+    /**
+     * @return array<string, array{privileges: list<string>}>
+     */
     private function getHookableEventNames(): array
     {
         return array_reduce(array_values(
@@ -115,6 +153,9 @@ class HookableEventCollector
         ), 'array_merge', []);
     }
 
+    /**
+     * @return array<string, array{privileges: list<string>}>
+     */
     private function getBusinessEventNamesWithPrivileges(Context $context): array
     {
         $response = $this->businessEventCollector->collect($context);

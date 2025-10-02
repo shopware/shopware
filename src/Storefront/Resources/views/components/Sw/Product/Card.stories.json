@@ -1,0 +1,96 @@
+{
+    "title": "Sw/Product/Card",
+    "parameters": {
+        "server": {
+            "id": "Sw:Product:Card"
+        },
+        "slots": [
+            {
+                "name": "header-top",
+                "description": "Slot at the top of the product card, typically used for badges, labels, or promotional content."
+            },
+            {
+                "name": "media",
+                "description": "Main product image slot, can be overridden to show custom media content."
+            },
+            {
+                "name": "badges",
+                "description": "Slot for displaying product badges."
+            },
+            {
+                "name": "header-bottom",
+                "description": "Slot at the bottom of the product card, typically used for additional product information or links."
+            },
+            {
+                "name": "body-top",
+                "description": "Slot at the top of the product card body, typically used for additional product information or links."
+            },
+            {
+                "name": "title",
+                "description": "Main content area containing the product name."
+            },
+            {
+                "name": "rating",
+                "description": "Slot for displaying product ratings."
+            },
+            {
+                "name": "variants",
+                "description": "Slot for displaying product variants."
+            },
+            {
+                "name": "body-bottom",
+                "description": "Slot at the bottom of the product card body, typically used for additional product information or links."
+            },
+            {
+                "name": "footer-top",
+                "description": "Slot at the top of the product card footer, typically used for additional product information or links."
+            },
+            {
+                "name": "price",
+                "description": "Slot for displaying the product price."
+            },
+            {
+                "name": "actions",
+                "description": "Action buttons area, typically contains add to cart, wishlist, or quick view buttons."
+            },
+            {
+                "name": "footer",
+                "description": "Footer area of the card, often used for additional product information or links."
+            },
+            {
+                "name": "footer-bottom",
+                "description": "Slot at the bottom of the product card footer, typically used for additional product information or links."
+            }
+        ],
+        "template": "<twig:Sw:Product:Card :product=\"product\" mediaHeight=\"240\"></twig:Sw:Product:Card>"
+    },
+    "argTypes": {
+        "product": {
+            "control": "object",
+            "description": "The full sales channel product entity.",
+            "required": true,
+            "type": "ProductEntity",
+            "table": {
+                "readonly": true
+            }
+        },
+        "mediaHeight": {
+            "control": "number",
+            "description": "Height of the product media (thumbnail)",
+            "table": {
+                "defaultValue": {
+                    "summary": 240
+                }
+            }
+        }
+    },
+    "stories": [
+        {
+            "name": "Card",
+            "args": {
+                "product": {},
+                "mediaHeight": 240
+            }
+        }
+    ]
+}

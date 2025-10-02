@@ -22,10 +22,13 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -34,6 +37,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class CustomFieldTest extends TestCase
 {
+    use BasicTestDataBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour {
         tearDown as protected tearDownDefinitions;
@@ -427,7 +431,6 @@ class CustomFieldTest extends TestCase
         $this->addCustomFields(['datetime' => CustomFieldTypes::DATETIME]);
 
         $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
-        /** @var \DateTimeInterface[] $dateTimes */
         $dateTimes = [
             new \DateTime('1990-01-01'),
             new \DateTime('1990-01-01T00:01'),
@@ -1118,6 +1121,32 @@ class CustomFieldTest extends TestCase
         static::assertSame($dateTime->format(\DateTime::ATOM), $encoded['custom']['json']['date']);
     }
 
+    public function testCustomFieldWithSameNameAsFKWorks(): void
+    {
+        $repo = $this->getContainer()->get('language.repository');
+        static::assertInstanceOf(EntityRepository::class, $repo);
+
+        $id = Uuid::randomHex();
+        $entity = [
+            'id' => $id,
+            'name' => 'test',
+            'localeId' => $this->getLocaleIdOfSystemLanguage(),
+            'translationCodeId' => $this->getLocaleIdOfSystemLanguage(),
+        ];
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $repo->update([[
+            'id' => $id,
+            'customFields' => [
+                'locale_id' => 'test that this works',
+            ],
+        ]], Context::createDefaultContext());
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(LanguageEntity::class, $first);
+        static::assertSame('test that this works', $first->getCustomFields()['locale_id'] ?? '');
+    }
+
     /**
      * @param array<string, string> $attributeTypes
      */
@@ -1132,6 +1161,9 @@ class CustomFieldTest extends TestCase
         $attributeRepo->create($attributes, Context::createDefaultContext());
     }
 
+    /**
+     * @return EntityRepository<CustomFieldCollection>
+     */
     private function getTestRepository(): EntityRepository
     {
         $definition = $this->registerDefinition(
@@ -1139,6 +1171,7 @@ class CustomFieldTest extends TestCase
             CustomFieldTestTranslationDefinition::class
         );
 
+        /** @var EntityRepository<CustomFieldCollection> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

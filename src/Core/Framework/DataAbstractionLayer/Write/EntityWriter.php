@@ -415,7 +415,6 @@ class EntityWriter implements EntityWriterInterface
 
         $skipped = [];
         foreach ($resolved as $primaryKey) {
-            /** @var array<string, string> $mappedBytes */
             $mappedBytes = [];
             foreach ($primaryKey as $key => $value) {
                 $field = $definition->getFields()->get($key);

@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -83,11 +82,10 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             $cloned = clone $optionCriteria;
             $cloned->setIds($chunk);
 
-            $entities = $this->optionRepository->search($cloned, $context->getContext());
+            $entities = $this->optionRepository->search($cloned, $context->getContext())->getEntities();
 
             $options = array_merge($options, $entities->getElements());
 
-            /** @var PropertyGroupOptionEntity $option */
             foreach ($entities as $option) {
                 if (!isset($groupIds[$option->getGroupId()])) {
                     $groupIds[$option->getGroupId()] = true;

@@ -86,6 +86,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 '/login',
                 '/login/info',
                 '/login/recovery',
+                '/sso/error',
             ];
 
             if (to.meta && to.meta.forceRoute === true) {

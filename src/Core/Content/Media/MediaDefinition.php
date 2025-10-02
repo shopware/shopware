@@ -133,6 +133,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('cmsSections', CmsSectionDefinition::class, 'background_media_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('cmsPages', CmsPageDefinition::class, 'preview_media_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_media_file_id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('a11yDocuments', DocumentDefinition::class, 'document_a11y_media_file_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('appPaymentMethods', AppPaymentMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('appShippingMethods', AppShippingMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new StringField('file_hash', 'fileHash'))->addFlags(new Computed()),

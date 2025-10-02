@@ -127,6 +127,10 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                             source: 'static',
                             value: false,
                         },
+                        useFetchPriorityOnFirstItem: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -192,6 +196,21 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await isDecorativeSwitch.setValue(false);
 
         expect(wrapper.vm.element.config.isDecorative.value).toBe(false);
+    });
+
+    it('should change the useFetchPriorityOnFirstItem value', async () => {
+        const wrapper = await createWrapper('settings');
+        const useFetchPriorityOnFirstItemSwitch = wrapper.find(
+            '.sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item input',
+        );
+
+        await useFetchPriorityOnFirstItemSwitch.setValue(true);
+
+        expect(wrapper.vm.element.config.useFetchPriorityOnFirstItem.value).toBe(true);
+
+        await useFetchPriorityOnFirstItemSwitch.setValue(false);
+
+        expect(wrapper.vm.element.config.useFetchPriorityOnFirstItem.value).toBe(false);
     });
 
     /**

@@ -258,11 +258,12 @@ EOD;
      */
     private function findForeignKeyDefinition(array $keyStructure): ForeignKeyConstraint
     {
-        $fks = $this->schemaManager->listTableForeignKeys($keyStructure['TABLE_NAME']);
+        $foreignKeys = $this->schemaManager->listTableForeignKeys($keyStructure['TABLE_NAME']);
         $fk = null;
 
-        foreach ($fks as $fk) {
-            if ($this->isEqualForeignKey($fk, $keyStructure['REFERENCED_TABLE_NAME'], $keyStructure['REFERENCED_COLUMN_NAME'])) {
+        foreach ($foreignKeys as $foreignKey) {
+            if ($this->isEqualForeignKey($foreignKey, $keyStructure['REFERENCED_TABLE_NAME'], $keyStructure['REFERENCED_COLUMN_NAME'])) {
+                $fk = $foreignKey;
                 break;
             }
         }

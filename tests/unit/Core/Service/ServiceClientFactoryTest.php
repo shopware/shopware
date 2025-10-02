@@ -8,9 +8,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -140,9 +141,10 @@ class ServiceClientFactoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->appPayloadServiceHelper->method('buildSource')->willThrowException(new AppUrlChangeDetectedException('App URL changed', 'foo', ShopId::v2('shopid')));
+        $this->appPayloadServiceHelper->method('buildSource')
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('shopid'), new FingerprintComparisonResult([], [], 75)));
 
-        $this->expectException(AppUrlChangeDetectedException::class);
+        $this->expectException(ShopIdChangeSuggestedException::class);
         $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
         $clientFactory = new ServiceClientFactory($this->httpClient, $serviceClientRegistry, '6.6.0.0', $this->authMiddleware, $this->appPayloadServiceHelper);
         $clientFactory->newAuthenticatedFor($entry, $app, $context);

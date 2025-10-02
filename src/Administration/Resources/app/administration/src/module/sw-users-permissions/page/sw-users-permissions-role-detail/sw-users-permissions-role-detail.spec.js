@@ -28,6 +28,8 @@ async function createWrapper(
     options = {
         isNew: false,
     },
+    isSso = { isSso: false },
+    roleSaveFunction = jest.fn(() => Promise.resolve()),
 ) {
     privilegeMappingEntries.forEach((mappingEntry) => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
@@ -89,12 +91,17 @@ async function createWrapper(
                                     name: 'demoRole',
                                     privileges: privileges,
                                 }),
-                            save: jest.fn(() => Promise.resolve()),
+                            save: roleSaveFunction,
                         }),
                     },
                     userService: {},
                     privileges: privilegesService,
                     appAclService: appAclService,
+                    ssoSettingsService: {
+                        isSso: () => {
+                            return Promise.resolve(isSso);
+                        },
+                    },
                 },
             },
         },
@@ -645,5 +652,54 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         expect(saveButton.attributes().disabled).toBeUndefined();
+    });
+
+    it('should open password confirm modal', async () => {
+        const saveFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(
+            {
+                aclPrivileges: ['users_and_permissions.editor'],
+            },
+            {
+                options: {
+                    isNew: true,
+                },
+            },
+            { isSso: false },
+            saveFunction,
+        );
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        const passwordConfirmModal = wrapper.find('sw-verify-user-modal-stub');
+
+        expect(passwordConfirmModal.exists()).toBeTruthy();
+        expect(saveFunction).not.toHaveBeenCalled();
+    });
+
+    it('should save role without pw confirmation', async () => {
+        const saveFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(
+            {
+                aclPrivileges: ['users_and_permissions.editor'],
+            },
+            {
+                options: {
+                    isNew: true,
+                },
+            },
+            { isSso: true },
+            saveFunction,
+        );
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(saveFunction).toHaveBeenCalled();
     });
 });

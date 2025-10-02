@@ -56,7 +56,7 @@ class FingerprintGeneratorTest extends TestCase
             new BazFingerprint(),
         ]);
 
-        static::assertEquals($result, $fingerprintGenerator->compare($fingerprints));
+        static::assertEquals($result, $fingerprintGenerator->matchFingerprints($fingerprints));
     }
 
     public static function fingerprintsForComparison(): \Generator
@@ -69,9 +69,9 @@ class FingerprintGeneratorTest extends TestCase
             ],
             new FingerprintComparisonResult(
                 [
-                    'foo' => new FingerprintMatch('foo', 'foo'),
-                    'bar' => new FingerprintMatch('bar', 'bar'),
-                    'baz' => new FingerprintMatch('baz', 'baz'),
+                    'foo' => new FingerprintMatch('foo', 'foo', 100),
+                    'bar' => new FingerprintMatch('bar', 'bar', 50),
+                    'baz' => new FingerprintMatch('baz', 'baz', 25),
                 ],
                 [],
                 75,
@@ -86,8 +86,8 @@ class FingerprintGeneratorTest extends TestCase
             ],
             new FingerprintComparisonResult(
                 [
-                    'foo' => new FingerprintMatch('foo', 'foo'),
-                    'baz' => new FingerprintMatch('baz', 'baz'),
+                    'foo' => new FingerprintMatch('foo', 'foo', 100),
+                    'baz' => new FingerprintMatch('baz', 'baz', 25),
                 ],
                 [
                     'bar' => new FingerprintMismatch('bar', 'wrong', 'bar', 50),

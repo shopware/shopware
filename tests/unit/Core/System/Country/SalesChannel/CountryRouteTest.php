@@ -43,7 +43,6 @@ class CountryRouteTest extends TestCase
 
     public function testLoad(): void
     {
-        $index = 0;
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
             ->expects($this->exactly(1))

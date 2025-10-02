@@ -5,7 +5,7 @@ namespace Shopware\Administration\Framework\Twig;
 use Pentatrion\ViteBundle\Service\FileAccessor;
 use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Asset\Package as AssetPackage;
+use Symfony\Component\Asset\PackageInterface as AssetPackage;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;

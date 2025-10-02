@@ -55,8 +55,8 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $configs = array_map(function (array $item): SearchFieldConfig {
             return new SearchFieldConfig(
-                (string) $item['field'],
-                (float) $item['ranking'],
+                $item['field'],
+                $item['ranking'],
                 (bool) $item['tokenize'],
                 (bool) $item['and_logic'],
             );

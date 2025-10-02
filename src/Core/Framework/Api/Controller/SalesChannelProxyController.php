@@ -40,7 +40,6 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -261,7 +260,7 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $subrequest, $context);
 
         if ($path === self::SEARCH_ROUTE) {
-            $salesChannelContext->getContext()->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+            $salesChannelContext->getContext()->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
         }
 
         $subrequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
@@ -293,8 +292,8 @@ class SalesChannelProxyController extends AbstractController
         $definition = new DataValidationDefinition('impersonation.generate-token');
 
         $definition
-            ->add(self::SALES_CHANNEL_ID, new Uuid(), new EntityExists(['entity' => 'sales_channel', 'context' => $context]))
-            ->add(self::CUSTOMER_ID, new Uuid(), new EntityExists(['entity' => 'customer', 'context' => $context]));
+            ->add(self::SALES_CHANNEL_ID, new Uuid(), new EntityExists(entity: 'sales_channel', context: $context))
+            ->add(self::CUSTOMER_ID, new Uuid(), new EntityExists(entity: 'customer', context: $context));
 
         $validationEvent = new BuildValidationEvent($definition, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -375,7 +374,7 @@ class SalesChannelProxyController extends AbstractController
         $customerCriteria->addFilter(new EqualsFilter('customer.id', $parameters[self::CUSTOMER_ID]));
 
         $definition
-            ->add(self::CUSTOMER_ID, new EntityExists(['entity' => 'customer', 'context' => $context->getContext(), 'criteria' => $customerCriteria]))
+            ->add(self::CUSTOMER_ID, new EntityExists(entity: 'customer', context: $context->getContext(), criteria: $customerCriteria))
         ;
 
         $this->validator->validate($parameters, $definition);

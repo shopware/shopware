@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductReviewRoute::class)]
 class ProductReviewRouteTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<ProductReviewCollection> */
     private MockObject&EntityRepository $repository;
 
     private StaticSystemConfigService $config;

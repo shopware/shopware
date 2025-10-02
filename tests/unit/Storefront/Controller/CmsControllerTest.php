@@ -18,6 +18,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Controller\CmsController;
@@ -190,6 +192,121 @@ class CmsControllerTest extends TestCase
                 'product' => $this->controller->renderStorefrontParameters['product'],
                 'configuratorSettings' => null,
                 'totalReviews' => 0,
+                'elementId' => $ids->get('element'),
+            ]
+        );
+    }
+
+    public function testSwitchReturnWithoutReview(): void
+    {
+        $ids = new IdsCollection();
+
+        $request = new Request(
+            [
+                'elementId' => $ids->get('element'),
+                'options' => json_encode([
+                    $ids->get('group1') => $ids->get('option1'),
+                    $ids->get('group2') => $ids->get('option2'),
+                ], \JSON_THROW_ON_ERROR),
+            ]
+        );
+
+        $reviewLoader = $this->createMock(ProductReviewLoader::class);
+        $reviewLoader->expects($this->never())->method('load');
+
+        $controller = new CmsControllerTestClass(
+            $this->cmsRouteMock,
+            $this->categoryRouteMock,
+            $this->productListingRouteMock,
+            $this->createMock(ProductDetailRoute::class),
+            $reviewLoader,
+            $this->createMock(FindProductVariantRoute::class),
+            $this->createMock(EventDispatcher::class),
+            new StaticSystemConfigService([
+                'core.listing.showReview' => false,
+            ]),
+        );
+
+        $context = Generator::generateSalesChannelContext();
+
+        $controller->switchBuyBoxVariant($ids->get('product'), $request, $context);
+
+        $reviewLoader = $this->createMock(ProductReviewLoader::class);
+        $reviewLoader->expects($this->never())->method('load');
+
+        // global config is enabled
+        $systemConfig = new StaticSystemConfigService([
+            'core.listing.showReview' => true,
+        ]);
+
+        // but disabled for current sales channel
+        $systemConfig->set('core.listing.showReview', false, $context->getSalesChannelId());
+
+        $controller = new CmsControllerTestClass(
+            $this->cmsRouteMock,
+            $this->categoryRouteMock,
+            $this->productListingRouteMock,
+            $this->createMock(ProductDetailRoute::class),
+            $reviewLoader,
+            $this->createMock(FindProductVariantRoute::class),
+            $this->createMock(EventDispatcher::class),
+            $systemConfig
+        );
+
+        $controller->switchBuyBoxVariant($ids->get('product'), $request, $context);
+    }
+
+    public function testSwitchReturnWithReviews(): void
+    {
+        $ids = new IdsCollection();
+
+        $request = new Request(
+            [
+                'elementId' => $ids->get('element'),
+                'options' => json_encode([
+                    $ids->get('group1') => $ids->get('option1'),
+                    $ids->get('group2') => $ids->get('option2'),
+                ], \JSON_THROW_ON_ERROR),
+            ]
+        );
+
+        $result = $this->createMock(ProductReviewResult::class);
+        $result->method('getTotal')->willReturn(5);
+
+        $reviewLoader = $this->createMock(ProductReviewLoader::class);
+        $reviewLoader->expects($this->once())->method('load')->willReturn($result);
+
+        $context = Generator::generateSalesChannelContext();
+
+        // global config is enabled
+        $systemConfig = new StaticSystemConfigService([
+            'core.listing.showReview' => false,
+        ]);
+
+        // but enabled for current sales channel
+        $systemConfig->set('core.listing.showReview', true, $context->getSalesChannelId());
+
+        $controller = new CmsControllerTestClass(
+            $this->cmsRouteMock,
+            $this->categoryRouteMock,
+            $this->productListingRouteMock,
+            $this->createMock(ProductDetailRoute::class),
+            $reviewLoader,
+            $this->createMock(FindProductVariantRoute::class),
+            $this->createMock(EventDispatcher::class),
+            $systemConfig
+        );
+
+        $controller->switchBuyBoxVariant($ids->get('product'), $request, $context);
+
+        static::assertInstanceOf(SalesChannelProductEntity::class, $controller->renderStorefrontParameters['product']);
+
+        static::assertSame(
+            $controller->renderStorefrontParameters,
+            [
+                'product' => $controller->renderStorefrontParameters['product'],
+                'configuratorSettings' => null,
+                'totalReviews' => 5,
                 'elementId' => $ids->get('element'),
             ]
         );

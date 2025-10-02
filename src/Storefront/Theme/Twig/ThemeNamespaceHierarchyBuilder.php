@@ -21,7 +21,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface, ResetInterface
 {
     /**
-     * @var array<int|string, bool>
+     * @var array<string, bool>
      */
     private array $themes = [];
 
@@ -93,7 +93,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
     }
 
     /**
-     * @return array<int|string, bool>
+     * @return array<string, bool>
      */
     private function detectedThemes(Request $request): array
     {

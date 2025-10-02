@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
@@ -31,6 +32,9 @@ class NotRuleTest extends TestCase
      */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     private Context $context;

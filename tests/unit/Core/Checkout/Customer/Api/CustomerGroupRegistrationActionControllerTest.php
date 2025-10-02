@@ -34,8 +34,10 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
     private CustomerGroupRegistrationActionController $controllerMock;
 
+    /** @var MockObject&EntityRepository<CustomerCollection> */
     private MockObject&EntityRepository $customerRepositoryMock;
 
+    /** @var MockObject&EntityRepository<CustomerGroupCollection> */
     private MockObject&EntityRepository $customerGroupRepositoryMock;
 
     private MockObject&SalesChannelContextRestorer $contextRestorerMock;

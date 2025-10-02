@@ -242,8 +242,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
         ]));
 
-        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
-        if (!$customer) {
+        $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
+        // active check here instead of DAL filter due to no DB index
+        if (!$customer?->getActive()) {
             return null;
         }
 

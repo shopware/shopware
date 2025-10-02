@@ -12,7 +12,7 @@ use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -49,6 +49,8 @@ class AdministrationController extends AbstractController
 
     private readonly bool $esStorefrontEnabled;
 
+    private readonly bool $productStreamIndexingEnabled;
+
     /**
      * @internal
      *
@@ -57,7 +59,7 @@ class AdministrationController extends AbstractController
      * @param EntityRepository<CurrencyCollection> $currencyRepository
      */
     public function __construct(
-        private readonly TemplateFinder $finder,
+        private readonly TemplateFinderInterface $finder,
         private readonly FirstRunWizardService $firstRunWizardService,
         private readonly SnippetFinderInterface $snippetFinder,
         private readonly array $supportedApiVersions,
@@ -82,6 +84,9 @@ class AdministrationController extends AbstractController
         $this->esStorefrontEnabled = $params->has('elasticsearch.enabled')
             ? $params->get('elasticsearch.enabled')
             : false;
+        $this->productStreamIndexingEnabled = $params->has('shopware.product_stream.indexing')
+            ? $params->get('shopware.product_stream.indexing')
+            : true;
     }
 
     #[Route(path: '/%shopware_administration.path_name%', name: 'administration.index', defaults: ['auth_required' => false], methods: ['GET'])]
@@ -108,6 +113,7 @@ class AdministrationController extends AbstractController
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
+            'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
         ]);
     }
 

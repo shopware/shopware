@@ -69,8 +69,8 @@ class RoutingOverwriteMiddleware implements MiddlewareInterface
             return null;
         }
 
-        foreach ($overwrites as $class => $transports) {
-            if ($message instanceof $class) {
+        foreach ($overwrites as $overwriteClass => $transports) {
+            if ($message instanceof $overwriteClass) {
                 return $transports;
             }
         }

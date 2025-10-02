@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -23,6 +25,9 @@ class MediaIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $repository
+     * @param EntityRepository<MediaThumbnailCollection> $thumbnailRepository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

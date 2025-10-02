@@ -173,7 +173,7 @@ export default {
         },
 
         updateRoute(newFolderId) {
-            this.term = this.$route.query?.term ?? '';
+            this.term = this.$route.query?.term ?? this.term ?? '';
             this.$router.push({
                 name: 'sw.media.index',
                 params: {

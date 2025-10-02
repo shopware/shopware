@@ -7,6 +7,8 @@ use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -681,7 +683,7 @@ class ProductBuilder
     public function writeDependencies(ContainerInterface $container): void
     {
         foreach ($this->dependencies as $entity => $records) {
-            /** @var EntityRepository $repository */
+            /** @var EntityRepository<EntityCollection<Entity>> $repository */
             $repository = $container->get($entity . '.repository');
 
             $repository->create($records, Context::createDefaultContext());

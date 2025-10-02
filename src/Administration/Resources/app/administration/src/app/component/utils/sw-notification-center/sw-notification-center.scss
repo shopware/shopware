@@ -40,15 +40,17 @@
 
     .sw-notification-center__content {
         .sw-notification-center__header {
-            border-bottom: 1px solid $color-gray-300;
-            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--color-border-primary-default);
+            padding: var(--scale-size-20) var(--scale-size-24) var(--scale-size-16);
             display: flex;
             justify-content: space-between;
         }
 
         .sw-notification-center__title {
             margin: 0;
-            font-size: $font-size-m;
+            font-size: var(--font-size-m);
+            line-height: var(--font-line-height-m);
+            color: var(--color-text-primary-default);
         }
 
         .sw-notification-center__notification-container {

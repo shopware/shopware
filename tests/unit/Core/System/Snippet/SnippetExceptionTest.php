@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Snippet;
 
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -156,5 +157,20 @@ class SnippetExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SnippetException::SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL, $exception->getErrorCode());
         static::assertSame('The repository URL "http://localhost:8000" is invalid: Invalid URL', $exception->getMessage());
+    }
+
+    public function testTranslationMetadataDownloadFailed(): void
+    {
+        $exception = SnippetException::translationMetadataDownloadFailed(
+            new Uri('http://localhost:8000/metadata.json'),
+            new \Exception('Network error'),
+        );
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_TRANSLATION_METADATA_DOWNLOAD_FAILED, $exception->getErrorCode());
+        static::assertSame(
+            'Failed to download translation metadata from "http://localhost:8000/metadata.json": Network error',
+            $exception->getMessage()
+        );
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
@@ -36,6 +37,8 @@ final readonly class ProductExportPartialGenerationHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductExportCollection> $productExportRepository
      */
     public function __construct(
         private ProductExportGeneratorInterface $productExportGenerator,
@@ -119,12 +122,7 @@ final readonly class ProductExportPartialGenerationHandler
             ->addAssociation('productStream.filters.queries')
             ->setLimit(1);
 
-        /** @var ProductExportEntity|null $productExport */
-        $productExport = $this->productExportRepository
-            ->search($criteria, $context)
-            ->first();
-
-        return $productExport;
+        return $this->productExportRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function runExport(

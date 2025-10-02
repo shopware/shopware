@@ -1,20 +1,20 @@
 @import "~scss/variables";
 
 .sw-shortcut-overview-item {
-    margin: 10px 40px 10px 0;
+    margin: var(--scale-size-10) 40px var(--scale-size-10) 0;
 
     kbd span {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         color: var(--color-text-primary-default);
         border: 1px solid var(--color-border-primary-default);
         background-color: var(--color-background-primary-disabled);
-        padding: 4px 6px;
-        margin-right: 8px;
+        padding: var(--scale-size-4) var(--scale-size-6);
+        margin-right: var(--scale-size-8);
         cursor: default;
     }
 
     span.sw-shortcut-overview-item__title {
-        font-size: $font-size-xs;
-        color: $color-darkgray-200;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 }

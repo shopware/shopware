@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Exception;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ShopIdChangeSuggestedException extends AppException
 {
     public function __construct(
+        public readonly ShopId $shopId,
         public readonly FingerprintComparisonResult $comparisonResult,
     ) {
         parent::__construct(

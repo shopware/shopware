@@ -57,7 +57,7 @@ class CreateIntegrationCommandTest extends TestCase
         static::assertNotNull($accessKey);
         static::assertNotNull($secretAccessKey);
         static::assertNotNull($admin);
-        static::assertSame((bool) $adminOption, $admin);
+        static::assertSame($adminOption, $admin);
 
         $output = $cmd->getDisplay();
         static::assertNotEmpty($output);

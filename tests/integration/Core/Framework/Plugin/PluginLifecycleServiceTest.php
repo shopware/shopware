@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -63,6 +64,9 @@ class PluginLifecycleServiceTest extends TestCase
 
     private ContainerInterface $container;
 
+    /**
+     * @var EntityRepository<PluginCollection>
+     */
     private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;

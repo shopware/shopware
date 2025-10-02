@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-skeleton-background: $color-gray-50;
+$sw-skeleton-background: var(--color-background-primary-disabled);
 
 .sw-skeleton {
     cursor: progress;

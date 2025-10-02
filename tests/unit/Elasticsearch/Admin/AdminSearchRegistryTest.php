@@ -29,9 +29,7 @@ use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 /**
  * @internal
@@ -324,6 +322,7 @@ class AdminSearchRegistryTest extends TestCase
                 'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
             ],
         ]);
+        $this->indexer->method('getUpdatedIds')->willReturn(['c1a28776116d4431a2208eb2960ec340']);
 
         $client = $this->createMock(Client::class);
 
@@ -342,7 +341,23 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, $refreshIndices, 'sw-admin');
         $queue = $this->createMock(MessageBusInterface::class);
-        $queue->expects($this->once())->method('dispatch')->willReturn(new Envelope(new ReceivedStamp('test')));
+
+        $client
+            ->expects($this->once())
+            ->method('bulk')
+            ->with([
+                'index' => 'sw-admin-promotion-listing_12345',
+                'body' => [
+                    ['index' => ['_id' => 'c1a28776116d4431a2208eb2960ec340']],
+                    [
+                        'entityName' => 'promotion',
+                        'parameters' => [],
+                        'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
+                        'textBoosted' => '',
+                        'id' => 'c1a28776116d4431a2208eb2960ec340',
+                    ],
+                ],
+            ]);
 
         $index = new AdminSearchRegistry(
             ['promotion' => $this->indexer],
@@ -366,6 +381,47 @@ class AdminSearchRegistryTest extends TestCase
                 ),
             ], Context::createDefaultContext()),
         ]), []));
+    }
+
+    public function testInvokeDeletesWhenToRemoveIdsProvided(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('fetch')->willReturn([]); // simulate not found -> should delete
+
+        $client = $this->createMock(Client::class);
+        $client
+            ->expects($this->once())
+            ->method('bulk')
+            ->with([
+                'index' => 'sw-admin-promotion-listing_12345',
+                'body' => [
+                    ['delete' => ['_id' => 'deadbeefdeadbeefdeadbeefdeadbeef']],
+                ],
+            ]);
+
+        $indices = ['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345'];
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
+        $index = new AdminSearchRegistry(
+            ['promotion' => $this->indexer],
+            $this->createMock(Connection::class),
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $client,
+            $searchHelper,
+            $this->createMock(LoggerInterface::class),
+            [],
+            []
+        );
+
+        $index->__invoke(new AdminSearchIndexingMessage(
+            'promotion',
+            'promotion',
+            $indices,
+            [],
+            ['deadbeefdeadbeefdeadbeefdeadbeef']
+        ));
     }
 
     public function testRefreshLogsAndDoesNotIndexIfExceptionIsThrownDuringRefreshIndices(): void

@@ -11,7 +11,8 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -131,14 +132,14 @@ class InfoControllerTest extends TestCase
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
     }
 
-    public function testReturnsCurrentShopIdIfAppUrlChangeIsDetected(): void
+    public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
     {
         $this->createInstance();
 
         $this->shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new AppUrlChangeDetectedException('http://localhost', 'http://globalhost', ShopId::v2('current-shop-id')));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('current-shop-id'), new FingerprintComparisonResult([], [], 75)));
 
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
 

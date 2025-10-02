@@ -50,12 +50,11 @@ class ContactFormRouteTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
+            static::assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -97,14 +96,13 @@ class ContactFormRouteTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $phpunit = $this;
         $eventDidRun = false;
         $recipients = [];
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, &$recipients, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, &$recipients): void {
             $eventDidRun = true;
             $recipients = $event->getRecipients();
-            $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
+            static::assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -154,12 +152,11 @@ class ContactFormRouteTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
+            static::assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);

@@ -16,19 +16,37 @@ shopware.installer:
     forward: Verder
     start: Starten
     start_installation: 'Installatie starten'
-    select_language_cs: Tsjechisch
+    select_language_bg-BG: Bulgaars
+    select_language_bs-BA: Bosnisch
+    select_language_cs-CZ: Tsjechisch
     select_language_da-DK: Deens
-    select_language_de: Duits
+    select_language_de-DE: Duits
+    select_language_el-GR: Grieks
     select_language_en-US: Engels (Verenigde Staten van Amerika)
-    select_language_en: Engels (Verenigd Koninkrijk)
+    select_language_en-GB: Engels (Verenigd Koninkrijk)
     select_language_es-ES: Spaans
-    select_language_fr: Frans
-    select_language_it: Italiaans
-    select_language_nl: Nederlands
-    select_language_no: Noors
-    select_language_pl: Pools
+    select_language_fi-FI: Fins
+    select_language_fr-FR: Frans
+    select_language_hi-IN: Hindi
+    select_language_hr-HR: Kroatisch
+    select_language_hu-HU: Hongaars
+    select_language_id-ID: Indonesisch
+    select_language_it-IT: Italiaans
+    select_language_ko-KR: Koreaans
+    select_language_lv-LV: Lets
+    select_language_nl-NL: Nederlands
+    select_language_nn-NO: Noors
+    select_language_pl-PL: Pools
     select_language_pt-PT: Portugees
+    select_language_ro-RO: Roemeens
+    select_language_ru-RU: Russisch
+    select_language_sk-SK: Slowaaks
+    select_language_sl-SI: Sloveens
+    select_language_sr-RS: Servisch
     select_language_sv-SE: Zweeds
+    select_language_tr-TR: Turks
+    select_language_uk-UA: Oekraïens
+    select_language_vi-VN: Vietnamees
     welcome_title: 'Welkom bij Shopware 6'
     language-selection_select_language: 'Taal van de installatie-assistent'
     welcome_header: 'Je Shopware-installatie'
@@ -141,3 +159,19 @@ shopware.installer:
         <p>
             Veel plezier en succes met je nieuwe onlineshop!
         </p>"
+    menuitem_translation: 'Taaldownload'
+    configuration_admin_shop_headline: 'Shopgegevens'
+    configuration_admin_language_headline: 'Talen'
+    configuration_admin_language_select_all: 'Alles selecteren'
+    configuration_admin_language_clear_all: 'Alles wissen'
+    configuration_admin_user_headline: 'Beheerder gebruikersgegevens'
+    configuration_admin_language_text: 'Voeg meer talen toe aan je Shopware shop. Als je later talen wilt toevoegen of verwijderen, kun je dit op elk moment in de administratie doen.'
+    configuration_admin_language_search_placeholder: 'Zoek taal...'
+    translations_header: 'Taaldownload'
+    translations_import_install_label: 'Extra talen worden gedownload en geïnstalleerd.'
+    translations_install_duration_info: 'Dit kan een paar minuten duren.'
+    finish_title: 'De setup voor je Shopware shop is voltooid.'
+    finish_subtitle: 'Klik op "Doorgaan naar shop" om de administratie van je shop te openen en te beginnen met het bouwen van je droomshop.'
+    finish_continue: 'Doorgaan naar shop'
+    translations_install_error_message: 'Er ging iets mis tijdens de installatie van vertalingen.'
+    translations_install_retry_link: 'Klik hier om opnieuw te proberen'

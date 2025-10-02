@@ -101,6 +101,52 @@ class SortingListingProcessorTest extends TestCase
         ], $criteria->getSorting());
     }
 
+    #[DataProvider('prepareDefaultSearchResultSortingProvider')]
+    public function testPrepareWithFallbackSorting(Request $requested): void
+    {
+        $productSorting = new ProductSortingEntity();
+        $productSorting->setId(Uuid::randomHex());
+        $productSorting->assign([
+            'key' => 'name-asc',
+            'fields' => [
+                ['field' => 'name', 'priority' => 1, 'order' => 'ASC'],
+            ],
+        ]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn(
+            new EntitySearchResult(
+                ProductSortingDefinition::ENTITY_NAME,
+                1,
+                new ProductSortingCollection([$productSorting]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([
+                'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
+            ]),
+            $repository
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm('test');
+        $processor->prepare(
+            $requested,
+            $criteria,
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertEquals([
+            new FieldSorting('name', FieldSorting::ASCENDING),
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+            new FieldSorting('id', FieldSorting::ASCENDING),
+        ], $criteria->getSorting());
+    }
+
     #[DataProvider('processProvider')]
     public function testProcess(string $requested, ?string $expected): void
     {

@@ -36,7 +36,7 @@ class LoginRoute extends AbstractLoginRoute
     }
 
     #[Route(path: '/store-api/account/login', name: 'store-api.account.login', methods: ['POST'])]
-    public function login(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
+    public function login(#[\SensitiveParameter] RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         EmailIdnConverter::encodeDataBag($data);
         $email = (string) $data->get('email', $data->get('username'));

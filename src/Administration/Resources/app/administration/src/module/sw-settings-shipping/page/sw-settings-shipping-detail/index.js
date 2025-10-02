@@ -181,7 +181,7 @@ export default {
                 const shippingMethod = this.shippingMethodRepository.create();
                 const shippingMethodPrice = this.shippingMethodPricesRepository.create();
                 shippingMethodPrice.calculation = 1;
-                shippingMethodPrice.quantityStart = 1;
+                shippingMethodPrice.quantityStart = 0;
                 shippingMethodPrice.shippingMethodId = shippingMethod.id;
                 shippingMethodPrice.ruleId = null;
                 shippingMethod.prices.add(shippingMethodPrice);

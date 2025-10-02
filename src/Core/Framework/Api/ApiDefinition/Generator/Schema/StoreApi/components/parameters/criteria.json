@@ -159,9 +159,19 @@
             "criteriaIncludes": {
                 "name": "includes",
                 "in": "query",
-                "description": "",
+                "description": "Specify the fields that should be returned for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Fields will not be included, if they are also specified in the excludes. Note that the include fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons.",
                 "schema": {
                     "$ref": "#/components/schemas/Includes"
+                },
+                "style": "deepObject",
+                "explode": true
+            },
+            "criteriaExcludes": {
+                "name": "excludes",
+                "in": "query",
+                "description": "Specify the fields that should be excluded from the response for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Note that the exclude fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons.",
+                "schema": {
+                    "$ref": "#/components/schemas/Excludes"
                 },
                 "style": "deepObject",
                 "explode": true
@@ -210,6 +220,9 @@
                 },
                 {
                     "$ref": "#/components/parameters/criteriaIncludes"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaExcludes"
                 }
             ],
             "noneFieldsCriteria": [
@@ -251,6 +264,9 @@
                 },
                 {
                     "$ref": "#/components/parameters/criteriaIncludes"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaExcludes"
                 }
             ],
             "productListingCriteria": [
@@ -301,6 +317,9 @@
                 },
                 {
                     "$ref": "#/components/parameters/criteriaIncludes"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaExcludes"
                 },
                 {
                     "name": "order",

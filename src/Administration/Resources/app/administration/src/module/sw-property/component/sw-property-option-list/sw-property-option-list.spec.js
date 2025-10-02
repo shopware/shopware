@@ -203,4 +203,59 @@ describe('module/sw-property/component/sw-property-option-list', () => {
 
         expect(wrapper.find('.modal').exists()).toBe(false);
     });
+
+    it('should disable natural sorting when names are purely alphabetical', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const columns = wrapper.vm.getGroupColumns();
+        const nameColumn = columns.find((c) => c.property === 'name');
+
+        expect(nameColumn).toBeTruthy();
+        expect(nameColumn.naturalSorting).toBe(false);
+    });
+
+    it('should enable natural sorting when at least one name contains digits', async () => {
+        const numericOptions = [
+            {
+                groupId: 'group-1',
+                name: '1mm',
+                position: 1,
+                colorHexCode: null,
+                translated: { name: '1mm', position: 1, customFields: [] },
+                id: 'opt-1',
+            },
+            {
+                groupId: 'group-1',
+                name: '10mm',
+                position: 2,
+                colorHexCode: null,
+                translated: { name: '10mm', position: 2, customFields: [] },
+                id: 'opt-2',
+            },
+            {
+                groupId: 'group-1',
+                name: '2mm',
+                position: 3,
+                colorHexCode: null,
+                translated: { name: '2mm', position: 3, customFields: [] },
+                id: 'opt-3',
+            },
+        ];
+
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            propertyGroup: {
+                ...propertyGroup,
+                options: numericOptions,
+            },
+        });
+        await flushPromises();
+
+        const columns = wrapper.vm.getGroupColumns();
+        const nameColumn = columns.find((c) => c.property === 'name');
+
+        expect(nameColumn).toBeTruthy();
+        expect(nameColumn.naturalSorting).toBe(true);
+    });
 });

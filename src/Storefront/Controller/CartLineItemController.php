@@ -236,7 +236,6 @@ class CartLineItemController extends StorefrontController
                 return $this->createActionResponse($request);
             }
 
-            /** @var string $productId */
             $productId = array_shift($data);
 
             $product = $this->productLineItemFactory->create(['id' => $productId, 'referencedId' => $productId], $context);

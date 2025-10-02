@@ -37,7 +37,6 @@ final class FeatureDisableCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var array<string> $featuresToDisable */
         $featuresToDisable = array_unique($input->getArgument('features'));
 
         foreach ($featuresToDisable as $feature) {

@@ -1,8 +1,8 @@
-import CMS from '../../../constant/sw-cms.constant';
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
 const { Mixin, Filter } = Shopware;
+const { CMS } = Shopware.Constants;
 
 /**
  * @private

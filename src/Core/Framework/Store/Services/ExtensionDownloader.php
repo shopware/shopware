@@ -10,10 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -21,8 +19,6 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('checkout')]
 class ExtensionDownloader
 {
-    private readonly string $relativePluginDir;
-
     /**
      * @param EntityRepository<PluginCollection> $pluginRepository
      */
@@ -30,10 +26,7 @@ class ExtensionDownloader
         private readonly EntityRepository $pluginRepository,
         private readonly StoreClient $storeClient,
         private readonly PluginManagementService $pluginManagementService,
-        string $pluginDir,
-        string $projectDir
     ) {
-        $this->relativePluginDir = (new Filesystem())->makePathRelative($pluginDir, $projectDir);
     }
 
     public function download(string $technicalName, Context $context): PluginDownloadDataStruct
@@ -43,14 +36,14 @@ class ExtensionDownloader
 
         $plugin = $this->pluginRepository->search($criteria, $context)->getEntities()->first();
 
-        if ($plugin !== null && $plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
+        if ($plugin !== null && $plugin->getManagedByComposer() && !$plugin->isLocatedInCustomPluginDirectory()) {
             throw StoreException::cannotDeleteManaged($plugin->getName());
         }
 
         try {
             $data = $this->storeClient->getDownloadDataForPlugin($technicalName, $context);
         } catch (ClientException $e) {
-            throw new StoreApiException($e);
+            throw StoreException::storeError($e);
         }
 
         $this->pluginManagementService->downloadStorePlugin($data, $context);

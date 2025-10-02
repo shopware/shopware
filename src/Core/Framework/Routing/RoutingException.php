@@ -18,6 +18,8 @@ class RoutingException extends HttpException
 
     public const CUSTOMER_NOT_LOGGED_IN_CODE = 'FRAMEWORK__ROUTING_CUSTOMER_NOT_LOGGED_IN';
     public const ACCESS_DENIED_FOR_XML_HTTP_REQUEST = 'FRAMEWORK__ACCESS_DENIED_FOR_XML_HTTP_REQUEST';
+    public const CURRENCY_NOT_FOUND = 'FRAMEWORK__ROUTING_CURRENCY_NOT_FOUND';
+    public const MISSING_PRIVILEGE = 'FRAMEWORK__ROUTING_MISSING_PRIVILEGE';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -80,6 +82,33 @@ class RoutingException extends HttpException
             self::ACCESS_DENIED_FOR_XML_HTTP_REQUEST,
             $message,
             ['route' => $route, 'url' => $url, 'referer' => $referer]
+        );
+    }
+
+    public static function currencyNotFound(string $currencyId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CURRENCY_NOT_FOUND,
+            'Currency with id "{{ currencyId }}" not found.',
+            ['currencyId' => $currencyId]
+        );
+    }
+
+    /**
+     * @param string[] $privileges
+     */
+    public static function missingPrivileges(array $privileges): self
+    {
+        $errorMessage = json_encode([
+            'message' => 'Missing privilege',
+            'missingPrivileges' => $privileges,
+        ], \JSON_THROW_ON_ERROR);
+
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MISSING_PRIVILEGE,
+            $errorMessage ?: ''
         );
     }
 }

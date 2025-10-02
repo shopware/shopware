@@ -148,7 +148,7 @@ class ChangelogProcessor
 
     protected function getMajorVersion(string $version): string
     {
-        return substr($version, 0, (int) strpos($version, '.', strpos($version, '.') + \strlen('.')));
+        return substr($version, 0, (int) strpos($version, '.', (int) strpos($version, '.') + \strlen('.')));
     }
 
     /**

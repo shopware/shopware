@@ -126,6 +126,10 @@ async function createWrapper(activeTab = 'content') {
                             source: 'static',
                             value: false,
                         },
+                        useFetchPriorityOnFirstItem: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },

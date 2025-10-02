@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -371,7 +372,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
     private function getExistingTaxId(): string
     {
-        /** @var EntityRepository $taxRepository */
+        /** @var EntityRepository<TaxCollection> $taxRepository */
         $taxRepository = static::getContainer()->get('tax.repository');
 
         $criteria = new Criteria();

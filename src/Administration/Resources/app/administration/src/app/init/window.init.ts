@@ -38,4 +38,14 @@ export default function initializeWindow(): void {
             replace: replace ?? false,
         });
     });
+
+    Shopware.ExtensionAPI.handle('windowRouterGetPath', () => {
+        const $router = Shopware.Application.view?.router as unknown as Router;
+
+        if (!$router) {
+            return '';
+        }
+
+        return $router.currentRoute?.value?.fullPath || '';
+    });
 }

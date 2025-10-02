@@ -531,6 +531,6 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $file->next();
         }
 
-        return trim((string) $content);
+        return trim($content);
     }
 }

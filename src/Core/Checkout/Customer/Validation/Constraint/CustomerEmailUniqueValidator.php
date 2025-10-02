@@ -60,7 +60,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
             return;
         }
 
-        $this->context->buildViolation($constraint->message)
+        $this->context->buildViolation($constraint->getMessage())
             ->setParameter('{{ email }}', $this->formatValue($value))
             ->setCode(CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE)
             ->addViolation();

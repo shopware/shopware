@@ -4,7 +4,8 @@
 import 'src/module/sw-cms/service/cms.service';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import Entity from 'src/core/data/entity.data';
-import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
+
+const { CMS } = Shopware.Constants;
 
 describe('module/sw-cms/service/cms.service.spec.js', () => {
     const cmsService = Shopware.Service('cmsService');

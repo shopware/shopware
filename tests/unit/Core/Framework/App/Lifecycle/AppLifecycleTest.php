@@ -75,7 +75,10 @@ class AppLifecycleTest extends TestCase
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository->expects($this->never())->method('upsert');
 
-        $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, new StaticSourceResolver());
+        /** @var StaticEntityRepository<LanguageCollection> */
+        $languageRepository = new StaticEntityRepository([]);
+
+        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, null, new StaticSourceResolver());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
@@ -90,7 +93,10 @@ class AppLifecycleTest extends TestCase
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository->expects($this->never())->method('upsert');
 
-        $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, new StaticSourceResolver());
+        /** @var StaticEntityRepository<LanguageCollection> */
+        $languageRepository = new StaticEntityRepository([]);
+
+        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, null, new StaticSourceResolver());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
@@ -99,6 +105,7 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallSavesSnippetsGiven(): void
     {
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -154,6 +161,7 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallSavesNoSnippetsGiven(): void
     {
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -200,6 +208,7 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateSavesNoSnippetsGiven(): void
     {
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -244,6 +253,7 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateSavesSnippets(): void
     {
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -300,6 +310,7 @@ class AppLifecycleTest extends TestCase
     {
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/config', __DIR__ . '/../_fixtures/Resources/noconfighere');
 
+        /** @var StaticEntityRepository<LanguageCollection> */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
                 'id' => Uuid::randomHex(),
@@ -344,6 +355,10 @@ class AppLifecycleTest extends TestCase
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/noconfighere', __DIR__ . '/../_fixtures/Resources/config');
     }
 
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
+     */
     private function getAppLifecycle(
         EntityRepository $appRepository,
         EntityRepository $languageRepository,

@@ -260,7 +260,7 @@ class NavigationController extends StorefrontController
                 ],
                 [
                     'id' => '123',
-                    'component' => 'SW:Product:Listing',
+                    'component' => 'Sw:Product:Listing',
                     'properties' => [
                         'listing' => $listingData
                     ],

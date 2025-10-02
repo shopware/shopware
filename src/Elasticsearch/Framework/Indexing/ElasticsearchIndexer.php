@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexingFinishedEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -129,12 +130,12 @@ class ElasticsearchIndexer
             return $this->createIndexingMessage($offset);
         }
 
-        // increment last id with iterator offset
-        $offset->setLastId($iterator->getOffset());
-
         $alias = $this->helper->getIndexName($definition->getEntityDefinition());
 
         $index = $alias . '_' . $offset->getTimestamp();
+
+        // increment last id with iterator offset
+        $offset->setLastId($iterator->getOffset());
 
         // return indexing message for current offset
         return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
@@ -276,12 +277,20 @@ class ElasticsearchIndexer
 
         $result = $this->client->bulk($arguments);
 
+        $exception = null;
+
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
+            $exception = ElasticsearchException::indexingError($errors);
+        }
 
-            $this->helper->logAndThrowException(
-                ElasticsearchException::indexingError($errors)
-            );
+        if ($message->isLastMessage()) {
+            $event = new ElasticsearchIndexingFinishedEvent();
+            $this->eventDispatcher->dispatch($event);
+        }
+
+        if ($exception) {
+            $this->helper->logAndThrowException($exception);
         }
     }
 

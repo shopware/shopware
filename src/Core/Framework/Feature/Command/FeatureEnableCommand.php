@@ -37,7 +37,6 @@ final class FeatureEnableCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var array<string> $featuresToEnable */
         $featuresToEnable = array_unique($input->getArgument('features'));
 
         foreach ($featuresToEnable as $feature) {

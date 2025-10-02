@@ -116,7 +116,6 @@ class ElasticsearchFieldBuilder
         ];
 
         foreach ($fieldMapping as $name => $type) {
-            /** @var array<mixed> $esType */
             $esType = CustomFieldUpdater::getTypeFromCustomFieldType($type);
 
             $mapping['properties'][$name] = $esType;

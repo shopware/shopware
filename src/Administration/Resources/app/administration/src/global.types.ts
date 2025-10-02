@@ -28,6 +28,7 @@ import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
+import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type {
@@ -136,6 +137,11 @@ import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
 // eslint-disable-next-line max-len
 import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
+import type SsoSettingsService from './core/service/api/sso-settings.service';
+import type SsoInvitationService from './core/service/api/sso-invitation.service';
+import type CMSConstant from './module/sw-cms/constant/sw-cms.constant';
+import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.constant';
+import type FLOWConstant from './module/sw-flow/constant/flow.constant';
 
 // trick to make it an "external module" to support global type extension
 
@@ -191,6 +197,12 @@ declare global {
     type Remove<T, K extends keyof T> = T & { [P in K]?: never };
 
     interface CustomShopwareProperties {}
+
+    interface CustomShopwareConstants {
+        CMS: typeof CMSConstant;
+        CUSTOMER: typeof CUSTOMERConstant;
+        FLOW: typeof FLOWConstant;
+    }
 
     /**
      * Make the Shopware object globally available
@@ -281,6 +293,9 @@ declare global {
         userService: UserApiService;
         userConfigService: UserConfigService;
         validationService: $TSFixMe;
+        ssoSettingsService: SsoSettingsService;
+        ssoInvitationService: SsoInvitationService;
+        shopIdChangeService: ShopIdChangeService;
     }
 
     interface MixinContainer {

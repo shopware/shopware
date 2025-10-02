@@ -1,0 +1,130 @@
+<sw-modal
+    class="sw-app-shop-id-change-modal"
+    variant="large"
+    :title="$t('sw-app.component.sw-app-shop-id-change-modal.title')"
+    :is-loading="isLoading"
+    @modal-close="closeModal"
+>
+    <template #default>
+        <section class="sw-app-shop-id-change-modal__content-description">
+            <p>{{ $t('sw-app.component.sw-app-shop-id-change-modal.description.explanation') }}</p>
+
+            <mt-banner
+                variant="neutral"
+                icon="regular-info-circle"
+                :title="$t('sw-app.component.sw-app-shop-id-change-modal.description.shopId.title')"
+            >
+                {{ $t('sw-app.component.sw-app-shop-id-change-modal.description.shopId.explanation') }}
+            </mt-banner>
+        </section>
+
+        <section
+            v-if="shopIdCheck.apps.length > 0"
+            class="sw-app-shop-id-change-modal__content-apps"
+        >
+            <h4>{{ $t('sw-app.component.sw-app-shop-id-change-modal.affectedApps') }}</h4>
+
+            {{ shopIdCheck.apps.join(', ') }}
+        </section>
+
+        <section class="sw-app-shop-id-change-modal__content-fingerprints">
+            <h4>{{ $t('sw-app.component.sw-app-shop-id-change-modal.detectedChanges') }}</h4>
+
+            <div class="sw-app-shop-id-change-modal__content-fingerprint-items">
+                <div
+                    v-for="fingerprint in shopIdCheck.fingerprints.mismatchingFingerprints"
+                    :key="fingerprint.identifier"
+                    class="sw-app-shop-id-change-modal__content-fingerprint-item"
+                >
+                    <span class="sw-app-shop-id-change-modal__content-fingerprint-item-title">
+                        {{ getHumanReadableFingerprintName(fingerprint.identifier) }}
+                        <sw-help-text
+                            v-if="getFingerprintDescription(fingerprint.identifier)"
+                            :text="getFingerprintDescription(fingerprint.identifier)"
+                        />
+                    </span>
+
+                    <dl>
+                        <dt>{{ $t('sw-app.component.sw-app-shop-id-change-modal.oldValue') }}</dt>
+                        <dd>
+                            <mt-icon
+                                name="solid-minus-circle"
+                                color="var(--color-icon-critical-default)"
+                                size="14px"
+                            /> {{ fingerprint.storedStamp }}
+                        </dd>
+
+                        <dt>{{ $t('sw-app.component.sw-app-shop-id-change-modal.newValue') }}</dt>
+                        <dd>
+                            <mt-icon
+                                name="solid-plus-circle"
+                                color="var(--color-icon-positive-default)"
+                                size="14px"
+                            /> {{ fingerprint.expectedStamp }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <section class="sw-app-shop-id-change-modal__content-choices">
+            <h4>{{ $t('sw-app.component.sw-app-shop-id-change-modal.selectAnOption') }}</h4>
+
+            <template
+                v-for="(strategy, index) in strategies"
+                :key="`content-strategies-${index}`"
+            >
+                <mt-button
+                    class="sw-app-shop-id-change-modal__button-strategy"
+                    :class="getActiveStyle(strategy)"
+                    variant="secondary"
+                    @click="setSelectedStrategy(strategy)"
+                >
+                    <div class="sw-app-shop-id-change-modal__content-migration-strategy">
+                        <template v-if="isSelected(strategy)">
+                            <mt-icon
+                                size="1rem"
+                                color="var(--color-icon-brand-default)"
+                                name="regular-circle-xxs"
+                            />
+                            <mt-icon
+                                size="1rem"
+                                color="var(--color-elevation-surface-raised)"
+                                name="regular-circle"
+                            />
+                        </template>
+                        <mt-icon
+                            v-else
+                            size="1rem"
+                            name="regular-circle"
+                        />
+
+                        <span class="sw-app-shop-id-change-modal__content-choices-label">
+                            {{ getStrategyLabel(strategy) }}
+                        </span>
+
+                        <span class="sw-app-shop-id-change-modal__content-choices-description">
+                            {{ getStrategyDescription(strategy) }}
+                        </span>
+                    </div>
+                </mt-button>
+            </template>
+        </section>
+    </template>
+
+    <template #modal-footer>
+        <mt-button
+            variant="secondary"
+            @click="closeModal"
+        >
+            {{ $t('sw-app.component.sw-app-shop-id-change-modal.remindMeLater') }}
+        </mt-button>
+
+        <mt-button
+            variant="primary"
+            @click="confirm"
+        >
+            {{ $t('global.default.confirm') }}
+        </mt-button>
+    </template>
+</sw-modal>

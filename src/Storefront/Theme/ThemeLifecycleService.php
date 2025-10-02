@@ -198,7 +198,7 @@ class ThemeLifecycleService
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
         $criteria->setLimit(1);
 
-        /** @var array<string> $defaultFolderIds */
+        /** @var list<string> $defaultFolderIds */
         $defaultFolderIds = $this->mediaFolderRepository->searchIds($criteria, $context)->getIds();
 
         return \count($defaultFolderIds) === 1 ? $defaultFolderIds[0] : null;
@@ -575,8 +575,7 @@ class ThemeLifecycleService
             ) {
                 continue;
             }
-            /** @var string $lastNotSameTheme */
-            $lastNotSameTheme = str_replace('@', '', (string) $themeName);
+            $lastNotSameTheme = str_replace('@', '', $themeName);
         }
 
         if ($lastNotSameTheme !== null) {

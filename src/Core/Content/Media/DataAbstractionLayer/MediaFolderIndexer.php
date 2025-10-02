@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -27,6 +28,8 @@ class MediaFolderIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaFolderCollection> $folderRepository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

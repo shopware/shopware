@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class GrantDownloadAccessAction extends FlowAction implements DelayableAction
 {
+    /**
+     * @param EntityRepository<OrderLineItemDownloadCollection> $orderLineItemDownloadRepository
+     */
     public function __construct(private readonly EntityRepository $orderLineItemDownloadRepository)
     {
     }
@@ -71,7 +74,6 @@ class GrantDownloadAccessAction extends FlowAction implements DelayableAction
                 continue;
             }
 
-            /** @var OrderLineItemDownloadEntity $download */
             foreach ($lineItem->getDownloads() as $download) {
                 $downloadIds[] = $download->getId();
                 $download->setAccessGranted((bool) $config['value']);

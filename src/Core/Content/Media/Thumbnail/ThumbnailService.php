@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -158,14 +157,8 @@ class ThumbnailService
 
         foreach ($toBeCreatedSizes as $thumbnailSize) {
             foreach ($toBeDeletedThumbnails as $thumbnail) {
-                if (Feature::isActive('v6.8.0.0')) {
-                    if ($thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
-                        continue;
-                    }
-                } else {
-                    if ($thumbnail->getMediaThumbnailSizeId() && $thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
-                        continue;
-                    }
+                if ($thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
+                    continue;
                 }
 
                 if ($strict === true && !$this->getFileSystem($media)->fileExists($thumbnail->getPath())) {
@@ -277,18 +270,15 @@ class ThumbnailService
                     $fileSystem->write($path, $fileSystem->read($media->getPath()));
                 }
 
-                imagedestroy($thumbnail);
-
-                $event->thumbnail(
+                $event->thumbnailWithMimeType(
                     mediaId: $media->getId(),
                     thumbnailId: $id,
                     path: $path,
+                    mimeType: $media->getMimeType()
                 );
             }
 
             $this->dispatcher->dispatch($event);
-
-            imagedestroy($image);
         } finally {
             return $records;
         }

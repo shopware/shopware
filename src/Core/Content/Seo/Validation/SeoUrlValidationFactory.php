@@ -31,10 +31,10 @@ class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface
         $fkConstraints = [new NotBlank()];
 
         if ($routeConfig) {
-            $fkConstraints[] = new EntityExists([
-                'entity' => $routeConfig->getDefinition()->getEntityName(),
-                'context' => $context,
-            ]);
+            $fkConstraints[] = new EntityExists(
+                entity: $routeConfig->getDefinition()->getEntityName(),
+                context: $context,
+            );
         }
 
         $definition
@@ -42,9 +42,9 @@ class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface
             ->add('routeName', new NotBlank(), new Type('string'))
             ->add('pathInfo', new NotBlank(), new Type('string'))
             ->add('seoPathInfo', new NotBlank(), new Type('string'))
-            ->add('salesChannelId', new NotBlank(), new EntityExists([
-                'entity' => SalesChannelDefinition::ENTITY_NAME,
-                'context' => $context,
-            ]));
+            ->add('salesChannelId', new NotBlank(), new EntityExists(
+                entity: SalesChannelDefinition::ENTITY_NAME,
+                context: $context,
+            ));
     }
 }

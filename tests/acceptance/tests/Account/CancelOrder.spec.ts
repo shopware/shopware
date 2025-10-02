@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'Customers are able to cancel orders in storefront account.',
-    { tag: '@Order @Account' },
+    { tag: ['@Order', '@Account', '@Storefront'] },
     async ({ ShopCustomer, StorefrontAccountOrder, TestDataService, Login, Translate }) => {
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
@@ -43,7 +43,7 @@ test(
 
 test(
     'Customers are able to cancel orders on the final checkout page in storefront account.',
-    { tag: '@Order @Account' },
+    { tag: ['@Order', '@Account', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountOrder,
@@ -85,7 +85,7 @@ test(
 
 test(
     'Customers are not able to cancel orders on the final checkout page in storefront account.',
-    { tag: '@Order @Account' },
+    { tag: ['@Order', '@Account', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountOrder,
@@ -114,7 +114,7 @@ test(
 
 test(
     'Customers are not able to cancel orders in storefront account.',
-    { tag: '@Order @Account' },
+    { tag: ['@Order', '@Account', '@Storefront'] },
     async ({ ShopCustomer, StorefrontAccountOrder, TestDataService, Login, Translate }) => {
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();

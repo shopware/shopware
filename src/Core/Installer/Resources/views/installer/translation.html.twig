@@ -39,6 +39,7 @@
 
         async function startInstallation() {
             try {
+                document.getElementById('language').disabled = true;
                 const response = await fetch('{{ url('installer.translation-run') }}', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -76,6 +77,7 @@
                 </div>
             `;
 
+            document.getElementById('language').disabled = false;
             const nextButton = document.getElementById('next');
             nextButton.classList.remove('disabled');
             nextButton.href = '{{ url('installer.finish', {'completed': true}) }}';

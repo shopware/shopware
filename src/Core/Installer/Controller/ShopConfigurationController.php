@@ -150,12 +150,24 @@ class ShopConfigurationController extends InstallerController
         $parameters = $request->request->all();
         $parameters['config_shop_currency'] ??= $preselection[$locale]['currency'] ?? 'EUR';
 
+        $languageIsos = $this->supportedLanguages;
+        $languageIsos['de-CH'] = [
+            'id' => 'de-CH',
+            'label' => 'Deutsch (Schweiz)',
+        ];
+
+        $languageIsos['de-AT'] = [
+            'id' => 'de-AT',
+            'label' => 'Deutsch (Österreich)',
+        ];
+        ksort($languageIsos);
+
         return $this->renderInstaller(
             '@Installer/installer/shop-configuration.html.twig',
             [
                 'error' => $error,
                 'countryIsos' => $this->getCountryIsos($connection, $locale),
-                'languageIsos' => $this->supportedLanguages,
+                'languageIsos' => $languageIsos,
                 'allAvailableLanguages' => $this->getAllAvailableLanguages(),
                 'currencyIsos' => $this->supportedCurrencies,
                 'parameters' => $parameters,

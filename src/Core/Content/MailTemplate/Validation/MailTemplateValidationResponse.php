@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\MailTemplate\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('after-sales')]
 abstract class MailTemplateValidationResponse extends Struct
 {
     final public const LEVEL_ERROR = 'error';

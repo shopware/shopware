@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('fundamentals@after-sales')]
 class MixedType extends EventDataType
 {
     final public const TYPE = 'mixed';

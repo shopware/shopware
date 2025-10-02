@@ -47,14 +47,4 @@ class ScalarValuesStorer extends FlowStorer
             $storable->setData($key, $value);
         }
     }
-
-    private function filterValues(array $values, array $valueMapping): array
-    {
-        $filteredValues = [];
-
-        for ($idx = 0; $idx < \count($values); ++$idx) {
-            if (\is_array($value)) {
-            }
-        }
-    }
 }

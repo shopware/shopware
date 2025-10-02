@@ -2,16 +2,20 @@
 
 namespace Shopware\Core\Content\MailTemplate\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('after-sales')]
 class MailTemplateValidationWarning extends MailTemplateValidationResponse
 {
     final public const TYPE_COMPLEX_ELEMENT = 'complexElement';
 
+    /**
+     * @param array<string, string> $config
+     */
     public function __construct(
         private readonly DataValidator $dataValidator,
         private readonly string $type,

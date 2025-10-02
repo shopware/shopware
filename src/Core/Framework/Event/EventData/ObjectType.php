@@ -12,7 +12,7 @@ class ObjectType extends EventDataType
     /**
      * @var array<string, EventDataType>
      */
-    private ?array $data = [];
+    private array $data = [];
 
     public function add(string $name, EventDataType $type): self
     {

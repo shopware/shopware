@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationError;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationResponse;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateValidationWarning;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -38,7 +40,7 @@ class MailTemplateService
     }
 
     /**
-     * @return MailTemplateValidationError[]
+     * @return MailTemplateValidationResponse[]
      */
     public function validateTemplate(string $mailTemplate, EventDataCollection $availableVariables): array
     {
@@ -57,7 +59,9 @@ class MailTemplateService
     }
 
     /**
-     * @return MailTemplateValidationError[]
+     * @param array<string, string> $usedVariables
+     *
+     * @return MailTemplateValidationResponse[]
      */
     public function validateVariables(array $usedVariables, EventDataCollection $availableVariables): array
     {
@@ -86,11 +90,9 @@ class MailTemplateService
                 continue;
             }
 
-            $nestedAvVars = $availableVariables;
+            $nestedAvVars = $availableVariables->get($varParts[0]);
 
             for ($i = 0; $i < \count($varParts); ++$i) {
-                $nestedAvVars = $nestedAvVars->get($varParts[$i]);
-
                 if (!$nestedAvVars) {
                     $errors[] = new MailTemplateValidationError(
                         $this->dataValidator,
@@ -100,7 +102,7 @@ class MailTemplateService
                     break;
                 }
 
-                if ($i === \count($varParts) - 1) {
+                if ($nestedAvVars instanceof ScalarValueType && $i === \count($varParts) - 1) {
                     break;
                 }
 
@@ -118,6 +120,16 @@ class MailTemplateService
                 }
 
                 if ($nestedAvVars instanceof ArrayType) {
+                    if ($i === \count($varParts) - 1) {
+                        if (!($nestedAvVars->getType() instanceof ScalarValueType)) {
+                            $errors[] = new MailTemplateValidationWarning(
+                                $this->dataValidator,
+                                MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
+                                ['variable' => $var]
+                            );
+                        }
+                        break;
+                    }
                     if (!($varParts[$i + 1] === 'first' || $varParts[$i + 1] === 'last' || \is_numeric($varParts[$i + 1]))) {
                         $errors[] = new MailTemplateValidationError(
                             $this->dataValidator,
@@ -132,12 +144,29 @@ class MailTemplateService
                     $varParts = \array_values($varParts);
                     $nestedAvVars = $nestedAvVars->getType();
                 }
+
+                if ($nestedAvVars instanceof ObjectType) {
+                   $nestedAvVars = $nestedAvVars->get($varParts[$i + 1]);
+                   continue;
+                }
+
+                $errors[] = new MailTemplateValidationError(
+                    $this->dataValidator,
+                    MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
+                    ['variable' => $var]
+                );
+                break;
             }
         }
 
         return $errors;
     }
 
+    /**
+     * @param MailTemplateValidationResponse[] $errors
+     *
+     * @return MailTemplateValidationResponse[]
+     */
     private function validateEntityField(string $fieldName, string $prefix, string $entityDefinition, array $errors): array
     {
         $parts = \explode('.', $fieldName);

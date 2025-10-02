@@ -12,6 +12,7 @@ use Twig\Node\Expression\GetAttrExpression;
 use Twig\Node\Expression\NameExpression;
 use Twig\Node\Expression\Variable\AssignContextVariable;
 use Twig\Node\ForNode;
+use Twig\Node\ModuleNode;
 use Twig\Node\Node;
 use Twig\Node\Nodes;
 use Twig\Node\SetNode;
@@ -28,7 +29,7 @@ class TwigVariableParser
     }
 
     /**
-     * @return array<mixed>
+     * @return string[]
      */
     public function parse(string $template): array
     {
@@ -44,7 +45,7 @@ class TwigVariableParser
     }
 
     /**
-     * @param array<Nodes> $nodes
+     * @param Node|Node[]|array<int, Node> $nodes
      * @param array<string, string> $aliases
      *
      * @return array<string,string>

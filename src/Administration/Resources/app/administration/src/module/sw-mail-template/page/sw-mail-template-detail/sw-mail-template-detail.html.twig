@@ -391,20 +391,20 @@
                         <hr class="sw-mail-template-detail__available-variables-sidebar-divider">
 
                         {% block sw_mail_template_available_variables_tree %}
-                            <sw-tree
-                                class="sw-mail-template-detail__available-variables-sidebar-container__tree"
-                                :searchable="false"
-                                :disable-context-menu="true"
-                                :on-change-route="() => { return false; }"
-                                :items="loadedAvailableVariables"
-                                :sortable="false"
-                                @get-tree-items="onGetTreeItems"
-                            >
-                                {% block sw_mail_template_available_variables_tree_headline %}
-                                    <template #headline>
-                                        <span></span>
-                                    </template>
-                                {% endblock %}
+                        <sw-tree
+                            class="sw-mail-template-detail__available-variables-sidebar-container__tree"
+                            :searchable="false"
+                            :disable-context-menu="true"
+                            :on-change-route="() => { return false; }"
+                            :items="loadedAvailableVariables"
+                            :sortable="false"
+                            @get-tree-items="onGetTreeItems"
+                        >
+                            {% block sw_mail_template_available_variables_tree_headline %}
+                            <template #headline>
+                                <span></span>
+                            </template>
+                            {% endblock %}
 
                         {% block sw_mail_template_available_variables_tree_items %}
                         <template
@@ -426,26 +426,26 @@
                                 </template>
                                 {% endblock %}
 
-                                                {% block sw_mail_template_available_variables_tree_items_item_actions %}
-                                                    <template #actions="{ item }">
-                                                        <mt-icon
-                                                            v-if="item.childCount === 0"
-                                                            v-tooltip="{
-                                            message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
-                                            width: 150,
-                                            position: 'bottom'
-                                        }"
-                                                            name="regular-products-s"
-                                                            class="sw-mail-template-detail__copy_icon"
-                                                            @click="onCopyVariable(item.id)"
-                                                        />
-                                                    </template>
-                                                {% endblock %}
-                                            </sw-tree-item>
-                                        {% endblock %}
+                                    {% block sw_mail_template_available_variables_tree_items_item_actions %}
+                                    <template #actions="{ item }">
+                                        <mt-icon
+                                            v-if="item.childCount === 0"
+                                            v-tooltip="{
+                                                message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
+                                                width: 150,
+                                                position: 'bottom'
+                                            }"
+                                            name="regular-products-s"
+                                            class="sw-mail-template-detail__copy_icon"
+                                            @click="onCopyVariable(item.id)"
+                                        />
                                     </template>
+                                    {% endblock %}
+                                </sw-tree-item>
                                 {% endblock %}
-                            </sw-tree>
+                            </template>
+                            {% endblock %}
+                        </sw-tree>
                         {% endblock %}
                     </div>
                 </div>

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;

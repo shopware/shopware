@@ -248,7 +248,11 @@ class EntityDefinitionQueryHelper
             $test = \implode('.', $fieldNameParts);
             $translationDefinition = $definition->getTranslationDefinition();
 
-            return self::getField($test, $translationDefinition, $translationDefinition::ENTITY_NAME ?? '');
+            if (!$translationDefinition) {
+                return null;
+            }
+
+            return self::getField($test, $translationDefinition, $translationDefinition->getEntityName());
         }
         if ($field instanceof TranslatedField) {
             if ($isAssociation) {

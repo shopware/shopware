@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;

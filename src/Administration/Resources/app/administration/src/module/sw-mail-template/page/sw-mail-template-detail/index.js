@@ -248,6 +248,14 @@ export default {
                     .map(event => ({
                     ...event,
                     label: event.name.split('.').map(eventName => this.getEventNameTranslated(eventName)).join(' / '),
+                    data: {
+                        ...event.data,
+                        'salesChannel': {
+                            nullable: true,
+                            type: 'entity',
+                            entityName: 'sales_channel',
+                        },
+                    },
                 }));
             });
         },

@@ -362,21 +362,49 @@
                 class="sw-mail-template-detail__show-available-variables"
             >
                 <div class="sw-mail-template-detail__available-variables-sidebar-container">
-                    {% block sw_mail_template_available_variables_tree %}
-                    <sw-tree
-                        class="sw-mail-template-detail__available-variables-sidebar-container__tree"
-                        :searchable="false"
-                        :disable-context-menu="true"
-                        :on-change-route="() => { return false; }"
-                        :items="loadedAvailableVariables"
-                        :sortable="false"
-                        @get-tree-items="onGetTreeItems"
+                    <mt-select
+                        value-property="name"
+                        class="sw-mail-template-detail__available-variables-sidebar-trigger-select"
+                        :label="$tc('sw-mail-template.detail.sidebar.buttonValidation')"
+                        :model-value="triggerEvent"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
                     >
-                        {% block sw_mail_template_available_variables_tree_headline %}
-                        <template #headline>
-                            <span></span>
+                        <template #hint>
+                            <div class="sw-mail-template-detail__field-hint">
+                                <div class="sw-mail-template-detail__field-hint-icon-container">
+                                    <mt-icon
+                                        size="12"
+                                        name="solid-info-circle"
+                                        class="sw-mail-template-detail__field-hint-icon"
+                                    />
+                                </div>
+                                <p>{{ $tc('sw-mail-template.detail.sidebar.hintAvailableVariables') }}</p>
+                            </div>
                         </template>
-                        {% endblock %}
+                    </mt-select>
+
+                    <div
+                        v-if="loadedAvailableVariables.length > 0"
+                        class="sw-mail-template-detail__available-variables-sidebar-tree-container"
+                    >
+                        <hr class="sw-mail-template-detail__available-variables-sidebar-divider">
+
+                        {% block sw_mail_template_available_variables_tree %}
+                            <sw-tree
+                                class="sw-mail-template-detail__available-variables-sidebar-container__tree"
+                                :searchable="false"
+                                :disable-context-menu="true"
+                                :on-change-route="() => { return false; }"
+                                :items="loadedAvailableVariables"
+                                :sortable="false"
+                                @get-tree-items="onGetTreeItems"
+                            >
+                                {% block sw_mail_template_available_variables_tree_headline %}
+                                    <template #headline>
+                                        <span></span>
+                                    </template>
+                                {% endblock %}
 
                         {% block sw_mail_template_available_variables_tree_items %}
                         <template
@@ -398,27 +426,28 @@
                                 </template>
                                 {% endblock %}
 
-                                {% block sw_mail_template_available_variables_tree_items_item_actions %}
-                                <template #actions="{ item }">
-                                    <mt-icon
-                                        v-if="item.childCount === 0"
-                                        v-tooltip="{
+                                                {% block sw_mail_template_available_variables_tree_items_item_actions %}
+                                                    <template #actions="{ item }">
+                                                        <mt-icon
+                                                            v-if="item.childCount === 0"
+                                                            v-tooltip="{
                                             message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
                                             width: 150,
                                             position: 'bottom'
                                         }"
-                                        name="regular-products-s"
-                                        class="sw-mail-template-detail__copy_icon"
-                                        @click="onCopyVariable(item.id)"
-                                    />
-                                </template>
+                                                            name="regular-products-s"
+                                                            class="sw-mail-template-detail__copy_icon"
+                                                            @click="onCopyVariable(item.id)"
+                                                        />
+                                                    </template>
+                                                {% endblock %}
+                                            </sw-tree-item>
+                                        {% endblock %}
+                                    </template>
                                 {% endblock %}
-                            </sw-tree-item>
-                            {% endblock %}
-                        </template>
+                            </sw-tree>
                         {% endblock %}
-                    </sw-tree>
-                    {% endblock %}
+                    </div>
                 </div>
             </sw-sidebar-item>
             {% endblock %}
@@ -480,7 +509,7 @@
                         </mt-select>
 
                         <mt-button
-                            class="sw-mail-template-detail__send-test-mail"
+                            class="sw-mail-template-detail__validate-mail-template"
                             variant="secondary"
                             :disabled="!isValidationLoading && !triggerEvent"
                             @click="onClickValidateMailTemplate"
@@ -490,7 +519,7 @@
                     </div>
 
                     <div
-                        v-if="!isValidationLoading && validationErrors !== null"
+                        v-if="validationErrors !== null"
                         class="sw-mail-template-detail__validation-sidebar-result"
                     >
                         <hr class="sw-mail-template-detail__validation-sidebar-result-divider">
@@ -523,7 +552,11 @@
                                 >
                                     ({{ error.hint }})
                                 </p>
-                                {{ error.message }}
+                                <p
+                                    class="sw-mail-template-detail__validation-sidebar-result-error-element-message"
+                                >
+                                    {{ error.message }}
+                                </p>
                             </mt-banner>
                         </div>
                         <div

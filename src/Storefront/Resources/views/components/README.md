@@ -78,7 +78,7 @@ The only thing you have to do though is to register your component class as a se
 
 Now your component is all set up and ready to go. You can directly access it in the template under the given name and namespace.
 
-**Note:** Be carefull with adding too much business logic inside component classes. At Shopware we mostly implement anonymous components that are pure frontend representaions which get passed all necessary data via properties. 
+**Note:** Be careful with adding too much business logic inside component classes. At Shopware we mostly implement anonymous components that are pure frontend representaions which get passed all necessary data via properties. 
 
 
 ## Adding components via Shopware extension

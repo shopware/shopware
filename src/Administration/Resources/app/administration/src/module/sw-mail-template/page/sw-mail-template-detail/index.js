@@ -476,7 +476,7 @@ export default {
                 case 'arrayAccess':
                 case 'unknownVariable':
                 case 'complexElement':
-                    message = {'variable': validationError.variable, 'path': validationError.path};
+                    message = {'variable': validationError.variable};
                     break;
                 case 'syntax':
                     message = {'message': validationError.message};

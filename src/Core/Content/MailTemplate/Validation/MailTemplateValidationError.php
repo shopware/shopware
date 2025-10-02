@@ -52,7 +52,6 @@ class MailTemplateValidationError extends MailTemplateValidationResponse
         $definition = new DataValidationDefinition('variable');
 
         $definition->add('variable', new NotBlank(), new Type('string'));
-        $definition->add('path', new Optional([new NotBlank(), new Type('string')]));
 
         return $definition;
     }

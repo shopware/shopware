@@ -117,8 +117,6 @@ export class Telemetry {
                 }
 
                 this.dispatchEvent('link_visited', {
-                    target: target,
-                    originalEvent: event,
                     href: target.getAttribute('href') ?? '',
                     linkType: target.getAttribute('target') === '_blank' ? 'external' : 'internal',
                 });

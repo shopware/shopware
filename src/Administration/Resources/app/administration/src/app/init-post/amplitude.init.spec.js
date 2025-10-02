@@ -45,7 +45,11 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             [
                 new TelemetryEvent('page_change', {
                     from: { name: 'sw.dashboard.index', path: '/sw/dashboard/index' },
-                    to: { name: 'sw.product.index', path: '/sw/product/index', fullPath: '/sw-product/index?order=asc&page=1&limit=50' },
+                    to: {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        fullPath: '/sw-product/index?order=asc&page=1&limit=50',
+                    },
                 }),
                 {
                     eventName: 'Page Viewed',
@@ -54,7 +58,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                         sw_route_from_href: '/sw/dashboard/index',
                         sw_route_to_name: 'sw.product.index',
                         sw_route_to_href: '/sw/product/index',
-                        sw_route_to_query: 'order=asc&page=1&limit=50'
+                        sw_route_to_query: 'order=asc&page=1&limit=50',
                     },
                 },
             ],
@@ -62,20 +66,12 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                 new TelemetryEvent('link_visited', {
                     href: 'https://example.com',
                     linkType: 'external',
-                    target: (() => {
-                        const fakeLink = document.createElement('a');
-                        fakeLink.textContent = 'Read more';
-
-                        return fakeLink;
-                    })(),
-                    originalEvent: new Event('click'),
                 }),
                 {
                     eventName: 'Link Visited',
                     properties: {
-                        sw_link_href: 'https://example.com',
-                        sw_link_type: 'external',
-                        sw_link_label: 'Read more',
+                        href: 'https://example.com',
+                        link_type: 'external',
                     },
                 },
             ],

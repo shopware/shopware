@@ -195,8 +195,6 @@ describe('src/core/telemetry/index.js', () => {
                 eventData: {
                     href: '/test-page',
                     linkType: 'external',
-                    target: link,
-                    originalEvent: expect.anything(),
                 },
                 timestamp: new Date('2025-09-23'),
             });

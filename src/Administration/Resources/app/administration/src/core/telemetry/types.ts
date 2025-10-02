@@ -17,7 +17,7 @@ type AnalyticsEvents = {
     programmatic: {
         [key: string]: TrackableType;
     };
-    link_visited: AnalyticsEvents["user_interaction"] & {
+    link_visited: {
         href: string;
         linkType: 'internal' | 'external';
     };

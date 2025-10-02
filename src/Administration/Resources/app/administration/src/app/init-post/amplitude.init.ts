@@ -58,9 +58,8 @@ export default function (): Promise<void> {
 
         if (isEventOfType('link_visited', telemetryEvent)) {
             amplitude.track('Link Visited', {
-                sw_link_href: telemetryEvent.detail.eventData.href,
-                sw_link_type: telemetryEvent.detail.eventData.linkType,
-                sw_link_label: telemetryEvent.detail.eventData.target.textContent,
+                href: telemetryEvent.detail.eventData.href,
+                link_type: telemetryEvent.detail.eventData.linkType,
             });
             return;
         }

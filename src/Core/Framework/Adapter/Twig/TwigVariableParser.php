@@ -117,6 +117,6 @@ class TwigVariableParser
             }
         }
 
-        return array_filter($variables, fn (string $variable) => !empty($variable) && !\str_starts_with($variable, '.'));
+        return array_filter($variables, fn (string $variable) => $variable !== '' && !\str_starts_with($variable, '.'));
     }
 }

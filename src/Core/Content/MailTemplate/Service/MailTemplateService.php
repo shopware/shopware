@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Twig\Environment;
@@ -63,7 +64,14 @@ class MailTemplateService
         $errors = [];
 
         foreach ($usedVariables as $var) {
-            if ($availableVariables->get($var)) {
+            if ($field = $availableVariables->get($var)) {
+                if (!($field instanceof ScalarValueType)) {
+                    $errors[] = new MailTemplateValidationWarning(
+                        $this->dataValidator,
+                        MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
+                        ['variable' => $var]
+                    );
+                }
                 continue;
             }
 
@@ -84,7 +92,7 @@ class MailTemplateService
                 $nestedAvVars = $nestedAvVars->get($varParts[$i]);
 
                 if (!$nestedAvVars) {
-                    $errors[] = $errors[] = new MailTemplateValidationError(
+                    $errors[] = new MailTemplateValidationError(
                         $this->dataValidator,
                         MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
                         ['variable' => $var]

@@ -18,7 +18,7 @@ class MailTemplateValidationWarning extends MailTemplateValidationResponse
         private readonly array $config,
         private readonly int $line = 0,
     ) {
-        parent::__construct(self::LEVEL_ERROR);
+        parent::__construct(self::LEVEL_WARNING);
 
         if (!($type === self::TYPE_COMPLEX_ELEMENT)) {
             throw new \Exception('Mail template validation error type is not valid');

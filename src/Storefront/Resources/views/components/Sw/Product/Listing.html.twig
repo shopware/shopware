@@ -12,7 +12,7 @@
 
     {% set layout = app.request.get('layout') %}
 
-    <twig:Sw:Product:ListingOptions :horizontal="horizontal" :totalCount="listing.elements|length" />
+    <twig:Sw:Filter:Panel :horizontal="horizontal" :totalCount="listing.elements|length" />
 
     {% block content %}
 

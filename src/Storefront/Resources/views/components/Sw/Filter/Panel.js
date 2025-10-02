@@ -31,7 +31,9 @@ class ListingOptions extends window.PluginBaseClass {
          */
         this._layoutButtons = this.el.querySelectorAll('[data-layout]');
 
-        console.log('this._listGrid', this._listGrid);
+        this._hiddenFilterToggle = this.el.querySelector('.sw-filter-panel__expand');
+
+        this._filtersExpanded = false;
 
         this._registerEvents();
     }
@@ -40,6 +42,8 @@ class ListingOptions extends window.PluginBaseClass {
         this._layoutButtons?.forEach((toggleEl) => {
             toggleEl.addEventListener('click', this._onToggleLayout.bind(this));
         });
+
+        this._hiddenFilterToggle.addEventListener('click', this._onToggleHiddenFilters.bind(this))
     }
 
     /**
@@ -76,6 +80,29 @@ class ListingOptions extends window.PluginBaseClass {
 
         url.searchParams.set('layout', layout);
         history.pushState(null, '', url);
+    }
+
+    _onToggleHiddenFilters(event) {
+        const hiddenFilters = this.el.querySelectorAll('.sw-filter-multi-select.is--hidden');
+        const buttonText = event.currentTarget.querySelector('.sw-filter-panel__expand-text')
+
+        if (this._filtersExpanded) {
+            for (const filter of hiddenFilters) {
+                filter.style.display = 'none';
+            }
+
+            buttonText.innerText = 'More filters';
+            this._filtersExpanded = false;
+
+            return;
+        }
+
+        buttonText.innerText = 'Less filters';
+        this._filtersExpanded = true;
+
+        for (const filter of hiddenFilters) {
+            filter.style.display = 'block';
+        }
     }
 }
 

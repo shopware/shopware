@@ -67,14 +67,10 @@
                                 {% for product in searchResult %}
                                     <div class="cms-listing-col {{ listingColumns }}" role="listitem">
                                         {% block element_product_listing_box %}
-                                            {% if feature('STOREFRONT_COMPONENTS') %}
-                                                <twig:Sw:Product:Card :product="product" />
-                                            {% else %}
-                                                {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
-                                                    layout: boxLayout,
-                                                    displayMode: displayMode
-                                                } %}
-                                            {% endif %}
+                                            {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                                layout: boxLayout,
+                                                displayMode: displayMode
+                                            } %}
                                         {% endblock %}
                                     </div>
                                 {% endfor %}

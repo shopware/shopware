@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
+use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Cloud\Storage\StorageClient;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
@@ -21,10 +22,27 @@ class GoogleStorageFactory implements AdapterFactoryInterface
 
         $options = $this->resolveStorageConfig($config);
         $storageConfig = ['projectId' => $options['projectId']];
-        if (isset($config['keyFile'])) {
-            $storageConfig['keyFile'] = $options['keyFile'];
-        } else {
-            $storageConfig['keyFilePath'] = $options['keyFilePath'];
+
+        if (isset($options['keyFile']) && \is_array($options['keyFile'])) {
+            $storageConfig['credentialsFetcher'] = new ServiceAccountCredentials(
+                scope: [StorageClient::FULL_CONTROL_SCOPE],
+                jsonKey: $options['keyFile'],
+            );
+        } elseif (isset($options['keyFilePath']) && \is_string($options['keyFilePath']) && $options['keyFilePath'] !== '') {
+            $json = @file_get_contents($options['keyFilePath']);
+            if ($json !== false) {
+                try {
+                    $serviceAccount = \json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+                    if (\is_array($serviceAccount)) {
+                        $storageConfig['credentialsFetcher'] = new ServiceAccountCredentials(
+                            scope: [StorageClient::FULL_CONTROL_SCOPE],
+                            jsonKey: $serviceAccount,
+                        );
+                    }
+                } catch (\JsonException) {
+                    // Ignore invalid JSON and fall back to ADC
+                }
+            }
         }
 
         // @phpstan-ignore method.deprecated

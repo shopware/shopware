@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-class AppUrlVerificationFailed extends AppException implements AppSystemMisconfigurationException
+class AppUrlVerificationFailedException extends AppException implements AppSystemMisconfigurationException
 {
     final public const APP_URL_FAILED_VERIFICATION = 'FRAMEWORK__APP_URL_FAILED_VERIFICATION';
 

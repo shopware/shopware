@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 enum VerificationStatus
@@ -13,13 +15,4 @@ enum VerificationStatus
     case PASS;
     case HARD_FAIL;
     case SOFT_FAIL;
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::PASS => 'Pass',
-            self::HARD_FAIL => 'Hard Fail',
-            self::SOFT_FAIL => 'Soft Fail',
-        };
-    }
 }

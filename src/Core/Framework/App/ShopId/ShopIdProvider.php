@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppSystemMisconfigurationException;
-use Shopware\Core\Framework\App\Exception\AppUrlVerificationFailed;
+use Shopware\Core\Framework\App\Exception\AppUrlVerificationFailedException;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -41,7 +41,7 @@ class ShopIdProvider implements ResetInterface
     {
         try {
             return $this->getShopId();
-        } catch (AppUrlVerificationFailed $e) {
+        } catch (AppUrlVerificationFailedException $e) {
             return $e->getShopId();
         }
     }

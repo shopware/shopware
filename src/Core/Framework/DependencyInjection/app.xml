@@ -731,15 +731,6 @@
             <tag name="kernel.event_listener"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\ScheduledTask\VerifyAppUrlTaskHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="logger"/>
-
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
-            <tag name="messenger.message_handler"/>
-        </service>
-
         <service id="Shopware\Core\Framework\App\Command\AppUrlVerificationStatusCommand">
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>

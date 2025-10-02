@@ -39,12 +39,22 @@ class DomainRuleStruct extends Struct
             $rule = explode(':', $rule, 2);
 
             $ruleType = mb_strtolower($rule[0] ?? '');
-            if (!\in_array($ruleType, ['allow', 'disallow'], true)) {
+
+            // Skip empty or invalid rules
+            if ($ruleType === '' || !isset($rule[1])) {
                 continue;
             }
 
-            $path = $this->basePath . '/' . ltrim(trim($rule[1] ?? ''), '/');
-            $this->rules[] = ['type' => ucfirst($ruleType), 'path' => '/' . ltrim($path, '/')];
+            $value = trim($rule[1] ?? '');
+
+            // Handle path-based directives (Allow/Disallow) with base path
+            if (\in_array($ruleType, ['allow', 'disallow'], true)) {
+                $path = $this->basePath . '/' . ltrim($value, '/');
+                $this->rules[] = ['type' => ucfirst($ruleType), 'path' => '/' . ltrim($path, '/')];
+            } else {
+                // Handle other directives (User-agent, Crawl-delay, etc.) without base path modification
+                $this->rules[] = ['type' => ucfirst($ruleType), 'path' => $value];
+            }
         }
     }
 }

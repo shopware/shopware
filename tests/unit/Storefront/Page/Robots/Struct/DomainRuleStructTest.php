@@ -107,6 +107,38 @@ class DomainRuleStructTest extends TestCase
                     ['type' => 'Allow', 'path' => '/en/widgets/menu/'],
                 ],
             ],
+            'user-agent directive' => [
+                'User-agent: Googlebot',
+                '',
+                [
+                    ['type' => 'User-agent', 'path' => 'Googlebot'],
+                ],
+            ],
+            'user-agent with disallow rules' => [
+                "User-agent: Googlebot\nDisallow: /private/",
+                '/en',
+                [
+                    ['type' => 'User-agent', 'path' => 'Googlebot'],
+                    ['type' => 'Disallow', 'path' => '/en/private/'],
+                ],
+            ],
+            'crawl-delay directive' => [
+                'Crawl-delay: 10',
+                '',
+                [
+                    ['type' => 'Crawl-delay', 'path' => '10'],
+                ],
+            ],
+            'multiple user-agents with rules' => [
+                "User-agent: Googlebot\nDisallow: /private/\nUser-agent: Bingbot\nAllow: /",
+                '',
+                [
+                    ['type' => 'User-agent', 'path' => 'Googlebot'],
+                    ['type' => 'Disallow', 'path' => '/private/'],
+                    ['type' => 'User-agent', 'path' => 'Bingbot'],
+                    ['type' => 'Allow', 'path' => '/'],
+                ],
+            ],
         ];
     }
 }

@@ -164,42 +164,6 @@ describe('src/core/telemetry/index.js', () => {
             expect(listener).toHaveBeenCalledTimes(1);
         });
 
-        it('emits link_visited on anchor tags', async () => {
-            const telemetry = new Telemetry({
-                queries: [
-                    () =>
-                        document ? [document.getElementById('tested-element')] : [],
-                ],
-            });
-            const listener = jest.fn();
-
-            telemetry.initialize();
-            telemetry.addListener(listener);
-
-            const link = document.createElement('a');
-            link.setAttribute('id', 'tested-element');
-            link.setAttribute('href', '/test-page');
-            link.setAttribute('target', '_blank');
-            document.body.appendChild(link);
-
-            await flushPromises();
-
-            link.click();
-            expect(listener).toHaveBeenCalled();
-
-            const telemetryEvent = listener.mock.calls[0][0];
-
-            expect(telemetryEvent).toBeInstanceOf(TelemetryEvent);
-            expect(telemetryEvent.detail).toEqual({
-                eventType: 'link_visited',
-                eventData: {
-                    href: '/test-page',
-                    linkType: 'external',
-                },
-                timestamp: new Date('2025-09-23'),
-            });
-        });
-
         it('emit user_interaction on clickable elements', async () => {
             const telemetry = new Telemetry({
                 queries: [
@@ -234,7 +198,7 @@ describe('src/core/telemetry/index.js', () => {
             });
         });
 
-        it('overrides the event listened to if data-product-analytics-tracked-event is set', async () => {
+        it('overrides the event listened to if data-analytics-event is set', async () => {
             const telemetry = new Telemetry({
                 queries: [
                     () =>
@@ -248,7 +212,7 @@ describe('src/core/telemetry/index.js', () => {
 
             const element = document.createElement('div');
             element.setAttribute('id', 'tested-element');
-            element.setAttribute('data-product-analytics-tracked-event', 'test-event');
+            element.setAttribute('data-analytics-event', 'test-event');
             document.body.appendChild(element);
 
             await flushPromises();

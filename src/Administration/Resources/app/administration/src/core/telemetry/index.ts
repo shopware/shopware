@@ -109,27 +109,11 @@ export class Telemetry {
             this.observedNodes.push(el);
         }
 
-        if (el.nodeName === 'A') {
-            el.addEventListener('click', (event) => {
-                const target = event.currentTarget ?? event.target;
-                if (!this.isElement(target)) {
-                    return;
-                }
-
-                this.dispatchEvent('link_visited', {
-                    href: target.getAttribute('href') ?? '',
-                    linkType: target.getAttribute('target') === '_blank' ? 'external' : 'internal',
-                });
-            });
-
-            return;
-        }
-
-        const eventName = el.getAttribute('data-product-analytics-tracked-event') ?? 'click';
+        const eventName = el.getAttribute('data-analytics-event') ?? 'click';
 
         el.addEventListener(eventName, (event) => {
             const target = event.currentTarget ?? event.target;
-            if (!this.isElement(target)) {
+            if (!this.isHTMLElement(target)) {
                 return;
             }
 
@@ -148,8 +132,8 @@ export class Telemetry {
         this.#eventTarget.dispatchEvent(new TelemetryEvent<N>(eventType, eventData));
     }
 
-    private isElement(target: EventTarget | null): target is Element {
-        return target !== null && target instanceof Element;
+    private isHTMLElement(target: EventTarget | null): target is HTMLElement {
+        return target !== null && target instanceof HTMLElement;
     }
 }
 

@@ -3,11 +3,11 @@
  */
 import { type RouteLocation } from 'vue-router';
 
-type TrackableType = string | string[] | number | boolean;
+type TrackableType = string | string[] | number | boolean | null;
 
 type AnalyticsEvents = {
     user_interaction: {
-        target: Element;
+        target: HTMLElement;
         originalEvent: Event;
     };
     page_change: {
@@ -16,10 +16,6 @@ type AnalyticsEvents = {
     };
     programmatic: {
         [key: string]: TrackableType;
-    };
-    link_visited: {
-        href: string;
-        linkType: 'internal' | 'external';
     };
     identify: {
         userId: string;
@@ -56,4 +52,4 @@ type Config = {
 };
 
 /** @private */
-export { TelemetryEvent, type EventTypes, type EventPayload, type ElementQuery, type Config };
+export { TelemetryEvent, type TrackableType, type EventTypes, type EventPayload, type ElementQuery, type Config };

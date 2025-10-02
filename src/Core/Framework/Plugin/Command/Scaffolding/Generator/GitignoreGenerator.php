@@ -48,10 +48,10 @@ class GitignoreGenerator implements ScaffoldingGenerator
     {
         $content = <<<'GITIGNORE'
 /composer.lock
-/vendor
-/src/Resources/public/
 /src/Resources/app/administration/node_modules/
 /src/Resources/app/administration/src/.vite
+/src/Resources/public/
+/vendor
 
 GITIGNORE;
 

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -24,18 +25,18 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ImitateCustomerRoute::class)]
 class ImitateCustomerRouteTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testImitateCustomer(): void
     {
         $customerId = Uuid::randomHex();
         $userId = Uuid::randomHex();
+        $token = 'testToken';
 
-        $imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator('testAppSecret');
-
-        $token = $imitateCustomerTokenGenerator->generate(
-            TestDefaults::SALES_CHANNEL,
-            $customerId,
-            $userId
-        );
+        $imitateCustomerTokenGenerator = $this->createMock(ImitateCustomerTokenGenerator::class);
+        $imitateCustomerTokenGenerator
+            ->expects($this->once())
+            ->method('validate')
+            ->with($token, TestDefaults::SALES_CHANNEL, $customerId, $userId);
 
         $accountService = $this->createMock(AccountService::class);
         $accountService->method('loginById')->willReturn('newToken');

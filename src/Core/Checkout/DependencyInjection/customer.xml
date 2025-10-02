@@ -391,6 +391,8 @@
 
         <service id="Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator">
             <argument type="string">%env(APP_SECRET)%</argument>
+            <argument type="service" id="shopware.jwt_config"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand">

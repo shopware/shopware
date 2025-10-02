@@ -2,10 +2,23 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Token\RegisteredClaims;
+use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidator;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 
+/**
+ * @extends JWTGenerator<ImitateCustomerToken>
+ */
 #[Package('checkout')]
-class ImitateCustomerTokenGenerator
+class ImitateCustomerTokenGenerator extends JWTGenerator
 {
     public const HMAC_HASH_ALGORITHM = 'sha256';
     public const OPENSSL_CIPHER_ALGORITHM = 'aes-256-cbc';
@@ -15,29 +28,56 @@ class ImitateCustomerTokenGenerator
      * @internal
      */
     public function __construct(
-        private readonly string $appSecret
+        private readonly string $appSecret,
+        private readonly Configuration $configuration,
+        private readonly DataValidator $validator,
     ) {
+        parent::__construct($this->configuration, $this->validator);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, use `encode` method instead
+     */
     public function generate(string $salesChannelId, string $customerId, string $userId): string
     {
-        $tokenData = [
-            'salesChannelId' => $salesChannelId,
-            'customerId' => $customerId,
-            'userId' => $userId,
-        ];
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(ImitateCustomerTokenGenerator::class, 'generate', 'v6.8.0.0', 'parse'));
 
-        $data = json_encode($tokenData);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $tokenData = [
+                'salesChannelId' => $salesChannelId,
+                'customerId' => $customerId,
+                'userId' => $userId,
+            ];
 
-        if ($data === false) {
-            throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
+            $data = json_encode($tokenData);
+
+            if ($data === false) {
+                throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
+            }
+
+            return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . time());
         }
 
-        return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . time());
+        $now = new \DateTimeImmutable('@' . time());
+
+        return $this->configuration->builder()
+            ->identifiedBy(Uuid::randomHex())
+            ->issuedAt($now)
+            ->canOnlyBeUsedAfter($now)
+            ->expiresAt($now->modify(\sprintf('+%d seconds', self::TOKEN_LIFETIME)))
+            ->withClaim('salesChannelId', $salesChannelId)
+            ->withClaim('customerId', $customerId)
+            ->getToken($this->configuration->signer(), $this->configuration->signingKey())
+            ->toString();
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, use `decode` method instead
+     */
     public function validate(string $givenToken, string $salesChannelId, string $customerId, string $userId): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(ImitateCustomerTokenGenerator::class, 'validate', 'v6.8.0.0', 'parse'));
+
         $tokenData = $this->decrypt($givenToken);
 
         $tokenData = explode('.', $tokenData);
@@ -70,6 +110,19 @@ class ImitateCustomerTokenGenerator
         if (!hash_equals($hash, $expectedHash)) {
             throw CustomerException::invalidImitationToken($givenToken);
         }
+    }
+
+    protected function getJWTStructClass(): string
+    {
+        return ImitateCustomerToken::class;
+    }
+
+    protected function getConstraints(): DataValidationDefinition
+    {
+        $definition = parent::getConstraints();
+        $definition->add(RegisteredClaims::ISSUER, new NotBlank(), new NotNull());
+
+        return $definition;
     }
 
     private function encrypt(string $token): string

@@ -2,13 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
+use Lcobucci\JWT\Configuration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
+use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -24,12 +29,23 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
 
     private ImitateCustomerTokenGenerator $imitateCustomerTokenGenerator;
 
+    private DataValidator&MockObject $dataValidator;
+
+    private Configuration $jwtConfiguration;
+
     protected function setUp(): void
     {
-        $this->imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator(self::APP_SECRET);
+        $this->dataValidator = $this->createMock(DataValidator::class);
+        $this->jwtConfiguration = JWTConfigurationFactory::createJWTConfiguration();
+
+        $this->imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator(self::APP_SECRET, $this->jwtConfiguration, $this->dataValidator);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed with tested method
+     */
     #[DoesNotPerformAssertions]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidate(): void
     {
         $token = $this->imitateCustomerTokenGenerator->generate(self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
@@ -37,6 +53,10 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
         $this->imitateCustomerTokenGenerator->validate($token, self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed with tested method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateWithInvalidToken(): void
     {
         $this->expectException(InvalidImitateCustomerTokenException::class);
@@ -44,6 +64,10 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
         $this->imitateCustomerTokenGenerator->validate('invalidToken', self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed with tested method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateWithInvalidTimeToken(): void
     {
         $this->expectException(InvalidImitateCustomerTokenException::class);

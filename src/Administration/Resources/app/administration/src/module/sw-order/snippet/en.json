@@ -507,7 +507,7 @@
         "columnEmailAddress": "Email address",
         "titleSelectSalesChannel": "Select Sales Channel",
         "descriptionSelectSalesChannel": "The selected customer has access to multiple Sales Channels, please select the Sales Channel you wish to use for this order.",
-        "alertSelectSalesChannel": "Because the selected Sales channel channel determines the available products and options, changing it will remove the products and reset the options.",
+        "alertSelectSalesChannel": "Because the selected Sales Channel determines the available products and options, changing it will remove the products and reset the options.",
         "labelSalesChannel": "Use Sales Channel",
         "placeholderSalesChannel": "Select a Sales Channel...",
         "buttonSelectSalesChannel": "Select",

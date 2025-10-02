@@ -48,6 +48,7 @@
     "safari >= 7"
   ],
   "dependencies": {
+    "@amplitude/analytics-browser": "2.24.2",
     "@shopware-ag/meteor-admin-sdk": "6.3.0",
     "@shopware-ag/meteor-component-library": "4.16.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",

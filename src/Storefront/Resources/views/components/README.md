@@ -83,7 +83,7 @@ Now your component is all set up and ready to go. You can directly access it in 
 
 ## Adding components via Shopware extension
 
-New components can easiley be added by Shopware apps and plugins in the same way as described above.
+New components can easily be added by Shopware apps and plugins in the same way as described above.
 
 ### Anonymous Components
 The anonymous components work right of the box and you dont't have to do anything else than putting your component files under `<your-plugin>/src/Resources/views/components`. Both, apps and plugins can provide anonymous components in any distribution form of Shopware. Your components will automatically be prefixed with the bundle name of your app or plugin. 

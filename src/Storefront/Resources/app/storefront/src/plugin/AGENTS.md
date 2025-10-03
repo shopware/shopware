@@ -8,7 +8,7 @@ Creating and modifying Storefront JavaScript plugins.
 import Plugin from 'src/plugin-system/plugin.class';
 
 export default class MyFeaturePlugin extends Plugin {
-    static options = { url: '', selector: '.element' };
+    static options = { url: '', timeout: 300 };
 
     init() { this._registerEvents(); }
     update() { /* Re-initialize after DOM changes */ }
@@ -73,12 +73,21 @@ CSS selector `[data-my-feature]` matches by attribute presence, not value. Use `
 <div data-my-feature="true" data-my-feature-options='{"url": "/api"}'></div>
 ```
 
+**Best Practice**: Use Twig variables for options to allow extension in templates:
+```twig
+{% set myFeatureOptions = {
+    url: '/api',
+    timeout: 300
+} %}
+<div data-my-feature="true" data-my-feature-options='{{ myFeatureOptions|json_encode }}'></div>
+```
+Then extend the variable in child templates to modify options.
+
 **Merge priority** (highest last):
 1. `static options` in class
 2. `PluginManager.register()` options
 3. `data-{plugin-name}-config` attribute (named config from PluginConfigManager)
 4. `data-{plugin-name}-options` attribute (inline JSON)
-5. `initializePlugin()` options
 
 ## Events
 
@@ -149,7 +158,7 @@ window.PluginManager.override('VariantSwitch', CustomVariantSwitch, '[data-varia
 
 - **Private methods**: Prefix with underscore (`_methodName`)
 - **Element validation**: Check `this.el.nodeName` in `init()` if specific type required
-- **Option validation**: Throw error in `init()` for required options
+- **Option validation**: Use `console.warn()` or `console.error()` for missing required options instead of throwing errors
 - **Event cleanup**: Store bound handlers, remove when plugin is done
 - **AJAX**: Use `fetch()` for Store API calls. For App System, use `AppClientService`. `HttpClient` is deprecated (v6.8.0)
 - **Loading**: `PageLoadingIndicatorUtil` (global page loader) or `ElementLoadingIndicatorUtil` (element-specific). Both have `.create()` and `.remove()` methods

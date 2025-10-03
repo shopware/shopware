@@ -79,16 +79,16 @@ window.PluginBaseClass      // Base class for all plugins (same as import Plugin
 
 The application exposes several utilities on the `window` object for use in plugins and custom code:
 
-| Utility                      | Purpose                                      |
-|------------------------------|----------------------------------------------|
-| `window.PluginManager`       | Plugin registration and lifecycle management |
-| `window.PluginBaseClass`     | Base class for all plugins                   |
-| `window.PluginConfigManager` | Named configuration registry for plugins     |
-| `window.Feature`             | Feature flag system                          |
-| `window.eventEmitter`        | Global event emitter (document-scoped)       |
-| `window.focusHandler`        | Focus state management across navigation     |
-| `window.formValidation`      | Form validation utilities                    |
-| `window.bootstrap`           | Bootstrap 5 component API                    |
+| Utility                      | Purpose                                                        |
+|------------------------------|----------------------------------------------------------------|
+| `window.PluginManager`       | Plugin registration and lifecycle management                   |
+| `window.PluginBaseClass`     | Base class for all plugins                                     |
+| `window.PluginConfigManager` | **DO NOT USE** - Named configuration registry (non-functional) |
+| `window.Feature`             | Feature flag system                                            |
+| `window.eventEmitter`        | Global event emitter (document-scoped)                         |
+| `window.focusHandler`        | Focus state management across navigation                       |
+| `window.formValidation`      | Form validation utilities                                      |
+| `window.bootstrap`           | Bootstrap 5 component API                                      |
 
 **Note**: `window.eventEmitter` and `document.$emitter` are the same instance - use for global events across the application.
 

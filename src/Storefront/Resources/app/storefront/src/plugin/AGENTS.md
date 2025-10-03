@@ -86,8 +86,7 @@ Then extend the variable in child templates to modify options.
 **Merge priority** (highest last):
 1. `static options` in class
 2. `PluginManager.register()` options
-3. `data-{plugin-name}-config` attribute (named config from PluginConfigManager)
-4. `data-{plugin-name}-options` attribute (inline JSON)
+3. `data-{plugin-name}-options` attribute (inline JSON)
 
 ## Events
 

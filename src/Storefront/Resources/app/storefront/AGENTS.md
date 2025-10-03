@@ -11,11 +11,11 @@ Plugin-based architecture where plugins are classes instantiated on DOM elements
 ```
 app/storefront/
 ├── src/                   # Source code
-│   ├── plugin/            # Plugin implementations
-│   ├── plugin-system/     # Core plugin system
-│   ├── helper/            # Utility helpers
-│   ├── service/           # Services (HTTP client)
-│   ├── utility/           # UI utilities
+│   ├── plugin/            # Individual plugin implementations
+│   ├── plugin-system/     # Core plugin system infrastructure
+│   ├── helper/            # Foundational utility helpers
+│   ├── service/           # Service classes (HTTP client)
+│   ├── utility/           # UI-specific utilities
 │   ├── scss/              # Stylesheets
 │   ├── vendor/            # Third-party dependencies
 │   └── main.js            # Entry point
@@ -32,17 +32,6 @@ app/storefront/
 - **Testing**: Jest, Playwright
 - **Linting**: ESLint, Stylelint
 - **Languages**: JavaScript, TypeScript (partial)
-
-### Directory Guide
-
-| Directory        | Purpose                           |
-|------------------|-----------------------------------|
-| `plugin/`        | Individual plugin implementations |
-| `plugin-system/` | Core infrastructure               |
-| `helper/`        | Foundational utilities            |
-| `service/`       | Service classes                   |
-| `utility/`       | UI-specific utilities             |
-| `scss/`          | Stylesheets                       |
 
 ## Core Architecture
 

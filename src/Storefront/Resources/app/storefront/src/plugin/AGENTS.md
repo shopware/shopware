@@ -16,8 +16,8 @@ export default class MyFeaturePlugin extends Plugin {
 ```
 
 **Base Class Reference**: `Plugin` (imported) is the same as `window.PluginBaseClass` (global reference)
-- Preferred: Use ES6 import pattern shown above
-- Legacy: `class MyPlugin extends window.PluginBaseClass {}`
+- ES6 import: `import Plugin from 'src/plugin-system/plugin.class'` (shown above)
+- Global reference: `class MyPlugin extends window.PluginBaseClass {}` (preferred - less path dependency)
 
 ### Instance Properties
 
@@ -40,7 +40,7 @@ window.PluginManager.register('MyFeature', MyFeaturePlugin, '[data-my-feature]')
 window.PluginManager.register('MyFeature', () => import('./plugin/my-feature/my-feature.plugin'), '[data-my-feature]');
 ```
 
-## Initialization
+## Selector for JS-plugins initialization
 
 **Data Attribute**: `data-{plugin-name}="true"` (kebab-case)
 

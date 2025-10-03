@@ -37,7 +37,7 @@ class AppUrlVerifier
     public function __construct(
         private readonly CacheItemPoolInterface&CacheInterface $cache,
         private readonly HttpClientInterface $httpClient,
-        private readonly LockFactory $lockFactory,
+        private readonly LockFactory $lockFactory, /** Should be a lock with ttl support - otherwise locks might not expire and verification will not be performed */
         private readonly ClockInterface $clock = new NativeClock(),
     ) {
     }

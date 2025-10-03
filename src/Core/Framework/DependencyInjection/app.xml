@@ -721,8 +721,7 @@
         <service id="Shopware\Core\Framework\App\Url\AppUrlVerifier">
             <argument type="service" id="cache.app"/>
             <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
-            <argument type="service" id="lock.factory"/>
-
+            <argument type="service" id="lock.doctrine.factory"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Subscriber\VerifyAppUrlListener">

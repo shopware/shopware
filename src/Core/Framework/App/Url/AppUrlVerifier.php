@@ -35,6 +35,7 @@ class AppUrlVerifier
     private const VERIFY_PATH = '/api/app-system/shop/verify';
 
     public function __construct(
+        private readonly string $appEnv,
         private readonly CacheItemPoolInterface&CacheInterface $cache,
         private readonly HttpClientInterface $httpClient,
         private readonly LockFactory $lockFactory, /** Should be a lock with ttl support - otherwise locks might not expire and verification will not be performed */
@@ -62,6 +63,10 @@ class AppUrlVerifier
 
     public function verify(ShopId $shopId): bool
     {
+        if ($this->appEnv !== 'prod') {
+            return true;
+        }
+
         $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
 
         if ($appUrl === null) {

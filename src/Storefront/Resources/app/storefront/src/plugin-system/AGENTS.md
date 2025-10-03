@@ -1,5 +1,7 @@
 # Plugin System Internals
 
+**Scope**: Plugin system implementation details and internal mechanics. For application-level overview, see parent `../../AGENTS.md`.
+
 Core infrastructure for the Storefront plugin system.
 
 ## Components
@@ -11,7 +13,7 @@ Core infrastructure for the Storefront plugin system.
 | **PluginRegistry**      | `plugin.registry.js`       | Internal registry storage                     |
 | **PluginConfigManager** | `plugin.config.manager.js` | Config resolution from data attributes        |
 
-**Global Access**:
+**Global Access** (recap from parent AGENTS.md):
 ```javascript
 window.PluginManager        // Singleton
 window.PluginBaseClass      // Base class reference

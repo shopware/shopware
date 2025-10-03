@@ -1,5 +1,7 @@
 # Storefront JavaScript App
 
+**Scope**: Application-level overview for storefront development. See subdirectory AGENTS.md files (e.g., `src/plugin-system/AGENTS.md`) for implementation details.
+
 Frontend JavaScript application for Shopware Storefront. Built with Webpack 5, Jest, native JavaScript.
 
 Plugin-based architecture where plugins are classes instantiated on DOM elements, managed centrally by `window.PluginManager`.

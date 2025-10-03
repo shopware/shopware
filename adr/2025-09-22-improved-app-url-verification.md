@@ -71,7 +71,7 @@ When an environment is copied from production to staging and the fingerprints ma
 3. If none is found, APP_URL is verified right away
 4. If found, the result is interrogated:
    5. Pass - continue with action
-   6. Soft fail - increment fail counter, but continue with action (when three fails occur, we convert to hard fail)
+   6. Soft fail - increment fail counter, but continue with action (when three fails occur, we convert to hard fail) - This is a little more complicated in the implementation, for example, we use a backoff strategy, so that three actions performed in the same minute don't cause a hard fail.
    7. Hard fail - Throw exception and interrupt flow
 
 #### APP URL change:

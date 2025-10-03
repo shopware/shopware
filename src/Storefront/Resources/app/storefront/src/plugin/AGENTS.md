@@ -12,7 +12,6 @@ export default class MyFeaturePlugin extends Plugin {
 
     init() { this._registerEvents(); }
     update() { /* Re-initialize after DOM changes */ }
-    destroy() { /* Cleanup when plugin is destroyed */ }
 }
 ```
 
@@ -96,9 +95,12 @@ document.$emitter.publish('globalEvent', { data: 'payload' });
 ### Subscribing to Events
 
 ```javascript
-// Subscribe to element-scoped event
-element.addEventListener('onClick', (event) => console.log(event.detail));
+// Subscribe to element-scoped event from within plugin
 this.$emitter.subscribe('onClick', handler, { once: true, scope: this });
+
+// Subscribe to element-scoped event from another plugin
+const pluginInstance = window.PluginManager.getPluginInstanceFromElement(element, 'MyFeature');
+pluginInstance.$emitter.subscribe('onClick', handler);
 
 // Subscribe to global event
 document.$emitter.subscribe('globalEvent', handler);

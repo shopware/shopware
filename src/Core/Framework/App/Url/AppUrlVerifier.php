@@ -25,7 +25,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[Package('framework')]
 class AppUrlVerifier
 {
-    public const VERIFICATION_CACHE_KEY_PREFIX = 'app_url_verify-';
+    private const VERIFICATION_CACHE_KEY_PREFIX = 'app_url_verify-';
     public const VERIFICATION_RESULT_CACHE_KEY = 'app_url_verification_result';
     private const BACK_OFF = [
         1 => 60 * 5,  // 5 minutes
@@ -95,6 +95,28 @@ class AppUrlVerifier
         } finally {
             $lock->release();
         }
+    }
+
+    /**
+     * Finalize verification, check if the given token and key matches what is stored in the cache.
+     */
+    public function completeVerification(string $runId, string $token): bool
+    {
+        $cacheKey = AppUrlVerifier::VERIFICATION_CACHE_KEY_PREFIX . $runId;
+
+        $item = $this->cache->getItem($cacheKey);
+
+        if (!$item->isHit()) {
+            return false;
+        }
+
+        $storedToken = $item->get();
+
+        if (\strlen($storedToken) !== 32 || \strlen($token) !== 32) {
+            return false;
+        }
+
+        return hash_equals($storedToken, $token);
     }
 
     private function handleSoftFail(string $appUrl, VerificationState $previousState): bool
@@ -167,7 +189,7 @@ class AppUrlVerifier
         }
 
         $runId = bin2hex(random_bytes(8));
-        $cacheKey = \sprintf('%s-%s', self::VERIFICATION_CACHE_KEY_PREFIX, $runId);
+        $cacheKey = self::VERIFICATION_CACHE_KEY_PREFIX . $runId;
         $token = $this->createAndPersistToken($cacheKey);
 
         try {

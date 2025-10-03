@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\App\Api;
 
-use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -23,8 +22,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class ShopController
 {
     public function __construct(
-        private readonly CacheItemPoolInterface $cache,
         private readonly RateLimiter $rateLimiter,
+        private readonly AppUrlVerifier $appUrlVerifier
     ) {
     }
 
@@ -50,24 +49,10 @@ class ShopController
             return new JsonResponse([], Response::HTTP_BAD_REQUEST);
         }
 
-        $cacheKey = \sprintf('%s-%s', AppUrlVerifier::VERIFICATION_CACHE_KEY_PREFIX, $runId);
-
-        $item = $this->cache->getItem($cacheKey);
-
-        if (!$item->isHit()) {
-            return new JsonResponse([], Response::HTTP_BAD_REQUEST);
+        if ($this->appUrlVerifier->completeVerification($runId, $uToken)) {
+            return new JsonResponse([], Response::HTTP_NO_CONTENT);
         }
 
-        $token = $item->get();
-
-        if (\strlen($token) !== 32 || \strlen($uToken) !== 32) {
-            return new JsonResponse([], Response::HTTP_BAD_REQUEST);
-        }
-
-        if (!hash_equals($token, $uToken)) {
-            return new JsonResponse([], Response::HTTP_BAD_REQUEST);
-        }
-
-        return new JsonResponse([], Response::HTTP_NO_CONTENT);
+        return new JsonResponse([], Response::HTTP_BAD_REQUEST);
     }
 }

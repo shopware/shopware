@@ -377,6 +377,67 @@ class AppUrlVerifierTest extends TestCase
         static::assertEquals($state, $verifier->getCurrentState());
     }
 
+    #[DataProvider('completeVerificationProvider')]
+    public function testCompleteVerification(ArrayAdapter $cache, string $runId, string $token, bool $expectedResult): void
+    {
+        $verifier = new AppUrlVerifier($cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), new MockClock());
+
+        $result = $verifier->completeVerification($runId, $token);
+
+        static::assertSame($expectedResult, $result);
+    }
+
+    public static function completeVerificationProvider(): \Generator
+    {
+        yield 'no-cache' => [
+            new ArrayAdapter(),
+            'randomid',
+            bin2hex(random_bytes(16)),
+            false,
+        ];
+
+        $cache = new ArrayAdapter();
+        $cache->get('app_url_verify-randomid', fn () => bin2hex(random_bytes(14)));
+
+        yield 'invalid-stored-token' => [
+            $cache,
+            'randomid',
+            bin2hex(random_bytes(16)),
+            false,
+        ];
+
+        $cache = new ArrayAdapter();
+        $cache->get('app_url_verify-randomid', fn () => bin2hex(random_bytes(16)));
+
+        yield 'invalid-user-token' => [
+            $cache,
+            'randomid',
+            bin2hex(random_bytes(14)),
+            false,
+        ];
+
+        $cache = new ArrayAdapter();
+        $cache->get('app_url_verify-randomid', fn () => bin2hex(random_bytes(14)));
+
+        yield 'both-tokens-invalid' => [
+            $cache,
+            'randomid',
+            bin2hex(random_bytes(14)),
+            false,
+        ];
+
+        $token = bin2hex(random_bytes(16));
+        $cache = new ArrayAdapter();
+        $cache->get('app_url_verify-randomid', fn () => $token);
+
+        yield 'success-tokens-match' => [
+            $cache,
+            'randomid',
+            $token,
+            true,
+        ];
+    }
+
     /**
      * @return array{sleep: int, status: VerificationStatus, tries: int, httpCalls: int, return: bool}
      */

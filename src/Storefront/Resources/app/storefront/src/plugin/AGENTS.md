@@ -1,6 +1,10 @@
-# Plugin
+# Plugin Development Guide
 
-Creating and modifying Storefront JavaScript plugins.
+**Scope**: Creating, configuring, and extending Storefront JavaScript plugins.
+
+**Related Documentation**:
+- Application overview → [`../../AGENTS.md`](../../AGENTS.md)
+- Plugin system internals → [`../plugin-system/AGENTS.md`](../plugin-system/AGENTS.md)
 
 ## Plugin Structure
 
@@ -15,9 +19,7 @@ export default class MyFeaturePlugin extends Plugin {
 }
 ```
 
-**Base Class Reference**: `Plugin` (imported) is the same as `window.PluginBaseClass` (global reference)
-- ES6 import: `import Plugin from 'src/plugin-system/plugin.class'` (shown above)
-- Global reference: `class MyPlugin extends window.PluginBaseClass {}` (preferred - less path dependency)
+**Base Class**: All plugins extend `Plugin` class. See [Global Utilities](../../AGENTS.md#global-utilities) for `window.PluginBaseClass` reference.
 
 ### Instance Properties
 
@@ -83,10 +85,9 @@ CSS selector `[data-my-feature]` matches by attribute presence, not value. Use `
 ```
 Then extend the variable in child templates to modify options.
 
-**Merge priority** (highest last):
-1. `static options` in class
-2. `PluginManager.register()` options
-3. `data-{plugin-name}-options` attribute (inline JSON)
+**Merge priority** (highest last): class defaults → registration options → data attribute options. See [`../plugin-system/AGENTS.md`](../plugin-system/AGENTS.md) for implementation details.
+
+**Note**: Legacy `data-{plugin-name}-config` attribute with `window.PluginConfigManager` is NOT supported (registry never populated).
 
 ## Events
 

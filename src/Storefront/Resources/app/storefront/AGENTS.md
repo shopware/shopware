@@ -1,6 +1,10 @@
 # Storefront JavaScript App
 
-**Scope**: Application-level overview for storefront development. See subdirectory AGENTS.md files (e.g., `src/plugin-system/AGENTS.md`) for implementation details.
+**Scope**: Application-level architecture, global utilities, and tooling for storefront development.
+
+**Related Documentation**:
+- Plugin development guide → [`src/plugin/AGENTS.md`](src/plugin/AGENTS.md)
+- Plugin system internals → [`src/plugin-system/AGENTS.md`](src/plugin-system/AGENTS.md)
 
 Frontend JavaScript application for Shopware Storefront. Built with Webpack 5, Jest, native JavaScript.
 
@@ -70,16 +74,16 @@ window.PluginBaseClass      // Base class for all plugins (same as import Plugin
 
 The application exposes several utilities on the `window` object for use in plugins and custom code:
 
-| Utility                      | Purpose                                                        |
-|------------------------------|----------------------------------------------------------------|
-| `window.PluginManager`       | Plugin registration and lifecycle management                   |
-| `window.PluginBaseClass`     | Base class for all plugins                                     |
-| `window.PluginConfigManager` | **DO NOT USE** - Named configuration registry (non-functional) |
-| `window.Feature`             | Feature flag system                                            |
-| `window.eventEmitter`        | Global event emitter (document-scoped)                         |
-| `window.focusHandler`        | Focus state management across navigation                       |
-| `window.formValidation`      | Form validation utilities                                      |
-| `window.bootstrap`           | Bootstrap 5 component API                                      |
+| Utility                      | Purpose                                                                          |
+|------------------------------|----------------------------------------------------------------------------------|
+| `window.PluginManager`       | Plugin registration and lifecycle management                                     |
+| `window.PluginBaseClass`     | Base class for all plugins                                                       |
+| `window.PluginConfigManager` | **DO NOT USE** - Legacy named config registry (never adopted, registry empty)    |
+| `window.Feature`             | Feature flag system                                                              |
+| `window.eventEmitter`        | Global event emitter (document-scoped)                                           |
+| `window.focusHandler`        | Focus state management across navigation                                         |
+| `window.formValidation`      | Form validation utilities                                                        |
+| `window.bootstrap`           | Bootstrap 5 component API                                                        |
 
 **Note**: `window.eventEmitter` and `document.$emitter` are the same instance - use for global events across the application.
 

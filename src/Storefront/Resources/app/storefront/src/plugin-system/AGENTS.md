@@ -1,23 +1,21 @@
 # Plugin System Internals
 
-**Scope**: Plugin system implementation details and internal mechanics. For application-level overview, see parent `../../AGENTS.md`.
+**Scope**: Implementation details and internal mechanics of the plugin system infrastructure.
 
-Core infrastructure for the Storefront plugin system.
+**Related Documentation**:
+- Application overview → [`../../AGENTS.md`](../../AGENTS.md)
+- Plugin development guide → [`../plugin/AGENTS.md`](../plugin/AGENTS.md)
 
 ## Components
 
-| Component               | File                       | Purpose                                       |
-|-------------------------|----------------------------|-----------------------------------------------|
-| **PluginManager**       | `plugin.manager.js`        | Registry, lifecycle management, async loading |
-| **PluginBaseClass**     | `plugin.class.js`          | Base class all plugins extend                 |
-| **PluginRegistry**      | `plugin.registry.js`       | Internal registry storage                     |
-| **PluginConfigManager** | `plugin.config.manager.js` | Config resolution from data attributes        |
+| Component               | File                       | Purpose                                                          |
+|-------------------------|----------------------------|------------------------------------------------------------------|
+| **PluginManager**       | `plugin.manager.js`        | Registry, lifecycle management, async loading                    |
+| **PluginBaseClass**     | `plugin.class.js`          | Base class all plugins extend                                    |
+| **PluginRegistry**      | `plugin.registry.js`       | Internal registry storage                                        |
+| **PluginConfigManager** | `plugin.config.manager.js` | Legacy named config registry (never adopted, see note below)     |
 
-**Global Access** (recap from parent AGENTS.md):
-```javascript
-window.PluginManager        // Singleton
-window.PluginBaseClass      // Base class reference
-```
+**Note**: `PluginConfigManager` exists but is not used (no configs ever registered). Use `data-{plugin-name}-options` instead.
 
 ## Lifecycle
 
@@ -42,6 +40,14 @@ window.PluginBaseClass      // Base class reference
 ### Instance Storage
 - Instances stored on element: `el.__plugins = Map()`
 - Retrieve: `getPluginInstanceFromElement(el, name)`
+
+### Options Merge Priority
+Plugin options are merged in this order (highest priority last):
+1. `static options` defined in plugin class
+2. Options passed to `PluginManager.register(name, class, selector, options)`
+3. Inline JSON from `data-{plugin-name}-options` attribute on element
+
+**Implementation**: See `plugin.class.js` lines 99-122 for merge logic.
 
 ## Component Responsibilities
 

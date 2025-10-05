@@ -42,6 +42,13 @@ export default class FormAutoSubmitPlugin extends Plugin {
          * @type {string}
          */
         focusHandlerKey: 'form-auto-submit',
+
+        /**
+         * When active, the form submission is more humanly triggered with validation and submit event
+         * @link https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/requestSubmit#usage_notes
+         * @type {boolean}
+         */
+        useRequestSubmit: true,
     };
 
     init() {
@@ -149,7 +156,12 @@ export default class FormAutoSubmitPlugin extends Plugin {
     _submitNativeForm() {
         this.$emitter.publish('beforeChange');
 
-        this._form.submit();
+        if (this.options.useRequestSubmit) {
+            this._form.requestSubmit();
+        } else {
+            this._form.submit();
+        }
+
         PageLoadingIndicatorUtil.create();
     }
 

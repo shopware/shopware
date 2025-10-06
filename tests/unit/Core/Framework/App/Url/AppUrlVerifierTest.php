@@ -48,7 +48,7 @@ class AppUrlVerifierTest extends TestCase
 
         $verifier = new AppUrlVerifier('prod', $cache, $http, $lockFactory, $clock);
 
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => null]);
+        $shopId = ShopId::v2('shop-id');
         $result = $verifier->verify($shopId);
 
         static::assertFalse($result);

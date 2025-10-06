@@ -25,8 +25,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[Package('framework')]
 class AppUrlVerifier
 {
-    private const VERIFICATION_CACHE_KEY_PREFIX = 'app_url_verify-';
     public const VERIFICATION_RESULT_CACHE_KEY = 'app_url_verification_result';
+    private const VERIFICATION_CACHE_KEY_PREFIX = 'app_url_verify-';
     private const BACK_OFF = [
         1 => 60 * 5,  // 5 minutes
         2 => 60 * 15, // 15 minutes

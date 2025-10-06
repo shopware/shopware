@@ -69,7 +69,6 @@ readonly class SnippetValidator implements SnippetValidatorInterface
         $invalidPluralization = new InvalidPluralizationCollection();
         $snippetFileMappings = [];
         foreach ($files as $snippetFile) {
-
             if (!\array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
                 $snippetFileMappings[$snippetFile->getIso()] = [];
             }
@@ -159,11 +158,11 @@ readonly class SnippetValidator implements SnippetValidatorInterface
 
     private function getLocaleFromFileName(string $fileName): string
     {
-        if(preg_match(SnippetPatterns::CORE_SNIPPET_FILE_PATTERN, $fileName, $matches);) {
+        if (preg_match(SnippetPatterns::CORE_SNIPPET_FILE_PATTERN, $fileName, $matches)) {
             return $matches['locale'];
         }
 
-        if(preg_match( SnippetPatterns::CORE_SNIPPET_FILE_PATTERN, $fileName, $matches)) {
+        if (preg_match(SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN, $fileName, $matches)) {
             return $matches['locale'];
         }
 
@@ -214,7 +213,7 @@ readonly class SnippetValidator implements SnippetValidatorInterface
                 unset($tempISOs[$isoKey]);
 
                 foreach ($tempISOs as $tempISO) {
-                    if (!isset($snippetFileMappings[$tempISO]) || array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
+                    if (!isset($snippetFileMappings[$tempISO]) || \array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
                         continue;
                     }
 
@@ -227,6 +226,7 @@ readonly class SnippetValidator implements SnippetValidatorInterface
                 }
             }
         }
+
         return $this->hydrateMissingSnippets($missingSnippetsArray);
     }
 

@@ -20,14 +20,7 @@
         @keydown.enter="onItemClick(page)"
     >
         <div v-if="isDefault">
-            <span
-                v-if="page.type === 'product_list'"
-                class="sw-cms-list-item__is-default"
-            >{{ $tc('sw-cms.components.cmsListItem.defaultLayoutProductList') }}</span>
-            <span
-                v-else-if="page.type === 'product_detail'"
-                class="sw-cms-list-item__is-default"
-            >{{ $tc('sw-cms.components.cmsListItem.defaultLayoutProductDetail') }}</span>
+            <span class="sw-cms-list-item__is-default">{{ getLabelSetAsDefault(page.type) }}</span>
         </div>
     </div>
     <div

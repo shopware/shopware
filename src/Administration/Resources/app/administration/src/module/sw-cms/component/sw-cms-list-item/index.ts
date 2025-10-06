@@ -130,5 +130,15 @@ export default Shopware.Component.wrapComponentConfig({
         onDelete(page: Entity<'cms_page'>) {
             this.$emit('cms-page-delete', page);
         },
+
+        getLabelSetAsDefault(type: string) {
+            const suffix = type
+                .split(/[_-]+/)
+                .filter(Boolean)
+                .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                .join('');
+
+            return this.$tc(`sw-cms.components.cmsListItem.defaultLayout${suffix}`);
+        },
     },
 });

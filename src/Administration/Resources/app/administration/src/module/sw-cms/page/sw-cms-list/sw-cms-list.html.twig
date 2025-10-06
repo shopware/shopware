@@ -141,7 +141,7 @@
                                         :class="'sw-cms-list-item--' + index"
                                         :page="cmsPage"
                                         :active="layoutIsLinked(cmsPage.id)"
-                                        :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
+                                        :is-default="isDefault(cmsPage)"
                                         @item-click="onListItemClick"
                                         @preview-image-change="onPreviewChange"
                                         @cms-page-delete="onDeleteCmsPage"
@@ -158,19 +158,16 @@
                                                 </sw-context-menu-item>
                                                 {% endblock %}
 
+                                                {% block sw_cms_list_listing_list_item_option_set_as_default %}
                                                 <sw-context-menu-item
                                                     v-if="showDefaultLayoutContextMenu(cmsPage)"
                                                     class="sw-cms-list-item__option-set-as-default"
                                                     :disabled="!acl.can('system_config:update') || !acl.can('system_config:create') || !acl.can('system_config:delete') || undefined"
                                                     @click="onOpenLayoutSetAsDefault(cmsPage)"
                                                 >
-                                                    <template v-if="cmsPage.type == 'product_detail'">
-                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
-                                                    </template>
-                                                    <template v-else>
-                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
-                                                    </template>
+                                                    {{ getLabelSetAsDefault(cmsPage.type) }}
                                                 </sw-context-menu-item>
+                                                {% endblock %}
 
                                                 {% block sw_cms_list_listing_list_item_option_duplicate %}
                                                 <sw-context-menu-item
@@ -331,19 +328,16 @@
                                         </sw-context-menu-item>
                                         {% endblock %}
 
+                                        {% block sw_cms_list_listing_list_data_grid_actions_edit %}
                                         <sw-context-menu-item
                                             v-if="showDefaultLayoutContextMenu(item)"
                                             class="sw-cms-list-item__option-set-as-default"
                                             :disabled="!acl.can('system_config:update') || !acl.can('system_config:create') || !acl.can('system_config:delete') || undefined"
                                             @click="onOpenLayoutSetAsDefault(item)"
                                         >
-                                            <template v-if="item.type == 'product_detail'">
-                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
-                                            </template>
-                                            <template v-else>
-                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
-                                            </template>
+                                            {{ getLabelSetAsDefault(item.type) }}
                                         </sw-context-menu-item>
+                                        {% endblock %}
 
                                         {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
                                         <sw-context-menu-item

@@ -284,6 +284,8 @@ export default {
 
             this.defaultCategoryId = response['core.cms.default_category_cms_page'];
             this.defaultProductId = response['core.cms.default_product_cms_page'];
+
+            return response;
         },
 
         onOpenLayoutSetAsDefault(page) {
@@ -583,10 +585,11 @@ export default {
             };
         },
 
-        getPageType(page) {
+        getPageType(page, defaultIds = []) {
             const isDefault = [
                 this.defaultProductId,
                 this.defaultCategoryId,
+                ...defaultIds,
             ].includes(page.id);
             const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
@@ -653,6 +656,20 @@ export default {
                 this.getPageLandingPageCount(page) > 0 ||
                 !this.acl.can('cms.deleter')
             );
+        },
+
+        getLabelSetAsDefault(type) {
+            const suffix = type
+                .split(/[_-]+/)
+                .filter(Boolean)
+                .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                .join('');
+
+            return this.$tc(`sw-cms.components.cmsListItem.setAsDefault${suffix}`);
+        },
+
+        isDefault(cmsPage, defaultIds = []) {
+            return [this.defaultProductId, this.defaultCategoryId, ...defaultIds].includes(cmsPage.id)
         },
     },
 };

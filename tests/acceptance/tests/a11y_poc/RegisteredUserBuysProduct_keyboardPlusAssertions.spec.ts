@@ -34,11 +34,11 @@ test('Registered shop customer buys a product.', { tag: '@Checkout' }, async ({
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions_a11yAssert());
 
     //testing radio selection from last to first
-    await StorefrontCheckoutConfirm.paymentPaidInAdvance.check();
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption_a11yAssert());
+    await ShopCustomer.selectsRadioButton(StorefrontCheckoutConfirm.paymentMethod, 'Paid in advance');
 
     //desired radio button is selected by default
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption_a11yAssert());
+    await ShopCustomer.selectsRadioButton(StorefrontCheckoutConfirm.shippingMethod, 'Standard');
+
     await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText('€10.00');
 
     await ShopCustomer.attemptsTo(SubmitOrder_a11yAssert());

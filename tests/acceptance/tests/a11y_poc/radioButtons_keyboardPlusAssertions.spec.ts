@@ -36,6 +36,6 @@ test('Customer should be able to see a new property displayed on the product det
         await ShopCustomer.expects(colorOptions.getByRole('radio')).toHaveCount(3);
     
         //selects Green from colorOptions group via keyboard and checks for visible focus
-        await ShopCustomer.selectsValue(colorOptions, 'Green');
+        await ShopCustomer.selectsRadioButton(colorOptions, 'Green');
     });
 });

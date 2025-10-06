@@ -1,9 +1,10 @@
 {% props
     product,
     addToCartExtraFormData = {},
+    horizontal = false,
 %}
 
-<div class="product-card-actions d-grid">
+<div class="product-card-actions{% if not horizontal %} d-grid{% endif %}">
     {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
     {% set displayFrom = product.calculatedPrices.count > 1 %}
     {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}

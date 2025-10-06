@@ -3,8 +3,8 @@
 {# @var page \Shopware\Storefront\Page\LandingPage\LandingPage|\Shopware\Storefront\Page\CategoryPage\CategoryPage #}
 {% block base_main_inner %}
 
-    {% if feature('STOREFRONT_COMPONENTS') and cmsPage %}
-        <twig:Sw:Content:Page :page="cmsPage" />
+    {% if feature('STOREFRONT_COMPONENTS') and cmsPage and activeRoute == 'frontend.home.page' %}
+        <twig:Sw:Content:Page :page="cmsPage"/>
     {% else %}
 
     <div class="container-main">

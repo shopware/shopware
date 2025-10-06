@@ -1,0 +1,18 @@
+{% props
+    label = 'Sort products',
+    options = [
+        { value: 'name-asc', label: 'Alphabetically, A-Z', selected: true },
+        { value: 'name-desc', label: 'Alphabetically, Z-A' },
+        { value: 'name-desc', label: 'Price, low to high' },
+        { value: 'price-desc', label: 'Price, high to low' },
+        { value: 'best-selling', label: 'Best selling' },
+    ]
+%}
+
+<select class="sw-filter-sort" aria-label="{{ label }}">
+    {% for sortingOption in options %}
+        <option value="{{ sortingOption.value }}"{% if sortingOption.selected == true %} selected{% endif %}>
+            {{ sortingOption.label }}
+        </option>
+    {% endfor %}
+</select>

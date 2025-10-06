@@ -1,14 +1,18 @@
-$sw-prefix: 'sw-';
-
 .product-card {
     min-width: 100%;
-    --#{$prefix}card-spacer-y: 1rem;
-    --#{$prefix}card-spacer-x: 1rem;
-    --#{$prefix}card-border-color: var(--#{$prefix}border-color);
-    --#{$prefix}card-cap-padding-y: 1rem;
-    --#{$prefix}card-cap-padding-x: 1rem;
-    --#{$prefix}card-cap-bg: none;
-    --#{$sw-prefix}product-card-media-height: 200px;
+    //--bs-card-spacer-y: 1rem;
+    //--bs-card-spacer-x: 1rem;
+    //--bs-card-border-color: var(--bs-border-color);
+    //--bs-card-cap-padding-y: 1rem;
+    //--bs-card-cap-padding-x: 1rem;
+
+    --bs-card-spacer-y: 1rem;
+    --bs-card-spacer-x: 0;
+    --bs-card-border-color: transparent;
+    --bs-card-cap-padding-y: 1rem;
+    --bs-card-cap-padding-x: 0;
+    --bs-card-cap-bg: none;
+    --sw-product-card-media-height: 200px;
 }
 
 .product-card-title {
@@ -20,7 +24,7 @@ $sw-prefix: 'sw-';
 }
 
 .product-card-title-link {
-    color: var(--#{$prefix}body-color);
+    color: var(--bs-body-color);
     text-decoration: none;
 
     &.stretched-link::after {
@@ -28,7 +32,8 @@ $sw-prefix: 'sw-';
     }
 
     &:hover {
-        text-decoration: none;
+        text-decoration: underline;
+        color: var(--bs-primary);
     }
 }
 
@@ -71,15 +76,50 @@ $sw-prefix: 'sw-';
     }
 }
 
-.product-card-media {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: scale(100%);
-}
+.product-card.is--layout-default {
+    .product-card__inner {
+        flex-direction: column;
+    }
 
-// Using wild has selector here because hovering the image is blocked by the stretched link.
-.product-card-header:has(+ .product-card-body .product-card-title-link:hover) {
-    .product-card-media {
-        opacity: 0.7;
-        transform: scale(105%);
+    .sw-product-card__description {
+        display: none;
     }
 }
+
+.product-card.is--layout-horizontal {
+    border-bottom: 1px solid var(--bs-border-color);
+
+    // Apply .row styling
+    .product-card__inner {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: calc(-1 * var(--bs-gutter-y));
+        margin-right: calc(-.5 * var(--bs-gutter-x));
+        margin-left: calc(-.5 * var(--bs-gutter-x));
+    }
+
+    // Apply .col-3 styling
+    .product-card-header {
+        flex: 0 0 auto;
+        width: 25%;
+    }
+
+    // Apply .col-9 styling
+    .sw-product-card__content {
+        flex: 0 0 auto;
+        width: 75%;
+    }
+
+    .stretched-link::after {
+        width: 25%;
+    }
+
+    .sw-product-card__description {
+        display: block;
+    }
+
+    .product-card-actions .btn {
+        max-width: 280px;
+    }
+}
+

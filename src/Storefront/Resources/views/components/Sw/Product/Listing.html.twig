@@ -10,11 +10,25 @@
 
 <div {{ attributes.defaults(attributeDefaults) }} class="{{ listingCVA.apply({}, attributes.render('class')) }}">
 
+    {% set layout = app.request.get('layout') %}
+
+    <twig:Sw:Filter:Panel :horizontal="horizontal" :totalCount="listing.elements|length" />
+
     {% block content %}
 
-        <twig:Sw:Grid:Container columns="4" columnsLg="2" columnsSm="1">
+        <twig:Sw:Grid:Container
+            class="product-listing__grid"
+            :columns="layout == 'horizontal' ? '1' : '4'"
+            :columnsXl="layout == 'horizontal' ? '1' : '3'"
+            :columnsLg="layout == 'horizontal' ? '1' : '2'"
+            :columnsSm="layout == 'horizontal' ? '1' : '2'"
+            gap="20"
+        >
             {% for product in listing.elements %}
-                <twig:Sw:Product:Card :product="product" />
+                <twig:Sw:Product:Card
+                    :product="product"
+                    :layout="layout ? layout : 'default'"
+                />
             {% endfor %}
         </twig:Sw:Grid:Container>
 

@@ -156,6 +156,12 @@ This allows Shopware to run without requiring write access to create the `instal
 # Country-agnostic language layer is now implemented
 With this release, we have fully implemented the country-agnostic language layer as described in the [ADR](https://developer.shopware.com/docs/resources/references/adr/2025-09-01-adding-a-country-agnostic-language-layer.md). Therefore, a new best practice has been established for providing translations in Shopware. We recommend to rename your translation files to use the country-agnostic language codes (e.g., `en` instead of `en-GB`). This change will also require to rename the `base_file` column in the `snippet_set` table accordingly. Although its use is not recommended, the old, specific snippet naming (e.g., `en-GB`) will continue to work for backward compatibility.
 
+## Snippet Validation command
+The command `snippets:validate` has been renamed to `translation:validate`. Please refrain from using the old command name as it will be removed in the next major version.
+
+## SnippetValidator
+The class `Shopware\Core\System\Snippet\SnippetValidator` will be marked as internal in the next major version as it is supposed to be used for internal purposes only.
+
 # 6.7.2.0
 
 ## New robots meta tag configuration

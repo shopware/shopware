@@ -81,6 +81,8 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [#9451 - Refactor providing of cookies](./changelog/release-6-7-3-0/2025-09-02-refactor-cookie-controller-introduce-cookie-groups-store-api.md)
 *  [#9835 - Remove unnecessary default rules](./changelog/release-6-7-3-0/2025-09-15-remove-unnecessary-default-rules.md)
 *  [Ocarthon - Interpret checkbox custom fields values as booleans](./changelog/release-6-7-3-0/2025-09-02-interpret-checkbox-custom-field-values-as-bool.md) @Ocarthon
+*  [#12154 - fix: expose one port for admin watcher, fixes #12154 (#12161)](https://github.com/shopware/shopware/issues/12154)
+*  [#12188 - Implement lint translation files command](./changelog/release-6-7-3-0/2025-09-25-implement-lint-translation-files-command.md)
 
 ## 6.7.2.2
 *  [#12503 - fix: disable profiler in production](https://github.com/shopware/shopware/pull/12503)

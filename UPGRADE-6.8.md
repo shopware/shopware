@@ -59,6 +59,11 @@ The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()
 ## Removed `TaskScheduler::getNextExecutionTime()`
 The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.
 
+## Snippet Validation command
+The command `snippets:validate` has been renamed to `translation:validate`.
+
+## SnippetValidator
+The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
 
 ## Introduced in 6.7.2.0
 

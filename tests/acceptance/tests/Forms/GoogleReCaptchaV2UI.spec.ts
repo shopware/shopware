@@ -1,4 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { acceptTechnicalRequiredCookiesWithRecaptcha, verifyRecaptchaProtectionNotice, verifyRecaptchaScriptNotLoaded, waitForRecaptchaScriptLoaded } from '../../helpers/recaptcha-helpers';
 
 const reCaptcha_V2_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 const reCaptcha_V2_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
@@ -33,21 +34,16 @@ test('As a customer, I can see the visible Google reCaptcha V2 is loaded and fun
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        const reCaptchaContainer = StorefrontAccountLogin.page.locator('.captcha-google-re-captcha-v2').first();
-        const reCaptchaInput = reCaptchaContainer.locator('.grecaptcha-v2-input').first();
-        const reCaptchaFrame = reCaptchaContainer.locator('iframe').first();
-        const reCaptchaCheckbox = reCaptchaFrame.contentFrame().getByRole('checkbox', { name: `I'm not a robot` });
-
-        await test.step('Verify the reCaptcha V2 is not loaded before cookie consent', async () => {
-            await ShopCustomer.expects(reCaptchaInput).not.toBeVisible();
-            await ShopCustomer.expects(reCaptchaFrame).not.toBeVisible();
-            await ShopCustomer.expects(reCaptchaCheckbox).not.toBeVisible();
-        });
+        await verifyRecaptchaScriptNotLoaded(StorefrontAccountLogin.page, test, 'V2');
 
         await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
 
-        await ShopCustomer.page.waitForLoadState('networkidle');
-        await ShopCustomer.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
+        await waitForRecaptchaScriptLoaded(StorefrontAccountLogin.page);
+
+        // For visible V2, we need to check specific elements after script loads
+        const reCaptchaContainer = StorefrontAccountLogin.page.locator('.captcha-google-re-captcha-v2').first();
+        const reCaptchaFrame = reCaptchaContainer.locator('iframe').first();
+        const reCaptchaCheckbox = reCaptchaFrame.contentFrame().getByRole('checkbox', { name: `I'm not a robot` });
 
         await test.step('Verify the reCaptcha V2 is loaded and visible after cookie consent', async () => {
             await ShopCustomer.expects(reCaptchaFrame).toBeVisible();
@@ -91,12 +87,16 @@ test('As a customer, I can see the invisible Google reCaptcha V2 is loaded and s
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
+        await verifyRecaptchaScriptNotLoaded(StorefrontAccountLogin.page, test, 'V2');
 
-        await test.step('Verify the invisible reCaptcha V2 is loaded and shows protection notice', async () => {
-            const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
-            await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
-        });
+        await acceptTechnicalRequiredCookiesWithRecaptcha(
+            StorefrontAccountLogin.page,
+            test,
+            () => acceptTechnicalRequiredCookies(StorefrontAccountLogin),
+            'V2'
+        );
+
+        await verifyRecaptchaProtectionNotice(StorefrontAccountLogin.page, test, 'V2');
     }
 );
 
@@ -133,11 +133,7 @@ test('As a customer, I can see the invisible Google reCaptcha V2 is loaded in th
         await test.step('Open the contact form modal on home page', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
 
-            await test.step('Verify reCaptcha script is not loaded before cookie consent', async () => {
-                const reCaptchaScript = StorefrontHome.page.locator('#recaptcha-script');
-                await ShopCustomer.expects(reCaptchaScript).toHaveAttribute('data-src');
-                await ShopCustomer.expects(reCaptchaScript).not.toHaveAttribute('src');
-            });
+            await verifyRecaptchaScriptNotLoaded(StorefrontHome.page, test, 'V2');
 
             await acceptTechnicalRequiredCookies(StorefrontHome);
 
@@ -145,12 +141,7 @@ test('As a customer, I can see the invisible Google reCaptcha V2 is loaded in th
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
         });
 
-        await test.step('Verify the invisible reCaptcha V2 is loaded and shows protection notice', async () => {
-            const reCaptchaNotice = StorefrontContactForm.page.getByText('This site is protected by reCAPTCHA');
-            await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
-
-            // Wait for reCaptcha iframe to be loaded
-            await StorefrontContactForm.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
-        });
+        await waitForRecaptchaScriptLoaded(StorefrontContactForm.page);
+        await verifyRecaptchaProtectionNotice(StorefrontContactForm.page, test, 'V2');
     }
 );

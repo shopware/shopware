@@ -1,4 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { setupRecaptchaFlow, verifyRecaptchaProtectionNotice, verifyRecaptchaScriptNotLoaded, waitForRecaptchaScriptLoaded } from '../../helpers/recaptcha-helpers';
 
 const reCaptcha_V3_site_key = '6LeNJ-UqAAAAAPmLzX0ekQuuv7f4HR8FVyaF4FrR';
 const reCaptcha_V3_secret_key = '6LeNJ-UqAAAAAGIxrxNBjVvQwPUZ6_DJxWlqXC9u';
@@ -33,12 +34,12 @@ test('As a customer, I can see the invisible Google reCaptcha V3 is loaded and s
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
-
-        await test.step('Verify the invisible reCaptcha V3 is loaded and shows protection notice', async () => {
-            const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
-            await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
-        });
+        await setupRecaptchaFlow(
+            StorefrontAccountLogin.page,
+            test,
+            () => acceptTechnicalRequiredCookies(StorefrontAccountLogin),
+            'V3'
+        );
     }
 );
 
@@ -75,15 +76,15 @@ test('As a customer, I can see the invisible Google reCaptcha V3 is loaded in th
         await test.step('Open the contact form modal on home page', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
 
+            await verifyRecaptchaScriptNotLoaded(StorefrontHome.page, test, 'V3');
+
             await acceptTechnicalRequiredCookies(StorefrontHome);
 
             await StorefrontHome.contactFormLink.click();
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
         });
 
-        await test.step('Verify the invisible reCaptcha V3 is loaded and shows protection notice', async () => {
-            const reCaptchaNotice = StorefrontContactForm.page.getByText('This site is protected by reCAPTCHA');
-            await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
-        });
+        await waitForRecaptchaScriptLoaded(StorefrontContactForm.page);
+        await verifyRecaptchaProtectionNotice(StorefrontContactForm.page, test, 'V3');
     }
 );

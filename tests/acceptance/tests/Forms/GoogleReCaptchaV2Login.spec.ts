@@ -1,4 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { verifyRecaptchaProtectionNotice, verifyRecaptchaScriptNotLoaded, waitForRecaptchaScriptLoaded } from '../../helpers/recaptcha-helpers';
 
 const reCaptcha_V2_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 const reCaptcha_V2_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
@@ -37,20 +38,15 @@ test('As a customer, I can perform a registration by validating to be not a robo
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        const reCaptchaContainer = StorefrontAccountLogin.page.locator('.captcha-google-re-captcha-v2').first();
-        const reCaptchaInput = reCaptchaContainer.locator('.grecaptcha-v2-input').first();
-        const reCaptchaFrame = reCaptchaContainer.locator('iframe').first();
-        const reCaptchaCheckbox = reCaptchaFrame.contentFrame().getByRole('checkbox', { name: `I'm not a robot` });
+        await verifyRecaptchaScriptNotLoaded(StorefrontAccountLogin.page, test, 'V2');
 
-        await test.step('Verify the reCaptcha V2 is not loaded before cookie consent', async () => {
-            await ShopCustomer.expects(reCaptchaInput).not.toBeVisible();
-            await ShopCustomer.expects(reCaptchaFrame).not.toBeVisible();
-            await ShopCustomer.expects(reCaptchaCheckbox).not.toBeVisible();
-        });
+        const promiseCookieGroupsRequest = StorefrontAccountLogin.page.waitForResponse(
+            resp => resp.url().includes('cookie/groups')
+        );
 
         await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
+        await waitForRecaptchaScriptLoaded(StorefrontAccountLogin.page);
 
-        const promiseCookieGroupsRequest = StorefrontAccountLogin.page.waitForResponse(resp => resp.url().includes('cookie/groups'));
         const cookieGroupsResponse = await promiseCookieGroupsRequest;
         const cookieGroups = await cookieGroupsResponse.json();
         const technicalRequiredCookies = cookieGroups.elements.find(group => group.name === 'Technically required');
@@ -58,13 +54,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
         console.log(technicalRequiredCookies.entries);
         ShopCustomer.expects(technicalRequiredCookies.entries.find(entry => entry.cookie === '_GRECAPTCHA')).toBeTruthy();
 
-        await ShopCustomer.page.waitForLoadState('networkidle');
-        await ShopCustomer.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
-
-        await test.step('Verify the invisible reCaptcha V2 is loaded and shows protection notice', async () => {
-            const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
-            await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
-        });
+        await verifyRecaptchaProtectionNotice(StorefrontAccountLogin.page, test, 'V2');
 
         await test.step('Customer attempts to register and is automatically validated via the invisible reCaptcha V2', async () => {
             await ShopCustomer.attemptsTo(Register(customer));

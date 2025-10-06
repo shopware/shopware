@@ -130,7 +130,7 @@ class Migration1759735553AddMissingDefaultSlotConfigurationFieldsTest extends Te
     /**
      * @return array<string, mixed>|false
      */
-    private function fetchSlotConfig($slotId): array|false
+    private function fetchSlotConfig(string $slotId): array|false
     {
         return $this->connection->fetchAssociative(
             'SELECT t.config, s.type AS slot_type

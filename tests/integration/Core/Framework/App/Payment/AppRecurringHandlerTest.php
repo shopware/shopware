@@ -54,7 +54,7 @@ class AppRecurringHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
-            'shopId' => $this->shopIdProvider->getShopId(),
+            'shopId' => $this->shopIdProvider->getShopId()->id,
             'appVersion' => '1.0.0',
             'inAppPurchases' => null,
         ], $content['source']);

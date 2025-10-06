@@ -8,9 +8,12 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('fundamentals@after-sales')]
 final class RuleConfig extends Struct
 {
-    public const OPERATOR_SET_DEFAULT = [Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_GTE, Rule::OPERATOR_LTE];
-
-    public const OPERATOR_SET_STRING = [Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ];
+    public const OPERATOR_SET_DEFAULT = [
+        Rule::OPERATOR_EQ,
+        Rule::OPERATOR_NEQ,
+        Rule::OPERATOR_GTE,
+        Rule::OPERATOR_LTE,
+    ];
 
     public const OPERATOR_SET_NUMBER = [
         Rule::OPERATOR_EQ,
@@ -18,6 +21,11 @@ final class RuleConfig extends Struct
         Rule::OPERATOR_GTE,
         Rule::OPERATOR_LT,
         Rule::OPERATOR_LTE,
+        Rule::OPERATOR_NEQ,
+    ];
+
+    public const OPERATOR_SET_STRING = [
+        Rule::OPERATOR_EQ,
         Rule::OPERATOR_NEQ,
     ];
 
@@ -40,6 +48,9 @@ final class RuleConfig extends Struct
      */
     protected ?array $operators = null;
 
+    /**
+     * Toggles the "at least one" / "all" setting in the administration
+     */
     protected bool $isMatchAny = false;
 
     /**

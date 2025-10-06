@@ -48,7 +48,7 @@ class AffiliateCodeOfOrderRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => RuleConstraints::stringOperators(true),
+            'operator' => RuleConstraints::stringOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {

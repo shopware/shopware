@@ -67,7 +67,7 @@ class LineItemDimensionHeightRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true, true)
             ->numberField('amount', ['unit' => RuleConfig::UNIT_DIMENSION]);
     }
 

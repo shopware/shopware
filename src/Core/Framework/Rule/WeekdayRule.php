@@ -26,9 +26,9 @@ class WeekdayRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        $todaysDayOfWeek = (int) $scope->getCurrentTime()->format('N');
+        $todayDayOfWeek = (int) $scope->getCurrentTime()->format('N');
 
-        return RuleComparison::numeric($todaysDayOfWeek, $this->dayOfWeek, $this->operator);
+        return RuleComparison::numeric($todayDayOfWeek, $this->dayOfWeek, $this->operator);
     }
 
     public function getConstraints(): array

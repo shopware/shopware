@@ -24,8 +24,6 @@ class CustomerCustomFieldRule extends Rule
 
     protected ?string $selectedField = null;
 
-    protected ?string $selectedFieldSet = null;
-
     /**
      * @param array<string, string|array<string, string>> $renderedField
      *

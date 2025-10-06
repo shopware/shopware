@@ -1,5 +1,6 @@
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item-in-category sw-condition__condition-value">
+    {# @deprecated tag:v6.8.0 - Will be removed, use `sw-condition-generic` instead. #}
     {% block sw_condition_line_item_in_category_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -8,6 +9,7 @@
     />
     {% endblock %}
 
+    {# @deprecated tag:v6.8.0 - Will be removed, use `sw-condition-generic` instead. #}
     {% block sw_condition_line_item_in_category_field_identifiers %}
     <sw-entity-multi-select
         v-if="!isEmpty"
@@ -19,6 +21,7 @@
         @update:entity-collection="setCategoryIds"
     >
         <template #result-item="{ item, index, isSelected, addItem, displayLabelProperty, isSelectionDisabled, descriptionPosition, highlightSearchTerm, searchTerm }">
+            {# @deprecated tag:v6.8.0 - Will be removed, use `sw-condition-generic` instead. #}
             {% block sw_condition_line_item_in_category_field_result_item %}
             <sw-select-result
                 :selected="isSelected(item)"
@@ -27,6 +30,7 @@
                 :description-position="descriptionPosition"
                 @item-select="addItem"
             >
+                {# @deprecated tag:v6.8.0 - Will be removed, use `sw-condition-generic` instead. #}
                 {% block sw_condition_line_item_in_category_field_result_item_content %}
                 <span class="sw-condition-line-item-in-category__result-item">
                     <sw-highlight-text
@@ -47,11 +51,13 @@
                 {% endblock %}
 
                 <template #description>
+                    {# @deprecated tag:v6.8.0 - Will be removed, use `sw-condition-generic` instead. #}
                     {% block sw_condition_line_item_in_category_field_description %}
                     <slot
                         name="result-description-property"
                         v-bind="{ item }"
                     >
+                        {# @deprecated tag:v6.8.0 - Will be removed, use `sw-condition-generic` instead. #}
                         {% block sw_condition_line_item_in_category_field_description_default %}
                         {{ getCategoryBreadcrumb(item) }}
                         {% endblock %}

@@ -238,7 +238,7 @@ class LineItemStockRuleTest extends TestCase
         static::assertArrayHasKey('operatorSet', $configData);
         static::assertSame([
             'operators' => RuleConfig::OPERATOR_SET_NUMBER,
-            'isMatchAny' => false,
+            'isMatchAny' => true,
         ], $configData['operatorSet']);
     }
 

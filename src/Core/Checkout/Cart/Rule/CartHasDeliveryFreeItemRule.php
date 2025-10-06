@@ -51,7 +51,9 @@ class CartHasDeliveryFreeItemRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->booleanField('allowed');
+            ->booleanField('allowed', [
+                'isMatchAny' => true,
+            ]);
     }
 
     private function hasFreeDeliveryItems(LineItemCollection $lineItems): bool

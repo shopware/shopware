@@ -88,6 +88,11 @@
         gap: var(--scale-size-4);
         grid-template-columns: auto 1fr;
         width: 100%;
+
+        &:has(> :only-child) {
+            display: block;
+            grid-template-columns: 1fr;
+        }
     }
 
     .sw-condition__value-content {

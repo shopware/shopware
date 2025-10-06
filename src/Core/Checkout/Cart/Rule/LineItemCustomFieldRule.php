@@ -28,8 +28,6 @@ class LineItemCustomFieldRule extends Rule
 
     protected ?string $selectedField = null;
 
-    protected ?string $selectedFieldSet = null;
-
     /**
      * @param array<string, mixed> $renderedField
      *
@@ -72,6 +70,7 @@ class LineItemCustomFieldRule extends Rule
     private function isCustomFieldValid(LineItem $lineItem): bool
     {
         $customFields = $lineItem->getPayloadValue('customFields');
+
         if ($customFields === null) {
             return RuleComparison::isNegativeOperator($this->operator);
         }

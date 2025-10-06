@@ -53,7 +53,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         static::assertEquals(
             (new RuleConfig())
-                ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+                ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
                 ->selectField('lineItemType', [LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::PROMOTION_LINE_ITEM_TYPE]),
             $rule->getConfig()
         );

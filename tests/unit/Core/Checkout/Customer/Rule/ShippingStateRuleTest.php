@@ -43,14 +43,15 @@ class ShippingStateRuleTest extends TestCase
         ];
 
         $ruleConstraints = $this->rule->getConstraints();
-
         static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
+
         $operators = $ruleConstraints['operator'];
         static::assertEquals(new NotBlank(), $operators[0]);
         static::assertEquals(new Choice($expectedOperators), $operators[1]);
 
         $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
         static::assertArrayHasKey('stateIds', $ruleConstraints, 'Constraint stateIds not found in Rule');
+
         $stateIds = $ruleConstraints['stateIds'];
         static::assertEquals(new NotBlank(), $stateIds[0]);
         static::assertEquals(new ArrayOfUuid(), $stateIds[1]);

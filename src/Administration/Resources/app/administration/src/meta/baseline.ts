@@ -73,7 +73,6 @@ const missingTests = [
     'src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/index.js',
     'src/app/component/rule/condition-type/sw-condition-not-found/index.js',
     'src/app/component/rule/condition-type/sw-condition-time-range/index.js',
-    'src/app/component/rule/sw-condition-base-line-item/index.js',
     'src/app/component/rule/sw-condition-is-net-select/index.js',
     'src/app/component/rule/sw-condition-modal/index.js',
     'src/app/component/sidebar/sw-sidebar-item/index.js',

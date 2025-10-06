@@ -32,6 +32,7 @@ class DateRangeRule extends Rule
         if (\is_string($this->fromDate)) {
             $this->fromDate = new \DateTime($this->fromDate);
         }
+
         if (\is_string($this->toDate)) {
             $this->toDate = new \DateTime($this->toDate);
         }
@@ -42,6 +43,7 @@ class DateRangeRule extends Rule
         if (\is_string($this->toDate) || \is_string($this->fromDate)) {
             throw RuleException::invalidDateRangeUsage('fromDate or toDate cannot be a string at this point');
         }
+
         $toDate = $this->toDate;
         $fromDate = $this->fromDate;
         $now = $scope->getCurrentTime();

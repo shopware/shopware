@@ -91,7 +91,9 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
         static::assertContains([
             'name' => 'allowed',
             'type' => 'bool',
-            'config' => [],
+            'config' => [
+                'isMatchAny' => true,
+            ],
         ], $fields);
     }
 

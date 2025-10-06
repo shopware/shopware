@@ -50,7 +50,7 @@ class CurrencyRuleTest extends TestCase
                     Rule::OPERATOR_EQ,
                     Rule::OPERATOR_NEQ,
                 ],
-                'isMatchAny' => true,
+                'isMatchAny' => false,
             ],
             'fields' => [
                 'currencyIds' => [

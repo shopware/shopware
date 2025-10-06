@@ -45,7 +45,13 @@ export default {
                 return this.conditionScopes.includes('cart');
             }
 
-            return true;
+            const config = Shopware.Store.get('ruleConditionsConfig').getConfigForType(this.condition.type);
+
+            if (config?.operatorSet?.isMatchAny) {
+                return config.operatorSet.isMatchAny;
+            }
+
+            return Object.values(config?.fields ?? []).some((field) => field?.config?.isMatchAny);
         },
 
         matchesAllOptions() {
@@ -106,6 +112,7 @@ export default {
 
         createEntity(condition) {
             const entity = this.ruleConditionRepository.create();
+
             Object.keys(condition).forEach((key) => {
                 if (key === 'id') {
                     return;

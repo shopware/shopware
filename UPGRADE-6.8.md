@@ -240,7 +240,24 @@ Profiles are now identified and displayed only by their technical name.
     - `sw_import_export_view_profile_profiles_listing_column_label` (`sw-import-export-view-profiles.html.twig`)
     - `sw_import_export_language_switch` (`sw-import-export.html.twig`)
 
-## ApiClient confidential flag
+## Rule Builder: config alignment and new rule conditions
+
+The Rule Builder has been updated to improve consistency and usability.
+
+### Core
+- The `LineItemPurchasePriceRule` now uses a `type` field instead of `isNet` boolean to specify whether the price is net or gross. The new type options are `CartPrice::TAX_STATE_NET` ("net") and `CartPrice::TAX_STATE_GROSS` ("gross").
+- A migration `Migration1754398573ChangeAllLineItemsRuleValueType` has been added to update existing rule conditions in the database to use the new `type` field.
+- The `CurrencyRule` no longer supports the `isMatchAny` operator option.
+- New rule conditions:
+    - `LineItemPerItemQuantityRule`: Matches line items based on their individual quantity.
+
+### Administration
+- The following components have been deprecated and will be removed in version 6.8.0
+    - `sw-condition-line-item-in-category`: Use `sw-condition-generic` instead.
+    - `sw-condition-line-item-purchase-price`: Use `sw-condition-generic` instead.
+    - `sw-condition-is-net-select`: Use `sw-condition-generic` instead.
+
+## ApiClient confidential flag  
 
 * You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
 * You must pass the `confidential` parameter as the third parameter of the constructor.

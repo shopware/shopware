@@ -114,5 +114,13 @@ return [
 
         // Domain exceptions should not be extended in 3rd party code
         preg_quote('ADDED: Parameter domain was added to Method invalidDomain() of class Shopware\Core\System\SystemConfig\SystemConfigException', '/'),
+
+        // rules classes are final and their constructors internal
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule#$selectedFieldSet was removed', '/'),
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule#$selectedFieldSet', '/'),
+        // existing rule condition values get updated with `Migration1759759287UpdateLineItemPurchasePriceRuleConditions`
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule#$isNet was removed', '/'),
+        // false detection, no change on the method signature
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Rule\Rule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig|null to Shopware\Core\Framework\Rule\RuleConfig', '/'),
     ],
 ];

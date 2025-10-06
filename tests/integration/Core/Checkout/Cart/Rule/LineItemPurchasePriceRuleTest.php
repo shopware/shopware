@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -51,7 +51,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         $ruleConstraints = $this->rule->getConstraints();
 
         static::assertArrayHasKey('amount', $ruleConstraints, 'Rule Constraint amount is not defined');
-        static::assertArrayHasKey('isNet', $ruleConstraints, 'Rule Constraint isNet is not defined');
+        static::assertArrayHasKey('type', $ruleConstraints, 'Rule Constraint type is not defined');
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
     }
 
@@ -78,8 +78,8 @@ class LineItemPurchasePriceRuleTest extends TestCase
             static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
             static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);
 
-            static::assertSame('/0/value/isNet', $exceptions[1]['source']['pointer']);
-            static::assertSame(NotNull::IS_NULL_ERROR, $exceptions[1]['code']);
+            static::assertSame('/0/value/type', $exceptions[1]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
 
             static::assertSame('/0/value/amount', $exceptions[2]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[2]['code']);
@@ -95,7 +95,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         bool $noPrice = false
     ): void {
         $this->rule->assign([
-            'isNet' => false,
+            'type' => 'gross',
             'amount' => $amount,
             'operator' => $operator,
         ]);
@@ -122,7 +122,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         bool $noPrice = false
     ): void {
         $this->rule->assign([
-            'isNet' => true,
+            'type' => 'net',
             'amount' => $amount,
             'operator' => $operator,
         ]);
@@ -193,7 +193,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         bool $lineItem2WithoutPrice = false
     ): void {
         $this->rule->assign([
-            'isNet' => true,
+            'type' => 'net',
             'amount' => $amount,
             'operator' => $operator,
         ]);
@@ -234,7 +234,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         ?float $containerLineItemPrice = null
     ): void {
         $this->rule->assign([
-            'isNet' => true,
+            'type' => 'net',
             'amount' => $amount,
             'operator' => $operator,
         ]);

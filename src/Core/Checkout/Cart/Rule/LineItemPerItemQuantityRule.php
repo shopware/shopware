@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -15,30 +14,24 @@ use Shopware\Core\Framework\Rule\RuleScope;
  * @final
  */
 #[Package('fundamentals@after-sales')]
-class LineItemUnitPriceRule extends Rule
+class LineItemPerItemQuantityRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemUnitPrice';
-
-    protected float $amount;
+    final public const RULE_NAME = 'cartLineItemPerItemQuantity';
 
     /**
      * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        ?float $amount = null
+        protected ?int $quantity = null
     ) {
         parent::__construct();
-        $this->amount = (float) $amount;
     }
 
-    /**
-     * @throws UnsupportedOperatorException
-     */
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return $this->lineItemMatches($scope->getLineItem());
+            return $this->matchLineItem($scope->getLineItem());
         }
 
         if (!$scope instanceof CartRuleScope) {
@@ -46,7 +39,7 @@ class LineItemUnitPriceRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($this->lineItemMatches($lineItem)) {
+            if ($this->matchLineItem($lineItem)) {
                 return true;
             }
         }
@@ -57,7 +50,7 @@ class LineItemUnitPriceRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'amount' => RuleConstraints::float(),
+            'quantity' => RuleConstraints::int(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
     }
@@ -66,16 +59,15 @@ class LineItemUnitPriceRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, false, true)
-            ->numberField('amount');
+            ->intField('quantity');
     }
 
-    private function lineItemMatches(LineItem $lineItem): bool
+    private function matchLineItem(LineItem $lineItem): bool
     {
-        $lineItemPrice = $lineItem->getPrice();
-        if ($lineItemPrice === null) {
-            return RuleComparison::isNegativeOperator($this->operator);
+        if ($this->quantity === null) {
+            return false;
         }
 
-        return RuleComparison::numeric($lineItemPrice->getUnitPrice(), $this->amount, $this->operator);
+        return RuleComparison::numeric($lineItem->getQuantity(), $this->quantity, $this->operator);
     }
 }

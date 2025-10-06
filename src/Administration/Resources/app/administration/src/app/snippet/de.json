@@ -730,7 +730,8 @@
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",
         "lineItemTotalPriceRule": "Positionszwischensumme",
-        "lineItemWithQuantityRule": "Positionsanzahl",
+        "lineItemPerItemQuantityRule": "Positionsanzahl",
+        "lineItemWithQuantityRule": "Anzahl einer bestimmten Position",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
         "orderDeliveryStatusRule": "Lieferstatus (Flow)",
@@ -830,6 +831,14 @@
       }
     },
     "sw-condition-generic": {
+      "cartLineItemPurchasePrice": {
+        "type": {
+          "options": {
+            "net": "Netto",
+            "gross": "Brutto"
+          }
+        }
+      },
       "dayOfWeek": {
         "dayOfWeek": {
           "options": {

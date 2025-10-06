@@ -73,7 +73,7 @@ class PromotionCodeOfTypeRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('promotionCodeType', [
                 PromotionItemBuilder::PROMOTION_TYPE_GLOBAL,
                 PromotionItemBuilder::PROMOTION_TYPE_INDIVIDUAL,

@@ -31,12 +31,12 @@ class Migration1759735553AddMissingDefaultSlotConfigurationFieldsTest extends Te
 
     public function testMigrationAddsMissingFieldsForText(): void
     {
-        $this->createCmsPage('text');
+        $slotId = $this->createCmsPage('text');
 
         $migration = new Migration1759735553AddMissingDefaultSlotConfigurationFields();
         $migration->update($this->connection);
 
-        $result = $this->fetchSlotConfig();
+        $result = $this->fetchSlotConfig($slotId);
 
         static::assertNotEmpty($result);
         $config = json_decode($result['config'], true);
@@ -51,12 +51,12 @@ class Migration1759735553AddMissingDefaultSlotConfigurationFieldsTest extends Te
 
     public function testMigrationAddsMissingFieldsForImage(): void
     {
-        $this->createCmsPage('image');
+        $slotId = $this->createCmsPage('image');
 
         $migration = new Migration1759735553AddMissingDefaultSlotConfigurationFields();
         $migration->update($this->connection);
 
-        $result = $this->fetchSlotConfig();
+        $result = $this->fetchSlotConfig($slotId);
 
         static::assertNotEmpty($result);
         $config = json_decode($result['config'], true);
@@ -73,12 +73,12 @@ class Migration1759735553AddMissingDefaultSlotConfigurationFieldsTest extends Te
 
     public function testMigrationAddsMissingFieldsForProductListing(): void
     {
-        $this->createCmsPage('product-listing');
+        $slotId = $this->createCmsPage('product-listing');
 
         $migration = new Migration1759735553AddMissingDefaultSlotConfigurationFields();
         $migration->update($this->connection);
 
-        $result = $this->fetchSlotConfig();
+        $result = $this->fetchSlotConfig($slotId);
 
         static::assertNotEmpty($result);
         $config = json_decode($result['config'], true);
@@ -97,7 +97,7 @@ class Migration1759735553AddMissingDefaultSlotConfigurationFieldsTest extends Te
         static::assertEquals($expectedConfig, $config);
     }
 
-    private function createCmsPage(?string $slotType): void
+    private function createCmsPage(?string $slotType): string
     {
         $id = Uuid::randomHex();
         $cmsPageRepository = static::getContainer()->get('cms_page.repository');
@@ -123,17 +123,21 @@ class Migration1759735553AddMissingDefaultSlotConfigurationFieldsTest extends Te
             ]],
             Context::createDefaultContext()
         );
+
+        return $id;
     }
 
     /**
      * @return array<string, mixed>|false
      */
-    private function fetchSlotConfig(): array|false
+    private function fetchSlotConfig($slotId): array|false
     {
         return $this->connection->fetchAssociative(
             'SELECT t.config, s.type AS slot_type
              FROM cms_slot_translation t
-             INNER JOIN cms_slot s ON t.cms_slot_id = s.id',
+             INNER JOIN cms_slot s ON t.cms_slot_id = s.id
+             WHERE s.id = UNHEX(:slotId)',
+            ['slotId' => $slotId],
         );
     }
 }

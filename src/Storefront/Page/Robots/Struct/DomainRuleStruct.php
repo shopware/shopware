@@ -52,7 +52,7 @@ class DomainRuleStruct extends Struct
                 $path = $this->basePath . '/' . ltrim($value, '/');
                 $this->rules[] = ['type' => ucfirst($ruleType), 'path' => '/' . ltrim($path, '/')];
             } else {
-                // Handle other directives (User-agent, Crawl-delay, etc.) without base path modification
+                // Handle other directives (User-agent, Crawl-delay, etc.) without base path modification, use the value as it is
                 $this->rules[] = ['type' => ucfirst($ruleType), 'path' => $value];
             }
         }

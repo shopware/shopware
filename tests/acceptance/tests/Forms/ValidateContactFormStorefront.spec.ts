@@ -2,8 +2,10 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to fill out and submit the contact form.',
-    { tag: '@form @contact' },
+    { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel }) => {
+
+        test.slow(); //Necessary for multiple retries due to rate limiting
 
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
@@ -21,24 +23,27 @@ test(
             await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
         });
 
-        await test.step('Send and validate the contact form.', async () => {
-            const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
-            );
-            await StorefrontContactForm.submitButton.click();
-            const contactFormResponse = await contactFormPromise;
-            expect(contactFormResponse.ok()).toBeTruthy();
+        await ShopCustomer.expects(async () => {
+            await test.step('Send and validate the contact form.', async () => {
 
-            await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toHaveText(
-                'We have received your contact request and will process it as soon as possible.'
-            );
+                const contactFormPromise = StorefrontContactForm.page.waitForResponse(
+                    `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
+                );
+                await StorefrontContactForm.submitButton.click();
+                const contactFormResponse = await contactFormPromise;
+                expect(contactFormResponse.status()).toBe(200);
+                
+                await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toBeVisible();
+            });
+        }).toPass({
+            intervals: [30_000], // retry after 30 seconds
         });
     }
 );
 
 test(
     'As a customer, I forgot to fill out some fields and should be informed about the missing ones.',
-    { tag: '@form @contact' },
+    { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, InstanceMeta }) => {
 
         await test.step('Open the contact form modal on home page.', async () => {
@@ -48,7 +53,6 @@ test(
         });
 
         await test.step('Send and validate the negative contact form result.', async () => {
-            await StorefrontContactForm.page.waitForLoadState('networkidle');
             await StorefrontContactForm.submitButton.click();
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 

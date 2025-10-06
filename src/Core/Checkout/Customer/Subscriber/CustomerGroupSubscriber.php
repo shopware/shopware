@@ -108,7 +108,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             ->addFilter(new EqualsAnyFilter('foreignKey', $ids))
             ->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
 
-        /** @var array<string> $ids */
+        /** @var list<string> $ids */
         $ids = $this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds();
 
         if (\count($ids) === 0) {

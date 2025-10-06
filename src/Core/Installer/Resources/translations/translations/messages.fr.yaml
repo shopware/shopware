@@ -16,19 +16,37 @@ shopware.installer:
     forward: Continuer
     start: Démarrer
     start_installation: 'Démarrer l''installation'
-    select_language_cs: Tchèque
+    select_language_bg-BG: Bulgare
+    select_language_bs-BA: Bosniaque
+    select_language_cs-CZ: Tchèque
     select_language_da-DK: Danois
-    select_language_de: Allemand
+    select_language_de-DE: Allemand
+    select_language_el-GR: Grec
     select_language_en-US: Anglais (États-Unis d'Amérique)
-    select_language_en: Anglais (Royaume-Uni)
+    select_language_en-GB: Anglais (Royaume-Uni)
     select_language_es-ES: Espagnol
-    select_language_fr: Français
-    select_language_it: Italien
-    select_language_nl: Néerlandais
-    select_language_no: Norvégien
-    select_language_pl: Polonais
+    select_language_fi-FI: Finnois
+    select_language_fr-FR: Français
+    select_language_hi-IN: Hindi
+    select_language_hr-HR: Croate
+    select_language_hu-HU: Hongrois
+    select_language_id-ID: Indonésien
+    select_language_it-IT: Italien
+    select_language_ko-KR: Coréen
+    select_language_lv-LV: Letton
+    select_language_nl-NL: Néerlandais
+    select_language_nn-NO: Norvégien
+    select_language_pl-PL: Polonais
     select_language_pt-PT: Portugais
+    select_language_ro-RO: Roumain
+    select_language_ru-RU: Russe
+    select_language_sk-SK: Slovaque
+    select_language_sl-SI: Slovène
+    select_language_sr-RS: Serbe
     select_language_sv-SE: Suédois
+    select_language_tr-TR: Turc
+    select_language_uk-UA: Ukrainien
+    select_language_vi-VN: Vietnamien
     welcome_title: 'Bienvenue sur Shopware 6'
     language-selection_select_language: 'Langue de l''assistant d''installation'
     welcome_header: 'Votre installation de Shopware'

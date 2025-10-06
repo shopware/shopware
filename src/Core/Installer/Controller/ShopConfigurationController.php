@@ -169,7 +169,7 @@ class ShopConfigurationController extends InstallerController
      */
     private function getCountryIsos(Connection $connection, string $currentLocale): array
     {
-        /** @var array<int, array{iso3: string, iso: string}> $countries */
+        /** @var list<array{iso3: string, iso: string}> $countries */
         $countries = $connection->fetchAllAssociative('SELECT iso3, iso FROM country');
 
         // formatting string e.g. "en-GB" to "GB"
@@ -203,18 +203,23 @@ class ShopConfigurationController extends InstallerController
         $languages = [
             'de-DE' => [
                 'id' => 'de-DE',
-                'label' => 'Deutsch',
+                'label' => $this->translator->trans('shopware.installer.select_language_de-DE'),
             ],
             'en-GB' => [
                 'id' => 'en-GB',
-                'label' => 'English',
+                'label' => $this->translator->trans('shopware.installer.select_language_en-GB'),
             ],
         ];
 
         foreach ($this->translationConfig->languages as $language) {
+            $translationKey = 'shopware.installer.select_language_' . $language->locale;
+            $translatedName = $this->translator->trans($translationKey);
+
+            $label = ($translatedName !== $translationKey) ? $translatedName : $language->name;
+
             $languages[$language->locale] = [
                 'id' => $language->locale,
-                'label' => $language->name,
+                'label' => $label,
             ];
         }
 

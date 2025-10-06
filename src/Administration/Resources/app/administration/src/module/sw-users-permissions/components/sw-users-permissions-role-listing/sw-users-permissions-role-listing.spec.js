@@ -39,12 +39,17 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                     },
                 },
                 mocks: {
-                    $route: { query: '' },
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                 },
                 stubs: {
                     'sw-container': true,
                     'sw-simple-search-field': true,
-                    'sw-empty-state': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `

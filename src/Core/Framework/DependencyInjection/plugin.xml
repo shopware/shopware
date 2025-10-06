@@ -278,6 +278,10 @@
             <tag name="shopware.scaffold.generator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\GitignoreGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Plugin\Telemetry\PluginTelemetrySubscriber">
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
 

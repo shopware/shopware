@@ -1,10 +1,9 @@
+/**
+ * @sw-package after-sales
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FileValidationService from 'src/app/service/file-validation.service';
-
-/**
- * @sw-package checkout
- */
 
 const orderFixture = {
     id: '1234',
@@ -212,5 +211,82 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
         await documentNumberFieldInput.setValue('Prefix-1000-Suffix');
         expect(documentNumberFieldInput.element.value).toBe('Prefix-1000-Suffix');
+    });
+
+    it('should enable/disable create & preview buttons by documentNumber value', async () => {
+        const documentConfig = {
+            documentNumber: '',
+            documentDate: '2024/03/01',
+        };
+
+        await wrapper.setData({
+            documentConfig,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-settings-modal__document-number input').element.value).toBe(
+            documentConfig.documentNumber,
+        );
+        expect(wrapper.find('.sw-order-document-settings-modal__document-date input').element.value).toBe(
+            documentConfig.documentDate,
+        );
+
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('true');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('true');
+
+        await wrapper.find('.sw-order-document-settings-modal__document-number input').setValue('1000');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-settings-modal__document-number input').element.value).toBe('1000');
+
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).not.toHaveProperty(
+            'disabled',
+        );
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('false');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).not.toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('false');
+    });
+
+    it('should enable/disable create & preview buttons by documentDate value', async () => {
+        const documentConfig = {
+            documentNumber: '1000',
+            documentDate: '',
+        };
+
+        await wrapper.setData({
+            documentConfig,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-settings-modal__document-number input').element.value).toBe(
+            documentConfig.documentNumber,
+        );
+        expect(wrapper.find('.sw-order-document-settings-modal__document-date input').element.value).toBe(
+            documentConfig.documentDate,
+        );
+
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('true');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('true');
+
+        await wrapper.setData({
+            documentConfig: {
+                ...documentConfig,
+                documentDate: '2024/03/01',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-settings-modal__document-date input').element.value).toBe('2024/03/01');
+
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).not.toHaveProperty(
+            'disabled',
+        );
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('false');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).not.toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('false');
     });
 });

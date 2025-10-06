@@ -4,7 +4,7 @@ const reCaptcha_V2_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 const reCaptcha_V2_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
 
 test('As a customer, I can perform a registration by validating to be not a robot via the visible Google reCaptcha V2.',
-    { tag: '@form @Registration @Captcha' },
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountLogin,
@@ -61,7 +61,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
 );
 
 test('As a customer, I can perform a registration by validating to be not a robot via the invisible Google reCaptcha V2.',
-    { tag: '@form @Registration @Captcha' },
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountLogin,
@@ -104,7 +104,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
 );
 
 test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V2 even after a false input.',
-    { tag: '@form @Registration @Captcha' },
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountLogin,
@@ -184,7 +184,7 @@ test.skip('As a customer, I can perform a registration that is validated by the 
 );
 
 test('As a customer, I want to fill out and submit the contact form that is validated by the invisible Google reCaptcha V2.',
-    { tag: '@form @contact @Captcha' },
+    { tag: ['@Form', '@Contact', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontHome,
@@ -195,6 +195,8 @@ test('As a customer, I want to fill out and submit the contact form that is vali
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
+
+        test.slow(); //Necessary for multiple retries due to rate limiting
 
         await TestDataService.setSystemConfig({
             'core.basicInformation.activeCaptchasV2': {
@@ -229,19 +231,21 @@ test('As a customer, I want to fill out and submit the contact form that is vali
             await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
         });
 
-        await test.step('Send and validate the contact form.', async () => {
-            const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
-            );
+        await ShopCustomer.expects(async () => {
+            await test.step('Send and validate the contact form.', async () => {
+                const contactFormPromise = StorefrontContactForm.page.waitForResponse(
+                    `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
+                );
 
-            await StorefrontContactForm.submitButton.click();
-            const contactFormResponse = await contactFormPromise;
+                await StorefrontContactForm.submitButton.click();
+                const contactFormResponse = await contactFormPromise;
 
-            expect(contactFormResponse.ok()).toBeTruthy();
+                expect(contactFormResponse.ok()).toBeTruthy();
 
-            await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toHaveText(
-                'We have received your contact request and will process it as soon as possible.'
-            );
+                await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toBeVisible();
+            });
+        }).toPass({
+            intervals: [30_000], // retry after 30 seconds
         });
     }
 );

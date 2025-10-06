@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { Product } from '@shopware-ag/acceptance-test-suite';
 
-test('Product is visible in listing and storefront search when set to "Visible".', { tag: '@Product' }, async ({
+test('Product is visible in listing and storefront search when set to "Visible".', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     DefaultSalesChannel,
@@ -41,7 +41,7 @@ test('Product is visible in listing and storefront search when set to "Visible".
 
 });
 
-test('Product is visible in storefront search but hidden from listing when set to "Hide in listings".', { tag: '@Product' }, async ({
+test('Product is visible in storefront search but hidden from listing when set to "Hide in listings".', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -90,7 +90,7 @@ test('Product is visible in storefront search but hidden from listing when set t
     });
 });
 
-test('Product is hidden from both listing and storefront search when set to "Hide in listings and search".', { tag: '@Product' }, async ({
+test('Product is hidden from both listing and storefront search when set to "Hide in listings and search".', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -131,7 +131,7 @@ test('Product is hidden from both listing and storefront search when set to "Hid
     });
 });
 
-test('Product is not visible without adding it to the sales channel.', { tag: '@Product' }, async ({
+test('Product is not visible without adding it to the sales channel.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,

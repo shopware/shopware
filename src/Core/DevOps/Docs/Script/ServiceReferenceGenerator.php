@@ -135,7 +135,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             return \sprintf('./%s#%s', \str_replace('.md', '', self::GROUPS[$this->getGroupForService($reflection)]), strtolower($reflection->getShortName()));
         }
 
-        /** @var string $filename */
+        /** @var non-empty-string $filename */
         $filename = $reflection->getFileName();
 
         $relativePath = str_replace($this->projectDir, '', $filename);

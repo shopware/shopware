@@ -232,6 +232,7 @@ async function createWrapper() {
                 meta: {
                     $module: {
                         entity: 'product',
+                        icon: 'solid-content',
                     },
                 },
             },
@@ -304,9 +305,6 @@ async function createWrapper() {
                     },
                     'sw-data-grid-settings': {
                         template: '<div></div>',
-                    },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
                     },
                     'sw-pagination': {
                         template: '<div></div>',
@@ -654,11 +652,9 @@ describe('module/sw-product/page/sw-product-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 

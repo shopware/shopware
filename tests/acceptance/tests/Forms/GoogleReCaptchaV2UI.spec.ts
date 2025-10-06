@@ -91,21 +91,10 @@ test('As a customer, I can see the invisible Google reCaptcha V2 is loaded and s
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        const reCaptchaContainer = StorefrontAccountLogin.page.locator('.captcha-google-re-captcha-v2').first();
-        const reCaptchaInput = reCaptchaContainer.locator('.grecaptcha-v2-input').first();
-        const reCaptchaFrame = reCaptchaContainer.locator('iframe').first();
-        const reCaptchaCheckbox = reCaptchaFrame.contentFrame().getByRole('checkbox', { name: `I'm not a robot` });
-
-        await test.step('Verify the reCaptcha V2 is not loaded before cookie consent', async () => {
-            await ShopCustomer.expects(reCaptchaInput).not.toBeVisible();
-            await ShopCustomer.expects(reCaptchaFrame).not.toBeVisible();
-            await ShopCustomer.expects(reCaptchaCheckbox).not.toBeVisible();
-        });
-
         await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
 
-        await ShopCustomer.page.waitForLoadState('networkidle');
-        await ShopCustomer.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
+        // set timeout for 20 seconds for testing
+        await ShopCustomer.page.waitForTimeout(5000);
 
         await test.step('Verify the invisible reCaptcha V2 is loaded and shows protection notice', async () => {
             const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');

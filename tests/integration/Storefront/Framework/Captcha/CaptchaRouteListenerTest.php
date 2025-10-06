@@ -97,7 +97,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         $response = $browser->getResponse();
         static::assertInstanceOf(JsonResponse::class, $response);
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $responseContent = $response->getContent() ?: '';
         $content = (array) json_decode($responseContent, null, 512, \JSON_THROW_ON_ERROR);
@@ -137,7 +137,7 @@ class CaptchaRouteListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
-        static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
     }
 
     public function testCaptchaFailureRespectsErrorRoute(): void
@@ -166,12 +166,13 @@ class CaptchaRouteListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
-        static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode(), $response->getContent() ?: '');
 
-        // Verify that the response contains checkout-specific content
-        // The errorRoute should forward to checkout/register, not account/register
+        // Verify that the response redirects to the checkout register page
+        // The errorRoute parameter should be respected
         $content = $response->getContent();
         static::assertIsString($content);
+        static::assertStringContainsString('/checkout/', $content);
     }
 
     /**

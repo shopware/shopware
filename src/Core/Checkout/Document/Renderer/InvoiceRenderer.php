@@ -224,9 +224,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
                         $this->privateFilesystem->write(
                             $filename,
-                            var_export(\json_decode(\json_encode($debugData)), true),
+                            var_export(\json_decode(\json_encode($debugData, \JSON_THROW_ON_ERROR)), true),
                         );
-
                     } catch (\Throwable $e) {
                         // do nothing
                     }

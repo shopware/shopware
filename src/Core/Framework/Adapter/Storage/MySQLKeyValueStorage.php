@@ -26,14 +26,14 @@ class MySQLKeyValueStorage extends AbstractKeyValueStorage implements ResetInter
 
     public function has(string $key): bool
     {
-        $this->config = $this->config ?? $this->load();
+        $this->config ??= $this->load();
 
         return \array_key_exists($key, $this->config);
     }
 
     public function get(string $key, mixed $default = null): mixed
     {
-        $this->config = $this->config ?? $this->load();
+        $this->config ??= $this->load();
 
         return $this->config[$key] ?? $default;
     }

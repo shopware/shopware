@@ -11,7 +11,6 @@ test('Visual: Storefront Account Pages', { tag: '@Visual' }, async ({
     StorefrontAccountOrder,
     Login,
     
-
 }) => {
     const countryId = await DefaultSalesChannel.salesChannel.countryId;
     const salutationId = await DefaultSalesChannel.salesChannel.salutationId;

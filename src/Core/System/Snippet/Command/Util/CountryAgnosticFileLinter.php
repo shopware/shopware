@@ -28,7 +28,7 @@ class CountryAgnosticFileLinter
 {
     public const PLATFORM_DOMAINS = [
         'administration' => 'Administration',
-        'messages' => 'Core',
+        'messages' => 'Base',
         'storefront' => 'Storefront',
     ];
 

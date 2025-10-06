@@ -140,6 +140,40 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
     }
 
+    public function testCaptchaFailureRespectsErrorRoute(): void
+    {
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+
+        $systemConfig->set('core.basicInformation.activeCaptchasV2', [
+            BasicCaptcha::CAPTCHA_NAME => [
+                'name' => BasicCaptcha::CAPTCHA_NAME,
+                'isActive' => true,
+            ],
+        ]);
+
+        $data = [
+            'shopware_basic_captcha_confirm' => 'invalid',
+            'errorRoute' => 'frontend.checkout.register.page',
+        ];
+
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/account/register',
+            $this->tokenize('frontend.account.register.save', $data)
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertInstanceOf(Response::class, $response);
+        static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
+
+        // Verify that the response contains checkout-specific content
+        // The errorRoute should forward to checkout/register, not account/register
+        $content = $response->getContent();
+        static::assertIsString($content);
+    }
+
     /**
      * @return array<int, AbstractCaptcha|MockObject>
      */

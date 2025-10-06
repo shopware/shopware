@@ -283,12 +283,12 @@
                             </template>
                             {% endblock %}
                         </sw-data-grid>
-                        <sw-empty-state
+
+                        <mt-empty-state
                             v-if="integrations.length === 0"
-                            :absolute="false"
-                            :title="$tc('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
-                            :subline="$tc('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
-                            auto-height
+                            :icon="$route.meta.$module.icon"
+                            :headline="$tc('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
+                            :description="$tc('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
                         />
                         {% endblock %}
                     </template>

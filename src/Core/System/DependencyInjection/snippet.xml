@@ -36,6 +36,18 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter">
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="app.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Command\LintTranslationFilesCommand">
+            <argument type="service" id="Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\Command\InstallTranslationCommand">
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>

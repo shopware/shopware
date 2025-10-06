@@ -53,9 +53,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateHydratorCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <argument>%kernel.project_dir%</argument>
+
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true" />

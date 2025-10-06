@@ -73,10 +73,6 @@ test('As a customer, I can perform a registration by validating to be not a robo
             // Wait for navigation or registration to complete
             await StorefrontAccountLogin.page.waitForLoadState('networkidle');
 
-            // Check if we're on the account page or if there are any errors
-            const currentUrl = StorefrontAccountLogin.page.url();
-            console.log('Current URL after registration:', currentUrl);
-
             // Look for the customer email on the page
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         });

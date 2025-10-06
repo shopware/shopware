@@ -31,14 +31,11 @@ test('As a customer, I can perform a registration by validating to be not a robo
                 },
             },
         });
+        await TestDataService.AdminApiClient.delete('./_action/cache-delayed');
 
         const customer = { email: `${IdProvider.getIdPair().uuid}@test.com` };
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-
-        const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
-
-        await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
 
         const reCaptchaContainer = StorefrontAccountLogin.page.locator('.captcha-google-re-captcha-v2').first();
         const reCaptchaInput = reCaptchaContainer.locator('.grecaptcha-v2-input').first();
@@ -53,11 +50,20 @@ test('As a customer, I can perform a registration by validating to be not a robo
 
         await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
 
+        const promiseCookieGroupsRequest = StorefrontAccountLogin.page.waitForResponse(resp => resp.url().includes('cookie/groups'));
+        const cookieGroupsResponse = await promiseCookieGroupsRequest;
+        const cookieGroups = await cookieGroupsResponse.json();
+        const technicalRequiredCookies = cookieGroups.elements.find(group => group.name === 'Technically required');
+
+        ShopCustomer.expects(technicalRequiredCookies.entries.find(entry => entry.cookie === '_GRECAPTCHA')).toBeTruthy();
+
         await ShopCustomer.page.waitForLoadState('networkidle');
         await ShopCustomer.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
 
-        // set timeout for 1 second for testing
-        await ShopCustomer.page.waitForTimeout(10000);
+        await test.step('Verify the invisible reCaptcha V2 is loaded and shows protection notice', async () => {
+            const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
+            await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
+        });
 
         await test.step('Customer attempts to register and is automatically validated via the invisible reCaptcha V2', async () => {
             await ShopCustomer.attemptsTo(Register(customer));

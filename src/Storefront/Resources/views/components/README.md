@@ -83,10 +83,10 @@ Now your component is all set up and ready to go. You can directly access it in 
 
 ## Adding components via Shopware extension
 
-New components can easily be added by Shopware apps and plugins in the same way as described above.
+New components can easily be added by Shopware apps and plugins.
 
 ### Anonymous Components
-The anonymous components work right of the box and you dont't have to do anything else than putting your component files under `<your-plugin>/src/Resources/views/components`. Both, apps and plugins can provide anonymous components in any distribution form of Shopware. Your components will automatically be prefixed with the bundle name of your app or plugin. 
+The anonymous components work right of the box and you dont't have to do anything else than putting a template file under `<your-plugin>/src/Resources/views/components`. Both, apps and plugins can provide anonymous components in any distribution form of Shopware. Your components will automatically be prefixed with the bundle name of your app or plugin. 
 
 **Example structure:**  
 
@@ -106,6 +106,8 @@ This will result in the following component being registered:
 ```Twig
 <twig:MyExtension:Button:Primary />
 ```
+
+For further information about anonymous components you can have a look at the [official documentation](https://symfony.com/bundles/ux-twig-component/current/index.html#anonymous-components).
 
 ### Components with PHP class
 Components that make use of a PHP class can only be provided by plugins, not via apps. If you want to use a PHP class for a component in your plugin, you can simply create it next to your other component files, like described above. You can then define your component. Make sure to use the right namespace.

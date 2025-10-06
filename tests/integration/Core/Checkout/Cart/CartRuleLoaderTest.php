@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -22,6 +23,7 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(CartRuleLoader::class)]
 class CartRuleLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,12 +35,12 @@ class CartRuleLoaderTest extends TestCase
         $cartRuleLoader = static::getContainer()->get(CartRuleLoader::class);
 
         $customerGroup = new CustomerGroupEntity();
-        $customerGroup->setId('test-id');
+        $customerGroup->setId(Uuid::randomHex());
         $customerGroup->setDisplayGross(true);
 
         $customer = new CustomerEntity();
         $customer->setAccountType($accountType);
-        $customer->setId('test-id');
+        $customer->setId(Uuid::randomHex());
         $customer->setGroup($customerGroup);
         $customer->setCompany('test-company');
         $customer->setVatIds(['DE123456789']);
@@ -49,10 +51,10 @@ class CartRuleLoaderTest extends TestCase
         $country->setShippingAvailable(true);
         $country->setCheckVatIdPattern(false);
 
-        $currey = new CurrencyEntity();
-        $currey->setId(Uuid::randomHex());
-        $currey->setTaxFreeFrom(0.0);
-        $currey->setFactor(1.5);
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setTaxFreeFrom(0.0);
+        $currency->setFactor(1.5);
 
         $taxCustomerConfig = new TaxFreeConfig($taxCustomerConfig);
         $country->setCustomerTax($taxCustomerConfig);
@@ -60,7 +62,7 @@ class CartRuleLoaderTest extends TestCase
         $taxBusinessConfig = new TaxFreeConfig($taxBusinessConfig);
         $country->setCompanyTax($taxBusinessConfig);
 
-        $salesChannelContext = Generator::generateSalesChannelContext(currency: $currey, currentCustomerGroup: $customerGroup, customer: $customer, country: $country);
+        $salesChannelContext = Generator::generateSalesChannelContext(currency: $currency, currentCustomerGroup: $customerGroup, customer: $customer, country: $country);
 
         $cart = new Cart('test');
 
@@ -70,56 +72,56 @@ class CartRuleLoaderTest extends TestCase
 
     public static function taxConfigProvider(): \Generator
     {
-        yield [
+        yield 'customer account + customer tax free => tax-free' => [
             CustomerEntity::ACCOUNT_TYPE_PRIVATE,
             true,
             false,
             CartPrice::TAX_STATE_FREE,
         ];
 
-        yield [
+        yield 'business account + customer tax free => no tax-free' => [
             CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             true,
             false,
             CartPrice::TAX_STATE_GROSS,
         ];
 
-        yield [
+        yield 'customer account + business tax free => no tax-free' => [
             CustomerEntity::ACCOUNT_TYPE_PRIVATE,
             false,
             true,
             CartPrice::TAX_STATE_GROSS,
         ];
 
-        yield [
+        yield 'business tax + business tax free => tax-free' => [
             CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             false,
             true,
             CartPrice::TAX_STATE_FREE,
         ];
 
-        yield [
+        yield 'customer account + no free tax => no tax-free' => [
             CustomerEntity::ACCOUNT_TYPE_PRIVATE,
             false,
             false,
             CartPrice::TAX_STATE_GROSS,
         ];
 
-        yield [
+        yield 'business account + no free tax => no tax-free' => [
             CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             false,
             false,
             CartPrice::TAX_STATE_GROSS,
         ];
 
-        yield [
+        yield 'customer account + both free tax => tax-free' => [
             CustomerEntity::ACCOUNT_TYPE_PRIVATE,
             true,
             true,
             CartPrice::TAX_STATE_FREE,
         ];
 
-        yield [
+        yield 'business account + both free tax => tax-free' => [
             CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             true,
             true,

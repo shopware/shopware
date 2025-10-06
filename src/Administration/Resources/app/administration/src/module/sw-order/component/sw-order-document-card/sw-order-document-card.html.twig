@@ -36,6 +36,7 @@
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
                         variant="secondary"
+                        data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
                         @click="onShowSelectDocumentTypeModal"
                     >
 
@@ -121,6 +122,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-open-pdf"
+                    data-analytics-id="sw-order-document-card.open-document"
                     @click="onOpenDocument(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_open_label %}
@@ -133,6 +135,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-download-pdf"
+                    data-analytics-id="sw-order-document-card.download-document"
                     @click="onDownload(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_download_label %}
@@ -145,6 +148,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
                     class="sw-order-document-card__context-button-send"
+                    data-analytics-id="sw-order-document-card.send-document"
                     @click="onSendDocument(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_send_label %}
@@ -157,6 +161,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || item.sent"
                     class="sw-order-document-card__context-button-mark-sent"
+                    data-analytics-id="sw-order-document-card.mark-document-as-sent"
                     @click="onMarkDocumentAsSent(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_mark_sent_label %}
@@ -169,6 +174,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || !item.sent"
                     class="sw-order-document-card__context-button-mark-unsent"
+                    data-analytics-id="sw-order-document-card.mark-document-as-unsent"
                     @click="onMarkDocumentAsUnsent(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_mark_unsent_label %}
@@ -239,6 +245,7 @@
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
                 variant="secondary"
+                data-analytics-id="sw-order-document-card.show-select-document-type-modal"
                 @click="onShowSelectDocumentTypeModal"
             >
 

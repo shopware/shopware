@@ -46,6 +46,7 @@
             :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
             size="default"
+            data-analytics-id="sw-order-list.add-order"
             @click="$router.push({ name: 'sw.order.create' })"
         >
             {{ $tc('sw-order.list.buttonAddOrder') }}
@@ -246,6 +247,7 @@
                     <sw-context-menu-item
                         variant="danger"
                         :disabled="disableDeletion(item)"
+                        data-analytics-id="sw-order-list.delete-order"
                         @click="onDelete(item.id)"
                     >
                         {{ $tc('sw-order.list.contextMenuDelete') }}
@@ -275,6 +277,7 @@
                             <mt-button
                                 size="small"
                                 variant="secondary"
+                                data-analytics-id="sw-order-list.delete-modal-cancel"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
@@ -285,6 +288,7 @@
                             <mt-button
                                 variant="critical"
                                 size="small"
+                                data-analytics-id="sw-order-list.delete-modal-confirm"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-order.list.buttonDelete') }}

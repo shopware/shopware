@@ -36,6 +36,7 @@ class AppUrlVerifier
 
     public function __construct(
         private readonly string $appEnv,
+        private readonly string $shopwareVersion,
         private readonly CacheItemPoolInterface&CacheInterface $cache,
         private readonly HttpClientInterface $httpClient,
         private readonly LockFactory $lockFactory, /** Should be a lock with ttl support - otherwise locks might not expire and verification will not be performed */
@@ -228,14 +229,14 @@ class AppUrlVerifier
     private function buildRequestOptions(string $runId, string $token): array
     {
         return [
-            'max_redirects' => 3,
+            'max_redirects' => 1,
             'timeout' => 2.0,
             'connect_timeout' => 0.5,
             'query' => ['rid' => $runId, 'token' => $token],
             'headers' => [
                 'Cache-Control' => 'no-store, no-cache, max-age=0',
                 'Pragma' => 'no-cache',
-                'User-Agent' => 'Shopware-AppUrlVerifier',
+                'User-Agent' => 'Shopware-AppUrlVerifier/' . $this->shopwareVersion,
             ],
         ];
     }

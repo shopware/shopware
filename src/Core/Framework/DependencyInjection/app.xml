@@ -720,6 +720,7 @@
 
         <service id="Shopware\Core\Framework\App\Url\AppUrlVerifier">
             <argument>%kernel.environment%</argument>
+            <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="cache.app"/>
             <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
             <argument type="service" id="lock.doctrine.factory"/>

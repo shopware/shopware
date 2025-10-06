@@ -55,6 +55,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
         const cookieGroups = await cookieGroupsResponse.json();
         const technicalRequiredCookies = cookieGroups.elements.find(group => group.name === 'Technically required');
 
+        console.log(technicalRequiredCookies.entries);
         ShopCustomer.expects(technicalRequiredCookies.entries.find(entry => entry.cookie === '_GRECAPTCHA')).toBeTruthy();
 
         await ShopCustomer.page.waitForLoadState('networkidle');

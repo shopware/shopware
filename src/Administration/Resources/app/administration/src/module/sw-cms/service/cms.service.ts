@@ -49,7 +49,7 @@ type CmsElementConfig = {
         collectionMap: { [key: string]: EntityCollection<EntityName> },
     ) => void;
     allowedPageTypes?: string[];
-    defaultConfig?: {[index: string]: object};
+    defaultConfig?: { [index: string]: object };
     disabledConfigInfoTextKey?: string;
     defaultData?: unknown;
     hidden?: boolean;

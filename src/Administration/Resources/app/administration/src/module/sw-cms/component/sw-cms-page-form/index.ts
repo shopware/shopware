@@ -32,7 +32,7 @@ export default Shopware.Component.wrapComponentConfig({
     data: () => {
         return {
             restoreBlockInheritanceIds: [] as string[],
-        }
+        };
     },
 
     computed: {

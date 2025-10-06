@@ -147,34 +147,34 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
     });
 
     it('disables element config when block is inherited and shows inheritance switch', async () => {
-        const wrapper = await mount(
-            await wrapTestComponent('sw-cms-page-form', { sync: true }),
-            {
-                props: {
-                    page: defaultPage,
-                    entityConfig: {},
-                },
-                global: {
-                    stubs: {
-                        'sw-cms-el-config-text': {
-                            template: '<div class="sw-cms-el-config-text">Config element</div>',
-                            props: ['element', 'elementData'],
-                        },
-                        'sw-inheritance-switch': true,
-                        'sw-extension-component-section': true,
-                        'mt-card': true,
+        const wrapper = await mount(await wrapTestComponent('sw-cms-page-form', { sync: true }), {
+            props: {
+                page: defaultPage,
+                entityConfig: {},
+            },
+            global: {
+                stubs: {
+                    'sw-cms-el-config-text': {
+                        template: '<div class="sw-cms-el-config-text">Config element</div>',
+                        props: [
+                            'element',
+                            'elementData',
+                        ],
                     },
-                    provide: {
-                        cmsService: {
-                            getCmsBlockRegistry: () => ({}),
-                            getCmsElementRegistry: () => ({
-                                text: { configComponent: 'sw-cms-el-config-text' },
-                            }),
-                        },
+                    'sw-inheritance-switch': true,
+                    'sw-extension-component-section': true,
+                    'mt-card': true,
+                },
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => ({}),
+                        getCmsElementRegistry: () => ({
+                            text: { configComponent: 'sw-cms-el-config-text' },
+                        }),
                     },
                 },
             },
-        );
+        });
 
         const elementConfig = wrapper.find('.sw-cms-page-form__element-config');
         expect(elementConfig.exists()).toBeTruthy();
@@ -187,44 +187,48 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it('applies entity-config overrides to slot element passed to config component', async () => {
         const pageWithIds = {
-            sections: [{
-                blocks: [{
-                    name: 'BLOCK NAME',
-                    slots: [{ id: 'slot1', type: 'text', config: { content: { value: 'original' } } }],
-                }],
-            }],
+            sections: [
+                {
+                    blocks: [
+                        {
+                            name: 'BLOCK NAME',
+                            slots: [{ id: 'slot1', type: 'text', config: { content: { value: 'original' } } }],
+                        },
+                    ],
+                },
+            ],
         };
 
-        const wrapper = await mount(
-            await wrapTestComponent('sw-cms-page-form', { sync: true }),
-            {
-                props: {
-                    page: pageWithIds,
-                    entityConfig: {
-                        slot1: { content: { value: 'overridden', source: 'static' } },
-                    },
+        const wrapper = await mount(await wrapTestComponent('sw-cms-page-form', { sync: true }), {
+            props: {
+                page: pageWithIds,
+                entityConfig: {
+                    slot1: { content: { value: 'overridden', source: 'static' } },
                 },
-                global: {
-                    stubs: {
-                        'sw-cms-el-config-text': {
-                            template: '<div class="sw-cms-el-config-text">Config element</div>',
-                            props: ['element', 'elementData'],
-                        },
-                        'sw-inheritance-switch': true,
-                        'sw-extension-component-section': true,
-                        'mt-card': true,
+            },
+            global: {
+                stubs: {
+                    'sw-cms-el-config-text': {
+                        template: '<div class="sw-cms-el-config-text">Config element</div>',
+                        props: [
+                            'element',
+                            'elementData',
+                        ],
                     },
-                    provide: {
-                        cmsService: {
-                            getCmsBlockRegistry: () => ({}),
-                            getCmsElementRegistry: () => ({
-                                text: { configComponent: 'sw-cms-el-config-text' },
-                            }),
-                        },
+                    'sw-inheritance-switch': true,
+                    'sw-extension-component-section': true,
+                    'mt-card': true,
+                },
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => ({}),
+                        getCmsElementRegistry: () => ({
+                            text: { configComponent: 'sw-cms-el-config-text' },
+                        }),
                     },
                 },
             },
-        );
+        });
 
         const configEl = wrapper.getComponent('.sw-cms-el-config-text');
         const passedElement = configEl.props('element');

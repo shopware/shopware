@@ -132,12 +132,14 @@ export default Mixin.register(
                     this.defaultConfig || this.cmsElements[elementName]?.defaultConfig || {},
                     fallbackCategoryConfig,
                     this.element?.translated?.config || {},
-                )
+                );
 
                 this.element.config = this.element.config || {};
                 Object.keys(fallbackConfig).forEach((configKey) => {
-                    if (!Object.prototype.hasOwnProperty.call(this.element.config, configKey)
-                        && Object.prototype.hasOwnProperty.call(fallbackConfig, configKey)) {
+                    if (
+                        !Object.prototype.hasOwnProperty.call(this.element.config, configKey) &&
+                        Object.prototype.hasOwnProperty.call(fallbackConfig, configKey)
+                    ) {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                         this.element.config[configKey] = fallbackConfig[configKey];
                     }

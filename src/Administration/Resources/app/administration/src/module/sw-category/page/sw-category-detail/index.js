@@ -1,6 +1,7 @@
 import './store';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
+import types from "../../../../core/service/utils/types.utils";
 
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
@@ -796,6 +797,7 @@ export default {
 
         extractSlotOverrides(origin, changes) {
             const slotOverrides = {};
+            debugger
             if (changes === null) {
                 return slotOverrides;
             }
@@ -815,7 +817,7 @@ export default {
 
                                     if (slot.config && originSlotConfig) {
                                         Object.keys(slot.config).forEach((key) => {
-                                            if (slot.config[key].value !== originSlotConfig[key].value) {
+                                            if (!types.isEqual(slot.config[key], originSlotConfig[key])) {
                                                 if (!slotOverrides[slot.id]) {
                                                     slotOverrides[slot.id] = {};
                                                 }

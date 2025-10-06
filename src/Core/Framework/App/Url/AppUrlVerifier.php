@@ -44,13 +44,6 @@ class AppUrlVerifier
     ) {
     }
 
-    public function forceVerify(ShopId $shopId): bool
-    {
-        $this->cache->deleteItem(self::VERIFICATION_RESULT_CACHE_KEY);
-
-        return $this->verify($shopId);
-    }
-
     public function getCurrentState(): ?VerificationState
     {
         $item = $this->cache->getItem(self::VERIFICATION_RESULT_CACHE_KEY);
@@ -62,19 +55,53 @@ class AppUrlVerifier
         return null;
     }
 
+    public function forceVerify(ShopId $shopId): bool
+    {
+        $this->cache->deleteItem(self::VERIFICATION_RESULT_CACHE_KEY);
+
+        return $this->doVerify($shopId, 'app-url-verification-force');
+    }
+
     public function verify(ShopId $shopId): bool
     {
         if ($this->appEnv !== 'prod') {
             return true;
         }
 
+        return $this->doVerify($shopId, 'app-url-verification');
+    }
+
+    /**
+     * Finalize verification, check if the given token and key matches what is stored in the cache.
+     */
+    public function completeVerification(string $runId, string $token): bool
+    {
+        $cacheKey = AppUrlVerifier::VERIFICATION_CACHE_KEY_PREFIX . $runId;
+
+        $item = $this->cache->getItem($cacheKey);
+
+        if (!$item->isHit()) {
+            return false;
+        }
+
+        $storedToken = $item->get();
+
+        if (\strlen($storedToken) !== 32 || \strlen($token) !== 32) {
+            return false;
+        }
+
+        return hash_equals($storedToken, $token);
+    }
+
+    private function doVerify(ShopId $shopId, string $lockKey): bool
+    {
         $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
 
         if ($appUrl === null) {
             return false;
         }
 
-        $lock = $this->acquireLock();
+        $lock = $this->acquireLock($lockKey);
         if ($lock === null) {
             // if we can't get a lock, just return true - so app communications can continue
             return true;
@@ -103,28 +130,6 @@ class AppUrlVerifier
         }
     }
 
-    /**
-     * Finalize verification, check if the given token and key matches what is stored in the cache.
-     */
-    public function completeVerification(string $runId, string $token): bool
-    {
-        $cacheKey = AppUrlVerifier::VERIFICATION_CACHE_KEY_PREFIX . $runId;
-
-        $item = $this->cache->getItem($cacheKey);
-
-        if (!$item->isHit()) {
-            return false;
-        }
-
-        $storedToken = $item->get();
-
-        if (\strlen($storedToken) !== 32 || \strlen($token) !== 32) {
-            return false;
-        }
-
-        return hash_equals($storedToken, $token);
-    }
-
     private function handleSoftFail(string $appUrl, VerificationState $previousState): bool
     {
         $wait = self::BACK_OFF[$previousState->numTries];
@@ -144,9 +149,9 @@ class AppUrlVerifier
         return $state->isNotHardFail();
     }
 
-    private function acquireLock(): ?LockInterface
+    private function acquireLock(string $lockKey): ?LockInterface
     {
-        $lock = $this->lockFactory->createLock('app-url-verification', 3);
+        $lock = $this->lockFactory->createLock($lockKey, 10);
 
         try {
             if ($lock->acquire()) {

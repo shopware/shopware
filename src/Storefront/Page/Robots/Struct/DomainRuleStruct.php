@@ -45,7 +45,7 @@ class DomainRuleStruct extends Struct
                 continue;
             }
 
-            $value = trim($rule[1] ?? '');
+            $value = trim($rule[1]);
 
             // Handle path-based directives (Allow/Disallow) with base path
             if (\in_array($ruleType, ['allow', 'disallow'], true)) {

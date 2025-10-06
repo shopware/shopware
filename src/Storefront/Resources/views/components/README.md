@@ -38,7 +38,7 @@ views/components/Button/
 
 Besides the anonymous components, which only require a Twig template, you can also define your component via a PHP class which offers the possiblity to add additional businsess logic to your component. You can have a look at the [offical documentation](https://symfony.com/bundles/ux-twig-component/current/index.html) for all the details.
 
-In Shopware we decided that these PHP classes should be placed right where your component template and other files of your component are located. This provides the epxerience of a real comopnent system and you have all componente related files in one place. Therefore you can simply add the PHP class to the described directory structure.
+In Shopware we decided that these PHP classes should be placed right where your component template and other files of your component are located. This provides the epxerience of a real comopnent system and you have all component related files in one place. Therefore you can simply add the PHP class to the described directory structure.
 
 ```
 views/components/Button/

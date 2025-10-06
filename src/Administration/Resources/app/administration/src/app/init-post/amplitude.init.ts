@@ -95,7 +95,7 @@ export default async function (): Promise<void> {
 
             target.getAttributeNames().forEach((attributeName) => {
                 if (attributeName.startsWith('data-analytics-')) {
-                    const propertyName = string.snakeCase(attributeName.replace('data-analytics-', 'sw_'));
+                    const propertyName = string.snakeCase(attributeName.replace('data-analytics-', 'sw_element_'));
                     eventProperties[propertyName] = target.getAttribute(attributeName);
                 }
             });
@@ -103,10 +103,8 @@ export default async function (): Promise<void> {
             if (originalEvent instanceof MouseEvent) {
                 eventProperties.sw_pointer_x = originalEvent.clientX;
                 eventProperties.sw_pointer_y = originalEvent.clientY;
-                eventProperties.sw_pointer_button = originalEvent.button;
+                eventProperties.sw_pointer_button = originalEvent.buttons;
             }
-
-            eventProperties.sw_text_content = target.innerText;
 
             amplitude.track(eventName, eventProperties);
         }

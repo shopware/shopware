@@ -100,12 +100,11 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                 {
                     eventName: 'Button Click',
                     properties: {
-                        sw_id: 'administration.sw-product.save',
-                        sw_product_name: 'nice product',
-                        sw_text_content: 'Save',
+                        sw_element_id: 'administration.sw-product.save',
+                        sw_element_product_name: 'nice product',
                         sw_pointer_x: 150,
                         sw_pointer_y: 75,
-                        sw_pointer_button: 2,
+                        sw_pointer_button: 0,
                     },
                 },
             ],
@@ -126,7 +125,6 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     properties: {
                         sw_link_href: 'https://example.com',
                         sw_link_type: 'external',
-                        sw_text_content: 'Read more',
                     },
                 },
             ],

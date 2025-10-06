@@ -93,8 +93,7 @@ test('As a customer, I can see the invisible Google reCaptcha V2 is loaded and s
 
         await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
 
-        // set timeout for 20 seconds for testing
-        await ShopCustomer.page.waitForTimeout(5000);
+        await StorefrontAccountLogin.page.waitForResponse(resp => resp.url().includes('google.com/recaptcha/api2/clr'));
 
         await test.step('Verify the invisible reCaptcha V2 is loaded and shows protection notice', async () => {
             const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');

@@ -1,7 +1,7 @@
 import './store';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
-import types from "../../../../core/service/utils/types.utils";
+import types from '../../../../core/service/utils/types.utils';
 
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
@@ -797,7 +797,7 @@ export default {
 
         extractSlotOverrides(origin, changes) {
             const slotOverrides = {};
-            debugger
+            debugger;
             if (changes === null) {
                 return slotOverrides;
             }

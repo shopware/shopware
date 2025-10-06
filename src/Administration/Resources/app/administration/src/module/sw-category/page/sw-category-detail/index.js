@@ -797,7 +797,7 @@ export default {
 
         extractSlotOverrides(origin, changes) {
             const slotOverrides = {};
-            debugger;
+
             if (changes === null) {
                 return slotOverrides;
             }

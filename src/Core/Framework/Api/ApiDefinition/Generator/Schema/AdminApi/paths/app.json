@@ -194,6 +194,24 @@
           }
         ]
       }
+    },
+    "/app-system/shop/verify": {
+      "get": {
+        "tags": [
+          "App System"
+        ],
+        "summary": "Verify a shop's APP_URL",
+        "description": "Returns 204 no content if the given token can be verified using the run id.",
+        "operationId": "verifyAppUrl",
+        "responses": {
+          "204": {
+            "description": "An empty response signalling successful verification."
+          },
+          "400": {
+            "description": "Malformed request or unsuccessful verification."
+          }
+        }
+      }
     }
   },
   "components": {

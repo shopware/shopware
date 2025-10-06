@@ -301,22 +301,19 @@ test('As a customer, I want to fill out and submit the contact form that is vali
         await ShopCustomer.expects(async () => {
             await test.step('Send and validate the contact form.', async () => {
                 const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                    (response) => {
-                        try {
-                            const url = new URL(response.url());
-                            return url.pathname.endsWith('/form/contact') && response.request().method() === 'POST';
-                        } catch {
-                            return false;
-                        }
-                    }
+                    `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
                 );
+
+                await StorefrontContactForm.page.waitForSelector('iframe[src*="recaptcha"]', { state: 'attached' });
 
                 await StorefrontContactForm.submitButton.click();
                 const contactFormResponse = await contactFormPromise;
 
                 expect(contactFormResponse.ok()).toBeTruthy();
 
-                await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toBeVisible();
+                await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toHaveText(
+                    'We have received your contact request and will process it as soon as possible.'
+                );
             });
         }).toPass({
             intervals: [30_000], // retry after 30 seconds

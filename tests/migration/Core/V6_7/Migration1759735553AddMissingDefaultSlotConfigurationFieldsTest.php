@@ -26,6 +26,7 @@ class Migration1759735553AddMissingDefaultSlotConfigurationFieldsTest extends Te
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+        $this->connection->executeStatement('DELETE FROM cms_page');
     }
 
     public function testMigrationAddsMissingFieldsForText(): void

@@ -140,8 +140,7 @@ handleGet((data, additionalOptions) => {
             // eslint-disable-next-line max-len
             `The extension "${extension.name}" uses a deprecated data set "${data.id}". ${registeredDataSet.deprecationMessage}`,
         ];
-        // @ts-expect-error
-        if (process.env !== 'prod') {
+        if (process.env.NODE_ENV !== 'production') {
             Shopware.Utils.debug.error(...debugArgs);
         } else {
             Shopware.Utils.debug.warn(...debugArgs);

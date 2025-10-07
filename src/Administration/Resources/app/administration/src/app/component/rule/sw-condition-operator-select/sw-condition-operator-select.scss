@@ -5,6 +5,11 @@
     flex-shrink: 0;
     height: 100%;
 
+    &.has--error {
+        background: var(--color-background-critical-default);
+        border-color: var(--color-border-critical-default);
+    }
+
     .sw-condition-operator-select__select {
         height: 100%;
     }

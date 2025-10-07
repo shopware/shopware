@@ -12,11 +12,11 @@ const TaggedButtons: ElementQuery = (mutations: MutationRecord[]): Element[] => 
                 return;
             }
 
-            if (node.tagName.toLowerCase() === 'button' && node.getAttribute('data-product-analytics-button-id')) {
+            if (node.tagName.toLowerCase() === 'button' && node.getAttribute('data-analytics-id')) {
                 taggedButtons.push(node);
             }
 
-            node.querySelectorAll('button[data-product-analytics-button-id]').forEach((button) => {
+            node.querySelectorAll('button[data-analytics-id]').forEach((button) => {
                 taggedButtons.push(button);
             });
         });

@@ -53,6 +53,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                         language: false,
                         platform: false,
                     },
+                    fetchRemoteConfig: false,
                 }),
             );
         });
@@ -81,36 +82,49 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                 },
             ],
             [
-                new TelemetryEvent('link_visited', {
-                    href: 'https://example.com',
-                    linkType: 'external',
+                new TelemetryEvent('user_interaction', {
+                    target: (() => {
+                        const fakeButton = document.createElement('button');
+                        fakeButton.innerText = 'Save';
+                        fakeButton.setAttribute('data-analytics-id', 'administration.sw-product.save');
+                        fakeButton.setAttribute('data-analytics-product-name', 'nice product');
+
+                        return fakeButton;
+                    })(),
+                    originalEvent: new MouseEvent('click', {
+                        clientX: 150,
+                        clientY: 75,
+                        button: 2,
+                    }),
                 }),
                 {
-                    eventName: 'Link Visited',
+                    eventName: 'Button Click',
                     properties: {
-                        href: 'https://example.com',
-                        link_type: 'external',
+                        sw_element_id: 'administration.sw-product.save',
+                        sw_element_product_name: 'nice product',
+                        sw_pointer_x: 150,
+                        sw_pointer_y: 75,
+                        sw_pointer_button: 0,
                     },
                 },
             ],
             [
                 new TelemetryEvent('user_interaction', {
                     target: (() => {
-                        const fakeButton = document.createElement('button');
-                        fakeButton.textContent = 'Save';
-                        fakeButton.setAttribute('data-product-analytics-button-action', 'save');
-                        fakeButton.setAttribute('data-product-analytics-button-id', 'administration.sw-product.save');
+                        const fakeLink = document.createElement('a');
+                        fakeLink.innerText = 'Read more';
+                        fakeLink.setAttribute('href', 'https://example.com');
+                        fakeLink.setAttribute('target', '_blank');
 
-                        return fakeButton;
+                        return fakeLink;
                     })(),
                     originalEvent: new Event('click'),
                 }),
                 {
-                    eventName: 'Button Click',
+                    eventName: 'Link Visited',
                     properties: {
-                        sw_button_text: 'Save',
-                        sw_button_action: 'save',
-                        sw_button_id: 'administration.sw-product.save',
+                        sw_link_href: 'https://example.com',
+                        sw_link_type: 'external',
                     },
                 },
             ],

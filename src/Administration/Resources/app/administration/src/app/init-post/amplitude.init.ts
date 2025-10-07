@@ -3,7 +3,7 @@
  */
 import * as amplitude from '@amplitude/analytics-browser';
 import { string } from 'src/core/service/util.service';
-import { TelemetryEvent, type EventTypes } from '../../core/telemetry/types';
+import { TelemetryEvent, type EventTypes, type TrackableType } from '../../core/telemetry/types';
 
 /**
  * @private
@@ -56,6 +56,7 @@ export default async function (): Promise<void> {
             language: false,
             platform: false,
         },
+        fetchRemoteConfig: false,
         // serverUrl: use proxy server url here, e.g. usage-data.shopware.io/product-analytics,
     });
 
@@ -75,29 +76,37 @@ export default async function (): Promise<void> {
             return;
         }
 
-        if (isEventOfType('link_visited', telemetryEvent)) {
-            amplitude.track('Link Visited', {
-                href: telemetryEvent.detail.eventData.href,
-                link_type: telemetryEvent.detail.eventData.linkType,
-            });
-            return;
-        }
-
         if (isEventOfType('user_interaction', telemetryEvent)) {
-            const target = telemetryEvent.detail.eventData.target;
+            const { target, originalEvent } = telemetryEvent.detail.eventData;
 
-            if (!(target instanceof Element)) {
-                return;
-            }
+            const eventProperties: Record<string, TrackableType> = {};
 
             const capitalizedTagName = string.capitalizeString(target.tagName);
-            const eventName = string.capitalizeString(telemetryEvent.detail.eventData.originalEvent.type);
+            const capitalizedEventName = string.capitalizeString(originalEvent.type);
 
-            amplitude.track(`${capitalizedTagName} ${eventName}`, {
-                sw_button_text: target.textContent,
-                sw_button_action: target.getAttribute('data-product-analytics-button-action') ?? '',
-                sw_button_id: target.getAttribute('data-product-analytics-button-id') ?? target.id ?? '',
+            let eventName = `${capitalizedTagName} ${capitalizedEventName}`;
+
+            if (target.tagName === 'A') {
+                eventName = 'Link Visited';
+
+                eventProperties.sw_link_href = target.getAttribute('href') ?? '';
+                eventProperties.sw_link_type = target.getAttribute('target') === '_blank' ? 'external' : 'internal';
+            }
+
+            target.getAttributeNames().forEach((attributeName) => {
+                if (attributeName.startsWith('data-analytics-')) {
+                    const propertyName = string.snakeCase(attributeName.replace('data-analytics-', 'sw_element_'));
+                    eventProperties[propertyName] = target.getAttribute(attributeName);
+                }
             });
+
+            if (originalEvent instanceof MouseEvent) {
+                eventProperties.sw_pointer_x = originalEvent.clientX;
+                eventProperties.sw_pointer_y = originalEvent.clientY;
+                eventProperties.sw_pointer_button = originalEvent.buttons;
+            }
+
+            amplitude.track(eventName, eventProperties);
         }
     });
 }

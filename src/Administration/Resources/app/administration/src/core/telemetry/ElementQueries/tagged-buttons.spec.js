@@ -14,7 +14,7 @@ describe('src/core/telemetry/ElementQueries/tagged-button.ts', () => {
         });
 
         const button = document.createElement('button');
-        button.setAttribute('data-product-analytics-button-id', 'sw-order-detail.save');
+        button.setAttribute('data-analytics-id', 'sw-order-detail.save');
 
         document.body.append(button);
 
@@ -40,9 +40,9 @@ describe('src/core/telemetry/ElementQueries/tagged-button.ts', () => {
 
         const div = document.createElement('div');
         const first = document.createElement('button');
-        first.setAttribute('data-product-analytics-button-id', 'sw-order-detail.save');
+        first.setAttribute('data-analytics-id', 'sw-order-detail.save');
         const second = document.createElement('button');
-        second.setAttribute('data-product-analytics-button-id', 'sw-order-detail.cancel');
+        second.setAttribute('data-analytics-id', 'sw-order-detail.cancel');
 
         div.appendChild(first);
         div.appendChild(second);
@@ -74,7 +74,7 @@ describe('src/core/telemetry/ElementQueries/tagged-button.ts', () => {
 
         const div = document.createElement('div');
         const first = document.createElement('button');
-        first.setAttribute('data-product-analytics-button-id', 'sw-order-detail.save');
+        first.setAttribute('data-analytics-id', 'sw-order-detail.save');
         const second = document.createElement('button');
 
         div.appendChild(first);

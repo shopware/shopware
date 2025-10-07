@@ -62,7 +62,7 @@ export default {
         },
 
         beforeDestroyComponent() {
-            window.removeEventListener('click', this.clearSelectionOnClickOutside);
+            window.removeEventListener('click', this.clearSelectionOnClickOutside, false);
         },
 
         clearSelectionOnClickOutside(event) {

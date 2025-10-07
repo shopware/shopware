@@ -34,4 +34,13 @@
 
     {% endblock %}
 
+    {% block pagination %}
+        <twig:Sw:Content:Pagination
+            :page="listing.page"
+            :total="listing.total"
+            :limit="listing.limit"
+            :scope="listing.entity"
+        />
+    {% endblock %}
+
 </div>

@@ -59,6 +59,10 @@ class NoComposerExcludedNamespaceRule implements Rule
 
     private function shouldSkipFile(Scope $scope): bool
     {
+        if ($this->isPHPStanRuleTestData($scope)) {
+            return false;
+        }
+
         if ($this->isTestFile($scope)) {
             return true;
         }
@@ -114,6 +118,11 @@ class NoComposerExcludedNamespaceRule implements Rule
     private function isPHPStanRule(Scope $scope): bool
     {
         return \str_contains($scope->getFile(), '/PHPStan/Rules/');
+    }
+
+    private function isPHPStanRuleTestData(Scope $scope): bool
+    {
+        return \str_contains($scope->getFile(), '/PHPStan/Rules/data/');
     }
 
     private function isExcludedNamespace(string $className): bool

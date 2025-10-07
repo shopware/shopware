@@ -105,6 +105,7 @@ class DefinitionValidator
         'subscription_cart',
         'oauth_user',
         'theme_runtime_config',
+        'lock_keys',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

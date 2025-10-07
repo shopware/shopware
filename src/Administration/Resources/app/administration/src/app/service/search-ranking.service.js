@@ -337,10 +337,55 @@ export default function createSearchRankingService() {
                 return;
             }
 
-            scores[select] = nested._score;
+            // Guard against stale/unknown fields from user config (e.g., fields provided by extensions)
+            // Only add score if the field exists in the current module's defaultSearchConfiguration
+            if (_isAllowedFieldForEntity(select, root)) {
+                scores[select] = nested._score;
+            }
         });
 
         return scores;
+    }
+
+    /**
+     * @private
+     * Ensure a field path belongs to the entity's current defaultSearchConfiguration.
+     * This prevents errors when extensions (e.g., Commercial) are disabled and user configs still reference their fields.
+     * @param {String} fullPath e.g. "order.returnNumber" or "order.defaultBillingAddress.company"
+     * @param {String} root The entity name at the beginning of the path
+     * @returns {Boolean}
+     */
+    function _isAllowedFieldForEntity(fullPath, root) {
+        if (!root) {
+            // Without an entity root we cannot validate reliably; allow by default
+            return true;
+        }
+
+        let entityName = root.split('.')[0];
+        try {
+            const manifest = _getModule(entityName);
+            const defaultConfig = manifest.defaultSearchConfiguration || {};
+
+            // Remove the entity prefix from the path
+            const parts = fullPath.split('.');
+            if (parts[0] === entityName) {
+                parts.shift();
+            }
+
+            let node = defaultConfig;
+            for (const part of parts) {
+                if (!node || typeof node !== 'object' || !Object.prototype.hasOwnProperty.call(node, part)) {
+                    return false;
+                }
+                node = node[part];
+            }
+
+            // A valid leaf in default config has _searchable/_score
+            return !!(node && typeof node === 'object' && Object.prototype.hasOwnProperty.call(node, '_searchable'));
+        } catch (e) {
+            // If we cannot resolve the module, fail-safe by allowing (won't introduce DAL errors)
+            return true;
+        }
     }
 
     /**

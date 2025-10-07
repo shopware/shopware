@@ -13,11 +13,11 @@ author_github: @anthropics
 * Added `getGlobalRules()` method to `DomainRuleStruct` for global directives (backward compatibility)
 * Added validation for robots.txt directive types - invalid directives are now silently ignored
 * Changed robots.txt template blocks to use merged user-agent blocks for proper specification compliance
-* Updated Twig blocks `robots_txt_content_domain_rules_container`, `robots_txt_content_domain_rules`, and `robots_txt_content_domain_rules_rule` to output merged user-agent blocks while maintaining backward compatibility
-* Fixed empty `Disallow:` and `Allow:` directives being incorrectly normalized to `/`
-* Fixed User-agent directives being duplicated per domain - now output once with all domain path rules merged
-* Implemented proper robots.txt block structure where directives are grouped by User-agent according to specification
-* Implemented smart deduplication of non-path directives (Crawl-delay, empty Disallow/Allow) across domains while preserving all path-based rules
+* Changed Twig blocks `robots_txt_content_domain_rules_container`, `robots_txt_content_domain_rules`, and `robots_txt_content_domain_rules_rule` to output merged user-agent blocks while maintaining backward compatibility
+* Changed behavior of empty `Disallow:` and `Allow:` directives - they are no longer normalized to `/` and remain empty as per robots.txt specification
+* Changed User-agent directive handling - they are no longer duplicated per domain and now output once with all domain path rules merged
+* Changed robots.txt output structure - directives are now properly grouped by User-agent according to specification
+* Added smart deduplication of non-path directives (Crawl-delay, empty Disallow/Allow) across domains while preserving all path-based rules
 ___
 # Upgrade Information
 
@@ -82,7 +82,7 @@ Legacy methods are still available for backward compatibility:
 - `getPathRules()`: Returns only domain-specific path rules (non-empty Allow/Disallow)
 - `getGlobalRules()`: Returns global directives (User-agent, Crawl-delay, Sitemap) and empty path rules
 
-**Note**: For proper robots.txt structure, use `getUserAgentBlocks()` which maintains the correct grouping of directives under their respective user-agents.
+> **Note**: For proper robots.txt structure, use `getUserAgentBlocks()` which maintains the correct grouping of directives under their respective user-agents.
 
 ### Template Changes
 
@@ -92,4 +92,4 @@ The Twig blocks in `robots.txt.twig` have been updated to output the new block-b
 - `robots_txt_content_domain_rules` now represents a user-agent block instead of per-domain rules
 - `robots_txt_content_domain_rules_rule` continues to output individual rules
 
-**Backward Compatibility**: If you have overridden these blocks in your theme, they will continue to work with the new merged user-agent block structure. The iteration variable is now a block object with `userAgent` and `rules` properties instead of a domain rule object.
+> **Backward Compatibility**: If you have overridden these blocks in your theme, they will continue to work with the new merged user-agent block structure. The iteration variable is now a block object with `userAgent` and `rules` properties instead of a domain rule object.

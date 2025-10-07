@@ -30,6 +30,7 @@
                         size="small"
                         :disabled="isAddNewItemButtonDisabled || undefined"
                         variant="secondary"
+                        data-analytics-id="sw-order-line-items-grid-sales-channel.add-existing-product"
                         @click="onInsertExistingItem"
                     >
                         {{ $tc('sw-order.createBase.buttonAddProduct') }}
@@ -37,7 +38,9 @@
                     {% endblock %}
 
                     {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown %}
-                    <sw-context-button>
+                    <sw-context-button
+                        data-analytics-id="sw-order-line-items-grid-sales-channel.open-add-product-menu"
+                    >
                         <template #button>
                             <mt-button
                                 ghost
@@ -56,12 +59,14 @@
                         {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu %}
                         <sw-context-menu-item
                             class="sw-order-line-items-grid-sales-channel__add-custom-item"
+                            data-analytics-id="sw-order-line-items-grid-sales-channel.add-custom-item"
                             @click="onInsertBlankItem"
                         >
                             {{ $tc('sw-order.createBase.buttonAddBlankProduct') }}
                         </sw-context-menu-item>
                         <sw-context-menu-item
                             class="sw-order-line-items-grid-sales-channel__add-credit-item"
+                            data-analytics-id="sw-order-line-items-grid-sales-channel.add-credit-item"
                             @click="onInsertCreditItem"
                         >
                             {{ $tc('sw-order.createBase.buttonAddCredit') }}
@@ -278,6 +283,7 @@
                 {% block sw_order_line_items_grid_sales_channel_grid_actions_delete %}
                 <sw-context-menu-item
                     variant="danger"
+                    data-analytics-id="sw-order-line-items-grid-sales-channel.delete-item"
                     @click="onDeleteItem(item, itemIndex)"
                 >
                     {% block sw_order_line_items_grid_sales_channel_grid_actions_delete_label %}

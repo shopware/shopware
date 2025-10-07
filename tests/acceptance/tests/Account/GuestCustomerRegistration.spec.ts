@@ -12,18 +12,18 @@ test('Guest customer must be able to register in the Storefront.', { tag: ['@Reg
 }) => {
     const product = await TestDataService.createBasicProduct();
 
-        await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-        await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
-        await ShopCustomer.attemptsTo(AddProductToCart(product));
-        await ShopCustomer.presses(StorefrontCheckoutCart.goToCheckoutButton, 'Enter');
+    await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+    await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
+    await ShopCustomer.attemptsTo(AddProductToCart(product));
+    await ShopCustomer.presses(StorefrontCheckoutCart.goToCheckoutButton, 'Enter');
 
-        await ShopCustomer.attemptsTo(Register({ isGuest: true }));
-        await ShopCustomer.goesTo(StorefrontHome.url());
-        await ShopCustomer.presses(StorefrontHome.accountMenuButton, 'Enter');
-        await ShopCustomer.presses(StorefrontHome.closeGuestSessionButton, 'Enter');
-        await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
+    await ShopCustomer.attemptsTo(Register({ isGuest: true }));
+    await ShopCustomer.goesTo(StorefrontHome.url());
+    await ShopCustomer.presses(StorefrontHome.accountMenuButton, 'Enter');
+    await ShopCustomer.presses(StorefrontHome.closeGuestSessionButton, 'Enter');
+    await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
 
-    });
+});
 
 test('Guest commercial customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
@@ -38,16 +38,15 @@ test('Guest commercial customer must be able to register in the Storefront.', { 
     await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
     const product = await TestDataService.createBasicProduct();
 
-        await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-        await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
-        await ShopCustomer.attemptsTo(AddProductToCart(product));
-        await ShopCustomer.presses(StorefrontCheckoutCart.goToCheckoutButton, 'Enter');
-        await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect, 'Space');
-        await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
-        await ShopCustomer.attemptsTo(Register({ isCommercial: true, isGuest: true }));
-        await ShopCustomer.goesTo(StorefrontHome.url());
-        await ShopCustomer.presses(StorefrontHome.accountMenuButton, 'Enter');
-        await ShopCustomer.presses(StorefrontHome.closeGuestSessionButton, 'Enter');
-        await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
-    });
+    await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+    await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
+    await ShopCustomer.attemptsTo(AddProductToCart(product));
+    await ShopCustomer.presses(StorefrontCheckoutCart.goToCheckoutButton, 'Enter');
+    await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect, 'Space');
+    await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
+    await ShopCustomer.attemptsTo(Register({ isCommercial: true, isGuest: true }));
+    await ShopCustomer.goesTo(StorefrontHome.url());
+    await ShopCustomer.presses(StorefrontHome.accountMenuButton, 'Enter');
+    await ShopCustomer.presses(StorefrontHome.closeGuestSessionButton, 'Enter');
+    await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
 });

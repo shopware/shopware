@@ -69,7 +69,8 @@ test(
             TestDataService.addCreatedRecord('customer', customerId);
             await ShopCustomer.expects(StorefrontAccount.headline).toBeVisible();
         });
-    });
+    }
+);
 
 test(
     'Customers is not able to set new shipping address with a non-shippable country.',
@@ -142,5 +143,5 @@ test(
             }
 
         });
-    });
-});
+    }
+);

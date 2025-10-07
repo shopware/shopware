@@ -18,8 +18,6 @@ class AppUrlVerifier
         private readonly Connection $connection,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly CoreAppUrlVerifier $appUrlVerifier,
-        private readonly string $appEnv,
-        private readonly bool $appUrlCheckDisabled
     ) {
     }
 
@@ -29,13 +27,6 @@ class AppUrlVerifier
 
         if ($status) {
             return $status->is(VerificationStatus::PASS);
-        }
-
-        if ($this->appEnv !== 'prod' || $this->appUrlCheckDisabled) {
-            // dev and test system are often not reachable and this is totally fine
-            // problems occur if a prod system can't be reached
-            // the check can be disabled manually e.g. for cloud
-            return true;
         }
 
         return $this->appUrlVerifier->forceVerify(

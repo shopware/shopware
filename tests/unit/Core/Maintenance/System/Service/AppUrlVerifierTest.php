@@ -30,32 +30,6 @@ class AppUrlVerifierTest extends TestCase
         $this->appUrlVerifier = $this->createMock(CoreAppUrlVerifier::class);
     }
 
-    public function testAppUrlReachableReturnsTrueIfAppEnvIsNotProd(): void
-    {
-        $verifier = new AppUrlVerifier(
-            $this->connection,
-            $this->shopIdProvider,
-            $this->appUrlVerifier,
-            'dev',
-            true
-        );
-
-        static::assertTrue($verifier->isAppUrlReachable());
-    }
-
-    public function testAppUrlReachableReturnsTrueIfAppUrlCheckIsDisabled(): void
-    {
-        $verifier = new AppUrlVerifier(
-            $this->connection,
-            $this->shopIdProvider,
-            $this->appUrlVerifier,
-            'dev',
-            false
-        );
-
-        static::assertTrue($verifier->isAppUrlReachable());
-    }
-
     public function testAppUrlReachableReturnsTrueIfAppUrlIsReachable(): void
     {
         $shopId = ShopId::v2(
@@ -79,8 +53,6 @@ class AppUrlVerifierTest extends TestCase
             $this->connection,
             $this->shopIdProvider,
             $this->appUrlVerifier,
-            'prod',
-            false
         );
 
         static::assertTrue($verifier->isAppUrlReachable());
@@ -109,8 +81,6 @@ class AppUrlVerifierTest extends TestCase
             $this->connection,
             $this->shopIdProvider,
             $this->appUrlVerifier,
-            'prod',
-            false
         );
 
         static::assertFalse($verifier->isAppUrlReachable());
@@ -126,8 +96,6 @@ class AppUrlVerifierTest extends TestCase
             $this->connection,
             $this->shopIdProvider,
             $this->appUrlVerifier,
-            'prod',
-            false
         );
 
         static::assertFalse($verifier->hasAppsThatNeedAppUrl());
@@ -143,8 +111,6 @@ class AppUrlVerifierTest extends TestCase
             $this->connection,
             $this->shopIdProvider,
             $this->appUrlVerifier,
-            'prod',
-            false
         );
 
         static::assertTrue($verifier->hasAppsThatNeedAppUrl());

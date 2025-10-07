@@ -64,10 +64,6 @@ class AppUrlVerifier
 
     public function verify(ShopId $shopId): bool
     {
-        if ($this->appEnv !== 'prod') {
-            return true;
-        }
-
         return $this->doVerify($shopId, 'app-url-verification');
     }
 
@@ -95,6 +91,10 @@ class AppUrlVerifier
 
     private function doVerify(ShopId $shopId, string $lockKey): bool
     {
+        if ($this->appEnv !== 'prod') {
+            return true;
+        }
+
         $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
 
         if ($appUrl === null) {

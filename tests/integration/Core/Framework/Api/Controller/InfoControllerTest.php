@@ -92,6 +92,7 @@ class InfoControllerTest extends TestCase
                 'enableUrlFeature' => true,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
+                'appUrlVerifyDisabled' => false,
                 'private_allowed_extensions' => [
                     'jpg',
                     'jpeg',
@@ -417,6 +418,7 @@ class InfoControllerTest extends TestCase
                 'shopware.media.enable_url_upload_feature' => true,
                 'shopware.staging.administration.show_banner' => true,
                 'shopware.deployment.runtime_extension_management' => true,
+                'shopware.app.url_verify.disabled' => false,
             ]),
             $kernel,
             $this->createMock(BusinessEventCollector::class),
@@ -491,6 +493,7 @@ class InfoControllerTest extends TestCase
                 'shopware.media.enable_url_upload_feature' => true,
                 'shopware.staging.administration.show_banner' => false,
                 'shopware.deployment.runtime_extension_management' => true,
+                'shopware.app.url_verify.disabled' => false,
             ]),
             $kernel,
             $this->createMock(BusinessEventCollector::class),

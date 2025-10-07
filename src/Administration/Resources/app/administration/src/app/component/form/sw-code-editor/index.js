@@ -216,6 +216,10 @@ export default {
         this.mountedComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountedComponent();
+    },
+
     unmounted() {
         this.destroyedComponent();
     },
@@ -235,6 +239,13 @@ export default {
             }
 
             this.$emit('mounted');
+        },
+
+        beforeUnmountedComponent() {
+            if (this.editor) {
+                this.editor.off('input', this.onInput);
+                this.editor.off('blur', this.onBlur);
+            }
         },
 
         destroyedComponent() {
@@ -321,6 +332,7 @@ export default {
                         }
                     };
 
+                    // eslint-disable-next-line listeners/no-missing-remove-event-listener
                     this.editor.commands.on('afterExec', startCallback);
                 } else {
                     textCompleterClonedPlain.identifierRegexps = null;

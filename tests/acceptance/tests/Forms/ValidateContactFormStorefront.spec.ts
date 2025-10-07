@@ -47,29 +47,30 @@ test(
     { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, InstanceMeta }) => {
 
-            await test.step('Open the contact form modal on home page.', async () => {
-                await ShopCustomer.goesTo(StorefrontHome.url());
-                await ShopCustomer.presses(StorefrontHome.contactFormLink, 'Enter');
-                await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
-            });
-
-        await test.step('Send and validate the negative contact form result.', async () => {
-            await StorefrontContactForm.submitButton.click();
+        await test.step('Open the contact form modal on home page.', async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            await ShopCustomer.presses(StorefrontHome.contactFormLink, 'Enter');
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
-
-                await ShopCustomer.expects(StorefrontContactForm.salutationSelect).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-                await ShopCustomer.expects(StorefrontContactForm.firstNameInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-                await ShopCustomer.expects(StorefrontContactForm.lastNameInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-                await ShopCustomer.expects(StorefrontContactForm.emailInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-                await ShopCustomer.expects(StorefrontContactForm.phoneInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-                await ShopCustomer.expects(StorefrontContactForm.subjectInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-                await ShopCustomer.expects(StorefrontContactForm.commentInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-
-                // eslint-disable-next-line playwright/no-conditional-in-test
-                if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
-                    await ShopCustomer.expects(StorefrontContactForm.formFieldFeedback).toHaveCount(7);
-                }
-
-                await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).not.toBeVisible();
-            });
         });
+
+    await test.step('Send and validate the negative contact form result.', async () => {
+        await StorefrontContactForm.submitButton.click();
+        await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
+
+            await ShopCustomer.expects(StorefrontContactForm.salutationSelect).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            await ShopCustomer.expects(StorefrontContactForm.firstNameInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            await ShopCustomer.expects(StorefrontContactForm.lastNameInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            await ShopCustomer.expects(StorefrontContactForm.emailInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            await ShopCustomer.expects(StorefrontContactForm.phoneInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            await ShopCustomer.expects(StorefrontContactForm.subjectInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            await ShopCustomer.expects(StorefrontContactForm.commentInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+                await ShopCustomer.expects(StorefrontContactForm.formFieldFeedback).toHaveCount(7);
+            }
+
+            await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).not.toBeVisible();
+        });
+    }
+);

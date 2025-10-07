@@ -9,7 +9,7 @@ test ('As a customer, I can request a new password with existing customer email 
     const customer = await TestDataService.createCustomer();
     await test.step('Navigate to the login page and click on forgot password', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-        await StorefrontAccountLogin.forgotPasswordLink.click();
+        await ShopCustomer.presses(StorefrontAccountLogin.forgotPasswordLink, 'Enter');
     });
 
     await test.step('Fill in the customer email and request a password reset', async () => {
@@ -31,7 +31,7 @@ test ('As a customer, I can request a new password without existing customer ema
 }) => {
     await test.step('Navigate to login page and initiate password recovery', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-        await StorefrontAccountLogin.forgotPasswordLink.click();
+        await ShopCustomer.presses(StorefrontAccountLogin.forgotPasswordLink, 'Enter');
     });
 
     await test.step('Attempt to request password reset without entering an email', async () => {

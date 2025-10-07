@@ -6,6 +6,7 @@ test('Customers can update the payment method for an existing order in the store
     StorefrontCheckoutOrderEdit,
     TestDataService,
     Login,
+    SelectPaymentMethod,
 }) => {
     const product = await TestDataService.createBasicProduct();
     const customer = await TestDataService.createCustomer();
@@ -22,11 +23,7 @@ test('Customers can update the payment method for an existing order in the store
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText('Invoice');
 
-    //await orderItemLocators.orderActionsButton.click();
     await ShopCustomer.presses(orderItemLocators.orderActionsButton, 'Enter');
-
-    
-    //await orderItemLocators.orderChangePaymentMethodButton.click();
     await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton, 'Enter');
 
     /*
@@ -42,8 +39,8 @@ test('Customers can update the payment method for an existing order in the store
     */
     
     //invoice isn't selected by default for some reason?
-    await ShopCustomer.selectsValue(StorefrontCheckoutOrderEdit.paymentMethod, 'Invoice');
-    await ShopCustomer.selectsValue(StorefrontCheckoutOrderEdit.paymentMethod, newPaymentMethod.name);
+    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice')); //is this necessary?
+    await ShopCustomer.attemptsTo(SelectPaymentMethod(newPaymentMethod.name));
 
     //await StorefrontCheckoutOrderEdit.completePaymentButton.click();
     await ShopCustomer.presses(StorefrontCheckoutOrderEdit.completePaymentButton, 'Enter');

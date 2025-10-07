@@ -58,6 +58,10 @@ export class Telemetry {
         this.#eventTarget.addEventListener('telemetry', callback);
     }
 
+    removeListener(callback: EventListenerOrEventListenerObject) {
+        this.#eventTarget.removeEventListener('telemetry', callback);
+    }
+
     track(eventData: EventPayload<'programmatic'>) {
         this.dispatchEvent('programmatic', eventData);
     }

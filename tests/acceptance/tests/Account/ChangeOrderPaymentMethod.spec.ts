@@ -39,7 +39,7 @@ test('Customers can update the payment method for an existing order in the store
     */
     
     //invoice isn't selected by default for some reason?
-    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice')); //is this necessary?
+    //await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice')); //is this necessary? doesn't seem to be
     await ShopCustomer.attemptsTo(SelectPaymentMethod(newPaymentMethod.name));
 
     //await StorefrontCheckoutOrderEdit.completePaymentButton.click();

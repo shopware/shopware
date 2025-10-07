@@ -2,20 +2,7 @@
     display: grid;
     grid-template-columns: auto auto 1fr !important;
 
-    .sw-form-field-renderer {
-        label,
-        .sw-field__label {
-            display: none;
-        }
-    }
-
-    .sw-field--checkbox {
-        margin-left: 16px;
-        margin-top: auto;
-        margin-bottom: auto;
-    }
-
-    .sw-entity-single-select {
-        max-width: 400px;
+    &__selected-field {
+        max-width: calc(var(--scale-size-224) * 2);
     }
 }

@@ -1,8 +1,8 @@
 .sw-condition-tree {
     .mt-button {
-        height: 32px;
-        border-radius: 4px;
-        padding: 2px 16px;
+        height: var(--scale-size-32);
+        border-radius: var(--scale-size-4);
+        padding: var(--scale-size-2) var(--scale-size-16);
         line-height: inherit;
     }
 
@@ -25,7 +25,7 @@
     }
 
     .sw-condition input {
-        padding: 4px 16px 8px !important;
+        padding: var(--scale-size-4) var(--scale-size-16) var(--scale-size-8) !important;
     }
 
     .mt-datepicker__hint {
@@ -34,11 +34,11 @@
 
     .wrapper .dp__input {
         height: 100%;
-        padding: 10px !important;
+        padding: var(--scale-size-10) !important;
     }
 
     .sw-single-select__selection-text,
     .sw-single-select__selection-input {
-        margin-right: 2.75rem;
+        margin-right: var(--scale-size-40);
     }
 }

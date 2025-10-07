@@ -2,6 +2,10 @@
     display: grid;
     grid-template-columns: auto auto 1fr !important;
 
+    .sw-media-field {
+        margin-bottom: 0;
+    }
+
     .sw-form-field-renderer {
         label,
         .sw-field__label {

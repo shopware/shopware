@@ -1,16 +1,19 @@
-class ListingOptions extends window.PluginBaseClass {
-    static options = {
-        horizontalToggleSelector: '[data-layout]',
-        appearanceSelector: '[data-listing-appearance]',
-    }
+class FilterPanel extends window.ShopwareComponent {
+
+    static selector = '[data-component="FilterPanel"]';
 
     init() {
         /**
          * @private
          */
-        this._listingVariants = {
+        this._cardVariants = {
             horizontal: 'is--layout-horizontal',
             default: 'is--layout-default',
+        }
+
+        this._listGridColumns = {
+            horizontal: ['columns-1'],
+            default: ['columns-sm-2', 'columns-lg-2', 'columns-xl-3', 'columns-4'],
         }
 
         /**
@@ -63,16 +66,19 @@ class ListingOptions extends window.PluginBaseClass {
 
         setTimeout(() => {
             this._listingCards?.forEach((card) => {
-                card.classList.remove(...Object.values(this._listingVariants));
-                card.classList.add(this._listingVariants[layout]);
+                card.classList.remove(...Object.values(this._cardVariants));
+                card.classList.add(this._cardVariants[layout]);
             });
 
+            const horizontalGridClasses = this._listGridColumns['horizontal'];
+            const defaultGridClasses = this._listGridColumns['default'];
+
             if (layout === 'horizontal') {
-                this._listGrid.classList.remove('columns-4');
-                this._listGrid.classList.add('columns-1');
+                this._listGrid.classList.remove(...defaultGridClasses);
+                this._listGrid.classList.add(...horizontalGridClasses);
             } else if (layout === 'default') {
-                this._listGrid.classList.remove('columns-1');
-                this._listGrid.classList.add('columns-4');
+                this._listGrid.classList.remove(...horizontalGridClasses);
+                this._listGrid.classList.add(...defaultGridClasses);
             }
 
             this._listGrid.classList.remove('is--layout-transition');
@@ -84,7 +90,7 @@ class ListingOptions extends window.PluginBaseClass {
 
     _onToggleHiddenFilters(event) {
         const hiddenFilters = this.el.querySelectorAll('.sw-filter-multi-select.is--hidden');
-        const buttonText = event.currentTarget.querySelector('.sw-filter-panel__expand-text')
+        const buttonText = event.currentTarget.querySelector('.sw-filter-panel__expand-text');
 
         if (this._filtersExpanded) {
             for (const filter of hiddenFilters) {
@@ -106,5 +112,4 @@ class ListingOptions extends window.PluginBaseClass {
     }
 }
 
-window.PluginManager.register('ListingOptions', ListingOptions, '[data-listing-options]');
-window.PluginManager.initializePlugin('ListingOptions', {});
+window.Shopware.registerComponent('FilterPanel', FilterPanel);

@@ -12,7 +12,8 @@ author_github: @anthropics
 * Added `getPathRules()` method to `DomainRuleStruct` for domain-specific path rules (backward compatibility)
 * Added `getGlobalRules()` method to `DomainRuleStruct` for global directives (backward compatibility)
 * Added validation for robots.txt directive types - invalid directives are now silently ignored
-* Changed robots.txt template to use merged user-agent blocks for proper specification compliance
+* Changed robots.txt template blocks to use merged user-agent blocks for proper specification compliance
+* Updated Twig blocks `robots_txt_content_domain_rules_container`, `robots_txt_content_domain_rules`, and `robots_txt_content_domain_rules_rule` to output merged user-agent blocks while maintaining backward compatibility
 * Fixed empty `Disallow:` and `Allow:` directives being incorrectly normalized to `/`
 * Fixed User-agent directives being duplicated per domain - now output once with all domain path rules merged
 * Implemented proper robots.txt block structure where directives are grouped by User-agent according to specification
@@ -82,3 +83,13 @@ Legacy methods are still available for backward compatibility:
 - `getGlobalRules()`: Returns global directives (User-agent, Crawl-delay, Sitemap) and empty path rules
 
 **Note**: For proper robots.txt structure, use `getUserAgentBlocks()` which maintains the correct grouping of directives under their respective user-agents.
+
+### Template Changes
+
+The Twig blocks in `robots.txt.twig` have been updated to output the new block-based structure:
+
+- `robots_txt_content_domain_rules_container` now iterates over `page.mergedUserAgentBlocks` instead of `page.domainRules`
+- `robots_txt_content_domain_rules` now represents a user-agent block instead of per-domain rules
+- `robots_txt_content_domain_rules_rule` continues to output individual rules
+
+**Backward Compatibility**: If you have overridden these blocks in your theme, they will continue to work with the new merged user-agent block structure. The iteration variable is now a block object with `userAgent` and `rules` properties instead of a domain rule object.

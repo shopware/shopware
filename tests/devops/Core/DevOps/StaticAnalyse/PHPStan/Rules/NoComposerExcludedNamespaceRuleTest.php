@@ -20,12 +20,14 @@ class NoComposerExcludedNamespaceRuleTest extends RuleTestCase
     public function testProductionCodeUsingTestNamespaceFails(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoComposerExcludedNamespace/src/Example/ProductionCodeUsingTestClass.php'],[
+            [__DIR__ . '/data/NoComposerExcludedNamespace/src/Example/ProductionCodeUsingTestClass.php'],
             [
-                'Importing Shopware\Core\Test\TestDefaults from excluded test namespace is forbidden.',
-                5,
-            ],
-        ]);
+                [
+                    'Importing Shopware\Core\Test\TestDefaults from excluded test namespace is forbidden.',
+                    5,
+                ],
+            ]
+        );
     }
 
     public function testProductionCodeWithValidImportPasses(): void

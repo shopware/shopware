@@ -1,19 +1,15 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test.describe('@Storefront', {
-  tag: '@Registration', 
-}, () => {
-
-    test('New customers can register as commercial customers in the Storefront.', async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        StorefrontAccount,
-        IdProvider,
-        Register,
-        TestDataService,
-        InstanceMeta,
-    }) => {
-        test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
+test('New customers can register as commercial customers in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountLogin,
+    StorefrontAccount,
+    IdProvider,
+    Register,
+    TestDataService,
+    InstanceMeta,
+}) => {
+    test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
 
         const uuid = IdProvider.getIdPair().uuid;
         const customer = { isCommercial: true, email: uuid + '@test.com', vatRegNo: uuid + '-VatId' };
@@ -33,15 +29,15 @@ test.describe('@Storefront', {
 
     });
 
-    test('New customers cannot register as commercial customers without a VAT Reg.No.', async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        Register,
-        TestDataService,
-        DefaultSalesChannel,
-        InstanceMeta,
-    }) => {
-        test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
+test('New customers cannot register as commercial customers without a VAT Reg.No.', { tag: ['@Registration', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountLogin,
+    Register,
+    TestDataService,
+    DefaultSalesChannel,
+    InstanceMeta,
+}) => {
+    test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
 
         await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
         const country = await TestDataService.createCountry({ vatIdRequired: true });
@@ -63,16 +59,16 @@ test.describe('@Storefront', {
 
     });
 
-    test('New customers cannot register as commercial customers with an invalid VAT Reg.No.', async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        IdProvider,
-        Register,
-        TestDataService,
-        InstanceMeta,
-        DefaultSalesChannel,
-    }) => {
-        test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
+test('New customers cannot register as commercial customers with an invalid VAT Reg.No.', { tag: ['@Registration', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountLogin,
+    IdProvider,
+    Register,
+    TestDataService,
+    InstanceMeta,
+    DefaultSalesChannel,
+}) => {
+    test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
 
         await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
         const country = await TestDataService.createCountry({ checkVatIdPattern: true, vatIdPattern: 'DE\\d{9}' });

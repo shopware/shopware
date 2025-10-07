@@ -1,6 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
-import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
-import { setViewport, replaceElements, hideElements } from '@shopware-ag/acceptance-test-suite';
+import { test, setViewport, replaceElements, hideElements, assertScreenshot, FlowConfig } from '@fixtures/AcceptanceTest';
 
 test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -9,14 +7,13 @@ test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
     await test.step('Create a screenshot of the flow listing.', async () => {
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
         await setViewport(AdminFlowBuilderListing.page, {
-            requestURL: 'api/search/sales-channel-type',
+            waitForSelector: AdminFlowBuilderListing.createFlowButton,
         })
         await replaceElements(AdminFlowBuilderListing.page, [
             AdminFlowBuilderListing.testFlowNameCells,
             ]);
         await AdminFlowBuilderListing.flowTemplatesTab.hover();
-        await expect(AdminFlowBuilderListing.contentView).toHaveScreenshot('Flow-Builder-Listing.png', {
-        });
+        await assertScreenshot(AdminFlowBuilderListing.page, 'Flow-Builder-Listing-Hover.png');
     });
 
     await test.step('Create a screenshot of the flow templates listing.', async () => {
@@ -24,8 +21,7 @@ test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
         await setViewport(AdminFlowBuilderListing.page, {
             waitForSelector: AdminFlowBuilderListing.pagination,
         })
-        await expect(AdminFlowBuilderListing.contentView).toHaveScreenshot('Flow-Builder-Templates-Listing.png', {
-        });
+        await assertScreenshot(AdminFlowBuilderListing.page, 'Flow-Builder-Templates-Listing-Hover.png');
     });
 });
 
@@ -49,7 +45,7 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
         active: true,
         triggerSearchTerm: 'placed',
         triggerLabel: 'Checkout / Order / Placed',
-        condition: 'Customers from USA',
+        condition: 'Shopping cart / Order with digital products',
         trueAction: 'Send email',
         trueActionIdentifier: 'Order confirmation',
         falseAction: 'Add tag',
@@ -71,8 +67,7 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
         await hideElements(AdminFlowBuilderDetail.page, [
             AdminFlowBuilderDetail.nameField,
         ]);
-        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot('Flow-Builder-Detail-General-Tab.png', {
-        });
+        await assertScreenshot(AdminFlowBuilderDetail.page, 'Flow-Builder-Detail-General-Tab.png');
     });
 
     await test.step('Create a screenshot of the actual flow.', async () => {
@@ -85,7 +80,6 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
             AdminFlowBuilderDetail.header,
             AdminFlowBuilderDetail.actionContentTag,
         ]);
-        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot('Flow-Builder-Detail-Flow-Tab.png', {
-        });
+        await assertScreenshot(AdminFlowBuilderDetail.page, 'Flow-Builder-Detail-Flow-Tab.png');
     });
 });

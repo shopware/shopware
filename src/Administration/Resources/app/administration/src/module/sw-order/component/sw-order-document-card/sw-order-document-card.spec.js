@@ -1,10 +1,9 @@
+/**
+ * @sw-package after-sales
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
-
-/**
- * @sw-package checkout
- */
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -40,6 +39,7 @@ const documentFixture = {
     },
     config: {
         documentNumber: '1000',
+        documentDate: '2023/01/01',
     },
     id: 'document1',
     deepLinkCode: 'abcd',
@@ -92,9 +92,6 @@ async function createWrapper() {
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
-                },
                 'sw-card-section': {
                     template: '<div class="sw-card-section"><slot></slot></div>',
                 },
@@ -210,6 +207,11 @@ async function createWrapper() {
                 $route: {
                     query: '',
                     name: 'sw.order.detail.documents',
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
                 },
             },
             directives: {
@@ -603,6 +605,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
+
+        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        expect(wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').element.value).toBe('1000');
+
         await wrapper.find('.sw-order-document-settings-modal__send-button').trigger('click');
         await flushPromises();
 
@@ -628,6 +634,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
+
+        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+        expect(wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').element.value).toBe('1000');
+
         await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
         await flushPromises();
 

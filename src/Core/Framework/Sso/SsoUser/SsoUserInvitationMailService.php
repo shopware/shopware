@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Sso\SsoUser;
 
-use Shopware\Administration\Login\Config\LoginConfig;
-use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
@@ -19,10 +17,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @internal
@@ -30,22 +28,23 @@ use Shopware\Core\System\User\UserEntity;
 #[Package('framework')]
 class SsoUserInvitationMailService
 {
+    private const ADMIN_ROUTE_NAME = 'administration.index';
+
     /**
      * @param EntityRepository<MailTemplateCollection> $mailTemplateRepository
      * @param EntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository
      * @param EntityRepository<UserCollection> $userRepository
      * @param EntityRepository<LanguageCollection> $languageRepository
-     * @param EntityRepository<LocaleCollection> $localeRepository
      */
     public function __construct(
         private readonly AbstractMailService $mailService,
         private readonly SystemConfigService $systemConfigService,
-        private readonly LoginConfigService $loginConfigService,
         private readonly EntityRepository $mailTemplateRepository,
         private readonly EntityRepository $mailTemplateTypeRepository,
         private readonly EntityRepository $userRepository,
         private readonly EntityRepository $languageRepository,
-        private readonly EntityRepository $localeRepository,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly string $appUrl
     ) {
     }
 
@@ -74,23 +73,14 @@ class SsoUserInvitationMailService
         $templateVariables->set('nameOfInviter', $this->createInviterName($user));
         $templateVariables->set('storeName', $shopName);
         $templateVariables->set('invitedEmailAddress', $recipientEmail);
-        $templateVariables->set('signupUrl', $this->createSignupUrl($recipientEmail, $localeId, $context));
+        $templateVariables->set('signupUrl', $this->createSingUpUrl());
 
         $this->mailService->send($mailData->all(), $context, $templateVariables->all());
     }
 
-    private function createSignupUrl(string $recipientEmail, string $localeId, Context $context): string
+    private function createSingUpUrl(): string
     {
-        $locale = $this->localeRepository->search(new Criteria([$localeId]), $context)->first();
-
-        $loginConfig = $this->loginConfigService->getConfig();
-        if (!$loginConfig instanceof LoginConfig) {
-            throw SsoException::noLoginConfig();
-        }
-
-        $lang = $locale?->getCode() === 'de-DE' ? 'de' : 'en';
-
-        return $loginConfig->registerUrl . '?email=' . $recipientEmail . '&language=' . $lang;
+        return $this->appUrl . $this->urlGenerator->generate(self::ADMIN_ROUTE_NAME);
     }
 
     private function getMailTemplate(string $localeId, Context $context): ?MailTemplateEntity

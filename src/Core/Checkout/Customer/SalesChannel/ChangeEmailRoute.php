@@ -106,7 +106,6 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
 
         $fieldValidations = $validations[$field];
 
-        /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
         foreach ($fieldValidations as $emailValidation) {

@@ -1,11 +1,10 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
-test.describe('@Storefront', {
-  tag: ['@Account', '@Address'],
-}, () => {
-
-    test('Customers is able to to register an account and selects a non-shippable country for their billing address.', async ({
+test(
+    'Customers is able to to register an account and selects a non-shippable country for their billing address.',
+    { tag: ['@Account', '@Address', '@Storefront'] },
+    async ({
         StorefrontAccountLogin,
         StorefrontAccount,
         IdProvider,
@@ -72,7 +71,10 @@ test.describe('@Storefront', {
         });
     });
 
-    test('Customers is not able to set new shipping address with a non-shippable country.', async ({
+test(
+    'Customers is not able to set new shipping address with a non-shippable country.',
+    { tag: ['@Account', '@Address', '@Storefront'] },
+    async ({
         IdProvider,
         ShopCustomer,
         TestDataService,

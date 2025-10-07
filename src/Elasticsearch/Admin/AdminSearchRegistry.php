@@ -95,7 +95,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
-        /** @var array<string> $entities */
+        /** @var list<string> $entities */
         $entities = array_keys($this->indexer);
 
         if ($indexingBehavior->getOnlyEntities()) {

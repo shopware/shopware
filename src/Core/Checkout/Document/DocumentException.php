@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -139,13 +140,23 @@ class DocumentException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - not used anymore, use CustomerException::guestNotAuthenticated() instead
+     */
     public static function guestNotAuthenticated(): GuestNotAuthenticatedException
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'DocumentException::guestNotAuthenticated is deprecated and will be removed in v6.8.0. Use CustomerException::guestNotAuthenticated() instead.');
+
         return new GuestNotAuthenticatedException();
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - not used anymore, use CustomerException::wrongGuestCredentials() instead
+     */
     public static function wrongGuestCredentials(): WrongGuestCredentialsException
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'DocumentException::wrongGuestCredentials is deprecated and will be removed in v6.8.0. Use CustomerException::wrongGuestCredentials() instead.');
+
         return new WrongGuestCredentialsException();
     }
 

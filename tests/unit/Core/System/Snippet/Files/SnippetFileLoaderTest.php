@@ -80,7 +80,9 @@ class SnippetFileLoaderTest extends TestCase
             ['es-ES'],
             ['activePlugin'],
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
-            new PluginMappingCollection()
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
     }
 
@@ -365,7 +367,9 @@ class SnippetFileLoaderTest extends TestCase
             ['es-ES'],
             ['activePlugin', 'inactivePlugin'],
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
-            new PluginMappingCollection()
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
 
         $collection = new SnippetFileCollection();
@@ -508,6 +512,50 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
 
         static::assertCount(0, $collection);
+    }
+
+    public function testLoadSkipsExcludedLocales(): void
+    {
+        $loader = $this->getTranslationLoader();
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $path = __DIR__ . '/_fixtures/activePlugin';
+
+        $plugin = new TestPlugin(true, $path);
+        $plugin->setName('activePlugin');
+        $plugin->setPath($path);
+
+        $kernel = $this->getKernel([], $plugin);
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin', 'inactivePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['es-ES'],
+        );
+
+        $collection = new SnippetFileCollection();
+
+        $snippetFileLoader = new SnippetFileLoader(
+            $kernel,
+            $this->createMock(Connection::class),
+            $this->createMock(AppSnippetFileLoader::class),
+            new ActiveAppsLoader(
+                $this->createMock(Connection::class),
+                $this->createMock(AppLoader::class),
+                '/',
+            ),
+            $this->config,
+            $loader,
+            $this->filesystem
+        );
+
+        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
+
+        $files = $collection->getElements();
+        static::assertEmpty($files);
     }
 
     public function testLoadCoreSnippetsSkipsInvalidPathStructure(): void

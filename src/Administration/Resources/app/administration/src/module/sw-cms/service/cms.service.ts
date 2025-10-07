@@ -429,7 +429,9 @@ class CmsService {
                     entityIds.push(val.mediaId);
                 });
             } else {
-                entityIds.push(...configValue);
+                configValue.forEach((id) => {
+                    entityIds.push(id as string);
+                });
             }
 
             entityData.value = entityIds;

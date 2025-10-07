@@ -408,9 +408,18 @@ PHP_EOL;
             ]
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $event = new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
 
-        $subscriber->enrichExtensionVars(new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext()));
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $exception = null;
+        try {
+            $subscriber->enrichExtensionVars($event);
+        } catch (\Throwable $throwable) {
+            $exception = $throwable->getMessage();
+        }
+        // No variables should be added when a DB exception occurs
+        static::assertNull($exception, 'No exception should be thrown, found: ' . $exception);
+        static::assertEmpty($event->getVariables());
     }
 
     /**
@@ -454,6 +463,7 @@ PHP_EOL;
             false
         );
 
+        $exception = null;
         try {
             $compiler->compileTheme(
                 TestDefaults::SALES_CHANNEL,
@@ -464,13 +474,16 @@ PHP_EOL;
                 Context::createDefaultContext()
             );
         } catch (\Throwable $throwable) {
-            static::fail('ThemeCompiler->compile() should be executable without a database connection. But following Exception was thrown: ' . $throwable->getMessage());
-        } finally {
-            $this->resetEnvVars();
-            KernelLifecycleManager::bootKernel();
-            $this->startTransactionBefore();
-            rmdir($testFolder);
+            $exception = $throwable->getMessage();
         }
+
+        // Clean up, no matter what
+        $this->resetEnvVars();
+        KernelLifecycleManager::bootKernel();
+        $this->startTransactionBefore();
+        rmdir($testFolder);
+
+        static::assertNull($exception, 'ThemeCompiler->compile() should be executable without a database connection. But following Exception was thrown: ' . $exception);
     }
 
     public function testOutputsPluginCss(): void

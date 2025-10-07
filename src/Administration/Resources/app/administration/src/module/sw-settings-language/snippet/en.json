@@ -13,6 +13,7 @@
       "columnIsoCode": "ISO Code ",
       "columnInherit": "Inherit from",
       "columnDefault": "Default",
+      "defaultLabel": "Default",
       "buttonAddLanguage": "Add language",
       "contextMenuEdit": "Edit",
       "messageDeleteSuccess": "Language \"{name}\" has been deleted.",
@@ -20,7 +21,10 @@
       "titleSidebarFilter": "Filter",
       "titleSidebarQuickFilter": "Quick filter",
       "textFilterRootLanguages": "Show only \"root\" languages",
-      "textFilterInheritedLanguages": "Show only inherited languages"
+      "textFilterInheritedLanguages": "Show only inherited languages",
+      "manageSnippets": "Manage snippets",
+      "cardTitle": "Languages",
+      "cardSubtitle": "Languages can be assigned to Sales Channel domains in order to display the appropriate translations. They also enable the translation of content in categories, products, Shopping Experience pages, etc."
     },
     "detail": {
       "textHeadline": "New language",

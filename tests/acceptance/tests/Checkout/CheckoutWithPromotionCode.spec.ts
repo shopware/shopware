@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Registered shop customer should be able to use promotion code during checkout.', { tag: ['@Storefront', '@Checkout'] }, async ({
+test('Registered shop customer should be able to use promotion code during checkout.', { tag: ['@Checkout', '@Storefront'] }, async ({
     ShopCustomer,
     AdminApiContext,
     TestDataService,

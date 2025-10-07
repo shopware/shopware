@@ -54,7 +54,7 @@ jobs:
           workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
-          use-currents: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && !matrix.major && 'true' || '' }}
+          use-currents: ${{ inputs.nightly == 'true' && matrix.php-version == '8.2' && !matrix.major && 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
 
@@ -84,6 +84,7 @@ jobs:
           extra-options: >-
             --repeat-each="10"
             -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
+          artifact-prefix: "ats-changed"
 
   phpunit-matrix:
     runs-on: ubuntu-24.04

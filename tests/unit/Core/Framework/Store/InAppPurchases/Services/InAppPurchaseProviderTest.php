@@ -230,7 +230,7 @@ class InAppPurchaseProviderTest extends TestCase
 
         foreach ($payload as $i => $iap) {
             static::assertNotEmpty($i);
-            $builder = $builder->withClaim((string) $i, $iap);
+            $builder = $builder->withClaim($i, $iap);
         }
 
         return $builder

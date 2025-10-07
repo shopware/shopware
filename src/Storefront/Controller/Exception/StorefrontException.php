@@ -133,4 +133,12 @@ class StorefrontException extends HttpException
             ['salesChannel' => $salesChannel->getTranslation('name')],
         );
     }
+
+    /**
+     * Throwing the custom exception allows to still catch {@see \Symfony\Component\Routing\Exception\RouteNotFoundException} as usual
+     */
+    public static function routeNotFound(string $route, ?\Throwable $previous = null): StorefrontRouteNotFoundException
+    {
+        return new StorefrontRouteNotFoundException($route, $previous);
+    }
 }

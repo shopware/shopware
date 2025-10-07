@@ -4,26 +4,27 @@ test.describe('@Storefront', {
   tag: '@Checkout',
 }, () => {
 
-    test(
-        'As a customer, I want to perform a checkout process with 19% tax rate with 2 same products.',
-        async ({
-            ShopCustomer,
-            TestDataService,
-            StorefrontProductDetail,
-            StorefrontCheckoutConfirm,
-            StorefrontCheckoutFinish,
-            SelectStandardShippingOption,
-            Login,
-            AddProductToCart,
-            ProceedFromProductToCheckout,
-            ConfirmTermsAndConditions,
-            SelectInvoicePaymentOption,
-            SubmitOrder,
-            StorefrontAccountOrder,
-        }) => {
-            const taxRate19 = await TestDataService.createTaxRate({ taxRate: 19.0 });
-            const productWithTaxRate19 = await TestDataService.createBasicProduct({}, taxRate19.id);
-            let orderNumber: string;
+test(
+    'As a customer, I want to perform a checkout process with 19% tax rate with 2 same products.',
+    { tag: ['@Checkout', '@Storefront'] },
+    async ({
+        ShopCustomer,
+        TestDataService,
+        StorefrontProductDetail,
+        StorefrontCheckoutConfirm,
+        StorefrontCheckoutFinish,
+        SelectStandardShippingOption,
+        Login,
+        AddProductToCart,
+        ProceedFromProductToCheckout,
+        ConfirmTermsAndConditions,
+        SelectInvoicePaymentOption,
+        SubmitOrder,
+        StorefrontAccountOrder,
+    }) => {
+        const taxRate19 = await TestDataService.createTaxRate({ taxRate: 19.0 });
+        const productWithTaxRate19 = await TestDataService.createBasicProduct({}, taxRate19.id);
+        let orderNumber: string;
 
             await test.step('Add 2 identical products to chart, proceed to checkout and validate on confirm page the tax price.', async () => {
                 await ShopCustomer.attemptsTo(Login());
@@ -54,27 +55,28 @@ test.describe('@Storefront', {
             });
         });
 
-    test(
-        'As a customer, I want to perform a checkout process with 7% tax rate with 2 different products.',
-        async ({
-            ShopCustomer,
-            TestDataService,
-            StorefrontProductDetail,
-            StorefrontCheckoutConfirm,
-            StorefrontCheckoutFinish,
-            SelectStandardShippingOption,
-            Login,
-            AddProductToCart,
-            ProceedFromProductToCheckout,
-            ConfirmTermsAndConditions,
-            SelectInvoicePaymentOption,
-            SubmitOrder,
-            StorefrontAccountOrder,
-        }) => {
-            const taxRate7 = await TestDataService.createTaxRate({ taxRate: 7.0 });
-            const product1WithTaxRate7 = await TestDataService.createBasicProduct({}, taxRate7.id);
-            const product2WithTaxRate7 = await TestDataService.createBasicProduct({}, taxRate7.id);
-            let orderNumber: string;
+test(
+    'As a customer, I want to perform a checkout process with 7% tax rate with 2 different products.',
+    { tag: ['@Checkout', '@Storefront'] },
+    async ({
+        ShopCustomer,
+        TestDataService,
+        StorefrontProductDetail,
+        StorefrontCheckoutConfirm,
+        StorefrontCheckoutFinish,
+        SelectStandardShippingOption,
+        Login,
+        AddProductToCart,
+        ProceedFromProductToCheckout,
+        ConfirmTermsAndConditions,
+        SelectInvoicePaymentOption,
+        SubmitOrder,
+        StorefrontAccountOrder,
+    }) => {
+        const taxRate7 = await TestDataService.createTaxRate({ taxRate: 7.0 });
+        const product1WithTaxRate7 = await TestDataService.createBasicProduct({}, taxRate7.id);
+        const product2WithTaxRate7 = await TestDataService.createBasicProduct({}, taxRate7.id);
+        let orderNumber: string;
 
             await test.step('Add 2 different products with same tax rate to chart, proceed to checkout and validate on confirm page the tax price.', async () => {
                 await ShopCustomer.attemptsTo(Login());
@@ -107,28 +109,29 @@ test.describe('@Storefront', {
             });
         });
 
-    test(
-        'As a customer, I want to perform a checkout process with 7% and 19% tax rate per product.',
-        async ({
-            ShopCustomer,
-            TestDataService,
-            StorefrontProductDetail,
-            StorefrontCheckoutConfirm,
-            StorefrontCheckoutFinish,
-            SelectStandardShippingOption,
-            Login,
-            AddProductToCart,
-            ProceedFromProductToCheckout,
-            ConfirmTermsAndConditions,
-            SelectInvoicePaymentOption,
-            SubmitOrder,
-            StorefrontAccountOrder,
-        }) => {
-            const taxRate19 = await TestDataService.createTaxRate({ taxRate: 19.0 });
-            const taxRate7 = await TestDataService.createTaxRate({ taxRate: 7.0 });
-            const productWithTaxRate19 = await TestDataService.createBasicProduct({}, taxRate19.id);
-            const product1WithTaxRate7 = await TestDataService.createBasicProduct({}, taxRate7.id);
-            let orderNumber: string;
+test(
+    'As a customer, I want to perform a checkout process with 7% and 19% tax rate per product.',
+    { tag: ['@Checkout', '@Storefront'] },
+    async ({
+        ShopCustomer,
+        TestDataService,
+        StorefrontProductDetail,
+        StorefrontCheckoutConfirm,
+        StorefrontCheckoutFinish,
+        SelectStandardShippingOption,
+        Login,
+        AddProductToCart,
+        ProceedFromProductToCheckout,
+        ConfirmTermsAndConditions,
+        SelectInvoicePaymentOption,
+        SubmitOrder,
+        StorefrontAccountOrder,
+    }) => {
+        const taxRate19 = await TestDataService.createTaxRate({ taxRate: 19.0 });
+        const taxRate7 = await TestDataService.createTaxRate({ taxRate: 7.0 });
+        const productWithTaxRate19 = await TestDataService.createBasicProduct({}, taxRate19.id);
+        const product1WithTaxRate7 = await TestDataService.createBasicProduct({}, taxRate7.id);
+        let orderNumber: string;
 
             await test.step('Add 2 different products with different tax rates to chart, proceed to checkout and validate on confirm page the tax price.', async () => {
                 await ShopCustomer.attemptsTo(Login());
@@ -164,26 +167,27 @@ test.describe('@Storefront', {
             });
         });
 
-    test(
-        'As a customer, I want to perform a checkout process with 0% tax rate.',
-        async ({
-            ShopCustomer,
-            TestDataService,
-            StorefrontProductDetail,
-            StorefrontCheckoutConfirm,
-            StorefrontCheckoutFinish,
-            SelectStandardShippingOption,
-            Login,
-            AddProductToCart,
-            ProceedFromProductToCheckout,
-            ConfirmTermsAndConditions,
-            SelectInvoicePaymentOption,
-            SubmitOrder,
-            StorefrontAccountOrder,
-        }) => {
-            const taxRate0 = await TestDataService.createTaxRate({ taxRate: 0 });
-            const productWithTaxRate0 = await TestDataService.createBasicProduct({}, taxRate0.id);
-            let orderNumber: string;
+test(
+    'As a customer, I want to perform a checkout process with 0% tax rate.',
+    { tag: ['@Checkout', '@Storefront'] },
+    async ({
+        ShopCustomer,
+        TestDataService,
+        StorefrontProductDetail,
+        StorefrontCheckoutConfirm,
+        StorefrontCheckoutFinish,
+        SelectStandardShippingOption,
+        Login,
+        AddProductToCart,
+        ProceedFromProductToCheckout,
+        ConfirmTermsAndConditions,
+        SelectInvoicePaymentOption,
+        SubmitOrder,
+        StorefrontAccountOrder,
+    }) => {
+        const taxRate0 = await TestDataService.createTaxRate({ taxRate: 0 });
+        const productWithTaxRate0 = await TestDataService.createBasicProduct({}, taxRate0.id);
+        let orderNumber: string;
 
             await test.step('Add one product with tax rate to chart, proceed to checkout and validate on confirm page the tax price.', async () => {
                 await ShopCustomer.attemptsTo(Login());

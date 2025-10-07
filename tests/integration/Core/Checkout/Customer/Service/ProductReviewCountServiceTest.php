@@ -44,6 +44,7 @@ class ProductReviewCountServiceTest extends TestCase
         $this->createProduct('p2');
 
         $this->createCustomer('c1');
+        $createdReviews = [];
         $createdReviews[] = $this->createReview('c1', 'p1', true);
         $createdReviews[] = $this->createReview('c1', 'p2', false);
 

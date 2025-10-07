@@ -19,12 +19,24 @@ class CustomerZipCode extends Constraint
         self::ZIP_CODE_INVALID => 'ZIP_CODE_INVALID',
     ];
 
+    /**
+     * @deprecated tag:v6.8.0 - $caseSensitiveCheck property access modifier will be changed to protected and is injectable via constructor
+     */
     public bool $caseSensitiveCheck = true;
 
+    /**
+     * @deprecated tag:v6.8.0 - $countryId property access modifier will be changed to protected and is injectable via constructor
+     */
     public ?string $countryId;
 
+    /**
+     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
+     */
     private string $message = 'This value is not a valid ZIP code for country {{ iso }}';
 
+    /**
+     * @deprecated tag:v6.8.0 - $messageRequired property access modifier will be changed to protected and is injectable via constructor
+     */
     private string $messageRequired = 'Postal code is required for that country';
 
     /**
@@ -32,11 +44,16 @@ class CustomerZipCode extends Constraint
      *
      * @deprecated tag:v6.8.0 - Parameter $options will be removed
      * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck and $countryId access modifier will be changed to protected, please use getters instead
-     * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck and $countryId will be natively typed as constructor property promotion
+     * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck, $countryId, $message and $messageRequired properties will be natively typed as constructor property promotion
      */
     #[HasNamedArguments]
-    public function __construct($options = null, bool $caseSensitiveCheck = true, ?string $countryId = null)
-    {
+    public function __construct(
+        $options = null,
+        bool $caseSensitiveCheck = true,
+        ?string $countryId = null,
+        string $message = 'This value is not a valid ZIP code for country {{ iso }}',
+        string $messageRequired = 'Postal code is required for that country'
+    ) {
         if ($options !== null) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
@@ -49,6 +66,8 @@ class CustomerZipCode extends Constraint
 
             $this->caseSensitiveCheck = $caseSensitiveCheck;
             $this->countryId = $countryId;
+            $this->message = $message;
+            $this->messageRequired = $messageRequired;
         } else {
             if (!\is_array($options)) {
                 $options = [

@@ -1,17 +1,13 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test.describe('@Storefront', {
-  tag: '@Account',
-}, () => {
-
-    test('As a customer, I must be able to change my email via account.', async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        StorefrontAccount,
-        IdProvider,
-        Register,
-        StorefrontAccountProfile,
-    }) => {
+test('As a customer, I must be able to change my email via account.', { tag: ['@Account', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountLogin,
+    StorefrontAccount,
+    IdProvider,
+    Register,
+    StorefrontAccountProfile,
+}) => {
 
         const customer = { email: IdProvider.getIdPair().uuid + '@test.com' , password: IdProvider.getIdPair().uuid };
         const invalidEmail = 'invalidEmailWithoutAtSymbol';
@@ -74,14 +70,14 @@ test.describe('@Storefront', {
         });
     });
 
-    test('As a customer, I must be able to change my password via account.', async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        StorefrontAccount,
-        IdProvider,
-        Register,
-        StorefrontAccountProfile,
-    }) => {
+test('As a customer, I must be able to change my password via account.', { tag: ['@Account', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountLogin,
+    StorefrontAccount,
+    IdProvider,
+    Register,
+    StorefrontAccountProfile,
+}) => {
 
         const customer = { email: IdProvider.getIdPair().uuid + '@test.com' , password: IdProvider.getIdPair().uuid };
         const invalidPassword = { password: 'short' }; // Invalid: less than 8 characters

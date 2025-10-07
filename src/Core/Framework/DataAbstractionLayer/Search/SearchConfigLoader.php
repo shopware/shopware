@@ -62,7 +62,7 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
                         'min_search_length' => (int) $item['min_search_length'],
                         'field' => $item['field'],
                         'tokenize' => (int) $item['tokenize'],
-                        'ranking' => $item['ranking'],
+                        'ranking' => (float) $item['ranking'],
                     ];
                 }, $config);
             }

@@ -231,9 +231,9 @@
                     {% block sw_review_detail_basic_info_card_description_list %}
                     <sw-container
                         columns="1fr 1fr"
+                        align="end"
                         gap="16px"
                     >
-
                         {% block sw_review_detail_description_list_language %}
                         <sw-entity-single-select
                             id="language"
@@ -250,7 +250,6 @@
                         {% endblock %}
 
                         {% block sw_review_detail_description_list_status %}
-
                         <mt-switch
                             v-model="review.status"
                             name="sw-field--review-status"

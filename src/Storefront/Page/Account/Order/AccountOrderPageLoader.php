@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -38,7 +37,6 @@ class AccountOrderPageLoader
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly AccountService $accountService,
         private readonly AbstractTranslator $translator
     ) {
     }
@@ -59,12 +57,6 @@ class AccountOrderPageLoader
         $page->setOrders($orders);
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
-
-        $firstOrder = $page->getOrders()->getEntities()->first();
-        $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomerId();
-        if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
-            $this->accountService->loginById($orderCustomerId, $salesChannelContext);
-        }
 
         $this->eventDispatcher->dispatch(
             new AccountOrderPageLoadedEvent($page, $salesChannelContext, $request)
@@ -104,6 +96,7 @@ class AccountOrderPageLoader
         if ($request->get('email', false) && $request->get('zipcode', false)) {
             $apiRequest->query->set('email', $request->get('email'));
             $apiRequest->query->set('zipcode', $request->get('zipcode'));
+            $apiRequest->query->set('login', true);
         }
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);

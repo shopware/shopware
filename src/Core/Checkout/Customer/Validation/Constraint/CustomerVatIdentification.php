@@ -17,6 +17,9 @@ class CustomerVatIdentification extends Constraint
         self::VAT_ID_FORMAT_NOT_CORRECT => 'VAT_ID_FORMAT_NOT_CORRECT',
     ];
 
+    /**
+     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
+     */
     public string $message = 'The format of vatId {{ vatId }} is not correct.';
 
     protected string $countryId;
@@ -28,12 +31,12 @@ class CustomerVatIdentification extends Constraint
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $countryId parameter will be required and natively typed as constructor property promotion
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $shouldCheck will be natively typed as constructor property promotion
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $shouldCheck and $message properties will be natively typed as constructor property promotion
      *
      * @internal
      */
     #[HasNamedArguments]
-    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false)
+    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false, string $message = 'The format of vatId {{ vatId }} is not correct.')
     {
         if ($options !== null || $countryId === null) {
             Feature::triggerDeprecationOrThrow(
@@ -51,6 +54,7 @@ class CustomerVatIdentification extends Constraint
 
             $this->countryId = $countryId;
             $this->shouldCheck = $shouldCheck;
+            $this->message = $message;
         } else {
             if ($countryId === null) {
                 if (!\is_string($options['countryId'] ?? null)) {
@@ -74,5 +78,10 @@ class CustomerVatIdentification extends Constraint
     public function getShouldCheck(): bool
     {
         return $this->shouldCheck;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 }

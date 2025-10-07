@@ -1,6 +1,17 @@
 @import "~scss/variables";
 
 .sw-review-detail {
+    .sw-review-properties {
+        .sw-field,
+        .mt-switch {
+            margin-bottom: 0;
+        }
+
+        .sw-container {
+            margin-bottom: var(--scale-size-22);
+        }
+    }
+
     .sw-review-detail__container {
         margin-bottom: var(--scale-size-16);
     }

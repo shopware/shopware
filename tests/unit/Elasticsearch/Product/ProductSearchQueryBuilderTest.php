@@ -465,7 +465,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             'boost' => (float) $boost,
         ];
 
-        if (is_numeric($query) || preg_match('/\d{3,}/', (string) $query)) {
+        if (is_numeric($query) || preg_match('/\d{3,}/', $query)) {
             $fuzziness = 0;
         }
 

@@ -1,20 +1,16 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test.describe('@Storefront', {
-  tag: '@Registration', 
-}, () => {
-
-    test('Guest customer must be able to register in the Storefront.', async ({
-        ShopCustomer,
-        StorefrontCheckoutCart,
-        StorefrontProductDetail,
-        StorefrontHome,
-        StorefrontAccountLogin,
-        AddProductToCart,
-        TestDataService,
-        Register,
-    }) => {
-        const product = await TestDataService.createBasicProduct();
+test('Guest customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontCheckoutCart,
+    StorefrontProductDetail,
+    StorefrontHome,
+    StorefrontAccountLogin,
+    AddProductToCart,
+    TestDataService,
+    Register,
+}) => {
+    const product = await TestDataService.createBasicProduct();
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
@@ -29,18 +25,18 @@ test.describe('@Storefront', {
 
     });
 
-    test('Guest commercial customer must be able to register in the Storefront.', async ({
-        ShopCustomer,
-        StorefrontHome,
-        StorefrontCheckoutCart,
-        StorefrontProductDetail,
-        StorefrontAccountLogin,
-        AddProductToCart,
-        TestDataService,
-        Register,
-    }) => {
-        await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
-        const product = await TestDataService.createBasicProduct();
+test('Guest commercial customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontHome,
+    StorefrontCheckoutCart,
+    StorefrontProductDetail,
+    StorefrontAccountLogin,
+    AddProductToCart,
+    TestDataService,
+    Register,
+}) => {
+    await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
+    const product = await TestDataService.createBasicProduct();
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);

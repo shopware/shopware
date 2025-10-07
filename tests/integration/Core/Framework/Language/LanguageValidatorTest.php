@@ -896,7 +896,6 @@ class LanguageValidatorTest extends TestCase
      */
     protected function assertWriteStackViolations(callable $function, array $expectedCodePathPairs): void
     {
-        /** @var WriteException|null $stack */
         $stack = null;
 
         try {

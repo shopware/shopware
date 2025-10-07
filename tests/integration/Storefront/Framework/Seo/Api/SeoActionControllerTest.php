@@ -343,12 +343,14 @@ class SeoActionControllerTest extends TestCase
         static::assertCount(0, $seoUrls);
 
         $newSeoPathInfo = 'my-awesome-seo-path';
-        $seoUrl['foreignKey'] = $id;
-        $seoUrl['seoPathInfo'] = $newSeoPathInfo;
-        $seoUrl['pathInfo'] = '/detail/' . $id;
-        $seoUrl['salesChannelId'] = $salesChannelId;
-        $seoUrl['isModified'] = true;
-        $seoUrl['routeName'] = 'frontend.detail.page';
+        $seoUrl = [
+            'foreignKey' => $id,
+            'seoPathInfo' => $newSeoPathInfo,
+            'pathInfo' => '/detail/' . $id,
+            'salesChannelId' => $salesChannelId,
+            'isModified' => true,
+            'routeName' => 'frontend.detail.page',
+        ];
 
         // modify canonical
         $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $seoUrl);

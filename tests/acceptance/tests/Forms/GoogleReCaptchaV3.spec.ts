@@ -7,17 +7,17 @@ test.describe('@Storefront', {
   tag: ['@Form', '@Captcha'],
 }, () => {
 
-    test.skip('As a customer, I can perform a registration by validating to be not a robot via the Google reCaptcha V3.',
-        { tag: '@Registration' },
-        async ({
-            ShopCustomer,
-            StorefrontAccountLogin,
-            StorefrontAccount,
-            TestDataService,
-            IdProvider,
-            Register,
-            InstanceMeta ,
-        }) => {
+test.skip('As a customer, I can perform a registration by validating to be not a robot via the Google reCaptcha V3.',
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
+    async ({
+        ShopCustomer,
+        StorefrontAccountLogin,
+        StorefrontAccount,
+        TestDataService,
+        IdProvider,
+        Register,
+        InstanceMeta ,
+    }) => {
 
             test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
@@ -49,16 +49,16 @@ test.describe('@Storefront', {
             });
         });
 
-    test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V3 even after a false input.',
-        { tag: '@Registration' },
-        async ({
-            ShopCustomer,
-            StorefrontAccountLogin,
-            StorefrontAccount,
-            TestDataService,
-            IdProvider,
-            InstanceMeta ,
-        }) => {
+test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V3 even after a false input.',
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
+    async ({
+        ShopCustomer,
+        StorefrontAccountLogin,
+        StorefrontAccount,
+        TestDataService,
+        IdProvider,
+        InstanceMeta ,
+    }) => {
 
             test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
@@ -128,16 +128,16 @@ test.describe('@Storefront', {
             });
         });
 
-    test.skip('As a customer, I want to fill out and submit the contact form that is validated by the invisible Google reCaptcha V3.',
-        { tag: '@Contact' },
-        async ({
-            ShopCustomer,
-            StorefrontHome,
-            StorefrontContactForm,
-            DefaultSalesChannel,
-            TestDataService,
-            InstanceMeta ,
-        }) => {
+test.skip('As a customer, I want to fill out and submit the contact form that is validated by the invisible Google reCaptcha V3.',
+    { tag: ['@Form', '@Contact', '@Captcha', '@Storefront'] },
+    async ({
+        ShopCustomer,
+        StorefrontHome,
+        StorefrontContactForm,
+        DefaultSalesChannel,
+        TestDataService,
+        InstanceMeta ,
+    }) => {
 
             test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 

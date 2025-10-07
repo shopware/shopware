@@ -613,7 +613,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
-        $fs->write(\sprintf('theme-config/%s.json', $themeId), (string) json_encode([
+        $fs->write(\sprintf('theme-config/%s.json', $themeId), json_encode([
             'styleFiles' => [],
             'scriptFiles' => [],
         ], \JSON_THROW_ON_ERROR));
@@ -688,7 +688,7 @@ class ThemeServiceTest extends TestCase
 
         $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
 
-        $this->scssCompilerMock->method('compileString')->willReturn('body{background-color: #ff0000;color: darken(#ff0000, 10%)}');
+        $this->scssCompilerMock->method('compileString')->willReturn('body{background-color:#ff0000;color:darken(#ff0000, 10%)}');
 
         $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
 

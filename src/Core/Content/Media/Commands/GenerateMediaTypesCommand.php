@@ -106,7 +106,7 @@ class GenerateMediaTypesCommand extends Command
                 $this->detectMediaType($context, $media);
             }
             $this->io->progressAdvance($result->count());
-            $criteria->setOffset($criteria->getOffset() + $this->batchSize);
+            $criteria->setOffset((int) $criteria->getOffset() + (int) $this->batchSize);
         } while ($result->getTotal() > $this->batchSize);
     }
 

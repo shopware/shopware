@@ -17,7 +17,8 @@
       "messageEmpty": "Noch keine Eigenschaften",
       "columnDescription": "Beschreibung",
       "buttonDelete": "Löschen",
-      "textDeleteConfirm": "Möchtest Du die Eigenschaft \"{name}\" wirklich löschen?"
+      "textDeleteConfirm": "Möchtest Du die Eigenschaft \"{name}\" wirklich löschen?",
+      "errorDelete": "Die Eigenschaft konnte nicht gelöscht werden, da sie noch von Produkten verwendet wird."
     },
     "detail": {
       "mediaDisplayType": "Bild",

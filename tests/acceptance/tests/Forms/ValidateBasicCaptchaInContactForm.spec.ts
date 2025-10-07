@@ -2,6 +2,7 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I expect to see and use a basic captcha function on the contact form.',
+    { tag: ['@Form', '@Contact', '@Storefront'] },
     { tag: ['@Storefront', '@Form', '@Captcha', '@Contact'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel, TestDataService, InstanceMeta }) => {
 

@@ -183,6 +183,8 @@ class InvoiceRendererTest extends TestCase
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->method('fetchAllAssociative')->willReturn($ordersLanguageId);
 
+        $userCallCount = 0;
+
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturnCallback(function (Criteria $criteria, Context $context) use (&$userCallCount, $DELanguageId, $orderSearchResult) {
             ++$userCallCount;

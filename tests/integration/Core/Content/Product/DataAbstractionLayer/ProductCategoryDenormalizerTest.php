@@ -116,7 +116,6 @@ class ProductCategoryDenormalizerTest extends TestCase
         /** @var array{id: string, children: array<int, array{id: string}>, categories: array<int, array{id: string, name:string}>} $product */
         $product = $builder->build();
         $products[$name] = $product['id'];
-        /** @var list<string> $categories */
         $categories = \array_column($product['categories'], 'id');
         \sort($categories);
 

@@ -100,7 +100,7 @@ class InstallAppCommand extends Command
             $io->success(\sprintf('App %s has been successfully installed.', $name));
         }
 
-        return (int) $success;
+        return $success;
     }
 
     protected function configure(): void

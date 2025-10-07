@@ -3,21 +3,22 @@
 namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppExtractor;
+use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AppInfo;
-use Shopware\Core\Service\Event\ServiceOutdatedEvent;
-use Shopware\Core\Service\ServiceClient;
-use Shopware\Core\Service\ServiceClientFactory;
+use Shopware\Core\Service\ServiceException;
+use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\HttpClient\ChunkInterface;
 
 /**
  * @internal
@@ -28,11 +29,10 @@ class ServiceSourceResolverTest extends TestCase
     public function testName(): void
     {
         $source = new ServiceSourceResolver(
+            $this->createMock(Client::class),
             new TemporaryDirectoryFactory(),
-            $this->createMock(ServiceClientFactory::class),
             $this->createMock(AppExtractor::class),
-            $this->createMock(Filesystem::class),
-            $this->createMock(EventDispatcherInterface::class)
+            $this->createMock(Filesystem::class)
         );
         static::assertSame('service', $source->name());
     }
@@ -44,11 +44,10 @@ class ServiceSourceResolverTest extends TestCase
         $app->setSourceType('service');
 
         $source = new ServiceSourceResolver(
+            $this->createMock(Client::class),
             new TemporaryDirectoryFactory(),
-            $this->createMock(ServiceClientFactory::class),
             $this->createMock(AppExtractor::class),
-            $this->createMock(Filesystem::class),
-            $this->createMock(EventDispatcherInterface::class)
+            $this->createMock(Filesystem::class)
         );
 
         static::assertTrue($source->supports($app));
@@ -61,7 +60,7 @@ class ServiceSourceResolverTest extends TestCase
     public function testSupportSelfManagedManifestsWithHttpUrls(): void
     {
         $manifest = static::createMock(Manifest::class);
-        $manifest->method('getPath')->willReturn('https://myservice.com');
+        $manifest->method('getPath')->willReturn('https://example.com');
 
         $metadata = Metadata::fromArray([
             'name' => 'TestApp',
@@ -77,198 +76,391 @@ class ServiceSourceResolverTest extends TestCase
         $manifest->method('getMetadata')->willReturn($metadata);
 
         $source = new ServiceSourceResolver(
+            $this->createMock(Client::class),
             new TemporaryDirectoryFactory(),
-            $this->createMock(ServiceClientFactory::class),
             $this->createMock(AppExtractor::class),
-            $this->createMock(Filesystem::class),
-            $this->createMock(EventDispatcherInterface::class)
+            $this->createMock(Filesystem::class)
         );
 
         static::assertTrue($source->supports($manifest));
     }
 
-    public static function appProvider(): \Generator
+    public function testFilesystemForVersion(): void
     {
+        $client = $this->createMock(Client::class);
+        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $appExtractor = $this->createMock(AppExtractor::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $this->successfulDownloadVersionCommonExpectations(
+            $client,
+            $temporaryDirectoryFactory,
+            $appExtractor,
+            $filesystem,
+            'TestService',
+            'https://example.com/app.zip',
+            ['chunk1', 'chunk2', 'chunk3']
+        );
+
+        $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
+
+        $appInfo = new AppInfo(
+            'TestService',
+            '1.0.0',
+            'abc123',
+            '1.0.0-abc123',
+            'https://example.com/app.zip',
+            'sha256',
+            '6.6.0.0'
+        );
+
+        $result = $source->filesystemForVersion($appInfo);
+
+        static::assertSame('/tmp/test/TestService', $result->location);
+    }
+
+    public function testFilesystemWhenAppExists(): void
+    {
+        $client = $this->createMock(Client::class);
+        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $appExtractor = $this->createMock(AppExtractor::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $temporaryDirectoryFactory->expects($this->once())
+            ->method('path')
+            ->willReturn('/tmp/test');
+
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->with('/tmp/test/TestService')
+            ->willReturn(true);
+
+        // Should not call download methods when app exists
+        $client->expects($this->never())->method('fetchServiceZip');
+        $appExtractor->expects($this->never())->method('extract');
+
+        $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
+
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
-        $app->setName('MyCoolService');
+        $app->setName('TestService');
+        $app->setSourceType('service');
+
+        $result = $source->filesystem($app);
+
+        static::assertSame('/tmp/test/TestService', $result->location);
+    }
+
+    public function testAppIsDownloadedIfItDoesNotExistOnFilesystem(): void
+    {
+        $client = $this->createMock(Client::class);
+        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $appExtractor = $this->createMock(AppExtractor::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->with('/tmp/test/TestService')
+            ->willReturn(false);
+
+        $this->successfulDownloadVersionCommonExpectations(
+            $client,
+            $temporaryDirectoryFactory,
+            $appExtractor,
+            $filesystem,
+            'TestService',
+            'https://example.com/service.zip',
+            ['data']
+        );
+
+        $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
+
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setName('TestService');
         $app->setSourceType('service');
         $app->setSourceConfig([
-            'version' => '6.7.0.0',
-            'revision' => '6.7.0.0-abcd',
-            'zip-url' => 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0',
+            'version' => '1.0.0',
+            'hash' => 'abc123',
+            'revision' => '1.0.0-abc123',
+            'zip-url' => 'https://example.com/service.zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
         ]);
 
-        yield 'app' => [$app];
+        $result = $source->filesystem($app);
 
-        $manifest = static::createStub(Manifest::class);
+        static::assertSame('/tmp/test/TestService', $result->location);
+    }
 
-        $manifest->method('getSourceConfig')->willReturn([
-            'version' => '6.7.0.0',
-            'revision' => '6.7.0.0-abcd',
-            'zip-url' => 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0',
-        ]);
+    public function testFilesystemWithManifest(): void
+    {
+        $client = $this->createMock(Client::class);
+        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $appExtractor = $this->createMock(AppExtractor::class);
+        $filesystem = $this->createMock(Filesystem::class);
 
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->with('/tmp/test/ManifestApp')
+            ->willReturn(false);
+
+        $manifest = $this->createMock(Manifest::class);
         $metadata = Metadata::fromArray([
-            'name' => 'MyCoolService',
+            'name' => 'ManifestApp',
             'label' => [],
             'author' => 'Shopware',
             'copyright' => 'Shopware',
             'license' => 'Shopware',
-            'version' => '6.7.0.0',
+            'version' => '1.0',
         ]);
 
-        $manifest->method('getMetadata')->willReturn($metadata);
+        $manifest->expects($this->once())
+            ->method('getMetadata')
+            ->willReturn($metadata);
 
-        yield 'manifest' => [$manifest];
+        $manifest->expects($this->once())
+            ->method('getSourceConfig')
+            ->willReturn([
+                'version' => '2.0.0',
+                'hash' => 'def456',
+                'revision' => '2.0.0-def456',
+                'zip-url' => 'https://example.com/manifest.zip',
+                'hash-algorithm' => 'sha512',
+                'min-shop-supported-version' => '6.7.0.0',
+            ]);
+
+        $this->successfulDownloadVersionCommonExpectations(
+            $client,
+            $temporaryDirectoryFactory,
+            $appExtractor,
+            $filesystem,
+            'ManifestApp',
+            'https://example.com/manifest.zip',
+            ['manifest-data']
+        );
+
+        $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
+
+        $result = $source->filesystem($manifest);
+
+        static::assertSame('/tmp/test/ManifestApp', $result->location);
     }
 
-    #[DataProvider('appProvider')]
-    public function testAppIsDownloadedIfItDoesNotExistOnFilesystem(AppEntity|Manifest $app): void
+    public function testDownloadVersionThrowsExceptionOnServiceError(): void
     {
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-
+        $client = $this->createMock(Client::class);
+        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
-        $appInfo = new AppInfo('MyCoolService', '6.7.0.0', 'abcd', '6.7.0.0-abcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0');
+        $temporaryDirectoryFactory->expects($this->any())
+            ->method('path')
+            ->willReturn('/tmp/test');
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClient->expects($this->once())
-            ->method('downloadAppZipForVersion')
-            ->with('https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0', '/some/tmp/path/MyCoolService/MyCoolService.zip')
-            ->willReturn($appInfo);
-        $serviceClientFactory->expects($this->once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->willReturn(false);
 
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $temporaryDirectoryFactory->expects($this->any())->method('path')->willReturn('/some/tmp/path');
+        $filesystem->expects($this->never())
+            ->method('mkdir')
+            ->with('/tmp/test/FailingService');
 
-        $source = new ServiceSourceResolver(
-            $temporaryDirectoryFactory,
-            $serviceClientFactory,
-            $appExtractor,
-            $filesystem,
-            $this->createMock(EventDispatcherInterface::class)
-        );
+        $client->expects($this->once())
+            ->method('fetchServiceZip')
+            ->willThrowException(ServiceException::missingAppVersionInformation('version'));
 
-        $fs = $source->filesystem($app);
+        $filesystem->expects($this->once())
+            ->method('remove')
+            ->with('/tmp/test/FailingService');
 
-        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
-    }
-
-    #[DataProvider('appProvider')]
-    public function testAppIsNotDownloadedIfItExistsOnFilesystem(AppEntity|Manifest $app): void
-    {
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-
-        $appExtractor = $this->createMock(AppExtractor::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->expects($this->once())->method('exists')->with('/some/tmp/path/MyCoolService')->willReturn(true);
-
-        $appInfo = new AppInfo('MyCoolService', '6.7.0.0', 'abcd', '6.7.0.0-abcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0');
-
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects($this->never())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClient->expects($this->never())->method('downloadAppZipForVersion');
-
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $temporaryDirectoryFactory->expects($this->any())->method('path')->willReturn('/some/tmp/path');
-
-        $source = new ServiceSourceResolver(
-            $temporaryDirectoryFactory,
-            $serviceClientFactory,
-            $appExtractor,
-            $filesystem,
-            $this->createMock(EventDispatcherInterface::class)
-        );
-
-        $fs = $source->filesystem($app);
-
-        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
-    }
-
-    public function testFilesystemForAppDownloadsServiceUsingClient(): void
-    {
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-
-        $appExtractor = $this->createMock(AppExtractor::class);
-        $filesystem = $this->createMock(Filesystem::class);
-
-        $appInfo = new AppInfo('MyCoolService', '6.7.0.0', 'abcd', '6.7.0.0-abcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0');
-
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClient->expects($this->once())
-            ->method('downloadAppZipForVersion')
-            ->with('https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0', '/some/tmp/path/MyCoolService/MyCoolService.zip')
-            ->willReturn($appInfo);
-        $serviceClientFactory->expects($this->once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
-
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $temporaryDirectoryFactory->expects($this->any())->method('path')->willReturn('/some/tmp/path');
-
-        $source = new ServiceSourceResolver(
-            $temporaryDirectoryFactory,
-            $serviceClientFactory,
-            $appExtractor,
-            $filesystem,
-            $this->createMock(EventDispatcherInterface::class)
-        );
+        $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
 
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
-        $app->setName('MyCoolService');
+        $app->setName('FailingService');
         $app->setSourceType('service');
         $app->setSourceConfig([
-            'version' => '6.7.0.0',
-            'revision' => '6.7.0.0-abcd',
-            'zip-url' => 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0',
+            'version' => '1.0.0',
+            'hash' => 'abc123',
+            'revision' => '1.0.0-abc123',
+            'zip-url' => 'https://example.com/failing.zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
         ]);
 
-        $fs = $source->filesystem($app);
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Cannot mount a filesystem for App "FailingService"');
 
-        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
+        $source->filesystem($app);
     }
 
-    public function testIfLatestVersionIsNotInstalledServiceIsUpdatedFirst(): void
+    public function testDownloadVersionThrowsExceptionOnExtractorError(): void
     {
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-
+        $client = $this->createMock(Client::class);
+        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
-        $appInfo = new AppInfo('MyCoolService', '6.7.0.0', 'abcd', '6.7.0.0-abcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0');
+        $temporaryDirectoryFactory->expects($this->any())
+            ->method('path')
+            ->willReturn('/tmp/test');
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClient->expects($this->never())->method('downloadAppZipForVersion');
-        $serviceClientFactory->expects($this->once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->willReturn(false);
 
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $temporaryDirectoryFactory->expects($this->any())->method('path')->willReturn('/some/tmp/path');
+        $filesystem->expects($this->once())
+            ->method('mkdir');
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects($this->once())->method('dispatch')->with(static::isInstanceOf(ServiceOutdatedEvent::class));
+        $chunks = $this->createChunkGenerator(['data']);
+        $client->expects($this->once())
+            ->method('fetchServiceZip')
+            ->willReturn($chunks);
 
-        $source = new ServiceSourceResolver(
-            $temporaryDirectoryFactory,
-            $serviceClientFactory,
-            $appExtractor,
-            $filesystem,
-            $eventDispatcher
-        );
+        $filesystem->expects($this->once())
+            ->method('appendToFile');
+
+        $appExtractor->expects($this->once())
+            ->method('extract')
+            ->willThrowException(new AppArchiveValidationFailure(400, 'INVALID_ARCHIVE', 'Invalid archive'));
+
+        // Should still clean up the zip file even if extraction fails
+        $filesystem->expects($this->once())
+            ->method('remove')
+            ->with('/tmp/test/FailingExtraction/FailingExtraction.zip');
+
+        $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
 
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
-        $app->setName('MyCoolService');
+        $app->setName('FailingExtraction');
         $app->setSourceType('service');
         $app->setSourceConfig([
-            'revision' => '6.6.0.0-abbb',
+            'version' => '1.0.0',
+            'hash' => 'abc123',
+            'revision' => '1.0.0-abc123',
+            'zip-url' => 'https://example.com/failing.zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
         ]);
 
-        $fs = $source->filesystem($app);
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Cannot mount a filesystem for App "FailingExtraction"');
 
-        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
+        $source->filesystem($app);
+    }
+
+    public function testDownloadVersionThrowsExceptionOnFileWriteError(): void
+    {
+        $client = $this->createMock(Client::class);
+        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $appExtractor = $this->createMock(AppExtractor::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $temporaryDirectoryFactory->expects($this->any())
+            ->method('path')
+            ->willReturn('/tmp/test');
+
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->willReturn(false);
+
+        $filesystem->expects($this->once())
+            ->method('mkdir');
+
+        $chunks = $this->createChunkGenerator(['data']);
+        $client->expects($this->once())
+            ->method('fetchServiceZip')
+            ->willReturn($chunks);
+
+        $underlyingException = new \Exception('Write failed');
+        $filesystem->expects($this->once())
+            ->method('appendToFile')
+            ->willThrowException($underlyingException);
+
+        $filesystem->expects($this->once())
+            ->method('remove')
+            ->with('/tmp/test/WriteFailService');
+
+        $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
+
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setName('WriteFailService');
+        $app->setSourceType('service');
+        $app->setSourceConfig([
+            'version' => '1.0.0',
+            'hash' => 'abc123',
+            'revision' => '1.0.0-abc123',
+            'zip-url' => 'https://example.com/failing.zip',
+            'hash-algorithm' => 'sha256',
+            'min-shop-supported-version' => '6.6.0.0',
+        ]);
+
+        static::expectExceptionObject(AppException::cannotMountAppFilesystem('WriteFailService', ServiceException::cannotWriteAppToDestination('/tmp/test/WriteFailService', $underlyingException)));
+        $source->filesystem($app);
+    }
+
+    /**
+     * Sets up common expectations for successful download scenarios
+     *
+     * @param string[] $chunks
+     */
+    private function successfulDownloadVersionCommonExpectations(
+        MockObject $client,
+        MockObject $temporaryDirectoryFactory,
+        MockObject $appExtractor,
+        MockObject $filesystem,
+        string $appName,
+        string $zipUrl,
+        array $chunks
+    ): void {
+        $temporaryDirectoryFactory->expects($this->any())
+            ->method('path')
+            ->willReturn('/tmp/test');
+
+        $filesystem->expects($this->once())
+            ->method('mkdir')
+            ->with(\sprintf('/tmp/test/%s', $appName));
+
+        $chunkGenerator = $this->createChunkGenerator($chunks);
+        $client->expects($this->once())
+            ->method('fetchServiceZip')
+            ->with($zipUrl)
+            ->willReturn($chunkGenerator);
+
+        $filesystem->expects($this->exactly(\count($chunks)))
+            ->method('appendToFile')
+            ->with(\sprintf('/tmp/test/%s/%s.zip', $appName, $appName), static::anything());
+
+        $appExtractor->expects($this->once())
+            ->method('extract')
+            ->with(
+                \sprintf('/tmp/test/%s/%s.zip', $appName, $appName),
+                '/tmp/test',
+                $appName
+            )
+            ->willReturn(\sprintf('/tmp/test/%s', $appName));
+
+        $filesystem->expects($this->once())
+            ->method('remove')
+            ->with(\sprintf('/tmp/test/%s/%s.zip', $appName, $appName));
+    }
+
+    /**
+     * @param string[] $chunks
+     *
+     * @return \Generator<ChunkInterface>
+     */
+    private function createChunkGenerator(array $chunks): \Generator
+    {
+        foreach ($chunks as $chunkContent) {
+            $chunk = $this->createMock(ChunkInterface::class);
+            $chunk->expects($this->once())
+                ->method('getContent')
+                ->willReturn($chunkContent);
+            yield $chunk;
+        }
     }
 }

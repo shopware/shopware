@@ -1,32 +1,28 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { Product } from '@shopware-ag/acceptance-test-suite';
 
-test.describe('@Storefront', {
-  tag: '@Product',
-}, () => {
-
-    test('Product is visible in listing and storefront search when set to "Visible".', async ({
-        ShopCustomer,
-        TestDataService,
-        DefaultSalesChannel,
-        SearchForTerm,
-        StorefrontSearchSuggest,
-        IdProvider,
-        StorefrontProductDetail,
-        CheckVisibilityInHome,
-    }) => {
-        let product: Product;
-        await test.step('Create a product with "Visible" visibility in the default sales channel.', async () => {
-            product = await TestDataService.createBasicProduct({
-                name: 'Product-' + await IdProvider.getIdPair().id,
-                visibilities: [
-                    {
-                        salesChannelId: DefaultSalesChannel.salesChannel.id,
-                        visibility: 30,
-                    },
-                ],
-            });
+test('Product is visible in listing and storefront search when set to "Visible".', { tag: ['@Product', '@Storefront'] }, async ({
+    ShopCustomer,
+    TestDataService,
+    DefaultSalesChannel,
+    SearchForTerm,
+    StorefrontSearchSuggest,
+    IdProvider,
+    StorefrontProductDetail,
+    CheckVisibilityInHome,
+}) => {
+    let product: Product;
+    await test.step('Create a product with "Visible" visibility in the default sales channel.', async () => {
+        product = await TestDataService.createBasicProduct({
+            name: 'Product-' + await IdProvider.getIdPair().id,
+            visibilities: [
+                {
+                    salesChannelId: DefaultSalesChannel.salesChannel.id,
+                    visibility: 30,
+                },
+            ],
         });
+    });
 
         await CheckVisibilityInHome(product.name)();
 
@@ -45,28 +41,28 @@ test.describe('@Storefront', {
 
     });
 
-    test('Product is visible in storefront search but hidden from listing when set to "Hide in listings".', async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontHome,
-        DefaultSalesChannel,
-        SearchForTerm,
-        StorefrontSearchSuggest,
-        IdProvider,
-        StorefrontProductDetail,
-    }) => {
-        let product: Product;
-        await test.step('Create a product with "Hide in listings" visibility in the default sales channel.', async () => {
-            product = await TestDataService.createBasicProduct({
-                name: 'Product-' + IdProvider.getIdPair().id,
-                visibilities: [
-                    {
-                        salesChannelId: DefaultSalesChannel.salesChannel.id,
-                        visibility: 20,
-                    },
-                ],
-            });
+test('Product is visible in storefront search but hidden from listing when set to "Hide in listings".', { tag: ['@Product', '@Storefront'] }, async ({
+    ShopCustomer,
+    TestDataService,
+    StorefrontHome,
+    DefaultSalesChannel,
+    SearchForTerm,
+    StorefrontSearchSuggest,
+    IdProvider,
+    StorefrontProductDetail,
+}) => {
+    let product: Product;
+    await test.step('Create a product with "Hide in listings" visibility in the default sales channel.', async () => {
+        product = await TestDataService.createBasicProduct({
+            name: 'Product-' + IdProvider.getIdPair().id,
+            visibilities: [
+                {
+                    salesChannelId: DefaultSalesChannel.salesChannel.id,
+                    visibility: 20,
+                },
+            ],
         });
+    });
 
         await test.step('Verify the product does not appear in the Home category listing.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
@@ -94,28 +90,28 @@ test.describe('@Storefront', {
         });
     });
 
-    test('Product is hidden from both listing and storefront search when set to "Hide in listings and search".', async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontHome,
-        DefaultSalesChannel,
-        SearchForTerm,
-        StorefrontSearchSuggest,
-        IdProvider,
-        StorefrontProductDetail,
-    }) => {
-        let product: Product;
-        await test.step('Create a product with "Hide in listings and search" visibility in the default sales channel.', async () => {
-            product = await TestDataService.createBasicProduct({
-                name: 'Product-' + IdProvider.getIdPair().id,
-                visibilities: [
-                    {
-                        salesChannelId: DefaultSalesChannel.salesChannel.id,
-                        visibility: 10,
-                    },
-                ],
-            });
+test('Product is hidden from both listing and storefront search when set to "Hide in listings and search".', { tag: ['@Product', '@Storefront'] }, async ({
+    ShopCustomer,
+    TestDataService,
+    StorefrontHome,
+    DefaultSalesChannel,
+    SearchForTerm,
+    StorefrontSearchSuggest,
+    IdProvider,
+    StorefrontProductDetail,
+}) => {
+    let product: Product;
+    await test.step('Create a product with "Hide in listings and search" visibility in the default sales channel.', async () => {
+        product = await TestDataService.createBasicProduct({
+            name: 'Product-' + IdProvider.getIdPair().id,
+            visibilities: [
+                {
+                    salesChannelId: DefaultSalesChannel.salesChannel.id,
+                    visibility: 10,
+                },
+            ],
         });
+    });
 
         await test.step('Verify the product does not appear in the Home category listing.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
@@ -135,22 +131,22 @@ test.describe('@Storefront', {
         });
     });
 
-    test('Product is not visible without adding it to the sales channel.', async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontHome,
-        SearchForTerm,
-        StorefrontSearchSuggest,
-        IdProvider,
-        StorefrontProductDetail,
-    }) => {
-        let product: Product;
-        await test.step('Create a product without visibility in the default sales channel.', async () => {
-            product = await TestDataService.createBasicProduct({
-                name: 'Product-' + await IdProvider.getIdPair().id,
-                visibilities: [],
-            });
+test('Product is not visible without adding it to the sales channel.', { tag: ['@Product', '@Storefront'] }, async ({
+    ShopCustomer,
+    TestDataService,
+    StorefrontHome,
+    SearchForTerm,
+    StorefrontSearchSuggest,
+    IdProvider,
+    StorefrontProductDetail,
+}) => {
+    let product: Product;
+    await test.step('Create a product without visibility in the default sales channel.', async () => {
+        product = await TestDataService.createBasicProduct({
+            name: 'Product-' + await IdProvider.getIdPair().id,
+            visibilities: [],
         });
+    });
 
         await test.step('Verify the product does not appear in the Home category listing.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
@@ -164,9 +160,8 @@ test.describe('@Storefront', {
             await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).not.toBeVisible();
         });
 
-        await test.step('Verify the product can still be accessed directly via its URL.', async () => {
-            await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-            await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1', { hasText: product.name })).not.toBeVisible();
-        });
+    await test.step('Verify the product can still be accessed directly via its URL.', async () => {
+        await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+        await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1', { hasText: product.name })).not.toBeVisible();
     });
 });

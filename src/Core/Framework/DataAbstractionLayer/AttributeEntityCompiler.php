@@ -121,6 +121,8 @@ class AttributeEntityCompiler
 
         $properties = $reflection->getProperties();
 
+        $definitions = [];
+
         $fields = [];
         foreach ($properties as $property) {
             $field = $this->parseField($instance->name, $property);

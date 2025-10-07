@@ -100,7 +100,7 @@ class InfoController extends AbstractController
 
         return new JsonResponse(array_map(static fn (array $entry) => [
             'name' => $entry['key'],
-            'size' => (int) $entry['count'],
+            'size' => $entry['count'],
         ], array_values($entries)));
     }
 
@@ -341,7 +341,7 @@ LEFT JOIN acl_role ar on app.acl_role_id = ar.id
 WHERE app.active = 1 AND app.base_app_url is not null');
 
         return array_map(static function (array $item) {
-            $privileges = $item['privileges'] ? json_decode((string) $item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
+            $privileges = $item['privileges'] ? json_decode($item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
             $item['privileges'] = [];
 

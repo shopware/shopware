@@ -257,7 +257,7 @@ class ImportExport
 
             $progress = $this->exportChunk($config, $entities, $progress, $targetFile, $context, false, $failedRecords);
 
-            $criteria->setOffset($criteria->getOffset() + $criteria->getLimit());
+            $criteria->setOffset((int) $criteria->getOffset() + (int) $criteria->getLimit());
         } while ($fullExport && $progress->getOffset() < $progress->getTotal());
 
         if (!empty($failedRecords)) {

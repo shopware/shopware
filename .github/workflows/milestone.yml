@@ -81,7 +81,7 @@ jobs:
 
   set_milestone:
     name: Set milestone
-    if: ${{ github.event.action == 'closed' && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
+    if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

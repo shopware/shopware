@@ -1,20 +1,16 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test.describe('@Storefront', {
-  tag: ['@Account', '@Password'],
-}, () => {
-
-    test('As a customer, I can request a new password with existing customer email address.', async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        StorefrontAccountRecover,
-        TestDataService,
-    }) => {
-        const customer = await TestDataService.createCustomer();
-        await test.step('Navigate to the login page and click on forgot password', async () => {
-            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-            await ShopCustomer.presses(StorefrontAccountLogin.forgotPasswordLink, 'Enter');
-        });
+test ('As a customer, I can request a new password with existing customer email address.', { tag: ['@Account', '@Password', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountLogin,
+    StorefrontAccountRecover,
+    TestDataService,
+}) => {
+    const customer = await TestDataService.createCustomer();
+    await test.step('Navigate to the login page and click on forgot password', async () => {
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await StorefrontAccountLogin.forgotPasswordLink.click();
+    });
 
         await test.step('Fill in the customer email and request a password reset', async () => {
             await StorefrontAccountRecover.emailInput.fill(customer.email);
@@ -28,16 +24,15 @@ test.describe('@Storefront', {
         });
     });
 
-    test('As a customer, I can request a new password without existing customer email address.', async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        StorefrontAccountRecover,
-    }) => {
-        await test.step('Navigate to login page and initiate password recovery', async () => {
-            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-            await ShopCustomer.presses(StorefrontAccountLogin.forgotPasswordLink, 'Enter');
-
-        });
+test ('As a customer, I can request a new password without existing customer email address.', { tag: ['@Account', '@Password', '@Storefront'] }, async ({
+   ShopCustomer,
+   StorefrontAccountLogin,
+   StorefrontAccountRecover,
+}) => {
+    await test.step('Navigate to login page and initiate password recovery', async () => {
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await StorefrontAccountLogin.forgotPasswordLink.click();
+    });
 
         await test.step('Attempt to request password reset without entering an email', async () => {
             await ShopCustomer.presses(StorefrontAccountRecover.requestEmailButton, 'Enter');
@@ -52,17 +47,17 @@ test.describe('@Storefront', {
         });
     });
 
-    test('As a customer, I can reset my password using the password recovery process for an existing account and successfully log in with the new password.', async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        StorefrontAccountRecover,
-        TestDataService,
-        MailpitApiContext,
-        InstanceMeta,
-        Login,
-        DefaultSalesChannel,
-    }) => {
-        test.skip(InstanceMeta.isSaaS, 'Skipping test because it requires a local mailpit instance.');
+test ('As a customer, I can reset my password using the password recovery process for an existing account and successfully log in with the new password.', { tag: ['@Account', '@Password', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountLogin,
+    StorefrontAccountRecover,
+    TestDataService,
+    MailpitApiContext,
+    InstanceMeta,
+    Login,
+    DefaultSalesChannel,
+}) => {
+    test.skip(InstanceMeta.isSaaS, 'Skipping test because it requires a local mailpit instance.');
 
         let passwordResetLink = '';
         const newPassword = 'new-password';

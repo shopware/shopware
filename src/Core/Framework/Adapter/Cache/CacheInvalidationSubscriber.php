@@ -166,7 +166,6 @@ class CacheInvalidationSubscriber
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
-        /** @var string[] $ids */
         $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME));
         $this->cacheInvalidator->invalidate($ids);
     }
@@ -224,7 +223,6 @@ class CacheInvalidationSubscriber
 
         if (empty($tags)) {
             // invalidates the country-state route when a state changed or an assignment between the state and country changed
-            /** @var string[] $tags */
             $tags = array_map(
                 CountryStateRoute::buildName(...),
                 $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME)
@@ -293,7 +291,7 @@ class CacheInvalidationSubscriber
 
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
-        /** @var array{'product_id':string, 'variant_id':string|null} $productIds */
+        /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
         $productIds = $this->connection->fetchAllAssociative(
             'SELECT
                     LOWER(HEX(pm.product_id)) as product_id,
@@ -352,7 +350,6 @@ class CacheInvalidationSubscriber
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
         }
 
-        /** @var string[] $keys */
         $keys = array_filter(array_unique($keys));
 
         if (empty($keys)) {

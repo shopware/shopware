@@ -31,7 +31,6 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
@@ -91,7 +90,7 @@ class TokenQueryBuilderTest extends TestCase
             'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
         ]);
 
-        $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
 

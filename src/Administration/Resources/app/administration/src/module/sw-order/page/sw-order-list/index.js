@@ -93,29 +93,29 @@ export default {
                 criteria.addFilter(filter);
             });
 
-            criteria.addAssociation('addresses');
             criteria.addAssociation('billingAddress');
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
             criteria.addAssociation('documents');
-
             criteria.addAssociation('stateMachineState');
-
-            criteria
-                .getAssociation('transactions')
-                .addAssociation('stateMachineState')
-                .addSorting(Criteria.sort('createdAt'));
-
-            criteria
-                .addAssociation('primaryOrderTransaction')
-                .addAssociation('primaryOrderTransaction.paymentMethod')
-                .addAssociation('primaryOrderTransaction.stateMachineState')
-                .addAssociation('primaryOrderDelivery.shippingMethod')
-                .addAssociation('primaryOrderDelivery.stateMachineState')
-                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
+            criteria.addAssociation('primaryOrderTransaction.stateMachineState');
+            criteria.addAssociation('primaryOrderDelivery.stateMachineState');
+            criteria.addAssociation('primaryOrderDelivery.shippingOrderAddress');
 
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria.addAssociation('addresses');
+
+                criteria
+                    .getAssociation('transactions')
+                    .addAssociation('stateMachineState')
+                    .addSorting(Criteria.sort('createdAt'));
+
+                criteria
+                    .addAssociation('primaryOrderTransaction.paymentMethod')
+                    .addAssociation('primaryOrderDelivery.shippingMethod')
+                    .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
+
                 criteria
                     .getAssociation('deliveries')
                     .addAssociation('stateMachineState')
@@ -236,12 +236,12 @@ export default {
                     optionNoCriteria: this.$tc('sw-order.filters.documentFilter.textNoCriteria'),
                 },
                 'payment-method-filter': {
-                    property: 'transactions.paymentMethod',
+                    property: 'primaryOrderTransaction.paymentMethod',
                     label: this.$tc('sw-order.filters.paymentMethodFilter.label'),
                     placeholder: this.$tc('sw-order.filters.paymentMethodFilter.placeholder'),
                 },
                 'shipping-method-filter': {
-                    property: 'deliveries.shippingMethod',
+                    property: 'primaryOrderDelivery.shippingMethod',
                     label: this.$tc('sw-order.filters.shippingMethodFilter.label'),
                     placeholder: this.$tc('sw-order.filters.shippingMethodFilter.placeholder'),
                 },
@@ -251,7 +251,7 @@ export default {
                     placeholder: this.$tc('sw-order.filters.billingCountryFilter.placeholder'),
                 },
                 'shipping-country-filter': {
-                    property: 'deliveries.shippingOrderAddress.country',
+                    property: 'primaryOrderDelivery.shippingOrderAddress.country',
                     label: this.$tc('sw-order.filters.shippingCountryFilter.label'),
                     placeholder: this.$tc('sw-order.filters.shippingCountryFilter.placeholder'),
                 },
@@ -313,6 +313,9 @@ export default {
     methods: {
         createdComponent() {},
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
+         */
         deliveryTooltip(deliveries) {
             return deliveries
                 .map((delivery) => {
@@ -373,6 +376,9 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.billingAddress instead
+         */
         getBillingAddress(order) {
             return order.addresses.find((address) => {
                 return address.id === order.billingAddressId;
@@ -410,7 +416,6 @@ export default {
                 },
                 {
                     property: 'orderCustomer.company',
-                    dataIndex: 'orderCustomer.company',
                     label: 'sw-order.list.columnCustomerCompany',
                     allowResize: true,
                     visible: false,
@@ -423,8 +428,7 @@ export default {
                     visible: false,
                 },
                 {
-                    property: 'deliveries.id',
-                    dataIndex: 'deliveries.shippingOrderAddress.street',
+                    property: 'primaryOrderDelivery.shippingOrderAddress.street',
                     label: 'sw-order.list.columnDeliveryAddress',
                     allowResize: true,
                 },
@@ -440,14 +444,12 @@ export default {
                     allowResize: true,
                 },
                 {
-                    property: 'transactions.last().stateMachineState.name',
-                    dataIndex: 'transactions.stateMachineState.name',
+                    property: 'primaryOrderTransaction.stateMachineState.name',
                     label: 'sw-order.list.columnTransactionState',
                     allowResize: true,
                 },
                 {
-                    property: 'deliveries[0].stateMachineState.name',
-                    dataIndex: 'deliveries.stateMachineState.name',
+                    property: 'primaryOrderDelivery.stateMachineState.name',
                     label: 'sw-order.list.columnDeliveryState',
                     allowResize: true,
                 },
@@ -484,33 +486,32 @@ export default {
 
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 technicalName = order.transactions.last().stateMachineState.technicalName;
-            }
 
-            // set the payment status to the first transaction that is not cancelled
-            for (let i = 0; i < order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(order.transactions[i].stateMachineState.technicalName)
-                ) {
-                    technicalName = order.transactions[i].stateMachineState.technicalName;
-                    break;
+                // set the payment status to the first transaction that is not cancelled
+                for (let i = 0; i < order.transactions.length; i += 1) {
+                    if (
+                        ![
+                            'cancelled',
+                            'failed',
+                        ].includes(order.transactions[i].stateMachineState.technicalName)
+                    ) {
+                        technicalName = order.transactions[i].stateMachineState.technicalName;
+                        break;
+                    }
                 }
             }
 
-            const style = this.stateStyleDataProviderService.getStyle('order_transaction.state', technicalName);
-
-            return style.colorCode;
+            return this.stateStyleDataProviderService.getStyle('order_transaction.state', technicalName).colorCode;
         },
 
         getVariantFromDeliveryState(order) {
-            const style = this.stateStyleDataProviderService.getStyle(
-                'order_delivery.state',
-                this.getDelivery(order).stateMachineState.technicalName,
-            );
+            let technicalName = order.primaryOrderDelivery?.stateMachineState.technicalName;
 
-            return style.colorCode;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                technicalName = this.getDelivery(order).stateMachineState.technicalName;
+            }
+
+            return this.stateStyleDataProviderService.getStyle('order_delivery.state', technicalName).colorCode;
         },
 
         onDelete(id) {
@@ -548,7 +549,10 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                return !this.getDelivery(order);
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    return !this.getDelivery(order);
+                }
+                return !order.primaryOrderDelivery;
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 
@@ -560,25 +564,31 @@ export default {
             });
         },
 
-        transaction(item) {
-            for (let i = 0; i < item.transactions.length; i += 1) {
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction instead
+         */
+        transaction(order) {
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                return order.primaryOrderTransaction;
+            }
+
+            for (let i = 0; i < order.transactions.length; i += 1) {
                 if (
                     ![
                         'cancelled',
                         'failed',
-                    ].includes(item.transactions[i].stateMachineState.technicalName)
+                    ].includes(order.transactions[i].stateMachineState.technicalName)
                 ) {
-                    return item.transactions[i];
+                    return order.transactions[i];
                 }
             }
 
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return item.transactions.last();
-            }
-
-            return item.primaryOrderTransaction;
+            return order.transactions.last();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
+         */
         getDelivery(order) {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 return order.deliveries[0];

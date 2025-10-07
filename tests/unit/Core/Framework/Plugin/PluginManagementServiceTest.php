@@ -147,21 +147,72 @@ class PluginManagementServiceTest extends TestCase
 
     public function testDeleteWhenManaged(): void
     {
+        $fs = $this->createMock(Filesystem::class);
+        $fs->expects($this->never())->method('remove');
+
         $pluginManagementService = new PluginManagementService(
             '',
             $this->createMock(PluginZipDetector::class),
             $this->createMock(PluginExtractor::class),
             $this->createMock(PluginService::class),
-            $this->createMock(Filesystem::class),
+            $fs,
             $this->createMock(CacheClearer::class),
             new Client(['handler' => new MockHandler()])
         );
 
         $plugin = new PluginEntity();
         $plugin->setManagedByComposer(true);
+        $plugin->setPath('vendor/test');
         $plugin->setName('Test');
 
         static::expectException(PluginException::class);
+        $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
+    }
+
+    public function testDeleteWhenManagedInStaticPlugins(): void
+    {
+        $fs = $this->createMock(Filesystem::class);
+        $fs->expects($this->never())->method('remove');
+
+        $pluginManagementService = new PluginManagementService(
+            '',
+            $this->createMock(PluginZipDetector::class),
+            $this->createMock(PluginExtractor::class),
+            $this->createMock(PluginService::class),
+            $fs,
+            $this->createMock(CacheClearer::class),
+            new Client(['handler' => new MockHandler()])
+        );
+
+        $plugin = new PluginEntity();
+        $plugin->setManagedByComposer(true);
+        $plugin->setPath('custom/static-plugins/test');
+        $plugin->setName('Test');
+
+        static::expectException(PluginException::class);
+        $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
+    }
+
+    public function testDeleteWhenManagedInCustomPluginsStillWorks(): void
+    {
+        $fs = $this->createMock(Filesystem::class);
+        $fs->expects($this->once())->method('remove');
+
+        $pluginManagementService = new PluginManagementService(
+            '',
+            $this->createMock(PluginZipDetector::class),
+            $this->createMock(PluginExtractor::class),
+            $this->createMock(PluginService::class),
+            $fs,
+            $this->createMock(CacheClearer::class),
+            new Client(['handler' => new MockHandler()])
+        );
+
+        $plugin = new PluginEntity();
+        $plugin->setManagedByComposer(true);
+        $plugin->setPath('custom/plugins//test');
+        $plugin->setName('Test');
+
         $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
     }
 

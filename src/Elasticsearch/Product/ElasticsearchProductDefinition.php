@@ -210,7 +210,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $languageMapping = $this->getLanguageMapping();
 
-        /** @var array<string, string> $item */
         foreach ($data as $id => $item) {
             /** @var array<int|string, array<string, string|null>> $translation */
             $translation = $item['translation'] ?? [];
@@ -226,6 +225,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 context: $context
             );
 
+            /** @var array<string, string> $item */
             $visibilities = ElasticsearchIndexingUtils::parseJson($item, 'visibilities');
 
             $visibilitiesFlatten = [];
@@ -244,6 +244,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 continue;
             }
 
+            /** @var array<string, string> $item */
             $documents[$id] = [
                 'id' => $id,
                 'autoIncrement' => (float) $item['autoIncrement'],
@@ -341,6 +342,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     private function fetchProducts(array $ids, Context $context): array
     {
         $languages = \array_keys($this->salesChannelLanguageLoader->loadLanguages());
+
+        // always add the system language to have a fallback
+        if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languages, true)) {
+            $languages[] = Defaults::LANGUAGE_SYSTEM;
+        }
 
         $baseSql = <<<'SQL'
 SELECT
@@ -451,7 +457,6 @@ SQL;
             ], 'categories'),
         ];
 
-        /** @var string $translationSql */
         $translationSql = str_replace(array_keys($translationMapping), array_values($translationMapping), $translationSql);
 
         foreach ($languages as $languageId) {
@@ -638,7 +643,7 @@ SQL;
             if (!isset($salesChannelLanguages[$languageId])) {
                 continue;
             }
-            // If the has parent language, we add the parent language into the mapping
+            // If the language has parent language, we add the parent language into the mapping
             if (isset($language['parentId'])) {
                 $mapping[$language['parentId']] = Defaults::LANGUAGE_SYSTEM;
             }

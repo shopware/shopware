@@ -32,7 +32,7 @@
 
             <div class="header-main__right">
                 <div class="header-main__language-selection">
-                    <form action="{{ url(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}" method="get">
+                    <form action="{{ app.request.uri }}" method="get">
                         <label for="language">
                             {{ "shopware.installer.language-selection_select_language"|trans }}
                         </label>
@@ -41,7 +41,7 @@
                                  src="{{ asset('bundles/installer/assets/images/flags/' ~ app.request.locale ~ '.svg', 'asset') }}"
                                  alt="{{ app.request.locale }}">
                             <select id="language" name="language" class="language-selection"
-                                    onchange="this.form.submit();">
+                                    onchange="changeLanguage(this.value);">
                                 {% for baseTag, language in supportedLanguages %}
                                     <option value="{{ baseTag }}" data-flag="{{ baseTag }}"
                                             {% if app.request.locale == baseTag %}selected{% endif %}>
@@ -74,4 +74,12 @@
         </div>
 
     </body>
+    <script>
+        function changeLanguage(language) {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('language', language);
+
+            window.location.href = currentUrl.toString();
+        }
+    </script>
 </html>

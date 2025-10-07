@@ -1,15 +1,11 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test.describe('@Storefront', {
-  tag: ['@Account', '@Order'],
-}, () => {
-
-    test('Customers are able to cancel orders in storefront account.',{ tag: ['@Account', '@Order'] },  async ({
-        ShopCustomer,
-        StorefrontAccountOrder,
-        TestDataService,
-        Login,
-    }) => {
+test('Customers are able to cancel orders in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountOrder,
+    TestDataService,
+    Login,
+}) => {
 
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
@@ -36,13 +32,13 @@ test.describe('@Storefront', {
         await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
     });
 
-    test('Customers are able to cancel orders on the final checkout page in storefront account.', async ({
-        ShopCustomer,
-        StorefrontAccountOrder,
-        TestDataService,
-        Login,
-        StorefrontCheckoutOrderEdit,
-    }) => {
+test('Customers are able to cancel orders on the final checkout page in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountOrder,
+    TestDataService,
+    Login,
+    StorefrontCheckoutOrderEdit,
+}) => {
 
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
@@ -70,13 +66,13 @@ test.describe('@Storefront', {
         await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
     });
 
-    test('Customers are not able to cancel orders on the final checkout page in storefront account.', async ({
-        ShopCustomer,
-        StorefrontAccountOrder,
-        TestDataService,
-        Login,
-        StorefrontCheckoutOrderEdit,
-    }) => {
+test('Customers are not able to cancel orders on the final checkout page in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountOrder,
+    TestDataService,
+    Login,
+    StorefrontCheckoutOrderEdit,
+}) => {
 
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
@@ -97,12 +93,12 @@ test.describe('@Storefront', {
         await ShopCustomer.expects(StorefrontCheckoutOrderEdit.orderCancelButton).not.toBeVisible();
     });
 
-    test('Customers are not able to cancel orders in storefront account.', async ({
-        ShopCustomer,
-        StorefrontAccountOrder,
-        TestDataService,
-        Login,
-    }) => {
+test('Customers are not able to cancel orders in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
+    ShopCustomer,
+    StorefrontAccountOrder,
+    TestDataService,
+    Login,
+}) => {
 
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();

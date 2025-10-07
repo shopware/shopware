@@ -1,14 +1,13 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test.describe('@Storefront', {
-  tag: ['@Product', '@Reviews'],
-}, () => {
 
-    test('As a shop customer, I want to see reviews of a product.', async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontProductDetail,
-            }) => {
+test('As a shop customer, I want to see reviews of a product.', {
+    tag: ['@Product', '@Reviews', '@Storefront'],
+}, async ({
+    ShopCustomer,
+    TestDataService,
+    StorefrontProductDetail,
+          }) => {
 
         const productWithRating1 = await TestDataService.createBasicProduct();
         await TestDataService.createProductReview(productWithRating1.id, { points: 3 });
@@ -24,13 +23,15 @@ test.describe('@Storefront', {
 
     });
 
-    test('As a shop customer, I want to submit a review, so that I can share my experience with the product', async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontProductDetail,
-        LoginViaReviewsTab,
-        Logout,
-            }) => {
+test('As a shop customer, I want to submit a review, so that I can share my experience with the product', {
+    tag: ['@Product', '@Reviews', '@Storefront'],
+}, async ({
+    ShopCustomer,
+    TestDataService,
+    StorefrontProductDetail,
+    LoginViaReviewsTab,
+    Logout,
+          }) => {
 
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
@@ -109,11 +110,13 @@ test.describe('@Storefront', {
         });
     });
 
-    test('As a shop customer, I want to filter reviews, so that I can find the content of a specific rating', async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontProductDetail,
-            }) => {
+test('As a shop customer, I want to filter reviews, so that I can find the content of a specific rating', {
+    tag: ['@Product', '@Reviews', '@Storefront'],
+}, async ({
+    ShopCustomer,
+    TestDataService,
+    StorefrontProductDetail,
+          }) => {
 
         const productWithRating1 = await TestDataService.createBasicProduct();
         await TestDataService.createProductReview(productWithRating1.id, { points: 1 });

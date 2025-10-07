@@ -83,7 +83,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $nextOffset = null;
         if (\count($landingPages) === $limit) {
-            $nextOffset = $offset + $limit;
+            $nextOffset = (int) $offset + $limit;
         }
 
         return new UrlResult($urls, $nextOffset);

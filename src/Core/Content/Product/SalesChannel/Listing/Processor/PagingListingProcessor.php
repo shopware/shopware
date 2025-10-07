@@ -16,8 +16,10 @@ class PagingListingProcessor extends AbstractListingProcessor
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $config)
-    {
+    public function __construct(
+        private readonly SystemConfigService $config,
+        private readonly int $maxLimit = 100
+    ) {
     }
 
     public function getDecorated(): AbstractListingProcessor
@@ -27,7 +29,7 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $limit = $this->getLimit($criteria, $context);
+        $limit = $this->getLimit($criteria, $context, $request);
 
         $page = $this->getPage($request);
         if ($page !== null) {
@@ -48,19 +50,27 @@ class PagingListingProcessor extends AbstractListingProcessor
             $result->setPage($page);
         }
 
-        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context);
+        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context, $request);
         $result->setLimit($limit);
     }
 
-    private function getLimit(Criteria $criteria, SalesChannelContext $context): int
+    private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
     {
+        $limit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
+        $limit = $request->request->has('limit') ? $request->request->getInt('limit') : $limit;
+
+        // request > criteria > config
+        if ($limit > 0) {
+            return min($limit, $this->maxLimit);
+        }
+
         if ($criteria->getLimit() !== null && $criteria->getLimit() > 0) {
-            return $criteria->getLimit();
+            return min($criteria->getLimit(), $this->maxLimit);
         }
 
         $limit = $this->config->getInt('core.listing.productsPerPage', $context->getSalesChannelId());
 
-        return $limit <= 0 ? 24 : $limit;
+        return $limit <= 0 ? 24 : min($limit, $this->maxLimit);
     }
 
     private function getPage(Request $request): ?int

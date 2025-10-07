@@ -273,7 +273,6 @@ class FirstRunWizardService
         PluginCollection $pluginCollection,
         AppCollection $appCollection,
     ): array {
-        /** @var StorePluginStruct[] $mappedExtensions */
         $mappedExtensions = [];
         foreach ($extensions as $extension) {
             if (empty($extension['name']) || empty($extension['localizedInfo']['name'])) {

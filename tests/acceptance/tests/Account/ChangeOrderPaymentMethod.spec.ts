@@ -26,25 +26,8 @@ test('Customers can update the payment method for an existing order in the store
     await ShopCustomer.presses(orderItemLocators.orderActionsButton, 'Enter');
     await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton, 'Enter');
 
-    /*
-    const invoiceInputValue = await StorefrontCheckoutOrderEdit.getPaymentMethodButton('Invoice').getAttribute('value');
-    await StorefrontCheckoutOrderEdit.getPaymentMethodButton(newPaymentMethod.name).click();
-
-    const paymentMethodInput = ShopCustomer.page.locator('input[type=hidden][name="paymentMethodId"]');
-    await ShopCustomer.expects(paymentMethodInput).not.toHaveValue(invoiceInputValue, { timeout: 15_000 });
-
-    // for some reason checking the state of the inputs actually changes the state of the inputs
-    await ShopCustomer.expects(StorefrontCheckoutOrderEdit.getPaymentMethodButton('Invoice')).not.toBeChecked();
-    await ShopCustomer.expects(StorefrontCheckoutOrderEdit.getPaymentMethodButton(newPaymentMethod.name)).toBeChecked();
-    */
-    
-    //invoice isn't selected by default for some reason?
-    //await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice')); //is this necessary? doesn't seem to be
     await ShopCustomer.attemptsTo(SelectPaymentMethod(newPaymentMethod.name));
-
-    //await StorefrontCheckoutOrderEdit.completePaymentButton.click();
     await ShopCustomer.presses(StorefrontCheckoutOrderEdit.completePaymentButton, 'Enter');
-
 
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText(newPaymentMethod.name);

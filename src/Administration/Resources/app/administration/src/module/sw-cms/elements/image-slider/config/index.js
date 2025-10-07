@@ -66,15 +66,15 @@ export default {
             return [
                 {
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStandard'),
                 },
                 {
                     value: 'contain',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeContain'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeContain'),
                 },
                 {
                     value: 'cover',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeCover'),
                 },
             ];
         },
@@ -82,15 +82,15 @@ export default {
             return [
                 {
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
                 },
                 {
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
                 },
                 {
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
                 },
             ];
         },
@@ -99,15 +99,15 @@ export default {
             return [
                 {
                     value: 'none',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
                 },
                 {
                     value: 'inside',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
                 },
                 {
                     value: 'outside',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
                 },
             ];
         },
@@ -116,15 +116,15 @@ export default {
             return [
                 {
                     value: 'none',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
                 },
                 {
                     value: 'inside',
-                    label: this.$tc('-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
                 },
                 {
                     value: 'outside',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
                 },
             ];
         },

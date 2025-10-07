@@ -56,6 +56,7 @@
                     block
                     :class="addressButtonClasses(address.id)"
                     variant="secondary"
+                    data-analytics-id="sw-order-address-modal.select-existing-address"
                     @click="onExistingAddressSelected(address)"
                 >
                     {{ address.company }} <br>
@@ -77,6 +78,7 @@
         <mt-button
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-address-modal.cancel"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -87,6 +89,7 @@
         <mt-button
             variant="primary"
             size="small"
+            data-analytics-id="sw-order-address-modal.save"
             @click="onSave"
         >
             {{ $tc('global.default.apply') }}

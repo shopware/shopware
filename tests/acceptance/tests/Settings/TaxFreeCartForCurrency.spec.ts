@@ -15,7 +15,6 @@ test(
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
         SelectPaymentMethod,
-        SelectPaymentMethod,
         SelectShippingMethod,
         SubmitOrder,
         InstanceMeta,

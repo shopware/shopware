@@ -14,7 +14,6 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
     AddProductToCart,
     ConfirmTermsAndConditions,
     SelectPaymentMethod,
-    SelectPaymentMethod,
     SelectShippingMethod,
     SubmitOrder,
     HomeProduct,

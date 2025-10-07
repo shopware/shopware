@@ -29,7 +29,7 @@ test('Registered shop customer buys a product.', { tag: ['@Checkout', '@Storefro
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await ShopCustomer.attemptsTo(SelectPaymentMethod('Paid in advance'));
+    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
     await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
     await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText('€10.00');
 

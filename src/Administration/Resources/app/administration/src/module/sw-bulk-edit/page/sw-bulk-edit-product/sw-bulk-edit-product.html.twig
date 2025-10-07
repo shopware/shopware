@@ -413,10 +413,11 @@
             </mt-card>
             {% endblock %}
         </sw-card-view>
-        <sw-empty-state
+        <mt-empty-state
             v-if="!isLoading && selectedIds.length == 0"
-            :title="$tc('sw-bulk-edit.product.messageEmptyTitle')"
-            :subline="$tc('sw-bulk-edit.product.messageEmptySubline')"
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-bulk-edit.product.messageEmptyTitle')"
+            :description="$tc('sw-bulk-edit.product.messageEmptySubline')"
         />
 
         {% block sw_bulk_edit_product_save_modal %}

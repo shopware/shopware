@@ -124,61 +124,61 @@ class SCSSValidatorTest extends TestCase
             ],
             'indigo',
         ];
-        yield 'color correct hsl 3' => [
+        yield 'color correct hsl classic' => [
             [
                 'type' => 'color',
-                'value' => 'hsl(4, 4, 4)',
+                'value' => 'hsl(120, 50%, 50%)',
             ],
-            '#0b0a0a',
+            'hsl(120, 50%, 50%)',
         ];
-        yield 'color correct hsl 4' => [
+        yield 'color correct hsl modern' => [
             [
                 'type' => 'color',
-                'value' => 'hsl(4, 4, 4, 0.5)',
+                'value' => 'hsl(120 50% 50%)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'hsl(120 50% 50%)',
         ];
-        yield 'color correct rgb 3' => [
+        yield 'color correct hsl modern with alpha' => [
             [
                 'type' => 'color',
-                'value' => 'rgb(4, 4, 4)',
+                'value' => 'hsl(120 50% 50% / 0.8)',
             ],
-            '#040404',
+            'hsl(120 50% 50% / 0.8)',
         ];
-        yield 'color correct rgb 5' => [
+        yield 'color correct hsla' => [
             [
                 'type' => 'color',
-                'value' => 'rgb(4, 4, 4, 0.5)',
+                'value' => 'hsla(120, 50%, 50%, 0.8)',
             ],
-            'rgba(4, 4, 4, 0.5)',
+            'hsla(120, 50%, 50%, 0.8)',
         ];
-        yield 'color correct hsla 3' => [
+        yield 'color correct rgb classic' => [
             [
                 'type' => 'color',
-                'value' => 'hsla(4, 4, 4, 0.5)',
+                'value' => 'rgb(255, 0, 0)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgb(255, 0, 0)',
         ];
-        yield 'color correct hsla 4' => [
+        yield 'color correct rgb modern' => [
             [
                 'type' => 'color',
-                'value' => 'hsla(4, 4, 4, 0.5)',
+                'value' => 'rgb(255 0 0)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgb(255 0 0)',
         ];
-        yield 'color correct rgba 3' => [
+        yield 'color correct rgb modern with alpha' => [
             [
                 'type' => 'color',
-                'value' => 'rgba(4, 4, 4)',
+                'value' => 'rgb(255 0 0 / 0.5)',
             ],
-            '#040404',
+            'rgb(255 0 0 / 0.5)',
         ];
-        yield 'color correct rgba 4' => [
+        yield 'color correct rgba' => [
             [
                 'type' => 'color',
-                'value' => 'rgba(4, 4, 4, 0.5)',
+                'value' => 'rgba(255, 0, 0, 0.5)',
             ],
-            'rgba(4, 4, 4, 0.5)',
+            'rgba(255, 0, 0, 0.5)',
         ];
         // Empty values (are valid and will be set to null)
         yield 'color empty' => [
@@ -295,62 +295,6 @@ class SCSSValidatorTest extends TestCase
             ],
             '#ffffff00',
         ];
-        yield 'color incorrect but valid hsl 3' => [
-            [
-                'type' => 'color',
-                'value' => 'hsl(4, 4, 500)',
-            ],
-            'white',
-        ];
-        yield 'color incorrect but valid hsl 4' => [
-            [
-                'type' => 'color',
-                'value' => 'hsl(4, 4, 4, 5)',
-            ],
-            '#0b0a0a',
-        ];
-        yield 'color incorrect but valid rgb 3' => [
-            [
-                'type' => 'color',
-                'value' => 'rgb(4, 4, 500)',
-            ],
-            '#0404ff',
-        ];
-        yield 'color incorrect but valid rgb 5' => [
-            [
-                'type' => 'color',
-                'value' => 'rgb(4, 4, 4, 5)',
-            ],
-            '#040404',
-        ];
-        yield 'color incorrect hsla 3' => [
-            [
-                'type' => 'color',
-                'value' => 'hsla(4, 4, 5)',
-            ],
-            '#0d0c0c',
-        ];
-        yield 'color incorrect but valid hsla 4' => [
-            [
-                'type' => 'color',
-                'value' => 'hsla(40, 4, 4, 5)',
-            ],
-            '#0b0a0a',
-        ];
-        yield 'color incorrect rgba 3' => [
-            [
-                'type' => 'color',
-                'value' => 'rgba(4, 4, 500)',
-            ],
-            '#0404ff',
-        ];
-        yield 'color incorrect but valid rgba 4' => [
-            [
-                'type' => 'color',
-                'value' => 'rgba(4, 4, 4, 5)',
-            ],
-            '#040404',
-        ];
         // Incorrect and sanitized
         yield 'color incorrect and sanitized name' => [
             [
@@ -363,6 +307,34 @@ class SCSSValidatorTest extends TestCase
             [
                 'type' => 'color',
                 'value' => '#ffg00',
+            ],
+            '#ffffff00',
+        ];
+        yield 'hsl incorrect and sanitized' => [
+            [
+                'type' => 'color',
+                'value' => 'hsl(400, 50%, 50%)',
+            ],
+            '#ffffff00',
+        ];
+        yield 'hsla incorrect and sanitized' => [
+            [
+                'type' => 'color',
+                'value' => 'hsla(400, 50%, 50%, 0.8)',
+            ],
+            '#ffffff00',
+        ];
+        yield 'rgb incorrect and sanitized' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb(300, 0, 0)',
+            ],
+            '#ffffff00',
+        ];
+        yield 'rgba incorrect and sanitized' => [
+            [
+                'type' => 'color',
+                'value' => 'rgba(255, 0, 0, 1.5)',
             ],
             '#ffffff00',
         ];
@@ -399,19 +371,47 @@ class SCSSValidatorTest extends TestCase
             ],
             '#fff',
         ];
-        yield 'color correct darken' => [
+        yield 'color correct SCSS function darken' => [
             [
                 'type' => 'color',
                 'value' => 'darken($myColor, 15%)',
             ],
-            'black',
+            'darken($myColor, 15%)',
         ];
-        yield 'color correct lighten' => [
+        yield 'color correct SCSS function lighten' => [
             [
                 'type' => 'color',
                 'value' => 'lighten($myColor, 15%)',
             ],
-            '#262626',
+            'lighten($myColor, 15%)',
+        ];
+        yield 'color correct darken with rgb' => [
+            [
+                'type' => 'color',
+                'value' => 'darken(rgb(255, 0, 0), 15%)',
+            ],
+            'darken(rgb(255, 0, 0), 15%)',
+        ];
+        yield 'color correct lighten with rgb' => [
+            [
+                'type' => 'color',
+                'value' => 'lighten(rgb(255, 0, 0), 15%)',
+            ],
+            'lighten(rgb(255, 0, 0), 15%)',
+        ];
+        yield 'color correct darken with hsl' => [
+            [
+                'type' => 'color',
+                'value' => 'darken(hsl(120, 50%, 50%), 15%)',
+            ],
+            'darken(hsl(120, 50%, 50%), 15%)',
+        ];
+        yield 'color correct lighten with hsl' => [
+            [
+                'type' => 'color',
+                'value' => 'lighten(hsl(120, 50%, 50%), 15%)',
+            ],
+            'lighten(hsl(120, 50%, 50%), 15%)',
         ];
         yield 'fontFamily correct' => [
             [
@@ -470,165 +470,61 @@ class SCSSValidatorTest extends TestCase
             ],
             'indigo',
         ];
-        yield 'color correct hsl 3' => [
+        yield 'color correct hsl classic' => [
             [
                 'type' => 'color',
-                'value' => 'hsl(4, 4, 4)',
+                'value' => 'hsl(120, 50%, 50%)',
             ],
-            '#0b0a0a',
+            'hsl(120, 50%, 50%)',
         ];
-        yield 'color correct hsl 4' => [
+        yield 'color correct hsl modern' => [
             [
                 'type' => 'color',
-                'value' => 'hsl(4, 4, 4, 0.5)',
+                'value' => 'hsl(120 50% 50%)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'hsl(120 50% 50%)',
         ];
-        yield 'color correct rgb 3' => [
+        yield 'color correct hsl modern with alpha' => [
             [
                 'type' => 'color',
-                'value' => 'rgb(4, 4, 4)',
+                'value' => 'hsl(120 50% 50% / 0.8)',
             ],
-            '#040404',
+            'hsl(120 50% 50% / 0.8)',
         ];
-        yield 'color correct rgb 5' => [
+        yield 'color correct hsla' => [
             [
                 'type' => 'color',
-                'value' => 'rgb(4, 4, 4, 0.5)',
+                'value' => 'hsla(120, 50%, 50%, 0.8)',
             ],
-            'rgba(4, 4, 4, 0.5)',
+            'hsla(120, 50%, 50%, 0.8)',
         ];
-        yield 'color correct hsla 3' => [
+        yield 'color correct rgb classic' => [
             [
                 'type' => 'color',
-                'value' => 'hsla(4, 4, 4, 0.5)',
+                'value' => 'rgb(255, 0, 0)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgb(255, 0, 0)',
         ];
-        yield 'color correct hsla 4' => [
+        yield 'color correct rgb modern' => [
             [
                 'type' => 'color',
-                'value' => 'hsla(4, 4, 4, 0.5)',
+                'value' => 'rgb(255 0 0)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgb(255 0 0)',
         ];
-        yield 'color correct rgba 3' => [
+        yield 'color correct rgb modern with alpha' => [
             [
                 'type' => 'color',
-                'value' => 'rgba(4, 4, 4)',
+                'value' => 'rgb(255 0 0 / 0.5)',
             ],
-            '#040404',
+            'rgb(255 0 0 / 0.5)',
         ];
-        yield 'color correct rgba 4' => [
+        yield 'color correct rgba' => [
             [
                 'type' => 'color',
-                'value' => 'rgba(4, 4, 4, 0.5)',
+                'value' => 'rgba(255, 0, 0, 0.5)',
             ],
-            'rgba(4, 4, 4, 0.5)',
-        ];
-        yield 'color incorrect hex 3' => [
-            [
-                'type' => 'color',
-                'value' => '#ffg',
-            ],
-            '',
-            true,
-        ];
-        yield 'color custom value' => [
-            [
-                'type' => 'color',
-                'value' => 'foo(#fff)',
-            ],
-            '',
-            true,
-        ];
-        yield 'color incorrect hex 4' => [
-            [
-                'type' => 'color',
-                'value' => '#ffg0',
-            ],
-            '',
-            true,
-        ];
-        yield 'color incorrect hex 6' => [
-            [
-                'type' => 'color',
-                'value' => '#ffg000',
-            ],
-            '',
-            true,
-        ];
-        yield 'color incorrect hex 7' => [
-            [
-                'type' => 'color',
-                'value' => '#ffg0000',
-            ],
-            '',
-            true,
-        ];
-        yield 'color incorrect hex 8' => [
-            [
-                'type' => 'color',
-                'value' => '#ffg00000',
-            ],
-            '',
-            true,
-        ];
-        yield 'color incorrect but valid hsl 3' => [
-            [
-                'type' => 'color',
-                'value' => 'hsl(4, 4, 500)',
-            ],
-            'white',
-        ];
-        yield 'color incorrect but valid hsl 4' => [
-            [
-                'type' => 'color',
-                'value' => 'hsl(4, 4, 4, 5)',
-            ],
-            '#0b0a0a',
-        ];
-        yield 'color incorrect but valid rgb 3' => [
-            [
-                'type' => 'color',
-                'value' => 'rgb(4, 4, 500)',
-            ],
-            '#0404ff',
-        ];
-        yield 'color incorrect but valid rgb 5' => [
-            [
-                'type' => 'color',
-                'value' => 'rgb(4, 4, 4, 5)',
-            ],
-            '#040404',
-        ];
-        yield 'color incorrect hsla 3' => [
-            [
-                'type' => 'color',
-                'value' => 'hsla(4, 4, 5)',
-            ],
-            '#0d0c0c',
-        ];
-        yield 'color incorrect hsla 4 will be sanitized to hex' => [
-            [
-                'type' => 'color',
-                'value' => 'hsla(40, 4, 4, 5)',
-            ],
-            '#0b0a0a',
-        ];
-        yield 'color incorrect rgba 3 will be sanitized to hex' => [
-            [
-                'type' => 'color',
-                'value' => 'rgba(4, 4, 500)',
-            ],
-            '#0404ff',
-        ];
-        yield 'color incorrect rgba 4 but sanitized to hex' => [
-            [
-                'type' => 'color',
-                'value' => 'rgba(4, 4, 4, 5)',
-            ],
-            '#040404',
+            'rgba(255, 0, 0, 0.5)',
         ];
         // Boolean values
         yield 'checkbox true' => [
@@ -748,6 +644,150 @@ class SCSSValidatorTest extends TestCase
             [
                 'type' => 'color',
                 'value' => '#FFG',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hsl classic' => [
+            [
+                'type' => 'color',
+                'value' => 'hsl(400, 50%, 50%)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hsl modern' => [
+            [
+                'type' => 'color',
+                'value' => 'hsl(400 50% 50%)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hsl modern with alpha' => [
+            [
+                'type' => 'color',
+                'value' => 'hsl(400 50% 50% / 0.8)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hsla' => [
+            [
+                'type' => 'color',
+                'value' => 'hsla(400, 50%, 50%, 0.8)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect rgb classic' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb(300, 0, 0)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect rgb modern' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb(300 0 0)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect rgba' => [
+            [
+                'type' => 'color',
+                'value' => 'rgba(255, 0, 0, 1.5)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect SCSS function' => [
+            [
+                'type' => 'color',
+                'value' => 'darken(foo, 15%)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hex 4' => [
+            [
+                'type' => 'color',
+                'value' => '#ffg0',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hex 6' => [
+            [
+                'type' => 'color',
+                'value' => '#ffg000',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hex 7' => [
+            [
+                'type' => 'color',
+                'value' => '#ffg0000',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hex 8' => [
+            [
+                'type' => 'color',
+                'value' => '#ffg00000',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect hex 3' => [
+            [
+                'type' => 'color',
+                'value' => '#ffg',
+            ],
+            '',
+            true,
+        ];
+        yield 'color custom value' => [
+            [
+                'type' => 'color',
+                'value' => 'foo(#fff)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect darken with rgb' => [
+            [
+                'type' => 'color',
+                'value' => 'darken(rgb(300, 0, 0, 15%)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect lighten with rgb' => [
+            [
+                'type' => 'color',
+                'value' => 'lighten(rgb(300, 0, 0, 15%)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect darken with hsl' => [
+            [
+                'type' => 'color',
+                'value' => 'darken(hsl(400, 50%, 50%, 15%)',
+            ],
+            '',
+            true,
+        ];
+        yield 'color incorrect lighten with hsl' => [
+            [
+                'type' => 'color',
+                'value' => 'lighten(hsl(400, 50%, 50%, 15%)',
             ],
             '',
             true,

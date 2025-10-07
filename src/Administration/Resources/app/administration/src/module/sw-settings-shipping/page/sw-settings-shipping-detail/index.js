@@ -1,6 +1,5 @@
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
-import './sw-settings-shipping-detail.scss';
 import './store';
 
 const { Mixin, Context } = Shopware;

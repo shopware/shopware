@@ -1,5 +1,166 @@
-## Country-agnostic language layer is now implemented
+# 6.7.3.0
+## Migration from controller variables to activeRoute
+Replace `controllerName` and `controllerAction` with `activeRoute`:
+* Twig: Use `activeRoute` instead of `controllerName`/`controllerAction`
+* CSS: Use `.is-active-route-*` instead of `.is-ctl-*` and `.is-act-*`
+* JS: Use `window.activeRoute` instead of `window.controllerName`/`window.actionName`
+* Routes use dots, CSS classes use dashes: `activeRoute|replace({'.': '-'})`
+## (Opt-in) Only rules relevant for product prices are considered in the `sw-cache-hash`
+**This functionality will become the default with 6.8, you can opt-in by activating the `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag.**
+
+In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
+
+If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
+
+```php
+class ResolveRuleIds implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ResolveCacheRelevantRuleIdsExtension::NAME . '.pre' => 'onResolveRuleAreas',
+        ];
+    }
+
+    public function onResolveRuleAreas(ResolveCacheRelevantRuleIdsExtension $extension): void
+    {
+        $extension->ruleAreas[] = RuleExtension::MY_CUSTOM_RULE_AREA;
+    }
+}
+```
+
+If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
+
+## Deprecated unused `RuleAreas` constants
+The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and are now deprecated and will therefore be removed in 6.8.
+## Deprecation of properties in `ResolveRemoteThumbnailUrlExtension`
+
+The properties `mediaPath` and `mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` are deprecated and will be removed with the next major version. Set the values directly into the newly added `mediaEntity` property.
+
+## Deprecation of `media` and `thumbnail` in `MediaPathChangedEvent`
+
+The method `media` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` is deprecated and will be removed with the next major version. Use the newly added `mediaWithMimeType` method instead.
+
+The method `thumbnail` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` is deprecated and will be removed with the next major version. Use the newly added `thumbnailWithMimeType` method instead.
+## Added caching to the `NavigationRoute`
+
+The navigation route now caches the default category levels for the current sales channel's main navigation. 
+This improves performance by reducing the need to repeatedly load and hydrate the same category levels on every page.
+
+When your navigation is dynamic, you need to subscribe to the `CategoryLevelLoaderCacheKeyEvent` to add the necessary information to the cache tag, so your dynamic content is displayed properly.
+## Deprecation of `hasChildren` variable
+
+Make sure to set the `hasChildren` variable in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template in the for loop where the category links are displayed and only display the links if the category is not of type `folder` or if it has children.
+The customer registration endpoint now properly validates billing and shipping address data types. Invalid address data (e.g., string instead of object) will return a 400 status with validation errors instead of 500 Internal Server Error.
+## Customer Address Field Length Changes
+The customer and order address tables have been updated to support longer first and last names (up to 255 characters), matching the customer table field lengths.
+
+### Background
+Previously, customer registration would fail when first names exceeded 50 characters or last names exceeded 60 characters, even though the customer table supported up to 255 characters. This mismatch caused registration failures when customer data was copied to create address records.
+## Use named argument when defining constraints
+
+Previously when using constraints, you can pass an array of options into the constraint's constructor, but it hide the dependency arguments of the constraint as well as validating input arguments.
+Similar with standard Symfony constraints from `symfony/validator~7.3`, we converted from array to named argument syntax
+
+```php
+// Before:
+new CustomerEmailUnique(['salesChannelContext' => $context])
+```
+to
+
+```php
+new CustomerEmailUnique(salesChannelContext: $context)
+```
+
+## Refactor of providing cookies
+
+The providing of cookies has been refactored.
+With this the new route `/store-api/cookie-groups` has been added to retrieve all registered cookie groups and their cookie entries.
+This route is provided by the new `\Shopware\Core\Content\Cookie\SalesChannel\CookieRoute` service.
+
+The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` has been deprecated and so all its implementations.
+They will be removed in the next major version.
+
+To register new cookie groups and cookie entries, the new `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` should be used instead.
+The way apps are registering cookies has not changed.
+
+Additionally, the `snippet_name` and `snippet_description` properties on cookies in Twig templates have been deprecated.
+Use `name` and `description` instead; these properties now serve both as snippet keys (before translation) and as translated strings (after translation), depending on the context in which they are accessed.
+
+Adding new cookies before:
+```php
+class CustomCookieProvider implements CookieProviderInterface
+{
+    public function __construct(
+        private readonly CookieProviderInterface $inner,
+    ) {
+    }
+
+    public function getCookieGroups(): array
+    {
+        $cookieGroups = $this->inner->getCookieGroups();
+        
+        $cookieGroups[] = [
+            'snippet_name' => 'cookie.group.name',
+            'entries' => [
+                [
+                    'cookie' => 'cookie-name',
+                ],
+            ],
+        ];
+        
+        return $cookieGroups;
+    }
+}
+```
+
+Adding new cookies now:
+```php
+use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
+use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+
+class AppCookieCollectListener
+{
+    public function __invoke(CookieGroupCollectEvent $event): void
+    {
+        $cookieGroups = $event->cookieGroupCollection;
+        $newCookieGroup = new CookieGroup('cookie.group.name');
+        
+        $newCookieEntry = new CookieEntry('cookie-name')
+        $newCookieGroup->setEntries([$entry]);
+        
+        $cookieGroups->add($newCookieGroup);
+    }
+}
+```
+## Deprecated `ZugferdDocument::getPrice()`
+The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` is deprecated and will be removed in the next major version. Replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
+### Extension impact
+If a plugin overrides `ZugferdDocument::getPrice()`, that override will not be executed by the core anymore. Replace it with `ZugferdDocument::getPriceWithFallback()` to be able to make customisations.
+## Re-allow setting a custom limit for search Store-API requests
+
+The Store-API search endpoints `/store-api/product-listing/{categoryId}`, `/store-api/search` and `/store-api/search-suggest` now allow the usage of the request or query parameter `limit` to set a custom limit for search requests. The limit is capped to the value of `shopware.api.store.max_limit` (default: 100).
+## Environment Variable for PaaS Deployments
+For deployments on platforms with read-only filesystems (such as Shopware PaaS), you can now set the `SHOPWARE_SKIP_WEBINSTALLER` environment variable to bypass the web installer and install.lock file checks.
+
+Any non-empty value will activate this feature:
+```bash
+SHOPWARE_SKIP_WEBINSTALLER=1
+SHOPWARE_SKIP_WEBINSTALLER=true
+SHOPWARE_SKIP_WEBINSTALLER=enabled
+```
+
+This allows Shopware to run without requiring write access to create the `install.lock` file in the project root or the `.htaccess` file in the public directory.
+
+# Country-agnostic language layer is now implemented
 With this release, we have fully implemented the country-agnostic language layer as described in the [ADR](https://developer.shopware.com/docs/resources/references/adr/2025-09-01-adding-a-country-agnostic-language-layer.md). Therefore, a new best practice has been established for providing translations in Shopware. We recommend to rename your translation files to use the country-agnostic language codes (e.g., `en` instead of `en-GB`). This change will also require to rename the `base_file` column in the `snippet_set` table accordingly. Although its use is not recommended, the old, specific snippet naming (e.g., `en-GB`) will continue to work for backward compatibility.
+
+## Snippet Validation command
+The command `snippets:validate` has been renamed to `translation:validate`. Please refrain from using the old command name as it will be removed in the next major version.
+
+## SnippetValidator
+The class `Shopware\Core\System\Snippet\SnippetValidator` will be marked as internal in the next major version as it is supposed to be used for internal purposes only.
 
 # 6.7.2.0
 

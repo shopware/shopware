@@ -14,7 +14,7 @@
 
             {% block component_hidden_line_item_information %}
                 <span class="hidden-line-item"
-                      data-id="{{ lineItem.id }}"
+                      data-id="{{ lineItem.productId ?? lineItem.referencedId ?? lineItem.id }}"
                       data-name="{{ lineItem.label }}"
                       data-quantity="{{ lineItem.quantity }}"
                       data-price="{{ gaPrice }}">

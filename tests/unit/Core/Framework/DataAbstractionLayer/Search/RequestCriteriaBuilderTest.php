@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -836,5 +837,54 @@ class RequestCriteriaBuilderTest extends TestCase
             $this->staticDefinitionRegistry->get(ProductDefinition::class),
             Context::createDefaultContext()
         );
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('searchInfoHeaderProvider')]
+    public function testIncludeSearchInfoHeader(array $data, bool $expectedState): void
+    {
+        $request = new Request();
+        $request->setMethod(Request::METHOD_POST);
+
+        if (isset($data['headerValue'])) {
+            $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, $data['headerValue']);
+        }
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame($expectedState, $criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO));
+    }
+
+    /**
+     * @return iterable<string, array{data: array{headerValue?: string}, expectedState: bool}>
+     */
+    public static function searchInfoHeaderProvider(): iterable
+    {
+        yield 'no header set (default behavior)' => [
+            'data' => [],
+            'expectedState' => false,
+        ];
+
+        yield 'header set to 1 (enable search info)' => [
+            'data' => ['headerValue' => '1'],
+            'expectedState' => false,
+        ];
+
+        yield 'header set to 0 (disable search info)' => [
+            'data' => ['headerValue' => '0'],
+            'expectedState' => true,
+        ];
+
+        yield 'header set to other value (enable search info)' => [
+            'data' => ['headerValue' => 'anything'],
+            'expectedState' => false,
+        ];
     }
 }

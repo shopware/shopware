@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
+ * @phpstan-type CategoryMetaInformation array{id: string, level: string, path: string}
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]

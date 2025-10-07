@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\RateLimiter\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
-class RateLimitExceededException extends ShopwareHttpException
+class RateLimitExceededException extends RateLimiterException
 {
     private readonly int $now;
 
@@ -18,20 +21,12 @@ class RateLimitExceededException extends ShopwareHttpException
         $this->now = time();
 
         parent::__construct(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            RateLimiterException::RATE_LIMIT_EXCEEDED,
             'Too many requests, try again in {{ seconds }} seconds.',
             ['seconds' => $this->getWaitTime()],
             $e
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'FRAMEWORK__RATE_LIMIT_EXCEEDED';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_TOO_MANY_REQUESTS;
     }
 
     public function getWaitTime(): int

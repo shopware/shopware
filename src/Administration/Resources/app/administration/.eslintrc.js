@@ -37,6 +37,9 @@ const baseRules = {
         ignores: ['index.html'],
     }],
     'func-names': 'off',
+    'listeners/no-missing-remove-event-listener': "error",
+    'listeners/matching-remove-event-listener': "error",
+    'listeners/no-inline-function-event-listener': "error",
 };
 
 module.exports = {
@@ -70,6 +73,7 @@ module.exports = {
         'sw-deprecation-rules',
         'sw-test-rules',
         'filename-rules',
+        'listeners',
     ],
 
     settings: {
@@ -311,6 +315,7 @@ module.exports = {
                 'no-shadow': 'off',
                 '@typescript-eslint/no-shadow': ['error'],
                 '@typescript-eslint/consistent-type-imports': ['error'],
+                '@typescript-eslint/no-misused-spread': 'error',
                 'import/extensions': [
                     'error',
                     'ignorePackages',

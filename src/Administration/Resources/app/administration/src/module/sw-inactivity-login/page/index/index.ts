@@ -42,8 +42,8 @@ export default Component.wrapComponentConfig({
 
     computed: {
         title(): string {
-            const moduleName = this.$tc('sw-inactivity-login.general.mainMenuItemIndex');
-            const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const moduleName = this.$t('global.sw-inactivity-login.general.mainMenuItemIndex');
+            const adminName = this.$t('global.sw-admin-menu.textShopwareAdmin');
 
             return `${moduleName} | ${adminName}`;
         },
@@ -115,7 +115,7 @@ export default Component.wrapComponentConfig({
                     this.password = '';
 
                     this.passwordError = {
-                        detail: this.$tc('sw-inactivity-login.modal.errors.password'),
+                        detail: this.$t('global.sw-inactivity-login.modal.errors.password'),
                     };
 
                     this.isLoading = false;

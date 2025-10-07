@@ -135,7 +135,6 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="media.repository"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
             <tag name="kernel.reset" method="reset"/>

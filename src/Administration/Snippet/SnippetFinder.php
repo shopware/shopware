@@ -91,11 +91,11 @@ class SnippetFinder implements SnippetFinderInterface
 
         $snippetFiles = new SnippetPathCollection();
         array_map(
-            fn (string $path) => $snippetFiles->add(new SnippetPath($path, true)),
+            static fn (string $path) => $snippetFiles->add(new SnippetPath($path, true)),
             $this->findLocalSnippetFiles($snippetNames, $localPaths),
         );
         array_map(
-            fn (string $path) => $snippetFiles->add(new SnippetPath($path)),
+            static fn (string $path) => $snippetFiles->add(new SnippetPath($path)),
             $this->findRemoteSnippetFiles($snippetNames, $remotePaths),
         );
 
@@ -338,7 +338,7 @@ class SnippetFinder implements SnippetFinderInterface
         $files = [];
         foreach ($paths as $path) {
             $snippetPaths = \array_map(
-                fn (string $name) => Path::join($path->location, $name),
+                static fn (string $name) => Path::join($path->location, $name),
                 $snippetNames
             );
             $existingSnippetNames = \array_filter(

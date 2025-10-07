@@ -102,6 +102,10 @@ parameters:
            message: '#No global Command directories allowed, put your commands in the right domain directory#'
            path: src/Administration/
 
+        # A PartialEntity is not directly a subtype of a real Entity but it is returned by a EntityRepository, if fields are used
+        -
+           message: '#PHPDoc tag @var with type Shopware\\Core\\Framework\\DataAbstractionLayer\\PartialEntity.* is not subtype of type .*Entity.*\.#'
+
         # dynamic hydrator performance
         -
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
@@ -183,5 +187,4 @@ parameters:
         - # With the active `reportWrongPhpDocTypeInVarTag` phpstan parameter we should resolve this issue per area
             message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
             paths:
-                - src/Core/**
                 - tests/**

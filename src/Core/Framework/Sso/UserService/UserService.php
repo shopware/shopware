@@ -110,7 +110,7 @@ final readonly class UserService
             ->where('user_id = :userId')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))
             ->setParameter('token', null)
-            ->executeQuery();
+            ->executeStatement();
     }
 
     public function searchOAuthUserByUserId(string $userId): ?ExternalAuthUser

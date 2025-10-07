@@ -626,6 +626,7 @@ export default {
                 const assignment = this.extractFkInfo(current?.detail);
 
                 if (current?.code === '1451' && assignment) {
+                    Shopware.Store.get('error').resetApiErrors();
                     const translated = this.$tc(`global.entities.${assignment}`, 0).toLowerCase();
 
                     this.createNotificationError({

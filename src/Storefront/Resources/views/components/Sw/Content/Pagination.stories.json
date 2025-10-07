@@ -1,0 +1,40 @@
+{
+    "title": "Sw/Content/Pagination",
+    "parameters": {
+        "server": {
+            "id": "Sw:Content:Pagination"
+        },
+        "slots": [],
+        "template": "<twig:Sw:Content:Pagination :page=\"1\" :total=\"100\" :limit=\"10\"></twig:Sw:Content:Pagination>"
+    },
+    "argTypes": {
+        "page": {
+            "control": "number",
+            "description": "The current page number.",
+            "required": true,
+            "type": "number"
+        },
+        "total": {
+            "control": "number",
+            "description": "The total number of items.",
+            "required": true,
+            "type": "number"
+        },
+        "limit": {
+            "control": "number",
+            "description": "The number of items per page.",
+            "required": true,
+            "type": "number"
+        }
+    },
+    "stories": [
+        {
+            "name": "Pagination",
+            "args": {
+                "page": 1,
+                "total": 100,
+                "limit": 10
+            }
+        }
+    ]
+}

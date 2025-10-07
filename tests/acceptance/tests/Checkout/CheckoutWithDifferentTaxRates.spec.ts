@@ -9,12 +9,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        SelectStandardShippingOption,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
+        SelectPaymentMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {
@@ -32,8 +32,8 @@ test(
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-            await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-            await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+            await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+            await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();
@@ -61,12 +61,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        SelectStandardShippingOption,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
+        SelectPaymentMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {
@@ -87,8 +87,8 @@ test(
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-            await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-            await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+            await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+            await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();
@@ -116,12 +116,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        SelectStandardShippingOption,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
+        SelectPaymentMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {
@@ -144,8 +144,8 @@ test(
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-            await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-            await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+            await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+            await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();
@@ -175,12 +175,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        SelectStandardShippingOption,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
+        SelectPaymentMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {
@@ -198,8 +198,8 @@ test(
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-            await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-            await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+            await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+            await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();

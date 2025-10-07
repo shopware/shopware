@@ -15,8 +15,9 @@ test('Shop customer should be able to see the product image in the Storefront.',
     AddProductToCart,
     ProceedFromProductToCheckout,
     ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
+    SelectPaymentMethod,
+    SelectPaymentMethod,
+    SelectShippingMethod,
     SubmitOrder,
     OpenSearchResultPage,
     OpenSearchSuggestPage,
@@ -49,8 +50,8 @@ test('Shop customer should be able to see the product image in the Storefront.',
     await test.step('Logged-In shop customer should be able to see the cover image on the checkout confirm page.', async () => {
         await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-        await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-        await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+        await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+        await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
         await ShopCustomer.expects(StorefrontCheckoutConfirm.cartLineItemImages.getByAltText(media.alt)).toBeVisible();
     });
 

@@ -13,8 +13,9 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
     ProceedFromProductToCheckout,
     AddProductToCart,
     ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
+    SelectPaymentMethod,
+    SelectPaymentMethod,
+    SelectShippingMethod,
     SubmitOrder,
     HomeProduct,
 }) => {
@@ -61,8 +62,8 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+    await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
     await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(currency.isoCode + ' 22.556');
 

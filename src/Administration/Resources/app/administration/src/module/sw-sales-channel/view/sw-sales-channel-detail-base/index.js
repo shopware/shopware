@@ -621,7 +621,37 @@ export default {
             this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
                 this.salesChannelFavoritesService.refresh();
+            }).catch((error) => {
+                const current = error?.response?.data?.errors?.[0];
+                const assignment = this.extractFkInfo(current?.detail);
+
+                if (current?.code === '1451' && assignment) {
+                    const translated = this.$tc(`global.entities.${assignment}`, 0).toLowerCase();
+
+                    this.createNotificationError({
+                        title: this.$tc('sw-sales-channel.detail.foreignKeyDelete.title'),
+                        message: this.$t('sw-sales-channel.detail.foreignKeyDelete.message', {
+                            assignment: translated,
+                        }),
+                    });
+
+                    return;
+                }
+
+                throw error;
             });
+        },
+
+        extractFkInfo(detail = '') {
+            if (!detail.includes('Integrity constraint violation: 1451')) return null;
+
+            // matches e.g. "CONSTRAINT `fk.customer."
+            const match = detail.match(/CONSTRAINT `fk\.([^.]+)\./);
+
+            if (!match) return null;
+
+            // returns e.g. "customer"
+            return match[1];
         },
 
         async copyToClipboard() {

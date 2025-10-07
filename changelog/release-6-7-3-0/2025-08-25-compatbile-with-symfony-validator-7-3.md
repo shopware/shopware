@@ -29,7 +29,7 @@ to
 ```php
 new CustomerEmailUnique(salesChannelContext: $context)
 ```
-
+___
 # Next Major Version Changes
 ## Removal of `$options` parameter in custom validator's constraints
 

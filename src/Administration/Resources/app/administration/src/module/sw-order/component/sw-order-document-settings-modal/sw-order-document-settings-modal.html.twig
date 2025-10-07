@@ -101,6 +101,7 @@
                 :disabled="invalidInput || isLoadingDocument"
                 :is-loading="isLoadingPreview"
                 variant="secondary"
+                data-analytics-id="sw-order-document-settings-modal.preview"
                 @click="onPreview()"
             >
                 {{ $tc('sw-order.documentModal.labelPreview') }}
@@ -111,6 +112,7 @@
                 class="sw-order-document-settings-modal__preview-button-arrow"
                 :menu-width="160"
                 :disabled="invalidInput || isLoadingDocument"
+                data-analytics-id="sw-order-document-settings-modal.open-preview-menu"
             >
                 <template #button>
                     <mt-button
@@ -129,6 +131,7 @@
                 <sw-context-menu-item
                     class="sw-order-document-settings-modal__preview-button-html"
                     :disabled="invalidInput || htmlPreviewDisabled"
+                    data-analytics-id="sw-order-document-settings-modal.preview-html"
                     @click="onPreview('html')"
                 >
                     {{ $tc('sw-order.documentModal.labelPreviewOnlyHtml') }}
@@ -142,6 +145,7 @@
                 size="small"
                 variant="secondary"
                 :disabled="isLoadingDocument || isLoadingPreview"
+                data-analytics-id="sw-order-document-settings-modal.cancel-and-close-modal"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}
@@ -157,6 +161,7 @@
                     size="small"
                     :disabled="invalidInput || isLoadingPreview"
                     :is-loading="isLoadingDocument"
+                    data-analytics-id="sw-order-document-settings-modal.create-document"
                     @click="onCreateDocument"
                 >
                     {{ $tc('sw-order.documentModal.labelCreate') }}
@@ -167,6 +172,7 @@
                 <sw-context-button
                     class="sw-order-document-settings-modal__create-arrow"
                     :disabled="invalidInput"
+                    data-analytics-id="sw-order-document-settings-modal.open-create-document-menu"
                 >
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
                     <template #button>
@@ -187,6 +193,7 @@
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_send %}
                     <sw-context-menu-item
                         class="sw-order-document-settings-modal__send-button"
+                        data-analytics-id="sw-order-document-settings-modal.create-document-and-send"
                         @click="onCreateDocument('send')"
                     >
                         {{ $tc('sw-order.documentModal.labelCreateSend') }}
@@ -196,6 +203,7 @@
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_download %}
                     <sw-context-menu-item
                         class="sw-order-document-settings-modal__download-button"
+                        data-analytics-id="sw-order-document-settings-modal.create-document-and-download-pdf"
                         @click="onCreateDocument('download')"
                     >
                         {{ $tc('sw-order.documentModal.labelCreateDownloadPdf') }}

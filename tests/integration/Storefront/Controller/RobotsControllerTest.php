@@ -29,6 +29,8 @@ class RobotsControllerTest extends TestCase
         $appUri = parse_url($appUrl)['path'] ?? '';
 
         static::assertIsString($html);
-        static::assertSame("User-agent: *\n\nAllow: /\n\nDisallow: /*?\n\nAllow: /*theme/\n\nAllow: /media/*?ts=\n\nDisallow: {$appUri}/account/\nDisallow: {$appUri}/checkout/\nDisallow: {$appUri}/widgets/\nAllow: {$appUri}/widgets/cms/\nAllow: {$appUri}/widgets/menu/offcanvas\n\nSitemap: {$appUrl}/sitemap.xml", $html);
+        // Default rules block followed by domain-specific rules block, separated by double newline
+        $expected = "User-agent: *\n\nAllow: /\nDisallow: /*?\nAllow: /*theme/\nAllow: /media/*?ts=\n\n\nDisallow: {$appUri}/account/\nDisallow: {$appUri}/checkout/\nDisallow: {$appUri}/widgets/\nAllow: {$appUri}/widgets/cms/\nAllow: {$appUri}/widgets/menu/offcanvas\n\nSitemap: {$appUrl}/sitemap.xml";
+        static::assertSame($expected, $html);
     }
 }

@@ -1,8 +1,12 @@
 .sw-mail-template-detail {
-    .sw-card {
-        .sw-single-select,
-        .sw-multi-select {
-            margin-bottom: var(--scale-size-20);
+    &__html-editor,
+    &__subject-field,
+    &__sender-name-field,
+    &__description-field {
+        margin-bottom: 0;
+
+        .sw-field {
+            margin-bottom: 0;
         }
     }
 

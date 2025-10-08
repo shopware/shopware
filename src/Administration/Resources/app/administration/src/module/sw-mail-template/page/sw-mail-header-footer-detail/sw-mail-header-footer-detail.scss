@@ -1,4 +1,14 @@
 .sw-mail-header-footer-detail {
+    &__code-editor--header-html,
+    &__code-editor--footer-html,
+    &__sales-channel {
+        margin-bottom: 0;
+
+        .sw-field {
+            margin-bottom: 0;
+        }
+    }
+
     &__sales-channel-list {
         margin-top: var(--scale-size-10);
 

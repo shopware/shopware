@@ -1,4 +1,8 @@
 .sw-newsletter-recipient-detail {
+    &__tags {
+        margin-bottom: 0;
+    }
+
     .sw-single-select {
         margin-bottom: var(--scale-size-20);
     }

@@ -1313,4 +1313,83 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(wrapper.vm.unservedLanguageVariant).toBe('info');
     });
+
+    it('should handle error if sales channel cannot be deleted due to foreign key constraint issues', async () => {
+        const wrapper = await createWrapper();
+
+        const deleteError = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: '1451',
+                            detail: 'Integrity constraint violation: 1451 - Cannot delete or update a parent row: a foreign key constraint fails (`test`.`order`, CONSTRAINT `fk.order.sales_channel_id` FOREIGN KEY (`sales_channel_id`) REFERENCES `sales_channel` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE)',
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.salesChannelRepository.delete = jest.fn().mockRejectedValue(deleteError);
+        wrapper.vm.$tc = jest
+            .fn()
+            .mockReturnValueOnce('Orders')
+            .mockReturnValueOnce('sw-sales-channel.detail.foreignKeyDelete.title');
+
+        wrapper.vm.$t = jest.fn().mockReturnValue('Cannot delete sales channel due to existing assignment');
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const result = await wrapper.vm.deleteSalesChannel('test-id');
+
+        expect(wrapper.vm.salesChannelRepository.delete).toHaveBeenCalledWith('test-id', Shopware.Context.api);
+        expect(wrapper.vm.$tc).toHaveBeenCalledWith('global.entities.order', 0);
+        expect(wrapper.vm.$t).toHaveBeenCalledWith('sw-sales-channel.detail.foreignKeyDelete.message', {
+            assignment: 'orders',
+        });
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'sw-sales-channel.detail.foreignKeyDelete.title',
+            message: 'Cannot delete sales channel due to existing assignment',
+        });
+        expect(result).toBe(false);
+    });
+
+    it('should handle delete confirmation and navigate on success', async () => {
+        const wrapper = await createWrapper();
+        const mockPush = jest.fn();
+
+        wrapper.vm.$router = { push: mockPush };
+        wrapper.vm.$nextTick = jest.fn().mockImplementation((callback) => callback());
+        wrapper.vm.deleteSalesChannel = jest.fn().mockResolvedValue(true);
+
+        await wrapper.setProps({
+            salesChannel: { id: 'test-id' },
+        });
+
+        wrapper.vm.onConfirmDelete();
+        await flushPromises();
+
+        expect(wrapper.vm.showDeleteModal).toBe(false);
+        expect(wrapper.vm.deleteSalesChannel).toHaveBeenCalledWith('test-id');
+        expect(mockPush).toHaveBeenCalledWith({ name: 'sw.dashboard.index' });
+    });
+
+    it('should handle delete confirmation without navigation on failure', async () => {
+        const wrapper = await createWrapper();
+        const mockPush = jest.fn();
+
+        wrapper.vm.$router = { push: mockPush };
+        wrapper.vm.$nextTick = jest.fn().mockImplementation((callback) => callback());
+        wrapper.vm.deleteSalesChannel = jest.fn().mockResolvedValue(false);
+
+        await wrapper.setProps({
+            salesChannel: { id: 'test-id' },
+        });
+
+        wrapper.vm.onConfirmDelete();
+        await flushPromises();
+
+        expect(wrapper.vm.showDeleteModal).toBe(false);
+        expect(wrapper.vm.deleteSalesChannel).toHaveBeenCalledWith('test-id');
+        expect(mockPush).not.toHaveBeenCalled();
+    });
 });

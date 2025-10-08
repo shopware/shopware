@@ -1,0 +1,182 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\ContentSystem\Layout\Element\Visitor;
+
+use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Uuid\Uuid;
+
+/**
+ * Extracts properties from ContentElements with deduplication.
+ *
+ * Objects with data requirements: Deduplicated by entity ID + config hash
+ * Primitives/arrays: NOT deduplicated (arrays treated as atomic units)
+ *
+ * @internal
+ */
+#[Package('discovery')]
+class PropertiesExtractionVisitor implements ElementVisitor
+{
+    /**
+     * @var array<string, mixed> Map of reference ID => data value (not serialized)
+     */
+    private array $dataStore = [];
+
+    /**
+     * @var array<string, array<string, string>> Map of element ID => property key => reference ID
+     */
+    private array $assignments = [];
+
+    public function enter(ContentElement $element): void
+    {
+        $properties = $element->getProperties();
+        $dataRequirements = $element->getDataRequirements();
+
+        // Build map: property key → DataRequirement for config-based deduplication
+        $requirementMap = [];
+        foreach ($dataRequirements as $requirement) {
+            $requirementMap[$requirement->key] = $requirement;
+        }
+
+        $this->assignments[$element->getId()] = [];
+
+        foreach ($properties as $key => $value) {
+            $requirement = $requirementMap[$key] ?? null;
+            $refId = $this->extractAndRegister($value, $requirement);
+            $this->assignments[$element->getId()][$key] = $refId;
+        }
+
+        $element->setProperties([]);
+    }
+
+    public function leave(ContentElement $element): void
+    {
+        // Cleanup: Remove empty assignments to keep response clean
+        if (empty($this->assignments[$element->getId()])) {
+            unset($this->assignments[$element->getId()]);
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getData(): array
+    {
+        return $this->dataStore;
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    public function getAssignments(): array
+    {
+        return $this->assignments;
+    }
+
+    private function extractAndRegister(mixed $value, ?DataRequirement $requirement): string
+    {
+        if (\is_object($value) && $requirement instanceof DataRequirement) {
+            return $this->extractObjectWithRequirement($value, $requirement);
+        }
+
+        if (\is_object($value)) {
+            return $this->extractObjectWithoutRequirement($value);
+        }
+
+        if (\is_array($value)) {
+            $refId = 'array:' . Uuid::randomHex();
+            $this->dataStore[$refId] = $value;
+
+            return $refId;
+        }
+
+        // Handle primitives and null (not deduplicated)
+        $refId = 'scalar:' . Uuid::randomHex();
+        $this->dataStore[$refId] = $value;
+
+        return $refId;
+    }
+
+    private function extractObjectWithRequirement(object $value, DataRequirement $requirement): string
+    {
+        $configHash = $this->generateConfigHash($requirement);
+        $refId = $this->generateRefId($value, $configHash);
+
+        if (!isset($this->dataStore[$refId])) {
+            $this->dataStore[$refId] = $value;
+        }
+
+        return $refId;
+    }
+
+    private function extractObjectWithoutRequirement(object $value): string
+    {
+        $refId = 'object:' . spl_object_id($value);
+
+        if (!isset($this->dataStore[$refId])) {
+            $this->dataStore[$refId] = $value;
+        }
+
+        return $refId;
+    }
+
+    private function generateConfigHash(DataRequirement $requirement): string
+    {
+        $config = $requirement->config;
+
+        $this->canonicalizeConfig($config);
+
+        return Hasher::hash($config);
+    }
+
+    /**
+     * @param array<int|string, mixed> $config
+     */
+    private function canonicalizeConfig(array &$config): void
+    {
+        ksort($config);
+
+        foreach ($config as &$value) {
+            if (\is_array($value)) {
+                // Sort numeric arrays (like associations list) by value
+                if (array_is_list($value)) {
+                    sort($value);
+                } else {
+                    $this->canonicalizeConfig($value);
+                }
+            }
+        }
+    }
+
+    private function generateRefId(object $value, string $configHash): string
+    {
+        if ($value instanceof Entity) {
+            return \sprintf(
+                '%s:%s:%s',
+                $value->getApiAlias(),
+                $value->getUniqueIdentifier(),
+                $configHash
+            );
+        }
+
+        if ($value instanceof Struct) {
+            return \sprintf(
+                '%s:%s:%s',
+                $value->getApiAlias(),
+                spl_object_id($value),
+                $configHash
+            );
+        }
+
+        return \sprintf(
+            '%s:%s:%s',
+            'object',
+            spl_object_id($value),
+            $configHash
+        );
+    }
+}

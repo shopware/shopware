@@ -1,0 +1,68 @@
+# Hydration
+
+Loads data and resolves context for content elements. Processes tree recursively: fetch data per element's requirements, distribute context from providers to consumers.
+
+## Key Class
+
+- `ContentElementHydrator` - Entry point, orchestrates loading + context resolution
+
+## Two-Phase Process
+
+1. **Data Loading**: Walk tree, fetch data per element's DataRequirements (DataLoader/)
+2. **Context Resolution**: Distribute context from providers to consumers down tree (DataContext/)
+
+Data loading happens depth-first during tree traversal. Context resolution happens after all data loaded, in separate pass.
+
+## Data Loading
+
+For each element with `dataRequirements`:
+- DataLoaderProvider selects loader by requirement source
+- Loader fetches data (entity query, product listing, etc.)
+- Result stored in element properties by requirement key
+
+Elements declare what they need via DataRequirements. Hydrator satisfies requirements. Elements don't know how data is loaded.
+
+## Context Resolution
+
+After loading, DataContextResolver walks tree:
+- Elements with ContextProvider expose data as context
+- Context flows down tree to descendant consumers
+- Elements with ContextConsumer receive context in properties
+
+Context scoped to subtree - provider only affects descendants. See DataContext/ for distribution algorithm.
+
+## DataRequirement Structure
+
+Elements declare data needs via DataRequirement objects. Each requirement contains:
+
+- `key`: Property key where loaded data is stored
+- `source`: Loader identifier ("entity", "product_listing", custom)
+- `config`: Loader-specific configuration (criteria, filters, etc.)
+
+All data requirements invoke their respective data loaders during hydration. The `source` field identifies which loader to use.
+
+### Loader Sources
+
+Available loaders:
+- `entity` - EntityLoader (single entity)
+- `entity_collection` - EntityCollectionLoader (multiple entities)
+- `product_listing` - ProductListingDataLoader (product listings)
+
+See DataLoader/ for loader implementations and config schemas (defined via PHPStan types).
+
+## Process Order
+
+```
+ContentElementHydrator::hydrate()
+  → hydrateElement() recursively
+    → load data per DataRequirements
+  → DataContextResolver::resolve()
+    → distribute context down tree
+```
+
+Must load data before context resolution because providers may expose loaded data as context.
+
+## Subdirectories
+
+- DataLoader/: Data fetching (ContentDataLoaderInterface implementations)
+- DataContext/: Context distribution (DataContextResolver, DistributionStrategy)

@@ -1,0 +1,76 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\ContentSystem\SalesChannel\Struct;
+
+use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
+use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteEntity;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
+
+/**
+ * @final
+ */
+#[Package('discovery')]
+class ContentPage extends Struct
+{
+    public function __construct(
+        protected string $layoutId,
+        protected ContentElement $layout,
+        protected string $layoutName,
+        protected ?string $layoutVersion,
+        protected ContentRouteEntity $route
+    ) {
+    }
+
+    public function getLayoutId(): string
+    {
+        return $this->layoutId;
+    }
+
+    public function getRoute(): ContentRouteEntity
+    {
+        return $this->route;
+    }
+
+    public function getLayout(): ContentElement
+    {
+        return $this->layout;
+    }
+
+    public function getLayoutName(): string
+    {
+        return $this->layoutName;
+    }
+
+    public function getLayoutVersion(): ?string
+    {
+        return $this->layoutVersion;
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'content_page';
+    }
+
+    /**
+     * Lazily creates decomposed version with extracted properties. Cached after first call.
+     */
+    public function getDecomposedContentPage(): DecomposedContentPage
+    {
+        $skeleton = clone $this->layout;
+
+        $visitor = new PropertiesExtractionVisitor();
+        $skeleton->traverse($visitor);
+
+        return new DecomposedContentPage(
+            skeleton: $skeleton,
+            data: $visitor->getData(),
+            assignments: $visitor->getAssignments(),
+            layoutId: $this->layoutId,
+            layoutName: $this->layoutName,
+            layoutVersion: $this->layoutVersion,
+            route: $this->route
+        );
+    }
+}

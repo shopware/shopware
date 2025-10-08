@@ -38,7 +38,7 @@
             .sw-field__hint {
                 margin: 0;
                 padding: 0 var(--scale-size-16);
-                border-left: 1px solid var(--color-text-secondary-default);
+                border-left: 1px solid var(--color-border-primary-default);
             }
         }
 
@@ -94,6 +94,10 @@
         display: flex;
         gap: var(--scale-size-4);
         height: 100%;
+
+        .sw-field {
+            min-width: var(--scale-size-96);
+        }
 
         .mt-field {
             margin: 0;

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\Test\TestDefaults;
@@ -26,13 +27,14 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
     use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     public const B2B_CUSTOMER_GROUP_NAME = 'B2B_GROUP';
 
     public function testDeclineDeclinedCustomerGroupIsSetCorrectly(): void
     {
         $requestedCustomerGroup = $this->createCustomerGroup();
-        $customerId = $this->createCustomer($requestedCustomerGroup->getId());
+        $customerId = $this->createCustomer(customerOverride: ['requestedGroupId' => $requestedCustomerGroup->getId()]);
 
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
         static::assertInstanceOf(TraceableEventDispatcher::class, $eventDispatcher);
@@ -61,42 +63,6 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
         static::assertInstanceOf(CustomerEntity::class, $customerResult);
         static::assertNull($customerResult->getRequestedGroupId());
-    }
-
-    private function createCustomer(string $requestedCustomerGroupId): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $customer = [
-            'id' => $customerId,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultShippingAddress' => [
-                'id' => $addressId,
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'street' => 'Musterstraße 1',
-                'city' => 'Schöppingen',
-                'zipcode' => '12345',
-                'salutationId' => $this->getValidSalutationId(),
-                'countryId' => $this->getValidCountryId(),
-            ],
-            'defaultBillingAddressId' => $addressId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'requestedGroupId' => $requestedCustomerGroupId,
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => Uuid::randomHex(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'guest' => false,
-            'salutationId' => null,
-            'customerNumber' => '12345',
-        ];
-
-        $this->getContainer()->get('customer.repository')
-            ->create([$customer], Context::createDefaultContext());
-
-        return $customerId;
     }
 
     private function createCustomerGroup(): CustomerGroupEntity

@@ -730,7 +730,7 @@
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",
         "lineItemTotalPriceRule": "Positionszwischensumme",
-        "lineItemPerItemQuantityRule": "Positionsanzahl",
+        "lineItemPerItemQuantityRule": "Anzahl je Position",
         "lineItemWithQuantityRule": "Anzahl einer bestimmten Position",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",

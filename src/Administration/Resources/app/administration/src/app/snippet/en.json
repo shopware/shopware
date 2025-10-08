@@ -730,7 +730,7 @@
         "promotionsInCartCountRule": "Quantity of discounts",
         "lineItemUnitPriceRule": "Item unit price",
         "lineItemTotalPriceRule": "Item subtotal",
-        "lineItemPerItemQuantityRule": "Item quantity",
+        "lineItemPerItemQuantityRule": "Quantity per item",
         "lineItemWithQuantityRule": "Specific item quantity",
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",

@@ -158,101 +158,101 @@ class LineItemPerItemQuantityRuleTest extends TestCase
     public static function getMatchingValues(): \Generator
     {
         yield 'EQ - true' => [
-            true,
-            5,
-            5,
-            Rule::OPERATOR_EQ,
+            'expected' => true,
+            'cartQuantity' => 5,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_EQ,
         ];
 
         yield 'EQ - false' => [
-            false,
-            4,
-            5,
-            Rule::OPERATOR_EQ,
+            'expected' => false,
+            'cartQuantity' => 4,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_EQ,
         ];
 
         yield 'NEQ - true' => [
-            true,
-            4,
-            5,
-            Rule::OPERATOR_NEQ,
+            'expected' => true,
+            'cartQuantity' => 4,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_NEQ,
         ];
 
         yield 'NEQ - false' => [
-            false,
-            5,
-            5,
-            Rule::OPERATOR_NEQ,
+            'expected' => false,
+            'cartQuantity' => 5,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_NEQ,
         ];
 
         yield 'GT - true' => [
-            true,
-            6,
-            5,
-            Rule::OPERATOR_GT,
+            'expected' => true,
+            'cartQuantity' => 6,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_GT,
         ];
 
         yield 'GT - false' => [
-            false,
-            4,
-            5,
-            Rule::OPERATOR_GT,
+            'expected' => false,
+            'cartQuantity' => 4,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_GT,
         ];
 
         yield 'GTE - true' => [
-            true,
-            5,
-            5,
-            Rule::OPERATOR_GTE,
+            'expected' => true,
+            'cartQuantity' => 5,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_GTE,
         ];
 
         yield 'GTE - false' => [
-            false,
-            4,
-            5,
-            Rule::OPERATOR_GTE,
+            'expected' => false,
+            'cartQuantity' => 4,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_GTE,
         ];
 
         yield 'GTE - true greater' => [
-            true,
-            6,
-            5,
-            Rule::OPERATOR_GTE,
+            'expected' => true,
+            'cartQuantity' => 6,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_GTE,
         ];
 
         yield 'LT - true' => [
-            true,
-            4,
-            5,
-            Rule::OPERATOR_LT,
+            'expected' => true,
+            'cartQuantity' => 4,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_LT,
         ];
 
         yield 'LT - false' => [
-            false,
-            6,
-            5,
-            Rule::OPERATOR_LT,
+            'expected' => false,
+            'cartQuantity' => 6,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_LT,
         ];
 
         yield 'LTE - true' => [
-            true,
-            5,
-            5,
-            Rule::OPERATOR_LTE,
+            'expected' => true,
+            'cartQuantity' => 5,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_LTE,
         ];
 
         yield 'LTE - false' => [
-            false,
-            6,
-            5,
-            Rule::OPERATOR_LTE,
+            'expected' => false,
+            'cartQuantity' => 6,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_LTE,
         ];
 
         yield 'LTE - true lower' => [
-            true,
-            4,
-            5,
-            Rule::OPERATOR_LTE,
+            'expected' => true,
+            'cartQuantity' => 4,
+            'quantityValue' => 5,
+            'operator' => Rule::OPERATOR_LTE,
         ];
     }
 }

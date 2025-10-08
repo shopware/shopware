@@ -49,9 +49,3 @@ ___
 ## New Line Item Per Item Quantity Rule 
 * Added new `LineItemPerItemQuantityRule` for quantity-based line item matching
 * This rule allows matching line items based on their individual quantity rather than total quantity
-___
-# Next Major Version Changes
-## Deprecated Rule Condition Components (v6.8.0)
-* `sw-condition-line-item-in-category` will be removed in favor of `sw-condition-generic`
-* `sw-condition-line-item-purchase-price` will be removed in favor of `sw-condition-generic`
-* `sw-condition-is-net-select` will be removed in favor of `sw-condition-generic`

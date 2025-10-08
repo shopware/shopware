@@ -113,7 +113,7 @@ class LintTranslationFilesCommand extends Command
         LintedTranslationFileOptions $lintedFileOptions,
     ): int {
         if (!$lintedFileOptions->isFix) {
-            foreach (\array_keys(CountryAgnosticFileLinter::PLATFORM_DOMAINS) as $domain) {
+            foreach (\array_keys(CountryAgnosticFileLinter::PLATFORM_DOMAIN_LABELS) as $domain) {
                 $this->renderDomainTable($io, $domain, $lintedFileStruct);
             }
         }
@@ -156,7 +156,7 @@ class LintTranslationFilesCommand extends Command
         if ($domainCollection->count() < 1) {
             $io->note(\sprintf(
                 'No %s files found',
-                CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain],
+                CountryAgnosticFileLinter::PLATFORM_DOMAIN_LABELS[$domain],
             ));
 
             return;
@@ -164,7 +164,7 @@ class LintTranslationFilesCommand extends Command
 
         $headers = ['Filename', 'Path', 'Domain', 'Locale', 'Language', 'Script', 'Region'];
         $domainTable = $io->createTable()
-            ->setHeaderTitle(CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain] . ' files')
+            ->setHeaderTitle(CountryAgnosticFileLinter::PLATFORM_DOMAIN_LABELS[$domain] . ' files')
             ->setHeaders($headers)
             ->setStyle('box-double');
 
@@ -184,7 +184,7 @@ class LintTranslationFilesCommand extends Command
 
         $io->text(\sprintf(
             '%s files found: %s',
-            CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain],
+            CountryAgnosticFileLinter::PLATFORM_DOMAIN_LABELS[$domain],
             $lintedFileStruct->getDomainCollection($domain)->count()
         ));
         $io->newLine();

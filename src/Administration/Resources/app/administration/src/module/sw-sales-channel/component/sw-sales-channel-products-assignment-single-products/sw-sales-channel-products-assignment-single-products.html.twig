@@ -59,18 +59,11 @@
             {% endblock %}
 
             {% block sw_sales_channel_products_assignment_single_products_primary_empty_state %}
-            <sw-empty-state
+            <mt-empty-state
                 v-else
-                :show-description="false"
-                :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
-            >
-                <template #icon>
-                    <img
-                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                        :alt="$tc('sw-sales-channel.detail.products.titleEmptyState')"
-                    >
-                </template>
-            </sw-empty-state>
+                icon="solid-products"
+                :headline="$tc('sw-sales-channel.detail.products.titleEmptyState')"
+            />
             {% endblock %}
         </sw-card-section>
         {% endblock %}

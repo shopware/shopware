@@ -193,31 +193,35 @@ class CookieProvider
             if ($snippetName === null) {
                 throw CookieException::invalidLegacyCookieGroupProvided($legacyCookieGroup);
             }
+            $snippetName = (string) $snippetName;
 
-            $cookieGroup = $cookieGroupCollection->get($legacyCookieGroup['snippet_name']);
+            $cookieGroup = $cookieGroupCollection->get($snippetName);
             if ($cookieGroup === null) {
-                $cookieGroup = new CookieGroup($legacyCookieGroup['snippet_name']);
+                $cookieGroup = new CookieGroup($snippetName);
                 $cookieGroupCollection->add($cookieGroup);
             }
 
             if (\array_key_exists('snippet_description', $legacyCookieGroup)) {
-                $cookieGroup->description = $legacyCookieGroup['snippet_description'];
+                $description = (string) $legacyCookieGroup['snippet_description'];
+                $cookieGroup->description = $description !== '' ? $description : null;
             }
 
             if (\array_key_exists('cookie', $legacyCookieGroup)) {
-                $cookieGroup->setCookie($legacyCookieGroup['cookie']);
+                $cookie = (string) $legacyCookieGroup['cookie'];
+                $cookieGroup->setCookie($cookie !== '' ? $cookie : null);
             }
 
             if (\array_key_exists('value', $legacyCookieGroup)) {
-                $cookieGroup->value = $legacyCookieGroup['value'];
+                $value = (string) $legacyCookieGroup['value'];
+                $cookieGroup->value = $value !== '' ? $value : null;
             }
 
-            if (\array_key_exists('expiration', $legacyCookieGroup)) {
+            if (isset($legacyCookieGroup['expiration'])) {
                 $cookieGroup->expiration = (int) $legacyCookieGroup['expiration'];
             }
 
-            if (\array_key_exists('isRequired', $legacyCookieGroup)) {
-                $cookieGroup->isRequired = $legacyCookieGroup['isRequired'];
+            if (isset($legacyCookieGroup['isRequired'])) {
+                $cookieGroup->isRequired = (bool) $legacyCookieGroup['isRequired'];
             }
 
             if (\array_key_exists('entries', $legacyCookieGroup)) {
@@ -232,25 +236,28 @@ class CookieProvider
                     if ($cookie === null) {
                         throw CookieException::invalidLegacyCookieEntryProvided($entry);
                     }
-                    $cookieEntry = new CookieEntry($entry['cookie']);
+                    $cookieEntry = new CookieEntry((string) $cookie);
 
                     if (\array_key_exists('snippet_name', $entry)) {
-                        $cookieEntry->name = $entry['snippet_name'];
+                        $name = (string) $entry['snippet_name'];
+                        $cookieEntry->name = $name !== '' ? $name : null;
                     }
 
                     if (\array_key_exists('snippet_description', $entry)) {
-                        $cookieEntry->description = $entry['snippet_description'];
+                        $description = (string) $entry['snippet_description'];
+                        $cookieEntry->description = $description !== '' ? $description : null;
                     }
 
                     if (\array_key_exists('value', $entry)) {
-                        $cookieEntry->value = $entry['value'];
+                        $value = (string) $entry['value'];
+                        $cookieEntry->value = $value !== '' ? $value : null;
                     }
 
-                    if (\array_key_exists('expiration', $entry)) {
+                    if (isset($entry['expiration'])) {
                         $cookieEntry->expiration = (int) $entry['expiration'];
                     }
 
-                    if (\array_key_exists('hidden', $entry)) {
+                    if (isset($entry['hidden'])) {
                         $cookieEntry->hidden = (bool) $entry['hidden'];
                     }
 

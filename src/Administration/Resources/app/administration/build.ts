@@ -21,6 +21,8 @@ async function runPluginsBuild(): Promise<void> {
             },
         );
 
+        // When the process closes, then the listeners do not need to be removed anymore
+        // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
         process.on('close', (code) => {
             if (code === 0) {
                 resolve();

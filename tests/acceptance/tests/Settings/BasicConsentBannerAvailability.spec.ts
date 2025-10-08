@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want use a basic cookie consent banner in the storefront.', { tag: '@Settings' }, async ({
+test('As a shop customer, I want use a basic cookie consent banner in the storefront.', { tag: ['@Settings', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontHome,
 }) => {

@@ -107,6 +107,28 @@
                 </li>
                 {% endblock %}
 
+                {% block sw_media_quickinfo_quickactions_custom_action %}
+                <template v-if="extensionSdkButtons.length > 0 && item.hasFile">
+                    <li
+                        v-for="action in extensionSdkButtons"
+                        :key="action.id"
+                        class="sw-media-sidebar__quickaction quickaction--custom"
+                        role="button"
+                        tabindex="0"
+                        @click="runAppAction(action)"
+                        @keydown.enter="runAppAction(action)"
+                    >
+                        <mt-icon
+                            v-if="action.meteorIcon"
+                            size="16px"
+                            :name="action.meteorIcon"
+                            class="sw-media-sidebar__quickactions-icon"
+                        />
+                        {{ $tc(action.label) }}
+                    </li>
+                </template>
+                {% endblock %}
+
                 {% block sw_media_quickinfo_quickactions_delete %}
                 <li
                     v-if="!item.private"

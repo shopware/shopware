@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { Manufacturer, Product, PropertyGroup } from '@shopware-ag/acceptance-test-suite';
 
-test('Customer should see unavailable filter disabled based on selected filter', async ({
+test('Customer should see unavailable filter disabled based on selected filter', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -159,7 +159,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 });
 
-test('Customer should see unavailable filter options disabled when filtering by rating', async ({
+test('Customer should see unavailable filter options disabled when filtering by rating', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,

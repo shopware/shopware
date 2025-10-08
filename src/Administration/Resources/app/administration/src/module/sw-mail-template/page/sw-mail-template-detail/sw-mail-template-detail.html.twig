@@ -1,6 +1,5 @@
 {% block sw_mail_template_detail %}
 <sw-page class="sw-mail-template-detail">
-
     {% block sw_mail_template_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="mailTemplate">
@@ -118,9 +117,7 @@
                         class="sw-mail-template-detail-options__container"
                     >
                         <div class="sw-mail-template-detail__options-info-wrapper">
-
                             {% block sw_mail_template_options_form_subject_field %}
-
                             <mt-text-field
                                 v-model="mailTemplate.subject"
                                 name="sw-field--mailTemplate-subject"
@@ -134,7 +131,6 @@
                         </div>
 
                         {% block sw_mail_template_options_form_sender_name_field %}
-
                         <mt-text-field
                             v-model="mailTemplate.senderName"
                             name="sw-field--mailTemplate-senderName"
@@ -211,15 +207,14 @@
 
                         <template #bulk>
                             {% block sw_mail_template_detail_attachments_info_grid_bulk %}
-                            <a
-                                class="link link-danger"
-                                role="link"
-                                tabindex="0"
-                                @click="onDeleteSelectedMedia"
-                                @keydown.enter="onDeleteSelectedMedia"
-                            >
-                                {{ $tc('global.default.delete') }}
-                            </a>
+                                <mt-link
+                                    as="button"
+                                    variant="critical"
+                                    @click="onDeleteSelectedMedia"
+                                    @keydown.enter="onDeleteSelectedMedia"
+                                >
+                                    {{ $tc('global.default.delete') }}
+                                </mt-link>
                             {% endblock %}
                         </template>
                     </sw-data-grid>
@@ -384,7 +379,7 @@
                         >
                             {% block sw_mail_template_available_variables_tree_items_item %}
                             <sw-tree-item
-                                v-for="(item, index) in treeItems"
+                                v-for="(item) in treeItems"
                                 :key="item.id"
                                 :item="item"
                                 :disable-context-menu="disableContextMenu"
@@ -449,7 +444,6 @@
                 </template>
             </sw-sidebar-media-item>
             {% endblock %}
-
             {% endblock %}
         </sw-sidebar>
     </template>

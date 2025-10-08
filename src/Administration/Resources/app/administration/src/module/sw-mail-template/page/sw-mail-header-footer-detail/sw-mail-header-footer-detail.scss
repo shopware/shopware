@@ -1,10 +1,15 @@
-@import "~scss/variables";
+.sw-mail-header-footer-detail {
+    &__sales-channel-list {
+        margin-top: var(--scale-size-10);
 
-.sw-mail-header-footer-detail__sales-channel-list {
-    margin-top: 10px;
-}
+        &-label {
+            margin-top: var(--scale-size-20);
+            margin-bottom: var(--scale-size-4);
+        }
+    }
 
-.sw-mail-header-footer-detail__sales-channel-list-entry {
-    margin-bottom: 5px;
-    font-weight: $font-weight-semi-bold;
+    &__sales-channel-list-entry {
+        margin-bottom: var(--scale-size-2);
+        font-weight: var(--font-weight-semibold);
+    }
 }

@@ -236,6 +236,10 @@ details > summary::-webkit-details-marker {
     cursor: pointer;
 }
 
+.select-wrapper select:disabled {
+    cursor: default;
+}
+
 .select-wrapper:after {
     position: absolute;
     top: 50%;

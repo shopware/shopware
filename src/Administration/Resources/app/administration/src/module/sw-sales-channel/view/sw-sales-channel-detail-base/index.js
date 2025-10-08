@@ -618,29 +618,32 @@ export default {
         },
 
         deleteSalesChannel(salesChannelId) {
-            this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
-                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
-                this.salesChannelFavoritesService.refresh();
-            }).catch((error) => {
-                const current = error?.response?.data?.errors?.[0];
-                const assignment = this.extractFkInfo(current?.detail);
+            this.salesChannelRepository
+                .delete(salesChannelId, Context.api)
+                .then(() => {
+                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
+                    this.salesChannelFavoritesService.refresh();
+                })
+                .catch((error) => {
+                    const current = error?.response?.data?.errors?.[0];
+                    const assignment = this.extractFkInfo(current?.detail);
 
-                if (current?.code === '1451' && assignment) {
-                    Shopware.Store.get('error').resetApiErrors();
-                    const translated = this.$tc(`global.entities.${assignment}`, 0).toLowerCase();
+                    if (current?.code === '1451' && assignment) {
+                        Shopware.Store.get('error').resetApiErrors();
+                        const translated = this.$tc(`global.entities.${assignment}`, 0).toLowerCase();
 
-                    this.createNotificationError({
-                        title: this.$tc('sw-sales-channel.detail.foreignKeyDelete.title'),
-                        message: this.$t('sw-sales-channel.detail.foreignKeyDelete.message', {
-                            assignment: translated,
-                        }),
-                    });
+                        this.createNotificationError({
+                            title: this.$tc('sw-sales-channel.detail.foreignKeyDelete.title'),
+                            message: this.$t('sw-sales-channel.detail.foreignKeyDelete.message', {
+                                assignment: translated,
+                            }),
+                        });
 
-                    return;
-                }
+                        return;
+                    }
 
-                throw error;
-            });
+                    throw error;
+                });
         },
 
         extractFkInfo(detail = '') {

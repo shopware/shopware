@@ -25,8 +25,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SystemSetupStagingCommand extends Command
 {
     public function __construct(
-        readonly private EventDispatcherInterface $eventDispatcher,
-        readonly private SystemConfigService $systemConfigService
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService
     ) {
         parent::__construct();
     }

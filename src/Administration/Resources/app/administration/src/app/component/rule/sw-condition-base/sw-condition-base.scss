@@ -24,7 +24,7 @@
         margin: var(--scale-size-12) 0 0;
         border: 1px solid var(--color-border-primary-default);
         border-radius: var(--border-radius-xs);
-        background-color: var(--color-static-white);
+        background: var(--color-background-primary-default);
         overflow: hidden;
 
         &.sw-field {
@@ -61,7 +61,7 @@
         position: relative;
         border-radius: var(--border-radius-button);
         border: 1px solid var(--color-border-primary-default);
-        background-color: var(--color-static-white);
+        background-color: var(--color-background-primary-default);
         transition: background-color 0.15s;
 
         .sw-context-button__button {

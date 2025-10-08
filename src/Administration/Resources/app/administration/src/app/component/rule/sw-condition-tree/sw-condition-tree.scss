@@ -10,8 +10,10 @@
         margin-top: 0;
     }
 
-    & > .sw-condition-or-container {
+    & > .condition-tree-node:first-child {
         border: none !important;
+        background-color: transparent;
+        border-radius: 0;
     }
 
     .mt-block-field__block {

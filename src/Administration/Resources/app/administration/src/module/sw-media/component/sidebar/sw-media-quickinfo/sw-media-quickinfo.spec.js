@@ -191,6 +191,10 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = [];
     });
 
+    afterEach(() => {
+        Shopware.Store.get('actionButtons').buttons = [];
+    });
+
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
@@ -452,5 +456,39 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         await wrapper.vm.onSave();
 
         expect(eventBusEmitSpy).toHaveBeenCalledWith('sw-media-library-item-updated', wrapper.vm.item.id);
+    });
+
+    it('should show action button from apps', async () => {
+        Shopware.Store.get('actionButtons').add({
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+        });
+
+        const wrapper = await createWrapper({ hasFile: true });
+
+        const actionButton = wrapper.find('.quickaction--custom');
+        expect(actionButton.exists()).toBeTruthy();
+    });
+
+    it('should call the action button method', async () => {
+        const actionButtonMethod = jest.fn();
+        const action = {
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+            callback: actionButtonMethod,
+        };
+
+        Shopware.Store.get('actionButtons').add(action);
+
+        const wrapper = await createWrapper({ hasFile: true });
+        const actionButton = wrapper.find('.quickaction--custom');
+
+        await actionButton.trigger('click');
+
+        expect(actionButtonMethod).toHaveBeenCalled();
     });
 });

@@ -198,10 +198,33 @@ class ConfigReader extends XmlReader
                 continue;
             }
 
+            if ($option->nodeName === 'defaultValue') {
+                $elementData[$option->nodeName] = $this->parseDefaultValue($option->nodeValue, $elementData['type']);
+
+                continue;
+            }
+
             $elementData[$option->nodeName] = $option->nodeValue;
         }
 
         return $elementData;
+    }
+
+    private function parseDefaultValue(?string $value, string $type): mixed
+    {
+        if (in_array($type, ['bool', 'checkbox'])) {
+            return filter_var($value, \FILTER_VALIDATE_BOOLEAN);
+        }
+
+        if ($type === 'int') {
+            return filter_var($value, \FILTER_VALIDATE_INT);
+        }
+
+        if ($type === 'float') {
+            return filter_var($value, \FILTER_VALIDATE_FLOAT);
+        }
+
+        return $value;
     }
 
     /**

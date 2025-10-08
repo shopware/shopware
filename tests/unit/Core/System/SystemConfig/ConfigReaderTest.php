@@ -49,14 +49,14 @@ class ConfigReaderTest extends TestCase
     private function getExpectedConfig(): array
     {
         return [
-            0 => [
+            [
                 'title' => [
                     'en-GB' => 'Basic configuration',
                     'de-DE' => 'Grundeinstellungen',
                 ],
                 'name' => null,
                 'elements' => [
-                    0 => [
+                    [
                         'type' => 'text',
                         'name' => 'email',
                         'copyable' => true,
@@ -68,18 +68,34 @@ class ConfigReaderTest extends TestCase
                             'en-GB' => 'Enter your eMail address',
                             'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
                         ],
+                        'defaultValue' => '42'
                     ],
-                    1 => [
+                    [
+                        'type' => 'int',
+                        'name' => 'int',
+                        'defaultValue' => 42,
+                    ],
+                    [
+                        'type' => 'float',
+                        'name' => 'float',
+                        'defaultValue' => 42.0,
+                    ],
+                    [
+                        'type' => 'bool',
+                        'name' => 'bool',
+                        'defaultValue' => true,
+                    ],
+                    [
                         'type' => 'single-select',
                         'name' => 'mailMethod',
                         'options' => [
-                            0 => [
+                            [
                                 'id' => 'smtp',
                                 'name' => [
                                     'en-GB' => 'SMTP',
                                 ],
                             ],
-                            1 => [
+                            [
                                 'id' => 'pop3',
                                 'name' => [
                                     'en-GB' => 'POP3',
@@ -94,20 +110,40 @@ class ConfigReaderTest extends TestCase
                             'en-GB' => 'Choose your preferred transfer method',
                             'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
                         ],
+                        'defaultValue' => 'smtp',
                     ],
-                    2 => [
+                    [
+                        'type' => 'single-select',
+                        'name' => 'period',
+                        'options' => [
+                            [
+                                'id' => '30',
+                                'name' => [
+                                    'en-GB' => '1 Month',
+                                ],
+                            ],
+                            [
+                                'id' => '60',
+                                'name' => [
+                                    'en-GB' => '2 Months',
+                                ],
+                            ],
+                        ],
+                        'defaultValue' => '30',
+                    ],
+                    [
                         'componentName' => 'sw-select',
                         'name' => 'mailMethodComponent',
                         'disabled' => true,
                         'options' => [
-                            0 => [
+                            [
                                 'id' => 'smtp',
                                 'name' => [
                                     'en-GB' => 'English smtp',
                                     'de-DE' => 'German smtp',
                                 ],
                             ],
-                            1 => [
+                            [
                                 'id' => 'pop3',
                                 'name' => [
                                     'en-GB' => 'English pop3',

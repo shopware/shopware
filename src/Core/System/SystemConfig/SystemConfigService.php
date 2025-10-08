@@ -383,9 +383,8 @@ class SystemConfigService implements ResetInterface
                     continue;
                 }
 
-                $value = XmlReader::phpize($element['defaultValue']);
                 if ($override || !isset($relevantSettings[$key])) {
-                    $this->set($key, $value);
+                    $this->set($key, $element['defaultValue']);
                 }
             }
         }

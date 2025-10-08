@@ -68,7 +68,7 @@ class ConfigReaderTest extends TestCase
                             'en-GB' => 'Enter your eMail address',
                             'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
                         ],
-                        'defaultValue' => '42'
+                        'defaultValue' => '42',
                     ],
                     [
                         'type' => 'int',

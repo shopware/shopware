@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
-use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
@@ -21,9 +20,6 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigDomainLoadedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
-use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
-use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
-use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -31,16 +27,6 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class SystemConfigService implements ResetInterface
 {
-    /**
-     * @var array<string, true>
-     */
-    private array $keys = ['all' => true];
-
-    /**
-     * @var array<string, array<string, true>>
-     */
-    private array $traces = [];
-
     /**
      * @var array<string, string>|null
      */
@@ -101,7 +87,7 @@ class SystemConfigService implements ResetInterface
             return (string) $value;
         }
 
-        throw new InvalidSettingValueException($key, 'string', \gettype($value));
+        throw SystemConfigException::invalidSettingValueException($key, 'string', \gettype($value));
     }
 
     public function getInt(string $key, ?string $salesChannelId = null): int
@@ -111,7 +97,7 @@ class SystemConfigService implements ResetInterface
             return (int) $value;
         }
 
-        throw new InvalidSettingValueException($key, 'int', \gettype($value));
+        throw SystemConfigException::invalidSettingValueException($key, 'int', \gettype($value));
     }
 
     public function getFloat(string $key, ?string $salesChannelId = null): float
@@ -121,7 +107,7 @@ class SystemConfigService implements ResetInterface
             return (float) $value;
         }
 
-        throw new InvalidSettingValueException($key, 'float', \gettype($value));
+        throw SystemConfigException::invalidSettingValueException($key, 'float', \gettype($value));
     }
 
     public function getBool(string $key, ?string $salesChannelId = null): bool
@@ -144,7 +130,7 @@ class SystemConfigService implements ResetInterface
     /**
      * @internal should not be used in storefront or store api. The cache layer caches all accessed config keys and use them as cache tag.
      *
-     * @throws InvalidDomainException
+     * @throws SystemConfigException
      *
      * @return array<mixed>
      */
@@ -152,7 +138,7 @@ class SystemConfigService implements ResetInterface
     {
         $domain = trim($domain);
         if ($domain === '') {
-            throw new InvalidDomainException('Empty domain');
+            throw SystemConfigException::invalidDomain('Empty domain');
         }
 
         $queryBuilder = $this->connection->createQueryBuilder()
@@ -446,12 +432,7 @@ class SystemConfigService implements ResetInterface
      */
     public function trace(string $key, \Closure $param)
     {
-        $this->traces[$key] = [];
-        $this->keys[$key] = true;
-
         $result = $param();
-
-        unset($this->keys[$key]);
 
         return $result;
     }
@@ -461,31 +442,28 @@ class SystemConfigService implements ResetInterface
      */
     public function getTrace(string $key): array
     {
-        $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
-        unset($this->traces[$key]);
-
-        return $trace;
+        return [];
     }
 
     public function reset(): void
     {
-        $this->traces = [];
-        $this->keys = ['all' => true];
         $this->appMapping = null;
     }
 
     /**
-     * @throws InvalidKeyException
+     * @throws SystemConfigException
      * @throws InvalidUuidException
      */
     private function validate(string $key, ?string $salesChannelId): void
     {
         $key = trim($key);
         if ($key === '') {
-            throw new InvalidKeyException('key may not be empty');
+            throw SystemConfigException::invalidKey('key may not be empty');
         }
-        if ($salesChannelId && !Uuid::isValid($salesChannelId)) {
-            throw new InvalidUuidException($salesChannelId);
+
+        if ($salesChannelId) {
+            // will throw if ID is invalid UUID
+            Uuid::fromHexToBytes($salesChannelId);
         }
     }
 

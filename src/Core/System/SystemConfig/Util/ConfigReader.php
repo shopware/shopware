@@ -212,7 +212,7 @@ class ConfigReader extends XmlReader
 
     private function parseDefaultValue(?string $value, string $type): mixed
     {
-        if (in_array($type, ['bool', 'checkbox'])) {
+        if (\in_array($type, ['bool', 'checkbox'], true)) {
             return filter_var($value, \FILTER_VALIDATE_BOOLEAN);
         }
 

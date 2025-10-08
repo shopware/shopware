@@ -1,0 +1,154 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\ContentSystem;
+
+use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * @final
+ */
+#[Package('discovery')]
+class ContentSystemException extends HttpException
+{
+    public const CONTENT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_NOT_FOUND';
+    public const ENTITY_NOT_FOUND = 'CONTENT_SYSTEM__ENTITY_NOT_FOUND';
+    public const LAYOUT_ASSIGNMENT_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_ASSIGNMENT_NOT_FOUND';
+
+    public const LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_NOT_FOUND';
+    public const RESOLUTION_FAILED = 'CONTENT_SYSTEM__RESOLUTION_FAILED';
+    public const PAGE_BUILDING_FAILED = 'CONTENT_SYSTEM__PAGE_BUILDING_FAILED';
+    public const HYDRATION_FAILED = 'CONTENT_SYSTEM__HYDRATION_FAILED';
+
+    public const INVALID_MAP_KEY = 'CONTENT_SYSTEM__INVALID_MAP_KEY';
+    public const INVALID_MAP_VALUE = 'CONTENT_SYSTEM__INVALID_MAP_VALUE';
+
+    public const DATA_LOADER_NOT_REGISTERED = 'CONTENT_SYSTEM__DATA_LOADER_NOT_REGISTERED';
+
+    public const INVALID_FIELD_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_TYPE';
+    public const INVALID_FIELD_VALUE_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE';
+
+    public static function contentNotFound(string $pathInfo): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CONTENT_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'content', 'field' => 'path', 'value' => $pathInfo]
+        );
+    }
+
+    public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_NOT_REGISTERED,
+            'Data loader for requirement type "{{ requirementType }}" not registered. Element type: "{{ elementType }}", element ID: "{{ elementId }}"',
+            ['requirementType' => $requirementType, 'elementType' => $elementType, 'elementId' => $elementId]
+        );
+    }
+
+    public static function entityNotFound(string $entityType, string $identifier, string $matchField): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ENTITY_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => $entityType, 'field' => $matchField, 'value' => $identifier]
+        );
+    }
+
+    public static function hydrationFailed(string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::HYDRATION_FAILED,
+            'Entity hydration failed: {{ reason }}',
+            ['reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function invalidFieldType(string $expectedClass, string $actualClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_TYPE,
+            'Expected field of type {{ expectedClass }}, got {{ actualClass }}',
+            ['expectedClass' => $expectedClass, 'actualClass' => $actualClass]
+        );
+    }
+
+    public static function invalidFieldValueType(string $fieldName, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_VALUE_TYPE,
+            'Field {{ fieldName }} expected {{ expectedType }}, got {{ actualType }}',
+            ['fieldName' => $fieldName, 'expectedType' => $expectedType, 'actualType' => $actualType]
+        );
+    }
+
+    public static function invalidMapKey(string $mapType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_MAP_KEY,
+            '{{ mapType }} key must be string, got {{ actualType }}',
+            ['mapType' => $mapType, 'actualType' => $actualType]
+        );
+    }
+
+    public static function invalidMapValue(string $mapType, string $key, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_MAP_VALUE,
+            '{{ mapType }} value for "{{ key }}" must be {{ expectedType }}, got {{ actualType }}',
+            ['mapType' => $mapType, 'key' => $key, 'expectedType' => $expectedType, 'actualType' => $actualType]
+        );
+    }
+
+    public static function layoutAssignmentNotFound(string $entityType, string $entityId, string $salesChannelId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::LAYOUT_ASSIGNMENT_NOT_FOUND,
+            'No layout assignment found for {{ entityType }} "{{ entityId }}" in sales channel "{{ salesChannelId }}"',
+            ['entityType' => $entityType, 'entityId' => $entityId, 'salesChannelId' => $salesChannelId]
+        );
+    }
+
+    public static function layoutNotFound(string $layoutId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_NOT_FOUND,
+            'Content layout with ID "{{ layoutId }}" does not exist. This indicates a configuration error.',
+            ['layoutId' => $layoutId]
+        );
+    }
+
+    public static function layoutRefineryFailed(string $layoutId, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PAGE_BUILDING_FAILED,
+            'Page building failed for layout "{{ layoutId }}": {{ reason }}',
+            ['layoutId' => $layoutId, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function resolutionFailed(string $routeName, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RESOLUTION_FAILED,
+            'Entity resolution failed for route "{{ routeName }}": {{ reason }}',
+            ['routeName' => $routeName, 'reason' => $reason],
+            $previous
+        );
+    }
+}

@@ -1,29 +1,109 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
-{# @var page \Shopware\Storefront\Page\LandingPage\LandingPage|\Shopware\Storefront\Page\CategoryPage\CategoryPage #}
 {% block base_main_inner %}
-    <div class="container-main">
-        {% block page_content %}
-            {% block cms_breadcrumb %}
-                <div class="cms-breadcrumb container">
-                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
-                        context: context,
-                        themeIconConfig: themeIconConfig,
-                        categoryId: shopware.navigation.id,
-                    } only %}
+    <div class="container">
+        <div class="content-system-debug" style="margin: 2rem 0; padding: 2rem; background: #f5f5f5; border-radius: 8px;">
+            <h1 style="margin-bottom: 1.5rem; color: #333;">Content System - POC Output</h1>
+
+            {% block content_debug_layout %}
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 4px;">
+                    <h2 style="color: #555; margin-bottom: 0.5rem;">Layout Information</h2>
+                    <p><strong>Layout ID:</strong> {{ contentPage.layoutId }}</p>
+                    {% if contentPage.layoutName %}
+                        <p><strong>Layout Name:</strong> {{ contentPage.layoutName }}</p>
+                    {% endif %}
+                    {% if contentPage.layoutVersion %}
+                        <p><strong>Layout Version:</strong> {{ contentPage.layoutVersion }}</p>
+                    {% endif %}
                 </div>
             {% endblock %}
 
-            {% block cms_content %}
-                {% set cmsPage = page.landingPage ? page.landingPage.cmsPage : page.cmsPage %}
-                {% set cmsPageClasses = ('cms-page ' ~ cmsPage.cssClass|striptags)|trim %}
-                {% set landingPage = page.landingPage ? page.landingPage : {} %}
-                <div class="{{ cmsPageClasses }}">
-                    {% block page_content_blocks %}
-                        {% sw_include '@Storefront/storefront/page/content/detail.html.twig' with {cmsPage: cmsPage, landingPage: landingPage} %}
-                    {% endblock %}
+            {% block content_debug_route %}
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 4px;">
+                    <h2 style="color: #555; margin-bottom: 0.5rem;">Route Information</h2>
+                    <p><strong>Route Name:</strong> {{ contentPage.route.name }}</p>
+                    <p><strong>URL Pattern:</strong> {{ contentPage.route.urlPattern }}</p>
+                    <p><strong>Priority:</strong> {{ contentPage.route.priority }}</p>
+                    <p><strong>Active:</strong> {{ contentPage.route.active ? 'Yes' : 'No' }}</p>
                 </div>
             {% endblock %}
-        {% endblock %}
+
+            {% block content_debug_resolved_data %}
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 4px;">
+                    <h2 style="color: #555; margin-bottom: 0.5rem;">Resolved Entity IDs</h2>
+                    {% if contentPage.resolvedData.entityIds|length > 0 %}
+                        <ul>
+                            {% for placeholder, entityId in contentPage.resolvedData.entityIds %}
+                                <li><strong>{{ placeholder }}:</strong> {{ entityId }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #999;">No entities resolved</p>
+                    {% endif %}
+                </div>
+
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 4px;">
+                    <h2 style="color: #555; margin-bottom: 0.5rem;">Resolved Parameters</h2>
+                    {% if contentPage.resolvedData.parameters|length > 0 %}
+                        <ul>
+                            {% for name, value in contentPage.resolvedData.parameters %}
+                                <li><strong>{{ name }}:</strong> {{ value }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #999;">No parameters resolved</p>
+                    {% endif %}
+                </div>
+            {% endblock %}
+
+            {% block content_debug_matched_parameters %}
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 4px;">
+                    <h2 style="color: #555; margin-bottom: 0.5rem;">Matched URL Parameters</h2>
+                    {% if contentPage.matchedParameters|length > 0 %}
+                        <ul>
+                            {% for name, value in contentPage.matchedParameters %}
+                                <li><strong>{{ name }}:</strong> {{ value }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #999;">No URL parameters matched</p>
+                    {% endif %}
+                </div>
+            {% endblock %}
+
+            {% block content_debug_structure %}
+                {% if contentPage.structure %}
+                    <div style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 4px;">
+                        <h2 style="color: #555; margin-bottom: 0.5rem;">Layout Structure (with filled placeholders)</h2>
+                        <pre style="background: #f8f8f8; padding: 1rem; border-radius: 4px; overflow-x: auto;">{{ contentPage.structure|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+            {% block content_debug_hydrated_entities %}
+                {% if contentPage.hydratedEntities|length > 0 %}
+                    <div style="padding: 1rem; background: white; border-radius: 4px;">
+                        <h2 style="color: #555; margin-bottom: 0.5rem;">Hydrated Entities</h2>
+                        {% for entityType, entity in contentPage.hydratedEntities %}
+                            <div style="margin-bottom: 1rem; padding: 1rem; background: #f0f7ff; border-radius: 4px;">
+                                <h3 style="color: #0066cc; margin-bottom: 0.5rem;">{{ entityType|capitalize }}</h3>
+                                {% if entityType == 'product' %}
+                                    <p><strong>ID:</strong> {{ entity.id }}</p>
+                                    <p><strong>Product Number:</strong> {{ entity.productNumber }}</p>
+                                    <p><strong>Name:</strong> {{ entity.translated.name }}</p>
+                                    {% if entity.calculatedPrice %}
+                                        <p><strong>Price:</strong> {{ entity.calculatedPrice.unitPrice|currency }}</p>
+                                    {% endif %}
+                                    <p><strong>Stock:</strong> {{ entity.stock }}</p>
+                                    <p><strong>Active:</strong> {{ entity.active ? 'Yes' : 'No' }}</p>
+                                {% else %}
+                                    <pre style="background: #fff; padding: 0.5rem; border-radius: 4px; overflow-x: auto; font-size: 0.9em;">{{ entity.vars|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
     </div>
 {% endblock %}

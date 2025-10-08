@@ -1,0 +1,189 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- Entity Definitions -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteSalesChannelDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <!-- Routing Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Router\RouteCollectionBuilder">
+            <argument type="service" id="content_route.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouteMatcher"/>
+
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\RouteCollectionBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouteMatcher"/>
+        </service>
+
+        <!-- Resolver Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterExtractor"/>
+
+        <service id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterExtractor"/>
+        </service>
+
+        <!-- Cascade step factory for polymorphic layout resolution -->
+        <service id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\Cascade\CascadeStepFactory">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
+        <!-- Layout resolver using DAL and polymorphic cascade steps -->
+        <service id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver">
+            <argument type="service" id="content_layout_assignment.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\Cascade\CascadeStepFactory"/>
+        </service>
+
+        <!-- Layout Refinement Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\Refiner\PlaceholderResolutionRefiner">
+            <tag name="content_system.layout_refiner" priority="0"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\LayoutRefinery">
+            <argument type="tagged_iterator" tag="content_system.layout_refiner"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder">
+            <argument type="service" id="content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Refinery\LayoutRefinery"/>
+        </service>
+
+        <!-- Field Serializers -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsFieldSerializer" lazy="true">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsFieldSerializer"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <!-- Type Registry System -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Registry\ContentElementTypeRegistry"/>
+
+        <!-- Element Type Definition Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Schema\SchemaValidator"/>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Loader\ElementTypeLoader">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Schema\SchemaValidator"/>
+        </service>
+
+        <!-- Content Data Loaders -->
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingDataLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <!-- Data Loader Provider with Tagged Locator -->
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderProvider">
+            <argument type="tagged_locator" tag="content_system.data_loader" default-index-method="getRequirementType"/>
+        </service>
+
+        <!-- Data Context Resolution -->
+        <!-- Distribution Strategies -->
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\BroadcastDistributor">
+            <tag name="content_system.distribution_strategy"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\IndexedDistributor">
+            <tag name="content_system.distribution_strategy"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\IteratorDistributor">
+            <tag name="content_system.distribution_strategy"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\KeyedDistributor">
+            <tag name="content_system.distribution_strategy"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\SlicedDistributor">
+            <tag name="content_system.distribution_strategy"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver">
+            <argument type="tagged_iterator" tag="content_system.distribution_strategy"/>
+        </service>
+
+        <!-- Hydration Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderProvider"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver"/>
+        </service>
+
+        <!-- Store-API Route -->
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
+
+        <!-- Storefront Controller -->
+        <service id="Shopware\Storefront\Controller\ContentController" public="true">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+    </services>
+</container>

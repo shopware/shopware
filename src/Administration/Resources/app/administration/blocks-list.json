@@ -3238,6 +3238,7 @@
  "sw_media_quickinfo_quickactions",
  "sw_media_quickinfo_quickactions_content",
  "sw_media_quickinfo_quickactions_copy_link",
+ "sw_media_quickinfo_quickactions_custom_action",
  "sw_media_quickinfo_quickactions_delete",
  "sw_media_quickinfo_quickactions_download",
  "sw_media_quickinfo_quickactions_move",

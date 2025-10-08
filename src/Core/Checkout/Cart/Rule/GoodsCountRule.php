@@ -46,7 +46,7 @@ class GoodsCountRule extends FilterRule
             : ($scope->getLineItem()->isGood() ? [$scope->getLineItem()] : []);
 
         $goods = (new LineItemCollection($items))
-            ->filter(fn(LineItem $li) => $this->filter?->match(new LineItemScope($li, $scope->getSalesChannelContext())) ?? true);
+            ->filter(fn (LineItem $li) => $this->filter?->match(new LineItemScope($li, $scope->getSalesChannelContext())) ?? true);
 
         return RuleComparison::numeric(
             (float) $goods->count(),

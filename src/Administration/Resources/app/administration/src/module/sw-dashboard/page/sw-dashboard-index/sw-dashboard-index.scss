@@ -30,10 +30,8 @@ $content-max-width: 960px;
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         font-family: var(--font-family-body);
-
-        @media (min-width: 1024px) {
-            width: 33%;
-        }
+        max-width: 480px;
+        width: 100%;
     }
 
     &__intro {

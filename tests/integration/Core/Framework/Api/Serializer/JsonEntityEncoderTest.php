@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
@@ -274,5 +275,19 @@ class JsonEntityEncoderTest extends TestCase
 
         // extensions should be completely removed
         static::assertArrayNotHasKey('extensions', $actual);
+    }
+
+    public function testExtensionsRemovalPartialEntity(): void
+    {
+        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+
+        $definition = new CustomFieldTestDefinition();
+        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $struct2 = new PartialEntity();
+        $struct2->set('id', 'test-id-2');
+        $actual = $encoder->encode(new Criteria(), $definition, $struct2, SerializationFixture::API_BASE_URL);
+
+        static::assertSame(['translated' => [], 'id' => 'test-id-2', 'apiAlias' => 'partial'], $actual);
     }
 }

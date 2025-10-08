@@ -37,7 +37,7 @@
     <template #content>
         {% block sw_settings_logging_list_content_listing %}
         <sw-entity-listing
-            :data-source="logs"
+            :items="logs"
             :columns="logColumns"
             :full-page="true"
             :show-settings="true"

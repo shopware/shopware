@@ -75,7 +75,6 @@
                         columns="2fr 1fr"
                         gap="24px"
                     >
-
                         <mt-text-field
                             v-model="currentIntegration.label"
                             name="sw-field--currentIntegration-label"
@@ -84,13 +83,13 @@
                         />
 
                         {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
-
                         <mt-switch
                             v-model="currentIntegration.admin"
                             name="sw-field--currentIntegration-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                             :disabled="!acl.can('admin')"
+                            bordered
                         />
                         {% endblock %}
                     </sw-container>

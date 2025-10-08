@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customers can update the payment method for an existing order in the storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers can update the payment method for an existing order in the storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     StorefrontCheckoutOrderEdit,

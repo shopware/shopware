@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -153,13 +154,13 @@ class CaptchaRouteListenerTest extends TestCase
 
         $data = [
             'shopware_basic_captcha_confirm' => 'invalid',
-            'errorRoute' => 'frontend.checkout.register.page',
+            'redirectTo' => 'frontend.checkout.register.page',
         ];
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request(
             'POST',
-            $_SERVER['APP_URL'] . '/account/register',
+            EnvironmentHelper::getVariable('APP_URL') . '/account/register',
             $this->tokenize('frontend.account.register.save', $data)
         );
 

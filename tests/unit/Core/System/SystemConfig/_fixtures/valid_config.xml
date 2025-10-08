@@ -14,6 +14,16 @@
             <defaultValue>42</defaultValue>
         </input-field>
 
+        <input-field>
+            <name>stringWithQuoteDefaultValueRemovesQuotes</name>
+            <defaultValue>"42"</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>nullDefault</name>
+            <defaultValue>null</defaultValue>
+        </input-field>
+
         <input-field type="int">
             <name>int</name>
             <defaultValue>42</defaultValue>
@@ -22,6 +32,11 @@
         <input-field type="float">
             <name>float</name>
             <defaultValue>42</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>floatWithStringValueExpectsValueIsCastedToFloat</name>
+            <defaultValue>"42.5"</defaultValue>
         </input-field>
 
         <input-field type="bool">
@@ -78,6 +93,7 @@
                     <name lang="de-DE">German pop3</name>
                 </option>
             </options>
+            <defaultValue>pop3</defaultValue>
         </component>
     </card>
 </config>

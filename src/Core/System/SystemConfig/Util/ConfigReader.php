@@ -199,7 +199,7 @@ class ConfigReader extends XmlReader
             }
 
             if ($option->nodeName === 'defaultValue') {
-                $elementData[$option->nodeName] = $this->parseDefaultValue($option->nodeValue, $elementData['type']);
+                $elementData[$option->nodeName] = $this->parseDefaultValue($option->nodeValue, $elementData['type'] ?? null);
 
                 continue;
             }
@@ -210,21 +210,36 @@ class ConfigReader extends XmlReader
         return $elementData;
     }
 
-    private function parseDefaultValue(?string $value, string $type): mixed
+    private function parseDefaultValue(?string $value, ?string $type): mixed
     {
+        $value = XmlReader::phpize($value);
+
+        if ($value === null) {
+            return null;
+        }
+
+        // custom elements can have all types, there we can't guarantee the type
+        if ($type === null) {
+            return $value;
+        }
+
         if (\in_array($type, ['bool', 'checkbox'], true)) {
-            return filter_var($value, \FILTER_VALIDATE_BOOLEAN);
+            return (bool) $value;
         }
 
         if ($type === 'int') {
-            return filter_var($value, \FILTER_VALIDATE_INT);
+            return (int) $value;
         }
 
         if ($type === 'float') {
-            return filter_var($value, \FILTER_VALIDATE_FLOAT);
+            return (float) $value;
         }
 
-        return $value;
+        if ($type === 'multi-select') {
+            return (array) $value;
+        }
+
+        return (string) $value;
     }
 
     /**

@@ -71,6 +71,16 @@ class ConfigReaderTest extends TestCase
                         'defaultValue' => '42',
                     ],
                     [
+                        'type' => 'text',
+                        'name' => 'stringWithQuoteDefaultValueRemovesQuotes',
+                        'defaultValue' => '42',
+                    ],
+                    [
+                        'type' => 'text',
+                        'name' => 'nullDefault',
+                        'defaultValue' => null,
+                    ],
+                    [
                         'type' => 'int',
                         'name' => 'int',
                         'defaultValue' => 42,
@@ -79,6 +89,11 @@ class ConfigReaderTest extends TestCase
                         'type' => 'float',
                         'name' => 'float',
                         'defaultValue' => 42.0,
+                    ],
+                    [
+                        'type' => 'float',
+                        'name' => 'floatWithStringValueExpectsValueIsCastedToFloat',
+                        'defaultValue' => 42.5,
                     ],
                     [
                         'type' => 'bool',
@@ -151,6 +166,7 @@ class ConfigReaderTest extends TestCase
                                 ],
                             ],
                         ],
+                        'defaultValue' => 'pop3',
                     ],
                 ],
             ],

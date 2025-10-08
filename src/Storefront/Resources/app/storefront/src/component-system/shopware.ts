@@ -52,6 +52,8 @@ class Shopware extends EventEmitter {
     constructor() {
         super();
 
+        this.setMaxListeners(50)
+
         this.componentRegistry = new Map();
         this.selectorRegistry = new Map();
         this.instanceRegistry = [];
@@ -140,11 +142,17 @@ class Shopware extends EventEmitter {
     /**
      * Get all component instances by their registered name.
      *
-     * @param componentName - The name of the component.
+     * @param componentName - The name or a regular expression matching the component name.
      * @returns The component instances.
      */
-    public getComponentInstances(componentName: string): ShopwareComponent[] {
-        return this.instanceRegistry.filter(entry => entry.componentName === componentName).map(entry => entry.component);
+    public getComponentInstances(componentName: string | RegExp): ShopwareComponent[] {
+        return this.instanceRegistry.filter(entry => {
+            if (componentName instanceof RegExp) {
+                return componentName.test(entry.componentName);
+            }
+
+            return entry.componentName === componentName;
+        }).map(entry => entry.component);
     }
 
     /**
@@ -158,7 +166,7 @@ class Shopware extends EventEmitter {
         const instance = this.instanceRegistry.find(entry => entry.element === element && entry.componentName === componentName);
 
         if (!instance) {
-            console.warn(`Component instance for element ${element} not found.`);
+            console.warn(`Component instance for element not found.`, element);
             return;
         }
 
@@ -251,11 +259,11 @@ class Shopware extends EventEmitter {
     /**
      * Call a method by its name on all component instances by their registered name.
      *
-     * @param componentName - The name of the component.
+     * @param componentName - The name or a regular expression matching the component name.
      * @param methodName - The name of the method.
      * @param args - The arguments.
      */
-    public callMethod(componentName: string, methodName: string, ...args: any[]): void {
+    public callMethod(componentName: string | RegExp, methodName: string, ...args: any[]): void {
         const componentInstances = this.getComponentInstances(componentName);
 
         componentInstances.forEach(instance => {

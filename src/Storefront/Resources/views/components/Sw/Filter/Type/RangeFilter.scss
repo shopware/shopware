@@ -1,0 +1,17 @@
+.sw-range-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+}
+
+.sw-range-filter__min-input,
+.sw-range-filter__max-input {
+    height: 2rem;
+}
+
+.sw-range-filter__range-divider {
+    position: relative;
+    top: 0.75rem;
+    flex-shrink: 0;
+}

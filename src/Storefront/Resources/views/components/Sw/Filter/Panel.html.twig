@@ -1,114 +1,157 @@
 {% props
-    horizontal = false,
-    totalCount = 0
+    totalCount = 0,
+    currentSorting = null,
+    filterAggregations = [],
+    availableSortings = [],
+    filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'],
+    showLayoutSwitch = true,
+    visibleFilterCount = 3,
+    slots = [],
 %}
 
-{% set filters = [
-    {
-        name: 'Manufacturer',
-        type: 'MultiSelect',
-        hidden: false,
-        options: [
-            { name: 'Eldermere', value: '1a2b3c4d5e6f78901234567890abcdef12' },
-            { name: 'Runeblade', value: '2b3c4d5e6f78901234567890abcdef1234' },
-            { name: 'Celestia', value: '3c4d5e6f78901234567890abcdef123456' },
-            { name: 'Dragonvein Industries', value: '4d5e6f78901234567890abcd5678901234' },
-            { name: 'Moonshadow', value: '5e6f78901234567890abcdef12345678' },
-            { name: 'Ironroot Engineering', value: '6f78901234567890abcdef1234567890' },
-            { name: 'Stormborn', value: '78901234567890abcdef1234567890ab' },
-            { name: 'Embercrest Forge', value: '8901234567890abcdef123456789abcd' },
-            { name: 'Shadowfen', value: '901234567890abcdef1234567890abcd' },
-            { name: 'Aurelion Armaments', value: 'a12345678901234567890abcdef12345' },
-            { name: 'Frostpeak', value: 'b2345678901234567890abcdef123456' },
-            { name: 'Verdantweave Textiles', value: 'c345678901234567890abcdef1234567' },
-            { name: 'Dwarvenfire', value: 'd45678901234567890abcdef12345678' },
-            { name: 'Sylvancrest Workshops', value: 'e5678901234567890abcdef123456789' },
-            { name: 'Thunderstrike', value: 'f678901234567890abcdef1234567890' },
-            { name: 'Obsidian Edge Forge', value: '0123456789abcdef0123456789abcdef' },
-            { name: 'Whisperwind Crafts', value: '123456789abcdef0123456789abcdef0' },
-            { name: 'Crimson Anvil Creations', value: '234567890abcdef123456789abcdef01' },
-            { name: 'Starborn Artifacts', value: '34567890abcdef123456789abcdef012' },
-            { name: 'Ironspire Manufactory', value: '45678901abcdef23456789abcdef0123' }
-        ],
-    },
-    {
-        name: 'Color',
-        type: 'MultiSelect',
-        hidden: false,
-        options: [
-            { name: 'Lightgreen', value: '56789012cdef34567890abcdef012345' },
-            { name: 'Green', value: '67890123def4567890abcdef01234567', checked: true },
-            { name: 'Red', value: '78901234ef0567890abcdef012345678', checked: true },
-            { name: 'Ultra Red', value: '89012345f0167890abcdef123456789' },
-            { name: 'Metallic Blue', value: '9012345601278901bcdef1234567890' },
-            { name: 'Blue', value: 'a1234567812389012cdef12345678901' },
-            { name: 'Lightblue', value: 'b2345678923490123def0123456789ab' },
-            { name: 'Ember', value: 'c3456789034501234f0123456789abcd' },
-            { name: 'Lavender', value: 'd45678901456123450123456789abcde' },
-            { name: 'Sky Blue', value: 'e5678901256723456123456789abcdef' },
-            { name: 'Deep Blue', value: 'f678901236783456723456789abcdef0' },
-            { name: 'Black', value: '078901234789456783456789abcdef01' },
-            { name: 'Matte Black', value: '18901234589056789456789abcdef012' },
-        ],
-    },
-    {
-        name: 'Size',
-        type: 'MultiSelect',
-        hidden: true,
-        options: [
-            { name: 'XS', value: '2901234569016789056789abcdef0123' },
-            { name: 'S', value: '3a0123457012789016789abcdef01234' },
-            { name: 'M', value: '4b0123458123890127890abcdef01234' },
-            { name: 'L', value: '5c0123459234901238901abcdef01234' },
-            { name: 'XL', value: '6d0123450345012349012abcdef01234' },
-            { name: 'XXL', value: '7e0123451456123450123abcdef01234' },
-        ],
-    },
-    {
-        name: 'Skin',
-        type: 'MultiSelect',
-        hidden: true,
-        options: [
-            { name: 'azure', value: '7f8901234567890abcdef0123456789' },
-            { name: 'darkslateblue', value: '8f9012345678901abcdef012345678a' },
-            { name: 'mediumpurple', value: '9f0123456789012bcdef0123456789b' },
-            { name: 'midnightblue', value: '0f1234567890123cdef0123456789c' },
-            { name: 'oldlace', value: '1f2345678901234def0123456789d' },
-        ],
-    }
-] %}
+{% set filterPanelOptions = {
+    visibleFilterCount: visibleFilterCount,
+} %}
 
-<div
-    class="sw-filter-panel container mb-4 d-flex justify-content-between gap-2"
-    data-component="FilterPanel"
->
-    <div class="sw-filter-panel__filter d-flex flex-wrap gap-2">
+{% set defaultAttributes = {
+    'class': 'sw-filter-panel container',
+    'data-component': 'FilterPanel',
+    'data-filter-panel-options': filterPanelOptions|json_encode,
+} %}
 
-        {% for filter in filters %}
-            {{ component('Sw:Filter:Type:' ~ filter.type, {
-                name: filter.name,
-                options: filter.options,
-                hidden: filter.hidden
-            }) }}
+{% set manufacturerAggregation = filterAggregations.get('manufacturer') %}
+{% set priceAggregation = filterAggregations.get('price') %}
+{% set ratingAggregation = filterAggregations.get('rating') %}
+{% set shippingFreeAggregation = filterAggregations.get('shipping-free') %}
+{% set propertiesAggregation = filterAggregations.get('properties') %}
+
+{% set manufacturerFilter %}
+    {% if manufacturerAggregation.entities|length > 0 %}
+        {% set manufacturersSorted = manufacturerAggregation.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
+        {% set manufacturerFilterName = 'listing.filterManufacturerDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item :filterName="manufacturerFilterName">
+            <twig:Sw:Filter:Type:MultiSelectFilter 
+                name="manufacturer" 
+                :displayName="manufacturerFilterName"
+                :options="manufacturersSorted">
+            </twig:Sw:Filter:Type:MultiSelectFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set ratingFilter %}
+    {% if ratingAggregation is defined %}
+        {% set ratingFilterName = 'listing.filterRatingDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item :filterName="ratingFilterName">
+            <twig:Sw:Filter:Type:RatingFilter name="rating"></twig:Sw:Filter:Type:RatingFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set priceFilter %}
+    {% if priceAggregation is defined %}
+        {% set priceFilterName = 'listing.filterPriceDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item :filterName="priceFilterName">
+            <twig:Sw:Filter:Type:RangeFilter 
+                minKey="min-price"
+                maxKey="max-price"
+                :unit="context.currency.symbol"
+                :minInputValue="0"
+                :maxInputValue="priceAggregation.max">
+            </twig:Sw:Filter:Type:RangeFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set propertiesFilter %}
+    {% if propertiesAggregation.entities|length > 0 %}
+        {% for property in propertiesAggregation.entities %}     
+            <twig:Sw:Filter:Item :filterName="property.translated.name">
+                <twig:Sw:Filter:Type:MultiSelectFilter 
+                    name="properties" 
+                    :displayName="property.translated.name"
+                    :displayType="property.displayType"
+                    :options="property.options">
+                </twig:Sw:Filter:Type:MultiSelectFilter>
+            </twig:Sw:Filter:Item>
         {% endfor %}
+    {% endif %}
+{% endset %}
 
-        {# Expand or collapse hidden filters #}
-        <button class="d-none d-md-block sw-filter-panel__filter-btn sw-filter-panel__expand btn-light btn">
-            <span class="sw-filter-panel__expand-text">More filters</span>
-            <twig:Sw:Icon name="sliders-horizontal" size="xs" />
-        </button>
+{% set shippingFreeFilter %}
+    {% if shippingFreeAggregation.max > 0 %}
+        {% set shippingFreeFilterName = 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize %}
 
-        {# Filter toggle for mobile #}
-        <button class="d-block d-md-none sw-filter-panel__filter-btn btn-light btn">Filter <twig:Sw:Icon name="sliders-horizontal" size="xs" /></button>
-    </div>
+        <twig:Sw:Filter:Type:BooleanFilter 
+            name="shipping-free"
+            :displayName="shippingFreeFilterName">
+        </twig:Sw:Filter:Type:BooleanFilter>
+    {% endif %}
+{% endset %}
 
-    <div class="sw-filter-panel__options d-inline-flex justify-content-end gap-2">
-        <span class="sw-filter-panel__counter text-light-emphasis text-nowrap d-none d-lg-inline-block">
-            {{ totalCount }} Items
-        </span>
+{% set filters = {
+    'manufacturer': manufacturerFilter,
+    'rating': ratingFilter,
+    'price': priceFilter,
+    'properties': propertiesFilter,
+    'shipping-free': shippingFreeFilter,
+} %}
 
-        <twig:Sw:Filter:Sort />
+<div {{ attributes.defaults(defaultAttributes) }}>
 
-        <twig:Sw:Filter:LayoutToggle />
-    </div>
+    {# Filter template for outer block scope. #}
+    {% set filterTemplate %}
+        {% block filters %}
+            {# Rendering filters in order #}
+            {% for filter in filterOrder %}
+                {{ filters[filter] }}
+            {% endfor %}
+        {% endblock %}
+    {% endset%}
+
+    <twig:Sw:Content:Offcanvas id="filter-offcanvas" title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
+        <div class="sw-filter-panel__filter">
+
+            <twig:Slot name="additional-filters-start"></twig:Slot>
+
+            {{ filterTemplate }}
+
+            <twig:Slot name="additional-filters-end"></twig:Slot>
+
+            {# Expand or collapse hidden filters #}
+            <button class="sw-filter-panel__filter-btn sw-filter-panel__expand btn-light btn d-none d-md-block">
+                <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span> 
+                <span class="sw-filter-panel__collapse-text">{{ 'listing.filterButtonLess'|trans|sw_sanitize }}</span>
+                <twig:Sw:Icon name="sliders-horizontal" size="xs" />
+            </button>
+        </div>
+    </twig:Sw:Content:Offcanvas>
+
+    {# Offcanvas filter button for mobile #}
+    <button 
+        class="sw-filter-panel__filter-btn btn-light btn d-block d-md-none"
+        aria-controls="filter-offcanvas"
+        data-bs-toggle="offcanvas" 
+        data-bs-target="#filter-offcanvas">
+        {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
+    </button>
+
+    {% block actions %}
+        <div class="sw-filter-panel__actions">
+            <span class="sw-filter-panel__counter text-light-emphasis text-nowrap d-none d-lg-inline-block">
+                {{ 'listing.resultCount'|trans({ '%count%': totalCount })|sw_sanitize }}
+            </span>
+
+            {% if availableSortings and availableSortings.elements and availableSortings.elements|length > 0 %}
+                <twig:Sw:Filter:Sorting :currentSorting="currentSorting" :sortings="availableSortings.elements" />
+            {% endif %}
+
+            {% if showLayoutSwitch %}
+                <twig:Sw:Filter:LayoutSwitch />
+            {% endif %}
+        </div>
+    {% endblock %}
 </div>

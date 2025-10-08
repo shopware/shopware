@@ -1,9 +1,11 @@
+({ Shopware, ShopwareComponent } = window);
+
 class Pagination extends ShopwareComponent {
 
     static selector = 'nav[data-component="Pagination"]';
 
     static options = {
-        useHref: true,
+        useHref: false,
     };
 
     init() {
@@ -21,9 +23,19 @@ class Pagination extends ShopwareComponent {
 
         let page = parseInt(item.getAttribute('data-page') ?? 1, 10);
 
-        ({ page } = window.Shopware.emitInterception(`${this.componentName}:PrePageChange`, { page }));
+        ({ page } = Shopware.emitInterception(`${this.componentName}:PreChange`, { page }));
 
-        window.Shopware.emit(`${this.componentName}:PageChange`, page);
+        Shopware.emit(`${this.componentName}:Change`, page);
+
+        this.setActiveItem(page);
+    }
+
+    setActiveItem(page) {
+        this.items.forEach(item => {
+            item.parentElement.classList.remove('active');
+        });
+
+        this.el.querySelector(`.page-${page}`)?.classList.add('active');
     }
 
     destroy() {
@@ -33,4 +45,4 @@ class Pagination extends ShopwareComponent {
     }
 }
 
-window.Shopware.registerComponent('Pagination', Pagination);
+Shopware.registerComponent('Pagination', Pagination);

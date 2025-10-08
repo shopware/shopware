@@ -2,36 +2,53 @@
     listing = null,
 %}
 
-{% set attributeDefaults = {} %}
+{% set attributeDefaults = {
+    'data-component': 'ProductListing',
+} %}
 
 {% set listingCVA = cva({
     base: 'product-listing',
 }) %}
 
+{% set layout = app.request.get('layout') %}
+
 <div {{ attributes.defaults(attributeDefaults) }} class="{{ listingCVA.apply({}, attributes.render('class')) }}">
 
-    {% set layout = app.request.get('layout') %}
+    {% block filters %}
+        <twig:Sw:Filter:Panel 
+            :totalCount="listing.total"
+            :currentSorting="listing.sorting"
+            :filterAggregations="listing.aggregations" 
+            :availableSortings="listing.availableSortings">
+        </twig:Sw:Filter:Panel>
 
-    <twig:Sw:Filter:Panel :horizontal="horizontal" :totalCount="listing.elements|length" />
+        <twig:Sw:Filter:ActiveFilters />
+    {% endblock %}
 
     {% block content %}
-
-        <twig:Sw:Grid:Container
-            class="product-listing__grid"
-            :columns="layout == 'horizontal' ? '1' : '4'"
-            :columnsXl="layout == 'horizontal' ? '1' : '3'"
-            :columnsLg="layout == 'horizontal' ? '1' : '2'"
-            :columnsSm="layout == 'horizontal' ? '1' : '2'"
-            gap="20"
-        >
-            {% for product in listing.elements %}
-                <twig:Sw:Product:Card
-                    :product="product"
-                    :layout="layout ? layout : 'default'"
-                />
-            {% endfor %}
-        </twig:Sw:Grid:Container>
-
+        {% if listing.total > 0 %}
+            <twig:Sw:Grid:Container
+                class="product-listing__grid"
+                :columns="layout == 'horizontal' ? '1' : '4'"
+                :columnsXl="layout == 'horizontal' ? '1' : '3'"
+                :columnsLg="layout == 'horizontal' ? '1' : '2'"
+                :columnsSm="layout == 'horizontal' ? '1' : '2'"
+                gap="20"
+            >
+                {% for product in listing.elements %}
+                    <twig:Sw:Product:Card
+                        :product="product"
+                        :layout="layout ? layout : 'default'"
+                    />
+                {% endfor %}
+            </twig:Sw:Grid:Container>
+        {% else %}
+            <div class="container">
+                <twig:Sw:Alert type="info">
+                    {{ 'listing.emptyResultMessage'|trans|sw_sanitize }}
+                </twig:Sw:Alert>
+            </div>
+        {% endif %}
     {% endblock %}
 
     {% block pagination %}

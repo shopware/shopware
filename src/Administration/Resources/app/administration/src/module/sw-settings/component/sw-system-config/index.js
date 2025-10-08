@@ -242,10 +242,6 @@ export default {
         },
 
         getInheritWrapperBind(element) {
-            if (this.hasMapInheritanceSupport(element)) {
-                return {};
-            }
-
             return {
                 label: this.getInlineSnippet(element.config.label),
                 helpText: this.getInlineSnippet(element.config.helpText),

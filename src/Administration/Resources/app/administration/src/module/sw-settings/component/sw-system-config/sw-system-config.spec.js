@@ -69,6 +69,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-datepicker-deprecated': await wrapTestComponent('sw-text-field-deprecated'),
                 'sw-text-editor': await wrapTestComponent('sw-text-field'),
                 'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', { sync: true }),
+                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
                 'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
@@ -679,6 +680,32 @@ function createConfig() {
                 childValue: '<p>Children which is fresh and new</p>',
                 changeValueFunction: async (field, afterValue) => {
                     await field.find('input').setValue(afterValue);
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.switchField',
+            config: {
+                defaultValue: true,
+                componentName: 'sw-switch-field',
+                label: {
+                    'en-GB': 'Switch field with inheritance',
+                },
+                helpText: {
+                    'en-GB': 'This is a switch field that should support inheritance',
+                },
+            },
+            _test: {
+                domValueCheck: async (field, domValue) => {
+                    await wrapper.vm.$forceUpdate();
+                    expect(field.find('input').element.checked).toBe(domValue);
+                },
+                afterValue: false,
+                childValue: false,
+                fallbackValue: false,
+                changeValueFunction: async (field) => {
+                    const currentValue = field.find('input').element.checked;
+                    await field.find('input[type="checkbox"]').setChecked(!currentValue);
                 },
             },
         },

@@ -49,7 +49,8 @@ test('As a customer, I can perform a registration by validating to be not a robo
         });
 
         await test.step('Customer validates via the reCaptcha V2', async () => {
-            await ShopCustomer.presses(reCaptchaCheckbox, 'Space');
+            // Cannot use ShopCustomer.presses() as the Captcha does not add visible focus indicator when selected
+            await reCaptchaCheckbox.press('Space');
             await ShopCustomer.expects(reCaptchaCheckbox).toBeChecked();
         });
 

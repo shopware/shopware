@@ -58,6 +58,8 @@ DeviceHelper.prototype = Object.assign(DeviceHelper.prototype, {
             return component !== listenerObject.component;
         });
 
+        window.removeEventListener('resize', this.resize.bind(this));
+
         return true;
     },
 

@@ -611,18 +611,25 @@ export default {
         onConfirmDelete() {
             this.showDeleteModal = false;
 
-            this.$nextTick(() => {
-                this.deleteSalesChannel(this.salesChannel.id);
+            this.$nextTick(async () => {
+                const success = await this.deleteSalesChannel(this.salesChannel.id);
+
+                if (!success) {
+                    return;
+                }
+
                 this.$router.push({ name: 'sw.dashboard.index' });
             });
         },
 
         deleteSalesChannel(salesChannelId) {
-            this.salesChannelRepository
+            return this.salesChannelRepository
                 .delete(salesChannelId, Context.api)
                 .then(() => {
                     Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
                     this.salesChannelFavoritesService.refresh();
+
+                    return true;
                 })
                 .catch((error) => {
                     const current = error?.response?.data?.errors?.[0];
@@ -639,7 +646,7 @@ export default {
                             }),
                         });
 
-                        return;
+                        return false;
                     }
 
                     throw error;

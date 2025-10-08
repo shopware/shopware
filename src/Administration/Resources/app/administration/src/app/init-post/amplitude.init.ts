@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import * as amplitude from '@amplitude/analytics-browser';
+import type { BaseEvent, EventOptions } from '@amplitude/analytics-types';
 import { string } from 'src/core/service/util.service';
 import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telemetry/types';
 
@@ -9,6 +10,24 @@ import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telem
  * @private
  */
 export default async function (): Promise<void> {
+    const loginService = Shopware.Service('loginService');
+
+    loginService.addOnLoginListener(async () => {
+        await setUserId();
+        track('Login');
+    });
+
+    loginService.addOnLogoutListener(() => {
+        amplitude.setTransport('beacon');
+        track('Logout');
+
+        // we need a timeout if we want to include the click on the logout button
+        setTimeout(() => {
+            amplitude.flush();
+            amplitude.reset();
+        }, 0);
+    });
+
     let defaultLanguageName = '';
 
     try {
@@ -68,7 +87,7 @@ export default async function (): Promise<void> {
 
 function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes>) {
     if (isEventOfType('page_change', telemetryEvent)) {
-        amplitude.track('Page Viewed', {
+        track('Page Viewed', {
             sw_route_from_name: telemetryEvent.eventData.from.name,
             sw_route_from_href: telemetryEvent.eventData.from.path,
             sw_route_to_name: telemetryEvent.eventData.to.name,
@@ -108,8 +127,16 @@ function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes
             eventProperties.sw_pointer_button = originalEvent.buttons;
         }
 
-        amplitude.track(eventName, eventProperties);
+        track(eventName, eventProperties);
     }
+}
+
+function track(
+    eventInput: string | BaseEvent,
+    eventProperties?: Record<string, unknown>,
+    eventOptions?: EventOptions,
+): void {
+    amplitude.track(eventInput, eventProperties, eventOptions);
 }
 
 async function getDefaultLanguageName(): Promise<string> {
@@ -117,6 +144,18 @@ async function getDefaultLanguageName(): Promise<string> {
     const defaultLanguage = await languageRepository.get(Shopware.Context.api.systemLanguageId!);
 
     return defaultLanguage!.name;
+}
+
+async function setUserId(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const currentUser = await Shopware.Service('userService').getUser();
+    const shopId = Shopware.Store.get('context').app.config.shopId; // not available before the user is loaded
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (shopId && currentUser?.data?.id) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        amplitude.setUserId(`${shopId}:${currentUser.data.id}`);
+    }
 }
 
 function isEventOfType<N extends EventTypes>(

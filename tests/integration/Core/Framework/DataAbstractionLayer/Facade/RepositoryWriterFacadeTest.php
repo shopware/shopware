@@ -47,7 +47,7 @@ class RepositoryWriterFacadeTest extends TestCase
      * @param array<int, mixed> $payload
      * @param callable(Context, ContainerInterface): void $expectation
      */
-    #[DataProvider('testCases')]
+    #[DataProvider('cases')]
     public function testFacade(array $payload, string $method, IdsCollection $ids, callable $expectation): void
     {
         $this->ids = $ids;
@@ -66,7 +66,7 @@ class RepositoryWriterFacadeTest extends TestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public static function testCases(): array
+    public static function cases(): array
     {
         $ids = new IdsCollection();
 

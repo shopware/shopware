@@ -250,7 +250,6 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
                 'private' => $isPrivate,
                 'fileName' => $fileName,
                 'mimeType' => 'image/png',
-                'fileExtension' => 'png',
             ],
         ], $this->salesChannelContext);
 

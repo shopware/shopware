@@ -515,7 +515,7 @@ jobs:
   update-66-67:
       name: "PHP update 6.6 -> 6.7"
       runs-on: ubuntu-24.04
-      # if: inputs.nightly == 'true'
+      if: inputs.nightly == 'true'
       env:
           APP_ENV: test
           APP_URL: http://localhost:8000

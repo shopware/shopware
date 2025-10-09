@@ -48,6 +48,12 @@
     &.is--boxed {
         margin-bottom: 22px;
 
+        .sw-text-editor-toolbar {
+            border: 1px solid $color-gray-300;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
         .sw-text-editor__label {
             display: block;
             line-height: 16px;
@@ -59,11 +65,13 @@
 
         .sw-text-editor__box {
             position: relative;
-            border: 1px solid $color-gray-300;
-            border-radius: $border-radius-default;
 
             .sw-code-editor {
-                margin-bottom: 0;
+                &__editor {
+                    border-top: 0;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
+                }
             }
         }
 

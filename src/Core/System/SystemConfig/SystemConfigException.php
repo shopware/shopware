@@ -46,7 +46,7 @@ class SystemConfigException extends HttpException
         );
 
         if ($domain !== '') {
-            Feature::callSilentIfInactive('6.8.0.0', static function () use ($domain, &$exception): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($domain, &$exception): void {
                 $exception = new InvalidDomainException($domain);
             });
         }
@@ -79,7 +79,7 @@ class SystemConfigException extends HttpException
             ['key' => $key, 'expectedType' => $expectedType, 'actualType' => $actualType]
         );
 
-        Feature::callSilentIfInactive('6.8.0.0', static function () use ($key, $expectedType, $actualType, &$exception): void {
+        Feature::callSilentIfInactive('v6.8.0.0', static function () use ($key, $expectedType, $actualType, &$exception): void {
             $exception = new InvalidSettingValueException($key, $expectedType, $actualType);
         });
 
@@ -95,7 +95,7 @@ class SystemConfigException extends HttpException
             ['key' => $key]
         );
 
-        Feature::callSilentIfInactive('6.8.0.0', static function () use ($key, &$exception): void {
+        Feature::callSilentIfInactive('v6.8.0.0', static function () use ($key, &$exception): void {
             $exception = new InvalidKeyException($key);
         });
 

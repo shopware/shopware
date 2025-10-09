@@ -23,7 +23,7 @@ class InvalidKeyException extends SystemConfigException
         parent::__construct(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_KEY,
-            'Invalid domain \'{{ key }}\'',
+            'Invalid key \'{{ key }}\'',
             ['key' => $key]
         );
     }

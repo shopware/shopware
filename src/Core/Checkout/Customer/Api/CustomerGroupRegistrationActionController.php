@@ -102,18 +102,6 @@ class CustomerGroupRegistrationActionController
         $silentError = $request->request->getBoolean('silentError');
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
-
-        $updateData = [];
-
-        foreach ($customers as $customer) {
-            $updateData[] = [
-                'id' => $customer->getId(),
-                'requestedGroupId' => null,
-            ];
-        }
-
-        $this->customerRepository->update($updateData, $context);
-
         foreach ($customers as $customer) {
             $customerId = $customer->getId();
             $salesChannelContext = $this->restorer->restoreByCustomer($customerId, $context);
@@ -122,22 +110,42 @@ class CustomerGroupRegistrationActionController
             if (!$customer) {
                 throw CustomerException::customersNotFound([$customerId]);
             }
-            $customerGroupId = $customer->getGroupId();
 
-            $criteria = (new Criteria([$customerGroupId]))
-                ->setLimit(1);
+            $requestedCustomerGroupId = $customer->getRequestedGroupId();
+            if (!$requestedCustomerGroupId) {
+                if ($silentError === false) {
+                    throw CustomerException::groupRequestNotFound($customer->getId());
+                }
 
-            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
-            if (!$customerRequestedGroup) {
-                throw CustomerException::customerGroupNotFound($customerGroupId);
+                continue;
+            }
+
+            $criteria = (new Criteria([$requestedCustomerGroupId]))->setLimit(1);
+            $requestedCustomerGroup = $this->customerGroupRepository->search(
+                $criteria,
+                $salesChannelContext->getContext()
+            )->getEntities()->first();
+
+            if (!$requestedCustomerGroup) {
+                throw CustomerException::customerGroupNotFound($requestedCustomerGroupId);
             }
 
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
                 $customer,
-                $customerRequestedGroup,
+                $requestedCustomerGroup,
                 $salesChannelContext->getContext()
             ));
         }
+
+        $updateData = [];
+        foreach ($customers as $customer) {
+            $updateData[] = [
+                'id' => $customer->getId(),
+                'requestedGroupId' => null,
+            ];
+        }
+
+        $this->customerRepository->update($updateData, $context);
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
     }

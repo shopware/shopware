@@ -67,6 +67,8 @@ class MediaApiService extends ApiService {
     }
 
     addDefaultListener(callback) {
+        // Remove listener is inside "removeDefaultListener" method
+        // eslint-disable-next-line listeners/no-missing-remove-event-listener
         this.addListener('default', callback);
     }
 

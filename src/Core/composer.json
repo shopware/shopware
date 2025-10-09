@@ -12,9 +12,6 @@
         "files": [
             "Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
         ],
-        "exclude-from-classmap": [
-            "*/Test/"
-        ],
         "psr-4": {
             "Shopware\\Core\\": ""
         }

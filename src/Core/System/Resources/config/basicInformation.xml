@@ -160,50 +160,45 @@
         <title>Security and Privacy</title>
         <title lang="de-DE">Sicherheit und Datenschutz</title>
 
-        <component name="sw-switch-field">
+        <input-field type="bool">
             <name>useDefaultCookieConsent</name>
-            <bordered>bordered</bordered>
             <label>Use default cookie notification</label>
             <label lang="de-DE">Standard-Cookie-Hinweis verwenden</label>
             <helpText>You should deactivate the default cookie notification only if you are using an alternative third-party solution.</helpText>
             <helpText lang="de-DE">Du solltest den Standard-Cookie-Hinweis hier nur deaktivieren, wenn Du eine alternative Drittanbieterlösung verwendest.</helpText>
-        </component>
+        </input-field>
 
-        <component name="sw-switch-field">
+        <input-field type="bool">
             <name>acceptAllCookies</name>
-            <bordered>bordered</bordered>
             <label>Show "Accept all cookies" button</label>
             <label lang="de-DE">"Alle Cookies akzeptieren"-Button anzeigen</label>
             <helpText>Shows a button which allows users to accept all cookies in the storefront</helpText>
             <helpText lang="de-DE">Zeigt einen Button an, der es Nutzern erlaubt alle Cookies in der Storefront zu akzeptieren</helpText>
-        </component>
+        </input-field>
 
-        <component name="sw-switch-field">
+        <input-field type="bool">
             <name>firstNameFieldRequired</name>
-            <bordered>bordered</bordered>
             <label>First name in contact forms required</label>
             <label lang="de-DE">Vorname in Kontaktformularen als Pflichtfeld behandeln</label>
             <helpText>If active, the field "first name" has to be filled in, in order to submit a contact form.</helpText>
             <helpText lang="de-DE">Wenn aktiv, muss das Feld "Vorname" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
-        </component>
+        </input-field>
 
-        <component name="sw-switch-field">
+        <input-field type="bool">
             <name>lastNameFieldRequired</name>
-            <bordered>bordered</bordered>
             <label>Last name in contact forms required</label>
             <label lang="de-DE">Nachname in Kontaktformularen als Pflichtfeld behandeln</label>
             <helpText>If active, the field "last name" has to be filled in, in order to submit a contact form.</helpText>
             <helpText lang="de-DE">Wenn aktiv, muss das Feld "Nachname" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
-        </component>
+        </input-field>
 
-        <component name="sw-switch-field">
+        <input-field type="bool">
             <name>phoneNumberFieldRequired</name>
-            <bordered>bordered</bordered>
             <label>Phone number in contact forms required</label>
             <label lang="de-DE">Telefonummer in Kontaktformularen als Pflichtfeld behandeln</label>
             <helpText>If active, the field "phone number" has to be filled in, in order to submit a contact form.</helpText>
             <helpText lang="de-DE">Wenn aktiv, muss das Feld "Telefonnummer" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
-        </component>
+        </input-field>
     </card>
 
     <card>

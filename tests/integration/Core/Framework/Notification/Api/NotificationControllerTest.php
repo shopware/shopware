@@ -9,8 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Notification\NotificationCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -19,7 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 class NotificationControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
-    use IntegrationTestBehaviour;
+    use AppSystemTestBehaviour;
+    use GuzzleTestClientBehaviour;
 
     /**
      * @var EntityRepository<NotificationCollection>
@@ -80,7 +82,7 @@ class NotificationControllerTest extends TestCase
             return;
         }
 
-        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $criteria = (new Criteria())->setLimit(1);
 

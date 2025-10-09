@@ -107,7 +107,7 @@
       "messageDeleteDomainError": "Die Domain \"{url}\" konnte nicht gelöscht werden, da sie mit bestehenden Produktexporten verknüpft ist.",
       "foreignKeyDelete": {
         "title": "Verkaufskanal kann nicht gelöscht werden",
-        "message": "Der Verkaufskanal kann nicht gelöscht werden, da noch Zuordnungen zu {assignment} bestehen."
+        "message": "Dieser Verkaufskanal kann nicht gelöscht werden, da noch von {assignment} verwendet wird."
       },
       "buttonAddDomain": "Domain hinzufügen",
       "deleteDomainModalTitle": "Domain löschen",

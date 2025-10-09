@@ -1331,24 +1331,28 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         };
 
         wrapper.vm.salesChannelRepository.delete = jest.fn().mockRejectedValue(deleteError);
-        wrapper.vm.$tc = jest
+        wrapper.vm.$t = jest
             .fn()
             .mockReturnValueOnce('Orders')
-            .mockReturnValueOnce('sw-sales-channel.detail.foreignKeyDelete.title');
+            .mockReturnValueOnce('sw-sales-channel.detail.foreignKeyDelete');
 
-        wrapper.vm.$t = jest.fn().mockReturnValue('Cannot delete sales channel due to existing assignment');
         wrapper.vm.createNotificationError = jest.fn();
 
         const result = await wrapper.vm.deleteSalesChannel('test-id');
 
         expect(wrapper.vm.salesChannelRepository.delete).toHaveBeenCalledWith('test-id', Shopware.Context.api);
-        expect(wrapper.vm.$tc).toHaveBeenCalledWith('global.entities.order', 0);
-        expect(wrapper.vm.$t).toHaveBeenCalledWith('sw-sales-channel.detail.foreignKeyDelete.message', {
-            assignment: 'orders',
-        });
+        expect(wrapper.vm.$t.mock.calls).toEqual([
+            [
+                'global.entities.order',
+                0,
+            ],
+            [
+                'sw-sales-channel.detail.foreignKeyDelete',
+                { assignment: 'orders' },
+            ],
+        ]);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            title: 'sw-sales-channel.detail.foreignKeyDelete.title',
-            message: 'Cannot delete sales channel due to existing assignment',
+            message: 'sw-sales-channel.detail.foreignKeyDelete',
         });
         expect(result).toBe(false);
     });

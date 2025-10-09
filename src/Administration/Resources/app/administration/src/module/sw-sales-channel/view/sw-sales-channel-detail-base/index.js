@@ -13,6 +13,8 @@ const utils = Shopware.Utils;
 
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+const FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE = '1451';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -635,13 +637,12 @@ export default {
                     const current = error?.response?.data?.errors?.[0];
                     const assignment = this.extractFkInfo(current?.detail);
 
-                    if (current?.code === '1451' && assignment) {
+                    if (current?.code === FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE && assignment) {
                         Shopware.Store.get('error').resetApiErrors();
-                        const translated = this.$tc(`global.entities.${assignment}`, 0).toLowerCase();
+                        const translated = this.$t(`global.entities.${assignment}`, 0).toLowerCase();
 
                         this.createNotificationError({
-                            title: this.$tc('sw-sales-channel.detail.foreignKeyDelete.title'),
-                            message: this.$t('sw-sales-channel.detail.foreignKeyDelete.message', {
+                            message: this.$t('sw-sales-channel.detail.foreignKeyDelete', {
                                 assignment: translated,
                             }),
                         });

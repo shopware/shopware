@@ -6,17 +6,4 @@
         background-color: var(--color-background-critical-default);
         border-color: var(--color-border-critical-default);
     }
-
-    .sw-select.sw-block-field {
-        .sw-block-field__block {
-            background-color: unset;
-            border-radius: var(--border-radius-xs);
-        }
-
-        input {
-            background-color: unset;
-            border-radius: var(--border-radius-xs);
-            color: var(--color-text-primary-default);
-        }
-    }
 }

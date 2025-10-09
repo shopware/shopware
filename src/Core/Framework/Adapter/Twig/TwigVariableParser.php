@@ -88,19 +88,19 @@ class TwigVariableParser
             }
 
             if ($node instanceof SetNode) {
-                $i = 0;
                 $names = $node->getNode('names');
                 $values = $node->getNode('values');
-                while ($names->hasNode((string) $i)) {
+
+                for ($i = 0; $names->hasNode((string) $i); $i++) {
                     $alias = implode('.', $this->getVariables([$names->getNode((string) $i)], $aliases));
                     $valueNode = $values->getNode((string) $i);
+
                     if ($valueNode instanceof GetAttrExpression || $valueNode instanceof NameExpression) {
                         $aliases[$alias] = implode('.', $this->getVariables([$valueNode], $aliases));
                     } else {
                         $variables = array_merge($variables, $this->getVariables($valueNode, $aliases));
                         $aliases[$alias] = '';
                     }
-                    $i++;
                 }
                 continue;
             }

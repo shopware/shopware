@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
-class ShopController
+class VerifyShopController
 {
     public function __construct(
         private readonly RateLimiter $rateLimiter,

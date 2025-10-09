@@ -713,7 +713,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Api\ShopController" public="true">
+        <service id="Shopware\Core\Framework\App\Api\VerifyShopController" public="true">
             <argument type="service" id="shopware.rate_limiter"/>
             <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
         </service>

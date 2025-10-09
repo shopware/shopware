@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Api\ShopController;
+use Shopware\Core\Framework\App\Api\VerifyShopController;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -16,10 +16,10 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(ShopController::class)]
-class ShopControllerTest extends TestCase
+#[CoversClass(VerifyShopController::class)]
+class VerifyShopControllerTest extends TestCase
 {
-    private ShopController $controller;
+    private VerifyShopController $controller;
 
     private AppUrlVerifier&MockObject $appUrlVerifier;
 
@@ -29,7 +29,7 @@ class ShopControllerTest extends TestCase
     {
         $this->appUrlVerifier = $this->createMock(AppUrlVerifier::class);
         $this->rateLimiter = $this->createMock(RateLimiter::class);
-        $this->controller = new ShopController($this->rateLimiter, $this->appUrlVerifier);
+        $this->controller = new VerifyShopController($this->rateLimiter, $this->appUrlVerifier);
     }
 
     public function testRateLimiter(): void

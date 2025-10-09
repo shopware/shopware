@@ -107,7 +107,7 @@
       "messageDeleteDomainError": "The domain \"{url}\" could not be deleted because it is linked to existing product exports.",
       "foreignKeyDelete": {
         "title": "Cannot delete sales channel",
-        "message": "The sales channel cannot be deleted because it still has assignments to {assignment}."
+        "message": "This sales channel cannot be deleted because it still used by {assignment}."
       },
       "buttonAddDomain": "Add domain",
       "deleteDomainModalTitle": "Delete domain",

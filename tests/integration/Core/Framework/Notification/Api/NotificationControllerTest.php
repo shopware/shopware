@@ -110,7 +110,7 @@ class NotificationControllerTest extends TestCase
             // ['integration', 'success', 'This is a notification', false, ['cache:clear'], true],
             ['integration', '', 'This is a notification', false, ['cache:clear'], false],
             ['integration', 'success', '', false, ['cache:clear'], false],
-            //['browser', 'success', 'This is a notification', true, [], true],
+            // ['browser', 'success', 'This is a notification', true, [], true],
         ];
     }
 

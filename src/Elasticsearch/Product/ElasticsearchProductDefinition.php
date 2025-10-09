@@ -260,7 +260,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     ], $visibility);
                 }, $visibilities),
                 'availableStock' => (int) $item['availableStock'],
-                'productNumber' => $item['productNumber'],
+                'productNumber' => array_filter([$item['productNumber'], $item['parentProductNumber'] ?? null]),
                 'ean' => $item['ean'],
                 'displayGroup' => $item['displayGroup'],
                 'sales' => (int) $item['sales'],
@@ -359,6 +359,7 @@ SELECT
     IFNULL(p.available_stock, pp.available_stock) AS availableStock,
     IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
     p.product_number as productNumber,
+    pp.product_number as parentProductNumber,
     p.sales,
     LOWER(HEX(p.manufacturer)) AS productManufacturerId,
     LOWER(HEX(p.delivery_time_id)) as deliveryTimeId,

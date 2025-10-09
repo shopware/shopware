@@ -45,6 +45,7 @@ final class DocumentRoute extends AbstractDocumentRoute
     }
 
     #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_entity' => 'document'])]
+    #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType}', name: 'store-api.document.download.a11y', methods: ['GET', 'POST'], defaults: ['_entity' => 'document'])]
     public function download(
         string $documentId,
         Request $request,
@@ -59,9 +60,10 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
+        $requestedFileType = $request->get('fileType') ?? $fileType;
         $download = $request->query->getBoolean('download');
 
-        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $fileType);
+        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $requestedFileType);
 
         if ($document === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);

@@ -13,6 +13,8 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
@@ -283,6 +285,97 @@ class DocumentRouteTest extends TestCase
             'withValidDeepLinkCode' => true,
             'expectedException' => CustomerNotLoggedInException::class,
             'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
+        ];
+    }
+
+    /**
+     * @param array<string, string>|array{} $queryParameters
+     * @param array<string, string>|array{} $pathParameters
+     */
+    #[DataProvider('provideRequestParameters')]
+    public function testDownloadWithDifferentParameterTypesForFileType(
+        string $expectedFileType,
+        string $expectedContentType,
+        array $queryParameters,
+        array $pathParameters,
+    ): void {
+        $customerId = $this->ids->get('customer');
+        $this->createOrder($customerId);
+
+        $salesChannelContext = $this->createSalesChannelContext([], [
+            'customerId' => $customerId,
+        ]);
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'));
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $deepLinkCode = $document->getDeepLinkCode();
+
+        $request = new Request(
+            $queryParameters,
+            [],
+            $pathParameters
+        );
+
+        $documentRoute = static::getContainer()->get(DocumentRoute::class);
+
+        $response = $documentRoute->download(
+            $document->getId(),
+            $request,
+            $salesChannelContext,
+            $deepLinkCode,
+        );
+
+        $headers = $response->headers;
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotEmpty($response->getContent());
+        static::assertSame('inline; filename=invoice_1000.' . $expectedFileType, $headers->get('content-disposition'));
+        static::assertSame($expectedContentType, $headers->get('content-type'));
+    }
+
+    public static function provideRequestParameters(): \Generator
+    {
+        yield 'query param fileType = html' => [
+            'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
+            'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
+            'queryParameters' => ['fileType' => 'html'],
+            'pathParameters' => [],
+        ];
+
+        yield 'query param fileType = pdf' => [
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+            'queryParameters' => ['fileType' => 'pdf'],
+            'pathParameters' => [],
+        ];
+
+        yield 'path param html as fileType' => [
+            'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
+            'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
+            'queryParameters' => [],
+            'pathParameters' => ['fileType' => 'html'],
+        ];
+
+        yield 'path param pdf as fileType' => [
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+            'queryParameters' => [],
+            'pathParameters' => ['fileType' => 'pdf'],
+        ];
+
+        yield 'without params the fallback should be used' => [
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+            'queryParameters' => [],
+            'pathParameters' => [],
         ];
     }
 }

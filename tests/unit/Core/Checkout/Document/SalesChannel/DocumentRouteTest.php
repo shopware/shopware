@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -13,6 +14,8 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
@@ -415,5 +418,82 @@ class DocumentRouteTest extends TestCase
         $response = $route->download('documentId', $request, $context);
 
         static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @param array<string, string>|array{} $queryParameters
+     * @param array<string, string>|array{} $pathParameters
+     */
+    #[DataProvider('provideRequestParameters')]
+    public function testDownloadWithFileTypeParams(
+        array $queryParameters,
+        array $pathParameters,
+    ): void {
+        $customerID = Uuid::randomHex();
+
+        $customer = new CustomerEntity();
+        $customer->setId($customerID);
+        $customer->setGuest(false);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomerId($customerID);
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setOrder($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $generator = $this->createMock(DocumentGenerator::class);
+
+        $route = new DocumentRoute(
+            $generator,
+            $documentRepository,
+            new GuestAuthenticator(),
+        );
+
+        $request = new Request(
+            $queryParameters,
+            [],
+            $pathParameters
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $response = $route->download('documentId', $request, $context);
+
+        static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+    }
+
+    public static function provideRequestParameters(): \Generator
+    {
+        yield 'query param fileType = html' => [
+            'queryParameters' => ['fileType' => HtmlRenderer::FILE_EXTENSION],
+            'pathParameters' => [],
+        ];
+
+        yield 'query param fileType = pdf' => [
+            'queryParameters' => ['fileType' => PdfRenderer::FILE_EXTENSION],
+            'pathParameters' => [],
+        ];
+
+        yield 'path param html as fileType' => [
+            'queryParameters' => [],
+            'pathParameters' => ['fileType' => HtmlRenderer::FILE_EXTENSION],
+        ];
+
+        yield 'path param pdf as fileType' => [
+            'queryParameters' => [],
+            'pathParameters' => ['fileType' => PdfRenderer::FILE_EXTENSION],
+        ];
     }
 }

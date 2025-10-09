@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -44,7 +45,7 @@ class CancelOrderRouteTest extends TestCase
 
     public function testNoOrderId(): void
     {
-        $this->expectExceptionObject(OrderException::invalidRequestParameter('orderId'));
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('orderId'));
 
         $route = new CancelOrderRoute(
             $this->createMock(OrderService::class),

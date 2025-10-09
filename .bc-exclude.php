@@ -49,9 +49,6 @@ return [
         // The type has been extended and the old type is still accepted
         'CHANGED: The parameter \$context of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension#(getFullBreadcrumb|getFullBreadcrumbById)\(\) changed from Shopware\\\\Core\\\\Framework\\\\Context to Shopware\\\\Core\\\\Framework\\\\Context\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
 
-        // The parameters are optional, so this is not a BC break
-        'ADDED: Parameter .* was added to Method accessDeniedForXmlHttpRequest\(\) of class Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException',
-
         // Widening the property type with null is necessary and not a BC break
         preg_quote('CHANGED: Type of property Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity#$type changed from Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity to Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
@@ -97,8 +94,6 @@ return [
         preg_quote('Shopware\Core\Service\ServiceException', '/'),
 
         // The class has not been released
-        preg_quote('ADDED: Parameter cookieGroups was added to Method __construct() of class Shopware\Core\System\SalesChannel\StoreApiResponse', '/'),
-        preg_quote('ADDED: Parameter hash was added to Method __construct() of class Shopware\Core\System\SalesChannel\StoreApiResponse', '/'),
         preg_quote('CHANGED: The number of required arguments for Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() increased from 1 to 2', '/'),
         preg_quote('CHANGED: The parameter $object of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed from Shopware\Core\Framework\Struct\Struct to a non-contravariant Shopware\Core\Content\Cookie\Struct\CookieGroupCollection', '/'),
         preg_quote('CHANGED: The parameter $object of Shopware\Core\System\SalesChannel\StoreApiResponse#__construct() changed from Shopware\Core\Framework\Struct\Struct to Shopware\Core\Content\Cookie\Struct\CookieGroupCollection', '/'),

@@ -6,6 +6,7 @@ issue: #12349
 * Changed `\Shopware\Core\System\SystemConfig\Util\ConfigReader` to first `phpize` and then parse the default values for input fields according to the type of the field.
 * Changed `\Shopware\Core\System\SystemConfig\SystemConfigService` to not `phpize` the default values anymore, as they are already parsed by the ConfigReader.
 * Deprecated `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`, `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`, use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+* Deprecated `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()`, the tracing is not needed anymore since the cache rework for 6.7.0.0. For now the methods are still available, but they do nothing.
 ___
 # Upgrade Information
 

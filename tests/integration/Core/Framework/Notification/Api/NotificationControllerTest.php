@@ -82,7 +82,7 @@ class NotificationControllerTest extends TestCase
             return;
         }
 
-        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContents());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $criteria = (new Criteria())->setLimit(1);
 

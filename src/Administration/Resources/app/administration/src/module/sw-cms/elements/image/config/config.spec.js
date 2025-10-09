@@ -53,6 +53,10 @@ async function createWrapper() {
                             source: 'static',
                             value: null,
                         },
+                        ariaLabel: {
+                            source: 'static',
+                            value: null,
+                        },
                         newTab: {
                             source: 'static',
                             value: false,

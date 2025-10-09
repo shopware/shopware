@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -429,9 +430,16 @@ class SystemConfigService implements ResetInterface
      * @param \Closure(): TReturn $param
      *
      * @return TReturn All kind of data could be cached
+     *
+     * @deprecated tag:v6.8.0 - Cache tracing is not used anymore since v6.7.0.0
      */
     public function trace(string $key, \Closure $param)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+        );
+
         $result = $param();
 
         return $result;
@@ -439,9 +447,16 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @return array<string>
+     *
+     * @deprecated tag:v6.8.0 - Cache tracing is not used anymore since v6.7.0.0
      */
     public function getTrace(string $key): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+        );
+
         return [];
     }
 

@@ -11,6 +11,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigException;
 #[Package('framework')]
 class ConfigReader extends XmlReader
 {
+    public const INPUT_TYPE_BOOL = 'bool';
+    public const INPUT_TYPE_CHECKBOX = 'checkbox';
+    public const INPUT_TYPE_INT = 'int';
+    public const INPUT_TYPE_FLOAT = 'float';
+    public const INPUT_TYPE_MULTI_SELECT = 'multi-select';
+
     private const FALLBACK_LOCALE = 'en-GB';
 
     protected string $xsdFile = __DIR__ . '/../Schema/config.xsd';
@@ -218,28 +224,15 @@ class ConfigReader extends XmlReader
             return null;
         }
 
-        // custom elements can have all types, there we can't guarantee the type
-        if ($type === null) {
-            return $value;
-        }
-
-        if (\in_array($type, ['bool', 'checkbox'], true)) {
-            return (bool) $value;
-        }
-
-        if ($type === 'int') {
-            return (int) $value;
-        }
-
-        if ($type === 'float') {
-            return (float) $value;
-        }
-
-        if ($type === 'multi-select') {
-            return (array) $value;
-        }
-
-        return (string) $value;
+        return match ($type) {
+            // custom elements can have all types, there we can't guarantee the type
+            null => $value,
+            self::INPUT_TYPE_BOOL, self::INPUT_TYPE_CHECKBOX => (bool) $value,
+            self::INPUT_TYPE_INT => (int) $value,
+            self::INPUT_TYPE_FLOAT => (float) $value,
+            self::INPUT_TYPE_MULTI_SELECT => (array) $value,
+            default => (string) $value,
+        };
     }
 
     /**

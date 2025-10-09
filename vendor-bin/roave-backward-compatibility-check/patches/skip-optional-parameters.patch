@@ -1,0 +1,15 @@
+--- /dev/null
++++ ../src/DetectChanges/BCBreak/MethodBased/MethodParameterAdded.php
+@@ -30,6 +30,12 @@
+             array_map(static fn (ReflectionParameter $param) => $param->getName(), $fromMethod->getParameters()),
+         );
+ 
++        // only consider parameters that are not optional, as optional parameters do not break BC
++        $added = array_filter($added, function (string $paramName) use ($toMethod): bool {
++            $param = $toMethod->getParameter($paramName);
++            return $param !== null && !$param->isOptional();
++        });
++
+         return Changes::fromList(
+             ...array_map(
+                 static fn (string $paramName): Change => Change::added(

@@ -92,7 +92,7 @@ class InfoControllerTest extends TestCase
                 'enableUrlFeature' => true,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
-                'appUrlVerifyDisabled' => false,
+                'appUrlVerifyEnabled' => true,
                 'private_allowed_extensions' => [
                     'jpg',
                     'jpeg',

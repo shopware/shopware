@@ -32,6 +32,7 @@ readonly class InstallationPath implements Fingerprint, FingerprintCustomCompare
     public function getStamp(): string
     {
         return $this->projectDir;
+//        return bin2hex(random_bytes(4));
     }
 
     /**

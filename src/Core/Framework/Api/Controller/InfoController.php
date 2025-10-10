@@ -192,9 +192,9 @@ class InfoController extends AbstractController
             'bundles' => $this->getBundles(),
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
-                'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable(),
+                'appUrlReachable' => false,
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
-                'appUrlVerifyDisabled' => $this->params->get('shopware.app.url_verify.disabled'),
+                'appUrlVerifyEnabled' => !$this->params->get('shopware.app.url_verify.disabled'),
                 'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),

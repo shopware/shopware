@@ -43,8 +43,12 @@ export default {
             return Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl;
         },
 
+        isAppUrlVerifyEnabled() {
+            return Shopware.Store.get('context').app.config.settings?.isAppUrlVerifyEnabled;
+        },
+
         display() {
-            return !this.isAppUrlReachable && this.hasAppsThatRequireAppUrl && !this.wasModalAlreadyShown;
+            return this.isAppUrlVerifyEnabled && !this.isAppUrlReachable && this.hasAppsThatRequireAppUrl && !this.wasModalAlreadyShown;
         },
 
         assetFilter() {

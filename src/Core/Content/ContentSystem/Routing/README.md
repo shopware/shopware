@@ -28,6 +28,9 @@ Routes contain:
 - `layout_id`: Static layout assignment (optional)
 - `layout_cascade`: Dynamic layout resolution config (optional)
 - `priority`: Tie-breaker when patterns have equal specificity
+- `sales_channels`: Sales channel assignments (optional)
+
+Routes can be global (visible in all sales channels) or channel-specific (assigned to specific sales channels). Routes without sales channel assignments are available across all channels. Routes with assignments are filtered per sales channel context.
 
 Routes support static layout assignment (fixed `layout_id`) or dynamic resolution (cascade lookup in `content_layout_assignment` table based on entity + sales channel).
 

@@ -28,7 +28,7 @@ test('As a shop customer, I want to accept only the technically required cookies
         const allCookies = await StorefrontHome.page.context().cookies();
         ShopCustomer.expects(allCookies.find(c => c.name === 'google-analytics-enabled')).not.toBeDefined();
         ShopCustomer.expects(allCookies.find(c => c.name === 'google-ads-enabled')).not.toBeDefined();
-        ShopCustomer.expects(allCookies.length).toEqual(4);
+        ShopCustomer.expects(allCookies.length).toEqual(3);
     });
 
     await test.step('Verify cookies persist after page reload', async () => {
@@ -36,7 +36,7 @@ test('As a shop customer, I want to accept only the technically required cookies
         const allCookies = await StorefrontHome.page.context().cookies();
         ShopCustomer.expects(allCookies.find(c => c.name === 'google-analytics-enabled')).not.toBeDefined();
         ShopCustomer.expects(allCookies.find(c => c.name === 'google-ads-enabled')).not.toBeDefined();
-        ShopCustomer.expects(allCookies.length).toEqual(4);
+        ShopCustomer.expects(allCookies.length).toEqual(3);
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
     });
 });

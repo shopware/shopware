@@ -2,23 +2,20 @@
 
 namespace Shopware\Core\Content\ContentSystem\Routing\Entity;
 
-use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
+use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @internal
@@ -55,21 +52,11 @@ class ContentRouteDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
             (new StringField('url_pattern', 'urlPattern'))->addFlags(new ApiAware(), new Required()),
             (new JsonField('parameter_binding', 'parameterBinding'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
-            (new FkField('layout_id', 'layoutId', ContentLayoutDefinition::class))->addFlags(new ApiAware(AdminApiSource::class)),
-            (new JsonField('layout_cascade', 'layoutCascade'))->addFlags(new ApiAware(AdminApiSource::class)),
             (new IntField('priority', 'priority'))->addFlags(new ApiAware(AdminApiSource::class)),
             (new JsonField('overrides', 'overrides'))->addFlags(new ApiAware(AdminApiSource::class)),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(AdminApiSource::class)),
 
-            (new ManyToOneAssociationField('layout', 'layout_id', ContentLayoutDefinition::class, 'id', false))->addFlags(new ApiAware(AdminApiSource::class)),
-
-            (new ManyToManyAssociationField(
-                'salesChannels',
-                SalesChannelDefinition::class,
-                ContentRouteSalesChannelDefinition::class,
-                'content_route_id',
-                'sales_channel_id'
-            ))->addFlags(new ApiAware(AdminApiSource::class)),
+            (new OneToManyAssociationField('layoutAssignments', ContentLayoutAssignmentDefinition::class, 'route_id'))->addFlags(new ApiAware(AdminApiSource::class)),
         ]);
     }
 }

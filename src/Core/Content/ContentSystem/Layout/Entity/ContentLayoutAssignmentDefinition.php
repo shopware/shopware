@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\ContentSystem\Layout\Entity;
 
+use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -46,11 +48,15 @@ class ContentLayoutAssignmentDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new FkField('route_id', 'routeId', ContentRouteDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new StringField('entity_type', 'entityType', 50))->addFlags(new ApiAware()),
             (new IdField('entity_id', 'entityId'))->addFlags(new ApiAware()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new StringField('association_path', 'associationPath', 255))->addFlags(new ApiAware()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
             (new FkField('layout_id', 'layoutId', ContentLayoutDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new IntField('priority', 'priority'))->addFlags(new ApiAware()),
 
+            (new ManyToOneAssociationField('route', 'route_id', ContentRouteDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('layout', 'layout_id', ContentLayoutDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false))->addFlags(new ApiAware()),
         ]);

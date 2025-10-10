@@ -6,36 +6,28 @@
 
 - `ContentRouteEntity` - Content route entity (used in both Admin and Store APIs)
 - `ContentRouteDefinition` - Entity definition with field-level API visibility
-- `ContentRouteSalesChannelEntity` - Mapping entity (many-to-many junction table)
-- `ContentRouteSalesChannelDefinition` - Mapping definition (route ↔ sales channel)
 
 ## Constraints
 
 ### Sales Channel Assignment
 
-**ContentRouteSalesChannelEntity** is a **mapping entity** (junction table), not a route entity:
+Routes are filtered by sales channel through their **layout assignments**, not through direct route-to-sales-channel mappings.
 
-- Maps many-to-many relationship: ContentRoute ↔ SalesChannel
-- Created automatically by DAL when loading `salesChannels` association
-- Never instantiated directly in application code
-- Used by RouteCollectionBuilder to filter routes per sales channel
+**How it works:**
 
-**Global vs. Channel-Specific Routes**:
-
+RouteCollectionBuilder filters routes by querying:
 ```php
-// Global route (visible in all channels)
-$route->setSalesChannels(null);  // or empty collection
-
-// Channel-specific route (visible only in assigned channels)
-$route->setSalesChannels($salesChannelCollection);
+$criteria->addFilter(new OrFilter([
+    new EqualsFilter('layoutAssignments.salesChannelId', $context->getSalesChannel()->getId()),
+    new EqualsFilter('layoutAssignments.salesChannelId', null),
+]));
 ```
 
-RouteCollectionBuilder filters routes:
-```php
-if ($salesChannels === null || $salesChannels->count() === 0 || $salesChannels->has($salesChannelId))
-```
+RouteCollectionBuilder filters routes by querying with sales channel context. Routes are included if:
+- Route has layout assignment for current sales channel, OR
+- Route has layout assignment with null salesChannelId (global)
 
-Routes without assignments are global. Routes with assignments are visible only in those channels.
+Routes without any layout assignments won't be returned. See `RouteCollectionBuilder::build()` for Criteria implementation.
 
 ### Entity Structure
 
@@ -43,7 +35,8 @@ Routes must have:
 - `url_pattern`: Pattern with `{placeholders}`
 - `parameter_binding`: Maps placeholders to resolution rules
 - `priority`: Tie-breaker for pattern matching
-- Either `layout_id` (static) OR `layout_cascade` (dynamic)
+
+Layout assignments stored in `content_layout_assignment` table with `route_id` foreign key.
 
 ### Parameter Binding Structure
 
@@ -64,21 +57,19 @@ Basic format:
 
 ### Layout Assignment
 
-Either static OR dynamic:
+Layout assignments stored in `content_layout_assignment` table, not on route entity.
 
-**Static**:
+Create assignments via `content_layout_assignment.repository`:
 ```php
-$route->setLayoutId($layoutId);
-$route->setLayoutCascade(null);
-```
-
-**Dynamic**:
-```php
-$route->setLayoutId(null);
-$route->setLayoutCascade([
-    ['type' => 'direct', 'entity' => 'product'],
-    ['type' => 'default']
-]);
+$this->assignmentRepository->create([[
+    'routeId' => $routeId,
+    'entityType' => 'product',       // or null for route-level default
+    'entityId' => $productId,        // or null for wildcard
+    'associationPath' => null,       // or 'product.categories' for association matching
+    'salesChannelId' => $scId,       // or null for global
+    'layoutId' => $layoutId,
+    'priority' => 100,               // evaluation order (DESC)
+]], $context);
 ```
 
 ## Quick Reference

@@ -8,7 +8,7 @@
 - `RouteCollectionBuilder` (Router/) - DB query, builds Symfony RouteCollection
 - `ContentRouteMatcher` (Router/) - Pattern matching via Symfony UrlMatcher
 - `EntityIdResolver` (IdResolution/) - URL params → entity IDs
-- `LayoutResolver` (LayoutResolution/) - Cascade-based layout lookup
+- `LayoutResolver` (LayoutResolution/) - Priority-based layout assignment
 
 ## Quick Reference
 
@@ -17,4 +17,4 @@
 - **Caching**: MANDATORY for production performance
 - **Priority**: Distinct values for potentially conflicting routes
 - **URL parameters**: Scalar values only
-- **Route structure**: `url_pattern`, `parameter_binding`, `priority`, `layout_id` OR `layout_cascade`
+- **Route structure**: `url_pattern`, `parameter_binding`, `priority` (assignment via `content_layout_assignment` table)

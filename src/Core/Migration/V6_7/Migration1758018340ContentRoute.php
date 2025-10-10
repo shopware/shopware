@@ -25,17 +25,13 @@ class Migration1758018340ContentRoute extends MigrationStep
                 `name` VARCHAR(255) NOT NULL,
                 `url_pattern` VARCHAR(255) NOT NULL,
                 `parameter_binding` JSON NOT NULL,
-                `layout_id` BINARY(16) NULL,
-                `layout_cascade` JSON NULL,
                 `priority` INT NOT NULL DEFAULT 0,
                 `overrides` JSON NULL,
                 `active` TINYINT(1) NOT NULL DEFAULT 1,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                INDEX `idx.content_route.active` (`active`),
-                CONSTRAINT `fk.content_route.layout_id` FOREIGN KEY (`layout_id`)
-                    REFERENCES `content_layout` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+                INDEX `idx.content_route.active` (`active`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL;
 

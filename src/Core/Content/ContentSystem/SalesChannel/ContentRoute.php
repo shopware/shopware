@@ -92,31 +92,27 @@ class ContentRoute extends AbstractContentRoute
             throw ContentSystemException::entityNotFound('entity', $pathInfo, 'path');
         }
 
-        $layoutId = $route->getLayoutId();
+        try {
+            $layoutId = $this->layoutResolver->resolve($match, $resolvedData, $context);
+        } catch (\Throwable $e) {
+            throw ContentSystemException::resolutionFailed($route->getName(), $e->getMessage(), $e);
+        }
 
         if ($layoutId === null) {
-            try {
-                $layoutId = $this->layoutResolver->resolve($match, $resolvedData, $context);
-            } catch (\Throwable $e) {
-                throw ContentSystemException::resolutionFailed($route->getName(), $e->getMessage(), $e);
-            }
+            $entityIds = $resolvedData->getEntityIds();
+            $entityIdsArray = $entityIds->toArray();
+            $firstEntityKey = array_key_first($entityIdsArray);
+            $entityType = $firstEntityKey !== null ? str_replace('_id', '', $firstEntityKey) : 'entity';
+            $entityId = $firstEntityKey !== null ? $entityIdsArray[$firstEntityKey] : 'unknown';
 
-            if ($layoutId === null) {
-                $entityIds = $resolvedData->getEntityIds();
-                $entityIdsArray = $entityIds->toArray();
-                $firstEntityKey = array_key_first($entityIdsArray);
-                $entityType = $firstEntityKey !== null ? str_replace('_id', '', $firstEntityKey) : 'entity';
-                $entityId = $firstEntityKey !== null ? $entityIdsArray[$firstEntityKey] : 'unknown';
-
-                throw ContentSystemException::layoutAssignmentNotFound(
-                    $entityType,
-                    $entityId,
-                    $context->getSalesChannel()->getId()
-                );
-            }
-
-            $resolvedData->setResolvedLayoutId($layoutId);
+            throw ContentSystemException::layoutAssignmentNotFound(
+                $entityType,
+                $entityId,
+                $context->getSalesChannel()->getId()
+            );
         }
+
+        $resolvedData->setResolvedLayoutId($layoutId);
 
         try {
             $refinedLayout = $this->refinedLayoutBuilder->build($layoutId, $resolvedData, $context);

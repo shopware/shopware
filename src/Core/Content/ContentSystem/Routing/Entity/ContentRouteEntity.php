@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\ContentSystem\Routing\Entity;
 
-use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @final
@@ -25,13 +24,6 @@ class ContentRouteEntity extends Entity
      */
     protected array $parameterBinding;
 
-    protected ?string $layoutId = null;
-
-    /**
-     * @var array<int, array<string, mixed>>|null
-     */
-    protected ?array $layoutCascade = null;
-
     protected int $priority = 0;
 
     /**
@@ -41,9 +33,7 @@ class ContentRouteEntity extends Entity
 
     protected bool $active = true;
 
-    protected ?ContentLayoutEntity $layout = null;
-
-    protected ?SalesChannelCollection $salesChannels = null;
+    protected ?ContentLayoutAssignmentCollection $layoutAssignments = null;
 
     public function getName(): string
     {
@@ -79,32 +69,6 @@ class ContentRouteEntity extends Entity
     public function setParameterBinding(array $parameterBinding): void
     {
         $this->parameterBinding = $parameterBinding;
-    }
-
-    public function getLayoutId(): ?string
-    {
-        return $this->layoutId;
-    }
-
-    public function setLayoutId(?string $layoutId): void
-    {
-        $this->layoutId = $layoutId;
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>|null
-     */
-    public function getLayoutCascade(): ?array
-    {
-        return $this->layoutCascade;
-    }
-
-    /**
-     * @param array<int, array<string, mixed>>|null $layoutCascade
-     */
-    public function setLayoutCascade(?array $layoutCascade): void
-    {
-        $this->layoutCascade = $layoutCascade;
     }
 
     public function getPriority(): int
@@ -143,23 +107,13 @@ class ContentRouteEntity extends Entity
         $this->active = $active;
     }
 
-    public function getLayout(): ?ContentLayoutEntity
+    public function getLayoutAssignments(): ?ContentLayoutAssignmentCollection
     {
-        return $this->layout;
+        return $this->layoutAssignments;
     }
 
-    public function setLayout(?ContentLayoutEntity $layout): void
+    public function setLayoutAssignments(?ContentLayoutAssignmentCollection $layoutAssignments): void
     {
-        $this->layout = $layout;
-    }
-
-    public function getSalesChannels(): ?SalesChannelCollection
-    {
-        return $this->salesChannels;
-    }
-
-    public function setSalesChannels(?SalesChannelCollection $salesChannels): void
-    {
-        $this->salesChannels = $salesChannels;
+        $this->layoutAssignments = $layoutAssignments;
     }
 }

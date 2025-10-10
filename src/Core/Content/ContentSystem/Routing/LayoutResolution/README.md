@@ -1,84 +1,135 @@
 # LayoutResolution
 
-Cascade-based layout lookup. Determines which content layout to render based on route configuration and sales channel context.
+Priority-based layout assignment. Determines which content layout to render based on route-scoped assignments and sales channel context.
 
-## Two Assignment Methods
+## Why Priority-Based Assignment
 
-Routes support static or dynamic layout assignment:
-
-1. **Static**: Fixed `layout_id` in route (all entities use same layout)
-2. **Dynamic**: Cascade query against `content_layout_assignment` table
-
-## Why Dynamic Resolution
-
-Current Shopware CMS stores `cms_page_id` directly on entities but lacks sales channel dimensionality. Same product must use different layouts in different sales channels without duplicating entities. Dynamic resolution queries assignment table with entity ID + sales channel context.
+Current Shopware CMS stores `cms_page_id` directly on entities but lacks sales channel dimensionality. Same product must use different layouts in different sales channels without duplicating entities. Priority-based assignment queries `content_layout_assignment` table with route + entity + sales channel context.
 
 ## Key Class
 
-- `LayoutResolver` - Cascade query executor, returns layout ID or null
+- `LayoutResolver` - Priority-based assignment matching, returns layout ID or null
+
+## Assignment Structure
+
+All layout assignments stored in `content_layout_assignment` table with:
+- `route_id` - Scopes assignment to specific route
+- `entity_type` (nullable) - Entity type filter (e.g., "product", "category")
+- `entity_id` (nullable) - Specific entity ID or NULL for wildcard
+- `association_path` (nullable) - Multi-level association path (e.g., "product.categories.parent")
+- `sales_channel_id` (nullable) - Sales channel scope or NULL for global
+- `layout_id` - Layout to render
+- `priority` (integer) - Evaluation order (DESC)
 
 ## Resolution Logic
 
 ```
-If route.layout_id exists:
-  return route.layout_id (static assignment)
+LayoutResolver loads assignments for route WHERE:
+  - route_id = {matched_route_id}
+  - sales_channel_id = {context} OR sales_channel_id IS NULL
 
-If route.layout_cascade exists:
-  query content_layout_assignment WHERE:
-    - entity_id matches resolved entity
-    - sales_channel_id matches context (with fallback to null)
-    - cascade priority determines selection
-  return matched layout_id
+Sort by:
+  - priority DESC
+  - sales_channel_id DESC (channel-specific over global)
+
+For each assignment (first match wins):
+  If association_path IS NULL:
+    → matchesDirect() - entity type/ID matching
+  Else:
+    → matchesAssociation() - traverse association path, collect IDs
+
+  If match found:
+    return assignment.layout_id
 ```
 
-Cascade configuration defines priority order (e.g., specific product → category → default). LayoutResolver walks cascade chain until match found.
+First match wins. Remaining assignments never evaluated.
 
-## Cascade Step Types
+## Assignment Matching Types
 
-Three step types define lookup strategy. Steps evaluated in array order, first match wins:
+### Direct Entity Matching
 
-### DirectEntityStep
+Matches by `entity_type` and `entity_id`. Three patterns:
 
-Exact entity match. Looks up layout assigned to specific entity.
-
+**1. Specific entity:**
 ```
-Config: {type: "direct", entity: "product"}
-Resolution: Finds layout assigned to resolved product_id
-```
-
-Tries both `{entity}_id` and `{entity}` keys in resolved data.
-
-### AssociationStep
-
-Fallback via associations. Loads association from source entity, looks up layouts for associated entities.
-
-```
-Config: {type: "association", entity: "category", association: "categories", source: "product"}
-Resolution:
-  1. Load product.categories association
-  2. Get category IDs
-  3. Find layout assigned to any category (first match wins)
+entity_type: "product"
+entity_id: "uuid-123"
+→ Matches exact product with ID uuid-123
 ```
 
-Use case: Product detail page can use category layouts as fallback. Merchant assigns layout to category, all products in category inherit unless overridden.
-
-Association traversal happens at runtime. Query fetches association, extracts IDs, looks up layout assignments for those IDs.
-
-### DefaultLayoutStep
-
-Catch-all default. Looks up layout with `entityType=null` and `entityId=null`.
-
+**2. Wildcard (any entity of type):**
 ```
-Config: {type: "default"}
-Resolution: Finds default layout for sales channel
+entity_type: "product"
+entity_id: NULL
+→ Matches ANY product
 ```
 
-Last fallback when no entity-specific or association layouts found.
+**3. Route-level default:**
+```
+entity_type: NULL
+entity_id: NULL
+→ Matches ANY entity on this route
+```
+
+Matching logic checks resolved entity ID from `ResolvedData` (populated by `EntityIdResolver`).
+
+### Association Path Matching
+
+Matches entities via relationship traversal. Supports multi-level paths.
+
+**Format:** `source_entity.association.path`
+
+**Examples:**
+- `product.categories` - Single level: product → categories
+- `product.categories.parent` - Multi-level: product → categories → parent
+- `product.manufacturer.country` - Multi-level: product → manufacturer → country
+
+**Matching process:**
+1. Parse path: split into source entity and association path
+2. Get source entity ID from resolved data
+3. Load nested association using DAL (e.g., `$criteria->addAssociation('categories.parent')`)
+4. Traverse loaded structure, collect all IDs at end of path
+5. Check if assignment's `entity_id` matches any collected ID (or NULL for wildcard)
+
+**Use cases:**
+- Product detail pages inherit category layouts: `product.categories` → category assignment
+- Multi-level inheritance: `product.categories.parent` → parent category layout
+- Manufacturer-specific layouts: `product.manufacturer` → manufacturer assignment
+
+Association traversal happens at runtime. DAL natively supports nested paths. LayoutResolver recursively traverses loaded entities and collections.
+
+## Priority-Based Evaluation
+
+Assignments evaluated in strict priority order (DESC). First match wins.
+
+**Common priority patterns:**
+- 100: Specific entity overrides (highest priority)
+- 80: Type-level wildcards (e.g., "any product")
+- 60: Direct association fallbacks (e.g., product.categories)
+- 40: Multi-level association fallbacks (e.g., product.categories.parent)
+- 0: Route-level defaults (catch-all)
+
+Merchants control specificity via priority. Higher priority = evaluated first.
+
+## Sales Channel Filtering
+
+All queries filter by sales channel:
+```
+WHERE (
+    sales_channel_id = {context_sales_channel_id}
+    OR sales_channel_id IS NULL  -- Global assignments
+)
+ORDER BY sales_channel_id DESC  -- Channel-specific before global
+```
+
+Global assignments (NULL sales_channel_id) work across all channels but rank lower than channel-specific.
 
 ## Query Details
 
-All cascade queries filter by sales channel ID. LayoutResolver builds OR filter combining all step filters, executes single query against `content_layout_assignment` table. Each step evaluates result set to find its match.
+Single query per resolution:
+1. Filter by route_id and sales channel
+2. Sort by priority DESC, sales_channel_id DESC
+3. Iterate results, evaluate each assignment
+4. Return first match
 
-## Subdirectory
-
-- Cascade/: Cascade step implementations (DirectEntityStep, AssociationStep, DefaultLayoutStep, CascadeStepFactory)
+Association matching may trigger additional DAL queries to load nested associations. Wildcards should be used when possible to avoid association overhead.

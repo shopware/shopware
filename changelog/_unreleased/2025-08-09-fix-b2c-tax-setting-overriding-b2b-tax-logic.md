@@ -7,4 +7,6 @@ issue: 11535
 ___
 # Upgrade Information
 ## Tax Calculation Logic
-Changed cart tax detection logic to handle B2B and B2C customers separately. Previously, enabling "Tax-free for B2C" also affected B2B customers. Now, tax rules are applied correctly based on customer type
+The tax-free detection logic if the cart changed to handle B2B and B2C customers separately.
+Previously, enabling "Tax-free for B2C" in the country settings also affected B2B customers.
+Now, tax rules are applied **correctly** based on customer type.

@@ -166,10 +166,22 @@ class CookieProviderTest extends TestCase
         $testGroup2 = $cookieGroups->get('test-group-2');
         static::assertInstanceOf(CookieGroup::class, $testGroup2);
         static::assertNotNull($testGroup2->getEntries());
-        static::assertCount(1, $testGroup2->getEntries());
-        $testGroup2Entry = $testGroup2->getEntries()->get('test-cookie-2');
-        static::assertNotNull($testGroup2Entry);
-        static::assertSame('test-description', $testGroup2Entry->description);
+
+        static::assertCount(3, $testGroup2->getEntries());
+
+        $testGroup2Entry1 = $testGroup2->getEntries()->get('test-cookie-2');
+        static::assertNotNull($testGroup2Entry1);
+        static::assertSame('test-description', $testGroup2Entry1->description);
+
+        $testGroup2Entry2 = $testGroup2->getEntries()->get('test-cookie-3');
+        static::assertNotNull($testGroup2Entry2);
+        static::assertSame('0', $testGroup2Entry2->value);
+        static::assertNull($testGroup2Entry2->name);
+        static::assertNull($testGroup2Entry2->description);
+
+        $testGroup2Entry3 = $testGroup2->getEntries()->get('test-cookie-4');
+        static::assertNotNull($testGroup2Entry3);
+        static::assertSame('1', $testGroup2Entry3->value);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
@@ -249,15 +261,30 @@ class LegacyCookieProviderForTesting extends LegacyCookieProvider
             'expiration' => '10',
         ];
         $cookieGroups[] = [
+            'snippet_name' => 'test-group-will-be-ignored',
+            'cookie' => null,
+        ];
+        $cookieGroups[] = [
             'snippet_name' => 'test-group-2',
             'entries' => [
                 [
                     'cookie' => 'test-cookie-2',
                     'snippet_description' => 'test-description',
                 ],
+                [
+                    'cookie' => 'test-cookie-3',
+                    'value' => 0,
+                    'snippet_name' => null,
+                    'snippet_description' => '',
+                ],
+                [
+                    'cookie' => 'test-cookie-4',
+                    'value' => true,
+                ],
             ],
         ];
 
+        /** @phpstan-ignore return.type (Intentionally test not allowed values for legacy reasons) */
         return $cookieGroups;
     }
 

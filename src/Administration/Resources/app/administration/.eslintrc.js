@@ -37,6 +37,9 @@ const baseRules = {
         ignores: ['index.html'],
     }],
     'func-names': 'off',
+    'listeners/no-missing-remove-event-listener': "error",
+    'listeners/matching-remove-event-listener': "error",
+    'listeners/no-inline-function-event-listener': "error",
 };
 
 module.exports = {
@@ -70,6 +73,7 @@ module.exports = {
         'sw-deprecation-rules',
         'sw-test-rules',
         'filename-rules',
+        'listeners',
     ],
 
     settings: {

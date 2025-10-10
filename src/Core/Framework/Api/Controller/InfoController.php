@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -177,6 +178,7 @@ class InfoController extends AbstractController
         return new JsonResponse([
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
+            'appUrl' => (string) EnvironmentHelper::getVariable('APP_URL'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),

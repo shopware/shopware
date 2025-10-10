@@ -1,6 +1,6 @@
 # ContentSystem
 
-Runtime content routing and layout rendering. Routes stored in DB, not container config, because merchants create them through the admin UI.
+Runtime content routing and layout rendering. Routes stored in DB, not container config, because merchants create them through the admin UI. Routes can be assigned to specific sales channels.
 
 Three-phase architecture:
 

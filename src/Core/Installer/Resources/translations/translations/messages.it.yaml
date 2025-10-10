@@ -20,11 +20,13 @@ shopware.installer:
     select_language_bs-BA: Bosniaco
     select_language_cs-CZ: Ceco
     select_language_da-DK: Danese
-    select_language_de-DE: Tedesco
+    select_language_de-DE: Tedesco (Germania)
+    select_language_de-CH: Tedesco (Svizzera)
+    select_language_de-AT: Tedesco (Austria)
     select_language_el-GR: Greco
-    select_language_en-US: Inglese (Stati Uniti d'America)
+    select_language_en-US: Inglese (Stati Uniti)
     select_language_en-GB: Inglese (Regno Unito)
-    select_language_es-ES: Spagnoloss
+    select_language_es-ES: Spagnolo
     select_language_fi-FI: Finlandese
     select_language_fr-FR: Francese
     select_language_hi-IN: Hindi

@@ -17,12 +17,14 @@ shopware.installer:
     start: Démarrer
     start_installation: 'Démarrer l''installation'
     select_language_bg-BG: Bulgare
-    select_language_bs-BA: Bosniaque
+    select_language_bs-BA: Bosnien
     select_language_cs-CZ: Tchèque
     select_language_da-DK: Danois
-    select_language_de-DE: Allemand
+    select_language_de-DE: Allemand (Allemagne)
+    select_language_de-CH: Allemand (Suisse)
+    select_language_de-AT: Allemand (Autriche)
     select_language_el-GR: Grec
-    select_language_en-US: Anglais (États-Unis d'Amérique)
+    select_language_en-US: Anglais (États-Unis)
     select_language_en-GB: Anglais (Royaume-Uni)
     select_language_es-ES: Espagnol
     select_language_fi-FI: Finnois

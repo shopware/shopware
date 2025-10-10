@@ -95,6 +95,8 @@ class ShopConfigurationControllerTest extends TestCase
                 'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                 'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                 'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
             ],
             ['EUR', 'USD', 'GBP']
         );
@@ -145,6 +147,8 @@ class ShopConfigurationControllerTest extends TestCase
                         'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                        'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                        'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
                     ],
                     'allAvailableLanguages' => [
                         'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
@@ -300,6 +304,8 @@ class ShopConfigurationControllerTest extends TestCase
                         'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                        'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                        'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
                     ],
                     'allAvailableLanguages' => [
                         'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],

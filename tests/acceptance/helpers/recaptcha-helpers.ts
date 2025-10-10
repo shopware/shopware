@@ -22,12 +22,13 @@ export async function verifyRecaptchaScriptNotLoaded(
 /**
  * Waits for reCAPTCHA script to be properly loaded after cookie consent
  * @param page - The Playwright page object
+ * @param retries - Number of retry attempts (default: 3)
  */
-export async function waitForRecaptchaScriptLoaded(page: Page): Promise<void> {
+export async function waitForRecaptchaScriptLoaded(page: Page, retries = 3): Promise<void> {
     await page.waitForLoadState('networkidle');
     // Retry mechanism for script loading
-    let retries = 3;
-    while (retries > 0) {
+    let remainingRetries = retries;
+    while (remainingRetries > 0) {
         try {
             await page.waitForSelector('script[src*="recaptcha"]', {
                 state: 'attached',
@@ -35,8 +36,8 @@ export async function waitForRecaptchaScriptLoaded(page: Page): Promise<void> {
             });
             break;
         } catch (error) {
-            retries--;
-            if (retries === 0) throw error;
+            remainingRetries--;
+            if (remainingRetries === 0) throw error;
             await page.waitForTimeout(1000);
         }
     }

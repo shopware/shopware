@@ -219,7 +219,8 @@ export default class CookieConfiguration extends Plugin {
      */
     async _resetCookieConfiguration(data) {
         const cookieGroups = data.elements || [];
-        const { activeCookieNames, inactiveCookieNames } = this._setTechnicallyRequiredCookiesAndGetState(cookieGroups);
+        const activeCookieNames = this._applyTechnicallyRequiredCookies(cookieGroups);
+        const { inactiveCookieNames } = this._getCurrentCookieState(cookieGroups, activeCookieNames);
 
         CookieStorage.removeItem(this.options.cookiePreference);
 
@@ -249,6 +250,31 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
+     * Process a single cookie entry and add to cookies array if not PHP managed
+     * @param {string} cookie - Cookie name
+     * @param {string} value - Cookie value
+     * @param {number} expiration - Cookie expiration
+     * @param {Array} phpManagedCookies - Array of PHP managed cookie names
+     * @param {Array} cookiesToSet - Array to add non-PHP managed cookies to
+     * @private
+     */
+    _processCookieEntry(cookie, value, expiration, phpManagedCookies, cookiesToSet) {
+        if (!cookie || !value) {
+            return;
+        }
+
+        const isPhpManaged = phpManagedCookies.some(phpCookie => cookie === phpCookie);
+
+        if (!isPhpManaged) {
+            cookiesToSet.push({
+                cookie,
+                value,
+                expiration: expiration || this._getDefaultCookieExpiration(),
+            });
+        }
+    }
+
+    /**
      * Get technically required cookies that should be set (excludes PHP-managed ones)
      * @param {Array} cookieGroups - Array of cookie groups from API
      * @returns {Array} Array of cookie objects that should be set
@@ -269,40 +295,25 @@ export default class CookieConfiguration extends Plugin {
             if (group.entries) {
                 for (let j = 0; j < group.entries.length; j++) {
                     const entry = group.entries[j];
-
-                    if (!entry.cookie || !entry.value) {
-                        continue;
-                    }
-
-                    const isPhpManaged = phpManagedCookies.some(phpCookie =>
-                        entry.cookie === phpCookie
+                    this._processCookieEntry(
+                        entry.cookie,
+                        entry.value,
+                        entry.expiration,
+                        phpManagedCookies,
+                        cookiesToSet
                     );
-
-                    if (!isPhpManaged) {
-                        cookiesToSet.push({
-                            cookie: entry.cookie,
-                            value: entry.value,
-                            expiration: entry.expiration || this._getDefaultCookieExpiration(),
-                        });
-                    }
                 }
             }
 
             // Process direct group cookie
-            if (!group.cookie || !group.value) {
-                continue;
-            }
-
-            const isPhpManaged = phpManagedCookies.some(phpCookie =>
-                group.cookie === phpCookie
-            );
-
-            if (!isPhpManaged) {
-                cookiesToSet.push({
-                    cookie: group.cookie,
-                    value: group.value,
-                    expiration: group.expiration || this._getDefaultCookieExpiration(),
-                });
+            if (group.cookie || group.value) {
+                this._processCookieEntry(
+                    group.cookie,
+                    group.value,
+                    group.expiration,
+                    phpManagedCookies,
+                    cookiesToSet
+                );
             }
         }
 
@@ -329,15 +340,30 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Shared logic for setting technically required cookies and calculating active/inactive state
+     * Apply technically required cookies by removing non-required ones and setting required ones
      * @param {Array} cookieGroups - Array of cookie groups from API
+     * @returns {Array} Array of active cookie names (PHP-managed + cookies that were set)
+     * @private
+     */
+    _applyTechnicallyRequiredCookies(cookieGroups) {
+        const allCookieNames = this._getAllCookieNamesFromGroups(cookieGroups);
+        this._removeAllNotTechnicalRequiredCookies(allCookieNames);
+
+        return [
+            ...this._getTechnicallyRequiredCookieNames(),
+            ...this._setTechnicallyRequiredCookies(cookieGroups),
+        ];
+    }
+
+    /**
+     * Calculate current cookie state (active and inactive cookie names)
+     * @param {Array} cookieGroups - Array of cookie groups from API
+     * @param {Array} activeCookieNames - Array of active cookie names
      * @returns {Object} Object with activeCookieNames and inactiveCookieNames arrays
      * @private
      */
-    _setTechnicallyRequiredCookiesAndGetState(cookieGroups) {
+    _getCurrentCookieState(cookieGroups, activeCookieNames) {
         const allCookieNames = this._getAllCookieNamesFromGroups(cookieGroups);
-        this._removeAllNotTechnicalRequiredCookies(allCookieNames);
-        const activeCookieNames = [...this._getTechnicallyRequiredCookieNames(), ...this._setTechnicallyRequiredCookies(cookieGroups)];
         const inactiveCookieNames = allCookieNames.filter(name => !activeCookieNames.includes(name));
 
         return { activeCookieNames, inactiveCookieNames };
@@ -370,7 +396,8 @@ export default class CookieConfiguration extends Plugin {
         }
 
         const cookieGroups = data.elements;
-        const { activeCookieNames, inactiveCookieNames } = this._setTechnicallyRequiredCookiesAndGetState(cookieGroups);
+        const activeCookieNames = this._applyTechnicallyRequiredCookies(cookieGroups);
+        const { inactiveCookieNames } = this._getCurrentCookieState(cookieGroups, activeCookieNames);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
 
         this._hideCookieBar();

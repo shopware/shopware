@@ -125,5 +125,8 @@ return [
         // Constants were introduced in the same release cycle
         preg_quote('REMOVED: Constant Shopware\Core\System\Snippet\SnippetValidator::LOCALE_PATTERN_BCP47_ISO639_1 was removed', '/'),
         preg_quote('REMOVED: Constant Shopware\Core\System\Snippet\SnippetValidator::SNIPPET_FILE_PATTERN was removed', '/'),
+
+        // Domain exceptions should not be extended in 3rd party code
+        preg_quote('ADDED: Parameter domain was added to Method invalidDomain() of class Shopware\Core\System\SystemConfig\SystemConfigException', '/'),
     ],
 ];

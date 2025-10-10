@@ -545,6 +545,8 @@ const missingTests = [
     'src/app/init/component.init.ts',
     'src/module/sw-settings-services/index.ts',
     'src/module/sw-settings-services/service/index.ts',
+    // Has only a DTO
+    'src/core/telemetry/types.ts',
 ];
 
 /**

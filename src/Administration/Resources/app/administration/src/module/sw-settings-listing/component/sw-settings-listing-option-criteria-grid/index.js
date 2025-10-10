@@ -175,6 +175,12 @@ export default {
                         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt',
                     ),
                 },
+                {
+                    value: 'product.available',
+                    label: this.$tc(
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.available',
+                    ),
+                },
             ];
 
             return criteriaOptions.sort((a, b) => {

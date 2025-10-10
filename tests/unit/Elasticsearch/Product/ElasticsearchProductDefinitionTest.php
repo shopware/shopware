@@ -777,6 +777,78 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertArrayNotHasKey('unknown', $documents[$uuid]['customFields'][Defaults::LANGUAGE_SYSTEM]);
     }
 
+    public function testProductNumberIncludesParentProductNumber(): void
+    {
+        $registry = $this->getDefinitionRegistry();
+        $definition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+        ]);
+
+        $connection = $this->getConnectionWithProductData('PRODUCT-123', 'PARENT-456');
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $connection,
+            $this->createMock(ProductSearchQueryBuilder::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
+            $this->createMock(ElasticsearchFieldMapper::class),
+            $salesChannelLanguageLoader,
+            false,
+            'dev',
+            $this->createMock(LanguageLoaderInterface::class)
+        );
+
+        $uuid = $this->ids->get('product-1');
+        $documents = $definition->fetch([$uuid], Context::createDefaultContext());
+        static::assertArrayHasKey($uuid, $documents);
+
+        $document = $documents[$uuid];
+
+        static::assertArrayHasKey('productNumber', $document);
+        static::assertIsArray($document['productNumber']);
+        static::assertContains('PRODUCT-123', $document['productNumber']);
+        static::assertContains('PARENT-456', $document['productNumber']);
+        static::assertCount(2, $document['productNumber']);
+    }
+
+    public function testProductNumberExcludesNullParentProductNumber(): void
+    {
+        $registry = $this->getDefinitionRegistry();
+        $definition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+        ]);
+
+        $connection = $this->getConnectionWithProductData('PRODUCT-123', null);
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $connection,
+            $this->createMock(ProductSearchQueryBuilder::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
+            $this->createMock(ElasticsearchFieldMapper::class),
+            $salesChannelLanguageLoader,
+            false,
+            'dev',
+            $this->createMock(LanguageLoaderInterface::class)
+        );
+
+        $uuid = $this->ids->get('product-1');
+        $documents = $definition->fetch([$uuid], Context::createDefaultContext());
+        static::assertArrayHasKey($uuid, $documents);
+
+        $document = $documents[$uuid];
+
+        static::assertArrayHasKey('productNumber', $document);
+        static::assertIsArray($document['productNumber']);
+        static::assertContains('PRODUCT-123', $document['productNumber']);
+        static::assertNotContains(null, $document['productNumber']);
+        static::assertCount(1, $document['productNumber']);
+    }
+
     private function getConnection(int $numberOfTranslations = 1): MockObject&Connection
     {
         $connection = $this->createMock(Connection::class);
@@ -862,6 +934,62 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $connection
             ->method('fetchAllAssociativeIndexed')
             ->willReturnOnConsecutiveCalls(...$calls);
+
+        return $connection;
+    }
+
+    private function getConnectionWithProductData(string $productNumber, ?string $parentProductNumber): MockObject&Connection
+    {
+        $connection = $this->createMock(Connection::class);
+
+        $baseProductData = [
+            'id' => $this->ids->get('product-1'),
+            'parentId' => $parentProductNumber ?? null,
+            'productNumber' => $productNumber,
+            'parentProductNumber' => $parentProductNumber,
+            'autoIncrement' => 1,
+            'ean' => '',
+            'active' => true,
+            'available' => true,
+            'isCloseout' => true,
+            'shippingFree' => true,
+            'markAsTopseller' => true,
+            'availableStock' => 5,
+            'tags' => '{}',
+            'ratingAverage' => 4,
+            'sales' => 4,
+            'stock' => 4,
+            'weight' => 4,
+            'width' => 4,
+            'height' => 4,
+            'length' => 4,
+            'productManufacturerId' => null,
+            'deliveryTimeId' => null,
+            'manufacturerNumber' => null,
+            'taxId' => 'tax',
+            'displayGroup' => '1',
+            'coverId' => null,
+            'childCount' => 0,
+            'cheapest_price_accessor' => '{}',
+            'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}]',
+            'propertyIds' => '[]',
+            'optionIds' => '[]',
+        ];
+
+        $translationData = [
+            'id' => $this->ids->get('product-1'),
+            'name' => 'Test Product',
+            'customFields' => '{}',
+            'manufacturerName' => 'Test Manufacturer',
+            'categories' => '[]',
+        ];
+
+        $connection
+            ->method('fetchAllAssociativeIndexed')
+            ->willReturnOnConsecutiveCalls(
+                [$this->ids->get('product-1') => $baseProductData],
+                [$this->ids->get('product-1') => $translationData]
+            );
 
         return $connection;
     }

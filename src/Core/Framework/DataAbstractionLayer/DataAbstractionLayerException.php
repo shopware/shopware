@@ -820,7 +820,7 @@ class DataAbstractionLayerException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      *
-     * @phpstan-ignore phpat.restrictNamespacesInCore
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     public static function configNotFound(): self|ElasticsearchProductException
     {

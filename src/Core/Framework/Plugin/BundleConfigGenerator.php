@@ -166,7 +166,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
      */
     private function getStyleFiles(string $technicalName, string $basePath): array
     {
-        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage) */
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         $registry = $this->kernel->getContainer()->get(StorefrontPluginRegistry::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
         if ($registry === null) {
             return [];

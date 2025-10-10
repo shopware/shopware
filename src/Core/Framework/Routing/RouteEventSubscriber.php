@@ -33,7 +33,7 @@ readonly class RouteEventSubscriber implements EventSubscriberInterface
             KernelEvents::RESPONSE => ['response', -10],
         ];
 
-        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage) */
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         if (class_exists(StorefrontRenderEvent::class)) {
             /** @phpstan-ignore phpat.restrictNamespacesInCore */
             $events[StorefrontRenderEvent::class] = ['render', -10];
@@ -55,7 +55,7 @@ readonly class RouteEventSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage)
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
      */
     public function render(StorefrontRenderEvent $event): void
     {

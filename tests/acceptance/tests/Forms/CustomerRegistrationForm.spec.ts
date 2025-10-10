@@ -32,19 +32,12 @@ test('As a customer, I can perform a registration without captcha protection.',
 
         const customer = { email: `${IdProvider.getIdPair().uuid}@test.com` };
 
-        await test.step('Customer goes to registration page', async () => {
-            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-        });
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.attemptsTo(Register(customer));
 
-        await test.step('Customer registers successfully', async () => {
-            await ShopCustomer.attemptsTo(Register(customer));
+        await StorefrontAccountLogin.page.waitForLoadState('networkidle');
 
-            // Wait for navigation or registration to complete
-            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
-
-            // Look for the customer email on the page
-            await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-        });
+        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
     }
 );
 
@@ -89,32 +82,24 @@ test('As a customer, I can perform a registration with full customer data withou
             postalCode: '48624',
         };
 
-        await test.step('Customer goes to registration page', async () => {
-            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-        });
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await test.step('Customer fills out all registration fields', async () => {
-            await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
-            await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
-            await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
-            await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
-            await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
+        await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
+        await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
+        await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
+        await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
+        await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
 
-            await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
-            await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
-            await StorefrontAccountLogin.cityInput.fill(customer.city);
-            await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
-        });
+        await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
+        await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
+        await StorefrontAccountLogin.cityInput.fill(customer.city);
+        await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
 
-        await test.step('Customer submits registration form', async () => {
-            await StorefrontAccountLogin.registerButton.click();
+        await StorefrontAccountLogin.registerButton.click();
 
-            // Wait for navigation or registration to complete
-            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
+        await StorefrontAccountLogin.page.waitForLoadState('networkidle');
 
-            // Look for the customer email on the page
-            await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-        });
+        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
     }
 );
 
@@ -158,37 +143,27 @@ test('As a customer, I can perform a registration with validation errors without
             postalCode: '48624',
         };
 
-        await test.step('Customer goes to registration page', async () => {
-            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-        });
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await test.step('Customer attempts to register with missing required field', async () => {
-            await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
-            await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
-            await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
-            await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
+        await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
+        await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
+        await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
+        await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
 
-            await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
-            await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
-            await StorefrontAccountLogin.cityInput.fill(customer.city);
-            await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
+        await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
+        await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
+        await StorefrontAccountLogin.cityInput.fill(customer.city);
+        await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
 
-            await StorefrontAccountLogin.registerButton.click();
+        await StorefrontAccountLogin.registerButton.click();
 
-            // Verify validation error is shown
-            await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
-        });
+        await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
 
-        await test.step('Customer fills out the missing field and re-attempts the registration', async () => {
-            await StorefrontAccountLogin.lastNameInput.fill('Goldblum');
+        await StorefrontAccountLogin.lastNameInput.fill('Goldblum');
+        await StorefrontAccountLogin.registerButton.click();
 
-            await StorefrontAccountLogin.registerButton.click();
+        await StorefrontAccountLogin.page.waitForLoadState('networkidle');
 
-            // Wait for navigation or registration to complete
-            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
-
-            // Look for the customer email on the page
-            await ShopCustomer.expects(StorefrontAccountLogin.page.getByText(customer.email, { exact: true })).toBeVisible();
-        });
+        await ShopCustomer.expects(StorefrontAccountLogin.page.getByText(customer.email, { exact: true })).toBeVisible();
     }
 );

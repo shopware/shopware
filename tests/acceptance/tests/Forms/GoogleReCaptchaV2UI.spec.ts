@@ -36,7 +36,7 @@ test('As a customer, I can see the visible Google reCaptcha V2 is loaded and fun
 
         await verifyRecaptchaScriptNotLoaded(StorefrontAccountLogin.page, test, 'V2');
 
-        await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
+        await acceptTechnicalRequiredCookies();
 
         await waitForRecaptchaScriptLoaded(StorefrontAccountLogin.page);
 
@@ -92,7 +92,7 @@ test('As a customer, I can see the invisible Google reCaptcha V2 is loaded and s
         await acceptTechnicalRequiredCookiesWithRecaptcha(
             StorefrontAccountLogin.page,
             test,
-            () => acceptTechnicalRequiredCookies(StorefrontAccountLogin),
+            () => acceptTechnicalRequiredCookies(),
             'V2'
         );
 
@@ -135,7 +135,7 @@ test('As a customer, I can see the invisible Google reCaptcha V2 is loaded in th
 
             await verifyRecaptchaScriptNotLoaded(StorefrontHome.page, test, 'V2');
 
-            await acceptTechnicalRequiredCookies(StorefrontHome);
+            await acceptTechnicalRequiredCookies();
 
             await StorefrontHome.contactFormLink.click();
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');

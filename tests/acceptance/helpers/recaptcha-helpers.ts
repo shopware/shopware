@@ -69,7 +69,7 @@ export async function verifyRecaptchaProtectionNotice(
 export async function setupRecaptchaFlow(
     page: Page,
     test: { step: (name: string, fn: () => Promise<void>) => Promise<void> },
-    acceptTechnicalRequiredCookies: (page?: unknown) => Promise<void>,
+    acceptTechnicalRequiredCookies: () => Promise<void>,
     version: 'V2' | 'V3' = 'V3'
 ): Promise<void> {
     await verifyRecaptchaScriptNotLoaded(page, test, version);
@@ -89,7 +89,7 @@ export async function setupRecaptchaFlow(
 export async function acceptTechnicalRequiredCookiesWithRecaptcha(
     page: Page,
     test: { step: (name: string, fn: () => Promise<void>) => Promise<void> },
-    acceptTechnicalRequiredCookies: (page?: unknown) => Promise<void>,
+    acceptTechnicalRequiredCookies: () => Promise<void>,
     version: 'V2' | 'V3' = 'V3'
 ): Promise<void> {
     await test.step(`Accept technical required cookies and verify reCaptcha ${version} setup`, async () => {

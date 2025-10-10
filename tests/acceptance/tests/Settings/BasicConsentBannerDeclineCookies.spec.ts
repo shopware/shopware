@@ -20,7 +20,7 @@ test(
         await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).toBeVisible();
     });
 
-    await test.step('Dismiss cookie banner using the configure option, cookie banner should be displayed again', async () => {
+    await test.step('Dismiss cookie banner using the configure option without choosing a preference, cookie banner should be displayed again', async () => {
         await StorefrontHome.consentConfigureButton.click();
         await StorefrontHome.offcanvasBackdrop.click();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();

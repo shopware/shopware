@@ -115,7 +115,7 @@ class CookieProvider
     {
         $entryRequiredCookieHash = new CookieEntry(self::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
         $entryRequiredCookieHash->name = 'cookie.groupRequiredCookieHash';
-        $entryRequiredCookieHash->value = ''; // Will be set by the CookieRoute
+        $entryRequiredCookieHash->hidden = true;
 
         return $entryRequiredCookieHash;
     }

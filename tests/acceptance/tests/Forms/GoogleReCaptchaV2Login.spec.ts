@@ -89,7 +89,7 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
                     resp => resp.url().includes('cookie/groups')
                 );
 
-                await acceptTechnicalRequiredCookies(StorefrontAccountLogin);
+                await acceptTechnicalRequiredCookies();
 
                 const cookieGroupsResponse = await promiseCookieGroupsRequest;
                 const cookieGroups = await cookieGroupsResponse.json();

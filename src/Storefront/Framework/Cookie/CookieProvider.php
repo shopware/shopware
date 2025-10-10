@@ -36,7 +36,7 @@ class CookieProvider implements CookieProviderInterface
             [
                 'snippet_name' => 'cookie.groupRequiredCookieHash',
                 'cookie' => 'cookie-config-hash',
-                'value' => '', // Will be set by the CookieRoute
+                'hidden' => true,
             ],
         ],
     ];

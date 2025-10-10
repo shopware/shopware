@@ -273,6 +273,7 @@ class CategoryBreadcrumbBuilder
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId');
         $query->andWhere('seo_url.foreign_key IN (:categoryIds)');
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
         $query->setParameter('routeName', 'frontend.navigation.page');
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannel->getId()));

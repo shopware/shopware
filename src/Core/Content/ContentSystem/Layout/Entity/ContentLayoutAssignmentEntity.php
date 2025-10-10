@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Layout\Entity;
 
+use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -15,13 +16,21 @@ class ContentLayoutAssignmentEntity extends Entity
 {
     use EntityIdTrait;
 
+    protected string $routeId;
+
     protected ?string $entityType = null;
 
     protected ?string $entityId = null;
 
-    protected string $salesChannelId;
+    protected ?string $associationPath = null;
+
+    protected ?string $salesChannelId = null;
 
     protected string $layoutId;
+
+    protected int $priority = 0;
+
+    protected ?ContentRouteEntity $route = null;
 
     protected ?ContentLayoutEntity $layout = null;
 
@@ -47,14 +56,54 @@ class ContentLayoutAssignmentEntity extends Entity
         $this->entityId = $entityId;
     }
 
-    public function getSalesChannelId(): string
+    public function getAssociationPath(): ?string
+    {
+        return $this->associationPath;
+    }
+
+    public function setAssociationPath(?string $associationPath): void
+    {
+        $this->associationPath = $associationPath;
+    }
+
+    public function getRouteId(): string
+    {
+        return $this->routeId;
+    }
+
+    public function setRouteId(string $routeId): void
+    {
+        $this->routeId = $routeId;
+    }
+
+    public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }
 
-    public function setSalesChannelId(string $salesChannelId): void
+    public function setSalesChannelId(?string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): void
+    {
+        $this->priority = $priority;
+    }
+
+    public function getRoute(): ?ContentRouteEntity
+    {
+        return $this->route;
+    }
+
+    public function setRoute(?ContentRouteEntity $route): void
+    {
+        $this->route = $route;
     }
 
     public function getLayoutId(): string

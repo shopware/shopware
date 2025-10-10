@@ -17,10 +17,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteSalesChannelDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <!-- Routing Services -->
         <service id="Shopware\Core\Content\ContentSystem\Routing\Router\RouteCollectionBuilder">
             <argument type="service" id="content_route.repository"/>
@@ -41,15 +37,10 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterExtractor"/>
         </service>
 
-        <!-- Cascade step factory for polymorphic layout resolution -->
-        <service id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\Cascade\CascadeStepFactory">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-        </service>
-
-        <!-- Layout resolver using DAL and polymorphic cascade steps -->
+        <!-- Layout resolver using priority-based assignment matching -->
         <service id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver">
             <argument type="service" id="content_layout_assignment.repository"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\Cascade\CascadeStepFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <!-- Layout Refinement Services -->

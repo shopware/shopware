@@ -18,27 +18,25 @@ Three responsibilities split across subdirectories:
 - `RouteCollectionBuilder` - DB query, builds Symfony RouteCollection (Router/)
 - `ContentRouteMatcher` - Pattern matching via Symfony UrlMatcher (Router/)
 - `EntityIdResolver` - URL params → entity IDs (IdResolution/)
-- `LayoutResolver` - Cascade-based layout lookup (LayoutResolution/)
+- `LayoutResolver` - Priority-based layout assignment (LayoutResolution/)
 
 ## Route Structure
 
 Routes contain:
 - `url_pattern`: Pattern with placeholders (`/product/{seoUrl}`)
 - `parameter_binding`: Maps placeholders to entity resolution rules
-- `layout_id`: Static layout assignment (optional)
-- `layout_cascade`: Dynamic layout resolution config (optional)
 - `priority`: Tie-breaker when patterns have equal specificity
 - `sales_channels`: Sales channel assignments (optional)
 
 Routes can be global (visible in all sales channels) or channel-specific (assigned to specific sales channels). Routes without sales channel assignments are available across all channels. Routes with assignments are filtered per sales channel context.
 
-Routes support static layout assignment (fixed `layout_id`) or dynamic resolution (cascade lookup in `content_layout_assignment` table based on entity + sales channel).
+Layout assignments are stored in `content_layout_assignment` table with `route_id` foreign key. LayoutResolver evaluates assignments in priority order (DESC), matching by entity type/ID or association path. First match wins.
 
 ## Subdirectories
 
 - Router/: Route loading and pattern matching
 - IdResolution/: Parameter extraction and entity queries
-- LayoutResolution/: Cascade-based layout assignment
+- LayoutResolution/: Priority-based layout assignment
 - Entity/: DAL definitions (ContentRouteDefinition, ContentRouteEntity)
 - Struct/: Data structures (RouteMatchResult)
 

@@ -20,13 +20,13 @@ Can't use Symfony's standard route registration because routes are runtime data.
 URL → ContentRouter → EntityIdResolver → LayoutResolver → RefinedLayoutBuilder → ContentElementHydrator → Response
 ```
 
-Routes contain URL patterns (`/product/{seoUrl}`) with parameter bindings that map placeholders to entities. EntityIdResolver queries entities based on these bindings. LayoutResolver determines which content layout to use (static assignment or dynamic cascade lookup). Layout is refined and hydrated with data before rendering.
+Routes contain URL patterns (`/product/{seoUrl}`) with parameter bindings that map placeholders to entities. EntityIdResolver queries entities based on these bindings. LayoutResolver determines which content layout to use via priority-based assignment matching. Layout is refined and hydrated with data before rendering.
 
 ## Key Classes
 
 - `ContentRouter` - Entry point, delegates to RouteCollectionBuilder + ContentRouteMatcher (Routing/Router/)
 - `EntityIdResolver` - URL parameters → entity IDs via DB queries (Routing/IdResolution/)
-- `LayoutResolver` - Cascade-based layout lookup (Routing/LayoutResolution/)
+- `LayoutResolver` - Priority-based layout assignment (Routing/LayoutResolution/)
 - `ContentElement` - Tree structure with slots, data requirements, context (Layout/Element/)
 - `LayoutRefinery` - Single-pass refinement, no recursive placeholders (Layout/Refinery/)
 - `ContentElementHydrator` - Loads data + resolves context (Hydration/)

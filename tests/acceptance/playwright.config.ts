@@ -1,140 +1,132 @@
-import path from "node:path";
-import { defineConfig, devices } from "@playwright/test";
-import dotenv from "dotenv";
+import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+import dotenv from 'dotenv';
 
 // Read from default ".env" file.
 dotenv.config();
 
-const missingEnvVars = ["APP_URL"].filter((envVar) => {
-	return process.env[envVar] === undefined;
+const missingEnvVars = ['APP_URL'].filter((envVar) => {
+    return process.env[envVar] === undefined;
 });
 
 if (missingEnvVars.length > 0) {
-	const envPath = path.resolve(".env");
+    const envPath = path.resolve('.env');
 
-	process.stdout.write(
-		`Please provide the following env vars (loaded env: ${envPath}):\n`,
-	);
-	process.stdout.write(`- ${missingEnvVars.join("\n- ")}\n`);
+    process.stdout.write(`Please provide the following env vars (loaded env: ${envPath}):\n`);
+    process.stdout.write('- ' + missingEnvVars.join('\n- ') + '\n');
 
-	process.exit(1);
+    process.exit(1);
 }
 
-process.env.SHOPWARE_ADMIN_USERNAME =
-	process.env.SHOPWARE_ADMIN_USERNAME || "admin";
-process.env.SHOPWARE_ADMIN_PASSWORD =
-	process.env.SHOPWARE_ADMIN_PASSWORD || "shopware";
+process.env['SHOPWARE_ADMIN_USERNAME'] = process.env['SHOPWARE_ADMIN_USERNAME'] || 'admin';
+process.env['SHOPWARE_ADMIN_PASSWORD'] = process.env['SHOPWARE_ADMIN_PASSWORD'] || 'shopware';
 
 const ignoreHTTPSErrors = process.env.SHOPWARE_PLAYWRIGHT_IGNORE_HTTPS_ERRORS === 'true' || process.env.SHOPWARE_PLAYWRIGHT_IGNORE_HTTPS_ERRORS === '1';
 
 if (process.env.DATABASE_URL) {
-	const matches = process.env.DATABASE_URL.match(
-		/mysql:\/\/([^:@]+)(:([^:@]+))?@([^/]+)\/([^?]+)/,
-	);
-	if (matches) {
-		process.env.ATS_DATABASE_USERNAME =
-			process.env.ATS_DATABASE_USERNAME || matches[1];
-		process.env.ATS_DATABASE_PASSWORD =
-			process.env.ATS_DATABASE_PASSWORD || matches[3] || "";
-		process.env.ATS_DATABASE_HOST = process.env.ATS_DATABASE_HOST || matches[4];
-		process.env.ATS_DATABASE_NAME = process.env.ATS_DATABASE_NAME || matches[5];
-	}
+    const matches = process.env.DATABASE_URL.match(/mysql:\/\/([^:@]+)(:([^:@]+))?@([^/]+)\/([^?]+)/);
+    if (matches) {
+        process.env.ATS_DATABASE_USERNAME = process.env.ATS_DATABASE_USERNAME || matches[1];
+        process.env.ATS_DATABASE_PASSWORD = process.env.ATS_DATABASE_PASSWORD || matches[3] || '';
+        process.env.ATS_DATABASE_HOST = process.env.ATS_DATABASE_HOST || matches[4];
+        process.env.ATS_DATABASE_NAME = process.env.ATS_DATABASE_NAME || matches[5];
+    }
 }
 
 // make sure APP_URL ends with a slash
-process.env.APP_URL = `${process.env.APP_URL.replace(/\/+$/, "")}/`;
-if (process.env.ADMIN_URL) {
-	process.env.ADMIN_URL = `${process.env.ADMIN_URL.replace(/\/+$/, "")}/`;
+process.env['APP_URL'] = process.env['APP_URL'].replace(/\/+$/, '') + '/';
+if (process.env['ADMIN_URL']) {
+    process.env['ADMIN_URL'] = process.env['ADMIN_URL'].replace(/\/+$/, '') + '/';
 } else {
-	process.env.ADMIN_URL = `${process.env.APP_URL}admin/`;
+    process.env['ADMIN_URL'] = process.env['APP_URL'] + 'admin/';
 }
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-	testDir: "./tests",
-	fullyParallel: true,
+    testDir: './tests',
+    fullyParallel: true,
 
-	/* Fail the build on CI if you accidentally left test.only in the source code. */
-	forbidOnly: !!process.env.CI,
-	/* Retry on CI only */
-	retries: process.env.CI ? 2 : 0,
-	/* There are still some issues with running the tests in parallel */
-	workers: process.env.CI ? 1 : 1,
+    /* Fail the build on CI if you accidentally left test.only in the source code. */
+    forbidOnly: !!process.env.CI,
+    /* Retry on CI only */
+    retries: process.env.CI ? 2 : 0,
+    /* There are still some issues with running the tests in parallel */
+    workers: process.env.CI ? 1 : 1,
 
-	reporter: "html",
+    reporter: 'html',
 
-	timeout: 60_000,
+    timeout: 60_000,
 
-	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-	use: {
-		/* Base URL to use in actions like `await page.goto('/')`. */
-		baseURL: process.env.APP_URL,
-		trace: "on-first-retry",
-		video: "off",
+    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+    use: {
+        /* Base URL to use in actions like `await page.goto('/')`. */
+        baseURL: process.env['APP_URL'],
+        trace: 'on-first-retry',
+        video: 'off',
         ignoreHTTPSErrors,
-	},
+    },
 
-	// We abuse this to wait for the external webserver
-	webServer: {
-		command: "sleep 1d",
-		url: process.env.APP_URL,
-		reuseExistingServer: true,
+    // We abuse this to wait for the external webserver
+    webServer: {
+        command: 'sleep 1d',
+        url: process.env['APP_URL'],
+        reuseExistingServer: true,
         ignoreHTTPSErrors,
-	},
+    },
 
-	/* Configure projects for major browsers */
-	projects: [
-		{
-			name: "Setup",
-			use: {
-				...devices["Desktop Chrome"],
-			},
-			grep: /@Setup/,
-		},
-		{
-			name: "Platform",
-			use: {
-				...devices["Desktop Chrome"],
-				launchOptions: {
-					args: ["--remote-debugging-port=9222"],
-				},
-			},
-			dependencies: ["Setup"],
-			grepInvert: /@Install|@Update|@Visual|@Setup.*/,
-		},
-		{
-			name: "Install",
-			use: {
-				...devices["Desktop Chrome"],
-			},
-			grep: /@Install/,
-			retries: 0,
-		},
-		{
-			name: "Update",
-			use: {
-				...devices["Desktop Chrome"],
-			},
-			dependencies: [],
-			grep: /@Update/,
-			retries: 0,
-		},
-		{
-			name: "Visual",
-			use: {
-				...devices["Desktop Chrome"],
-			},
-			dependencies: [],
-			grep: /@Visual/,
-		},
-	],
+    /* Configure projects for major browsers */
+    projects: [
+        {
+            name: 'Setup',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            grep: /@Setup/,
+        },
+        {
+            name: 'Platform',
+            use: {
+                ...devices['Desktop Chrome'],
+                launchOptions: {
+                    args: ['--remote-debugging-port=9222'],
+                },
+            },
+            dependencies: ['Setup'],
+            grepInvert: /@Install|@Update|@Visual|@Setup.*/,
+        },
+        {
+            name: 'Install',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            grep: /@Install/,
+            retries: 0,
+        },
+        {
+            name: 'Update',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            dependencies: [],
+            grep: /@Update/,
+            retries: 0,
+        },
+        {
+            name: 'Visual',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            dependencies: [],
+            grep: /@Visual/,
+        },
+    ],
 
-	/* Run your local dev server before starting the tests */
-	// webServer: {
-	//   command: 'npm run start',
-	//   url: 'http://127.0.0.1:3000',
-	//   reuseExistingServer: !process.env.CI,
-	// },
+    /* Run your local dev server before starting the tests */
+    // webServer: {
+    //   command: 'npm run start',
+    //   url: 'http://127.0.0.1:3000',
+    //   reuseExistingServer: !process.env.CI,
+    // },
 });

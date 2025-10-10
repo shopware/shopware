@@ -609,7 +609,10 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeBillingAddress ?? $this->defaultBillingAddress;
     }
 
-    public function setActiveBillingAddress(CustomerAddressEntity $activeBillingAddress): void
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-change $activeBillingAddress will accept null values
+     */
+    public function setActiveBillingAddress(/* ? */ CustomerAddressEntity $activeBillingAddress): void
     {
         $this->activeBillingAddress = $activeBillingAddress;
     }
@@ -619,7 +622,10 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeShippingAddress ?? $this->defaultShippingAddress;
     }
 
-    public function setActiveShippingAddress(CustomerAddressEntity $activeShippingAddress): void
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-change $activeShippingAddress will accept null values
+     */
+    public function setActiveShippingAddress(/* ? */ CustomerAddressEntity $activeShippingAddress): void
     {
         $this->activeShippingAddress = $activeShippingAddress;
     }

@@ -116,9 +116,9 @@ class EditOrderPageTest extends TestCase
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
 
-        // Get customer from USA rule
+        // Get digital products rule
         $ruleCriteria = new Criteria();
-        $ruleCriteria->addFilter(new EqualsFilter('name', 'Customers from USA'));
+        $ruleCriteria->addFilter(new EqualsFilter('name', 'Shopping cart / Order with digital products'));
 
         /** @var EntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = static::getContainer()->get('rule.repository');

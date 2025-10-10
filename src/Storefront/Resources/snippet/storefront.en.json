@@ -774,6 +774,7 @@
     "groupRequiredDescription": "Cookies required for this shop to function:",
     "groupRequiredSession": "Session",
     "groupRequiredTimezone": "Timezone",
+    "groupRequiredAccepted": "Cookie preferences",
     "groupRequiredCaptcha": "CAPTCHA integration",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",

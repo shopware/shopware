@@ -39,6 +39,7 @@
                     :error="productIsCloseoutError"
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
+                    :inherited-value="parentProduct.isCloseout"
                     :label="$tc('sw-product.settingsForm.labelIsCloseout')"
                     :help-text="$tc('sw-product.settingsForm.isCloseoutHelpText')"
                     :disabled="props.isInherited || !allowEdit"
@@ -127,6 +128,7 @@
                 <mt-switch
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
+                    :inherited-value="parentProduct.shippingFree"
                     :error="productShippingFreeError"
                     :label="$tc('sw-product.settingsForm.labelShippingFree')"
                     :disabled="props.isInherited || !allowEdit"

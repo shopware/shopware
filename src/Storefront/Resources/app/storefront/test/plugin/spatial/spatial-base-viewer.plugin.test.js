@@ -16,7 +16,7 @@ describe('SpatialBaseViewerPlugin tests', () => {
             start: jest.fn(),
         }
     };
-    window.DIVEClass = {
+    window.DIVEQuickViewPlugin = {
         QuickView: jest.fn().mockResolvedValue(mockDive)
     };
 

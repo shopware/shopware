@@ -260,7 +260,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     ], $visibility);
                 }, $visibilities),
                 'availableStock' => (int) $item['availableStock'],
-                'productNumber' => $item['productNumber'],
+                'productNumber' => array_filter([$item['productNumber'], $item['parentProductNumber'] ?? null]),
                 'ean' => $item['ean'],
                 'displayGroup' => $item['displayGroup'],
                 'sales' => (int) $item['sales'],
@@ -343,6 +343,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     {
         $languages = \array_keys($this->salesChannelLanguageLoader->loadLanguages());
 
+        // always add the system language to have a fallback
+        if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languages, true)) {
+            $languages[] = Defaults::LANGUAGE_SYSTEM;
+        }
+
         $baseSql = <<<'SQL'
 SELECT
     LOWER(HEX(p.id)) AS id,
@@ -354,6 +359,7 @@ SELECT
     IFNULL(p.available_stock, pp.available_stock) AS availableStock,
     IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
     p.product_number as productNumber,
+    pp.product_number as parentProductNumber,
     p.sales,
     LOWER(HEX(p.manufacturer)) AS productManufacturerId,
     LOWER(HEX(p.delivery_time_id)) as deliveryTimeId,
@@ -638,7 +644,7 @@ SQL;
             if (!isset($salesChannelLanguages[$languageId])) {
                 continue;
             }
-            // If the has parent language, we add the parent language into the mapping
+            // If the language has parent language, we add the parent language into the mapping
             if (isset($language['parentId'])) {
                 $mapping[$language['parentId']] = Defaults::LANGUAGE_SYSTEM;
             }

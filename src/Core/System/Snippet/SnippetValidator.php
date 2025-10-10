@@ -13,6 +13,8 @@ use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ *
  * @phpstan-type MissingSnippetsArray array<string, array<string, array{
  *      path: string,
  *      availableISO: string,
@@ -21,29 +23,15 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
  * }>>
  */
 #[Package('discovery')]
-class SnippetValidator implements SnippetValidatorInterface
+readonly class SnippetValidator implements SnippetValidatorInterface
 {
-    /**
-     * Locale pattern based on BCP 47,
-     * restricted to ISO 639-1 (2-letter) language codes.
-     * Excludes 3-letter prefixes like `ger` or `eng`.
-     */
-    public const LOCALE_PATTERN_BCP47_ISO639_1 =
-        '(?P<locale>' .
-        '(?P<language>[a-z]{2})' .              // ISO 639-1 language prefix
-        '(?:[_-](?P<script>[A-Z][a-z]{3}))?' .  // optional script (Hant, Latn, Cyrl)
-        '(?:[_-](?P<region>[A-Z]{2}|\d{3}))?' . // optional region (DE, US, 419)
-        ')';
-
-    public const SNIPPET_FILE_PATTERN = '/^(?P<domain>.+?)\.' . self::LOCALE_PATTERN_BCP47_ISO639_1 . '(?P<isBase>\.base)?\.json$/';
-
     /**
      * @internal
      */
     public function __construct(
-        private readonly SnippetFileCollection $deprecatedSnippetFiles,
-        private readonly SnippetFileHandler $snippetFileHandler,
-        private readonly string $projectDir
+        private SnippetFileCollection $deprecatedSnippetFiles,
+        private SnippetFileHandler $snippetFileHandler,
+        private string $projectDir
     ) {
     }
 
@@ -170,7 +158,7 @@ class SnippetValidator implements SnippetValidatorInterface
 
     private function getLocaleFromFileName(string $fileName): string
     {
-        $return = preg_match(self::SNIPPET_FILE_PATTERN, $fileName, $matches);
+        $return = preg_match(SnippetPatterns::CORE_SNIPPET_FILE_PATTERN, $fileName, $matches);
 
         // Snippet file name is not known, return 'en' per default
         if (!$return) {

@@ -42,7 +42,7 @@ test('Visual: Promotion Detail Page', { tag: '@Visual' }, async ({
         await assertScreenshot(AdminPromotionCreate.page, 'Create.png');
     });
 
-    const testPromo = await TestDataService.createPromotionWithCode({ name: 'TestPromo', code: '123' });
+    const testPromo = await TestDataService.createPromotionWithCode({ name: 'TestPromo', code: '123', discounts: [{ type: 'percentage', value: 15, scope: 'cart', considerAdvancedRules: true }] });
     await test.step('Creates a screenshot of the promotions detail page: General Tab.', async () => {
         await ShopAdmin.goesTo(AdminPromotionDetail.url(testPromo.id));
         await setViewport(AdminPromotionDetail.page, {

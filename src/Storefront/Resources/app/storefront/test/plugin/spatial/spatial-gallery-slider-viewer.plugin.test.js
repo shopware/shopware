@@ -4,11 +4,10 @@ import SpatialBaseViewerPlugin from 'src/plugin/spatial/spatial-base-viewer.plug
 jest.mock('src/plugin/spatial/utils/spatial-dive-load-util');
 
 const mockDive = {
-    engine: {
-        start: jest.fn(),
-    }
+    start: jest.fn(),
+    stop: jest.fn(),
 };
-window.DIVEClass = {
+window.DIVEQuickViewPlugin = {
     QuickView: jest.fn().mockResolvedValue(mockDive)
 };
 
@@ -21,6 +20,22 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
 
     beforeEach(() => {
         mockElement = document.createElement('div');
+        document.body.innerHTML = `
+            <div class="zoom-modal-wrapper">
+                <div class="zoom-modal">
+                    <canvas id="canvasEl"></canvas>
+                </div>
+            </div>
+        `;
+
+        const modal = document.querySelector('.zoom-modal');
+        modal.show = jest.fn(() => {
+            modal.dispatchEvent(new Event('shown.bs.modal', { bubbles: true }));
+        });
+
+        modal.hide = jest.fn(() => {
+            modal.dispatchEvent(new Event('hidden.bs.modal', { bubbles: true }));
+        });
 
         spatialGallerySliderViewerPlugin = new SpatialGallerySliderViewerPlugin(mockElement, {
             sliderPosition: "1",
@@ -70,5 +85,25 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
         await spatialGallerySliderViewerPlugin.initViewer();
         // Assert the disabled class is added to the grand parent element
         expect(grandParent.classList.contains('gallery-slider-canvas-disabled')).toBe(true);
+    });
+
+    test('should start and stop rendering when showing and hiding the modal', async () => {
+        await spatialGallerySliderViewerPlugin.initViewer();
+
+        spatialGallerySliderViewerPlugin.dive = mockDive;
+
+        const modalWrapper = document.querySelector('.zoom-modal-wrapper');
+        const modal = modalWrapper?.querySelector('.zoom-modal');
+        modal.show();
+
+        await process.nextTick(() => {});
+
+        expect(mockDive.stop).toHaveBeenCalled();
+
+        modal.hide();
+
+        await process.nextTick(() => {});
+
+        expect(mockDive.start).toHaveBeenCalled();
     });
 });

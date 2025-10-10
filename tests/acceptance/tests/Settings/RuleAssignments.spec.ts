@@ -6,7 +6,6 @@ test('As an admin user, I want to have an overview of my assigned rules, so that
     AdminRuleDetail,
     AdminShippingDetail,
 }) => {
-
     const rule = await TestDataService.createBasicRule();
     const shippingMethod = await TestDataService.createBasicShippingMethod({availabilityRuleId: rule.id});
 

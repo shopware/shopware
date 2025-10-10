@@ -27,7 +27,6 @@ parameters:
         requireParentConstructorCall: false
         disallowedEmpty: false
         disallowedShortTernary: false
-        numericOperandsInArithmeticOperators: false
         dynamicCallOnStaticMethod: false
         strictArrayFilter: false
 

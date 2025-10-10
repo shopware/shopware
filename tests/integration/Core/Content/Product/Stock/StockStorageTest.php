@@ -852,6 +852,44 @@ class StockStorageTest extends TestCase
         $this->assertStock(5, $product);
     }
 
+    public function testStockAlterationWithClearanceSaleProduct(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 1,
+            'isCloseout' => true,
+        ]);
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertTrue($product->getIsCloseout());
+        static::assertTrue($product->getAvailable());
+
+        $initialUpdatedAt = $product->getUpdatedAt();
+        static::assertNotNull($initialUpdatedAt);
+
+        // Wait to ensure timestamp difference
+        sleep(1);
+
+        $this->orderProduct($productId, 1);
+
+        $productAfterOrder = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $productAfterOrder);
+
+        $updatedAtAfterOrder = $productAfterOrder->getUpdatedAt();
+        static::assertNotNull($updatedAtAfterOrder);
+
+        static::assertGreaterThan(
+            $initialUpdatedAt->getTimestamp(),
+            $updatedAtAfterOrder->getTimestamp(),
+            'Product updated_at should be updated when clearance sale stock is altered'
+        );
+
+        $this->assertStock(0, $productAfterOrder);
+        static::assertFalse($productAfterOrder->getAvailable());
+    }
+
     private function assertStock(int $expectedStock, ProductEntity $product): void
     {
         static::assertSame($expectedStock, $product->getAvailableStock());

@@ -215,7 +215,7 @@ class EntityReader implements EntityReaderInterface
 
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
                 if ($isPartial && $referenceField && !isset($partial[$fieldPropertyName][$referenceField->getPropertyName()])) {
-                    $partial[$fieldPropertyName] = $partial[$fieldPropertyName] ?? [];
+                    $partial[$fieldPropertyName] ??= [];
                     $partial[$fieldPropertyName][$referenceField->getPropertyName()] = [];
                 }
 
@@ -1017,8 +1017,8 @@ class EntityReader implements EntityReaderInterface
 
         $wrapper->setParameter('rootIds', $bytes, ArrayParameterType::BINARY);
 
-        $limit = $fieldCriteria->getOffset() + $fieldCriteria->getLimit();
-        $offset = $fieldCriteria->getOffset() + 1;
+        $limit = (int) $fieldCriteria->getOffset() + (int) $fieldCriteria->getLimit();
+        $offset = (int) $fieldCriteria->getOffset() + 1;
 
         $wrapper->setParameter('limit', $limit);
         $wrapper->setParameter('offset', $offset);

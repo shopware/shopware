@@ -58,6 +58,7 @@
                     :error="productActiveError"
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
+                    :inherited-value="parentProduct.active"
                     :label="$tc('sw-product.settingsForm.labelActive')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"

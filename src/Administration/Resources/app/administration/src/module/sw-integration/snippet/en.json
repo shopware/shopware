@@ -30,7 +30,7 @@
       "labelFieldLabel": "Name",
       "idFieldLabel": "Access key ID",
       "secretFieldLabel": "Secret access key",
-      "secretHelpText": "Please note down the access key now. After saving the integration, the key will no longer be visible, due to safety concerns.",
+      "secretHelpText": "Access key ID and Secret access key are only activate after saving the integration. Please note down the access key now. After saving the integration, the key will no longer be visible, due to safety concerns.",
       "permissions": "Permissions",
       "readAccessFieldLabel": "Read (default)",
       "writeAccessFieldLabel": "Write (optional)",

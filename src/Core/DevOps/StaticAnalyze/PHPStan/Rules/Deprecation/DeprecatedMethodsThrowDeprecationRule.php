@@ -48,6 +48,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:becomes-final',
         // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
         'reason:return-type-change',
+        // If the parameter type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
+        'reason:parameter-type-change',
         // If a parameter becomes more flexible, this does not need action and trigger a deprecation warning.
         'reason:parameter-type-extension',
         // If there will be in the class hierarchy of a class we mark the whole class as deprecated, but the functionality itself is not deprecated, therefore they do not trigger deprecations.

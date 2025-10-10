@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
@@ -52,7 +51,7 @@ class TokenQueryBuilder
     public function build(string $entity, string $token, array $configs, Context $context): ?BuilderInterface
     {
         $languageIdChain = $context->getLanguageIdChain();
-        $explainMode = $context->hasState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $explainMode = $context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
         $tokenQueries = [];
 

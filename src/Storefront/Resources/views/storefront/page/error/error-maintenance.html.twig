@@ -13,7 +13,12 @@
 {% endblock %}
 
 {% block error_maintenance_body %}
-    <body class="{% block error_maintenance_body_classes %}is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}{% endblock %}">
+    {# @deprecated tag:v6.8.0 - CSS classes `is-ctl-*` and `is-act-*` will be removed, use `is-active-route-*` instead. #}
+    <body class="{% block error_maintenance_body_classes %}
+        {%- if controllerName is not empty -%}is-ctl-{{ controllerName|lower }} {% endif -%}
+        {%- if controllerAction is not empty -%}is-act-{{ controllerAction|lower }} {% endif -%}
+        {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'.': '-'}) }}{%- endif -%}
+    {%- endblock %}">
         {% block error_maintenance_body_inner %}
             {% block error_maintenance_noscript %}
                 <noscript class="noscript-main">

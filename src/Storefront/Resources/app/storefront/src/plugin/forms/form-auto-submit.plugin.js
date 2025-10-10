@@ -42,6 +42,13 @@ export default class FormAutoSubmitPlugin extends Plugin {
          * @type {string}
          */
         focusHandlerKey: 'form-auto-submit',
+
+        /**
+         * When active, the form submission is more humanly triggered with validation and submit event
+         * @link https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/requestSubmit#usage_notes
+         * @type {boolean}
+         */
+        useRequestSubmit: true,
     };
 
     init() {
@@ -149,14 +156,19 @@ export default class FormAutoSubmitPlugin extends Plugin {
     _submitNativeForm() {
         this.$emitter.publish('beforeChange');
 
-        this._form.submit();
+        if (this.options.useRequestSubmit) {
+            this._form.requestSubmit();
+        } else {
+            this._form.submit();
+        }
+
         PageLoadingIndicatorUtil.create();
     }
 
     /**
      * on submit callback for the form
      *
-     * @param event
+     * @param {Event} event
      *
      * @private
      */
@@ -169,21 +181,63 @@ export default class FormAutoSubmitPlugin extends Plugin {
         this._saveFocusState(event.target);
 
         if (!this.formSubmittedByCaptcha) {
-            this.sendAjaxFormSubmit();
+            this.sendAjaxFormSubmit(event);
         }
     }
 
-    sendAjaxFormSubmit() {
-        const data = FormSerializeUtil.serialize(this._form);
-        const action = this._form.getAttribute('action');
+    /**
+     * submits the form via ajax
+     *
+     * @param {Event|undefined} event
+     */
+    sendAjaxFormSubmit(event) {
+        let action = this._form.getAttribute('action');
+        let method = this._form.getAttribute('method');
 
-        fetch(action, {
-            method: 'POST',
-            body: data,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        })
-            .then(response => response.text())
-            .then(content => this._onAfterAjaxSubmit(content));
+        const submitter = event?.submitter || event?.currentTarget;
+        if (submitter?.hasAttribute('formAction')) {
+            action = submitter.getAttribute('formAction');
+        }
+        if (submitter?.hasAttribute('formMethod')) {
+            method = submitter.getAttribute('formMethod').toLowerCase();
+        }
+
+        if (method === 'get') {
+            fetch(action, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(response => this._onAfterAjaxSubmit(response));
+        } else {
+            fetch(action, {
+                method: method ?? 'post',
+                body: this._getFormData(),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(content => this._onAfterAjaxSubmit(content));
+        }
+    }
+
+    /**
+     * serializes the form
+     * and appends the redirect parameter
+     *
+     * @returns {FormData}
+     *
+     * @private
+     */
+    _getFormData() {
+        /** @type FormData **/
+        const data = FormSerializeUtil.serialize(this._form);
+
+        if (this.options.redirectTo) {
+            data.append('redirectTo', this.options.redirectTo);
+        } else if (this.options.forwardTo) {
+            data.append('forwardTo', this.options.forwardTo);
+        }
+
+        return data;
     }
 
     /**

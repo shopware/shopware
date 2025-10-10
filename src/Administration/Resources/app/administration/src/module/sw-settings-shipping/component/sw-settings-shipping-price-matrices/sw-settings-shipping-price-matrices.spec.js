@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @sw-package checkout
@@ -337,6 +338,17 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         wrapper.vm.onAddNewPriceGroup();
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('null');
+    });
+
+    it('should set quantityStart to 0 when creating a new price group', async () => {
+        const wrapper = await createWrapper();
+        const shippingMethod = {
+            prices: new EntityCollection(),
+        };
+        wrapper.vm.$data.shippingMethod = shippingMethod;
+
+        wrapper.vm.onAddNewPriceGroup();
+        expect(shippingMethod.prices[0].quantityStart).toBe(0);
     });
 
     it('should show all rules with matching prices', async () => {

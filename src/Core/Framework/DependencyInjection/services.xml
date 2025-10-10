@@ -429,7 +429,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer">
             <argument type="service" id="twig"/>
-            <argument>%twig.cache%</argument>
+            <argument>%shopware.cache.twig.string_template_renderer_cache_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator"

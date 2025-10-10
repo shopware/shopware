@@ -256,11 +256,10 @@
                     </template>
 
                     <template v-if="!isLoading">
-                        <sw-empty-state
+                        <mt-empty-state
                             v-if="noTaxProvidersFound"
-                            :title="$tc('sw-settings-tax.list.taxProvider.messageEmptyTitle')"
-                            :absolute="false"
-                            :show-description="false"
+                            :icon="$route.meta.$module.icon"
+                            :headline="$tc('sw-settings-tax.list.taxProvider.messageEmptyTitle')"
                         />
 
                         <div

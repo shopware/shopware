@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Log\PackageService;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,7 +31,8 @@ class AnnotatePackageProcessorTest extends TestCase
     {
         $requestStack = new RequestStack();
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', TestController::class . '::load');
@@ -61,7 +63,8 @@ class AnnotatePackageProcessorTest extends TestCase
     {
         $requestStack = new RequestStack();
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
@@ -96,7 +99,8 @@ class AnnotatePackageProcessorTest extends TestCase
     {
         $requestStack = new RequestStack();
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
@@ -120,7 +124,8 @@ class AnnotatePackageProcessorTest extends TestCase
     {
         $requestStack = new RequestStack();
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', TestController::class . '::load');
@@ -158,7 +163,8 @@ class AnnotatePackageProcessorTest extends TestCase
     {
         $requestStack = new RequestStack();
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($requestStack, $container);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $request = new Request();
         $request->attributes->set('_controller', TestControllerNoPackage::class . '::load');
@@ -202,7 +208,9 @@ class AnnotatePackageProcessorTest extends TestCase
         }
 
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($this->createMock(RequestStack::class), $container);
+        $requestStack = $this->createMock(RequestStack::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $context = [
             'exception' => $exception,
@@ -244,7 +252,9 @@ class AnnotatePackageProcessorTest extends TestCase
         }
 
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageProcessor($this->createMock(RequestStack::class), $container);
+        $requestStack = $this->createMock(RequestStack::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
 
         $context = [
             'exception' => $exception,

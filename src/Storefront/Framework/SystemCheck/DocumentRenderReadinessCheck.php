@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\SystemCheck;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -26,7 +27,11 @@ use Shopware\Core\Checkout\Order\OrderStates;
 #[Package('after-sales')]
 class DocumentRenderReadinessCheck extends BaseCheck
 {
-    private const DEPEND_ON_INVOICE = ['credit_note', 'storno'];
+    /* some document types depend on invoice document or specific line-items */
+    private const TESTABLE_DOCUMENT_TYPES = [
+        'invoice',
+        'delivery_note',
+    ];
     /**
      * @param SalesChannelDomainUtil $util
      * @param Connection $connection
@@ -65,101 +70,112 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
     private function doRun(): Result
     {
-        // count orders > skip if no orders
-        var_dump((int) $this->connection->fetchOne('SELECT COUNT(*) FROM `order`'));
-
         $orderCount = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM `order`');
 
         if ($orderCount === 0) {
-            return new Result(
+            return $this->util->createEmptyResult(
                 $this->name(),
-                Status::SKIPPED,
-                'no orders found; document previews are skipped',
-                true,
-                []
+                'No orders found; document previews are skipped.'
             );
         }
 
         $context = Context::createDefaultContext();
 
-
+        $result = [];
+        $extra = [];
         foreach ($this->documentRenderers as $renderer) {
             $type = $renderer->supports();
             var_dump($type);
 
+            if (!in_array($type, self::TESTABLE_DOCUMENT_TYPES, true)) {
+                $extra[] = [
+                    'documentType' => $type,
+                    'message' => 'This document type is not covered by this check; skipping.',
+                ];
+                continue;
+            }
+
+            // choose an order that has an already generated document of this type
             $orderId = $this->getOrderId($type);
 
-            // skip if no order with document of this type
+            // skip if no document of this type already exists for this order
+            if (!$orderId) {
+                $extra[] = [
+                    'documentType' => $type,
+                    'message' => 'No order with document of this type found; skipping.',
+                ];
 
-            if ($orderId === null) {
-                return new Result(
-                    $this->name(),
-                    Status::SKIPPED,
-                    'no order found for document preview of type: ' . $type,
-                    true,
-                    []
+                continue;
+            }
+
+            // check which fileTypes are supported via document-config
+            $fileTypes = [PdfRenderer::FILE_EXTENSION, HtmlRenderer::FILE_EXTENSION];
+
+            foreach ($fileTypes as $fileType) {
+                $operation = new DocumentGenerateOperation(
+                    $orderId,
+                    $fileType,
+                    [],
+                    null,
+                    false,
+                    true
                 );
 
-                continue;
+                $processedTemplate = $renderer->render(
+                    [$orderId => $operation],
+                    $context,
+                    new DocumentRendererConfig()
+                );
+
+                $error = $processedTemplate->getErrors()[$orderId] ?? [];
+
+                if($error) {
+                    $result[Status::FAILURE->name] = Status::FAILURE;
+                    $extra[] = [
+                        'documentType' => $type,
+                        'fileType' => $fileType,
+                        'message' => 'Rendering failed with errors: ' . $error->getMessage(),
+                    ];
+                }
+
+                $success = $processedTemplate->getSuccess()[$orderId] ?? null;
+
+                if ($success === null) {
+                    $result[Status::FAILURE->name] = Status::FAILURE;
+                    $extra[] = [
+                        'documentType' => $type,
+                        'fileType' => $fileType,
+                        'message' => 'Rendering failed without exception and without result.',
+                    ];
+                }
+
+                $content = $processedTemplate->getSuccess()[$orderId]->getContent();
+
+                if (\strlen($content) < 10) {
+                    $result[Status::FAILURE->name] = Status::FAILURE;
+                    $extra[] = [
+                        'documentType' => $type,
+                        'fileType' => $fileType,
+                        'message' => 'rendered content is to less or empty for type ' . $type . ' and fileType ' . $fileType,
+                    ];
+                }
+
+                $result[Status::OK->name] = Status::OK;
             }
-
-            var_dump($orderId);
-
-            $operation = new DocumentGenerateOperation(
-                $orderId,
-                HtmlRenderer::FILE_EXTENSION,
-                [],
-                null,
-                false,
-                true
-            );
-
-            $processedTemplate = $renderer->render(
-                [$orderId => $operation],
-                $context,
-                new DocumentRendererConfig()
-            );
-
-            var_dump($processedTemplate->getSuccess());
-
-            $content = $processedTemplate->getSuccess()[$orderId]->getContent();
-
-            if ($content === '') {
-                continue;
-            }
-
         }
 
+        $finalStatus = \count($result) === 1 ? current($result) : Status::ERROR;
 
         return new Result(
             $this->name(),
-            Status::OK,
-            'a message',
-            true,
-            []
+            $finalStatus,
+            $finalStatus === Status::OK ? 'All documents rendered successfully.' : 'Some or all documents failed to render.',
+            $finalStatus === Status::OK,
+            $extra
         );
     }
 
     private function getOrderId(string $type)
-    {
-        // some document types depend on invoice document
-        if(in_array($type, self::DEPEND_ON_INVOICE, true)) {
-            $invoiceOrderId = $this->getOrderWithDocumentType('invoice');
-            if($invoiceOrderId) {
-                return $invoiceOrderId;
-            }
-
-            // credit-notes need credit-items
-
-            return null;
-        }
-
-        $orderId = $this->getOrder();
-
-        return $orderId;
-    }
-
-    private function getOrderWithDocumentType(string $type)
     {
         $sql = '
             SELECT
@@ -172,19 +188,5 @@ class DocumentRenderReadinessCheck extends BaseCheck
         ';
 
         return $this->connection->fetchOne($sql, ['type' => $type]);
-    }
-
-    private function getOrder(): ?string
-    {
-        $sql = '
-            SELECT
-                LOWER(HEX(o.id)) as id
-            FROM `order` AS o
-            ORDER BY o.created_at DESC
-            LIMIT 1
-        ';
-
-        $order = $this->connection->fetchOne($sql);
-        return $order ?: null;
     }
 }

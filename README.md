@@ -140,3 +140,6 @@ If you want to suggest features or how certain parts of Shopware 6 work, we'd be
 ## Reporting security issues
 
 Please have a look at our [security policy](SECURITY.md).
+
+
+Hallo von der Community!

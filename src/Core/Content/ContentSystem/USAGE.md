@@ -485,7 +485,6 @@ Loads a single entity by ID or property reference.
   "data_requirements": {
     "product": {
       "key": "product",
-      "type": "entity",
       "source": "entity",
       "config": {
         "entity": "product",
@@ -499,9 +498,11 @@ Loads a single entity by ID or property reference.
 
 Fields:
 - `key` - Identifies this data requirement (must match object key)
-- `type` - Data type: "entity" for single entities, "service" for listings
-- `source` - Loader type: "entity", "entity_collection", or "product_listing"
-- `config.property` - Property name where entity ID/data is stored
+- `source` - Loader identifier: "entity", "entity_collection", or "product_listing"
+- `config` - Loader-specific configuration object
+- `config.entity` - Entity name to load
+- `config.property` - Property name where entity ID is stored (defaults to entity name)
+- `config.associations` - List of associations to load with the entity
 
 After loading, access via element's `product` property → ProductEntity
 
@@ -516,7 +517,6 @@ Loads multiple entities by their IDs.
   "data_requirements": {
     "products": {
       "key": "products",
-      "type": "entity",
       "source": "entity_collection",
       "config": {
         "entity": "product",
@@ -545,7 +545,6 @@ Loads product listings with filters, sorting, and pagination.
   "data_requirements": {
     "listing": {
       "key": "listing",
-      "type": "service",
       "source": "product_listing",
       "config": {
         "page": "{{page}}"
@@ -568,7 +567,6 @@ Elements can declare multiple data requirements:
   "data_requirements": {
     "mainProduct": {
       "key": "mainProduct",
-      "type": "entity",
       "source": "entity",
       "config": {
         "entity": "product",
@@ -577,7 +575,6 @@ Elements can declare multiple data requirements:
     },
     "relatedProducts": {
       "key": "relatedProducts",
-      "type": "entity",
       "source": "entity_collection",
       "config": {
         "entity": "product",
@@ -586,7 +583,6 @@ Elements can declare multiple data requirements:
     },
     "manufacturer": {
       "key": "manufacturer",
-      "type": "entity",
       "source": "entity",
       "config": {
         "entity": "manufacturer",
@@ -614,7 +610,6 @@ Provider exposes data as context for descendants using `provides_context`.
   "data_requirements": {
     "product": {
       "key": "product",
-      "type": "entity",
       "source": "entity",
       "config": {
         "entity": "product",
@@ -726,7 +721,6 @@ Provider distributing context to multiple consumer children:
   "data_requirements": {
     "product": {
       "key": "product",
-      "type": "entity",
       "source": "entity",
       "config": {
         "entity": "product",
@@ -831,7 +825,6 @@ Combined example showing routing, data loading, and context distribution.
   "data_requirements": {
     "product": {
       "key": "product",
-      "type": "entity",
       "source": "entity",
       "config": {
         "entity": "product",

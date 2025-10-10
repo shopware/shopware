@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\InAppPurchase;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -67,6 +68,8 @@ class AppPayloadServiceHelper
                 }
 
                 $array[$propertyName] = $salesChannelContext;
+            } elseif ($property instanceof RequestDataBag) {
+                $array[$propertyName] = $property->all();
             }
 
             if (!$property instanceof Entity) {

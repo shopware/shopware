@@ -89,6 +89,21 @@ Each content element follows this structure:
 }
 ```
 
+Placeholders from routes (like `{{product_id}}`) must be assigned to properties before data loaders can use them:
+
+```json
+"properties": {
+  "product": "{{product_id}}"
+},
+"data_requirements": {
+  "product": {
+    "config": {
+      "property": "product"
+    }
+  }
+}
+```
+
 **Required fields:**
 - `id` - Unique identifier for the element (required for processing)
 - `type` - Element type identifier
@@ -472,6 +487,9 @@ Don't use data requirements when:
 - Data comes via context from parent
 - Element only uses configuration properties
 
+> [!TIP]
+> Place data requirements on the element that uses them. Only move them to a parent when multiple children need the same data. This keeps sub-tree extraction efficient and makes layouts more reusable.
+
 ### Available Loaders
 
 #### Entity Loader (`source: "entity"`)
@@ -501,10 +519,36 @@ Fields:
 - `source` - Loader identifier: "entity", "entity_collection", or "product_listing"
 - `config` - Loader-specific configuration object
 - `config.entity` - Entity name to load
-- `config.property` - Property name where entity ID is stored (defaults to entity name)
+- `config.property` - Property on this element containing the entity ID. The loader reads the ID from here. Defaults to entity name.
 - `config.associations` - List of associations to load with the entity
 
 After loading, access via element's `product` property → ProductEntity
+
+A product card that loads its own data:
+
+```json
+{
+  "id": "product-card",
+  "type": "Sw:Product:Card",
+  "properties": {
+    "product": "{{product_id}}"
+  },
+  "data_requirements": {
+    "product": {
+      "key": "product",
+      "source": "entity",
+      "config": {
+        "entity": "product",
+        "property": "product"
+      }
+    }
+  }
+}
+```
+
+The `property` field points to the element's own property. The loader reads the ID from there, loads the product, and stores the result back in the same property.
+
+If multiple elements need the same product, load it once at their parent and use the context system instead (see below).
 
 #### Entity Collection Loader (`source: "entity_collection"`)
 
@@ -595,9 +639,9 @@ Elements can declare multiple data requirements:
 
 ## Context System
 
-Context enables parent elements to share data with descendants without passing it through every intermediate element.
+Use context when multiple elements need the same data. Load it once at the parent, share it with all children.
 
-Example: Product detail page where multiple children (title, price, images, buy button) need access to the same product data. Define the product once at the parent level, all descendants receive it automatically.
+Example: A product page with title, price, and images all showing the same product. Load it once at the page level instead of three separate loads.
 
 ### Provider Configuration
 
@@ -819,6 +863,7 @@ Combined example showing routing, data loading, and context distribution.
   "id": "product-detail-page",
   "type": "Sw:Grid",
   "properties": {
+    "product": "{{product_id}}",
     "columns": "1",
     "gap": 32
   },

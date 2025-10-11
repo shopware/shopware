@@ -7,7 +7,6 @@
 - `ContentRoute` - Main endpoint implementation
 - `AbstractContentRoute` - Decorator base
 - `ContentRouteResponse` - Response wrapper
-- `ContentPage` (Struct/) - Response payload
 
 ## Constraints
 
@@ -29,6 +28,10 @@ See `ContentRoute::load()` for implementation.
 - **Methods**: GET, POST
 - **HTTP Cache**: Enabled (`_httpCache: true`)
 - **Wildcard**: `{path}` matches any URL pattern
+
+### Query Parameters
+
+- `?elementId=xyz`: Request specific element subtree only
 
 ## Quick Reference
 

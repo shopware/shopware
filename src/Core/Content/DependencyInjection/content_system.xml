@@ -158,6 +158,21 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver"/>
         </service>
 
+        <!-- Layout Tree Utilities -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil"/>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
+
+        <!-- Partial Rendering Refiner (Pre-Hydration Pruning) -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\Refiner\PartialRenderingRefiner">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
+            <tag name="content_system.layout_refiner" priority="200"/>
+        </service>
+
+        <!-- Output Services (Post-Hydration Processing) -->
+        <service id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
+
         <!-- Store-API Route -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter"/>
@@ -165,6 +180,7 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>

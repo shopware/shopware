@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Refinery;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Content\ContentSystem\Output\RenderingContext;
 use Shopware\Core\Content\ContentSystem\Routing\IdResolution\Struct\ResolvedData;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,6 +24,7 @@ interface LayoutRefinerInterface
      *
      * @param ContentElement $layout The layout to refine
      * @param ResolvedData $resolvedData Entity IDs and parameters from routing
+     * @param RenderingContext $renderingContext Output rendering configuration
      * @param SalesChannelContext $context Sales channel context
      *
      * @return ContentElement The refined layout
@@ -30,6 +32,7 @@ interface LayoutRefinerInterface
     public function refine(
         ContentElement $layout,
         ResolvedData $resolvedData,
+        RenderingContext $renderingContext,
         SalesChannelContext $context
     ): ContentElement;
 }

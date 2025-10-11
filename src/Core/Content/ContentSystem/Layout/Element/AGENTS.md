@@ -8,8 +8,11 @@
 - `ElementSlots` (Slot/) - Slots container
 - `SlotContent` (Slot/) - Collection of elements per slot
 - `ContextProvider`, `ContextConsumer` (Context/) - Context definitions
+- `ContextDependencyAnalyzer` (Context/) - Analyzes context dependency chains
 - `DataRequirement` (DataRequirement/) - Data loading specs
 - `ElementVisitor` (Visitor/) - Traversal interface
+- `PathFinderVisitor` (Visitor/) - Finds path from root to element
+- `ElementTreeUtil` (TreeUtil/) - Tree manipulation utilities
 
 ## Constraints
 

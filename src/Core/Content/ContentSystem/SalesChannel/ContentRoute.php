@@ -4,11 +4,14 @@ namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
+use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder;
+use Shopware\Core\Content\ContentSystem\Output\RenderingContext;
+use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver;
 use Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver;
 use Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter;
-use Shopware\Core\Content\ContentSystem\SalesChannel\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -32,7 +35,8 @@ class ContentRoute extends AbstractContentRoute
         private readonly EntityIdResolver $entityIdResolver,
         private readonly LayoutResolver $layoutResolver,
         private readonly RefinedLayoutBuilder $refinedLayoutBuilder,
-        private readonly ContentElementHydrator $hydrationService
+        private readonly ContentElementHydrator $hydrationService,
+        private readonly SubTreeExtractor $subTreeExtractor
     ) {
     }
 
@@ -114,8 +118,10 @@ class ContentRoute extends AbstractContentRoute
 
         $resolvedData->setResolvedLayoutId($layoutId);
 
+        $renderingContext = RenderingContext::fromRequest($request);
+
         try {
-            $refinedLayout = $this->refinedLayoutBuilder->build($layoutId, $resolvedData, $context);
+            $refinedLayout = $this->refinedLayoutBuilder->build($layoutId, $resolvedData, $renderingContext, $context);
         } catch (\Throwable $e) {
             throw ContentSystemException::layoutRefineryFailed($layoutId, $e->getMessage(), $e);
         }
@@ -126,14 +132,40 @@ class ContentRoute extends AbstractContentRoute
             throw ContentSystemException::hydrationFailed($e->getMessage(), $e);
         }
 
+        $rootElement = $this->applyPartialRendering(
+            $refinedLayout->rootElement,
+            $renderingContext
+        );
+
         $contentPage = new ContentPage(
             layoutId: $layoutId,
-            layout: $refinedLayout->rootElement,
+            layout: $rootElement,
             layoutName: $refinedLayout->layoutEntity->getName(),
             layoutVersion: $refinedLayout->layoutEntity->getVersionId(),
             route: $route
         );
 
         return new ContentRouteResponse($contentPage);
+    }
+
+    private function applyPartialRendering(
+        ContentElement $rootElement,
+        RenderingContext $renderingContext
+    ): ContentElement {
+        if (!$renderingContext->hasTargetElement()) {
+            return $rootElement;
+        }
+
+        // Extract target element ID (guaranteed non-null after hasTargetElement check)
+        /** @var string $targetElementId */
+        $targetElementId = $renderingContext->targetElementId;
+
+        $targetElement = $this->subTreeExtractor->extract($rootElement, $targetElementId);
+
+        if ($targetElement === null) {
+            throw ContentSystemException::elementNotFound($targetElementId);
+        }
+
+        return $targetElement;
     }
 }

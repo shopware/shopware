@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
-use Shopware\Core\Content\ContentSystem\SalesChannel\Struct\ContentPage;
-use Shopware\Core\Content\ContentSystem\SalesChannel\Struct\DecomposedContentPage;
+use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Content\ContentSystem\Output\Struct\DecomposedContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 

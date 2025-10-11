@@ -29,6 +29,10 @@ class ContentSystemException extends HttpException
     public const INVALID_FIELD_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_TYPE';
     public const INVALID_FIELD_VALUE_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE';
 
+    public const ELEMENT_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_NOT_FOUND';
+    public const INVALID_ELEMENT_ID = 'CONTENT_SYSTEM__INVALID_ELEMENT_ID';
+    public const PATH_INTEGRITY_VIOLATION = 'CONTENT_SYSTEM__PATH_INTEGRITY_VIOLATION';
+
     public static function contentNotFound(string $pathInfo): self
     {
         return new self(
@@ -149,6 +153,35 @@ class ContentSystemException extends HttpException
             'Entity resolution failed for route "{{ routeName }}": {{ reason }}',
             ['routeName' => $routeName, 'reason' => $reason],
             $previous
+        );
+    }
+
+    public static function elementNotFound(string $elementId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ELEMENT_NOT_FOUND,
+            'Element with ID "{{ elementId }}" not found in layout',
+            ['elementId' => $elementId]
+        );
+    }
+
+    public static function invalidElementId(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_ELEMENT_ID,
+            'The elementId parameter must be a non-empty string'
+        );
+    }
+
+    public static function pathIntegrityViolation(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PATH_INTEGRITY_VIOLATION,
+            'Path integrity violation: {{ reason }}',
+            ['reason' => $reason]
         );
     }
 }

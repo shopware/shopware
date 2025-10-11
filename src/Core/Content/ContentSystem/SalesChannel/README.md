@@ -7,27 +7,33 @@ Store API entry point for content system. Single route orchestrates full pipelin
 - `AbstractContentRoute` - Abstract route base
 - `ContentRoute` - Concrete implementation
 - `ContentRouteResponse` - Response wrapper
-- `ContentPage` - Response payload (Struct/)
 
 ## Endpoint
 
-`POST /store-api/content/{path}` - Matches any path, delegates to ContentRouter.
+`POST /store-api/content/{path}?elementId={id}` - Optional `elementId` for partial rendering.
+
+## Query Parameters
+
+The endpoint accepts optional query parameters:
+- `elementId`: String - Request only specific element and its descendants (partial rendering)
 
 ## Pipeline Orchestration
 
-ContentRoute orchestrates five phases:
+ContentRoute orchestrates six phases:
 
 1. **Route Matching**: ContentRouter matches URL to content route
 2. **Entity Resolution**: EntityIdResolver extracts parameters, queries entities
 3. **Layout Resolution**: LayoutResolver determines layout (static or cascade)
 4. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
 5. **Hydration**: ContentElementHydrator loads data + resolves context
+6. **Output Processing**: SubTreeExtractor for partial rendering (if elementId present)
 
 Returns ContentPage containing:
-- `rootElement`: Hydrated ContentElement tree
-- `resolvedData`: Entity IDs and URL parameters
+- `layoutId`: Layout UUID
+- `layout`: Hydrated ContentElement tree (root element)
+- `layoutName`: Layout name
+- `layoutVersion`: Layout version ID
 - `route`: Matched ContentRouteEntity
-- `layout`: ContentLayoutEntity
 
 ## HTTP Cache
 

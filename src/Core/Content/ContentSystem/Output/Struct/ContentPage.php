@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\SalesChannel\Struct;
+namespace Shopware\Core\Content\ContentSystem\Output\Struct;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;

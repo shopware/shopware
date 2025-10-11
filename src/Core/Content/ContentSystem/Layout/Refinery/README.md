@@ -22,15 +22,18 @@ Performance. Multiple passes would require repeated tree traversal. Layout trees
 LayoutRefinery iterates refiners (DI tagged services), calls `refine()` on each. Refiners receive:
 - `ContentElement $layout` - Element tree (may be modified)
 - `ResolvedData $resolvedData` - Entity IDs and URL parameters
+- `RenderingContext $renderingContext` - Output rendering configuration
 - `SalesChannelContext $context` - Sales channel context
 
 Each refiner returns modified ContentElement. Output becomes input for next refiner. Order matters - refiners run in DI priority order.
 
-## Built-in Refiner
+## Built-in Refiners
 
-Only one built-in refiner: `PlaceholderResolutionRefiner` (priority 0).
+Two built-in refiners:
 
-Calls `ContentElement::replacePlaceholders(ResolvedData)` recursively, replacing `{{placeholder}}` strings with values from resolved entity IDs and URL parameters. Runs first due to priority 0.
+**PlaceholderResolutionRefiner** (priority 0): Calls `ContentElement::replacePlaceholders(ResolvedData)` recursively.
+
+**PartialRenderingRefiner** (priority 200): Pre-hydration tree pruning when `?elementId` parameter present. Keeps only path to target element and its descendants.
 
 All other refiners are extension-provided.
 
@@ -65,6 +68,7 @@ class RouteOverrideRefiner implements LayoutRefinerInterface
     public function refine(
         ContentElement $layout,
         ResolvedData $resolvedData,
+        RenderingContext $renderingContext,
         SalesChannelContext $context
     ): ContentElement {
         $route = $resolvedData->getRoute();

@@ -13,9 +13,9 @@
 Priority determines execution order (lower number = earlier execution):
 
 ```
-Priority   0: PlaceholderResolutionRefiner (core, runs first)
-Priority 100: CustomRefiner1 (extension)
-Priority 200: CustomRefiner2 (extension)
+Priority   0: PlaceholderResolutionRefiner (built-in)
+Priority 200: PartialRenderingRefiner (built-in)
+Priority 100+: Extension refiners
 ```
 
 Chain characteristics:
@@ -30,15 +30,20 @@ Chain characteristics:
 #[AutoconfigureTag('content_system.layout_refiner', ['priority' => 100])]
 class RouteOverrideRefiner implements LayoutRefinerInterface
 {
-    // See LayoutRefinerInterface for contract
+    public function refine(
+        ContentElement $layout,
+        ResolvedData $resolvedData,
+        RenderingContext $renderingContext,
+        SalesChannelContext $context
+    ): ContentElement { /* ... */ }
 }
 ```
 
-### Built-in Refiner: PlaceholderResolutionRefiner
+### Built-in Refiners
 
-Runs at priority 0 (first). Calls `$layout->replacePlaceholders($resolvedData)`.
+PlaceholderResolutionRefiner (priority 0) and PartialRenderingRefiner (priority 200).
 
-All extension refiners run AFTER placeholders resolved (unless negative priority).
+Extension refiners typically use priority 100+.
 
 ## Quick Reference
 

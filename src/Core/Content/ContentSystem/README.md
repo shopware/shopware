@@ -30,7 +30,8 @@ Routes contain URL patterns (`/product/{seoUrl}`) with parameter bindings that m
 - `ContentElement` - Tree structure with slots, data requirements, context (Layout/Element/)
 - `LayoutRefinery` - Single-pass refinement, no recursive placeholders (Layout/Refinery/)
 - `ContentElementHydrator` - Loads data + resolves context (Hydration/)
-- `ContentRoute` - Store API endpoint, orchestrates pipeline (SalesChannel/)
+- `ContentRouteLoader` - Orchestrates pipeline (SalesChannel/)
+- `ContentRoute` - Store API endpoint, delegates to loader (SalesChannel/)
 
 ## Subdirectories
 

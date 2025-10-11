@@ -18,7 +18,7 @@ Runs AFTER hydration completes:
 - Context resolved
 - Tree fully populated
 
-See `ContentRoute::load()` for pipeline order.
+See `ContentRouteLoader::load()` for pipeline order.
 
 ### Read-Only Operations
 

@@ -9,7 +9,7 @@
 - **Layout Resolution**: `Routing/LayoutResolution/LayoutResolver`
 - **Refinement**: `Layout/Refinery/RefinedLayoutBuilder`, `Layout/Refinery/LayoutRefinery`
 - **Hydration**: `Hydration/ContentElementHydrator`
-- **Store API**: `SalesChannel/ContentRoute`
+- **Store API**: `SalesChannel/ContentRoute`, `SalesChannel/ContentRouteLoader`
 
 ## Quick Reference
 

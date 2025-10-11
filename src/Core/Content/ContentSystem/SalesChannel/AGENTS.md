@@ -5,6 +5,7 @@
 ## Source Code References
 
 - `ContentRoute` - Main endpoint implementation
+- `ContentRouteLoader` - Pipeline orchestrator
 - `AbstractContentRoute` - Decorator base
 - `ContentRouteResponse` - Response wrapper
 
@@ -12,7 +13,7 @@
 
 ### Five-Phase Pipeline Orchestration
 
-ContentRoute orchestrates these phases sequentially:
+ContentRouteLoader orchestrates these phases sequentially:
 
 1. **Route Matching**: ContentRouter matches URL to content route
 2. **Entity Resolution**: EntityIdResolver extracts parameters, queries entities
@@ -20,7 +21,7 @@ ContentRoute orchestrates these phases sequentially:
 4. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
 5. **Hydration**: ContentElementHydrator loads data + resolves context
 
-See `ContentRoute::load()` for implementation.
+See `ContentRouteLoader::load()` for implementation.
 
 ### Endpoint Details
 

@@ -175,6 +175,12 @@
 
         <!-- Store-API Route -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
+
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver"/>
@@ -182,8 +188,6 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
         </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
 
         <!-- Storefront Controller -->
         <service id="Shopware\Storefront\Controller\ContentController" public="true">

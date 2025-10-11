@@ -92,8 +92,25 @@ class ElementSlots extends Struct implements \IteratorAggregate, \Countable
         return \count($this->slots);
     }
 
+    /**
+     * Custom JSON serialization to flatten the slots structure.
+     *
+     * Instead of serializing to {"slots": {...}, "apiAlias": "..."},
+     * this spreads the slots array at the top level to avoid double nesting
+     * when ElementSlots is used as a property named "slots" in parent objects.
+     *
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            ...$this->slots,
+            'apiAlias' => $this->getApiAlias(),
+        ];
+    }
+
     public function getApiAlias(): string
     {
-        return 'core_element_slots';
+        return 'content_element_slots';
     }
 }

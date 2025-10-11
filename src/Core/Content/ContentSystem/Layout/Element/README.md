@@ -30,6 +30,10 @@ slots->allElements() → Generator yielding all elements
 
 `allElements()` is a generator for memory efficiency. Doesn't build intermediate array. Visitor pattern uses this for tree traversal.
 
+### API(JSON) Serialization
+
+When serialized to JSON (e.g., in API responses), ElementSlots spreads its slot names at the top level to avoid double nesting. This means `element.slots` serializes to `{"slotName": SlotContent, "apiAlias": "..."}` instead of `{"slots": {"slotName": ...}}`.
+
 ## Visitor Pattern
 
 `traverse(ElementVisitor)` walks tree depth-first:

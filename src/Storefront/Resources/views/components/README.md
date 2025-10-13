@@ -48,7 +48,8 @@ views/components/Button/
     Button.scss
 ```
 
-The loading and template matching is already solved by placing the file in the right directory, so you don't have to define a secific name or template path in your component class.
+The loading and template matching is already solved by placing the file in the right directory,
+so you don't have to define a specific name or template path in your component class.
 
 ```PHP
 <?php declare(strict_types=1);

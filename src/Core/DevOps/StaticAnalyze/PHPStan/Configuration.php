@@ -24,4 +24,12 @@ final readonly class Configuration
     {
         return $this->parameters['allowedNonDomainExceptions'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getAllowedStorefrontRouteNamespaces(): array
+    {
+        return $this->parameters['allowedStorefrontRouteNamespaces'] ?? [];
+    }
 }

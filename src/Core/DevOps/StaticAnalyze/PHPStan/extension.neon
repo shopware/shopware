@@ -21,8 +21,11 @@ parameters:
             - Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
             - Symfony\Component\HttpFoundation\Exception\BadRequestException
+        allowedStorefrontRouteNamespaces:
+            - Shopware\Storefront
 
 parametersSchema:
     shopware: structure([
         allowedNonDomainExceptions: list(string),
+        allowedStorefrontRouteNamespaces: list(string),
     ])

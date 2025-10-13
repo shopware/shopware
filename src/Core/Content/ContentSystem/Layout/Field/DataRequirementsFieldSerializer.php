@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Field;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -26,7 +27,8 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
 {
     public function __construct(
         ValidatorInterface $validator,
-        DefinitionInstanceRegistry $definitionRegistry
+        DefinitionInstanceRegistry $definitionRegistry,
+        private readonly DataLoaderConfigSerializerProvider $configProvider
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -99,7 +101,7 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
         return [
             'key' => $requirement->key,
             'source' => $requirement->source,
-            'config' => $requirement->config,
+            'config' => $this->configProvider->encode($requirement->source, $requirement->config),
         ];
     }
 
@@ -138,10 +140,11 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
      */
     private function deserializeDataRequirement(array $data): DataRequirement
     {
-        return new DataRequirement(
-            key: $data['key'],
-            source: $data['source'],
-            config: $data['config'] ?? []
-        );
+        $source = $data['source'] ?? '';
+        $configData = $data['config'] ?? [];
+
+        $config = $this->configProvider->decode($source, $configData);
+
+        return new DataRequirement($data['key'], $source, $config);
     }
 }

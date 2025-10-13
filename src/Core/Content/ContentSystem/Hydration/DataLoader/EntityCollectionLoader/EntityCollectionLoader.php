@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader;
+namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader;
 
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderInterface;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -13,20 +15,14 @@ use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundEx
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @phpstan-type EntityCollectionLoaderConfig array{
- *   entity: string,
- *   property?: string,
- *   associations?: list<string>
- * }
- *
  * @internal
  */
 #[Package('discovery')]
-readonly class EntityCollectionLoader implements ContentDataLoaderInterface
+class EntityCollectionLoader implements ContentDataLoaderInterface
 {
     public function __construct(
-        private SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
-        private DefinitionInstanceRegistry $definitionRegistry
+        private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
     ) {
     }
 
@@ -36,8 +32,6 @@ readonly class EntityCollectionLoader implements ContentDataLoaderInterface
     }
 
     /**
-     * @param DataRequirement $requirement Expects $requirement->config to be EntityCollectionLoaderConfig
-     *
      * @return list<covariant Entity>|null
      */
     public function load(
@@ -45,13 +39,13 @@ readonly class EntityCollectionLoader implements ContentDataLoaderInterface
         DataRequirement $requirement,
         SalesChannelContext $context
     ): ?array {
-        $entityType = $requirement->config['entity'] ?? null;
+        $config = $requirement->config;
 
-        if (!\is_string($entityType)) {
+        if (!$config instanceof EntityLoaderConfig) {
             return null;
         }
 
-        $propertyName = $requirement->config['property'] ?? $entityType . 'Ids';
+        $propertyName = $config->property ?? $config->entity . 'Ids';
         $entityIds = $element->getProperty($propertyName);
 
         if ($entityIds === null) {
@@ -68,12 +62,7 @@ readonly class EntityCollectionLoader implements ContentDataLoaderInterface
             return null;
         }
 
-        $associations = $requirement->config['associations'] ?? [];
-        if (!\is_array($associations)) {
-            $associations = [];
-        }
-
-        return $this->loadEntities($entityType, $entityIds, $associations, $context);
+        return $this->loadEntities($config->entity, $entityIds, $config->associations, $context);
     }
 
     /**

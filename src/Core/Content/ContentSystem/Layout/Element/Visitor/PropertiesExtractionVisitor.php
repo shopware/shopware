@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Layout\Element\Visitor;
 
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -30,6 +31,11 @@ class PropertiesExtractionVisitor implements ElementVisitor
      * @var array<string, array<string, string>> Map of element ID => property key => reference ID
      */
     private array $assignments = [];
+
+    public function __construct(
+        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider
+    ) {
+    }
 
     public function enter(ContentElement $element): void
     {
@@ -126,11 +132,14 @@ class PropertiesExtractionVisitor implements ElementVisitor
 
     private function generateConfigHash(DataRequirement $requirement): string
     {
-        $config = $requirement->config;
+        $configArray = $this->configSerializerProvider->encode(
+            $requirement->source,
+            $requirement->config
+        );
 
-        $this->canonicalizeConfig($config);
+        $this->canonicalizeConfig($configArray);
 
-        return Hasher::hash($config);
+        return Hasher::hash($configArray);
     }
 
     /**

@@ -5,7 +5,10 @@
 ## Source Code References
 
 - **Interface**: `ContentDataLoaderInterface`
-- **Built-in Loaders**: `EntityLoader`, `EntityCollectionLoader`, `ProductListingDataLoader`
+- **Config Interface**: `ContentDataLoaderConfigInterface`
+- **Serializer Interface**: `ContentDataLoaderConfigSerializerInterface`
+- **Serializer Provider**: `DataLoaderConfigSerializerProvider`
+- **Built-in Loaders**: `EntityLoader/EntityLoader`, `EntityCollectionLoader/EntityCollectionLoader`, `ProductListingLoader/ProductListingDataLoader`
 - **Registry**: `DataLoaderProvider`
 
 ## Key Conventions
@@ -38,25 +41,26 @@ new DataRequirement(key: 'data', source: 'weather', config: [])  // Must match
 
 ### Config Schema Documentation
 
-Always document config structure with `@phpstan-type` in loader class. See `EntityLoader` @phpstan-type EntityLoaderConfig for example.
+Create config class implementing `ContentDataLoaderConfigInterface` with `@phpstan-type`. Create serializer implementing `ContentDataLoaderConfigSerializerInterface`. See `EntityLoaderConfig` and `EntityLoaderConfigSerializer` for example.
 
 ## Extension Pattern
 
-1. Implement `ContentDataLoaderInterface`
-2. Add DI tag: `#[AutoconfigureTag('content_system.data_loader', ['source' => 'unique_id'])]`
-3. Document config with `@phpstan-type`
-4. Return `null` for missing data (don't throw)
-5. Use `$context->getContext()` for entity queries
+1. Create config class implementing `ContentDataLoaderConfigInterface`
+2. Create serializer implementing `ContentDataLoaderConfigSerializerInterface`
+3. Implement `ContentDataLoaderInterface`
+4. Register serializer in DI with source tag
+5. Return `null` for missing data (don't throw)
+6. Use `$context->getContext()` for entity queries
 
-See `EntityLoader` implementation for complete example.
+See `EntityLoader/` directory for complete example.
 
 ## Quick Reference
 
 - **Interface**: `ContentDataLoaderInterface::load(ContentElement, DataRequirement, SalesChannelContext): mixed`
 - **Registration**: `#[AutoconfigureTag('content_system.data_loader', ['source' => 'id'])]`
 - **Built-in sources**: `entity`, `entity_collection`, `product_listing`
-- **Config docs**: Use `@phpstan-type` in loader class
+- **Config**: Separate config class + serializer
 - **Return**: Data or `null` (never throw)
 - **Sales channel**: Always use `$context->getContext()` for queries
 - **Testing**: `StaticEntityRepository` for isolation
-- **Registry**: `DataLoaderProvider` throws if source not found
+- **Registry**: `DataLoaderProvider` throws if source not found, `DataLoaderConfigSerializerProvider` for serialization

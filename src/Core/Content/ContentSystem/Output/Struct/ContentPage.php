@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Output\Struct;
 
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
 use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteEntity;
@@ -54,13 +55,14 @@ class ContentPage extends Struct
     }
 
     /**
-     * Lazily creates decomposed version with extracted properties. Cached after first call.
+     * Lazily creates decomposed version with extracted properties.
      */
-    public function getDecomposedContentPage(): DecomposedContentPage
-    {
+    public function getDecomposedContentPage(
+        DataLoaderConfigSerializerProvider $configSerializerProvider
+    ): DecomposedContentPage {
         $skeleton = clone $this->layout;
 
-        $visitor = new PropertiesExtractionVisitor();
+        $visitor = new PropertiesExtractionVisitor($configSerializerProvider);
         $skeleton->traverse($visitor);
 
         return new DecomposedContentPage(

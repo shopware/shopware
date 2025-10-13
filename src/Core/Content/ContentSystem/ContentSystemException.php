@@ -25,6 +25,7 @@ class ContentSystemException extends HttpException
     public const INVALID_MAP_VALUE = 'CONTENT_SYSTEM__INVALID_MAP_VALUE';
 
     public const DATA_LOADER_NOT_REGISTERED = 'CONTENT_SYSTEM__DATA_LOADER_NOT_REGISTERED';
+    public const CONFIG_SERIALIZER_NOT_REGISTERED = 'CONTENT_SYSTEM__CONFIG_SERIALIZER_NOT_REGISTERED';
 
     public const INVALID_FIELD_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_TYPE';
     public const INVALID_FIELD_VALUE_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE';
@@ -50,6 +51,16 @@ class ContentSystemException extends HttpException
             self::DATA_LOADER_NOT_REGISTERED,
             'Data loader for requirement type "{{ requirementType }}" not registered. Element type: "{{ elementType }}", element ID: "{{ elementId }}"',
             ['requirementType' => $requirementType, 'elementType' => $elementType, 'elementId' => $elementId]
+        );
+    }
+
+    public static function configSerializerNotRegistered(string $source): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONFIG_SERIALIZER_NOT_REGISTERED,
+            'Config serializer for source "{{ source }}" is not registered',
+            ['source' => $source]
         );
     }
 

@@ -45,6 +45,7 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -76,11 +77,14 @@ class ThemeCompilerTest extends TestCase
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
+        $twigComponentHelper = static::getContainer()->get(TwigComponentHelper::class);
+
         $this->themeCompiler = new ThemeCompiler(
             $mockFilesystem,
             $mockFilesystem,
             new CopyBatchInputFactory(),
             $themeFileResolver,
+            $twigComponentHelper,
             true,
             $this->eventDispatcher,
             static::getContainer()->get(ThemeFilesystemResolver::class),
@@ -446,11 +450,14 @@ PHP_EOL;
         $fs = new Filesystem(new MemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
 
+        $twigComponentHelper = static::getContainer()->get(TwigComponentHelper::class);
+
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
             new CopyBatchInputFactory(),
             $resolver,
+            $twigComponentHelper,
             true,
             static::getContainer()->get('event_dispatcher'),
             $this->createMock(ThemeFilesystemResolver::class),

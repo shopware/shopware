@@ -41,15 +41,20 @@ class FileCollection extends Collection
     public function getPublicPaths(string $prefix): array
     {
         return array_values(array_filter($this->map(function (File $element) use ($prefix) {
-            if ($element->assetName === null) {
-                return null;
-            }
-
             // Handle Twig UX components
             if (Feature::isActive('STOREFRONT_COMPONENTS')) {
                 if (str_contains($element->getFilepath(), 'Resources/views/components/')) {
-                    return $prefix . '/components/' . $element->assetName . '/' . basename($element->getFilepath());
+                    // Build path - handle empty assetName (for root namespace components)
+                    $componentPath = $element->assetName !== null && $element->assetName !== '' 
+                        ? $element->assetName . '/' . basename($element->getFilepath())
+                        : basename($element->getFilepath());
+                    return $prefix . '/components/' . $componentPath;
                 }
+            }
+
+            // For non-component files, assetName must be set
+            if ($element->assetName === null) {
+                return null;
             }
 
             // removes file with old js structure (before async changes) from collection

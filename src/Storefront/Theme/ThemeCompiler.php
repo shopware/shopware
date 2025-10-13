@@ -24,7 +24,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Validator\SCSSValidator;
-use Shopware\Storefront\Framework\Twig\Components\UxComponentHelper;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
@@ -44,7 +44,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly FilesystemOperator $tempFilesystem,
         private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
-        private readonly UxComponentHelper $uxComponentHelper,
+        private readonly TwigComponentHelper $twigComponentHelper,
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ThemeFilesystemResolver $themeFilesystemResolver,
@@ -212,9 +212,12 @@ class ThemeCompiler implements ThemeCompilerInterface
         return $copyFiles;
     }
 
+    /**
+     * @return list<CopyBatchInput>
+     */
     private function copyComponentScriptFiles(string $themePrefix): array
     {
-        $componentScriptFiles = $this->uxComponentHelper->getComponents();
+        $componentScriptFiles = $this->twigComponentHelper->getComponents();
         $themeComponentsPath = 'theme/' . $themePrefix . '/js/components/';
 
         $copyFiles = [];

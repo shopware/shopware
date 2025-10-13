@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Shopware\Storefront\Framework\Twig\Components\UxComponentRenderEventListener;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -19,7 +19,7 @@ class TemplateConfigAccessor
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
-        private readonly UxComponentRenderEventListener $uxComponentRenderEventListener
+        private readonly TwigComponentRenderEventListener $twigComponentRenderEventListener
     ) {
     }
 
@@ -61,6 +61,9 @@ class TemplateConfigAccessor
         return $scripts;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function componentScripts(): array
     {
         $scripts = [];
@@ -74,18 +77,21 @@ class TemplateConfigAccessor
         return $scripts;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function mountedComponentScripts(): array
     {
         $scripts = [];
         $mountedScripts = [];
-        $mountedComponents = $this->uxComponentRenderEventListener->getMountedComponents();
+        $mountedComponents = $this->twigComponentRenderEventListener->getMountedComponents();
 
         foreach($mountedComponents as $component) {
             $mountedScripts[] = 'js/components/'.str_replace(':', '/', $component).'.js';
         }
 
         foreach($this->themeScripts->getThemeScripts() as $script) {
-            if (str_starts_with($script, 'js/components/') && in_array($script, $mountedScripts)) {
+            if (str_starts_with($script, 'js/components/') && in_array($script, $mountedScripts, true)) {
                 $scripts[] = $script;
             }
         }

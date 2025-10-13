@@ -35,15 +35,6 @@ class ContentElement extends Struct
     ) {
     }
 
-    /**
-     * Deep clone including all child elements.
-     */
-    public function __clone(): void
-    {
-        $this->slots = clone $this->slots;
-        $this->contextDefinitions = clone $this->contextDefinitions;
-    }
-
     public function getId(): string
     {
         return $this->id;

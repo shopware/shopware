@@ -87,8 +87,6 @@ class ContentRouteLoader
             );
         }
 
-        $resolvedData->setResolvedLayoutId($layoutId);
-
         $renderingContext = RenderingContext::fromRequest($request);
 
         try {

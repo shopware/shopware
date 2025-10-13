@@ -5,8 +5,8 @@
 ## Source Code References
 
 - **Main class**: `ContentElementHydrator`
-- **Data loaders**: See `DataLoader/CLAUDE.md`
-- **Context resolution**: See `DataContext/CLAUDE.md`
+- **Data loaders**: See `DataLoader/AGENTS.md`
+- **Context resolution**: See `DataContext/AGENTS.md`
 
 ## Critical Ordering Requirement
 
@@ -42,6 +42,6 @@ See `ContentElementHydrator::hydrate()` and `hydrateElement()` for implementatio
 - **Phase 1**: Recursive depth-first data loading
 - **Phase 2**: Context resolution (separate pass)
 - **Requirement key**: Determines property storage location
-- **Source identifier**: Selects which loader to use (see DataLoader/CLAUDE.md)
+- **Source identifier**: Selects which loader to use (see `DataLoader/AGENTS.md`)
 - **Common mistake**: Inverting phase order or assuming key = entity type
 - **Performance**: Minimize requirements, use associations for batch loading

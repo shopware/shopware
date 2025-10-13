@@ -14,10 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 final readonly class RenderingContext
 {
-    public function __construct(
+    private function __construct(
         public ?string $targetElementId = null,
-        public bool $includeAncestors = true,
-        public bool $includeDescendants = true,
     ) {
     }
 
@@ -33,6 +31,6 @@ final readonly class RenderingContext
             throw ContentSystemException::invalidElementId();
         }
 
-        return new self($elementId, includeAncestors: false);
+        return new self($elementId);
     }
 }

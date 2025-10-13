@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class DataContextStack
 {
     /**
-     * @var array<string, array<int, array{data: mixed, distribution: string}>>
+     * @var array<string, array<int, DataContextStackItem>>
      */
     private array $stack = [];
 
@@ -23,10 +23,7 @@ class DataContextStack
             $this->stack[$key] = [];
         }
 
-        $this->stack[$key][] = [
-            'data' => $data,
-            'distribution' => $distribution,
-        ];
+        $this->stack[$key][] = new DataContextStackItem($data, $distribution);
     }
 
     public function pop(string $key): void
@@ -42,10 +39,7 @@ class DataContextStack
         }
     }
 
-    /**
-     * @return array{data: mixed, distribution: string}|null
-     */
-    public function get(string $key): ?array
+    public function get(string $key): ?DataContextStackItem
     {
         if (!isset($this->stack[$key]) || empty($this->stack[$key])) {
             return null;
@@ -59,17 +53,11 @@ class DataContextStack
         return isset($this->stack[$key]) && !empty($this->stack[$key]);
     }
 
-    /**
-     * @internal
-     */
     public function getDepth(string $key): int
     {
         return isset($this->stack[$key]) ? \count($this->stack[$key]) : 0;
     }
 
-    /**
-     * @internal
-     */
     public function clear(): void
     {
         $this->stack = [];

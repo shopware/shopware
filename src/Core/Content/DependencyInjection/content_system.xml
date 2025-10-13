@@ -61,6 +61,7 @@
         <service id="Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
@@ -104,19 +105,19 @@
         </service>
 
         <!-- Content Data Loaders -->
-        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader">
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="content_system.data_loader"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader">
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="content_system.data_loader"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingDataLoader">
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingDataLoader">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
             <tag name="content_system.data_loader"/>
         </service>
@@ -124,6 +125,25 @@
         <!-- Data Loader Provider with Tagged Locator -->
         <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderProvider">
             <argument type="tagged_locator" tag="content_system.data_loader" default-index-method="getRequirementType"/>
+        </service>
+
+        <!-- Config Serializers -->
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer"/>
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <!-- Config Serializer Provider with Tagged Locator -->
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider">
+            <argument type="tagged_locator" tag="content_system.config_serializer" default-index-method="getSource"/>
         </service>
 
         <!-- Data Context Resolution -->
@@ -176,6 +196,7 @@
         <!-- Store-API Route -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>

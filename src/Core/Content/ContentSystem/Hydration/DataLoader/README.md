@@ -5,7 +5,10 @@ Data fetching for content elements. Dispatches to loader implementations based o
 ## Key Classes
 
 - `ContentDataLoaderInterface` - Loader contract
+- `ContentDataLoaderConfigInterface` - Config object contract
+- `ContentDataLoaderConfigSerializerInterface` - Serializer contract
 - `DataLoaderProvider` - Dispatcher, selects loader by source identifier
+- `DataLoaderConfigSerializerProvider` - Serializer registry
 - `EntityLoader` - Single entity loading via EntityRepository
 - `EntityCollectionLoader` - Multiple entities loading via EntityRepository
 - `ProductListingDataLoader` - Product listing queries
@@ -22,15 +25,15 @@ Core provides these loaders:
 
 **EntityLoader** (`source: "entity"`)
 - Loads single entity by ID from element property
-- Config: See `@phpstan-type EntityLoaderConfig` in EntityLoader class
+- Config: See `EntityLoaderConfig` class
 
 **EntityCollectionLoader** (`source: "entity_collection"`)
 - Loads multiple entities by IDs from element property as an array
-- Config: See `@phpstan-type EntityCollectionLoaderConfig` in EntityCollectionLoader class
+- Config: See `EntityLoaderConfig` class (shared with EntityLoader)
 
 **ProductListingDataLoader** (`source: "product_listing"`)
 - Product listings with filters, sorting, pagination
-- Config: See `@phpstan-type ProductListingLoaderConfig` in ProductListingDataLoader class
+- Config: See `ProductListingLoaderConfig` class
 
 ## Loader Interface
 

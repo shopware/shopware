@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -22,6 +23,7 @@ class ContentRoute extends AbstractContentRoute
      */
     public function __construct(
         private readonly ContentRouteLoader $contentRouteLoader,
+        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider
     ) {
     }
 
@@ -50,6 +52,6 @@ class ContentRoute extends AbstractContentRoute
     {
         $contentPage = $this->contentRouteLoader->load($path, $request, $context);
 
-        return new ContentRouteResponse($contentPage->getDecomposedContentPage());
+        return new ContentRouteResponse($contentPage->getDecomposedContentPage($this->configSerializerProvider));
     }
 }

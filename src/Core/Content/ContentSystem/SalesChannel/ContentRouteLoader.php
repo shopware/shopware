@@ -121,13 +121,10 @@ class ContentRouteLoader
         ContentElement $rootElement,
         RenderingContext $renderingContext
     ): ContentElement {
-        if (!$renderingContext->hasTargetElement()) {
+        $targetElementId = $renderingContext->targetElementId;
+        if ($targetElementId === null || $targetElementId === '') {
             return $rootElement;
         }
-
-        // Extract target element ID (guaranteed non-null after hasTargetElement check)
-        /** @var string $targetElementId */
-        $targetElementId = $renderingContext->targetElementId;
 
         $targetElement = $this->subTreeExtractor->extract($rootElement, $targetElementId);
 

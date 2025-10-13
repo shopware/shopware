@@ -35,9 +35,4 @@ final readonly class RenderingContext
 
         return new self($elementId, includeAncestors: false);
     }
-
-    public function hasTargetElement(): bool
-    {
-        return $this->targetElementId !== null && $this->targetElementId !== '';
-    }
 }

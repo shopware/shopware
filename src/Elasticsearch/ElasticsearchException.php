@@ -153,13 +153,16 @@ class ElasticsearchException extends HttpException
         );
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     public static function indexCreationFailed(string $index, array $config, \Throwable $exception): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INDEX_CREATION_ERROR,
             'Creating index {{ index }} failed with payload {{ payload }}. Reason: {{ reason }}',
-            ['index' => $index, 'reason' => $exception->getMessage(), 'payload' => json_encode($config, JSON_THROW_ON_ERROR)]
+            ['index' => $index, 'reason' => $exception->getMessage(), 'payload' => json_encode($config, \JSON_THROW_ON_ERROR)]
         );
     }
 

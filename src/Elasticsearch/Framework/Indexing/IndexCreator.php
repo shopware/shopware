@@ -68,7 +68,7 @@ class IndexCreator
                 'index' => $index,
                 'body' => $event->getConfig(),
             ]);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $exception = ElasticsearchException::indexCreationFailed($index, $event->getConfig(), $exception);
             $this->helper->logAndThrowException($exception);
         }

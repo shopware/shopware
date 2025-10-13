@@ -32,6 +32,8 @@ export default async function (): Promise<void> {
                 ...amplitudeEvent.event_properties,
                 sw_version: Shopware.Store.get('context').app.config.version,
                 sw_shop_id: Shopware.Store.get('context').app.config.shopId,
+                sw_app_url: Shopware.Store.get('context').app.config.appUrl,
+                sw_browser_url: window.location.origin,
                 sw_user_agent: window.navigator.userAgent,
                 sw_default_language: defaultLanguageName,
                 sw_default_currency: Shopware.Context.app.systemCurrencyISOCode,

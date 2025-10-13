@@ -34,13 +34,10 @@ class PartialRenderingRefiner implements LayoutRefinerInterface
         RenderingContext $renderingContext,
         SalesChannelContext $context
     ): ContentElement {
-        if (!$renderingContext->hasTargetElement()) {
+        $targetElementId = $renderingContext->targetElementId;
+        if ($targetElementId === null || $targetElementId === '') {
             return $layout;
         }
-
-        // Guaranteed non-null after hasTargetElement check
-        /** @var string $targetElementId */
-        $targetElementId = $renderingContext->targetElementId;
 
         // Keep context-dependent ancestors + target + descendants to preserve data flow
         return $this->treeUtil->pruneToPathAndDescendants(

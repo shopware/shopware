@@ -55,7 +55,7 @@ class ContextResolutionVisitor implements ElementVisitor
                 if (!$element->hasProperty($contextKey) && $this->stack->has($contextKey)) {
                     $contextData = $this->stack->get($contextKey);
                     if ($contextData !== null) {
-                        $element->setProperty($contextKey, $contextData['data']);
+                        $element->setProperty($contextKey, $contextData->data);
                     }
                 }
             }

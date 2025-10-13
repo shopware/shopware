@@ -18,4 +18,14 @@ class NotEqualsFilter extends NotFilter
             new EqualsFilter($field, $value),
         ]);
     }
+
+    public function getValue(): float|bool|int|string|null
+    {
+        return $this->value;
+    }
+
+    public function getField(): string
+    {
+        return $this->field;
+    }
 }

@@ -1,7 +1,6 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport, hideElements, replaceElements } from '@shopware-ag/acceptance-test-suite';
+import { test, setViewport, hideElements, replaceElements, assertScreenshot } from '@fixtures/AcceptanceTest';
 
-test('Visual: Order Detail Page', { tag: '@Visual' }, async ({ 
+test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
     ShopAdmin,
     TestDataService,
     AdminOrderDetail,
@@ -25,10 +24,10 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
             '.smart-bar__header',
         ]);
 
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-General-Tab.png'); 
+        await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-General-Tab.png');
     });
 
-    await test.step('Creates a screenshot of the product detail page Details tab.', async () => { 
+    await test.step('Creates a screenshot of the product detail page Details tab.', async () => {
         await AdminOrderDetail.detailsTabLink.click();
         await setViewport(AdminOrderDetail.page, {
             requestURL: '/api/search/custom-field-set',
@@ -39,7 +38,7 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
             '.sw-order-general-info__summary-sub',
             'div.sw-field[label="Billing address"] .sw-single-select__selection-text',
             'div.sw-field[label="Shipping address"] .sw-single-select__selection-text',
-        ]); 
+        ]);
 
         await hideElements(AdminOrderDetail.page,[
             '.dp__input_reg',
@@ -47,14 +46,15 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
             'div.sw-field[label="Sales channel"] .sw-entity-single-select__selection-text',
         ]);
 
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-Details-Tab.png');  
+        await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-Details-Tab.png');
     });
 
-    await test.step('Creates a screenshot of the product detail page Documents tab.', async () => { 
+    await test.step('Creates a screenshot of the product detail page Documents tab.', async () => {
         await AdminOrderDetail.documentsTabLink.click();
         await setViewport(AdminOrderDetail.page, {
             requestURL: '/api/search/document',
+            contentHeight: 1080,
         });
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-Documents-Tab.png');  
+        await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-Documents-Tab.png');
     });
 });

@@ -251,7 +251,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         $ids = [];
 
         // Collect all ids
-        foreach ($config['fields'] as $_ => $data) {
+        foreach ($config['fields'] as $data) {
             if (!isset($data['value'])
                 || $data['value'] === ''
                 || !\is_string($data['value'])

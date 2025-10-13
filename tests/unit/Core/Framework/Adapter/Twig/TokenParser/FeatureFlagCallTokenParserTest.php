@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\TokenParser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\FeatureFlagCallTokenParser;
 use Shopware\Core\Framework\Feature;
@@ -19,32 +20,26 @@ class FeatureFlagCallTokenParserTest extends TestCase
 {
     use EnvTestBehaviour;
 
+    #[IgnoreDeprecations]
     #[DataProvider('providerCode')]
     public function testCodeRun(string $twigCode, bool $shouldThrow): void
     {
-        // deprecation warning wouldn't be rendered otherwise
+        // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
 
-        $deprecationMessage = null;
-        set_error_handler(function ($errno, $errstr) use (&$deprecationMessage) {
-            $deprecationMessage = $errstr;
+        if ($shouldThrow) {
+            $this->expectUserDeprecationMessageMatches('/Since shopware\/core.*Foooo/');
+        }
 
-            return true;
-        });
+        if (!$shouldThrow) {
+            $this->expectNotToPerformAssertions();
+        }
 
         $twig = new Environment(new ArrayLoader(['test.twig' => $twigCode]));
         $twig->addTokenParser(new FeatureFlagCallTokenParser());
         $twig->render('test.twig', [
             'foo' => new TestService(),
         ]);
-
-        restore_error_handler();
-
-        if ($shouldThrow) {
-            static::assertNotNull($deprecationMessage);
-        } else {
-            static::assertNull($deprecationMessage);
-        }
     }
 
     /**

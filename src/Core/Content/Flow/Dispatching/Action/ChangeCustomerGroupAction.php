@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -17,6 +18,8 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(private readonly EntityRepository $customerRepository)
     {

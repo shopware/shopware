@@ -24,7 +24,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
-    final public const EXPLAIN_MODE = 'explain-mode';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Framework\Context::ELASTICSEARCH_EXPLAIN_MODE instead.
+     */
+    final public const EXPLAIN_MODE = Context::ELASTICSEARCH_EXPLAIN_MODE;
     final public const MAX_LIMIT = 10000;
     final public const RESULT_STATE = 'loaded-by-elastic';
 
@@ -72,7 +75,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 'body' => $this->convertSearch($criteria, $definition, $context, $search),
             ];
 
-            if ($context->hasState(self::EXPLAIN_MODE)) {
+            if ($context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE)) {
                 $params['include_named_queries_score'] = true;
                 $params['track_scores'] = true;
             }
@@ -130,7 +133,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
-        if ($context->hasState(self::EXPLAIN_MODE)) {
+        if ($context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE)) {
             $search->setExplain(true);
         }
 

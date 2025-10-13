@@ -22,8 +22,8 @@ class SnippetValidatorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $firstPath = 'storefront.de-DE.json';
-        $secondPath = 'storefront.en-GB.json';
+        $firstPath = 'storefront.de.json';
+        $secondPath = 'storefront.en.json';
         $snippetFileHandler->method('findAdministrationSnippetFiles')
             ->willReturn([$firstPath]);
         $snippetFileHandler->method('findStorefrontSnippetFiles')
@@ -61,8 +61,8 @@ class SnippetValidatorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $firstPath = 'storefront.de-DE.json';
-        $secondPath = 'storefront.en-GB.json';
+        $firstPath = 'storefront.de.json';
+        $secondPath = 'storefront.en.json';
         $snippetFileHandler->method('findAdministrationSnippetFiles')
             ->willReturn([$firstPath]);
         $snippetFileHandler->method('findStorefrontSnippetFiles')
@@ -83,7 +83,7 @@ class SnippetValidatorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $path = 'storefront.en-GB.json';
+        $path = 'storefront.en.json';
         $snippetFileHandler->method('findStorefrontSnippetFiles')
             ->willReturn([$path]);
 

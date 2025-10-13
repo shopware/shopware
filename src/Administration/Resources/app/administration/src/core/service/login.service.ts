@@ -15,6 +15,12 @@ export interface AuthObject {
     expiry: number;
 }
 
+/** @private */
+export interface LoginConfig {
+    useDefault: boolean;
+    url: string;
+}
+
 interface TokenResponse {
     /* eslint-disable camelcase */
     access_token: string;
@@ -43,6 +49,7 @@ export interface LoginService {
     verifyUserToken: (password: string) => Promise<string>;
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
+    getLoginTemplateConfig: () => Promise<LoginConfig>;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -78,6 +85,7 @@ export default function createLoginService(
         verifyUserToken,
         getStorage,
         setRememberMe,
+        getLoginTemplateConfig,
     };
 
     /**
@@ -503,5 +511,13 @@ export default function createLoginService(
      */
     function getStorage(): CookieStorage {
         return cookieStorage;
+    }
+
+    function getLoginTemplateConfig(): Promise<LoginConfig> {
+        return httpClient
+            .get<LoginConfig>('/oauth/sso/config', {
+                baseURL: context.apiPath!,
+            })
+            .then((response) => response.data);
     }
 }

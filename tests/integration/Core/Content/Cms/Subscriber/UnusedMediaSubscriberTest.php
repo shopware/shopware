@@ -4,8 +4,12 @@ namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Subscriber\UnusedMediaSubscriber;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Category\CategoryBuilder;
 use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -23,12 +27,24 @@ class UnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CmsPageCollection>
+     */
     private EntityRepository $cmsPageRepository;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     protected function setUp(): void

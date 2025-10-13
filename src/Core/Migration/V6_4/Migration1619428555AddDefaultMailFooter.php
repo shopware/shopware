@@ -11,13 +11,14 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1619428555AddDefaultMailFooter extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -29,6 +30,8 @@ class Migration1619428555AddDefaultMailFooter extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $filesystem = new Filesystem();
+
         $id = Uuid::randomBytes();
 
         $connection->insert(MailHeaderFooterDefinition::ENTITY_NAME, [
@@ -44,8 +47,8 @@ class Migration1619428555AddDefaultMailFooter extends MigrationStep
                 'description' => 'Standard-E-Mail-Fußzeile basierend auf den Stammdaten',
                 'header_html' => null,
                 'header_plain' => null,
-                'footer_plain' => (string) \file_get_contents(__DIR__ . '/../Fixtures/mails/defaultMailFooter/de-plain.twig'),
-                'footer_html' => (string) \file_get_contents(__DIR__ . '/../Fixtures/mails/defaultMailFooter/de-html.twig'),
+                'footer_plain' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/defaultMailFooter/de-plain.twig'),
+                'footer_html' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/defaultMailFooter/de-html.twig'),
             ],
             [
                 'mail_header_footer_id' => $id,
@@ -53,8 +56,8 @@ class Migration1619428555AddDefaultMailFooter extends MigrationStep
                 'description' => 'Default email footer derived from basic information',
                 'header_html' => null,
                 'header_plain' => null,
-                'footer_plain' => (string) \file_get_contents(__DIR__ . '/../Fixtures/mails/defaultMailFooter/en-plain.twig'),
-                'footer_html' => (string) \file_get_contents(__DIR__ . '/../Fixtures/mails/defaultMailFooter/en-html.twig'),
+                'footer_plain' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/defaultMailFooter/en-plain.twig'),
+                'footer_html' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/defaultMailFooter/en-html.twig'),
             ]
         );
 

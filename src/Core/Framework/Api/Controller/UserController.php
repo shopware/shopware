@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\UserCollection;
@@ -45,7 +46,8 @@ class UserController extends AbstractController
         private readonly EntityRepository $userRoleRepository,
         private readonly EntityRepository $roleRepository,
         private readonly EntityRepository $keyRepository,
-        private readonly UserDefinition $userDefinition
+        private readonly UserDefinition $userDefinition,
+        private readonly SsoService $ssoService,
     ) {
     }
 
@@ -243,6 +245,10 @@ class UserController extends AbstractController
     {
         // only validate scope for administration clients
         if ($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID) !== 'administration') {
+            return;
+        }
+
+        if ($this->ssoService->isSso()) {
             return;
         }
 

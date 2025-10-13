@@ -22,9 +22,9 @@
         </sw-error-boundary>
         {% endblock %}
     </div>
-    <sw-app-app-url-changed-modal
-        v-if="urlDiff !== null"
-        :url-diff="urlDiff"
+    <sw-app-shop-id-change-modal
+        v-if="shopIdCheck !== null"
+        :shop-id-check="shopIdCheck"
         @modal-close="closeModal"
     />
     <sw-settings-services-grant-permissions-modal />

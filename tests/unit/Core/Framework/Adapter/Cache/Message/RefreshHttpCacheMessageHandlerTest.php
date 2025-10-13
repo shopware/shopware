@@ -94,8 +94,6 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
             Request::HEADER_X_FORWARDED_FOR
         );
 
-        $response = new Response();
-
         $this->kernel->expects($this->once())
             ->method('handle')
             ->willReturnCallback(function () {

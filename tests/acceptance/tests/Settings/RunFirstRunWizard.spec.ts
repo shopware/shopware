@@ -15,10 +15,7 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
 
     await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 
-    // LanguagePack part
-    await ShopAdmin.expects(AdminFirstRunWizard.installLanguagePackButton).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.welcomeText).toBeVisible();
-    await ShopAdmin.expects(AdminFirstRunWizard.pluginCardInfo).toBeVisible();
     await AdminFirstRunWizard.nextButton.click();
 
     // DataImport part

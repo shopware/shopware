@@ -13,6 +13,8 @@ use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ *
  * @phpstan-type MissingSnippetsArray array<string, array<string, array{
  *      path: string,
  *      availableISO: string,
@@ -21,15 +23,15 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
  * }>>
  */
 #[Package('discovery')]
-class SnippetValidator implements SnippetValidatorInterface
+readonly class SnippetValidator implements SnippetValidatorInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly SnippetFileCollection $deprecatedSnippetFiles,
-        private readonly SnippetFileHandler $snippetFileHandler,
-        private readonly string $projectDir
+        private SnippetFileCollection $deprecatedSnippetFiles,
+        private SnippetFileHandler $snippetFileHandler,
+        private string $projectDir
     ) {
     }
 
@@ -147,7 +149,7 @@ class SnippetValidator implements SnippetValidatorInterface
                 $this->getLocaleFromFileName($fileName),
                 'Shopware',
                 false,
-                ''
+                '',
             ));
         }
 
@@ -156,14 +158,14 @@ class SnippetValidator implements SnippetValidatorInterface
 
     private function getLocaleFromFileName(string $fileName): string
     {
-        $return = preg_match('/([a-z]{2}-[A-Z]{2})(?:\.base)?\.json$/', $fileName, $matches);
+        $return = preg_match(SnippetPatterns::CORE_SNIPPET_FILE_PATTERN, $fileName, $matches);
 
-        // Snippet file name not known, return 'en-GB' per default
+        // Snippet file name is not known, return 'en' per default
         if (!$return) {
-            return 'en-GB';
+            return 'en';
         }
 
-        return $matches[1];
+        return \str_replace('_', '-', $matches['locale']);
     }
 
     /**

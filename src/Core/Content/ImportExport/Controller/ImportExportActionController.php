@@ -14,6 +14,7 @@ use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -40,6 +41,8 @@ class ImportExportActionController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<EntityCollection<ImportExportProfileEntity>> $profileRepository
      */
     public function __construct(
         private readonly SupportedFeaturesService $supportedFeaturesService,
@@ -127,7 +130,7 @@ class ImportExportActionController extends AbstractController
     #[Route(path: '/api/_action/import-export/file/download', name: 'api.action.import_export.file.download', defaults: ['auth_required' => false], methods: ['GET'])]
     public function download(Request $request, Context $context): Response
     {
-        /** @var array<string> $params */
+        /** @var array<string, string> $params */
         $params = $request->query->all();
         $definition = new DataValidationDefinition();
         $definition->add('fileId', new NotBlank(), new Type('string'));
@@ -202,7 +205,7 @@ class ImportExportActionController extends AbstractController
             ->getEntities()
             ->get($profileId);
 
-        if ($profile instanceof ImportExportProfileEntity) {
+        if ($profile) {
             return $profile;
         }
 

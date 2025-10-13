@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -25,6 +26,9 @@ class CmsPageBeforeDeleteSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CmsPageCollection>
+     */
     private EntityRepository $cmsPageRepository;
 
     private SystemConfigService $systemConfigService;

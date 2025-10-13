@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer\I
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,6 +22,9 @@ class VariantListingIndexerTest extends TestCase
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $repository;
 
     private string $productId;

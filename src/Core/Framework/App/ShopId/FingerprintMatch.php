@@ -15,7 +15,8 @@ readonly class FingerprintMatch
 {
     public function __construct(
         public string $identifier,
-        public string $stamp,
+        public string $storedStamp,
+        public int $score,
     ) {
     }
 }

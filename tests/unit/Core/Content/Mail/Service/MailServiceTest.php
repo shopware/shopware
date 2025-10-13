@@ -56,7 +56,7 @@ class MailServiceTest extends TestCase
     private MailService $mailService;
 
     /**
-     * @var MockObject&EntityRepository
+     * @var MockObject&EntityRepository<SalesChannelCollection>
      */
     private EntityRepository $salesChannelRepository;
 

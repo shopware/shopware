@@ -55,7 +55,9 @@ use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\IsNull;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -339,7 +341,24 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        if ($billingAddress instanceof DataBag || !($shippingAddress instanceof DataBag)) {
+
+        // The billing address is mandatory.
+        // The shipping address is optional but if there is one, a non-array value results in an exception in the validation process.
+        $definition->add(
+            'billingAddress',
+            new Type('associative_array', message: 'VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR')
+        );
+        $definition->add(
+            'shippingAddress',
+            new AtLeastOneOf([
+                new Type('associative_array', message: 'VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR'),
+                new IsNull(),
+            ])
+        );
+
+        // The billing address validation must not be added if the data is neither a data bag nor valid because the validation building will fail.
+        // Using a null value must be possible to allow the event based modification (see BuildValidationEvent).
+        if ($billingAddress instanceof DataBag || (!$shippingAddress instanceof DataBag && $billingAddress === null)) {
             $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $billingAddress ?? new RequestDataBag(), $context));
         }
 
@@ -364,7 +383,7 @@ class RegisterRoute extends AbstractRegisterRoute
                 }
 
                 $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                    ['countryId' => $countryId]
+                    countryId: $countryId
                 ));
             }
         }
@@ -466,7 +485,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('company', new NotBlank());
         }
 
-        $validation->set('zipcode', new CustomerZipCode(['countryId' => $address->get('countryId')]));
+        $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
         $validation->add('zipcode', new Length(max: 50));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
@@ -482,18 +501,17 @@ class RegisterRoute extends AbstractRegisterRoute
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
-        $validation->add('requestedGroupId', new EntityExists([
-            'entity' => 'customer_group',
-            'context' => $context->getContext(),
-            'criteria' => $criteria,
-        ]));
+        $validation->add('requestedGroupId', new EntityExists(
+            entity: 'customer_group',
+            context: $context->getContext(),
+            criteria: $criteria,
+        ));
 
         if (!$isGuest) {
             $validation->merge(
                 $this->passwordValidationFactory->create($context)
             );
-            $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
-            $validation->add('email', new CustomerEmailUnique($options));
+            $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

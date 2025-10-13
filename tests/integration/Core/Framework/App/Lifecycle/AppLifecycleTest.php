@@ -51,6 +51,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
@@ -86,6 +87,9 @@ class AppLifecycleTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<CustomEntityCollection>
+     */
     private EntityRepository $customEntityRepository;
 
     protected function setUp(): void

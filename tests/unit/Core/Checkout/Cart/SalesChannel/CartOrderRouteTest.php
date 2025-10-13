@@ -48,6 +48,7 @@ class CartOrderRouteTest extends TestCase
 {
     private CartCalculator&MockObject $cartCalculator;
 
+    /** @var EntityRepository<OrderCollection>&MockObject */
     private EntityRepository&MockObject $orderRepository;
 
     private OrderPersister&MockObject $orderPersister;

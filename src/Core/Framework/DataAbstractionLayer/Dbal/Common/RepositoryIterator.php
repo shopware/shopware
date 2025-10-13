@@ -82,7 +82,7 @@ class RepositoryIterator
         }
 
         if (!$this->autoIncrement) {
-            $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+            $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
             return $values;
         }
@@ -108,7 +108,7 @@ class RepositoryIterator
         $result = $this->repository->search(clone $this->criteria, $this->context);
 
         // increase offset for next iteration
-        $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+        $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
         if (empty($result->getIds())) {
             return null;

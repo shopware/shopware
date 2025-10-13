@@ -1,4 +1,4 @@
-import { test as base } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
 export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, FixtureTypes>({
@@ -44,6 +44,9 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                 }
                 await AdminLandingPageCreate.saveLandingPageButton.click();
                 await AdminLandingPageCreate.loadingSpinner.waitFor({ state: 'hidden' });
+                // Wait until landing page is saved via API
+                const response = await AdminLandingPageCreate.page.waitForResponse(`${ process.env['APP_URL'] }api/search/landing-page`);
+                expect(response.ok()).toBeTruthy();
                 const url = AdminLandingPageDetail.page.url();
                 const landingPageId = url.split('/')[url.split('/').length - 2];
                 TestDataService.addCreatedRecord('landing_page', landingPageId);

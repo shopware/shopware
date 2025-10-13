@@ -158,8 +158,8 @@ class EntityHydrator
 
             $encoded = $field->getSerializer()->encode($field, $existence, $kvPair, $params);
 
-            foreach ($encoded as $key => $value) {
-                $mapped[$key] = $value;
+            foreach ($encoded as $key => $encodedValue) {
+                $mapped[$key] = $encodedValue;
             }
         }
 
@@ -328,6 +328,7 @@ class EntityHydrator
             $entity->addTranslated($field, $translation);
 
             $chainFieldValue = self::value($row, $chain[0], $field);
+            // @phpstan-ignore property.dynamicName (We have to dynamically set all translated field in the original entity)
             $entity->$field = $chainFieldValue !== null ? ($fieldValue === $chainFieldValue ? $translation : $typed->getSerializer()->decode($typed, $chainFieldValue)) : null;
         }
     }

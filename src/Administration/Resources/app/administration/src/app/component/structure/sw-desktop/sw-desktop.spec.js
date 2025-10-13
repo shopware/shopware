@@ -127,14 +127,14 @@ async function createWrapper() {
             stubs: {
                 'sw-admin-menu': true,
                 'router-view': true,
-                'sw-app-app-url-changed-modal': true,
+                'sw-app-shop-id-change-modal': true,
                 'sw-sidebar-renderer': true,
                 'sw-error-boundary': true,
                 'sw-settings-services-grant-permissions-modal': true,
             },
             provide: {
-                appUrlChangeService: {
-                    getUrlDiff: jest.fn(() => Promise.resolve()),
+                shopIdChangeService: {
+                    checkShopId: jest.fn(() => Promise.resolve()),
                 },
                 userActivityApiService: {
                     increment: jest.fn(() => Promise.resolve()),
@@ -216,17 +216,17 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(getModuleMetadata.mock.results[0].value).toBe(false);
     });
 
-    it('should call not urlDiffService when appUrlReachable is false', async () => {
+    it('should not call shopIdChangeService when appUrlReachable is false', async () => {
         Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = false;
 
         const wrapper = await createWrapper();
 
-        const urlDiffSpy = jest.spyOn(wrapper.vm.appUrlChangeService, 'getUrlDiff');
+        const checkShopIdSpy = jest.spyOn(wrapper.vm.shopIdChangeService, 'checkShopId');
 
         await wrapper.vm.$router.push({ name: 'sw.product.create.base' });
         await flushPromises();
 
-        expect(urlDiffSpy).not.toHaveBeenCalled();
+        expect(checkShopIdSpy).not.toHaveBeenCalled();
     });
 
     it('should show the staging bar, when enabled', async () => {

@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -31,6 +33,9 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $entityRepository;
 
     protected function setUp(): void

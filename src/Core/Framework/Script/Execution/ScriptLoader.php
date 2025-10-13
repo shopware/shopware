@@ -15,7 +15,7 @@ use Twig\Cache\FilesystemCache;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type ScriptInfo = array{app_id: ?string, scriptName: string, script: string, hook: string, appName: ?string, appVersion: ?string, integrationId: ?string, lastModified: string, active: bool}
+ * @phpstan-type ScriptInfo = array{app_id: ?string, scriptName: string, script: string, hook: string, appName: ?string, appVersion: ?string, integrationId: ?string, lastModified: string, active: string}
  */
 #[Package('framework')]
 class ScriptLoader implements EventSubscriberInterface

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Test\Integration\Builder\Promotion;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +32,11 @@ class PromotionFixtureBuilder
      */
     private array $dataDiscounts = [];
 
+    /**
+     * @param EntityRepository<PromotionCollection> $promotionRepository
+     * @param EntityRepository<PromotionSetGroupCollection> $promotionSetgroupRepository
+     * @param EntityRepository<PromotionDiscountCollection> $promotionDiscountRepository
+     */
     public function __construct(
         private readonly string $promotionId,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,

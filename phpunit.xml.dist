@@ -4,10 +4,11 @@
          bootstrap="src/Core/TestBootstrap.php"
          cacheDirectory=".phpunit.cache"
          cacheResult="false"
-         executionOrder="random"
          displayDetailsOnPhpunitDeprecations="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
-         displayDetailsOnTestsThatTriggerDeprecations="true">
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         executionOrder="random"
+         failOnRisky="true">
     <coverage includeUncoveredFiles="true"/>
     <source ignoreSuppressionOfDeprecations="true"
             ignoreIndirectDeprecations="true"
@@ -141,6 +142,7 @@
             <directory>tests/integration/Core/Framework/Log</directory>
             <directory>tests/integration/Core/Framework/MessageQueue</directory>
             <directory>tests/integration/Core/Framework/Migration</directory>
+            <directory>tests/integration/Core/Framework/Notification</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch3">
@@ -150,6 +152,7 @@
             <directory>tests/integration/Core/Framework/Rule</directory>
             <directory>tests/integration/Core/Framework/Script</directory>
             <directory>tests/integration/Core/Framework/Seo</directory>
+            <directory>tests/integration/Core/Framework/Sso</directory>
             <directory>tests/integration/Core/Framework/Store</directory>
             <directory>tests/integration/Core/Framework/Telemetry</directory>
             <directory>tests/integration/Core/Framework/TestCaseBase</directory>

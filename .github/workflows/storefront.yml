@@ -20,6 +20,7 @@ jobs:
           mysql-version: skip
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          install-storefront: true
 
       - name: Cache ESLint and Stylelint
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
@@ -28,15 +29,6 @@ jobs:
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
             src/Storefront/Resources/app/storefront/node_modules/.stylelintcache
           key: storefront-lint-${{ runner.os }}-6.6
-
-      - name: Build Storefront
-        env:
-          PROJECT_ROOT: ${{ github.workspace }}
-        run: |
-          symfony console bundle:dump
-          symfony console feature:dump
-          npm --prefix src/Storefront/Resources/app/storefront ci
-          npm --prefix src/Storefront/Resources/app/storefront run production
 
       - name: Check Code
         working-directory: src/Storefront/Resources/app/storefront
@@ -93,12 +85,11 @@ jobs:
           mysql-version: skip
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          install-storefront: true
 
       - name: Run Jest Storefront
         working-directory: src/Storefront/Resources/app/storefront
-        run: |
-          npm ci
-          npm run unit -- --silent
+        run: npm run unit -- --silent
 
       - name: Upload coverage
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # 5
@@ -119,6 +110,13 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4
         with:
           node-version: 22
+      - name: Cache npm packages
+        uses: actions/cache@v4
+        with:
+          path: src/Storefront/Resources/app/storefront/node_modules
+          key: ${{ runner.os }}-storefront-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-storefront-
       - name: install packages
         working-directory: src/Storefront/Resources/app/storefront
         run: |

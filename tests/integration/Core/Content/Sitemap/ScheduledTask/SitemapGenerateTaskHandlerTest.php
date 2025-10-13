@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\Envelope;
@@ -35,8 +37,14 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     private SitemapGenerateTaskHandler $sitemapHandler;
 
+    /**
+     * @var EntityRepository<SalesChannelDomainCollection>
+     */
     private EntityRepository $salesChannelDomainRepository;
 
+    /**
+     * @var EntityRepository<SalesChannelCollection>
+     */
     private EntityRepository $salesChannelRepository;
 
     private MockObject&MessageBusInterface $messageBusMock;

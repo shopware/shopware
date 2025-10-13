@@ -65,7 +65,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
         $data->setProduct($product);
 
-        if ($this->systemConfigService->getBool('core.listing.showReview')) {
+        if ($this->systemConfigService->getBool('core.listing.showReview', $resolverContext->getSalesChannelContext()->getSalesChannelId())) {
             $reviews = $this->productReviewLoader->load($request, $resolverContext->getSalesChannelContext(), $product->getId(), $product->getParentId());
 
             $this->scriptExecutor->execute(new ProductReviewsWidgetLoadedHook($reviews, $resolverContext->getSalesChannelContext()));

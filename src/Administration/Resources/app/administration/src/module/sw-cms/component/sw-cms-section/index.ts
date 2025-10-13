@@ -301,5 +301,9 @@ export default Shopware.Component.wrapComponentConfig({
         toggleVisibility() {
             this.isCollapsed = !this.isCollapsed;
         },
+
+        getBlockComponent(type: string) {
+            return this.cmsService.getCmsBlockConfigByName(type)?.component ?? `sw-cms-block-${type}`;
+        },
     },
 });

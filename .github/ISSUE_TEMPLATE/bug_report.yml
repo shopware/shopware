@@ -59,18 +59,3 @@ body:
           description: Tell us how the bug can be reproduced
       validations:
           required: true
-    - type: checkboxes
-      id: def-of-done
-      attributes:
-        label: Definition of Done
-        description: Please use this checklist to indicate that the deliverable meets Shopware standards.
-        options:
-          - label: An automated test covers the fix.
-          - label: Integration/E2E testing in staging is done.
-          - label: Changelog markdown file created or updated in /changelog/_unreleased directory.
-          - label: Developer documentation written/updated.
-          - label: End user and/or developer documentation written or updated with clarification.
-          - label: Regression test created to ensure bug does not reappear, and automated regression tests pass.
-          - label: Code changes resolve the reported bug without introducing new issues.
-      validations:
-        required: false

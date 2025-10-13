@@ -38,6 +38,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('inventory')]
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
+    private const SKIP_CONFIGURATOR = 'skipConfigurator';
+    private const SKIP_CMS_PAGE = 'skipCmsPage';
+
     /**
      * @internal
      *
@@ -107,11 +110,12 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
             );
 
-            $configurator = $this->configuratorLoader->load($product, $context);
+            $loadConfigurator = !$request->query->getBoolean(self::SKIP_CONFIGURATOR);
+            $configurator = $loadConfigurator ? $this->configuratorLoader->load($product, $context) : null;
 
+            $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $pageId = $product->getCmsPageId();
-
-            if ($pageId) {
+            if ($loadCmsPage && $pageId) {
                 // clone product to prevent recursion encoding (see NEXT-17603)
                 $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, clone $product);
 

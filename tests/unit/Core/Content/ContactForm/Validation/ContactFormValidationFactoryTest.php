@@ -49,7 +49,7 @@ class ContactFormValidationFactoryTest extends TestCase
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),
-                        new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]),
+                        new EntityExists(entity: 'salutation', context: $context->getContext()),
                     ],
                     'email' => [new NotBlank(), new Email()],
                     'subject' => [new NotBlank()],
@@ -73,7 +73,7 @@ class ContactFormValidationFactoryTest extends TestCase
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),
-                        new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]),
+                        new EntityExists(entity: 'salutation', context: $context->getContext()),
                     ],
                     'email' => [new NotBlank(), new Email()],
                     'subject' => [new NotBlank()],

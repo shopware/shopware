@@ -11,8 +11,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer;
@@ -109,11 +113,79 @@ class OrderAdminSearchIndexerTest extends TestCase
         static::assertSame('809c1844f4734243b6aa04aba860cd45 test tag viet nam da nang 5000 street 123 test address 124 firstname lastname test@example.com 12345 1', $document['text']);
     }
 
+    public function testGetUpdatedIds(): void
+    {
+        $indexer = new OrderAdminSearchIndexer(
+            $this->createMock(Connection::class),
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            100
+        );
+
+        $orderId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('order', [
+                    new EntityWriteResult($orderId, ['amountTotal' => 123.45], 'order', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$orderId], $indexer->getUpdatedIds($event));
+    }
+
     private function getConnection(): Connection
     {
         $connection = $this->createMock(Connection::class);
 
-        $connection->method('fetchAllAssociative')->willReturn(
+        $connection->method('fetchAllAssociative')->with(
+            '
+            SELECT LOWER(HEX(order.id)) as id,
+                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
+                   GROUP_CONCAT(DISTINCT country_translation.name SEPARATOR " ") as country,
+                   GROUP_CONCAT(DISTINCT order_address.city SEPARATOR " ") as city,
+                   GROUP_CONCAT(DISTINCT order_address.street SEPARATOR " ") as street,
+                   GROUP_CONCAT(DISTINCT order_address.zipcode SEPARATOR " ") as zipcode,
+                   GROUP_CONCAT(DISTINCT order_address.phone_number SEPARATOR " ") as phone_number,
+                   GROUP_CONCAT(DISTINCT order_address.additional_address_line1 SEPARATOR " ") as additional_address_line1,
+                   GROUP_CONCAT(DISTINCT order_address.additional_address_line2 SEPARATOR " ") as additional_address_line2,
+                   GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(document.config, "$.documentNumber")) SEPARATOR " ") as documentNumber,
+                   order_customer.first_name,
+                   order_customer.last_name,
+                   order_customer.email,
+                   order_customer.company,
+                   order_customer.customer_number,
+                   `order`.order_number,
+                   `order`.amount_total,
+                   order_delivery.tracking_codes
+            FROM `order`
+                LEFT JOIN order_customer
+                    ON `order`.id = order_customer.order_id AND order_customer.order_version_id = :versionId
+                LEFT JOIN order_address
+                    ON `order`.id = order_address.order_id AND order_address.order_version_id = :versionId
+                LEFT JOIN country
+                    ON order_address.country_id = country.id
+                LEFT JOIN country_translation
+                    ON country.id = country_translation.country_id
+                LEFT JOIN order_tag
+                    ON `order`.id = order_tag.order_id AND order_tag.order_version_id = :versionId
+                LEFT JOIN tag
+                    ON order_tag.tag_id = tag.id
+                LEFT JOIN order_delivery
+                    ON `order`.id = order_delivery.order_id AND order_delivery.order_version_id = :versionId
+                LEFT JOIN document
+                    ON `order`.id = document.order_id
+            WHERE order.id IN (:ids) AND `order`.version_id = :versionId
+            GROUP BY order.id
+        ',
+            [
+                'ids' => Uuid::fromHexToBytesList(['809c1844f4734243b6aa04aba860cd45']),
+                'versionId' => Uuid::fromHexToBytes('0fa91ce3e96a4bc2be4bd9ce752c3425'),
+            ]
+        )->willReturn(
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',

@@ -89,7 +89,6 @@ class ChangelogParserTest extends TestCase
         $lines = file($outFile);
         static::assertIsArray($lines);
 
-        /** @var array<string> $templateLines */
         $templateLines = explode(\PHP_EOL, $logEntry->toTemplate());
 
         foreach ($lines as $index => $line) {

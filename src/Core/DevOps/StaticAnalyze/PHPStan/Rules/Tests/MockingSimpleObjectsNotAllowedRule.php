@@ -109,7 +109,7 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
     {
         switch (true) {
             case $node instanceof String_:
-                return (string) $node->value;
+                return $node->value;
             case $node instanceof ClassConstFetch:
                 if ($node->class instanceof Name) {
                     return (string) $node->class;

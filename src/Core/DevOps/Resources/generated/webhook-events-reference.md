@@ -85,28 +85,28 @@
 |`state_leave.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`user.recovery.request` | __EMPTY__ | `user_recovery:read` | {"entity":"user_recovery","resetUrl":"string"}
-|`product.written` | Triggers when a product is written | `product:read` | {"entity":"product","operation":"update insert","primaryKey":"array string","payload":"array"}
-|`product.deleted` | Triggers when a product is deleted | `product:read` | {"entity":"product","operation":"deleted","primaryKey":"array string","payload":"array"}
-|`product_price.written` | Triggers when a product_price is written | `product_price:read` | {"entity":"product_price","operation":"update insert","primaryKey":"array string","payload":"array"}
-|`product_price.deleted` | Triggers when a product_price is deleted | `product_price:read` | {"entity":"product_price","operation":"deleted","primaryKey":"array string","payload":"array"}
-|`category.written` | Triggers when a category is written | `category:read` | {"entity":"category","operation":"update insert","primaryKey":"array string","payload":"array"}
-|`category.deleted` | Triggers when a category is deleted | `category:read` | {"entity":"category","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`sales_channel.written` | Triggers when a sales_channel is written | `sales_channel:read` | {"entity":"sales_channel","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`sales_channel.deleted` | Triggers when a sales_channel is deleted | `sales_channel:read` | {"entity":"sales_channel","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`sales_channel_domain.written` | Triggers when a sales_channel_domain is written | `sales_channel_domain:read` | {"entity":"sales_channel_domain","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`sales_channel_domain.deleted` | Triggers when a sales_channel_domain is deleted | `sales_channel_domain:read` | {"entity":"sales_channel_domain","operation":"deleted","primaryKey":"array string","payload":"array"}
+|`category.written` | Triggers when a category is written | `category:read` | {"entity":"category","operation":"update insert","primaryKey":"array string","payload":"array"}
+|`category.deleted` | Triggers when a category is deleted | `category:read` | {"entity":"category","operation":"deleted","primaryKey":"array string","payload":"array"}
+|`media.written` | Triggers when a media is written | `media:read` | {"entity":"media","operation":"update insert","primaryKey":"array string","payload":"array"}
+|`media.deleted` | Triggers when a media is deleted | `media:read` | {"entity":"media","operation":"deleted","primaryKey":"array string","payload":"array"}
+|`product.written` | Triggers when a product is written | `product:read` | {"entity":"product","operation":"update insert","primaryKey":"array string","payload":"array"}
+|`product.deleted` | Triggers when a product is deleted | `product:read` | {"entity":"product","operation":"deleted","primaryKey":"array string","payload":"array"}
+|`product_price.written` | Triggers when a product_price is written | `product_price:read` | {"entity":"product_price","operation":"update insert","primaryKey":"array string","payload":"array"}
+|`product_price.deleted` | Triggers when a product_price is deleted | `product_price:read` | {"entity":"product_price","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`customer.written` | Triggers when a customer is written | `customer:read` | {"entity":"customer","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`customer.deleted` | Triggers when a customer is deleted | `customer:read` | {"entity":"customer","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`customer_address.written` | Triggers when a customer_address is written | `customer_address:read` | {"entity":"customer_address","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`customer_address.deleted` | Triggers when a customer_address is deleted | `customer_address:read` | {"entity":"customer_address","operation":"deleted","primaryKey":"array string","payload":"array"}
+|`document.written` | Triggers when a document is written | `document:read` | {"entity":"document","operation":"update insert","primaryKey":"array string","payload":"array"}
+|`document.deleted` | Triggers when a document is deleted | `document:read` | {"entity":"document","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`order.written` | Triggers when a order is written | `order:read` | {"entity":"order","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`order.deleted` | Triggers when a order is deleted | `order:read` | {"entity":"order","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`order_address.written` | Triggers when a order_address is written | `order_address:read` | {"entity":"order_address","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`order_address.deleted` | Triggers when a order_address is deleted | `order_address:read` | {"entity":"order_address","operation":"deleted","primaryKey":"array string","payload":"array"}
-|`document.written` | Triggers when a document is written | `document:read` | {"entity":"document","operation":"update insert","primaryKey":"array string","payload":"array"}
-|`document.deleted` | Triggers when a document is deleted | `document:read` | {"entity":"document","operation":"deleted","primaryKey":"array string","payload":"array"}
-|`media.written` | Triggers when a media is written | `media:read` | {"entity":"media","operation":"update insert","primaryKey":"array string","payload":"array"}
-|`media.deleted` | Triggers when a media is deleted | `media:read` | {"entity":"media","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`media.uploaded` | Fires when a media file is uploaded | `media:read` | 
 |`app.activated` | Fires when an app is activated | - | 
 |`app.deactivated` | Fires when an app is deactivated | - | 

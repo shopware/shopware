@@ -774,11 +774,6 @@ class ThemeTest extends TestCase
             $this->themeService->updateTheme(
                 $childTheme->getId(),
                 [
-                    'fields' => [
-                        'some-custom' => [
-                            'editable' => true,
-                        ],
-                    ],
                     'test' => [
                         'value' => [false],
                     ],
@@ -801,11 +796,6 @@ class ThemeTest extends TestCase
 
         static::assertEquals(
             [
-                'fields' => [
-                    'some-custom' => [
-                        'editable' => true,
-                    ],
-                ],
                 'test' => [
                     'value' => [false],
                 ],

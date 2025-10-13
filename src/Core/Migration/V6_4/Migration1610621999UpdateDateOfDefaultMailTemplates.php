@@ -8,13 +8,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1610621999UpdateDateOfDefaultMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;
@@ -80,12 +81,14 @@ class Migration1610621999UpdateDateOfDefaultMailTemplates extends MigrationStep
 
     private function updateMailTemplatesByType(string $type, Connection $connection): void
     {
+        $filesystem = new Filesystem();
+
         $update = new MailUpdate(
             $type,
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/' . $type . '/en-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/' . $type . '/en-html.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/' . $type . '/de-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/' . $type . '/de-html.html.twig')
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $type . '/en-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $type . '/en-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $type . '/de-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $type . '/de-html.html.twig')
         );
 
         $this->updateMail($update, $connection);

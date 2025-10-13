@@ -1,5 +1,9 @@
 {% set isActive = item.category.id == activeId %}
-{% set hasChildren = item.category.visibleChildCount > 0 %}
+
+{# @deprecated tag:v6.8.0 - Variable declaration has been moved to `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template #}
+{% if not feature('v6.8.0.0') %}
+    {% set hasChildren = item.category.visibleChildCount > 0 %}
+{% endif %}
 {% set url = item.category.seoUrl %}
 {% set name = item.category.translated.name %}
 

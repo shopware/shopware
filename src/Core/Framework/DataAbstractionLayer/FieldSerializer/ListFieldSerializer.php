@@ -48,6 +48,9 @@ class ListFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function decode(Field $field, mixed $value): ?array
     {
         if ($value === null) {
@@ -62,6 +65,9 @@ class ListFieldSerializer extends AbstractFieldSerializer
         return [new Type('array')];
     }
 
+    /**
+     * @param array<mixed> $values
+     */
     protected function validateTypes(ListField $field, array $values, WriteParameterBag $parameters): void
     {
         $fieldType = $field->getFieldType();
@@ -85,7 +91,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
                 $kvPair = new KeyValuePair((string) $i, $value, true);
 
                 $x = $listField->getSerializer()->encode($listField, $existence, $kvPair, $nestedParameters);
-                $_x = iterator_to_array($x);
+                iterator_to_array($x);
             } catch (WriteFieldException $exception) {
                 $parameters->getContext()->getExceptions()->add($exception);
             }

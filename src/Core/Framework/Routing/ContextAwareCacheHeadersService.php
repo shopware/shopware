@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -16,7 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 readonly class ContextAwareCacheHeadersService
 {
     public function __construct(
-        private EntityCacheKeyGenerator $cacheKeyGenerator
+        private EntityCacheKeyGenerator $cacheKeyGenerator,
+        private CacheRelevantRulesResolver $rulesResolver,
     ) {
     }
 
@@ -25,16 +27,15 @@ readonly class ContextAwareCacheHeadersService
         // Add context headers to response
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
-        $response->headers->set(PlatformRequest::HEADER_CONTEXT_HASH, $this->generateContextHash($context));
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_HASH, $this->generateContextHash($context, $request));
 
         // Add vary headers for caching
         $this->addVaryHeaders($response);
     }
 
-    private function generateContextHash(SalesChannelContext $context): string
+    private function generateContextHash(SalesChannelContext $context, Request $request): string
     {
-        $areaRuleIds = $context->getAreaRuleIds();
-        $ruleAreas = array_keys($areaRuleIds);
+        $ruleAreas = $this->rulesResolver->resolveRuleAreas($request, $context);
 
         return $this->cacheKeyGenerator->getSalesChannelContextHash($context, $ruleAreas);
     }

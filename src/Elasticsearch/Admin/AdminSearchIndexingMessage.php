@@ -16,12 +16,14 @@ final readonly class AdminSearchIndexingMessage implements AsyncMessageInterface
     /**
      * @param array<string, string> $indices
      * @param array<string> $ids
+     * @param array<string> $toRemoveIds
      */
     public function __construct(
         private string $entity,
         private string $indexer,
         private array $indices,
-        private array $ids
+        private array $ids,
+        private array $toRemoveIds = []
     ) {
     }
 
@@ -74,5 +76,13 @@ final readonly class AdminSearchIndexingMessage implements AsyncMessageInterface
         }
 
         return Hasher::hash($data);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getToRemoveIds(): array
+    {
+        return $this->toRemoveIds;
     }
 }

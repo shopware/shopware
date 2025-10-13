@@ -38,6 +38,7 @@ class ProductListingTypeDataResolverTest extends TestCase
             )
         );
 
+        /** @var StaticEntityRepository<ProductSortingCollection> */
         $sortingRepository = new StaticEntityRepository([new ProductSortingCollection()]);
 
         $this->listingResolver = new ProductListingCmsElementResolver($mock, $sortingRepository);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
@@ -52,6 +53,9 @@ class TranslationConfigLoaderTest extends TestCase
         $publisherMapping = $config->pluginMapping->get('SwagPublisher');
         static::assertInstanceOf(PluginMapping::class, $publisherMapping);
         static::assertSame('PluginPublisher', $publisherMapping->snippetName);
+
+        $excludedLocales = $config->excludedLocales;
+        static::assertSame(['it-IT'], $excludedLocales);
     }
 
     public function testConfigFileSettings(): void
@@ -65,7 +69,7 @@ class TranslationConfigLoaderTest extends TestCase
         $this->translationConfigLoader->setConfigFileName('translation_invalid_url.yaml');
 
         static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "invalid_url" is invalid: The repository-url must contain a schema and a host.');
+        static::expectExceptionMessage('The repository URL "invalid_url" is invalid: "repository-url" must contain a schema and a host.');
         $this->translationConfigLoader->load();
     }
 
@@ -83,7 +87,7 @@ class TranslationConfigLoaderTest extends TestCase
         $this->translationConfigLoader->setConfigFileName('translation_non_string_url.yaml');
 
         static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "4" is invalid: The repository-url in the translation config must be a string.');
+        static::expectExceptionMessage('The repository URL "4" is invalid: "repository-url" in the translation config must be a string.');
         $this->translationConfigLoader->load();
     }
 
@@ -92,7 +96,7 @@ class TranslationConfigLoaderTest extends TestCase
         $this->translationConfigLoader->setConfigFileName('translation_empty_string_url.yaml');
 
         static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "" is invalid: The repository-url in the translation config must not be empty.');
+        static::expectExceptionMessage('The repository URL "" is invalid: "repository-url" in the translation config must not be empty.');
         $this->translationConfigLoader->load();
     }
 
@@ -118,5 +122,11 @@ class TranslationConfigLoaderTest extends TestCase
         static::expectException(SnippetException::class);
         static::expectExceptionMessage('Translation configuration file exists, but is empty: "translation_empty.yaml".');
         $this->translationConfigLoader->load();
+    }
+
+    public function testGetDecoratedThrowsException(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->translationConfigLoader->getDecorated();
     }
 }

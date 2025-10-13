@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer;
 
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRecipientIndexerEvent;
@@ -21,6 +22,8 @@ class NewsletterRecipientIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<NewsletterRecipientCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

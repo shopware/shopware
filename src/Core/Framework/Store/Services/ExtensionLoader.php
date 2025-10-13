@@ -49,6 +49,8 @@ class ExtensionLoader
 
     /**
      * @param ?EntityRepository<ThemeCollection> $themeRepository
+     *
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
      */
     public function __construct(
         private readonly ?EntityRepository $themeRepository,
@@ -170,10 +172,12 @@ class ExtensionLoader
     {
         $isTheme = false;
 
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         if (interface_exists(ThemeInterface::class) && class_exists($plugin->getBaseClass())) {
             $implementedInterfaces = class_implements($plugin->getBaseClass());
 
             if (\is_array($implementedInterfaces)) {
+                /** @phpstan-ignore phpat.restrictNamespacesInCore */
                 $isTheme = \array_key_exists(ThemeInterface::class, $implementedInterfaces);
             }
         }
@@ -195,7 +199,7 @@ class ExtensionLoader
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
-            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomDirectory(),
+            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),
             'managedByComposer' => $plugin->getManagedByComposer(),
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
@@ -257,6 +261,8 @@ class ExtensionLoader
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
                 'inAppPurchases' => $this->inAppPurchase->getByExtension($app->getMetadata()->getName()),
+                'permissions' => Utils::makePermissions($app->getPermissions()?->asParsedPrivileges() ?? []),
+                'requestedPermissions' => [],
             ];
 
             $collection->set($name, $this->loadFromArray($context, $row, $language));

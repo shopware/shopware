@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -20,6 +22,9 @@ class MailHeaderFooterApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -51,7 +56,7 @@ class MailHeaderFooterApiTest extends TestCase
 
         // do API calls
         foreach ($data as $entry) {
-            $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry, \JSON_THROW_ON_ERROR));
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
             static::assertIsString($response->getContent());
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -91,7 +96,7 @@ class MailHeaderFooterApiTest extends TestCase
         $data = $this->prepareHeaderFooterTestData($num);
         $this->repository->create(array_values($data), $this->context);
 
-        $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 
@@ -140,14 +145,14 @@ class MailHeaderFooterApiTest extends TestCase
             $expectData[$id] = $data[$idx];
             unset($data[$idx]['id']);
 
-            $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
+            $this->getBrowser()->jsonRequest('PATCH', $this->prepareRoute() . $id, $data[$idx], [
                 'HTTP_ACCEPT' => 'application/json',
-            ], json_encode($data[$idx], \JSON_THROW_ON_ERROR));
+            ]);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
 
-        $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
@@ -183,7 +188,7 @@ class MailHeaderFooterApiTest extends TestCase
 
         foreach ($data as $expect) {
             // Request details
-            $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $expect['id'], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
@@ -217,7 +222,7 @@ class MailHeaderFooterApiTest extends TestCase
         foreach ($searchData as $key => $value) {
             // Search call
             $filter['filter'][$key] = $value;
-            $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(true), $filter, [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
@@ -239,14 +244,14 @@ class MailHeaderFooterApiTest extends TestCase
         $deleteId = array_column($data, 'id')[0];
 
         // Test request
-        $this->getBrowser()->request('GET', $this->prepareRoute() . $deleteId, [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $deleteId, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         // Delete call
-        $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
+        $this->getBrowser()->jsonRequest('DELETE', $this->prepareRoute() . $deleteId, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();

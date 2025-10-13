@@ -47,7 +47,7 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
         $definition = new DataValidationDefinition($validationName);
 
         $definition
-            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]))
+            ->add('salutationId', new NotBlank(), new EntityExists(entity: 'salutation', context: $context->getContext()))
             ->add('email', new NotBlank(), new Email())
             ->add('subject', new NotBlank())
             ->add('comment', new NotBlank())

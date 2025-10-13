@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Log\Package;
@@ -193,9 +194,16 @@ class CustomerRepositoryTest extends TestCase
             'tags' => [['name' => 'testTag']],
         ];
 
-        $this->repository->create([$customer], Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $this->repository->create([$customer], $context);
 
-        $this->repository->delete([['id' => $customerId]], Context::createDefaultContext());
+        $this->repository->delete([['id' => $customerId]], $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $customerId));
+        $result = $this->repository->searchIds($criteria, $context);
+
+        static::assertCount(0, $result->getIds());
     }
 
     private function createCustomer(): string

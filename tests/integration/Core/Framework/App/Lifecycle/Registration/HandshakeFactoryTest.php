@@ -44,7 +44,7 @@ class HandshakeFactoryTest extends TestCase
         static::assertInstanceOf(PrivateHandshake::class, $handshake);
     }
 
-    public function testThrowsAppRegistrationExceptionIfAppUrlChangeWasDetected(): void
+    public function testThrowsAppRegistrationExceptionIfShopIdFingerprintsHaveChanged(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../../Manifest/_fixtures/minimal');
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../Manifest/_fixtures/minimal/manifest.xml');
@@ -55,6 +55,8 @@ class HandshakeFactoryTest extends TestCase
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2(Uuid::randomHex(), [
             AppUrl::IDENTIFIER => 'https://test.com',
         ]));
+
+        static::getContainer()->get(ShopIdProvider::class)->reset();
 
         $factory = new HandshakeFactory(
             $shopUrl,

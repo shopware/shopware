@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,6 +32,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -94,6 +96,8 @@ class ProductSearchQueryBuilderTest extends TestCase
     public function testIndexing(): IdsCollection
     {
         $this->connection->executeStatement('DELETE FROM product');
+
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
 
         $this->clearElasticsearch();
         $this->registerCustomFieldsMapping();
@@ -384,26 +388,31 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ->tax('t1')
                 ->price(50, 50)
                 ->category('Shoes')
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-2'))
                 ->name('Aerodynamic Leather Portaline')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-3'))
                 ->name('Aerodynamic Leather Wordlobster')
                 ->price(50, 50)
                 ->add('customSearchKeywords', ['Activity'])
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-4'))
                 ->name('Leather Red')
                 ->add('description', 'Aerodynamic Fooo')
                 ->manufacturer('Shopware')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-5'))
                 ->name('Cycle Suave')
                 ->price(50, 50)
                 ->tag('Smarthome')
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-6'))
                 ->name('T-Shirt')
@@ -413,36 +422,43 @@ class ProductSearchQueryBuilderTest extends TestCase
                         ->option('green', 'color')
                         ->build()
                 )
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-7'))
                 ->name('Keyboard')
                 ->price(50, 50)
                 ->property('Wireless', 'Connectivity')
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'SW5686779889'))
                 ->name('SW Product')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-8'))
                 ->name('Super cool Pikachu Pokemon')
                 ->add('description', 'A cool pokemon is traveling around the world')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-9'))
                 ->name('Super Pokemon')
                 ->add('description', 'A cool raichu is traveling around the world')
                 ->add('customSearchKeywords', ['Raichu'])
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-10'))
                 ->name('Eevee')
                 ->customField('evolvesTo', ['Vaporeon', 'Jolteon', 'Flareon'])
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
             (new ProductBuilder($ids, 'product-11'))
                 ->name('EeveeCfText')
                 ->customField('evolvesText', 'Jolteon')
                 ->price(50, 50)
+                ->visibility()
                 ->build(),
         ];
 

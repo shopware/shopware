@@ -1,5 +1,4 @@
 import template from './sw-cms-detail.html.twig';
-import CMS from '../../constant/sw-cms.constant';
 import './sw-cms-detail.scss';
 
 const { Component, Mixin, Utils } = Shopware;
@@ -10,6 +9,7 @@ const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 const { isEmpty } = Shopware.Utils.types;
 const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
+const { CMS } = Shopware.Constants;
 const debounceTimeout = 800;
 
 /**

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -28,6 +29,9 @@ class StatesUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private StatesUpdater $statesUpdater;

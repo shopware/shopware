@@ -9,7 +9,9 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
+use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -45,6 +47,9 @@ class SendMailAction extends FlowAction implements DelayableAction
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MailTemplateCollection> $mailTemplateRepository
+     * @param EntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository
      */
     public function __construct(
         private readonly AbstractMailService $emailService,
@@ -271,12 +276,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
-        /** @var ?MailTemplateEntity $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository
-            ->search($criteria, $context)
-            ->first();
-
-        return $mailTemplate;
+        return $this->mailTemplateRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function injectTranslator(Context $context, ?string $salesChannelId): bool

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use SwagTestNoDefaultLang\SwagTestNoDefaultLang;
 use SwagTestPlugin\SwagTestPlugin;
@@ -368,7 +369,7 @@ class PluginServiceTest extends TestCase
 
     private function getIsoId(string $iso): string
     {
-        /** @var EntityRepository $localeRepository */
+        /** @var EntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = static::getContainer()->get('locale.repository');
 
         $criteria = new Criteria();

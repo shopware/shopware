@@ -28,8 +28,9 @@
                     @click="closeHelpSidebar"
                 >
                     <mt-icon
-                        name="regular-times-xs"
-                        size="12px"
+                        name="times-xs"
+                        size="var(--scale-size-12)"
+                        color="var(--color-icon-primary-default)"
                     />
                 </button>
             </div>
@@ -57,7 +58,9 @@
                                 <mt-icon
                                     class="sw-help-sidebar__support-item-icon"
                                     name="solid-content"
-                                    size="16px"
+                                    color="var(--color-icon-primary-default)"
+                                    size="var(--scale-size-16)"
+                                    aria-hidden="true"
                                 />
                                 {{ $tc('help-center.sidebar.support.documentation.text') }}
                             </sw-external-link>
@@ -73,7 +76,9 @@
                                 <mt-icon
                                     class="sw-help-sidebar__support-item-icon"
                                     name="solid-comments"
-                                    size="16px"
+                                    color="var(--color-icon-primary-default)"
+                                    size="var(--scale-size-16)"
+                                    aria-hidden="true"
                                 />
                                 {{ $tc('help-center.sidebar.support.createSupportRequest.text') }}
                             </sw-external-link>
@@ -103,8 +108,8 @@
                     >
                         <mt-icon
                             name="solid-keyboard"
-                            color="#1f262e"
-                            size="16px"
+                            color="var(--color-icon-primary-default)"
+                            size="var(--scale-size-16)"
                         />
                         {{ $tc('sw-shortcut-overview.title') }}
                     </mt-button>

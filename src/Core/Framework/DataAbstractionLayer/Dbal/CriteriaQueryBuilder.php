@@ -146,6 +146,8 @@ class CriteriaQueryBuilder
                 } else {
                     $accessor = 'MAX(' . $accessor . ')';
                 }
+            } else {
+                $accessor = 'MIN(' . $accessor . ')';
             }
             $query->addOrderBy($accessor, $sorting->getDirection());
         }

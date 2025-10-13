@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -19,6 +18,7 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\Event\SwitchContextEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -91,11 +91,11 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         } else {
             // do not allow to set address ids if the customer is not logged in
             if (isset($parameters[self::SHIPPING_ADDRESS_ID])) {
-                throw CartException::customerNotLoggedIn();
+                throw SalesChannelException::customerNotLoggedIn();
             }
 
             if (isset($parameters[self::BILLING_ADDRESS_ID])) {
-                throw CartException::customerNotLoggedIn();
+                throw SalesChannelException::customerNotLoggedIn();
             }
         }
 
@@ -115,14 +115,14 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             ->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $salesChannelId));
 
         $definition
-            ->add(self::LANGUAGE_ID, new EntityExists(['entity' => 'language', 'context' => $frameworkContext, 'criteria' => $languageCriteria]))
-            ->add(self::CURRENCY_ID, new EntityExists(['entity' => 'currency', 'context' => $frameworkContext, 'criteria' => $currencyCriteria]))
-            ->add(self::SHIPPING_METHOD_ID, new EntityExists(['entity' => 'shipping_method', 'context' => $frameworkContext, 'criteria' => $shippingMethodCriteria]))
-            ->add(self::PAYMENT_METHOD_ID, new EntityExists(['entity' => 'payment_method', 'context' => $frameworkContext, 'criteria' => $paymentMethodCriteria]))
-            ->add(self::BILLING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $frameworkContext, 'criteria' => $addressCriteria]))
-            ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $frameworkContext, 'criteria' => $addressCriteria]))
-            ->add(self::COUNTRY_ID, new EntityExists(['entity' => 'country', 'context' => $frameworkContext]))
-            ->add(self::STATE_ID, new EntityExists(['entity' => 'country_state', 'context' => $frameworkContext]))
+            ->add(self::LANGUAGE_ID, new EntityExists(entity: 'language', context: $frameworkContext, criteria: $languageCriteria))
+            ->add(self::CURRENCY_ID, new EntityExists(entity: 'currency', context: $frameworkContext, criteria: $currencyCriteria))
+            ->add(self::SHIPPING_METHOD_ID, new EntityExists(entity: 'shipping_method', context: $frameworkContext, criteria: $shippingMethodCriteria))
+            ->add(self::PAYMENT_METHOD_ID, new EntityExists(entity: 'payment_method', context: $frameworkContext, criteria: $paymentMethodCriteria))
+            ->add(self::BILLING_ADDRESS_ID, new EntityExists(entity: 'customer_address', context: $frameworkContext, criteria: $addressCriteria))
+            ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(entity: 'customer_address', context: $frameworkContext, criteria: $addressCriteria))
+            ->add(self::COUNTRY_ID, new EntityExists(entity: 'country', context: $frameworkContext))
+            ->add(self::STATE_ID, new EntityExists(entity: 'country_state', context: $frameworkContext))
         ;
 
         $event = new SwitchContextEvent($data, $context, $definition, $parameters);

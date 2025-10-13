@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
@@ -51,6 +52,9 @@ class ScriptRuleTest extends TestCase
      */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     /**

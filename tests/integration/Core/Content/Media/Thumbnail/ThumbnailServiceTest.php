@@ -47,8 +47,14 @@ class ThumbnailServiceTest extends TestCase
 
     private ThumbnailService $thumbnailService;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
+    /**
+     * @var EntityRepository<MediaThumbnailCollection>
+     */
     private EntityRepository $thumbnailRepository;
 
     private bool $remoteThumbnailsEnable = false;
@@ -704,7 +710,5 @@ class ThumbnailServiceTest extends TestCase
         \assert($resource !== false);
 
         $this->getFilesystem('shopware.filesystem.public')->writeStream($media->getPath(), $resource);
-
-        $service = static::getContainer()->get(ThumbnailService::class);
     }
 }

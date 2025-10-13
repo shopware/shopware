@@ -43,6 +43,9 @@ class ProductListingLoaderTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private ProductListingLoader $productListingLoader;

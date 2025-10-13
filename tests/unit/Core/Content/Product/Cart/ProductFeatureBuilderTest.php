@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
@@ -34,6 +35,7 @@ class ProductFeatureBuilderTest extends TestCase
 {
     private ProductFeatureBuilder $productFeatureBuilder;
 
+    /** @var MockObject&EntityRepository<ProductFeatureSetCollection> */
     private MockObject&EntityRepository $customFieldRepository;
 
     private MockObject&LanguageLocaleCodeProvider $languageLocaleProvider;

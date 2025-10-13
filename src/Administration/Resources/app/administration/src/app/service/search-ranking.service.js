@@ -47,7 +47,7 @@ export default function createSearchRankingService() {
 
     loginService.addOnLoginListener(clearCacheUserSearchConfiguration);
 
-    updateMinSearchTermLength();
+    getMinSearchTermLength();
 
     return {
         getSearchFieldsByEntity,
@@ -56,7 +56,8 @@ export default function createSearchRankingService() {
         buildGlobalSearchQueries,
         clearCacheUserSearchConfiguration,
         searchRankingPoint,
-        updateMinSearchTermLength,
+        getMinSearchTermLength,
+        saveMinSearchTermLength,
         isValidTerm,
     };
 
@@ -167,14 +168,26 @@ export default function createSearchRankingService() {
         cacheUserSearchConfiguration = undefined;
     }
 
-    async function updateMinSearchTermLength() {
+    async function getMinSearchTermLength() {
         try {
             const response = await _getMinSearchTermLength();
             minSearchTermLength = response;
             return response;
-        } catch {
+        } catch (error) {
             minSearchTermLength = 2;
-            return 2;
+            return error;
+        }
+    }
+
+    async function saveMinSearchTermLength(newMinSearchTermLength) {
+        const systemConfigApiService = Service('systemConfigApiService');
+
+        try {
+            await systemConfigApiService.saveValues({ 'core.search.minSearchTermLength': newMinSearchTermLength });
+            minSearchTermLength = newMinSearchTermLength;
+            return newMinSearchTermLength;
+        } catch (error) {
+            return error;
         }
     }
 

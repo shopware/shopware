@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Error;
 
-use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -113,43 +112,6 @@ class ErrorTest extends TestCase
         yield PurchaseStepsError::class => [new PurchaseStepsError(Uuid::randomHex(), 'foo', 5)];
         yield PaymentMethodChangedError::class => [new PaymentMethodChangedError('foo', 'bar')];
         yield ShippingMethodChangedError::class => [new ShippingMethodChangedError('foo', 'bar')];
-    }
-
-    public function testAllErrorsCovered(): void
-    {
-        $testedErrors = \array_keys(\iterator_to_array(self::serializationDataProvider()));
-
-        $classLoader = require __DIR__ . '/../../../../../../vendor/autoload.php';
-        static::assertInstanceOf(ClassLoader::class, $classLoader);
-
-        $loadedErrors = [];
-
-        foreach ($classLoader->getClassMap() as $class => $_) {
-            if (!str_starts_with($class, 'Shopware\\')) {
-                continue;
-            }
-
-            if ($class !== Error::class && !\is_subclass_of($class, Error::class)) {
-                continue;
-            }
-
-            $refClass = new \ReflectionClass($class);
-            if ($refClass->isAbstract()) {
-                continue;
-            }
-
-            $loadedErrors[] = $class;
-        }
-
-        if (empty($loadedErrors)) {
-            static::fail('composer autoloader has not been optimized. Run `composer dump-autoload --optimize` to fix this.');
-        }
-
-        $missing = array_diff($loadedErrors, $testedErrors);
-        static::assertEmpty(
-            $missing,
-            'The following cart errors have not been added to the serialization Test: ' . \implode(', ', $missing),
-        );
     }
 
     private static function createCustomerAddress(): CustomerAddressEntity

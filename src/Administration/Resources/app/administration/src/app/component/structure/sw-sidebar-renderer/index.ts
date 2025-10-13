@@ -84,7 +84,7 @@ export default Shopware.Component.wrapComponentConfig({
         };
 
         onUpdated(() => {
-            if (!activeSidebar.value?.resizable && sidebarSetWidth.value !== MIN_SIDEBAR_WIDTH) {
+            if (activeSidebar.value && !activeSidebar.value?.resizable && sidebarSetWidth.value !== MIN_SIDEBAR_WIDTH) {
                 sidebarSetWidth.value = MIN_SIDEBAR_WIDTH;
             }
         });

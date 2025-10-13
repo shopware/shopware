@@ -31,6 +31,7 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
         }
 
         if ($category->getType() !== CategoryDefinition::TYPE_LINK) {
+            /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
             return $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $category->getId()]);
         }
 
@@ -43,16 +44,20 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 
         switch ($linkType) {
             case CategoryDefinition::LINK_TYPE_PRODUCT:
+                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                 return $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_CATEGORY:
                 if ($salesChannel !== null && $internalLink === $salesChannel->getNavigationCategoryId()) {
+                    /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                     return $this->seoUrlReplacer->generate('frontend.home.page');
                 }
 
+                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                 return $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_LANDING_PAGE:
+                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                 return $this->seoUrlReplacer->generate('frontend.landing.page', ['landingPageId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_EXTERNAL:

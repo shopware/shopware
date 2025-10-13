@@ -202,11 +202,11 @@ class OrderActionController extends AbstractController
         $documents = $query->executeQuery()->fetchAllAssociative();
 
         $documentsGroupByType = FetchModeHelper::group($documents);
-        /** @var array<string, array<array{sent: int, doc_id: string}>> $documentsGroupByType */
+        /** @var array<string, list<array{sent: string, doc_id: string}>> $documentsGroupByType */
         $documentIds = [];
-        foreach ($documentsGroupByType as $documents) {
+        foreach ($documentsGroupByType as $groupedDocuments) {
             // Latest document of type
-            $document = $documents[0];
+            $document = $groupedDocuments[0];
 
             if ($skipSentDocuments && $document['sent']) {
                 continue;

@@ -30,9 +30,9 @@ class CartServiceCompilerPass implements CompilerPassInterface
     private function processTaggedServices(ContainerBuilder $container, string $tag): array
     {
         $services = [];
-        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
-            foreach ($tags as $tag) {
-                $priority = (int) ($tag['priority'] ?? 0);
+        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $serviceTags) {
+            foreach ($serviceTags as $serviceTag) {
+                $priority = (int) ($serviceTag['priority'] ?? 0);
                 $services[$serviceId] = [
                     'serviceId' => $serviceId,
                     'priority' => $priority,

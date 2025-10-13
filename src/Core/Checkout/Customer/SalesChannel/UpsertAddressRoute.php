@@ -153,7 +153,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation->add('company', new NotBlank());
         }
 
-        $validation->set('zipcode', new CustomerZipCode(['countryId' => $data->get('countryId')]));
+        $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

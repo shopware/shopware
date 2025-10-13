@@ -12,16 +12,20 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDownloadRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -56,12 +60,24 @@ class GrantDownloadAccessActionTest extends TestCase
 
     private CartService $cartService;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
     private EntityRepository $orderTransactionRepository;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
     private SalesChannelContext $salesChannelContext;

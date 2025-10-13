@@ -52,11 +52,11 @@ const handleMtUrlField = (context, node) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttribute.key, 'modelValue');
+                yield fixer.replaceText(valueAttribute.key, 'model-value');
             }
         });
     }
@@ -64,7 +64,7 @@ const handleMtUrlField = (context, node) => {
     if (vModelValue) {
         context.report({
             node: vModelValue,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
@@ -76,11 +76,11 @@ const handleMtUrlField = (context, node) => {
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'modelValue');
+                yield fixer.replaceText(valueAttributeExpression.key.argument, 'model-value');
             }
         });
     }
@@ -88,11 +88,11 @@ const handleMtUrlField = (context, node) => {
     if (updateValueEvent) {
         context.report({
             node: updateValueEvent,
-            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:modelValue" instead.`,
+            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:mode-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(updateValueEvent.key.argument, 'update:modelValue');
+                yield fixer.replaceText(updateValueEvent.key.argument, 'update:model-value');
             }
         });
     }
@@ -161,7 +161,7 @@ const mtUrlFieldValidTests = [
 
 const mtUrlFieldInvalidTests = [
     {
-        name: '"mt-url-field" wrong "value" prop usage should be replaced with "modelValue"',
+        name: '"mt-url-field" wrong "value" prop usage should be replaced with "model-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -169,14 +169,14 @@ const mtUrlFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-url-field modelValue="Hello World" />
+                <mt-url-field model-value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-url-field" wrong "value" prop usage should be replaced with "modelValue" [disableFix]',
+        name: '"mt-url-field" wrong "value" prop usage should be replaced with "model-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -184,11 +184,11 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-url-field" wrong "value" prop usage should be replaced with "modelValue" [expression]',
+        name: '"mt-url-field" wrong "value" prop usage should be replaced with "model-value" [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -196,14 +196,14 @@ const mtUrlFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-url-field :modelValue="myValue" />
+                <mt-url-field :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-url-field" wrong "value" prop usage should be replaced with "modelValue" [expression, disableFix]',
+        name: '"mt-url-field" wrong "value" prop usage should be replaced with "model-value" [expression, disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -211,7 +211,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -226,7 +226,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -238,7 +238,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -323,7 +323,7 @@ const mtUrlFieldInvalidTests = [
         }]
     },
     {
-        name: '"mt-url-field" wrong "update:value" event usage should be replaced with "update:modelValue"',
+        name: '"mt-url-field" wrong "update:value" event usage should be replaced with "update:mode-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -331,14 +331,14 @@ const mtUrlFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-url-field @update:modelValue="updateValue" />
+                <mt-url-field @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-url-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {
-        name: '"mt-url-field" wrong "update:value" event usage should be replaced with "update:modelValue" [disableFix]',
+        name: '"mt-url-field" wrong "update:value" event usage should be replaced with "update:mode-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -346,7 +346,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-url-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {

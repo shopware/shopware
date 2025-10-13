@@ -49,7 +49,7 @@ Module.register('sw-settings-tax', {
     title: 'sw-settings-tax.general.mainMenuItemGeneral',
     description: 'Tax section in the settings module',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'tax',
 

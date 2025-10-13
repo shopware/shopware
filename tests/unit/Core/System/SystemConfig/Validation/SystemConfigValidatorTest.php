@@ -211,6 +211,22 @@ class SystemConfigValidatorTest extends TestCase
             ],
             'allowNulls' => true,
         ];
+
+        yield 'element config with string values for minLength and maxLength' => [
+            'elementConfig' => [
+                'required' => false,
+                'dataType' => 'string',
+                'minLength' => '5',
+                'maxLength' => '100',
+            ],
+            'expected' => [
+                new Assert\Length(min: 5),
+                new Assert\Length(max: 100),
+                new Assert\Type('string'),
+                new Assert\NotBlank(),
+            ],
+            'allowNulls' => false,
+        ];
     }
 
     public static function dataProviderTestValidateSuccess(): \Generator

@@ -41,7 +41,6 @@ abstract class DaysSinceRule extends Rule
             ->setTimestamp($date->getTimestamp())
             ->setTime(0, 0);
 
-        /** @var \DateInterval $interval */
         $interval = $dateTime->diff($currentDate);
 
         if ($this->operator === self::OPERATOR_EMPTY) {

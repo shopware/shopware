@@ -11,12 +11,16 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Rule\LastNameRule;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -45,14 +49,29 @@ class FlowExecutorTest extends TestCase
 
     private CartService $cartService;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
     private EntityRepository $orderTransactionRepository;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
+    /**
+     * @var EntityRepository<TagCollection>
+     */
     private EntityRepository $tagRepository;
 
     private OrderTransactionStateHandler $orderTransactionStateHandler;

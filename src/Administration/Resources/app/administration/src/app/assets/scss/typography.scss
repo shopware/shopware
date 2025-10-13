@@ -6,9 +6,9 @@ h3,
 h4,
 h5,
 h6 {
-    color: $color-darkgray-200;
-    font-weight: $font-weight-semi-bold;
-    margin: 0 0 20px;
+    color: var(--color-text-primary-default);
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 var(--scale-size-20);
 }
 
 /*

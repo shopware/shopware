@@ -24,7 +24,7 @@ class Migration1758018339ContentLayout extends MigrationStep
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NOT NULL,
                 `version` VARCHAR(20) NOT NULL,
-                `structure` JSON NOT NULL,
+                `layout` JSON NOT NULL,
                 `schema` JSON NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,

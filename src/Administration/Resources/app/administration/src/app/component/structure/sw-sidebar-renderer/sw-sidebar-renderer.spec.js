@@ -163,7 +163,6 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
             await wrapper.vm.$nextTick();
 
-
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('480px');
             expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '480');
         });

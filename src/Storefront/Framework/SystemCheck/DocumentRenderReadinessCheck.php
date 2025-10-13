@@ -14,6 +14,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,11 +28,27 @@ use Shopware\Core\Checkout\Order\OrderStates;
 #[Package('after-sales')]
 class DocumentRenderReadinessCheck extends BaseCheck
 {
-    /* some document types depend on invoice document or specific line-items */
+    /*
+    Maps document types to their supported file extensions.
+    Only document types listed here will be tested.
+     */
     private const TESTABLE_DOCUMENT_TYPES = [
-        'invoice',
-        'delivery_note',
+        'invoice' => [
+            PdfRenderer::FILE_EXTENSION,
+            HtmlRenderer::FILE_EXTENSION
+        ],
+        'delivery_note' => [
+            PdfRenderer::FILE_EXTENSION,
+            HtmlRenderer::FILE_EXTENSION
+        ],
+        'zugferd_invoice' => [
+            'xml'
+        ],
+        'zugferd_embedded_invoice'=> [
+            PdfRenderer::FILE_EXTENSION
+        ],
     ];
+
     /**
      * @param SalesChannelDomainUtil $util
      * @param Connection $connection
@@ -84,32 +101,28 @@ class DocumentRenderReadinessCheck extends BaseCheck
         $result = [];
         $extra = [];
         foreach ($this->documentRenderers as $renderer) {
-            $type = $renderer->supports();
-            var_dump($type);
+            $documentType = $renderer->supports();
 
-            if (!in_array($type, self::TESTABLE_DOCUMENT_TYPES, true)) {
+            if (!array_key_exists($documentType, self::TESTABLE_DOCUMENT_TYPES)) {
                 $extra[] = [
-                    'documentType' => $type,
+                    'documentType' => $documentType,
                     'message' => 'This document type is not covered by this check; skipping.',
                 ];
                 continue;
             }
 
-            // choose an order that has an already generated document of this type
-            $orderId = $this->getOrderId($type);
+            $orderId = $this->getOrderId($documentType);
 
-            // skip if no document of this type already exists for this order
             if (!$orderId) {
                 $extra[] = [
-                    'documentType' => $type,
+                    'documentType' => $documentType,
                     'message' => 'No order with document of this type found; skipping.',
                 ];
 
                 continue;
             }
 
-            // check which fileTypes are supported via document-config
-            $fileTypes = [PdfRenderer::FILE_EXTENSION, HtmlRenderer::FILE_EXTENSION];
+            $fileTypes = self::TESTABLE_DOCUMENT_TYPES[$documentType];
 
             foreach ($fileTypes as $fileType) {
                 $operation = new DocumentGenerateOperation(
@@ -121,46 +134,61 @@ class DocumentRenderReadinessCheck extends BaseCheck
                     true
                 );
 
-                $processedTemplate = $renderer->render(
-                    [$orderId => $operation],
-                    $context,
-                    new DocumentRendererConfig()
-                );
+                try {
+                    $processedTemplate = $renderer->render(
+                        [$orderId => $operation],
+                        $context,
+                        new DocumentRendererConfig()
+                    );
 
-                $error = $processedTemplate->getErrors()[$orderId] ?? [];
+                    $error = $processedTemplate->getErrors()[$orderId] ?? [];
 
-                if($error) {
+                    if($error) {
+                        $result[Status::FAILURE->name] = Status::FAILURE;
+                        $extra[] = [
+                            'documentType' => $documentType,
+                            'fileType' => $fileType,
+                            'message' => 'Rendering failed with errors: ' . $error->getMessage(),
+                        ];
+                    }
+
+                    $success = $processedTemplate->getSuccess()[$orderId] ?? null;
+
+                    if ($success === null) {
+                        $result[Status::FAILURE->name] = Status::FAILURE;
+                        $extra[] = [
+                            'documentType' => $documentType,
+                            'fileType' => $fileType,
+                            'message' => 'Rendering failed without exception and without result.',
+                        ];
+                    }
+
+                    $content = $processedTemplate->getSuccess()[$orderId]->getContent();
+
+                    if (\strlen($content) < 10) {
+                        $result[Status::FAILURE->name] = Status::FAILURE;
+                        $extra[] = [
+                            'documentType' => $documentType,
+                            'fileType' => $fileType,
+                            'message' => 'rendered content is to less or empty for type ' . $documentType . ' and fileType ' . $fileType,
+                        ];
+                    }
+                } catch (\Throwable $e) {
                     $result[Status::FAILURE->name] = Status::FAILURE;
                     $extra[] = [
-                        'documentType' => $type,
+                        'documentType' => $documentType,
                         'fileType' => $fileType,
-                        'message' => 'Rendering failed with errors: ' . $error->getMessage(),
+                        'message' => 'Rendering failed with exception: ' . $e->getMessage(),
                     ];
-                }
-
-                $success = $processedTemplate->getSuccess()[$orderId] ?? null;
-
-                if ($success === null) {
-                    $result[Status::FAILURE->name] = Status::FAILURE;
-                    $extra[] = [
-                        'documentType' => $type,
-                        'fileType' => $fileType,
-                        'message' => 'Rendering failed without exception and without result.',
-                    ];
-                }
-
-                $content = $processedTemplate->getSuccess()[$orderId]->getContent();
-
-                if (\strlen($content) < 10) {
-                    $result[Status::FAILURE->name] = Status::FAILURE;
-                    $extra[] = [
-                        'documentType' => $type,
-                        'fileType' => $fileType,
-                        'message' => 'rendered content is to less or empty for type ' . $type . ' and fileType ' . $fileType,
-                    ];
+                    continue;
                 }
 
                 $result[Status::OK->name] = Status::OK;
+                $extra[] = [
+                    'documentType' => $documentType,
+                    'fileType' => $fileType,
+                    'message' => 'Rendering successful.',
+                ];
             }
         }
 
@@ -175,11 +203,15 @@ class DocumentRenderReadinessCheck extends BaseCheck
         );
     }
 
+    /**
+     * Fetches an order ID that already has a generated document of the specified type
+     * to avoid generating documents for orders that maybe do not meet all requirements.
+     */
     private function getOrderId(string $type)
     {
         $sql = '
             SELECT
-                LOWER(HEX(d.order_id)) as id
+                d.order_id as id
             FROM `document` AS d
                 INNER JOIN `document_type` AS dt ON d.document_type_id = dt.id
             WHERE
@@ -187,6 +219,8 @@ class DocumentRenderReadinessCheck extends BaseCheck
             LIMIT 1
         ';
 
-        return $this->connection->fetchOne($sql, ['type' => $type]);
+        $binaryId = $this->connection->fetchOne($sql, ['type' => $type]);
+
+        return $binaryId ? Uuid::fromBytesToHex($binaryId) : null;
     }
 }

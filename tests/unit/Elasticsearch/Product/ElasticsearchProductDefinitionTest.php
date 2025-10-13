@@ -308,12 +308,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'lang_en' => [
                             'type' => 'object',
                             'dynamic' => true,
-                            'properties' => [],
                         ],
                         'lang_de' => [
                             'type' => 'object',
                             'dynamic' => true,
-                            'properties' => [],
                         ],
                     ],
                 ],
@@ -330,6 +328,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
                             'type' => 'long',
                         ],
                     ],
+                ],
+                'visibility_' . TestDefaults::SALES_CHANNEL => [
+                    'type' => 'integer',
                 ],
             ],
             'dynamic_templates' => [

@@ -39,6 +39,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubsc
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncPlugin\AsyncPlugin;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\NotFoundPlugin\NotFoundPlugin;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestTheme;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -91,6 +92,11 @@ class ThemeCompilerTest extends TestCase
      */
     private CopyBatchInputFactory $copyBatchInputFactory;
 
+    /**
+     * @var TwigComponentHelper&MockObject
+     */
+    private TwigComponentHelper $twigComponentHelper;
+
     protected function setUp(): void
     {
         $this->themeFileResolver = $this->createMock(ThemeFileResolver::class);
@@ -101,6 +107,7 @@ class ThemeCompilerTest extends TestCase
         $this->pathBuilder = new MD5ThemePathBuilder();
         $this->copyBatchInputFactory = $this->createMock(CopyBatchInputFactory::class);
         $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
@@ -826,6 +833,7 @@ PHP_EOL,
             $this->tempFilesystem,
             $this->copyBatchInputFactory,
             $this->themeFileResolver,
+            $this->twigComponentHelper,
             true,
             $this->eventDispatcher,
             $this->themeFilesystemResolver,

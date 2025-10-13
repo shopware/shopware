@@ -5,8 +5,11 @@ namespace Shopware\Storefront\Framework\Twig\Components;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @extends Collection<TwigComponent>
+ */
 #[Package('framework')]
-class UxComponentCollection extends Collection
+class TwigComponentCollection extends Collection
 {
     public function __construct(iterable $elements = [])
     {
@@ -23,5 +26,10 @@ class UxComponentCollection extends Collection
     {
         $this->validateType($element);
         $this->set($element->getName(), $element);
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return TwigComponent::class;
     }
 }

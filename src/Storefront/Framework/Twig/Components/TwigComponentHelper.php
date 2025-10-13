@@ -11,7 +11,7 @@ use Symfony\Component\Finder\SplFileInfo;
 use Symfony\UX\TwigComponent\ComponentFactory;
 
 #[Package('framework')]
-class UxComponentHelper
+class TwigComponentHelper
 {
     private const MAIN_NAMESPACE = 'Storefront';
 
@@ -30,9 +30,9 @@ class UxComponentHelper
     ) {
     }
 
-    public function getComponents(bool $includeMetadata = false): UxComponentCollection
+    public function getComponents(bool $includeMetadata = false): TwigComponentCollection
     {
-        $components = new UxComponentCollection();
+        $components = new TwigComponentCollection();
 
         foreach ($this->findComponentsByTemplate() as $component) {
             if ($includeMetadata) {
@@ -46,11 +46,11 @@ class UxComponentHelper
         return $components;
     }
 
-    public function getComponentFromTemplate(SplFileInfo $template, string $componentNamespace): UxComponent
+    public function getComponentFromTemplate(SplFileInfo $template, string $componentNamespace): TwigComponent
     {
         $componentName = $this->getComponentNameFromPath($template->getRelativePathname());
 
-        $component = new UxComponent(
+        $component = new TwigComponent(
             $componentName,
             $template->getRealPath(),
             $componentNamespace
@@ -60,7 +60,7 @@ class UxComponentHelper
     }
 
     /**
-     * @return array<string, UxComponent>
+     * @return array<string, TwigComponent>
      */
     private function findComponentsByTemplate(): array
     {

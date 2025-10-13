@@ -39,35 +39,35 @@ class TwigComponentBundlePass implements CompilerPassInterface
             try {
                 $reflection = new \ReflectionClass($bundleClass);
                 $bundle = $reflection->newInstanceWithoutConstructor();
-
-                if (!$bundle instanceof Bundle) {
-                    continue;
-                }
-
-                $bundlePath = $bundle->getPath();
-                $componentDir = $bundlePath . '/Resources/views/components';
-
-                if (!is_dir($componentDir)) {
-                    continue;
-                }
-
-                // Build the namespace for component classes in this bundle
-                // Format: BundleNamespace\Resources\views\components\
-                // Note: Using lowercase to match actual directory structure (PSR-4 is case-sensitive)
-                $bundleNamespace = $reflection->getNamespaceName();
-                $componentNamespace = $bundleNamespace . '\\Resources\\views\\components\\';
-
-                if (!isset($defaults[$componentNamespace])) {
-                    $bundleName = $bundle->getName();
-
-                    $defaults[$componentNamespace] = [
-                        'template_directory' => 'components',
-                        'name_prefix' => $bundleName,
-                    ];
-                }
             } catch (\ReflectionException $e) {
                 // Skip bundles that can't be reflected
                 continue;
+            }
+
+            if (!$bundle instanceof Bundle) {
+                continue;
+            }
+
+            $bundlePath = $bundle->getPath();
+            $componentDir = $bundlePath . '/Resources/views/components';
+
+            if (!is_dir($componentDir)) {
+                continue;
+            }
+
+            // Build the namespace for component classes in this bundle
+            // Format: BundleNamespace\Resources\views\components\
+            // Note: Using lowercase to match actual directory structure (PSR-4 is case-sensitive)
+            $bundleNamespace = $reflection->getNamespaceName();
+            $componentNamespace = $bundleNamespace . '\\Resources\\views\\components\\';
+
+            if (!isset($defaults[$componentNamespace])) {
+                $bundleName = $bundle->getName();
+
+                $defaults[$componentNamespace] = [
+                    'template_directory' => 'components',
+                    'name_prefix' => $bundleName,
+                ];
             }
         }
 

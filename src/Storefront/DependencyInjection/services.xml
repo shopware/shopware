@@ -98,7 +98,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
-            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\UxComponentRenderEventListener" />
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener" />
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
@@ -108,10 +108,6 @@
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\TemplateConfigAccessor"/>
-            <tag name="twig.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Twig\Extension\TypeExtension">
             <tag name="twig.extension"/>
         </service>
 
@@ -537,17 +533,16 @@
             <tag name="shopware.system_check"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Twig\Components\UxComponentHelper">
+        <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper">
             <argument>Resources/views/components/</argument>
             <argument>%kernel.project_dir%</argument>
             <argument>%kernel.bundles_metadata%</argument>
-            <argument type="service" id="twig"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument type="service" id="ux.twig_component.component_factory"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Twig\Components\UxComponentRenderEventListener">
+        <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener">
             <tag name="kernel.event_listener" />
         </service>
 

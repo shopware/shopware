@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Twig\Components\UxComponent;
-use Shopware\Storefront\Framework\Twig\Components\UxComponentHelper;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
@@ -24,7 +24,7 @@ class ThemeFileResolver
      */
     public function __construct(
         private readonly ThemeFilesystemResolver $themeFilesystemResolver,
-        private readonly UxComponentHelper $uxComponentHelper
+        private readonly TwigComponentHelper $twigComponentHelper
     ) {
     }
 
@@ -209,15 +209,10 @@ class ThemeFileResolver
                     continue;
                 }
 
-                foreach ($this->uxComponentHelper->getComponents() as $component) {
-                    /** @var UxComponent $component */
-                    if ($fileType === self::SCRIPT_FILES) {
-                        /** @var string|null $componentPath */
-                        $componentPath = $component->getScriptPath();
-                    } else {
-                        /** @var string|null $componentPath */
-                        $componentPath = $component->getStylePath();
-                    }
+                foreach ($this->twigComponentHelper->getComponents() as $component) {
+                    $componentPath = $fileType === self::SCRIPT_FILES
+                        ? $component->getScriptPath()
+                        : $component->getStylePath();
 
                     if ($componentPath !== null) {
                         $namespaceDir = $component->getRelativeNamespaceDirectory();

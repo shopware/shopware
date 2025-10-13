@@ -122,6 +122,10 @@ class ElasticsearchFieldBuilder
             $mapping['properties'][$name] = $esType;
         }
 
+        if ($mapping['properties'] === []) {
+            unset($mapping['properties']);
+        }
+
         return $mapping;
     }
 }

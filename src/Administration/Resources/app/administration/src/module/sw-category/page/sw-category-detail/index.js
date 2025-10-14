@@ -1,12 +1,11 @@
 import './store';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
-import types from '../../../../core/service/utils/types.utils';
 
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
-const type = Shopware.Utils.types;
+const { isPlainObject, isArray, isEqual } = Shopware.Utils.types;
 
 /**
  * @sw-package discovery
@@ -657,7 +656,7 @@ export default {
 
             const pageOverrides = this.getCmsPageOverrides();
 
-            if (type.isPlainObject(pageOverrides)) {
+            if (isPlainObject(pageOverrides)) {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
 
@@ -735,7 +734,7 @@ export default {
 
             const pageOverrides = this.getCmsPageOverrides();
 
-            if (type.isPlainObject(pageOverrides)) {
+            if (isPlainObject(pageOverrides)) {
                 this.landingPage.slotConfig = cloneDeep(pageOverrides);
             }
 
@@ -802,22 +801,22 @@ export default {
                 return slotOverrides;
             }
 
-            if (type.isArray(changes.sections)) {
+            if (isArray(changes.sections)) {
                 changes.sections.forEach((section) => {
                     const originSection = origin?.sections?.find((oSection) => oSection.id === section.id);
 
-                    if (type.isArray(section.blocks)) {
+                    if (isArray(section.blocks)) {
                         section.blocks.forEach((block) => {
                             const originBlock = originSection?.blocks?.find((oBlock) => oBlock.id === block.id);
 
-                            if (type.isArray(block.slots)) {
+                            if (isArray(block.slots)) {
                                 block.slots.forEach((slot) => {
                                     const originSlot = originBlock?.slots?.find((oSlot) => oSlot.id === slot.id);
                                     const originSlotConfig = originSlot?.translated.config;
 
                                     if (slot.config && originSlotConfig) {
                                         Object.keys(slot.config).forEach((key) => {
-                                            if (!types.isEqual(slot.config[key], originSlotConfig[key])) {
+                                            if (!isEqual(slot.config[key], originSlotConfig[key])) {
                                                 if (!slotOverrides[slot.id]) {
                                                     slotOverrides[slot.id] = {};
                                                 }

@@ -1,6 +1,8 @@
 import template from './sw-cms-preview-html.html.twig';
 import './sw-cms-preview-html.scss';
 
+console.log('Hello, World!');
+
 /**
  * @private
  * @sw-package discovery

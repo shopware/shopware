@@ -19,13 +19,13 @@ class DomainRuleStruct extends Struct
      */
     private array $directives = [];
 
-    public function __construct(ParsedRobots|string $rulesOrParsed, private readonly string $basePath)
+    public function __construct(ParsedRobots|string $rules, private readonly string $basePath)
     {
-        if ($rulesOrParsed instanceof ParsedRobots) {
-            $this->initializeFromParsed($rulesOrParsed);
+        if ($rules instanceof ParsedRobots) {
+            $this->initializeFromParsed($rules);
         } else {
             // Legacy path for backward compatibility
-            $this->parseRulesLegacy($rulesOrParsed);
+            $this->parseRulesLegacy($rules);
         }
     }
 

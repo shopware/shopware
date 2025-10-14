@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ContentSystem\Layout\Refinery;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Output\RenderingContext;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\Struct\ResolvedData;
+use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 

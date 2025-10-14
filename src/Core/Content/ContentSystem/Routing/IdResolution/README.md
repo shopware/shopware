@@ -29,7 +29,7 @@ EntityIdResolver → Query products WHERE seoPathInfo = "laptop-x1"
 EntityIdMap → {product: <UUID>}
 ```
 
-ResolvedData (Struct/) contains both parameters and entity IDs. Used downstream for placeholder replacement and data loading.
+ResolvedData contains both parameters and entity IDs. Used downstream for placeholder replacement and data loading.
 
 ## Parameter Binding Structure
 
@@ -89,4 +89,5 @@ Useful when URL param name differs from internal naming convention.
 ## Subdirectories
 
 - Parameter/: Parameter extraction logic (ParameterExtractor)
-- Struct/: Data structures (ResolvedData, EntityIdMap, ParameterMap)
+
+Data structures (ResolvedData, EntityIdMap, ParameterMap) are located directly in this directory.

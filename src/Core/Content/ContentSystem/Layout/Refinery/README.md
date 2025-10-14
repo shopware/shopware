@@ -58,7 +58,7 @@ namespace App\Content\Refiner;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Refinery\LayoutRefinerInterface;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\Struct\ResolvedData;
+use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 

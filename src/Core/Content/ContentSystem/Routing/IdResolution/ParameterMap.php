@@ -9,48 +9,20 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class ParameterMap
+final readonly class ParameterMap
 {
     /**
      * @param array<string, int|string|bool|float> $map Parameter name => Scalar value
      */
     public function __construct(
-        private readonly array $map = []
+        private array $map = []
     ) {
         $this->validate();
-    }
-
-    public static function empty(): self
-    {
-        return new self([]);
     }
 
     public function get(string $name): int|string|bool|float|null
     {
         return $this->map[$name] ?? null;
-    }
-
-    public function has(string $name): bool
-    {
-        return isset($this->map[$name]);
-    }
-
-    public function add(string $name, int|string|bool|float $value): self
-    {
-        $map = $this->map;
-        $map[$name] = $value;
-
-        return new self($map);
-    }
-
-    public function merge(self $other): self
-    {
-        return new self(array_merge($this->map, $other->map));
-    }
-
-    public function isEmpty(): bool
-    {
-        return empty($this->map);
     }
 
     /**

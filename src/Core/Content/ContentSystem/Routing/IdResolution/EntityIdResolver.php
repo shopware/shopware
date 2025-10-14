@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Routing\IdResolution;
 
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\Struct\ResolvedData;
-use Shopware\Core\Content\ContentSystem\Routing\Struct\RouteMatchResult;
+use Shopware\Core\Content\ContentSystem\Routing\Router\RouteMatchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,18 +13,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @phpstan-import-type ExtractedParameters from ParameterExtractor
  * @phpstan-import-type ResolutionParameterMap from ParameterExtractor
  * @phpstan-import-type ResolutionItem from ParameterExtractor
  *
- * @final
+ * @internal
  */
 #[Package('discovery')]
 class EntityIdResolver
 {
-    /**
-     * @internal
-     */
     public function __construct(
         protected readonly DefinitionInstanceRegistry $definitionRegistry,
         protected readonly ParameterExtractor $parameterExtractor
@@ -96,7 +91,6 @@ class EntityIdResolver
         $this->addVisibilityFilter($criteria, $entityType, $context);
 
         $itemFilters = [];
-        $itemsByMatchValue = [];
 
         foreach ($items as $item) {
             $matchField = $item['resolution']['match_field'] ?? 'id';
@@ -110,9 +104,6 @@ class EntityIdResolver
             }
 
             $itemFilters[] = new MultiFilter(MultiFilter::CONNECTION_AND, $andFilters);
-
-            $lookupKey = $matchField . ':' . $value;
-            $itemsByMatchValue[$lookupKey] = $item;
         }
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $itemFilters));

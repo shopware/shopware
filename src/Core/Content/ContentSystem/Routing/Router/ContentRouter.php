@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ContentSystem\Routing\Router;
 
-use Shopware\Core\Content\ContentSystem\Routing\Struct\RouteMatchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 

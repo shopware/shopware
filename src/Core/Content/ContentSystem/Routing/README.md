@@ -38,7 +38,6 @@ Layout assignments are stored in `content_layout_assignment` table with `route_i
 - IdResolution/: Parameter extraction and entity queries
 - LayoutResolution/: Priority-based layout assignment
 - Entity/: DAL definitions (ContentRouteDefinition, ContentRouteEntity)
-- Struct/: Data structures (RouteMatchResult)
 
 ## Performance
 

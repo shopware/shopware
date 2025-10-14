@@ -7,7 +7,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependency
 use Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil;
 use Shopware\Core\Content\ContentSystem\Layout\Refinery\LayoutRefinerInterface;
 use Shopware\Core\Content\ContentSystem\Output\RenderingContext;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\Struct\ResolvedData;
+use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 

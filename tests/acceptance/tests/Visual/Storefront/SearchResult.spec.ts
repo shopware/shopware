@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { replaceElements } from '@shopware-ag/acceptance-test-suite';
 
-test('Creates a screenshot of the Storefront Homepage.', { tag: '@Visual' }, async ({
+test('Creates a screenshot of the Storefront Search Result Page.', { tag: '@Visual' }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -26,7 +25,7 @@ test('Creates a screenshot of the Storefront Homepage.', { tag: '@Visual' }, asy
     });
     await TestDataService.clearCaches();
     await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
-    
+
     await ShopCustomer.expects(async () => {
         await test.step('Wait for products to be visible.', async () => {
             await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
@@ -37,10 +36,10 @@ test('Creates a screenshot of the Storefront Homepage.', { tag: '@Visual' }, asy
         intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
     });
 
-    await test.step('Search with valid input and sees results', async () => {
+    await test.step('Search with valid input and sees results and take a screenshot.', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.attemptsTo(SearchForTerm(product.name));
-        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestNoResult).toBeVisible();
+        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestTotalLink).toBeVisible();
         await expect(StorefrontHome.page).toHaveScreenshot('Search-Result-Dropdown.png', {
             fullPage: true,
         });

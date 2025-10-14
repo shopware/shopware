@@ -82,7 +82,7 @@ class RobotsPageLoaderTest extends TestCase
         $criteria->addFilter(new ContainsFilter('url', 'example.com'));
         $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        $this->salesChannelDomainRepository->addSearch(new SalesChannelDomainCollection([$domain]));
+        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$domain])]);
 
         $this->robotsPageLoader = new RobotsPageLoader(
             $this->eventDispatcher,
@@ -141,7 +141,7 @@ class RobotsPageLoaderTest extends TestCase
         $domain3->setUrl('http://example.com/en');
         $domain3->setSalesChannelId($salesChannelId2);
 
-        $this->salesChannelDomainRepository->addSearch(new SalesChannelDomainCollection([$domain1, $domain2]));
+        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$domain1, $domain2])]);
 
         $this->robotsPageLoader = new RobotsPageLoader(
             $this->eventDispatcher,
@@ -201,5 +201,199 @@ class RobotsPageLoaderTest extends TestCase
             ],
             $secondDomainRule->getRules()
         );
+
+        static::assertCount(0, $page->getGlobalUserAgentBlocks());
+    }
+
+    public function testLoadWithEmptyRobotsRules(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+        $context = Context::createDefaultContext();
+        $salesChannelId = 'test-sales-channel-id';
+
+        $domain = new SalesChannelDomainEntity();
+        $domain->setId('test-domain-id');
+        $domain->setUrl('https://example.com');
+        $domain->setSalesChannelId($salesChannelId);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('url', 'example.com'));
+        $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+
+        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$domain])]);
+
+        // Set empty robots rules
+        $this->systemConfigService->set(
+            'core.basicInformation.robotsRules',
+            '',
+            $salesChannelId
+        );
+
+        $this->robotsPageLoader = new RobotsPageLoader(
+            $this->eventDispatcher,
+            $this->salesChannelDomainRepository,
+            $this->systemConfigService,
+            new RobotsDirectiveParser()
+        );
+
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+
+        $page = $this->robotsPageLoader->load($request, $context);
+
+        static::assertCount(1, $page->getSitemaps());
+        static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
+        static::assertCount(0, $page->getDomainRules()); // Empty rules should not create domain rule
+        static::assertCount(0, $page->getGlobalUserAgentBlocks());
+    }
+
+    public function testLoadWithHttpAndHttpsDomains(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+        $context = Context::createDefaultContext();
+        $salesChannelId = 'test-sales-channel-id';
+
+        $httpDomain = new SalesChannelDomainEntity();
+        $httpDomain->setId('test-domain-id-http');
+        $httpDomain->setUrl('http://example.com');
+        $httpDomain->setSalesChannelId($salesChannelId);
+
+        $httpsDomain = new SalesChannelDomainEntity();
+        $httpsDomain->setId('test-domain-id-https');
+        $httpsDomain->setUrl('https://example.com');
+        $httpsDomain->setSalesChannelId($salesChannelId);
+
+        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$httpDomain, $httpsDomain])]);
+
+        $this->systemConfigService->set(
+            'core.basicInformation.robotsRules',
+            "Disallow: /account/\nAllow: /public/",
+            $salesChannelId
+        );
+
+        $this->robotsPageLoader = new RobotsPageLoader(
+            $this->eventDispatcher,
+            $this->salesChannelDomainRepository,
+            $this->systemConfigService,
+            new RobotsDirectiveParser()
+        );
+
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+
+        $page = $this->robotsPageLoader->load($request, $context);
+
+        // HTTP and HTTPS domains for same hostname should be deduplicated
+        // Both should have domainHostname = '' and should be treated as the same
+        static::assertCount(1, $page->getSitemaps());
+        static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
+        static::assertCount(1, $page->getDomainRules());
+
+        $domainRule = $page->getDomainRules()->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
+        static::assertEquals([
+            ['type' => 'Disallow', 'path' => '/account/'],
+            ['type' => 'Allow', 'path' => '/public/'],
+        ], $domainRule->getRules());
+        static::assertSame('', $domainRule->getBasePath());
+    }
+
+    public function testLoadWithDomainHavingNoRobotsRules(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+        $context = Context::createDefaultContext();
+        $salesChannelId = 'test-sales-channel-id';
+
+        $domain = new SalesChannelDomainEntity();
+        $domain->setId('test-domain-id');
+        $domain->setUrl('https://example.com');
+        $domain->setSalesChannelId($salesChannelId);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('url', 'example.com'));
+        $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+
+        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$domain])]);
+
+        // Don't set any robots rules for this sales channel
+
+        $this->robotsPageLoader = new RobotsPageLoader(
+            $this->eventDispatcher,
+            $this->salesChannelDomainRepository,
+            $this->systemConfigService,
+            new RobotsDirectiveParser()
+        );
+
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+
+        $page = $this->robotsPageLoader->load($request, $context);
+
+        static::assertCount(1, $page->getSitemaps());
+        static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
+        static::assertCount(0, $page->getDomainRules()); // No rules should be present
+        static::assertCount(0, $page->getGlobalUserAgentBlocks());
+    }
+
+    public function testLoadWithDifferentHostnames(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+        $context = Context::createDefaultContext();
+        $salesChannelId1 = 'test-sales-channel-id-1';
+        $salesChannelId2 = 'test-sales-channel-id-2';
+
+        // Domain for example.com
+        $domain1 = new SalesChannelDomainEntity();
+        $domain1->setId('test-domain-id-1');
+        $domain1->setUrl('https://example.com');
+        $domain1->setSalesChannelId($salesChannelId1);
+
+        // Domain for different.org (different hostname)
+        $domain2 = new SalesChannelDomainEntity();
+        $domain2->setId('test-domain-id-2');
+        $domain2->setUrl('https://different.org');
+        $domain2->setSalesChannelId($salesChannelId2);
+
+        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$domain1, $domain2])]);
+
+        $this->systemConfigService->set(
+            'core.basicInformation.robotsRules',
+            "Disallow: /account/\nAllow: /public/",
+            $salesChannelId1
+        );
+        $this->systemConfigService->set(
+            'core.basicInformation.robotsRules',
+            "Disallow: /private/\nAllow: /api/",
+            $salesChannelId2
+        );
+
+        $this->robotsPageLoader = new RobotsPageLoader(
+            $this->eventDispatcher,
+            $this->salesChannelDomainRepository,
+            $this->systemConfigService,
+            new RobotsDirectiveParser()
+        );
+
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+
+        $page = $this->robotsPageLoader->load($request, $context);
+
+        // Should only find the domain matching the hostname (example.com)
+        static::assertCount(1, $page->getSitemaps());
+        static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
+        static::assertCount(1, $page->getDomainRules());
+
+        $domainRule = $page->getDomainRules()->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
+        static::assertEquals([
+            ['type' => 'Disallow', 'path' => '/account/'],
+            ['type' => 'Allow', 'path' => '/public/'],
+        ], $domainRule->getRules());
+        static::assertSame('', $domainRule->getBasePath());
     }
 }

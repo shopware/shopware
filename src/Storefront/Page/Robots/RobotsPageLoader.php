@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleCollection;
@@ -47,7 +48,7 @@ class RobotsPageLoader
 
             $page->setGlobalUserAgentBlocks($globalBlocks);
             $page->setDomainRules($domainRules);
-            $page->setSitemaps($this->getSitemaps($domains));
+            $page->setSitemaps($this->getSitemaps($domains, $hostname));
         } else {
             $page->setGlobalUserAgentBlocks([]);
             $page->setDomainRules(new DomainRuleCollection());
@@ -76,6 +77,37 @@ class RobotsPageLoader
     }
 
     /**
+     * Selects domains by hostname, preferring HTTPS over HTTP for the same hostname.
+     *
+     * @param non-empty-string $hostname
+     *
+     * @return array<string, SalesChannelDomainEntity> Array keyed by domain hostname with selected domain entities
+     */
+    private function selectDomainsByHostname(SalesChannelDomainCollection $domains, string $hostname): array
+    {
+        $selectedDomains = [];
+        \assert($hostname !== '');
+
+        foreach ($domains as $domain) {
+            $domainUrl = $domain->getUrl();
+
+            $domainPath = explode($hostname, $domainUrl, 2);
+            $domainHostname = trim($domainPath[1] ?? '');
+
+            $existingDomain = $selectedDomains[$domainHostname] ?? null;
+            $isHttps = str_starts_with($domainUrl, 'https://');
+
+            if ($existingDomain === null) {
+                $selectedDomains[$domainHostname] = $domain;
+            } elseif ($isHttps && !str_starts_with($existingDomain->getUrl(), 'https://')) {
+                $selectedDomains[$domainHostname] = $domain;
+            }
+        }
+
+        return $selectedDomains;
+    }
+
+    /**
      * Collects and separates global User-agent blocks from domain-specific path rules.
      *
      * @param non-empty-string $hostname
@@ -88,17 +120,9 @@ class RobotsPageLoader
         $globalBlocks = [];
         $globalBlocksByHash = [];
 
-        $seenDomainHostnames = [];
-        foreach ($domains as $domain) {
-            $domainPath = explode($hostname, $domain->getUrl(), 2);
-            $domainHostname = trim($domainPath[1] ?? '');
+        $selectedDomains = $this->selectDomainsByHostname($domains, $hostname);
 
-            // Skip hostnames which are available with http and https
-            if (isset($seenDomainHostnames[$domainHostname])) {
-                continue;
-            }
-
-            $seenDomainHostnames[$domainHostname] = true;
+        foreach ($selectedDomains as $domainHostname => $domain) {
             $domainRules = trim($this->systemConfigService->getString('core.basicInformation.robotsRules', $domain->getSalesChannelId()));
 
             if ($domainRules === '') {
@@ -145,13 +169,17 @@ class RobotsPageLoader
     }
 
     /**
+     * @param non-empty-string $hostname
+     *
      * @return list<string>
      */
-    private function getSitemaps(SalesChannelDomainCollection $domains): array
+    private function getSitemaps(SalesChannelDomainCollection $domains, string $hostname): array
     {
         $sitemaps = [];
+        $selectedDomains = $this->selectDomainsByHostname($domains, $hostname);
 
-        foreach ($domains as $domain) {
+        // Generate sitemaps from the selected domains
+        foreach ($selectedDomains as $domain) {
             $sitemaps[] = $domain->getUrl() . '/sitemap.xml';
         }
 

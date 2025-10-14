@@ -103,14 +103,13 @@ export default Mixin.register(
             configOverride(): EnrichedSlotData {
                 const entitySlotConfig = this.getEntitySlotConfig();
 
-                if (entitySlotConfig) {
-                    return entitySlotConfig as unknown as EnrichedSlotData;
-                }
+                const config = merge(
+                    cloneDeep(this.element?.translated?.config ?? {}),
+                    cloneDeep(entitySlotConfig ?? {}),
+                ) as unknown as EnrichedSlotData;
 
-                const translatedConfig = this.element?.translated?.config;
-
-                if (translatedConfig && !isEmpty(translatedConfig)) {
-                    return translatedConfig as EnrichedSlotData;
+                if (config && !isEmpty(config)) {
+                    return config;
                 }
 
                 return (this.element?.config ?? {}) as unknown as EnrichedSlotData;
@@ -120,7 +119,6 @@ export default Mixin.register(
         methods: {
             initElementConfig(elementName: string) {
                 const defaultConfig = this.defaultConfig || this.cmsElements[elementName]?.defaultConfig || {};
-
                 this.element.config = merge(cloneDeep(defaultConfig), cloneDeep(this.configOverride));
             },
 

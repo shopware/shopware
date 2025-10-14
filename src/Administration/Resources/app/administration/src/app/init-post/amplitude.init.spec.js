@@ -131,14 +131,9 @@ describe('src/app/post-init/amplitude.init.ts', () => {
         ])('handles event', async (telemetryEvent, trackedData) => {
             const { track } = await import('@amplitude/analytics-browser');
 
-            let amplitudeListener;
-            jest.spyOn(Shopware.Telemetry, 'addListener').mockImplementationOnce((callback) => {
-                amplitudeListener = callback;
-            });
-
             await initAmplitude();
 
-            amplitudeListener(telemetryEvent);
+            Shopware.Utils.EventBus.emit('telemetry', telemetryEvent);
 
             expect(track).toHaveBeenCalled();
             expect(track).toHaveBeenCalledWith(trackedData.eventName, trackedData.properties);

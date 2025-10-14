@@ -30,6 +30,7 @@ class UninstallAppsStrategy extends AbstractShopIdChangeStrategy
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly ShopIdProvider $shopIdProvider,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         private readonly ?ThemeAppLifecycleHandler $themeLifecycleHandler
     ) {
     }

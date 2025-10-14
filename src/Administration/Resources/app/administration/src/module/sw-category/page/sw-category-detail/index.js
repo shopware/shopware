@@ -5,7 +5,7 @@ import './sw-category-detail.scss';
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
-const type = Shopware.Utils.types;
+const { isPlainObject, isArray, isEqual } = Shopware.Utils.types;
 
 /**
  * @sw-package discovery
@@ -656,7 +656,7 @@ export default {
 
             const pageOverrides = this.getCmsPageOverrides();
 
-            if (type.isPlainObject(pageOverrides)) {
+            if (isPlainObject(pageOverrides)) {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
 
@@ -734,7 +734,7 @@ export default {
 
             const pageOverrides = this.getCmsPageOverrides();
 
-            if (type.isPlainObject(pageOverrides)) {
+            if (isPlainObject(pageOverrides)) {
                 this.landingPage.slotConfig = cloneDeep(pageOverrides);
             }
 
@@ -794,27 +794,38 @@ export default {
             });
         },
 
-        getCmsPageOverrides() {
-            if (this.cmsPage === null) {
-                return null;
-            }
-
-            this.deleteSpecifcKeys(this.cmsPage.sections);
-
-            const { changes } = this.changesetGenerator.generate(this.cmsPage);
-
+        extractSlotOverrides(origin, changes) {
             const slotOverrides = {};
+
             if (changes === null) {
                 return slotOverrides;
             }
 
-            if (type.isArray(changes.sections)) {
+            if (isArray(changes.sections)) {
                 changes.sections.forEach((section) => {
-                    if (type.isArray(section.blocks)) {
+                    const originSection = origin?.sections?.find((oSection) => oSection.id === section.id);
+
+                    if (isArray(section.blocks)) {
                         section.blocks.forEach((block) => {
-                            if (type.isArray(block.slots)) {
+                            const originBlock = originSection?.blocks?.find((oBlock) => oBlock.id === block.id);
+
+                            if (isArray(block.slots)) {
                                 block.slots.forEach((slot) => {
-                                    slotOverrides[slot.id] = slot.config;
+                                    const originSlot = originBlock?.slots?.find((oSlot) => oSlot.id === slot.id);
+                                    const originSlotConfig = originSlot?.translated.config;
+
+                                    if (slot.config && originSlotConfig) {
+                                        Object.keys(slot.config).forEach((key) => {
+                                            if (!isEqual(slot.config[key], originSlotConfig[key])) {
+                                                if (!slotOverrides[slot.id]) {
+                                                    slotOverrides[slot.id] = {};
+                                                }
+                                                slotOverrides[slot.id][key] = slot.config[key];
+                                            }
+                                        });
+                                    } else if (slot.config) {
+                                        slotOverrides[slot.id] = slot.config;
+                                    }
                                 });
                             }
                         });
@@ -823,6 +834,18 @@ export default {
             }
 
             return slotOverrides;
+        },
+
+        getCmsPageOverrides() {
+            if (this.cmsPage === null) {
+                return null;
+            }
+
+            this.deleteSpecifcKeys(this.cmsPage.sections);
+
+            const { changes } = this.changesetGenerator.generate(this.cmsPage);
+            const origin = this.cmsPage.getOrigin();
+            return this.extractSlotOverrides(origin, changes);
         },
 
         deleteSpecifcKeys(sections) {

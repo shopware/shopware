@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -78,7 +77,7 @@ class LandingPageIndexer extends EntityIndexer
     public function getOptions(): array
     {
         return [
-            SeoUrlUpdateListener::LANDING_PAGE_SEO_URL_UPDATER,
+            'landing_page.seo-url',
         ];
     }
 

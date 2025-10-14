@@ -24,8 +24,8 @@ test('As a shop customer, I want to accept Google Analytics tracking via the bas
 
     await test.step('Verify tracking cookies are set correctly after consent', async () => {
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.find(c => c.name == 'google-analytics-enabled').value).toEqual('1');
-        ShopCustomer.expects(allCookies.find(c => c.name == 'google-ads-enabled').value).toEqual('1');
+        ShopCustomer.expects(allCookies.find(c => c.name === 'google-analytics-enabled').value).toEqual('1');
+        ShopCustomer.expects(allCookies.find(c => c.name === 'google-ads-enabled').value).toEqual('1');
         ShopCustomer.expects(allCookies.length).toEqual(5);
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
     });
@@ -33,8 +33,8 @@ test('As a shop customer, I want to accept Google Analytics tracking via the bas
     await test.step('Verify tracking cookies persist after page reload', async () => {
         await StorefrontHome.page.reload();
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.find(c => c.name == 'google-analytics-enabled').value).toEqual('1');
-        ShopCustomer.expects(allCookies.find(c => c.name == 'google-ads-enabled').value).toEqual('1');
+        ShopCustomer.expects(allCookies.find(c => c.name === 'google-analytics-enabled').value).toEqual('1');
+        ShopCustomer.expects(allCookies.find(c => c.name === 'google-ads-enabled').value).toEqual('1');
         ShopCustomer.expects(allCookies.length).toEqual(5);
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
     });

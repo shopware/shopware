@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -69,13 +70,17 @@ class CookieController extends StorefrontController
         ]);
     }
 
+    #[Route(path: '/cookie/groups', name: 'frontend.cookie.groups', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    public function groups(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
+    {
+        $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
+
+        return $this->json($cookieRouteResponse->getObject());
+    }
+
     private function getCookieGroupsFromCookieRoute(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection
     {
-        // Create a new request with the translation parameter set to false for Twig templates
-        $cookieRequest = $request->duplicate();
-        $cookieRequest->query->set('translate', false);
-
-        $cookieRouteResponse = $this->cookieRoute->getCookieGroups($cookieRequest, $salesChannelContext);
+        $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
 
         return $cookieRouteResponse->getCookieGroups();
     }

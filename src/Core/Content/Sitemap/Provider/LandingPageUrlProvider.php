@@ -56,6 +56,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $ids = array_column($landingPages, 'id');
 
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
         $seoUrls = $this->getSeoUrls($ids, 'frontend.landing.page', $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
@@ -68,6 +69,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$landingPage['id']])) {
                 $url->setLoc($seoUrls[$landingPage['id']]['seo_path_info']);
             } else {
+                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                 $url->setLoc($this->router->generate('frontend.landing.page', ['landingPageId' => $landingPage['id']]));
             }
 

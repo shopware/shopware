@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test\Stub\Storefront;
+namespace Shopware\Storefront\Test\Theme;
 
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;

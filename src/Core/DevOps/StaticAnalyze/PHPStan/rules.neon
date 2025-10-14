@@ -5,7 +5,6 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFileExistsRule
@@ -22,3 +21,9 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDelayStampRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoAddCacheTagEventRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUpdatesInExecuteQueryRule
+
+services:
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NotExtendFlowEventAwareRule
+        tags:
+            - phpat.test

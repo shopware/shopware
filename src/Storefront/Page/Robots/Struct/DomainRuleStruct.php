@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Robots\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 
 #[Package('framework')]
 class DomainRuleStruct extends Struct
@@ -13,9 +14,19 @@ class DomainRuleStruct extends Struct
      */
     private array $rules = [];
 
-    public function __construct(string $rules, private readonly string $basePath)
+    /**
+     * @var RobotsDirective[]
+     */
+    private array $directives = [];
+
+    public function __construct(ParsedRobots|string $rulesOrParsed, private readonly string $basePath)
     {
-        $this->parseRules($rules);
+        if ($rulesOrParsed instanceof ParsedRobots) {
+            $this->initializeFromParsed($rulesOrParsed);
+        } else {
+            // Legacy path for backward compatibility
+            $this->parseRulesLegacy($rulesOrParsed);
+        }
     }
 
     /**
@@ -26,12 +37,39 @@ class DomainRuleStruct extends Struct
         return $this->rules;
     }
 
+    /**
+     * @return RobotsDirective[]
+     */
+    public function getDirectives(): array
+    {
+        return $this->directives;
+    }
+
     public function getBasePath(): string
     {
         return $this->basePath;
     }
 
-    private function parseRules(string $rules): void
+    private function initializeFromParsed(ParsedRobots $parsed): void
+    {
+        // Collect orphaned path directives (for backward compatibility)
+        foreach ($parsed->getOrphanedPathDirectives() as $directive) {
+            $directiveWithPath = $directive->withBasePath($this->basePath);
+            $this->directives[] = $directiveWithPath;
+            $this->rules[] = ['type' => $directiveWithPath->type, 'path' => $directiveWithPath->value];
+        }
+
+        // Collect path directives from user-agent blocks
+        foreach ($parsed->getUserAgentBlocks() as $block) {
+            foreach ($block->getPathDirectives() as $directive) {
+                $directiveWithPath = $directive->withBasePath($this->basePath);
+                $this->directives[] = $directiveWithPath;
+                $this->rules[] = ['type' => $directiveWithPath->type, 'path' => $directiveWithPath->value];
+            }
+        }
+    }
+
+    private function parseRulesLegacy(string $rules): void
     {
         $rules = explode("\n", $rules);
 
@@ -43,8 +81,12 @@ class DomainRuleStruct extends Struct
                 continue;
             }
 
+            $directiveType = ucfirst($ruleType);
             $path = $this->basePath . '/' . ltrim(trim($rule[1] ?? ''), '/');
-            $this->rules[] = ['type' => ucfirst($ruleType), 'path' => '/' . ltrim($path, '/')];
+            $normalizedPath = '/' . ltrim($path, '/');
+
+            $this->rules[] = ['type' => $directiveType, 'path' => $normalizedPath];
+            $this->directives[] = new RobotsDirective($directiveType, $normalizedPath);
         }
     }
 }

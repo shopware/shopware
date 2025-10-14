@@ -204,12 +204,19 @@
     <card>
         <title>Rules for robots.txt</title>
         <title lang="de-DE">Regeln für robots.txt </title>
+        <input-field type="bool">
+            <name>robotsDisableDefaults</name>
+            <label>Disable default robots.txt rules</label>
+            <label lang="de-DE">Standard-Regeln für robots.txt deaktivieren</label>
+            <helpText>When enabled, Shopware's default robots.txt rules will not be rendered. Use this if you want full control over the robots.txt content.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, werden die Standard robots.txt-Regeln von Shopware nicht gerendert. Verwenden Sie dies, wenn Sie die volle Kontrolle über den robots.txt-Inhalt haben möchten.</helpText>
+        </input-field>
         <input-field type="textarea">
             <name>robotsRules</name>
-            <label>Domain specific robots.txt Allow/Disallow rules</label>
-            <label lang="de-DE">Domain spezifische robots.txt Allow/Disallow Regeln</label>
-            <helpText>Rules which will be prepended by the corresponding domain path</helpText>
-            <helpText lang="de-DE">Regeln bei denen der entsprechende Domain Pfad vorangestellt wird</helpText>
+            <label>Domain specific robots.txt rules</label>
+            <label lang="de-DE">Domain spezifische robots.txt Regeln</label>
+            <helpText>Define robots.txt rules. Supports User-agent blocks (applied globally across all domains) and Allow/Disallow rules (applied to this domain path). Example: "User-agent: Googlebot&#10;Crawl-delay: 10&#10;Disallow: /private/"</helpText>
+            <helpText lang="de-DE">Definieren Sie robots.txt-Regeln. Unterstützt User-agent-Blöcke (global für alle Domains) und Allow/Disallow-Regeln (für diesen Domain-Pfad). Beispiel: "User-agent: Googlebot&#10;Crawl-delay: 10&#10;Disallow: /private/"</helpText>
         </input-field>
     </card>
 

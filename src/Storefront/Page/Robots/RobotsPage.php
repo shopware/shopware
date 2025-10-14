@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Robots;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleCollection;
+use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 
 #[Package('framework')]
 class RobotsPage extends Struct
@@ -15,6 +16,11 @@ class RobotsPage extends Struct
      * @var list<string>
      */
     protected array $sitemaps;
+
+    /**
+     * @var RobotsUserAgentBlock[]
+     */
+    protected array $globalUserAgentBlocks = [];
 
     public function getDomainRules(): DomainRuleCollection
     {
@@ -40,5 +46,21 @@ class RobotsPage extends Struct
     public function setSitemaps(array $sitemaps): void
     {
         $this->sitemaps = $sitemaps;
+    }
+
+    /**
+     * @return RobotsUserAgentBlock[]
+     */
+    public function getGlobalUserAgentBlocks(): array
+    {
+        return $this->globalUserAgentBlocks;
+    }
+
+    /**
+     * @param RobotsUserAgentBlock[] $blocks
+     */
+    public function setGlobalUserAgentBlocks(array $blocks): void
+    {
+        $this->globalUserAgentBlocks = $blocks;
     }
 }

@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
 use Shopware\Storefront\Page\Robots\RobotsPageLoadedEvent;
 use Shopware\Storefront\Page\Robots\RobotsPageLoader;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
@@ -46,7 +47,8 @@ class RobotsPageLoaderTest extends TestCase
         $this->robotsPageLoader = new RobotsPageLoader(
             $this->eventDispatcher,
             $this->salesChannelDomainRepository,
-            $this->systemConfigService
+            $this->systemConfigService,
+            new RobotsDirectiveParser()
         );
     }
 
@@ -85,7 +87,8 @@ class RobotsPageLoaderTest extends TestCase
         $this->robotsPageLoader = new RobotsPageLoader(
             $this->eventDispatcher,
             $this->salesChannelDomainRepository,
-            $this->systemConfigService
+            $this->systemConfigService,
+            new RobotsDirectiveParser()
         );
 
         $this->systemConfigService->set(
@@ -143,7 +146,8 @@ class RobotsPageLoaderTest extends TestCase
         $this->robotsPageLoader = new RobotsPageLoader(
             $this->eventDispatcher,
             $this->salesChannelDomainRepository,
-            $this->systemConfigService
+            $this->systemConfigService,
+            new RobotsDirectiveParser()
         );
 
         $this->systemConfigService->set(

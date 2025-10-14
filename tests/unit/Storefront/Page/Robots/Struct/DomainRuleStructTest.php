@@ -107,6 +107,24 @@ class DomainRuleStructTest extends TestCase
                     ['type' => 'Allow', 'path' => '/en/widgets/menu/'],
                 ],
             ],
+            'ignores user-agent and other directives in legacy mode' => [
+                "User-agent: Googlebot\nCrawl-delay: 10\nDisallow: /admin/\nAllow: /public/",
+                '',
+                [
+                    ['type' => 'Disallow', 'path' => '/admin/'],
+                    ['type' => 'Allow', 'path' => '/public/'],
+                ],
+            ],
         ];
+    }
+
+    public function testGetDirectivesReturnsRobotsDirectiveObjects(): void
+    {
+        $domainRuleStruct = new DomainRuleStruct("Disallow: /private/\nAllow: /public/", '');
+
+        $directives = $domainRuleStruct->getDirectives();
+
+        static::assertCount(2, $directives);
+        static::assertContainsOnlyInstancesOf(\Shopware\Storefront\Page\Robots\Struct\RobotsDirective::class, $directives);
     }
 }

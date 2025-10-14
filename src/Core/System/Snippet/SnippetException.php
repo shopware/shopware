@@ -246,7 +246,7 @@ class SnippetException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SNIPPET_COUNTRY_AGNOSTIC_FILE_LINTER_INVALID_EXTENSIONS,
-            'Specified argument "{{ extensionName }}" does not contain valid extensions.',
+            'Specified argument "{{ extensionNames }}" does not contain valid extensions.',
             ['extensionNames' => implode(', ', $extensionName)],
         );
     }

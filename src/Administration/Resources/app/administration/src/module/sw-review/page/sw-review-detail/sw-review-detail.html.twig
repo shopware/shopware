@@ -1,6 +1,5 @@
 {% block sw_review_detail %}
 <sw-page class="sw-review-detail">
-
     {% block sw_review_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(review, 'title', $tc('sw-review.detail.textHeadline')) }}</h2>
@@ -9,7 +8,6 @@
 
     {% block sw_review_detail_actions %}
     <template #smart-bar-actions>
-
         {% block sw_review_detail_actions_abort %}
         <mt-button
             v-tooltip.bottom="tooltipCancel"
@@ -47,54 +45,50 @@
             </template>
 
             <template v-else>
-
                 {% block sw_review_detail_basic_info_card %}
                 <mt-card
                     v-if="review"
                     position-identifier="sw-review-detail-basic-info"
                     :title="$tc('sw-review.detail.cardTitleReviewInfo')"
                 >
-
                     {% block sw_customer_card_rows %}
                     <template #grid>
                         <sw-container rows="auto auto">
-
                             {% block sw_customer_card_row_primary %}
                             <sw-card-section divider="bottom">
-
                                 {% block sw_customer_card_metadata_container %}
                                 <sw-container>
-
                                     {% block sw_customer_card_metadata %}
                                     <div class="sw-review-detail__metadata">
-
                                         {% block sw_customer_card_metadata_customer_name %}
                                         {% block sw_custsomer_card_metadata_customer_name_label %}
+
                                         <div class="sw-review-detail__metadata-review-headline">
-                                            <sw-container
-                                                columns="auto 150px"
-                                                gap="0px 15px"
-                                            >
+                                            <div>
                                                 <div class="sw-review-detail__metadata-review-title">
                                                     {{ review.title }}
                                                 </div>
-                                                <div
-                                                    v-if="stars"
-                                                    class="sw-review-detail__metadata-review-stars"
-                                                >
-                                                    <sw-rating-stars
-                                                        :value="review.points"
-                                                        class="star-count-display"
-                                                    />
-                                                    <div class="star-count-description">
-                                                        {{ $tc(`sw-review.detail.review${Math.round(stars)}PointRatingText`) }}
-                                                    </div>
+
+                                                <p class="sw-review-detail__metadata-review-content">
+                                                    {{ review.content }}
+                                                </p>
+                                            </div>
+
+                                            <div
+                                                v-if="stars"
+                                                class="sw-review-detail__metadata-review-stars"
+                                            >
+                                                <sw-rating-stars
+                                                    :value="review.points"
+                                                    class="star-count-display"
+                                                />
+
+                                                <div class="star-count-description">
+                                                    {{ $tc(`sw-review.detail.review${Math.round(stars)}PointRatingText`) }}
                                                 </div>
-                                            </sw-container>
+                                            </div>
                                         </div>
-                                        <p class="sw-review-detail__metadata-review-content">
-                                            {{ review.content }}
-                                        </p>
+
                                         {% endblock %}
                                         {% endblock %}
                                     </div>
@@ -110,17 +104,14 @@
                                 slim
                             >
                                 <slot name="default">
-
                                     <sw-container
                                         class="sw-review-base-info"
                                         columns="repeat(auto-fit, minmax(250px, 1fr))"
                                         gap="0px 15px"
                                     >
                                         <div class="sw-review-base-info-columns">
-
                                             {% block sw_customer_base_metadata_created_at %}
                                             <sw-description-list>
-
                                                 {% block sw_customer_base_metadata_created_at_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelCreatedAt') }}
@@ -140,7 +131,6 @@
 
                                             {% block sw_customer_base_metadata_sales_channel %}
                                             <sw-description-list>
-
                                                 {% block sw_customer_base_metadata_sales_channel_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelSalesChannel') }}
@@ -157,7 +147,6 @@
 
                                             {% block sw_customer_base_metadata_product %}
                                             <sw-description-list>
-
                                                 {% block sw_customer_base_metadata_product_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelProduct') }}
@@ -170,11 +159,10 @@
                                             </sw-description-list>
                                             {% endblock %}
                                         </div>
-                                        <div class="sw-review-base-info-columns">
 
+                                        <div class="sw-review-base-info-columns">
                                             {% block sw_customer_base_metadata_customer %}
                                             <sw-description-list>
-
                                                 {% block sw_customer_base_metadata_customer_label %}
                                                 <dt class="sw-review-base-info__label">
                                                     {{ $tc('sw-review.detail.labelCustomer') }}
@@ -227,9 +215,9 @@
                     class="sw-review-properties"
                     :title="$tc('sw-review.detail.cardTitleReviewProperties')"
                 >
-
                     {% block sw_review_detail_basic_info_card_description_list %}
                     <sw-container
+                        class="sw-review-detail-description-list__container"
                         columns="1fr 1fr"
                         align="end"
                         gap="16px"
@@ -262,12 +250,12 @@
                     </sw-container>
                     {% endblock %}
                 </mt-card>
+
                 <mt-card
                     v-if="review"
                     position-identifier="sw-review-detail-comment"
                     :title="$tc('sw-review.detail.labelComment')"
                 >
-
                     {% block sw_review_detail_basic_info_card_comment %}
                     <mt-textarea
                         v-model="review.comment"

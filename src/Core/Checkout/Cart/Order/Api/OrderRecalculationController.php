@@ -180,7 +180,7 @@ class OrderRecalculationController extends AbstractController
         } else {
             $lineItem->setPriceDefinition(
                 new AbsolutePriceDefinition(
-                    (float) $priceDefinition['price'],
+                    (float) ($priceDefinition['price'] ?? null),
                     new LineItemOfTypeRule(Rule::OPERATOR_NEQ, LineItem::CREDIT_LINE_ITEM_TYPE)
                 )
             );

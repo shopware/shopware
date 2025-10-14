@@ -59,6 +59,7 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Administration dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
         private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,

@@ -20,10 +20,12 @@ shopware.installer:
     select_language_bs-BA: Bosnisk
     select_language_cs-CZ: Tjekkisk
     select_language_da-DK: Dansk
-    select_language_de-DE: Tysk
+    select_language_de-DE: Tysk (Tyskland)
+    select_language_de-CH: Tysk (Schweiz)
+    select_language_de-AT: Tysk (Østrig)
     select_language_el-GR: Græsk
-    select_language_en-US: Engelsk (Amerikas Forenede Stater)
-    select_language_en-GB: Engelsk (Det Forenede Kongerige)
+    select_language_en-US: Engelsk (USA)
+    select_language_en-GB: Engelsk (Storbritannien)
     select_language_es-ES: Spansk
     select_language_fi-FI: Finsk
     select_language_fr-FR: Fransk
@@ -34,7 +36,7 @@ shopware.installer:
     select_language_it-IT: Italiensk
     select_language_ko-KR: Koreansk
     select_language_lv-LV: Lettisk
-    select_language_nl-NL: Hollands
+    select_language_nl-NL: Hollandsk
     select_language_nn-NO: Norsk
     select_language_pl-PL: Polsk
     select_language_pt-PT: Portugisisk

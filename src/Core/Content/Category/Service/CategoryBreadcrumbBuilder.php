@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 #[Package('discovery')]
 class CategoryBreadcrumbBuilder
@@ -274,7 +273,8 @@ class CategoryBreadcrumbBuilder
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId');
         $query->andWhere('seo_url.foreign_key IN (:categoryIds)');
-        $query->setParameter('routeName', NavigationPageSeoUrlRoute::ROUTE_NAME);
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
+        $query->setParameter('routeName', 'frontend.navigation.page');
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannel->getId()));
         $query->setParameter('categoryIds', Uuid::fromHexToBytesList($categoryIds), ArrayParameterType::BINARY);

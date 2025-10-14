@@ -62,6 +62,7 @@ class SnippetFileHandler
      */
     public function findAdministrationSnippetFiles(): array
     {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         if (!($bundleDir = $this->getBundleDir(Administration::class))) {
             return [];
         }
@@ -74,6 +75,7 @@ class SnippetFileHandler
      */
     public function findStorefrontSnippetFiles(): array
     {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         if (!($bundleDir = $this->getBundleDir(Storefront::class))) {
             return [];
         }

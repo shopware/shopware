@@ -19,7 +19,8 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
  */
 #[AsCommand(
     name: 'translation:lint-filenames',
-    description: 'Ensures translations have a country-agnostic translation file as a base',
+    description: 'Ensures translations have a country-agnostic translation file as a base, to provide country-agnostic language layer support (e.g. de.json for de-DE.json).
+    For more information, see our documentation: https://developer.shopware.com/docs/concepts/translations/fallback-language-selection.html#migration-and-linting-via-command',
 )]
 #[Package('discovery')]
 class LintTranslationFilesCommand extends Command
@@ -36,38 +37,35 @@ class LintTranslationFilesCommand extends Command
             'fix',
             null,
             InputOption::VALUE_NONE,
-            'Renames filenames to their agnostic equivalents. If more than one country-specific candidate exists for a single agnostic file, one has to be selected.'
+            'Renames filenames to their agnostic equivalents. If more than one country-specific candidate exists for a single agnostic file, one must be selected manually.'
         );
 
         $this->addOption(
             'all',
             null,
             InputOption::VALUE_NONE,
-            'Includes the "custom" directory in the check for faulty filenames. The "extensions" option is ignored if specified.'
+            'Includes the "custom" directory in the linting of filenames. If specified, the "extensions" option will be ignored.'
         );
 
         $this->addOption(
             'extensions',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Restricts the search to the given extension names, if specified. Values are comma-separated.',
-            '',
+            'Restricts the search to the given extension names, if provided. Multiple values can be passed as a comma-separated list.',
         );
 
         $this->addOption(
             'ignore',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Excludes the specified paths relative to "src", or, if specified, the provided bundle paths. Values are comma-separated.',
-            '',
+            'Excludes the specified paths relative to "src", or, if applicable, the provided bundle paths. Multiple values can be passed as a comma-separated list.',
         );
 
         $this->addOption(
             'dir',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Searches only a specific directory for translation files.',
-            '',
+            'Limits the search to a specific directory for translation files.',
         );
     }
 
@@ -115,7 +113,7 @@ class LintTranslationFilesCommand extends Command
         LintedTranslationFileOptions $lintedFileOptions,
     ): int {
         if (!$lintedFileOptions->isFix) {
-            foreach (\array_keys(CountryAgnosticFileLinter::PLATFORM_DOMAINS) as $domain) {
+            foreach (\array_keys(CountryAgnosticFileLinter::PLATFORM_DOMAIN_LABELS) as $domain) {
                 $this->renderDomainTable($io, $domain, $lintedFileStruct);
             }
         }
@@ -137,7 +135,13 @@ class LintTranslationFilesCommand extends Command
             return self::SUCCESS;
         }
 
-        $io->error('Every country-specific translation file must have a corresponding agnostic file. Example: `messages.de-DE.json` requires `messages.de.json`');
+        $io->error(<<<'CLI'
+        Every country-specific translation file must have a corresponding agnostic file.
+        Example: `messages.de-DE.json` requires `messages.de.json`.
+
+        For more information, see our documentation:
+        https://developer.shopware.com/docs/concepts/translations/fallback-language-selection.html
+        CLI);
 
         return self::FAILURE;
     }
@@ -152,24 +156,20 @@ class LintTranslationFilesCommand extends Command
         if ($domainCollection->count() < 1) {
             $io->note(\sprintf(
                 'No %s files found',
-                CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain],
+                CountryAgnosticFileLinter::PLATFORM_DOMAIN_LABELS[$domain],
             ));
 
             return;
         }
 
-        $headers = ['File name', 'Domain', 'Locale', 'Language', 'Script', 'Region', 'Path'];
-        if ($domain !== 'administration') {
-            $headers[] = 'Base';
-        }
-
+        $headers = ['Filename', 'Path', 'Domain', 'Locale', 'Language', 'Script', 'Region'];
         $domainTable = $io->createTable()
-            ->setHeaderTitle(CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain] . ' files')
+            ->setHeaderTitle(CountryAgnosticFileLinter::PLATFORM_DOMAIN_LABELS[$domain] . ' files')
             ->setHeaders($headers)
             ->setStyle('box-double');
 
         foreach ($lintedFileStruct->getDomainCollection($domain) as $translationFile) {
-            $row = [
+            $domainTable->addRow([
                 $translationFile->filename,
                 $translationFile->path,
                 $translationFile->domain,
@@ -177,20 +177,14 @@ class LintTranslationFilesCommand extends Command
                 $translationFile->language,
                 $translationFile->script ?? '-',
                 $translationFile->region ?? '-',
-            ];
-
-            if ($domain !== 'administration') {
-                $row[] = $translationFile->isBase ? 'true' : 'false';
-            }
-
-            $domainTable->addRow($row);
+            ]);
         }
 
         $domainTable->render();
 
         $io->text(\sprintf(
             '%s files found: %s',
-            CountryAgnosticFileLinter::PLATFORM_DOMAINS[$domain],
+            CountryAgnosticFileLinter::PLATFORM_DOMAIN_LABELS[$domain],
             $lintedFileStruct->getDomainCollection($domain)->count()
         ));
         $io->newLine();
@@ -207,21 +201,21 @@ class LintTranslationFilesCommand extends Command
 
         $issuesTable = $io->createTable()
             ->setHeaderTitle('Issues')
-            ->setHeaders(['File name', 'Locale', 'Missing file', 'Path'])
+            ->setHeaders(['Filename', 'Path', 'Locale', 'Missing file'])
             ->setStyle('box-double');
 
         foreach ($issuesCollection as $translationFile) {
             $issuesTable->addRow([
                 $translationFile->filename,
+                $translationFile->path,
                 $translationFile->locale,
                 $translationFile->getAgnosticFilename(),
-                $translationFile->path,
             ]);
         }
 
         $issuesTable->render();
 
-        $io->text(\sprintf('Errors found: %s', $issuesCollection->count()));
+        $io->text(\sprintf('Issues found: %s', $issuesCollection->count()));
         $io->newLine();
     }
 

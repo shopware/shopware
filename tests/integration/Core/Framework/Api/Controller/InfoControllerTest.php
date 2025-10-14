@@ -34,6 +34,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
@@ -58,6 +59,8 @@ class InfoControllerTest extends TestCase
 
     use AppSystemTestBehaviour;
 
+    use EnvTestBehaviour;
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -67,11 +70,16 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfig(): void
     {
+        $this->setEnvVars([
+            'APP_URL' => 'https://test-app.url',
+        ]);
+
         $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
 
         $expected = [
             'version' => '6.7.9999999.9999999-dev',
             'shopId' => $shopId,
+            'appUrl' => 'https://test-app.url',
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => true,

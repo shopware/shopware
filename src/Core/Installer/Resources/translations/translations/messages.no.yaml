@@ -18,11 +18,13 @@ shopware.installer:
     start_installation: 'Start installasjonen'
     select_language_bg-BG: Bulgarsk
     select_language_bs-BA: Bosnisk
-    select_language_cs-CZ: Tjekkisk
+    select_language_cs-CZ: Tsjekkisk
     select_language_da-DK: Dansk
-    select_language_de-DE: Tysk
+    select_language_de-DE: Tysk (Tyskland)
+    select_language_de-CH: Tysk (Sveits)
+    select_language_de-AT: Tysk (Østerrike)
     select_language_el-GR: Gresk
-    select_language_en-US: Engelsk (Amerikas forente stater)
+    select_language_en-US: Engelsk (USA)
     select_language_en-GB: Engelsk (Storbritannia)
     select_language_es-ES: Spansk
     select_language_fi-FI: Finsk

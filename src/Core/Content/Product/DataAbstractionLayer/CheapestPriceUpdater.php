@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 
 #[Package('framework')]
 class CheapestPriceUpdater
@@ -94,9 +93,7 @@ class CheapestPriceUpdater
         }
 
         if (!empty($variantIdsUpdated)) {
-            $this->dispatcher->dispatch(new ProductIndexerEvent($variantIdsUpdated, $context, [
-                SeoUrlUpdateListener::PRODUCT_SEO_URL_UPDATER,
-            ]));
+            $this->dispatcher->dispatch(new ProductIndexerEvent($variantIdsUpdated, $context, ['product.seo-url']));
         }
     }
 

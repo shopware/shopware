@@ -225,7 +225,7 @@ Resolution parameters query the database to find entity IDs.
   "id": "0199b95201fe70ec851e971788686601",
   "name": "Product Detail Route",
   "urlPattern": "/product/{productNumber}",
-  "parameterBinding": {
+  "parameterBindings": {
     "productNumber": {
       "placeholder": "product_id",
       "resolution": {
@@ -253,7 +253,7 @@ Resolution parameters query the database to find entity IDs.
 
 Fields:
 - `urlPattern` - URL pattern with placeholders (camelCase)
-- `parameterBinding` - Parameter configuration (camelCase)
+- `parameterBindings` - Parameter configuration (camelCase)
 - `placeholder` - Name used in layouts (e.g., `{{product_id}}`)
 - `resolution` - Entity lookup configuration
 - `match_field` - Entity field to query
@@ -280,7 +280,7 @@ Passthrough parameters use the URL value directly without database lookup. No `r
   "id": "0199b95202fe70ec851e971788686602",
   "name": "Category Listing Route",
   "urlPattern": "/listing/{categoryId}",
-  "parameterBinding": {
+  "parameterBindings": {
     "categoryId": {
       "placeholder": "category_id"
     }
@@ -313,7 +313,7 @@ Route uses a fixed layout. Set `layoutId` to UUID, `layoutCascade` to `null`:
   "id": "0199b95202fe70ec851e971788686602",
   "name": "Category Listing Route",
   "urlPattern": "/listing/{categoryId}",
-  "parameterBinding": {
+  "parameterBindings": {
     "categoryId": {"placeholder": "category_id"}
   },
   "layoutId": "0199b95105fe70ec851e971788686505",
@@ -335,7 +335,7 @@ Route looks up layout based on entity and sales channel. Set `layoutId` to `null
   "id": "0199b95201fe70ec851e971788686601",
   "name": "Product Detail Route",
   "urlPattern": "/product/{productNumber}",
-  "parameterBinding": {
+  "parameterBindings": {
     "productNumber": {
       "placeholder": "product_id",
       "resolution": {
@@ -429,7 +429,7 @@ Route combining resolution and passthrough parameters:
   "id": "0199b95203fe70ec851e971788686603",
   "name": "Category with Pagination Route",
   "urlPattern": "/category/{slug}/page/{page}",
-  "parameterBinding": {
+  "parameterBindings": {
     "slug": {
       "placeholder": "category_id",
       "resolution": {
@@ -831,7 +831,7 @@ Combined example showing routing, data loading, and context distribution.
   "id": "0199b95201fe70ec851e971788686601",
   "name": "Product Detail Route",
   "urlPattern": "/product/{productNumber}",
-  "parameterBinding": {
+  "parameterBindings": {
     "productNumber": {
       "placeholder": "product_id",
       "resolution": {

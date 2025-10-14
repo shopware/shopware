@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Routing\Entity;
 
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentCollection;
+use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterBinding;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -20,9 +21,9 @@ class ContentRouteEntity extends Entity
     protected string $urlPattern;
 
     /**
-     * @var array<string, mixed>
+     * @var array<string, ParameterBinding>
      */
-    protected array $parameterBinding;
+    protected array $parameterBindings;
 
     protected int $priority = 0;
 
@@ -56,19 +57,19 @@ class ContentRouteEntity extends Entity
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, ParameterBinding>
      */
-    public function getParameterBinding(): array
+    public function getParameterBindings(): array
     {
-        return $this->parameterBinding;
+        return $this->parameterBindings;
     }
 
     /**
-     * @param array<string, mixed> $parameterBinding
+     * @param array<string, ParameterBinding> $parameterBindings
      */
-    public function setParameterBinding(array $parameterBinding): void
+    public function setParameterBindings(array $parameterBindings): void
     {
-        $this->parameterBinding = $parameterBinding;
+        $this->parameterBindings = $parameterBindings;
     }
 
     public function getPriority(): int

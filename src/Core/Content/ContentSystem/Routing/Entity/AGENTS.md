@@ -33,7 +33,7 @@ Routes without any layout assignments won't be returned. See `RouteCollectionBui
 
 Routes must have:
 - `url_pattern`: Pattern with `{placeholders}`
-- `parameter_binding`: Maps placeholders to resolution rules
+- `parameter_bindings`: Maps placeholders to resolution rules (`array<string, ParameterBinding>`)
 - `priority`: Tie-breaker for pattern matching
 
 Layout assignments stored in `content_layout_assignment` table with `route_id` foreign key.
@@ -42,7 +42,7 @@ Layout assignments stored in `content_layout_assignment` table with `route_id` f
 
 See Routing/IdResolution/AGENTS.md for detailed structure.
 
-Basic format:
+The field stores `array<string, ParameterBinding>` objects. JSON configuration format:
 ```php
 [
     'paramName' => [
@@ -53,6 +53,7 @@ Basic format:
         ]
     ]
 ]
+// Deserialized to ParameterBinding objects with ResolutionConfig value objects
 ```
 
 ### Layout Assignment

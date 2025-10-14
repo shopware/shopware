@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Routing\Entity;
 
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentDefinition;
+use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsField;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -51,7 +52,7 @@ class ContentRouteDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
             (new StringField('url_pattern', 'urlPattern'))->addFlags(new ApiAware(), new Required()),
-            (new JsonField('parameter_binding', 'parameterBinding'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new ParameterBindingsField('parameter_bindings', 'parameterBindings'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new IntField('priority', 'priority'))->addFlags(new ApiAware(AdminApiSource::class)),
             (new JsonField('overrides', 'overrides'))->addFlags(new ApiAware(AdminApiSource::class)),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(AdminApiSource::class)),

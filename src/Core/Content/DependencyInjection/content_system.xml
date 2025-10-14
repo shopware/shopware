@@ -33,8 +33,8 @@
         <service id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterExtractor"/>
 
         <service id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <!-- Layout resolver using priority-based assignment matching -->
@@ -91,6 +91,26 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsFieldSerializer"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\ResolutionConfigFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Field\ResolutionConfigFieldSerializer"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingFieldSerializer"/>
             <tag name="shopware.field_serializer"/>
         </service>
 

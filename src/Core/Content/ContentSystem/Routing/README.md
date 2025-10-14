@@ -24,7 +24,7 @@ Three responsibilities split across subdirectories:
 
 Routes contain:
 - `url_pattern`: Pattern with placeholders (`/product/{seoUrl}`)
-- `parameter_binding`: Maps placeholders to entity resolution rules
+- `parameter_bindings`: Maps placeholders to entity resolution rules (`array<string, ParameterBinding>`)
 - `priority`: Tie-breaker when patterns have equal specificity
 - `sales_channels`: Sales channel assignments (optional)
 

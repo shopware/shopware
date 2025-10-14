@@ -33,7 +33,7 @@ ResolvedData contains both parameters and entity IDs. Used downstream for placeh
 
 ## Parameter Binding Structure
 
-Route's `parameterBinding` config is `array<string, array>` where key is URL parameter name. Two parameter types:
+Route's `parameterBindings` config is `array<string, ParameterBinding>` where key is URL parameter name. The JSON structure shown below is deserialized into `ParameterBinding` objects containing `ResolutionConfig` value objects. Two parameter types:
 
 ### Resolution Parameters
 
@@ -86,8 +86,28 @@ Result: Placeholder is {{productSlug}}, not {{slug}}
 
 Useful when URL param name differs from internal naming convention.
 
-## Subdirectories
+### Constraints
 
-- Parameter/: Parameter extraction logic (ParameterExtractor)
+Optional filters in resolution config:
 
-Data structures (ResolvedData, EntityIdMap, ParameterMap) are located directly in this directory.
+```php
+"constraints": {
+  "active": true,           // Scalar → EqualsFilter
+  "stock": {"gte": 10}      // Range → RangeFilter (gte/lte/gt/lt/eq/neq)
+}
+```
+
+Multiple constraints combine with AND. Use for status, availability, or business rule filtering.
+
+## Performance: Query Batching
+
+EntityIdResolver batches same-entity-type resolutions into single query via `ResolutionParameterMap::groupByEntityType()`:
+
+```
+/compare/{productA}/{productB}/{productC}  → 1 query (OR filter), not 3
+/page/{product}/{category}                  → 2 queries (different types)
+```
+
+N parameters of same entity type = 1 database query.
+
+Data structures (ResolvedData, EntityIdMap, ParameterMap, ParameterBinding, ResolutionConfig, ExtractedParameters, ResolutionParameter, ResolutionParameterMap) are located directly in this directory.

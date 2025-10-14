@@ -17,4 +17,4 @@
 - **Caching**: MANDATORY for production performance
 - **Priority**: Distinct values for potentially conflicting routes
 - **URL parameters**: Scalar values only
-- **Route structure**: `url_pattern`, `parameter_binding`, `priority` (assignment via `content_layout_assignment` table)
+- **Route structure**: `url_pattern`, `parameter_bindings` (`array<string, ParameterBinding>`), `priority` (assignment via `content_layout_assignment` table)

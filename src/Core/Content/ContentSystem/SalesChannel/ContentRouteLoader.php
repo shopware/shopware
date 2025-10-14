@@ -44,28 +44,7 @@ class ContentRouteLoader
 
         $route = $match->route;
 
-        try {
-            $resolvedData = $this->entityIdResolver->resolve($match, $context);
-        } catch (\Throwable $e) {
-            throw ContentSystemException::resolutionFailed($route->getName(), $e->getMessage(), $e);
-        }
-
-        if ($resolvedData === null) {
-            $parameterBinding = $route->getParameterBinding();
-            $parameters = $match->parameters;
-
-            $firstParam = array_key_first($parameterBinding);
-            if ($firstParam !== null) {
-                $paramConfig = $parameterBinding[$firstParam];
-                $entityType = $paramConfig['resolution']['entity'] ?? 'entity';
-                $matchField = $paramConfig['resolution']['match_field'] ?? 'id';
-                $value = $parameters[$firstParam] ?? 'unknown';
-
-                throw ContentSystemException::entityNotFound($entityType, $value, $matchField);
-            }
-
-            throw ContentSystemException::entityNotFound('entity', $pathInfo, 'path');
-        }
+        $resolvedData = $this->entityIdResolver->resolve($match, $context);
 
         try {
             $layoutId = $this->layoutResolver->resolve($match, $resolvedData, $context);
@@ -74,7 +53,7 @@ class ContentRouteLoader
         }
 
         if ($layoutId === null) {
-            $entityIds = $resolvedData->getEntityIds();
+            $entityIds = $resolvedData->entityIds;
             $entityIdsArray = $entityIds->toArray();
             $firstEntityKey = array_key_first($entityIdsArray);
             $entityType = $firstEntityKey !== null ? str_replace('_id', '', $firstEntityKey) : 'entity';

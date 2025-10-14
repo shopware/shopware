@@ -74,6 +74,16 @@ class ContentSystemException extends HttpException
         );
     }
 
+    public static function parameterResolutionFailed(string $entityType, string $matchField, string $value, string $placeholder): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ENTITY_NOT_FOUND,
+            'Could not resolve parameter "{{ placeholder }}" to {{ entity }} entity. No entity found where {{ field }} = "{{ value }}"',
+            ['placeholder' => $placeholder, 'entity' => $entityType, 'field' => $matchField, 'value' => $value]
+        );
+    }
+
     public static function hydrationFailed(string $reason, ?\Throwable $previous = null): self
     {
         return new self(

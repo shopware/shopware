@@ -16,16 +16,6 @@ final readonly class ResolvedData
     ) {
     }
 
-    public function getEntityId(string $placeholder): ?string
-    {
-        return $this->entityIds->get($placeholder);
-    }
-
-    public function getEntityIds(): EntityIdMap
-    {
-        return $this->entityIds;
-    }
-
     /**
      * @return array<string, string|int|bool|float>
      */

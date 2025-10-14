@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Content\ContentSystem\Routing\IdResolution;
 
+use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Routing\Router\RouteMatchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -13,89 +16,88 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @phpstan-import-type ResolutionParameterMap from ParameterExtractor
- * @phpstan-import-type ResolutionItem from ParameterExtractor
- *
  * @internal
  */
 #[Package('discovery')]
 class EntityIdResolver
 {
     public function __construct(
-        protected readonly DefinitionInstanceRegistry $definitionRegistry,
-        protected readonly ParameterExtractor $parameterExtractor
+        private readonly ParameterExtractor $parameterExtractor,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
     ) {
     }
 
-    public function resolve(RouteMatchResult $match, SalesChannelContext $context): ?ResolvedData
+    public function resolve(RouteMatchResult $match, SalesChannelContext $context): ResolvedData
     {
         $extracted = $this->parameterExtractor->extract($match);
-        $resolutionParams = $extracted['resolution'];
-        $passthroughParams = $extracted['passthrough'];
+        $resolutionParameters = $extracted->resolutionParameters;
+        $passthroughParameters = $extracted->passthroughParameters;
 
-        if (empty($resolutionParams)) {
-            return new ResolvedData(EntityIdMap::empty(), new ParameterMap($passthroughParams));
+        if ($resolutionParameters->isEmpty()) {
+            return new ResolvedData(EntityIdMap::empty(), $passthroughParameters);
         }
 
-        $grouped = $this->groupByEntityType($resolutionParams);
-        $resolvedEntityIds = [];
+        $grouped = $resolutionParameters->groupByEntityType();
+        $resolvedEntityIdSets = [];
+        foreach ($grouped as $entityType => $resolutionParameterGroup) {
+            $ids = $this->resolveEntityIds($entityType, $resolutionParameterGroup, $context->getContext());
 
-        foreach ($grouped as $entityType => $items) {
-            $ids = $this->resolveEntityType($entityType, $items, $context);
-
-            if ($ids === null) {
-                return null;
-            }
-
-            $resolvedEntityIds = \array_merge($resolvedEntityIds, $ids);
+            $resolvedEntityIdSets[] = $ids;
         }
 
-        return new ResolvedData(new EntityIdMap($resolvedEntityIds), new ParameterMap($passthroughParams));
-    }
-
-    /**
-     * @param ResolutionParameterMap $resolutionParams
-     *
-     * @return array<string, array<int, ResolutionItem>>
-     */
-    protected function groupByEntityType(array $resolutionParams): array
-    {
-        $grouped = [];
-
-        foreach ($resolutionParams as $item) {
-            $entityType = $item['resolution']['entity'] ?? null;
-
-            if ($entityType === null) {
-                continue;
-            }
-
-            $grouped[$entityType][] = $item;
-        }
-
-        return $grouped;
+        return new ResolvedData(new EntityIdMap(array_merge([], ...$resolvedEntityIdSets)), $passthroughParameters);
     }
 
     /**
      * Batches all items into single query for performance.
      *
-     * @param array<int, ResolutionItem> $items
+     * @param list<ResolutionParameter> $resolutionParameters
      *
-     * @return array<string, string>|null
+     * @return array<string, string>
      */
-    protected function resolveEntityType(string $entityType, array $items, SalesChannelContext $context): ?array
+    private function resolveEntityIds(string $entityType, array $resolutionParameters, Context $context): array
     {
-        $definition = $this->getDefinition($entityType);
-        $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
-        $criteria = new Criteria();
+        $criteria = $this->buildEntityCriteria($resolutionParameters);
+        $result = $this->searchEntities($entityType, $criteria, $context);
 
-        $this->addVisibilityFilter($criteria, $entityType, $context);
+        $resolvedIds = [];
+        foreach ($resolutionParameters as $resolutionParameter) {
+            $matchField = $resolutionParameter->resolutionConfig->matchField;
+            $value = $resolutionParameter->value;
+            $placeholder = $resolutionParameter->placeholder;
 
-        $itemFilters = [];
+            $found = false;
+            foreach ($result as $entity) {
+                if ($entity->get($matchField) === $value) {
+                    $resolvedIds[$placeholder] = $entity->getUniqueIdentifier();
+                    $found = true;
+                    break;
+                }
+            }
 
-        foreach ($items as $item) {
-            $matchField = $item['resolution']['match_field'] ?? 'id';
-            $value = $item['value'];
-            $constraints = $item['resolution']['constraints'] ?? [];
+            if (!$found) {
+                throw ContentSystemException::parameterResolutionFailed(
+                    $entityType,
+                    $matchField,
+                    $value,
+                    $placeholder
+                );
+            }
+        }
+
+        return $resolvedIds;
+    }
+
+    /**
+     * @param list<ResolutionParameter> $resolutionParameters
+     */
+    private function buildEntityCriteria(array $resolutionParameters): Criteria
+    {
+        $filters = [];
+        foreach ($resolutionParameters as $resolutionParameter) {
+            $matchField = $resolutionParameter->resolutionConfig->matchField;
+            $value = $resolutionParameter->value;
+            $constraints = $resolutionParameter->resolutionConfig->constraints;
 
             $andFilters = [new EqualsFilter($matchField, $value)];
 
@@ -103,14 +105,15 @@ class EntityIdResolver
                 $andFilters[] = $this->buildConstraintFilter($field, $constraint);
             }
 
-            $itemFilters[] = new MultiFilter(MultiFilter::CONNECTION_AND, $andFilters);
+            $filters[] = new MultiFilter(MultiFilter::CONNECTION_AND, $andFilters);
         }
 
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $itemFilters));
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
 
         $matchFields = array_unique(array_map(
-            fn ($item) => $item['resolution']['match_field'] ?? 'id',
-            $items
+            fn ($item) => $item->resolutionConfig->matchField,
+            $resolutionParameters
         ));
 
         foreach ($matchFields as $field) {
@@ -119,57 +122,10 @@ class EntityIdResolver
             }
         }
 
-        $result = $repository->search($criteria, $context->getContext());
-        $resolvedIds = [];
-
-        foreach ($items as $item) {
-            $matchField = $item['resolution']['match_field'] ?? 'id';
-            $value = $item['value'];
-            $placeholder = $item['placeholder'];
-
-            $found = false;
-            foreach ($result as $entity) {
-                $fieldValue = $matchField === 'id' ? $entity->getUniqueIdentifier() : $entity->get($matchField);
-
-                if ($fieldValue === $value) {
-                    $resolvedIds[$placeholder] = $entity->getUniqueIdentifier();
-                    $found = true;
-                    break;
-                }
-            }
-
-            if (!$found) {
-                return null;
-            }
-        }
-
-        return $resolvedIds;
+        return $criteria;
     }
 
-    protected function getDefinition(string $entityType): EntityDefinition
-    {
-        return $this->definitionRegistry->getByEntityName($entityType);
-    }
-
-    protected function addVisibilityFilter(Criteria $criteria, string $entityType, SalesChannelContext $context): void
-    {
-        $salesChannelId = $context->getSalesChannel()->getId();
-
-        match ($entityType) {
-            'product' => $criteria->addFilter(
-                new EqualsFilter('visibilities.salesChannelId', $salesChannelId)
-            ),
-            'category' => $criteria->addFilter(
-                new EqualsFilter('active', true)
-            ),
-            default => null,
-        };
-    }
-
-    /**
-     * @param mixed $constraint
-     */
-    protected function buildConstraintFilter(string $field, $constraint): MultiFilter|EqualsFilter
+    private function buildConstraintFilter(string $field, mixed $constraint): MultiFilter|EqualsFilter
     {
         if (\is_array($constraint)) {
             $filters = [];
@@ -183,5 +139,15 @@ class EntityIdResolver
         }
 
         return new EqualsFilter($field, $constraint);
+    }
+
+    /**
+     * @return EntityCollection<covariant Entity>
+     */
+    private function searchEntities(string $entityType, Criteria $criteria, Context $context): EntityCollection
+    {
+        $repository = $this->definitionRegistry->getRepository($entityType);
+
+        return $repository->search($criteria, $context)->getEntities();
     }
 }

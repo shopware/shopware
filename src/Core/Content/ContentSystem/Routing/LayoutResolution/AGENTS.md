@@ -89,7 +89,7 @@ $criteria = new Criteria();
 $assignments = $repo->search($criteria); // Full entities with all methods
 ```
 
-Lesson: Never use `addFields()` when code calls entity getter methods. DAL returns PartialEntity for field-selected queries.
+Lesson: Avoid `addFields()` on root entity queries when code calls entity getter methods. DAL returns PartialEntity for field-selected queries. Using `addFields()` on association criteria is acceptable when only specific fields (like ID) are needed from associations.
 
 **Mistake: Forgetting priority controls evaluation order**
 ```php

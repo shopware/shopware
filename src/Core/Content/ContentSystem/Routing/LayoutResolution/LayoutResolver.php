@@ -86,8 +86,8 @@ final class LayoutResolver
             return true;
         }
 
-        $resolvedId = $data->getEntityId($assignment->getEntityType() . '_id')
-                   ?? $data->getEntityId($assignment->getEntityType());
+        $resolvedId = $data->entityIds->get($assignment->getEntityType() . '_id')
+                   ?? $data->entityIds->get($assignment->getEntityType());
 
         if ($resolvedId === null) {
             return false;
@@ -117,7 +117,7 @@ final class LayoutResolver
         $sourceEntity = array_shift($parts);
         $associationPath = implode('.', $parts);
 
-        $sourceId = $data->getEntityId($sourceEntity . '_id') ?? $data->getEntityId($sourceEntity);
+        $sourceId = $data->entityIds->get($sourceEntity . '_id') ?? $data->entityIds->get($sourceEntity);
         if ($sourceId === null) {
             return false;
         }

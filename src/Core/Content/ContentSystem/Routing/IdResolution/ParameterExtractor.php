@@ -6,51 +6,40 @@ use Shopware\Core\Content\ContentSystem\Routing\Router\RouteMatchResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-type ResolutionItem array{placeholder: string, resolution: array<string, mixed>, value: mixed}
- * @phpstan-type ResolutionParameterMap array<string, ResolutionItem>
- * @phpstan-type PassthroughParameterMap array<string, mixed>
- * @phpstan-type ExtractedParameters array{resolution: ResolutionParameterMap, passthrough: PassthroughParameterMap}
- *
  * @final
  */
 #[Package('discovery')]
 class ParameterExtractor
 {
-    /**
-     * @return ExtractedParameters
-     */
-    public function extract(RouteMatchResult $match): array
+    public function extract(RouteMatchResult $match): ExtractedParameters
     {
         $route = $match->route;
         $parameters = $match->parameters;
-        $parameterBinding = $route->getParameterBinding();
+        $parameterBindings = $route->getParameterBindings();
 
         $resolution = [];
         $passthrough = [];
 
-        foreach ($parameterBinding as $paramName => $config) {
+        foreach ($parameterBindings as $paramName => $binding) {
             $value = $parameters[$paramName] ?? null;
 
             if ($value === null) {
                 continue;
             }
 
-            $placeholder = $config['placeholder'] ?? $paramName;
+            $placeholder = $binding->getPlaceholder();
 
-            if (isset($config['resolution'])) {
-                $resolution[$paramName] = [
-                    'placeholder' => $placeholder,
-                    'resolution' => $config['resolution'],
-                    'value' => $value,
-                ];
-            } else {
-                $passthrough[$placeholder] = $value;
+            if ($binding->isResolutionParameter() && $binding->resolution !== null) {
+                $resolution[$paramName] = new ResolutionParameter($placeholder, $binding->resolution, $value);
+                continue;
             }
+
+            $passthrough[$placeholder] = $value;
         }
 
-        return [
-            'resolution' => $resolution,
-            'passthrough' => $passthrough,
-        ];
+        return new ExtractedParameters(
+            new ResolutionParameterMap($resolution),
+            new ParameterMap($passthrough)
+        );
     }
 }

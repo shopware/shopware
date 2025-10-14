@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\Routing\IdResolution\Parameter;
+namespace Shopware\Core\Content\ContentSystem\Routing\IdResolution;
 
 use Shopware\Core\Framework\Log\Package;
 
@@ -10,10 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 final readonly class ResolutionParameter
 {
+    /**
+     * @param mixed $value From matched route (e.g., 'laptop-x1')
+     */
     public function __construct(
-        public string $name,
         public string $placeholder,
-        public EntityResolution $resolution,
+        public ResolutionConfig $resolutionConfig,
         public mixed $value
     ) {
     }

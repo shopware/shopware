@@ -67,6 +67,7 @@ class ProductUrlProvider extends AbstractUrlProvider
 
         $keys = FetchModeHelper::keyPair($products);
 
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
         $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.detail.page', $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
@@ -85,6 +86,7 @@ class ProductUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$product['id']])) {
                 $newUrl->setLoc($seoUrls[$product['id']]['seo_path_info']);
             } else {
+                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                 $newUrl->setLoc($this->router->generate('frontend.detail.page', ['productId' => $product['id']]));
             }
 

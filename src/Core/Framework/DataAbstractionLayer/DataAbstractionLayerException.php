@@ -27,6 +27,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -818,11 +819,15 @@ class DataAbstractionLayerException extends HttpException
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     *
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
-    public static function configNotFound(): self|\Shopware\Elasticsearch\Product\ElasticsearchProductException
+    public static function configNotFound(): self|ElasticsearchProductException
     {
-        if (!Feature::isActive('v6.8.0.0') && class_exists('\Shopware\Elasticsearch\Product\ElasticsearchProductException')) {
-            return \Shopware\Elasticsearch\Product\ElasticsearchProductException::configNotFound();
+        /** @phpstan-ignore phpat.restrictNamespacesInCore */
+        if (!Feature::isActive('v6.8.0.0') && class_exists(ElasticsearchProductException::class)) {
+            /** @phpstan-ignore phpat.restrictNamespacesInCore */
+            return ElasticsearchProductException::configNotFound();
         }
 
         return new self(

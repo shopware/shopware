@@ -19,6 +19,9 @@ class DomainRuleStruct extends Struct
      */
     private array $directives = [];
 
+    /**
+     * @param ParsedRobots|string $rules The robots.txt rules as string (legacy) or parsed object (new)
+     */
     public function __construct(ParsedRobots|string $rules, private readonly string $basePath)
     {
         if ($rules instanceof ParsedRobots) {

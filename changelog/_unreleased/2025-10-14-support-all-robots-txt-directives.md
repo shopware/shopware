@@ -23,6 +23,20 @@ ___
 ___
 # Upgrade Information
 
+## Technical Changes (Backward Compatible)
+
+The constructor signature of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` has been updated to accept both `string` and `ParsedRobots` objects:
+
+```php
+// Old signature (still works)
+new DomainRuleStruct('Disallow: /admin/', '/en');
+
+// New signature (also works)
+new DomainRuleStruct($parsedRobots, '/en');
+```
+
+**This change is backward compatible** - all existing code passing a string continues to work without modification. The union type `ParsedRobots|string` accepts everything the old `string` type accepted, plus the new parsed object type for internal use.
+
 ## Full robots.txt directive support
 
 The robots.txt configuration now supports the full robots.txt standard including:

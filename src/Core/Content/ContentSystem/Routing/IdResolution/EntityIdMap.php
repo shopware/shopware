@@ -9,13 +9,13 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class EntityIdMap
+final readonly class EntityIdMap
 {
     /**
      * @param array<string, string> $map Placeholder name => Entity UUID
      */
     public function __construct(
-        private readonly array $map = []
+        private array $map = []
     ) {
         $this->validate();
     }
@@ -28,29 +28,6 @@ class EntityIdMap
     public function get(string $placeholder): ?string
     {
         return $this->map[$placeholder] ?? null;
-    }
-
-    public function has(string $placeholder): bool
-    {
-        return isset($this->map[$placeholder]);
-    }
-
-    public function add(string $placeholder, string $entityId): self
-    {
-        $map = $this->map;
-        $map[$placeholder] = $entityId;
-
-        return new self($map);
-    }
-
-    public function merge(self $other): self
-    {
-        return new self(array_merge($this->map, $other->map));
-    }
-
-    public function isEmpty(): bool
-    {
-        return empty($this->map);
     }
 
     /**

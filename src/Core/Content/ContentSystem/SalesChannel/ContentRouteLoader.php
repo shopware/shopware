@@ -42,7 +42,7 @@ class ContentRouteLoader
             throw ContentSystemException::contentNotFound($pathInfo);
         }
 
-        $route = $match->getRoute();
+        $route = $match->route;
 
         try {
             $resolvedData = $this->entityIdResolver->resolve($match, $context);
@@ -52,7 +52,7 @@ class ContentRouteLoader
 
         if ($resolvedData === null) {
             $parameterBinding = $route->getParameterBinding();
-            $parameters = $match->getParameters();
+            $parameters = $match->parameters;
 
             $firstParam = array_key_first($parameterBinding);
             if ($firstParam !== null) {

@@ -8,7 +8,7 @@
 - `EntityIdResolver` - Queries entities to resolve IDs from parameter values
 - `EntityIdMap` - Container for resolved entity ID mappings
 - `ParameterMap` - Container for extracted URL parameters
-- `ResolvedData` (Struct/) - Combined structure with parameters and entity IDs
+- `ResolvedData` - Combined structure with parameters and entity IDs
 
 ## Constraints
 

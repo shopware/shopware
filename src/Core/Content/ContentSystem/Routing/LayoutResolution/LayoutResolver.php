@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\ContentSystem\Routing\LayoutResolution;
 
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentCollection;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentEntity;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\Struct\ResolvedData;
-use Shopware\Core\Content\ContentSystem\Routing\Struct\RouteMatchResult;
+use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
+use Shopware\Core\Content\ContentSystem\Routing\Router\RouteMatchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -36,7 +36,7 @@ final class LayoutResolver
 
     public function resolve(RouteMatchResult $match, ResolvedData $resolvedData, SalesChannelContext $context): ?string
     {
-        $route = $match->getRoute();
+        $route = $match->route;
 
         $assignments = $this->loadAssignments($route->getId(), $context);
         if ($assignments->count() === 0) {

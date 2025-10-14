@@ -9,7 +9,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequi
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\ElementSlots;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PlaceholderCollectorVisitor;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\Struct\ResolvedData;
+use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 

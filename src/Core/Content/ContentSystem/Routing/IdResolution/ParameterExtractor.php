@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Routing\IdResolution;
 
-use Shopware\Core\Content\ContentSystem\Routing\Struct\RouteMatchResult;
+use Shopware\Core\Content\ContentSystem\Routing\Router\RouteMatchResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -21,8 +21,8 @@ class ParameterExtractor
      */
     public function extract(RouteMatchResult $match): array
     {
-        $route = $match->getRoute();
-        $parameters = $match->getParameters();
+        $route = $match->route;
+        $parameters = $match->parameters;
         $parameterBinding = $route->getParameterBinding();
 
         $resolution = [];

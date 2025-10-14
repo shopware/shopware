@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-readonly class ResolutionParameter
+final readonly class ResolutionParameter
 {
     public function __construct(
         public string $name,
@@ -16,20 +16,5 @@ readonly class ResolutionParameter
         public EntityResolution $resolution,
         public mixed $value
     ) {
-    }
-
-    public function getEntityType(): string
-    {
-        return $this->resolution->entityType;
-    }
-
-    public function getMatchField(): string
-    {
-        return $this->resolution->matchField;
-    }
-
-    public function hasConstraints(): bool
-    {
-        return $this->resolution->hasConstraints();
     }
 }

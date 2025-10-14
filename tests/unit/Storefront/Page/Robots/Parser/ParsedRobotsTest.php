@@ -158,4 +158,3 @@ class ParsedRobotsTest extends TestCase
         static::assertTrue($parsed->hasUserAgentBlocks());
     }
 }
-

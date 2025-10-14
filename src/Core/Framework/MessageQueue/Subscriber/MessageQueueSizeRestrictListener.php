@@ -13,9 +13,9 @@ readonly class MessageQueueSizeRestrictListener
 {
     /**
      * @see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html
-     * Maximum message size is 262144 (1024 * 256) bytes
+     * Maximum message size is 1048576 (1024 * 1024) bytes (1 MiB)
      */
-    public const MESSAGE_SIZE_LIMIT = 1024 * 256;
+    public const MESSAGE_SIZE_LIMIT = 1024 * 1024;
 
     /**
      * @internal

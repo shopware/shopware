@@ -21,6 +21,13 @@ class PaymentMethodBlockedError extends Error
         protected readonly ?string $reason = null,
         protected readonly ?string $id = null,
     ) {
+        if ($id === null || $reason === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing null for $id or $reason is deprecated and will not be allowed in v6.8.0.0. Please provide valid string values for both parameters.'
+            );
+        }
+
         $this->message = \sprintf(
             'Payment method %s not available. Reason: %s',
             $name,

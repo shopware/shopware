@@ -24,6 +24,13 @@ class PaymentMethodChangedError extends Error
         protected readonly ?string $newPaymentMethodId = null,
         protected readonly ?string $reason = null,
     ) {
+        if ($oldPaymentMethodId === null || $newPaymentMethodId === null || $reason === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing null for $oldPaymentMethodId, $newPaymentMethodId, or $reason is deprecated and will not be allowed in v6.8.0.0. Please provide valid string values for both parameters.'
+            );
+        }
+
         $this->message = \sprintf(
             '%s payment is not available for your current cart, the payment was changed to %s. Reason: %s',
             $oldPaymentMethodName,

@@ -24,6 +24,13 @@ class ShippingMethodChangedError extends Error
         protected readonly ?string $newShippingMethodId = null,
         protected readonly ?string $reason = null,
     ) {
+        if ($oldShippingMethodId === null || $newShippingMethodId === null || $reason === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing null for $oldShippingMethodId, $newShippingMethodId, or $reason is deprecated and will not be allowed in v6.8.0.0. Please provide valid string values for both parameters.'
+            );
+        }
+
         $this->message = \sprintf(
             '%s shipping is not available for your current cart, the shipping was changed to %s. Reason: %s',
             $oldShippingMethodName,

@@ -21,6 +21,13 @@ class ShippingMethodBlockedError extends Error
         protected readonly ?string $id = null,
         protected readonly ?string $reason = null,
     ) {
+        if ($id === null || $reason === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing null for $id or $reason is deprecated and will not be allowed in v6.8.0.0. Please provide valid string values for both parameters.'
+            );
+        }
+
         $this->message = \sprintf(
             'Shipping method %s not available. Reason: %s',
             $name,

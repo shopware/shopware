@@ -127,7 +127,7 @@ class HttpCacheKeyGenerator
     /**
      * get Cookie value, if exists use response cookie value instead of request cookie value as request cookies can be overwritten by the client
      */
-    private function getCookieValue(Request $request, ?Response $response, string $cookieName): mixed
+    private function getCookieValue(Request $request, ?Response $response, string $cookieName): ?string
     {
         if ($response) {
             $cookie = Cookie::create($cookieName);
@@ -146,7 +146,7 @@ class HttpCacheKeyGenerator
         }
 
         if ($request->cookies->has($cookieName)) {
-            return $request->cookies->get($cookieName);
+            return (string) $request->cookies->get($cookieName);
         }
 
         return null;

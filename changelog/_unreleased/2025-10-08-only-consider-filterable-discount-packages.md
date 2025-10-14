@@ -9,5 +9,7 @@ author_github: @aragon999
 * Changed the `Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter` to only filter for price definitions when they implement the `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface` instead of explicitly checking for the `getFilter` method
 
 ___
-# Upgrade Information
-When you want to have a price definition which supports filtering when building discount packages, it was previously considered when the `getFilter()` method is implemented, for Shopware 6.8.0.0 the price definition needs to implement the `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`
+# Next Major Version Changes
+## Filterable price definitions now require an explicit interface
+Previously, a price definition was treated as filterable when it implemented a `getFilter()` method. From now on, price definitions must explicitly implement the
+`Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.

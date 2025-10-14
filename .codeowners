@@ -1,0 +1,16 @@
+# Use this file for more fine-grained control over code ownership, if the default CODEOWNERS file is not sufficient.
+# See the docs for more information: https://github.com/marketplace/actions/codeowners-plus#codeowners-file-spec
+
+? src/Administration/Resources/app/administration/src/module/sw-category @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-cms @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-landing-page @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-media @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-sales-channel @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-country @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-customer-group @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-delivery-times @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-sitemap @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/app/component/media @shopware/product-cc-discovery
+? src/Storefront/Resources/views/storefront/element/cms-element-* @shopware/product-cc-discovery

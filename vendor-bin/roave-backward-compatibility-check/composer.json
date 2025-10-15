@@ -26,6 +26,7 @@
         "patches": {
             "roave/backward-compatibility-check": {
                 "Skip experimental annotations": "patches/skip-experimental.patch",
+                "Skip optional construct parameters": "patches/skip-optional-construct-parameters.patch",
                 "Add exclude errors": "patches/add-exclude-errors.patch",
                 "Add exclude files": "patches/add-exclude-files.patch"
             }

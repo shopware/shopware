@@ -20,24 +20,24 @@ describe('context.store', () => {
     });
 
     it('has initial state', () => {
-        expect(store.app).toEqual(
-            expect.objectContaining({
-                config: {
-                    adminWorker: null,
-                    bundles: null,
-                    version: null,
-                    versionRevision: null,
-                    inAppPurchases: {},
-                    shopId: null,
-                },
-                environment: null,
-                fallbackLocale: null,
-                features: null,
-                firstRunWizard: null,
-                systemCurrencyId: null,
-                systemCurrencyISOCode: null,
-            }),
-        );
+        expect(store.app).toEqual({
+            config: {
+                adminWorker: null,
+                bundles: null,
+                version: null,
+                versionRevision: null,
+                inAppPurchases: {},
+                shopId: null,
+                appUrl: null,
+            },
+            environment: null,
+            fallbackLocale: null,
+            features: null,
+            firstRunWizard: null,
+            systemCurrencyId: null,
+            systemCurrencyISOCode: null,
+            windowId: null,
+        });
 
         expect(store.api).toEqual(
             expect.objectContaining({

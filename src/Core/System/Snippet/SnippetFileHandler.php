@@ -62,6 +62,7 @@ class SnippetFileHandler
      */
     public function findAdministrationSnippetFiles(): array
     {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         if (!($bundleDir = $this->getBundleDir(Administration::class))) {
             return [];
         }
@@ -74,6 +75,7 @@ class SnippetFileHandler
      */
     public function findStorefrontSnippetFiles(): array
     {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         if (!($bundleDir = $this->getBundleDir(Storefront::class))) {
             return [];
         }
@@ -98,9 +100,8 @@ class SnippetFileHandler
         $finder = (new Finder())
             ->files()
             ->in($path)
-            ->ignoreUnreadableDirs();
-
-        $finder->name('/[a-z]{2}-[A-Z]{2}(?:\.base)?\.json$/');
+            ->ignoreUnreadableDirs()
+            ->name(SnippetPatterns::CORE_SNIPPET_FILE_PATTERN);
 
         $iterator = $finder->getIterator();
         $files = [];

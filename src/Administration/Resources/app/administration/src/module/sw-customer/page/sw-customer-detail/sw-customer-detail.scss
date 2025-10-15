@@ -3,13 +3,17 @@
 .sw-customer-detail__customer-registration-alert {
     max-width: $content-width;
     margin: 0 auto;
-}
 
-.sw-customer-detail__customer-registration-alert-actions {
-    margin-left: auto;
+    .mt-banner {
+        display: flex;
+        align-items: center;
+    }
 
-    .mt-button:not(:last-child) {
-        margin-right: 8px;
+    .mt-banner__message {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 }
 

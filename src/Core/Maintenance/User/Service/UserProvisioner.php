@@ -37,7 +37,7 @@ class UserProvisioner
 
         $minPasswordLength = $this->getAdminPasswordMinLength();
 
-        $password = $password ?? Random::getAlphanumericString(max($minPasswordLength, 8));
+        $password ??= Random::getAlphanumericString(max($minPasswordLength, 8));
 
         if (\strlen($password) < $minPasswordLength) {
             throw MaintenanceException::passwordTooShort($minPasswordLength);

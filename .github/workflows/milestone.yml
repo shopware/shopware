@@ -34,22 +34,24 @@ jobs:
                 const nextPatch = process.env.NEXT_PATCH.substring(1);
 
                 const versionRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
+                const versionBaseRef = versionRegex.exec(context.payload.pull_request.base.ref);
 
                 // Use next minor if target is trunk or is an issue
                 if (context.payload.pull_request.base.ref == "trunk") {
                   return nextMinor;
-                } else if (versionRegex.test(context.payload.pull_request.base.ref)) {
+                } else if (versionBaseRef !== null) {
+                    const refVersion = `${versionBaseRef.slice(1, versionBaseRef.length - 1).join(".")}.0`
                     try {
                         await github.rest.repos.getReleaseByTag({
                             owner: "shopware",
                             repo: "shopware",
-                            tag: `v${context.payload.pull_request.base.ref}`
+                            tag: `v${refVersion}`
                         });
                         // Use next patch if target is a version branch and the minor is released
                         return nextPatch;
                     } catch(err) {
                         // Use next minor if target is a version branch and the minor is not released
-                        return `${context.payload.pull_request.base.ref}`;
+                        return `${refVersion}`;
                     }
                 }
 

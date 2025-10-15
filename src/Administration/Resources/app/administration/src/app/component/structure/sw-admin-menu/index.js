@@ -237,7 +237,7 @@ The admin menu only supports up to three levels of nesting.`,
     },
 
     beforeUnmount() {
-        document.removeEventListener('mousemove', this.onMouseMoveDocument);
+        document.removeEventListener('mousemove', this.onMouseMoveDocument.bind(this));
         document.removeEventListener('mouseleave', this.onFlyoutLeave);
 
         this.beforeUnmountedComponent();

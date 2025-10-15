@@ -3,11 +3,10 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension
-    -
-        factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
 
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper
+    -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
+
+    -   class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper
 
 parameters:
     shopware:
@@ -22,8 +21,11 @@ parameters:
             - Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
             - Symfony\Component\HttpFoundation\Exception\BadRequestException
+        allowedStorefrontRouteNamespaces:
+            - Shopware\Storefront
 
 parametersSchema:
     shopware: structure([
         allowedNonDomainExceptions: list(string),
+        allowedStorefrontRouteNamespaces: list(string),
     ])

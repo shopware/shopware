@@ -190,7 +190,7 @@ const missingTests = [
     'src/core/service/api/seo-url-template.api.service.js',
     'src/core/service/api/seo-url.api.service.js',
     'src/core/service/api/snippet-set.api.service.js',
-    'src/core/service/api/snippet.api.service.js',
+    'src/core/service/api/snippet.api.service.ts',
     'src/core/service/api/state-machine.api.service.js',
     'src/core/service/api/store-context.api.service.ts',
     'src/core/service/api/user-input-sanitize.service.js',
@@ -545,6 +545,8 @@ const missingTests = [
     'src/app/init/component.init.ts',
     'src/module/sw-settings-services/index.ts',
     'src/module/sw-settings-services/service/index.ts',
+    // Has only a DTO
+    'src/core/telemetry/types.ts',
 ];
 
 /**

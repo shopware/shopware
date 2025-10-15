@@ -33,7 +33,7 @@ class SystemDumpDatabaseCommand extends Command
     {
         system('mkdir -p ' . escapeshellarg($this->defaultDirectory));
 
-        /** @var string $dbName */
+        /** @var non-empty-string $dbName */
         $dbName = $this->connection->getDatabase();
         /** @var Params&OverrideParams $params */
         $params = $this->connection->getParams();

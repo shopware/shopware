@@ -7,9 +7,9 @@ tags: [php, symfony, dependency]
 
 ## Context
 
-The process of configuring dependencies has been upgraded with various new features in recent versions of Symfony.
+Recent versions of Symfony have introduced various new features for dependency management that simplify service configuration and improve the developer experience.
 
-We would like to utilise new features such as:
+These features are now available in Shopware and include:
 
 * [Autowiring](https://symfony.com/doc/current/service_container.html)
 * [PHP configuration](https://symfony.com/doc/current/service_container/import.html)
@@ -17,29 +17,21 @@ We would like to utilise new features such as:
 
 ## Decision
 
-1. Autowiring will be enabled
-2. Support will be added to load service configuration from PHP files (as well as XML for backwards compatibility)
-3. Where services need a particular non default service, for example a different implementation, or scalar values, we can use attributes.
+Shopware now supports the following modern Symfony dependency management features:
 
-Note: Attributes should only be used in framework glue code, for example, in Controllers and commands. We do not want to couple our domain code too close to Symfony.
+1. **Autowiring**: Services can be automatically resolved by Symfony using type hints, reducing the need for explicit service definitions.
+2. **PHP-based service configuration**: Service configuration can be loaded from PHP files in addition to XML and YAML.
+3. **Autowire attribute**: Services requiring non-default implementations or scalar values can use the `Autowire` attribute for configuration.
 
-With autowiring enabled, we can greatly reduce the amount of configuration in the XML files since most of the configuration is unnecessary. Most dependency graphs can be automatically resolved by Symfony using type hints.
-There are no runtime performance implications because the container with its definitions is compiled.
+**Note**: Attributes should only be used in framework glue code, such as Controllers and Commands.
+Domain code should remain decoupled from Symfony-specific implementations.
 
-Advantages:
+With autowiring enabled, dependency graphs can be automatically resolved by Symfony using type hints, significantly reducing configuration overhead.
 
-* Less code to maintain.
-* Better autocompletion with PHP.
-* More modern approach
+## Benefits for plugin development
 
-## Backwards Compatibility / Migration Strategy
+Plugin developers can now leverage these features to:
 
-To migrate our current XML dependency configurations, we can follow the below steps:
-
-Step 1: Add support for loading service definitions from PHP files as well as XML files.
-
-Step 2: Enable autowiring. Symfony should prefer the registered configuration before trying to autowire. In other words, Symfony will only autowire classes without configured definitions.
-
-Step 3: Delete definitions which are not required because they can be autoloaded.
-
-Step 4: Migrate any existing definitions to the PHP configurations or Attributes.
+* Reduce boilerplate configuration code
+* Benefit from better IDE autocompletion with PHP-based configuration
+* Use a more modern, streamlined approach

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -76,6 +77,101 @@ class AccountProfileControllerTest extends TestCase
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('account-profile-page-loaded', $traces);
+    }
+
+    public function testPrivateAccountTypeNotForcedToCommercialWithCompanySignupEnabled(): void
+    {
+        $context = Context::createDefaultContext();
+
+        // Create a customer with private account type
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+        $customerGroupId = Uuid::randomHex();
+
+        // Create a customer group with company signup form enabled
+        $customerGroupRepository = static::getContainer()->get('customer_group.repository');
+        $customerGroupRepository->create([
+            [
+                'id' => $customerGroupId,
+                'name' => 'Test Group with Company Signup',
+                'registrationActive' => true,
+                'registrationTitle' => 'Company Registration',
+                'registrationOnlyCompanyRegistration' => true, // This enables the company signup form
+            ],
+        ], $context);
+
+        // Create a private customer
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE, // Explicitly set as private
+            'defaultShippingAddress' => [
+                'id' => $addressId,
+                'firstName' => 'John',
+                'lastName' => 'Doe',
+                'street' => 'Test Street 1',
+                'city' => 'Test City',
+                'zipcode' => '12345',
+                'salutationId' => $this->getValidSalutationId(),
+                'country' => ['name' => 'Germany'],
+            ],
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => $customerGroupId, // Assign to the group with company signup enabled
+            'email' => 'private.customer@test.com',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '54321',
+        ];
+
+        /** @var EntityRepository<CustomerCollection> $repo */
+        $repo = static::getContainer()->get('customer.repository');
+        $repo->create([$customer], $context);
+
+        // Enable the account type selection in system config
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        // Login as the private customer
+        $browser = $this->login($customer['email']);
+
+        // Request the profile page
+        $browser->request('GET', '/account/profile');
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        // Check that the page content shows the correct account type
+        $content = $response->getContent();
+        static::assertNotFalse($content);
+
+        // The account type field should be present and not forcibly set to commercial
+        static::assertStringContainsString('name="accountType"', $content);
+
+        // Check that private account option is available and selected
+        static::assertStringContainsString('value="' . CustomerEntity::ACCOUNT_TYPE_PRIVATE . '"', $content);
+
+        // Verify that the profile can be saved without requiring company fields
+        $browser->request(
+            'POST',
+            '/account/profile',
+            $this->tokenize('frontend.account.profile.save', [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'John',
+                'lastName' => 'Doe',
+                'email' => 'private.customer@test.com',
+            ])
+        );
+
+        $response = $browser->getResponse();
+        static::assertTrue($response->isRedirect(), 'Response should redirect after saving profile. Response code: ' . $response->getStatusCode());
+
+        // Verify the customer is still private type in the database
+        $updatedCustomer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();
+        static::assertNotNull($updatedCustomer);
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $updatedCustomer->getAccountType());
     }
 
     private function login(string $email): KernelBrowser

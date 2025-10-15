@@ -13,12 +13,16 @@
         {% block sw_order_document_settings_modal_form_document_number %}
         <mt-text-field
             v-model="documentNumber"
+            class="sw-order-document-settings-modal__document-number"
             :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+            :error="documentNumberErrorMessage"
+            required
         />
         {% endblock %}
         {% block sw_order_document_settings_modal_form_document_date %}
         <mt-datepicker
             v-model="documentConfig.documentDate"
+            class="sw-order-document-settings-modal__document-date"
             date-type="date"
             required
             hide-hint
@@ -94,21 +98,28 @@
             <mt-button
                 class="sw-order-document-settings-modal__preview-button"
                 size="small"
-                :disabled="isLoadingDocument"
+                :disabled="invalidInput || isLoadingDocument"
                 :is-loading="isLoadingPreview"
                 variant="secondary"
+                data-analytics-id="sw-order-document-settings-modal.preview"
                 @click="onPreview()"
             >
                 {{ $tc('sw-order.documentModal.labelPreview') }}
             </mt-button>
             {% endblock %}
 
-            <sw-context-button :menu-width="160">
+            <sw-context-button
+                class="sw-order-document-settings-modal__preview-button-arrow"
+                :menu-width="160"
+                :disabled="invalidInput || isLoadingDocument"
+                data-analytics-id="sw-order-document-settings-modal.open-preview-menu"
+            >
                 <template #button>
                     <mt-button
                         square
                         size="small"
                         variant="secondary"
+                        :disabled="invalidInput"
                     >
                         <mt-icon
                             name="regular-chevron-down-xs"
@@ -119,7 +130,8 @@
 
                 <sw-context-menu-item
                     class="sw-order-document-settings-modal__preview-button-html"
-                    :disabled="htmlPreviewDisabled"
+                    :disabled="invalidInput || htmlPreviewDisabled"
+                    data-analytics-id="sw-order-document-settings-modal.preview-html"
                     @click="onPreview('html')"
                 >
                     {{ $tc('sw-order.documentModal.labelPreviewOnlyHtml') }}
@@ -132,6 +144,8 @@
             <mt-button
                 size="small"
                 variant="secondary"
+                :disabled="isLoadingDocument || isLoadingPreview"
+                data-analytics-id="sw-order-document-settings-modal.cancel-and-close-modal"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}
@@ -145,8 +159,9 @@
                     class="sw-order-document-settings-modal__create"
                     variant="primary"
                     size="small"
-                    :disabled="!documentPreconditionsFulfilled || isLoadingPreview"
+                    :disabled="invalidInput || isLoadingPreview"
                     :is-loading="isLoadingDocument"
+                    data-analytics-id="sw-order-document-settings-modal.create-document"
                     @click="onCreateDocument"
                 >
                     {{ $tc('sw-order.documentModal.labelCreate') }}
@@ -155,7 +170,9 @@
 
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
                 <sw-context-button
-                    :disabled="!documentPreconditionsFulfilled || undefined"
+                    class="sw-order-document-settings-modal__create-arrow"
+                    :disabled="invalidInput"
+                    data-analytics-id="sw-order-document-settings-modal.open-create-document-menu"
                 >
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
                     <template #button>
@@ -163,7 +180,7 @@
                             square
                             variant="primary"
                             size="small"
-                            :disabled="!documentPreconditionsFulfilled"
+                            :disabled="invalidInput"
                         >
                             <mt-icon
                                 name="regular-chevron-down-xs"
@@ -176,6 +193,7 @@
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_send %}
                     <sw-context-menu-item
                         class="sw-order-document-settings-modal__send-button"
+                        data-analytics-id="sw-order-document-settings-modal.create-document-and-send"
                         @click="onCreateDocument('send')"
                     >
                         {{ $tc('sw-order.documentModal.labelCreateSend') }}
@@ -185,6 +203,7 @@
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_download %}
                     <sw-context-menu-item
                         class="sw-order-document-settings-modal__download-button"
+                        data-analytics-id="sw-order-document-settings-modal.create-document-and-download-pdf"
                         @click="onCreateDocument('download')"
                     >
                         {{ $tc('sw-order.documentModal.labelCreateDownloadPdf') }}

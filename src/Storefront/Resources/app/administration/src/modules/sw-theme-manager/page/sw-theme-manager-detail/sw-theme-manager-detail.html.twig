@@ -387,7 +387,7 @@
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :model-value="cssValue(currentValue)"
                                                                                     :error="themeConfigErrors[fieldName]"
-                                                                                    @update:modelValue="updateCurrentValue"
+                                                                                    @update:model-value="updateCurrentValue"
                                                                                 />
                                                                             </template>
                                                                         </sw-inherit-wrapper>

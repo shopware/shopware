@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
 test(
-    'As a merchant, I would be able to adjust free tax for defined currency.', { tag: '@Settings' }, async ({
+    'As a merchant, I would be able to adjust free tax for defined currency.', { tag: ['@Settings', '@Storefront'] }, async ({
         ShopCustomer,
         TestDataService,
         DefaultSalesChannel,
@@ -27,7 +27,7 @@ test(
     await ShopCustomer.attemptsTo(Login(customer));
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
+    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
 
     let productPrice = `${currency.isoCode} 24.00`;
     let totalPrice = `${currency.isoCode} 20.16`;

@@ -95,7 +95,7 @@ class RuleConditionPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var array<string> $scripts */
+        /** @var list<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scripts);
@@ -109,7 +109,7 @@ class RuleConditionPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var array<string> $scripts */
+        /** @var list<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scripts);

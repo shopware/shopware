@@ -93,6 +93,8 @@ class DataAbstractionLayerException extends HttpException
     public const UNSUPPORTED_QUERY_FILTER = 'FRAMEWORK__UNSUPPORTED_QUERY_FILTER';
     public const INVALID_SORT_DIRECTION = 'FRAMEWORK__INVALID_SORT_DIRECTION';
     public const PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND = 'FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND';
+    public const ENTITY_NOT_VERSIONABLE = 'FRAMEWORK__DAL_ENTITY_NOT_VERSIONABLE';
+    public const INVALID_UUID = 'FRAMEWORK__DAL_INVALID_UUID';
 
     public const DBAL_UNMAPPED_FIELD = 'FRAMEWORK__DBAL_UNMAPPED_FIELD';
 
@@ -443,6 +445,16 @@ class DataAbstractionLayerException extends HttpException
     public static function missingTranslation(string $path, int $index): self
     {
         return new MissingTranslationLanguageException($path, $index);
+    }
+
+    public static function invalidUuid(string $uuid): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_UUID,
+            'Invalid UUID provided: {{ uuid }}',
+            ['uuid' => $uuid]
+        );
     }
 
     public static function canNotFindAttribute(string $attribute, string $property): self
@@ -807,11 +819,15 @@ class DataAbstractionLayerException extends HttpException
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     *
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     public static function configNotFound(): self|ElasticsearchProductException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            throw ElasticsearchProductException::configNotFound();
+        /** @phpstan-ignore phpat.restrictNamespacesInCore */
+        if (!Feature::isActive('v6.8.0.0') && class_exists(ElasticsearchProductException::class)) {
+            /** @phpstan-ignore phpat.restrictNamespacesInCore */
+            return ElasticsearchProductException::configNotFound();
         }
 
         return new self(
@@ -883,6 +899,16 @@ class DataAbstractionLayerException extends HttpException
             self::DBAL_MISSING_VERSION_FIELD,
             'Missing `VersionField` in "{{ definitionClass }}"',
             ['definitionClass' => $definitionClass]
+        );
+    }
+
+    public static function entityNotVersionable(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_NOT_VERSIONABLE,
+            'Entity {{ entityName }} is not versionable',
+            ['entityName' => $entityName]
         );
     }
 

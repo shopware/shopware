@@ -45,7 +45,7 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
         active: true,
         triggerSearchTerm: 'placed',
         triggerLabel: 'Checkout / Order / Placed',
-        condition: 'Customers from USA',
+        condition: 'Shopping cart / Order with digital products',
         trueAction: 'Send email',
         trueActionIdentifier: 'Order confirmation',
         falseAction: 'Add tag',

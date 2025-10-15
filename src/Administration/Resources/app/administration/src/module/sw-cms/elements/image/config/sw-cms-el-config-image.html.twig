@@ -92,6 +92,13 @@
             v-model:value="element.config.url.value"
         />
 
+        <mt-text-field
+            v-model="element.config.ariaLabel.value"
+            class="sw-cms-el-config-image__link-aria-label"
+            :label="$tc('sw-cms.elements.image.config.label.ariaLabel')"
+            :help-text="$tc('sw-cms.elements.image.config.label.ariaLabelHelpText')"
+        />
+
         <mt-switch
             v-model="element.config.newTab.value"
             class="sw-cms-el-config-image__link-tab"

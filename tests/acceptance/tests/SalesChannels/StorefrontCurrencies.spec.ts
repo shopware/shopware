@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Shop customers should be able to view products in different currencies.', { tag: '@Currencies' }, async ({
+test('Shop customers should be able to view products in different currencies.', { tag: ['@Currencies', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,

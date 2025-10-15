@@ -337,4 +337,3 @@ class CaptchaRouteListenerTest extends TestCase
         return new ParameterBag($isCheckEnabled ? $param : []);
     }
 }
-

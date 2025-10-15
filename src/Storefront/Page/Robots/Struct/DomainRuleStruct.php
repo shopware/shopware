@@ -20,17 +20,14 @@ class DomainRuleStruct extends Struct
     private array $directives = [];
 
     /**
-     * @param ParsedRobots|string $rules The robots.txt rules as string (legacy) or parsed object (new)
-     *
-     * @deprecated 6.7.4.0 - Passing a string as the first parameter is deprecated. Pass a ParsedRobots object instead.
+     * @param ParsedRobots|string $rules The robots.txt rules as string or parsed object
      */
     public function __construct(ParsedRobots|string $rules, private readonly string $basePath)
     {
         if ($rules instanceof ParsedRobots) {
             $this->initializeFromParsed($rules);
         } else {
-            // Legacy path for backward compatibility
-            $this->parseRulesLegacy($rules);
+            $this->parseRulesFromString($rules);
         }
     }
 
@@ -74,7 +71,7 @@ class DomainRuleStruct extends Struct
         }
     }
 
-    private function parseRulesLegacy(string $rules): void
+    private function parseRulesFromString(string $rules): void
     {
         $rules = explode("\n", $rules);
 

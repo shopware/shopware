@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Page\Robots\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore - Enum is tested indirectly through RobotsDirective and parser tests
+ */
 #[Package('framework')]
 enum RobotsDirectiveType: string
 {

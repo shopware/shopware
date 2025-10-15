@@ -13,8 +13,7 @@ author_github: BrocksiNet
 * Added `Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock` value object representing a user-agent block
 * Added `globalUserAgentBlocks` property to `Shopware\Storefront\Page\Robots\RobotsPage` to store global user-agent blocks
 * Changed `Shopware\Storefront\Page\Robots\RobotsPageLoader` to parse and separate global user-agent blocks from domain-specific path rules
-* Changed `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` to support new parser while maintaining backward compatibility
-* Deprecated passing a string as the first parameter to `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct::__construct()`. Pass a `ParsedRobots` object instead
+* Changed `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` to support both string and `ParsedRobots` object as input while maintaining backward compatibility
 * Added new system configuration option `core.basicInformation.robotsDisableDefaults` to disable Shopware's default robots.txt rules
 
 ___
@@ -31,17 +30,23 @@ The robots.txt system has been enhanced to support the full robots.txt standard 
 
 ### Technical Changes (Backward Compatible)
 
-The constructor signature of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` has been updated to accept both `string` and `ParsedRobots` objects:
+The constructor of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` now supports both `string` and `ParsedRobots` objects as input:
 
 ```php
-// Old signature (still works)
+// Simple string format (for basic Allow/Disallow rules)
 new DomainRuleStruct('Disallow: /admin/', '/en');
 
-// New signature (also works)
+// ParsedRobots object format (for advanced features like User-agent blocks)
+$parser = new RobotsDirectiveParser();
+$parsedRobots = $parser->parse("
+    User-agent: Googlebot
+    Crawl-delay: 10
+    Disallow: /admin/
+");
 new DomainRuleStruct($parsedRobots, '/en');
 ```
 
-**This change is backward compatible** - all existing code passing a string continues to work without modification. The union type `ParsedRobots|string` accepts everything the old `string` type accepted, plus the new parsed object type for internal use.
+**Both formats are fully supported** - choose the one that fits your needs. The string format is convenient for simple rules, while the `ParsedRobots` object enables advanced features like custom User-agent blocks.
 
 ### Full robots.txt directive support
 

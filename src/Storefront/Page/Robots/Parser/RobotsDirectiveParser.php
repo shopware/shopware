@@ -41,9 +41,6 @@ class RobotsDirectiveParser
                 continue;
             }
 
-            // Use the canonical form from the enum
-            $directiveType = $directiveTypeEnum->value;
-
             // Handle User-agent directive
             if ($directiveTypeEnum === RobotsDirectiveType::USER_AGENT) {
                 // If we have a current block with directives, save it
@@ -63,7 +60,7 @@ class RobotsDirectiveParser
             }
 
             // Handle other directives
-            $directive = new RobotsDirective($directiveType, $directiveValue);
+            $directive = new RobotsDirective($directiveTypeEnum, $directiveValue);
 
             if (\count($currentUserAgents) > 0) {
                 // We're in a user-agent block

@@ -58,7 +58,7 @@ class DomainRuleStruct extends Struct
         foreach ($parsed->getOrphanedPathDirectives() as $directive) {
             $directiveWithPath = $directive->withBasePath($this->basePath);
             $this->directives[] = $directiveWithPath;
-            $this->rules[] = ['type' => $directiveWithPath->type, 'path' => $directiveWithPath->value];
+            $this->rules[] = ['type' => $directiveWithPath->type->value, 'path' => $directiveWithPath->value];
         }
 
         // Collect path directives from user-agent blocks
@@ -66,7 +66,7 @@ class DomainRuleStruct extends Struct
             foreach ($block->getPathDirectives() as $directive) {
                 $directiveWithPath = $directive->withBasePath($this->basePath);
                 $this->directives[] = $directiveWithPath;
-                $this->rules[] = ['type' => $directiveWithPath->type, 'path' => $directiveWithPath->value];
+                $this->rules[] = ['type' => $directiveWithPath->type->value, 'path' => $directiveWithPath->value];
             }
         }
     }
@@ -90,7 +90,7 @@ class DomainRuleStruct extends Struct
             $normalizedPath = '/' . ltrim($path, '/');
 
             $this->rules[] = ['type' => $directiveType->value, 'path' => $normalizedPath];
-            $this->directives[] = new RobotsDirective($directiveType->value, $normalizedPath);
+            $this->directives[] = new RobotsDirective($directiveType, $normalizedPath);
         }
     }
 }

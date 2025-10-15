@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 class RobotsDirective
 {
     public function __construct(
-        public readonly string $type,
+        public readonly RobotsDirectiveType $type,
         public readonly string $value
     ) {
     }
@@ -18,9 +18,7 @@ class RobotsDirective
      */
     public function isPathBased(): bool
     {
-        $directiveType = RobotsDirectiveType::tryFromInsensitive($this->type);
-
-        return $directiveType?->isPathBased() ?? false;
+        return $this->type->isPathBased();
     }
 
     public function withBasePath(string $basePath): self
@@ -38,6 +36,6 @@ class RobotsDirective
 
     public function render(): string
     {
-        return $this->type . ': ' . $this->value;
+        return $this->type->value . ': ' . $this->value;
     }
 }

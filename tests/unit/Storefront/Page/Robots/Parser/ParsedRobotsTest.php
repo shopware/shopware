@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 
 /**
@@ -18,12 +19,12 @@ class ParsedRobotsTest extends TestCase
     {
         $userAgentBlocks = [
             new RobotsUserAgentBlock('Googlebot', [
-                new RobotsDirective('Crawl-delay', '10'),
+                new RobotsDirective(RobotsDirectiveType::CRAWL_DELAY, '10'),
             ]),
         ];
 
         $orphanedDirectives = [
-            new RobotsDirective('Disallow', '/admin/'),
+            new RobotsDirective(RobotsDirectiveType::DISALLOW, '/admin/'),
         ];
 
         $parsed = new ParsedRobots($userAgentBlocks, $orphanedDirectives);
@@ -44,7 +45,7 @@ class ParsedRobotsTest extends TestCase
     {
         $userAgentBlocks = [
             new RobotsUserAgentBlock('Googlebot', [
-                new RobotsDirective('Crawl-delay', '10'),
+                new RobotsDirective(RobotsDirectiveType::CRAWL_DELAY, '10'),
             ]),
         ];
 
@@ -66,12 +67,12 @@ class ParsedRobotsTest extends TestCase
     {
         $userAgentBlocks = [
             new RobotsUserAgentBlock('Googlebot', [
-                new RobotsDirective('Crawl-delay', '10'),
+                new RobotsDirective(RobotsDirectiveType::CRAWL_DELAY, '10'),
             ]),
         ];
 
         $orphanedDirectives = [
-            new RobotsDirective('Disallow', '/admin/'),
+            new RobotsDirective(RobotsDirectiveType::DISALLOW, '/admin/'),
         ];
 
         $parsed = new ParsedRobots($userAgentBlocks, $orphanedDirectives);
@@ -105,10 +106,10 @@ class ParsedRobotsTest extends TestCase
     {
         $userAgentBlocks = [
             new RobotsUserAgentBlock('Googlebot', [
-                new RobotsDirective('Crawl-delay', '10'),
+                new RobotsDirective(RobotsDirectiveType::CRAWL_DELAY, '10'),
             ]),
             new RobotsUserAgentBlock('Bingbot', [
-                new RobotsDirective('Disallow', '/admin/'),
+                new RobotsDirective(RobotsDirectiveType::DISALLOW, '/admin/'),
             ]),
         ];
 
@@ -125,8 +126,8 @@ class ParsedRobotsTest extends TestCase
     public function testMultipleOrphanedDirectives(): void
     {
         $orphanedDirectives = [
-            new RobotsDirective('Disallow', '/admin/'),
-            new RobotsDirective('Allow', '/public/'),
+            new RobotsDirective(RobotsDirectiveType::DISALLOW, '/admin/'),
+            new RobotsDirective(RobotsDirectiveType::ALLOW, '/public/'),
         ];
 
         $parsed = new ParsedRobots([], $orphanedDirectives);
@@ -135,20 +136,20 @@ class ParsedRobotsTest extends TestCase
         static::assertFalse($parsed->hasUserAgentBlocks());
 
         $directives = $parsed->getOrphanedPathDirectives();
-        static::assertSame('Disallow', $directives[0]->type);
-        static::assertSame('Allow', $directives[1]->type);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $directives[0]->type);
+        static::assertSame(RobotsDirectiveType::ALLOW, $directives[1]->type);
     }
 
     public function testMixedUserAgentBlocksAndOrphanedDirectives(): void
     {
         $userAgentBlocks = [
             new RobotsUserAgentBlock('Googlebot', [
-                new RobotsDirective('Crawl-delay', '10'),
+                new RobotsDirective(RobotsDirectiveType::CRAWL_DELAY, '10'),
             ]),
         ];
 
         $orphanedDirectives = [
-            new RobotsDirective('Disallow', '/admin/'),
+            new RobotsDirective(RobotsDirectiveType::DISALLOW, '/admin/'),
         ];
 
         $parsed = new ParsedRobots($userAgentBlocks, $orphanedDirectives);

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 
 /**
  * @internal
@@ -47,8 +48,8 @@ TXT;
         static::assertCount(2, $block->directives);
 
         $types = array_map(static fn (RobotsDirective $d) => $d->type, $block->directives);
-        static::assertContains('Crawl-delay', $types);
-        static::assertContains('Disallow', $types);
+        static::assertContains(RobotsDirectiveType::CRAWL_DELAY, $types);
+        static::assertContains(RobotsDirectiveType::DISALLOW, $types);
     }
 
     public function testParseMultipleUserAgentBlocks(): void
@@ -107,8 +108,8 @@ TXT;
         static::assertCount(2, $result->getOrphanedPathDirectives());
 
         $types = array_map(static fn (RobotsDirective $d) => $d->type, $result->getOrphanedPathDirectives());
-        static::assertContains('Disallow', $types);
-        static::assertContains('Allow', $types);
+        static::assertContains(RobotsDirectiveType::DISALLOW, $types);
+        static::assertContains(RobotsDirectiveType::ALLOW, $types);
     }
 
     public function testParseIgnoresComments(): void
@@ -157,7 +158,7 @@ TXT;
         static::assertCount(1, $result->getUserAgentBlocks());
         $block = $result->getUserAgentBlocks()[0];
         static::assertCount(1, $block->directives);
-        static::assertSame('Disallow', $block->directives[0]->type);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $block->directives[0]->type);
     }
 
     public function testParseIgnoresMalformedLines(): void
@@ -195,13 +196,13 @@ TXT;
         static::assertCount(7, $block->directives);
 
         $types = array_map(static fn (RobotsDirective $d) => $d->type, $block->directives);
-        static::assertContains('Disallow', $types);
-        static::assertContains('Allow', $types);
-        static::assertContains('Crawl-delay', $types);
-        static::assertContains('Sitemap', $types);
-        static::assertContains('Request-rate', $types);
-        static::assertContains('Visit-time', $types);
-        static::assertContains('Host', $types);
+        static::assertContains(RobotsDirectiveType::DISALLOW, $types);
+        static::assertContains(RobotsDirectiveType::ALLOW, $types);
+        static::assertContains(RobotsDirectiveType::CRAWL_DELAY, $types);
+        static::assertContains(RobotsDirectiveType::SITEMAP, $types);
+        static::assertContains(RobotsDirectiveType::REQUEST_RATE, $types);
+        static::assertContains(RobotsDirectiveType::VISIT_TIME, $types);
+        static::assertContains(RobotsDirectiveType::HOST, $types);
     }
 
     public function testParseCaseInsensitive(): void
@@ -247,6 +248,6 @@ TXT;
 
         // Only path directives should be in orphaned
         static::assertCount(1, $result->getOrphanedPathDirectives());
-        static::assertSame('Disallow', $result->getOrphanedPathDirectives()[0]->type);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $result->getOrphanedPathDirectives()[0]->type);
     }
 }

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 
 /**
  * @internal
@@ -14,49 +15,47 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 class RobotsDirectiveTest extends TestCase
 {
     #[DataProvider('providePathBasedCases')]
-    public function testIsPathBased(string $type, bool $expected): void
+    public function testIsPathBased(RobotsDirectiveType $type, bool $expected): void
     {
         $directive = new RobotsDirective($type, 'test-value');
         static::assertSame($expected, $directive->isPathBased());
     }
 
     /**
-     * @return array<string, array{string, bool}>
+     * @return array<string, array{RobotsDirectiveType, bool}>
      */
     public static function providePathBasedCases(): array
     {
         return [
-            'allow' => ['Allow', true],
-            'disallow' => ['Disallow', true],
-            'allow lowercase' => ['allow', true],
-            'disallow lowercase' => ['disallow', true],
-            'user-agent' => ['User-agent', false],
-            'crawl-delay' => ['Crawl-delay', false],
-            'sitemap' => ['Sitemap', false],
+            'allow' => [RobotsDirectiveType::ALLOW, true],
+            'disallow' => [RobotsDirectiveType::DISALLOW, true],
+            'user-agent' => [RobotsDirectiveType::USER_AGENT, false],
+            'crawl-delay' => [RobotsDirectiveType::CRAWL_DELAY, false],
+            'sitemap' => [RobotsDirectiveType::SITEMAP, false],
         ];
     }
 
     public function testWithBasePathAppliesPathForPathBasedDirectives(): void
     {
-        $directive = new RobotsDirective('Disallow', '/admin/');
+        $directive = new RobotsDirective(RobotsDirectiveType::DISALLOW, '/admin/');
         $withBasePath = $directive->withBasePath('/en');
 
-        static::assertSame('Disallow', $withBasePath->type);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $withBasePath->type);
         static::assertSame('/en/admin/', $withBasePath->value);
     }
 
     public function testWithBasePathDoesNotApplyPathForNonPathBasedDirectives(): void
     {
-        $directive = new RobotsDirective('Crawl-delay', '10');
+        $directive = new RobotsDirective(RobotsDirectiveType::CRAWL_DELAY, '10');
         $withBasePath = $directive->withBasePath('/en');
 
-        static::assertSame('Crawl-delay', $withBasePath->type);
+        static::assertSame(RobotsDirectiveType::CRAWL_DELAY, $withBasePath->type);
         static::assertSame('10', $withBasePath->value);
     }
 
     public function testWithBasePathNormalizesSlashes(): void
     {
-        $directive = new RobotsDirective('Allow', 'widgets/');
+        $directive = new RobotsDirective(RobotsDirectiveType::ALLOW, 'widgets/');
         $withBasePath = $directive->withBasePath('en/');
 
         static::assertSame('/en/widgets/', $withBasePath->value);
@@ -64,7 +63,7 @@ class RobotsDirectiveTest extends TestCase
 
     public function testWithBasePathHandlesEmptyBasePath(): void
     {
-        $directive = new RobotsDirective('Disallow', '/private/');
+        $directive = new RobotsDirective(RobotsDirectiveType::DISALLOW, '/private/');
         $withBasePath = $directive->withBasePath('');
 
         static::assertSame('/private/', $withBasePath->value);
@@ -72,14 +71,14 @@ class RobotsDirectiveTest extends TestCase
 
     public function testRender(): void
     {
-        $directive = new RobotsDirective('Allow', '/public/');
+        $directive = new RobotsDirective(RobotsDirectiveType::ALLOW, '/public/');
 
         static::assertSame('Allow: /public/', $directive->render());
     }
 
     public function testImmutability(): void
     {
-        $directive = new RobotsDirective('Disallow', '/admin/');
+        $directive = new RobotsDirective(RobotsDirectiveType::DISALLOW, '/admin/');
         $withBasePath = $directive->withBasePath('/en');
 
         static::assertNotSame($directive, $withBasePath);

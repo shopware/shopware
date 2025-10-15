@@ -15,6 +15,7 @@ use Shopware\Storefront\Page\Robots\RobotsPage;
 use Shopware\Storefront\Page\Robots\RobotsPageLoadedEvent;
 use Shopware\Storefront\Page\Robots\RobotsPageLoader;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -300,12 +301,12 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(5, $directives); // We expect 5 directives: 1 Crawl-delay + 4 path directives
 
         // Check that Crawl-delay (non-path directive) is present
-        $crawlDelayDirectives = array_filter($directives, fn ($d) => $d->type === 'Crawl-delay');
+        $crawlDelayDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::CRAWL_DELAY);
         static::assertCount(1, $crawlDelayDirectives);
 
         // Check that both domain's path directives are present with correct paths
-        $disallowDirectives = array_filter($directives, fn ($d) => $d->type === 'Disallow');
-        $allowDirectives = array_filter($directives, fn ($d) => $d->type === 'Allow');
+        $disallowDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::DISALLOW);
+        $allowDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::ALLOW);
 
         static::assertCount(2, $disallowDirectives);
         static::assertCount(2, $allowDirectives);
@@ -406,8 +407,16 @@ class RobotsPageLoaderTest extends TestCase
             $types = array_map(fn ($d) => $d->type, $block->directives);
             $allDirectiveTypes = array_merge($allDirectiveTypes, $types);
         }
-        sort($allDirectiveTypes);
-        static::assertEquals(['Crawl-delay', 'Crawl-delay', 'Request-rate', 'Visit-time'], $allDirectiveTypes);
+
+        // Sort by enum value for consistent ordering
+        usort($allDirectiveTypes, fn ($a, $b) => $a->value <=> $b->value);
+
+        static::assertEquals([
+            RobotsDirectiveType::CRAWL_DELAY,
+            RobotsDirectiveType::CRAWL_DELAY,
+            RobotsDirectiveType::REQUEST_RATE,
+            RobotsDirectiveType::VISIT_TIME,
+        ], $allDirectiveTypes);
 
         // Domain rules should exist for both domains (they contain the original parsed rules)
         static::assertCount(2, $page->getDomainRules());
@@ -470,8 +479,8 @@ class RobotsPageLoaderTest extends TestCase
         $directives = $globalBlock->directives;
         static::assertCount(4, $directives);
 
-        $disallowDirectives = array_filter($directives, fn ($d) => $d->type === 'Disallow');
-        $allowDirectives = array_filter($directives, fn ($d) => $d->type === 'Allow');
+        $disallowDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::DISALLOW);
+        $allowDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::ALLOW);
 
         static::assertCount(2, $disallowDirectives);
         static::assertCount(2, $allowDirectives);
@@ -557,7 +566,7 @@ class RobotsPageLoaderTest extends TestCase
 
         $googlebotDisallowPaths = array_map(
             fn ($d) => $d->value,
-            array_filter($googlebotDirectives, fn ($d) => $d->type === 'Disallow')
+            array_filter($googlebotDirectives, fn ($d) => $d->type === RobotsDirectiveType::DISALLOW)
         );
         sort($googlebotDisallowPaths);
         static::assertEquals(['/account/', '/en/private/'], $googlebotDisallowPaths);
@@ -568,7 +577,7 @@ class RobotsPageLoaderTest extends TestCase
 
         $bingbotDisallowPaths = array_map(
             fn ($d) => $d->value,
-            array_filter($bingbotDirectives, fn ($d) => $d->type === 'Disallow')
+            array_filter($bingbotDirectives, fn ($d) => $d->type === RobotsDirectiveType::DISALLOW)
         );
         sort($bingbotDisallowPaths);
         static::assertEquals(['/admin/', '/en/secret/'], $bingbotDisallowPaths);

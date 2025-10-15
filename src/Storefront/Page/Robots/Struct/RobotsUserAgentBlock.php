@@ -56,14 +56,12 @@ class RobotsUserAgentBlock
      */
     public function getHash(): string
     {
-        $parts = [
+        return Hasher::hash([
             $this->userAgent,
-            ...array_map(
-                static fn (RobotsDirective $d) => $d->type . ':' . $d->value,
+            array_map(
+                static fn (RobotsDirective $d) => [$d->type->value, $d->value],
                 $this->getNonPathDirectives()
             ),
-        ];
-
-        return Hasher::hash(implode('|', $parts));
+        ]);
     }
 }

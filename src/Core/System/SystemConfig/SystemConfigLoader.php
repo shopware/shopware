@@ -80,7 +80,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
     /**
      * @param array<mixed> $configValues
      * @param non-empty-array<string> $keys
-     * @param mixed $value
+     * @param array<mixed>|bool|float|int|string|null $value
      *
      * @return array<mixed>
      */

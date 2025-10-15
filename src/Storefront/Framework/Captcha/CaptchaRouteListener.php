@@ -12,6 +12,7 @@ use Shopware\Storefront\Controller\ErrorController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Validator\ConstraintViolation;
 
 /**
  * @internal
@@ -70,7 +71,7 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
                 if ($captcha->shouldBreak()) {
                     $exception = CaptchaException::invalid($captcha);
                     if ($request->isXmlHttpRequest() && $violations->count() === 0) {
-                        $violations->add(new \Symfony\Component\Validator\ConstraintViolation(
+                        $violations->add(new ConstraintViolation(
                             $exception->getMessage(),
                             'Invalid captcha',
                             $exception->getParameters(),

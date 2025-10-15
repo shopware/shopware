@@ -274,7 +274,7 @@ class SnippetFinderTest extends TestCase
             ->method('getPath')
             ->willReturn(\dirname((string) ReflectionHelper::getFileName(Administration::class)));
 
-        $property = ReflectionHelper::getProperty(Administration::class, 'name');
+        $property = new \ReflectionProperty(Administration::class, 'name');
         $property->setValue($adminBundle, 'Administration');
 
         $storefrontBundle = $this->createMock(Storefront::class);
@@ -282,7 +282,7 @@ class SnippetFinderTest extends TestCase
             ->method('getPath')
             ->willReturn(\dirname((string) ReflectionHelper::getFileName(Storefront::class)));
 
-        $property = ReflectionHelper::getProperty(Storefront::class, 'name');
+        $property = new \ReflectionProperty(Storefront::class, 'name');
         $property->setValue($storefrontBundle, 'Storefront');
 
         $bundles = [

@@ -54,7 +54,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryEntity;
@@ -254,7 +253,7 @@ class RecalculationServiceTest extends TestCase
 
         foreach ($cart->getDeliveries() as $delivery) {
             // remove address from ShippingLocation
-            $property = ReflectionHelper::getProperty(ShippingLocation::class, 'address');
+            $property = new \ReflectionProperty(ShippingLocation::class, 'address');
             $property->setValue($delivery->getLocation(), null);
 
             foreach ($delivery->getPositions() as $position) {
@@ -1106,7 +1105,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondPriceRuleToShippingMethod($priceRuleId, $shippingMethodId);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1135,7 +1134,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1171,7 +1170,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1199,7 +1198,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_PRICE);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1226,7 +1225,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_WEIGHT);
         $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop = new \ReflectionProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
@@ -1407,7 +1406,7 @@ class RecalculationServiceTest extends TestCase
     private function resetPayloadProtection(Cart $cart): void
     {
         // remove delivery information from line items
-        $payloadProtection = ReflectionHelper::getProperty(LineItem::class, 'payloadProtection');
+        $payloadProtection = new \ReflectionProperty(LineItem::class, 'payloadProtection');
 
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $payloadProtection->setValue($lineItem, []);
@@ -2131,7 +2130,7 @@ class RecalculationServiceTest extends TestCase
         $deliveryTimeData = $this->createDeliveryTime();
 
         $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop = new \ReflectionProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $taxId = Uuid::randomHex();
@@ -2456,7 +2455,7 @@ class RecalculationServiceTest extends TestCase
     {
         $paymentMethodId = Uuid::randomHex();
         $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop = new \ReflectionProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [

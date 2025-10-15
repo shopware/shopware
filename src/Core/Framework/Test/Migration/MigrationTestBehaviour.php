@@ -76,7 +76,7 @@ trait MigrationTestBehaviour
     public function removeMigrationSources(): void
     {
         $loader = static::getContainer()->get(MigrationCollectionLoader::class);
-        $prop = ReflectionHelper::getProperty(MigrationCollectionLoader::class, 'migrationSources');
+        $prop = new \ReflectionProperty(MigrationCollectionLoader::class, 'migrationSources');
         $migrationSources = $prop->getValue($loader);
         unset($migrationSources['_test_migrations_invalid_namespace']);
         unset($migrationSources['_test_migrations_valid']);

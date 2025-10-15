@@ -30,7 +30,7 @@ abstract class AbstractDocumentRenderer
     /**
      * @param array<int, string> $ids
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     protected function getOrdersLanguageId(array $ids, string $versionId, Connection $connection): array
     {

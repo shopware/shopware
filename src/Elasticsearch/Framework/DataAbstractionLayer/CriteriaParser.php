@@ -449,7 +449,7 @@ class CriteriaParser
     }
 
     /**
-     * @return array<int, array<string, string|float>>
+     * @return list<array<string, string|float>>
      */
     private function getCheapestPriceAccessors(Context $context, bool $percentage = false): array
     {

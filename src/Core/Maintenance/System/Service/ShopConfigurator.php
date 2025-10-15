@@ -286,7 +286,7 @@ class ShopConfigurator
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getLocaleTranslations(string $localeId): array
     {

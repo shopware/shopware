@@ -49,16 +49,25 @@ class ErrorTest extends TestCase
 {
     public function testShippingMethodBlockedErrorSerialization(): void
     {
-        $error = new ShippingMethodBlockedError('foo');
+        $id = Uuid::randomHex();
+        $error = new ShippingMethodBlockedError(
+            id: $id,
+            name: 'foo',
+            reason: 'bar',
+        );
 
+        static::assertSame($id, $error->getShippingMethodId());
         static::assertSame('foo', $error->getName());
+        static::assertSame('bar', $error->getReason());
 
         $serialized = serialize($error);
 
         $unserialized = unserialize($serialized);
         static::assertInstanceOf(ShippingMethodBlockedError::class, $unserialized);
 
+        static::assertSame($id, $unserialized->getShippingMethodId());
         static::assertSame('foo', $unserialized->getName());
+        static::assertSame('bar', $unserialized->getReason());
     }
 
     #[DataProvider('serializationDataProvider')]
@@ -96,7 +105,7 @@ class ErrorTest extends TestCase
         yield GenericCartError::class => [new GenericCartError('foo', 'bar', [], Error::LEVEL_ERROR, false, false, false)];
         yield IncompleteLineItemError::class => [new IncompleteLineItemError('foo', 'bar')];
         yield CheckoutGatewayError::class => [new CheckoutGatewayError('foo', Error::LEVEL_NOTICE, true)];
-        yield PaymentMethodBlockedError::class => [new PaymentMethodBlockedError('foo', 'reason')];
+        yield PaymentMethodBlockedError::class => [new PaymentMethodBlockedError(id: Uuid::randomHex(), name: 'foo', reason: 'reason')];
         yield AutoPromotionNotFoundError::class => [new AutoPromotionNotFoundError('foo')];
         yield PromotionExcludedError::class => [new PromotionExcludedError('foo')];
         yield PromotionNotEligibleError::class => [new PromotionNotEligibleError('foo')];
@@ -104,14 +113,14 @@ class ErrorTest extends TestCase
         yield PromotionsOnCartPriceZeroError::class => [new PromotionsOnCartPriceZeroError(['foo', 'bar'])];
         yield PromotionCartAddedInformationError::class => [new PromotionCartAddedInformationError(self::createLineItem())];
         yield PromotionCartDeletedInformationError::class => [new PromotionCartDeletedInformationError(self::createLineItem())];
-        yield ShippingMethodBlockedError::class => [new ShippingMethodBlockedError('foo')];
+        yield ShippingMethodBlockedError::class => [new ShippingMethodBlockedError(id: Uuid::randomHex(), name: 'foo')];
         yield MinOrderQuantityError::class => [new MinOrderQuantityError(Uuid::randomHex(), 'foo', 5)];
         yield ProductNotFoundError::class => [new ProductNotFoundError(Uuid::randomHex())];
         yield ProductOutOfStockError::class => [new ProductOutOfStockError(Uuid::randomHex(), 'foo')];
         yield ProductStockReachedError::class => [new ProductStockReachedError(Uuid::randomHex(), 'foo', 1)];
         yield PurchaseStepsError::class => [new PurchaseStepsError(Uuid::randomHex(), 'foo', 5)];
-        yield PaymentMethodChangedError::class => [new PaymentMethodChangedError('foo', 'bar')];
-        yield ShippingMethodChangedError::class => [new ShippingMethodChangedError('foo', 'bar')];
+        yield PaymentMethodChangedError::class => [new PaymentMethodChangedError(oldPaymentMethodId: Uuid::randomHex(), oldPaymentMethodName: 'foo', newPaymentMethodId: Uuid::randomHex(), newPaymentMethodName: 'bar')];
+        yield ShippingMethodChangedError::class => [new ShippingMethodChangedError(oldShippingMethodId: Uuid::randomHex(), oldShippingMethodName: 'foo', newShippingMethodId: Uuid::randomHex(), newShippingMethodName: 'bar')];
     }
 
     private static function createCustomerAddress(): CustomerAddressEntity

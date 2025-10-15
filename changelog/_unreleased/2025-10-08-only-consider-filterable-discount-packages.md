@@ -12,7 +12,7 @@ ___
 # Upgrade Information
 ## Add the correct interface to filterable price definitions
 If a price definition should be filterable, explicitly implement the `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
-
+___
 # Next Major Version Changes
 ## Filterable price definitions now require an explicit interface
 Previously, a price definition was treated as filterable when it implemented a `getFilter()` method. From now on, price definitions must explicitly implement the

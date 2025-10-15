@@ -68,6 +68,10 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
     });
 
+    await test.step('Set consent for product analytics', async () => {
+        // TO-DO: implement via UI once available and Feature flag is disabled by default
+    });
+
     await test.step('Navigate via Link to order page from Dashboard', async () => {
         await AdminDashboard.adminMenuOrder.click();
         await AdminDashboard.adminMenuOrderOverview.click();
@@ -168,6 +172,60 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(linkVisitedEventProperties.sw_link_type).toBe('internal');
         expect(linkVisitedEventProperties.sw_page_path).toBe('/sw/dashboard/index');
         expect(linkVisitedEventProperties.sw_page_name).toBe('sw.dashboard.index');
+
+        // Cleanup route so other tests are not affected
+        await AdminDashboard.page.unroute(PRODUCT_ANALYTICS_HOST, handler);
+    });
+});
+
+test.skip('As a merchant, I want to make sure no admin events are sent when I do not consent.', { tag: '@ProductAnalytics' }, async ({
+    ShopAdmin,
+    AdminDashboard,
+    AdminOrderListing,
+    }) => {
+
+    const captured: CapturedRequest[] = [];
+    const handler = async (route: Route) => {
+        const req: Request = route.request();
+        captured.push({
+            url: req.url(),
+            postData: req.postData(),
+            headers: req.headers(),
+        });
+        await route.abort();
+    };
+
+    await test.step('Do not set consent for product analytics', async () => {
+        // TO-DO: implement via UI once available and Feature flag is disabled by default
+
+    });
+
+   await test.step('Intercept and assert the api call to product analytics', async () => {
+
+        // Intercept the exact Amplitude ingestion endpoint.
+        await AdminDashboard.page.route(PRODUCT_ANALYTICS_HOST, handler);
+
+        // small pause for app init
+        await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
+    });
+
+
+
+    await test.step('Navigate via Link to order page from Dashboard', async () => {
+        await AdminDashboard.adminMenuOrder.click();
+        await AdminDashboard.adminMenuOrderOverview.click();
+        await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
+        // small pause for request to be sent
+        await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
+    });
+
+    await test.step('Validate no captured requests for product analytics', async () => {
+
+        // No requests should be captured
+        expect(captured.length).toBe(0);
+
+        const allEvents = parseCapturedEvents(captured);
+        expect(allEvents.length).toBe(0);
 
         // Cleanup route so other tests are not affected
         await AdminDashboard.page.unroute(PRODUCT_ANALYTICS_HOST, handler);

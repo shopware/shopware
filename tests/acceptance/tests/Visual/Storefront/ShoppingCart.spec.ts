@@ -17,10 +17,6 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.expects(StorefrontOffCanvasCart.headline).toBeVisible();
 
-        // await hideElements(StorefrontOffCanvasCart.page, [
-        //     '.cookie-permission-container',
-        // ]);
-
         await replaceElements(StorefrontOffCanvasCart.page, [
             '.product-detail-name',
             '.product-detail-description-title',
@@ -40,10 +36,6 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
         await ShopCustomer.expects(StorefrontOffCanvasCart.headline).toBeVisible();
         await StorefrontOffCanvasCart.goToCartButton.click();
 
-        // await hideElements(StorefrontOffCanvasCart.page, [
-        //     '.cookie-permission-container',
-        // ]);
-        
         await replaceElements(StorefrontCheckoutCart.page, [
             '.line-item-label',
             '.line-item-product-number',

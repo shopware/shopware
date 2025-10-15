@@ -193,6 +193,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
             ->scalarNode('max_limit')->end()
+            ->scalarNode('static_token')->end()
             ->arrayNode('api_browser')
                 ->children()
                 ->booleanNode('auth_required')

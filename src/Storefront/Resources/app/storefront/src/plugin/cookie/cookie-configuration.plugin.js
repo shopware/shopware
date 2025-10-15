@@ -2,18 +2,32 @@
  *
  * CookieConfiguration plugin
  * --------------------------
- * Renders the configuration template inside an offCanvas
+ * Manages cookie consent configuration with three modes:
+ * - 'required': Only technically required cookies
+ * - 'all': Accept all available cookies
+ * - 'selected': User-selected cookies from the offCanvas form
  *
- * Applies its "openOffCanvas"-eventHandler to the following selector:
+ * API-driven approach:
+ * Uses the `/store-api/cookie-groups` endpoint (see CookieRoute.php) to fetch
+ * cookie configuration including cookie-config-hash and cookie-preference values.
+ * The endpoint provides both cookie metadata and values, ensuring consistency
+ * between backend configuration and frontend cookie handling.
+ *
+ * Hash-based configuration tracking:
+ * Automatically resets to required cookies when cookie-config-hash changes,
+ * prompting users to review updated cookie settings.
+ *
+ * Rendering:
+ * Renders the configuration template inside an offCanvas via CookieController.php
+ *
+ * Event handlers:
+ * Applies its "openOffCanvas"-eventHandler to:
  * 1) '.js-cookie-configuration-button button'
  * 2) `[href="${window.router['frontend.cookie.offcanvas']}"]`
- *
  * Can be opened manually using the public method "openOffCanvas"
  *
- * The cookie form is defined via CookieController.php
- * Cookies marked as "required" (see CookieController.php) are ignored, since they are assumed to be set manually
- *
- * Configuration changes are pushed to the global (document) event "CookieConfiguration_Update"
+ * Events:
+ * Configuration changes are pushed to the global event "CookieConfiguration_Update"
  *
  * @sw-package framework
  */
@@ -26,7 +40,6 @@ import OffCanvas, { OffCanvasInstance } from 'src/plugin/offcanvas/offcanvas.plu
 import Plugin from 'src/plugin-system/plugin.class';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
-import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
 // These events will be published via a global (document) EventEmitter
 export const COOKIE_CONFIGURATION_UPDATE = 'CookieConfiguration_Update';
@@ -81,7 +94,6 @@ export default class CookieConfiguration extends Plugin {
             this.openRequestConsentOffCanvas(payload.route, payload.cookieName);
         });
 
-        // Subscribe to offcanvas close event to show cookie bar (not offcanvas) again when user closes without making a choice
         OffCanvasInstance.$emitter.subscribe('onCloseOffcanvas', this._onOffCanvasClose.bind(this));
     }
 
@@ -139,11 +151,11 @@ export default class CookieConfiguration extends Plugin {
             const checkboxes = Array.from(offCanvas.querySelectorAll('input[type="checkbox"]'));
 
             if (button) {
-                button.addEventListener(submitEvent, this._handleSubmit.bind(this, CookieStorage));
+                button.addEventListener(submitEvent, this._handleSubmit.bind(this));
             }
 
             if (buttonAcceptAll) {
-                buttonAcceptAll.addEventListener(submitEvent, this._acceptAllCookiesFromOffCanvas.bind(this, CookieStorage));
+                buttonAcceptAll.addEventListener(submitEvent, this._acceptAllCookiesFromOffCanvas.bind(this));
             }
 
             checkboxes.forEach(checkbox => {
@@ -200,7 +212,7 @@ export default class CookieConfiguration extends Plugin {
 
         const data = await this._fetchCookieGroups();
         if (!data) {
-            return; // Error already logged in _fetchCookieGroups
+            return;
         }
 
         const currentHash = data.hash;
@@ -215,12 +227,12 @@ export default class CookieConfiguration extends Plugin {
 
     /**
      * Reset cookie configuration when hash has changed
+     * Resets to technically required cookies only
      * @private
      */
     async _resetCookieConfiguration(data) {
         const cookieGroups = data.elements || [];
-        const activeCookieNames = this._applyTechnicallyRequiredCookies(cookieGroups);
-        const { inactiveCookieNames } = this._getCurrentCookieState(cookieGroups, activeCookieNames);
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required');
 
         CookieStorage.removeItem(this.options.cookiePreference);
 
@@ -249,165 +261,128 @@ export default class CookieConfiguration extends Plugin {
         return ['session-', 'timezone'];
     }
 
-    /**
-     * Process a single cookie entry and add to cookies array if not PHP managed
-     * @param {string} cookie - Cookie name
-     * @param {string} value - Cookie value
-     * @param {number} expiration - Cookie expiration
-     * @param {Array} phpManagedCookies - Array of PHP managed cookie names
-     * @param {Array} cookiesToSet - Array to add non-PHP managed cookies to
-     * @private
-     */
-    _processCookieEntry(cookie, value, expiration, phpManagedCookies, cookiesToSet) {
-        if (!cookie || !value) {
-            return;
-        }
-
-        const isPhpManaged = phpManagedCookies.some(phpCookie => cookie === phpCookie);
-
-        if (!isPhpManaged) {
-            cookiesToSet.push({
-                cookie,
-                value,
-                expiration: expiration || this._getDefaultCookieExpiration(),
-            });
-        }
-    }
-
-    /**
-     * Get technically required cookies that should be set (excludes PHP-managed ones)
-     * @param {Array} cookieGroups - Array of cookie groups from API
-     * @returns {Array} Array of cookie objects that should be set
-     * @private
-     */
-    _getTechnicallyRequiredCookiesToSet(cookieGroups) {
-        const phpManagedCookies = this._getTechnicallyRequiredCookieNames();
-        const cookiesToSet = [];
-
-        for (let i = 0; i < cookieGroups.length; i++) {
-            const group = cookieGroups[i];
-
-            if (!group.isRequired) {
-                continue;
-            }
-
-            // Process group entries
-            if (group.entries) {
-                for (let j = 0; j < group.entries.length; j++) {
-                    const entry = group.entries[j];
-                    this._processCookieEntry(
-                        entry.cookie,
-                        entry.value,
-                        entry.expiration,
-                        phpManagedCookies,
-                        cookiesToSet
-                    );
-                }
-            }
-
-            // Process direct group cookie
-            if (group.cookie || group.value) {
-                this._processCookieEntry(
-                    group.cookie,
-                    group.value,
-                    group.expiration,
-                    phpManagedCookies,
-                    cookiesToSet
-                );
-            }
-        }
-
-        return cookiesToSet;
-    }
-
-    /**
-     * Set technically required cookies and return the cookie names that were set
-     * @param {Array} cookieGroups - Array of cookie groups from API
-     * @returns {Array} Array of cookie names that were actually set
-     * @private
-     */
-    _setTechnicallyRequiredCookies(cookieGroups) {
-        const cookiesToSet = this._getTechnicallyRequiredCookiesToSet(cookieGroups);
-        const setCookieNames = [];
-
-        for (let i = 0; i < cookiesToSet.length; i++) {
-            const cookieData = cookiesToSet[i];
-            CookieStorage.setItem(cookieData.cookie, cookieData.value, cookieData.expiration);
-            setCookieNames.push(cookieData.cookie);
-        }
-
-        return setCookieNames;
-    }
-
-    /**
-     * Apply technically required cookies by removing non-required ones and setting required ones
-     * @param {Array} cookieGroups - Array of cookie groups from API
-     * @returns {Array} Array of active cookie names (PHP-managed + cookies that were set)
-     * @private
-     */
-    _applyTechnicallyRequiredCookies(cookieGroups) {
-        const allCookieNames = this._getAllCookieNamesFromGroups(cookieGroups);
-        this._removeAllNotTechnicalRequiredCookies(allCookieNames);
-
-        return [
-            ...this._getTechnicallyRequiredCookieNames(),
-            ...this._setTechnicallyRequiredCookies(cookieGroups),
-        ];
-    }
-
-    /**
-     * Calculate current cookie state (active and inactive cookie names)
-     * @param {Array} cookieGroups - Array of cookie groups from API
-     * @param {Array} activeCookieNames - Array of active cookie names
-     * @returns {Object} Object with activeCookieNames and inactiveCookieNames arrays
-     * @private
-     */
-    _getCurrentCookieState(cookieGroups, activeCookieNames) {
-        const allCookieNames = this._getAllCookieNamesFromGroups(cookieGroups);
-        const inactiveCookieNames = allCookieNames.filter(name => !activeCookieNames.includes(name));
-
-        return { activeCookieNames, inactiveCookieNames };
-    }
-
-    /**
-     * Remove all cookies from storage except technically required ones
-     * @private
-     */
-    _removeAllNotTechnicalRequiredCookies(cookieNames) {
-        const technicallyRequiredCookieNames = this._getTechnicallyRequiredCookieNames();
-
-        cookieNames.forEach(cookieName => {
-            const isTechnicallyRequired = technicallyRequiredCookieNames.some(requiredName =>
-                cookieName === requiredName
-            );
-
-            if (!isTechnicallyRequired) {
-                CookieStorage.removeItem(cookieName);
-            }
-        });
-    }
 
     async _handlePermission(event) {
         event.preventDefault();
 
         const data = await this._fetchCookieGroups();
         if (!data) {
-            return; // Error already logged in _fetchCookieGroups
+            return;
         }
 
         const cookieGroups = data.elements;
-        const activeCookieNames = this._applyTechnicallyRequiredCookies(cookieGroups);
-        const { inactiveCookieNames } = this._getCurrentCookieState(cookieGroups, activeCookieNames);
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required');
+
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
 
         this._hideCookieBar();
         this.closeOffCanvas();
     }
 
+    /**
+     * Unified cookie application method for all three cases:
+     * 1. Technical required only
+     * 2. Accept all
+     * 3. Selected cookies (from DOM checkboxes)
+     *
+     * @param {Array} cookieGroups - Array of cookie groups from API
+     * @param {string} mode - 'required' | 'all' | 'selected'
+     * @param {Array} selectedCookies - Array of selected cookie names (only for mode='selected')
+     * @returns {{activeCookieNames: Array, inactiveCookieNames: Array}}
+     * @private
+     */
+    _applyCookieConfiguration(cookieGroups, mode = 'all', selectedCookies = []) {
+        const phpManagedCookies = this._getTechnicallyRequiredCookieNames();
+        const allCookiesFromApi = this._extractAllCookiesFromGroups(cookieGroups);
+        const cookiesToSet = [];
+        const cookiesToRemove = [];
+
+        for (let i = 0; i < allCookiesFromApi.length; i++) {
+            const cookieData = allCookiesFromApi[i];
+            const shouldBeActive = mode === 'required' ? cookieData.isRequired
+                : mode === 'selected' ? (cookieData.isRequired || selectedCookies.includes(cookieData.cookie))
+                    : true;
+
+            if (shouldBeActive) {
+                cookiesToSet.push(cookieData);
+            } else {
+                cookiesToRemove.push(cookieData.cookie);
+            }
+        }
+
+        for (let i = 0; i < cookiesToRemove.length; i++) {
+            if (CookieStorage.getItem(cookiesToRemove[i])) {
+                CookieStorage.removeItem(cookiesToRemove[i]);
+            }
+        }
+
+        const activeCookieNames = [...phpManagedCookies];
+        for (let i = 0; i < cookiesToSet.length; i++) {
+            const cookieData = cookiesToSet[i];
+            const isPhpManaged = phpManagedCookies.some(phpCookie => cookieData.cookie === phpCookie);
+
+            if (!isPhpManaged) {
+                activeCookieNames.push(cookieData.cookie);
+            }
+
+            if (cookieData.value && !isPhpManaged) {
+                CookieStorage.setItem(
+                    cookieData.cookie,
+                    cookieData.value,
+                    cookieData.expiration || this._getDefaultCookieExpiration()
+                );
+            }
+        }
+
+        return {
+            activeCookieNames,
+            inactiveCookieNames: cookiesToRemove,
+        };
+    }
+
+    /**
+     * Extract all cookies from cookie groups (both entries and direct group cookies)
+     * @param {Array} cookieGroups - Array of cookie groups from API
+     * @returns {Array} Array of cookie data objects with {cookie, value, expiration, isRequired}
+     * @private
+     */
+    _extractAllCookiesFromGroups(cookieGroups) {
+        const cookies = [];
+
+        for (let i = 0; i < cookieGroups.length; i++) {
+            const group = cookieGroups[i];
+            const isRequired = group.isRequired || false;
+
+            if (group.entries) {
+                for (let j = 0; j < group.entries.length; j++) {
+                    const entry = group.entries[j];
+                    if (entry.cookie) {
+                        cookies.push({
+                            cookie: entry.cookie,
+                            value: entry.value,
+                            expiration: entry.expiration,
+                            isRequired,
+                        });
+                    }
+                }
+            }
+
+            if (group.cookie) {
+                cookies.push({
+                    cookie: group.cookie,
+                    value: group.value,
+                    expiration: group.expiration,
+                    isRequired,
+                });
+            }
+        }
+
+        return cookies;
+    }
+
     _handleUpdateListener(active, inactive) {
         const updatedCookies = this._getUpdatedCookies(active, inactive);
 
-        // Check if Google reCAPTCHA registration function exists, register plugins and initialize them (needed for cookieBar only technical required cookies)
         if (typeof window.registerGoogleReCaptchaPlugins === 'function') {
             window.registerGoogleReCaptchaPlugins();
             PluginManager.initializePlugins();
@@ -527,7 +502,6 @@ export default class CookieConfiguration extends Plugin {
         const { cookiePreference } = this.options;
         const hasPreference = CookieStorage.getItem(cookiePreference);
 
-        // If user closed offcanvas without making a cookie preference, show the cookie bar again
         if (!hasPreference) {
             this._checkAndShowCookieBarIfNeeded();
         }
@@ -747,119 +721,89 @@ export default class CookieConfiguration extends Plugin {
 
     /**
      * Event handler for the 'Save' button inside the offCanvas
-     *
-     * Removes unselected cookies, if already set
-     * Sets or refreshes selected cookies
+     * Uses the API endpoint to get cookie configuration and applies selected cookies from DOM
      *
      * @private
      */
-    _handleSubmit() {
-        const activeCookies = this._getCookies('active');
-        const inactiveCookies = this._getCookies('inactive');
-        const { cookiePreference } = this.options;
+    async _handleSubmit() {
+        const selectedCookiesFromDOM = this._getCookies('active')
+            .filter(({ required }) => !required)
+            .map(({ cookie }) => cookie);
 
-        const activeCookieNames = [];
-        const inactiveCookieNames = [];
+        const data = await this._fetchCookieGroups();
+        if (!data) {
+            return;
+        }
 
-        inactiveCookies.forEach(({ cookie }) => {
-            inactiveCookieNames.push(cookie);
-
-            if (CookieStorage.getItem(cookie)) {
-                CookieStorage.removeItem(cookie);
-            }
-        });
-
-        /**
-         * Cookies without value are passed to the updateListener
-         * ( see "_handleUpdateListener" method )
-         */
-        activeCookies.forEach(({ cookie, value, expiration }) => {
-            activeCookieNames.push(cookie);
-
-            if (cookie && value) {
-                CookieStorage.setItem(cookie, value, expiration);
-            }
-        });
-
-        CookieStorage.setItem(cookiePreference, '1', this._getDefaultCookieExpiration());
+        const cookieGroups = data.elements;
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(
+            cookieGroups,
+            'selected',
+            selectedCookiesFromDOM
+        );
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
 
     /**
-     * Accepts all cookies. Pass `true` to the loadIntoMemory parameter to load the DOM into memory instead of
-     * opening the OffCanvas menu.
+     * Public method to accept all cookies.
+     * Uses the API endpoint to fetch and accept all cookies.
      *
-     * @param loadIntoMemory
+     * @param {boolean} _loadIntoMemory - Deprecated parameter, kept for backward compatibility
+     * @deprecated The _loadIntoMemory parameter is deprecated and has no effect
      */
-    acceptAllCookies(loadIntoMemory = false) {
-        if (!loadIntoMemory) {
-            this._handleAcceptAll();
-            this.closeOffCanvas();
-
+    // eslint-disable-next-line no-unused-vars
+    async acceptAllCookies(_loadIntoMemory = false) {
+        const data = await this._fetchCookieGroups();
+        if (!data) {
             return;
         }
 
-        ElementLoadingIndicatorUtil.create(this.el);
+        const cookieGroups = data.elements;
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all');
 
-        const url = window.router['frontend.cookie.offcanvas'];
-
-        fetch(url, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        })
-            .then(response => response.text())
-            .then(response => {
-                const dom = new DOMParser().parseFromString(response, 'text/html');
-
-                this._handleAcceptAll(dom);
-
-                ElementLoadingIndicatorUtil.remove(this.el);
-                this._hideCookieBar();
-            });
+        this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
+        this._hideCookieBar();
+        this.closeOffCanvas();
     }
 
     /**
      * Event handler for the 'Allow all'-button in the cookie bar.
-     * It loads the DOM into memory before searching for, and accepting the cookies.
+     * Uses the API endpoint to fetch and accept all cookies.
      *
      * @private
      */
-    _acceptAllCookiesFromCookieBar() {
-        return this.acceptAllCookies(true);
+    async _acceptAllCookiesFromCookieBar() {
+        const data = await this._fetchCookieGroups();
+        if (!data) {
+            return;
+        }
+
+        const cookieGroups = data.elements;
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all');
+
+        this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
+        this._hideCookieBar();
     }
 
     /**
      * Event handler for the 'Allow all'-button in the off canvas view.
-     * It uses the DOM from the Off Canvas container to search for, and accept the cookies.
-     * After accepting, it closes the OffCanvas sidebar.
+     * Uses the API endpoint to fetch and accept all cookies, then closes the offcanvas.
      *
      * @private
      */
-    _acceptAllCookiesFromOffCanvas() {
-        return this.acceptAllCookies();
-    }
+    async _acceptAllCookiesFromOffCanvas() {
+        const data = await this._fetchCookieGroups();
+        if (!data) {
+            return;
+        }
 
-    /**
-     * This will set and refresh all registered cookies.
-     *
-     * @param {?(Document|HTMLElement)} offCanvas
-     * @private
-     */
-    _handleAcceptAll(offCanvas = null) {
-        const allCookies = this._getCookies('all', offCanvas);
-        this._setInitialState(allCookies);
-        const { cookiePreference } = this.options;
+        const cookieGroups = data.elements;
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all');
 
-        allCookies.forEach(({ cookie, value, expiration }) => {
-            if (cookie && value) {
-                CookieStorage.setItem(cookie, value, expiration);
-            }
-        });
-
-        CookieStorage.setItem(cookiePreference, '1', this._getDefaultCookieExpiration());
-
-        this._handleUpdateListener(allCookies.map(({ cookie }) => cookie), []);
+        this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
+        this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
 
     /**

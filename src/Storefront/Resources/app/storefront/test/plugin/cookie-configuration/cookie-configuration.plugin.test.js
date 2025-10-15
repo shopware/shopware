@@ -2,7 +2,6 @@ import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import CookieConfiguration, { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
-import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
 const template = `
     <div class="offcanvas-cookie">
@@ -64,7 +63,6 @@ const template = `
 
 describe('CookieConfiguration plugin tests', () => {
     let plugin;
-    let originalHref;
     let mockCookiePermissionPlugin;
 
     beforeEach(() => {
@@ -101,6 +99,10 @@ describe('CookieConfiguration plugin tests', () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
                 text: () => Promise.resolve(template),
+                json: () => Promise.resolve({
+                    hash: 'default-test-hash',
+                    elements: [],
+                }),
             })
         );
 
@@ -139,28 +141,66 @@ describe('CookieConfiguration plugin tests', () => {
         });
     });
 
-    test('Ensure all previously inactive cookies have been set after the "allow all" handler was executed', () => {
+    test('Ensure all previously inactive cookies have been set after the "allow all" handler was executed', async () => {
         const cookies = plugin._getCookies('inactive');
 
-        plugin._handleAcceptAll();
+        // Mock API response with cookie data
+        const mockCookieData = cookies.map(({ cookie }) => ({
+            cookie,
+            value: '1',
+            expiration: 30,
+        }));
+
+        global.fetch = jest.fn().mockResolvedValue({
+            json: jest.fn().mockResolvedValue({
+                hash: 'test-hash',
+                elements: mockCookieData,
+            }),
+        });
+
+        await plugin.acceptAllCookies();
 
         cookies.forEach(val => {
             void expect(CookieStorage.getItem(val.cookie)).toBeTruthy();
         });
+
+        global.fetch.mockRestore();
     });
 
-    test('The preference flag is set when cookie settings are submitted or all cookies are accepted', () => {
+    test('The preference flag is set when cookie settings are submitted or all cookies are accepted', async () => {
         expect(CookieStorage.getItem(plugin.options.cookiePreference)).toBeFalsy();
 
+        // Mock API response for submit
+        global.fetch = jest.fn().mockResolvedValue({
+            json: jest.fn().mockResolvedValue({
+                hash: 'test-hash',
+                elements: [
+                    {
+                        isRequired: true,
+                        entries: [
+                            {
+                                cookie: 'cookie-preference',
+                                value: '1',
+                                expiration: 30,
+                            },
+                        ],
+                    },
+                ],
+            }),
+        });
+
         // Test submit
-        plugin._handleSubmit();
+        await plugin._handleSubmit();
         expect(CookieStorage.getItem(plugin.options.cookiePreference)).toBeTruthy();
 
         CookieStorage.removeItem(plugin.options.cookiePreference);
         expect(CookieStorage.getItem(plugin.options.cookiePreference)).toBeFalsy();
 
-        plugin._handleAcceptAll();
+        // Test accept all
+        await plugin.acceptAllCookies();
         expect(CookieStorage.getItem(plugin.options.cookiePreference)).toBeTruthy();
+
+        global.fetch.mockRestore();
     });
 
     test('Ensure the COOKIE_CONFIGURATION_UPDATE event is fired with all previously inactive cookies', done => {
@@ -182,7 +222,21 @@ describe('CookieConfiguration plugin tests', () => {
 
         document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, cb);
 
-        plugin._handleAcceptAll();
+        // Mock API response with cookie data
+        const mockCookieData = cookies.map(({ cookie }) => ({
+            cookie,
+            value: '1',
+            expiration: 30,
+        }));
+
+        global.fetch = jest.fn().mockResolvedValue({
+            json: jest.fn().mockResolvedValue({
+                hash: 'test-hash',
+                elements: mockCookieData,
+            }),
+        });
+
+        plugin.acceptAllCookies().catch(done);
     });
 
     test('Ensure handleCustomLink opens the off-canvas-menu', () => {
@@ -217,7 +271,7 @@ describe('CookieConfiguration plugin tests', () => {
         expect(plugin.lastState.inactive).toEqual(optionalAndInactive);
     });
 
-    test('Ensure cookies deactivated by the user are removed when the preferences are submitted', () => {
+    test('Ensure cookies deactivated by the user are removed when the preferences are submitted', async () => {
         // These cookies are represented in the offcanvas.template.html
         const requiredAndActive = ['session-', 'timezone'];
         const optionalAndInactive = ['lorem', 'ipsum', 'dolor', 'sit'];
@@ -238,15 +292,101 @@ describe('CookieConfiguration plugin tests', () => {
 
         expect(checkbox.checked).toBeFalsy();
 
-        plugin._handleSubmit();
+        // Mock API response for submit
+        global.fetch = jest.fn().mockResolvedValue({
+            json: jest.fn().mockResolvedValue({
+                hash: 'test-hash',
+                elements: [
+                    {
+                        isRequired: true,
+                        entries: [
+                            {
+                                cookie: 'cookie-preference',
+                                value: '1',
+                                expiration: 30,
+                            },
+                        ],
+                    },
+                    {
+                        isRequired: false,
+                        entries: optionalAndInactive.map(cookie => ({
+                            cookie,
+                            value: '1',
+                            expiration: 30,
+                        })),
+                    },
+                ],
+            }),
+        });
+
+        await plugin._handleSubmit();
 
         expect(CookieStorage.getItem(optionalAndInactive[0])).toBeFalsy();
+
+        global.fetch.mockRestore();
     });
 
-    test('Ensure that it sets the `loadIntoMemory` flag is set if the accept all button is pressed', () => {
-        plugin._acceptAllCookiesFromCookieBar();
+    test('Accept all button from cookie bar fetches cookie groups from API', async () => {
+        const mockResponse = {
+            hash: 'test-hash-123',
+            elements: [
+                {
+                    isRequired: true,
+                    entries: [
+                        {
+                            cookie: 'cookie-preference',
+                            value: '1',
+                            expiration: 30,
+                        },
+                        {
+                            cookie: 'cookie-config-hash',
+                            value: 'test-hash-123',
+                            expiration: 30,
+                        },
+                    ],
+                },
+                {
+                    isRequired: false,
+                    entries: [
+                        {
+                            cookie: 'analytics',
+                            value: '1',
+                            expiration: 30,
+                        },
+                    ],
+                },
+            ],
+        };
 
-        expect(global.fetch).toHaveBeenCalledWith('https://shop.example.com/offcanvas', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        global.fetch = jest.fn().mockResolvedValue({
+            json: jest.fn().mockResolvedValue(mockResponse),
+        });
+
+        const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+
+        await plugin._acceptAllCookiesFromCookieBar();
+
+        expect(global.fetch).toHaveBeenCalledWith('/cookie/groups', {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+
+        // Check that cookie preference was set from the entries
+        expect(setItemSpy).toHaveBeenCalledWith(
+            'cookie-preference',
+            '1',
+            30
+        );
+
+        // Check that cookie hash was set from the entries
+        expect(setItemSpy).toHaveBeenCalledWith(
+            'cookie-config-hash',
+            'test-hash-123',
+            30
+        );
+
+        setItemSpy.mockRestore();
+        global.fetch.mockRestore();
     });
 
     test('openRequestConsentOffCanvas sets lastTriggerElement and calls AjaxOffCanvas.open', () => {
@@ -385,7 +525,9 @@ describe('CookieConfiguration plugin tests', () => {
                         isRequired: true,
                         entries: [
                             { cookie: 'session-', value: 'abc123', expiration: 30 }, // PHP-managed, should not be set
-                            { cookie: 'csrf-token', value: 'xyz789', expiration: 30 } // Should be set
+                            { cookie: 'csrf-token', value: 'xyz789', expiration: 30 }, // Should be set
+                            { cookie: 'cookie-preference', value: '1', expiration: 30 }, // Should be set
+                            { cookie: 'cookie-config-hash', value: newHash, expiration: 30 } // Should be set
                         ]
                     },
                     {
@@ -425,11 +567,12 @@ describe('CookieConfiguration plugin tests', () => {
             await plugin._checkCookieConfigurationHash();
 
             // Verify hash mismatch detected and only non-technically required cookies are reset
-            expect(removeItemSpy).not.toHaveBeenCalledWith('session-'); // session cookies are technically required, should not be removed
             expect(removeItemSpy).toHaveBeenCalledWith('analytics'); // not technically required, should be removed
 
             // Verify technically required cookies are set (excluding PHP-managed ones)
             expect(setItemSpy).toHaveBeenCalledWith('csrf-token', 'xyz789', 30); // Required but not PHP-managed
+            expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', 30); // Required
+            expect(setItemSpy).toHaveBeenCalledWith('cookie-config-hash', newHash, 30); // Required
             expect(setItemSpy).not.toHaveBeenCalledWith('session-', 'abc123', 30); // PHP-managed, should not be set
 
             // Verify _checkAndShowCookieBarIfNeeded was called
@@ -445,9 +588,12 @@ describe('CookieConfiguration plugin tests', () => {
             expect(mockCookiePermissionPlugin._setBodyPadding).toHaveBeenCalled();
 
             // Verify update listener called with shared logic behavior
-            // Active: PHP-managed cookies + technically required cookies that were set
+            // Active: PHP-managed cookies + technically required cookies that were set (excluding cookie-preference which is explicitly removed during reset)
             // Inactive: remaining cookies (analytics in this case)
-            expect(handleUpdateListenerSpy).toHaveBeenCalledWith(['session-', 'timezone', 'csrf-token'], ['analytics']);
+            expect(handleUpdateListenerSpy).toHaveBeenCalledWith(
+                ['session-', 'timezone', 'csrf-token', 'cookie-config-hash'],
+                ['analytics']
+            );
 
             setItemSpy.mockRestore();
             removeItemSpy.mockRestore();
@@ -532,174 +678,6 @@ describe('CookieConfiguration plugin tests', () => {
             expect(result).toEqual(['session-', 'timezone']);
         });
 
-        test('_removeAllNotTechnicalRequiredCookies removes only non-required cookies', () => {
-            const cookieNames = ['session-', 'timezone', 'analytics', 'tracking'];
-            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
-
-            plugin._removeAllNotTechnicalRequiredCookies(cookieNames);
-
-            expect(removeItemSpy).not.toHaveBeenCalledWith('session-');
-            expect(removeItemSpy).not.toHaveBeenCalledWith('timezone');
-            expect(removeItemSpy).toHaveBeenCalledWith('analytics');
-            expect(removeItemSpy).toHaveBeenCalledWith('tracking');
-
-            removeItemSpy.mockRestore();
-        });
-
-        test('_getTechnicallyRequiredCookiesToSet returns correct cookie objects', () => {
-            const cookieGroups = [
-                {
-                    isRequired: true,
-                    entries: [
-                        { cookie: 'session-', value: 'abc123', expiration: 30 }, // Should NOT be included (PHP-managed)
-                        { cookie: 'csrf-token', value: 'xyz789', expiration: 30 }, // Should be included
-                        { cookie: 'timezone', value: 'Europe/Berlin', expiration: 365 } // Should NOT be included (PHP-managed)
-                    ]
-                },
-                {
-                    isRequired: true,
-                    cookie: 'security-token', // Standalone cookie
-                    value: 'sec123',
-                    expiration: 60
-                },
-                {
-                    isRequired: true,
-                    cookie: 'session-custom', // Should be included (doesn't exactly match session-)
-                    value: 'custom',
-                    expiration: 30
-                },
-                {
-                    isRequired: false, // Should be ignored
-                    entries: [
-                        { cookie: 'analytics', value: '1', expiration: 365 }
-                    ]
-                }
-            ];
-
-            const result = plugin._getTechnicallyRequiredCookiesToSet(cookieGroups);
-
-            expect(result).toEqual([
-                { cookie: 'csrf-token', value: 'xyz789', expiration: 30 },
-                { cookie: 'security-token', value: 'sec123', expiration: 60 },
-                { cookie: 'session-custom', value: 'custom', expiration: 30 }
-            ]);
-        });
-
-        test('_setTechnicallyRequiredCookies sets cookies and returns cookie names', () => {
-            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
-            const cookieGroups = [
-                {
-                    isRequired: true,
-                    entries: [
-                        { cookie: 'session-', value: 'abc123', expiration: 30 }, // Should NOT be set (PHP-managed)
-                        { cookie: 'csrf-token', value: 'xyz789', expiration: 30 }, // Should be set
-                        { cookie: 'timezone', value: 'Europe/Berlin', expiration: 365 } // Should NOT be set (PHP-managed)
-                    ]
-                },
-                {
-                    isRequired: true,
-                    cookie: 'security-token', // Standalone cookie
-                    value: 'sec123',
-                    expiration: 60
-                },
-                {
-                    isRequired: true,
-                    cookie: 'session-custom', // Should be set (doesn't exactly match session-)
-                    value: 'custom',
-                    expiration: 30
-                },
-                {
-                    isRequired: false, // Should be ignored
-                    entries: [
-                        { cookie: 'analytics', value: '1', expiration: 365 }
-                    ]
-                }
-            ];
-
-            const result = plugin._setTechnicallyRequiredCookies(cookieGroups);
-
-            // Should set non-PHP-managed required cookies
-            expect(setItemSpy).toHaveBeenCalledWith('csrf-token', 'xyz789', 30);
-            expect(setItemSpy).toHaveBeenCalledWith('security-token', 'sec123', 60);
-            expect(setItemSpy).toHaveBeenCalledWith('session-custom', 'custom', 30); // Allowed since it doesn't exactly match
-
-            // Should NOT set exact PHP-managed cookies
-            expect(setItemSpy).not.toHaveBeenCalledWith('session-', 'abc123', 30);
-            expect(setItemSpy).not.toHaveBeenCalledWith('timezone', 'Europe/Berlin', 365);
-
-            // Should NOT set non-required cookies
-            expect(setItemSpy).not.toHaveBeenCalledWith('analytics', '1', 365);
-
-            // Should return the cookie names that were set
-            expect(result).toEqual(['csrf-token', 'security-token', 'session-custom']);
-
-            setItemSpy.mockRestore();
-        });
-
-        test('_setTechnicallyRequiredCookies handles edge cases gracefully', () => {
-            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
-            const cookieGroups = [
-                {
-                    isRequired: true,
-                    entries: [
-                        { cookie: 'valid-cookie', value: 'valid', expiration: 30 },
-                        { cookie: 'no-expiration-cookie', value: 'valid' }, // Missing expiration - should use default
-                        { cookie: 'incomplete-cookie' }, // Missing value
-                        { cookie: '', value: 'empty-name', expiration: 30 }, // Empty cookie name
-                        { value: 'no-name', expiration: 30 } // Missing cookie name
-                    ]
-                },
-                {
-                    isRequired: true,
-                    // Missing cookie, value, and expiration for standalone
-                },
-                {
-                    // Missing isRequired flag - should be ignored
-                    entries: [
-                        { cookie: 'should-be-ignored', value: 'value', expiration: 30 }
-                    ]
-                }
-            ];
-
-            const result = plugin._setTechnicallyRequiredCookies(cookieGroups);
-
-            // Should set cookies with values (using default expiration when missing)
-            expect(setItemSpy).toHaveBeenCalledWith('valid-cookie', 'valid', 30);
-            expect(setItemSpy).toHaveBeenCalledWith('no-expiration-cookie', 'valid', 30); // Default expiration
-            expect(setItemSpy).toHaveBeenCalledTimes(2);
-
-            // Should return the cookie names that were set
-            expect(result).toEqual(['valid-cookie', 'no-expiration-cookie']);
-
-            setItemSpy.mockRestore();
-        });
-
-        test('_setTechnicallyRequiredCookies sets cookies without expiration using default', () => {
-            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
-            const cookieGroups = [
-                {
-                    isRequired: true,
-                    entries: [
-                        { cookie: 'session-', value: 'session123' }, // PHP-managed, should not be set
-                        { cookie: '_GRECAPTCHA', value: '1' }, // Should be set with default expiration
-                        { cookie: 'cookie-preference', value: '1', expiration: 30 } // Should be set
-                    ]
-                }
-            ];
-
-            const result = plugin._setTechnicallyRequiredCookies(cookieGroups);
-
-            // Should set non-PHP-managed cookies with default expiration when missing
-            expect(setItemSpy).toHaveBeenCalledWith('_GRECAPTCHA', '1', 30); // Default expiration
-            expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', 30); // Explicit expiration
-            expect(setItemSpy).not.toHaveBeenCalledWith('session-', 'session123', 30); // PHP-managed
-            expect(setItemSpy).toHaveBeenCalledTimes(2);
-
-            // Should return the cookie names that were set
-            expect(result).toEqual(['_GRECAPTCHA', 'cookie-preference']);
-
-            setItemSpy.mockRestore();
-        });
     });
 
     describe('_handlePermission', () => {
@@ -714,7 +692,7 @@ describe('CookieConfiguration plugin tests', () => {
             jest.restoreAllMocks();
         });
 
-        test('calls storefront route and removes all not technically required cookies', async () => {
+        test('calls storefront route and sets only required cookies', async () => {
             const mockApiResponse = {
                 hash: 'test123hash',
                 elements: [
@@ -767,6 +745,10 @@ describe('CookieConfiguration plugin tests', () => {
                 json: () => Promise.resolve(mockApiResponse)
             });
 
+            // Set non-required cookies first
+            CookieStorage.setItem('analytics', '1', 365);
+            CookieStorage.setItem('tracking', '1', 90);
+
             const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
             const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
             const closeOffCanvasSpy = jest.spyOn(plugin, 'closeOffCanvas');
@@ -784,9 +766,7 @@ describe('CookieConfiguration plugin tests', () => {
                 },
             });
 
-            // Verify only non-technically required cookies are removed
-            expect(removeItemSpy).not.toHaveBeenCalledWith('session-'); // session cookies are technically required
-            expect(removeItemSpy).toHaveBeenCalledWith('csrf-token'); // not in the technically required list
+            // Verify non-required cookies are removed
             expect(removeItemSpy).toHaveBeenCalledWith('analytics');
             expect(removeItemSpy).toHaveBeenCalledWith('tracking');
 
@@ -794,7 +774,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(setItemSpy).toHaveBeenCalledWith('csrf-token', 'xyz789', 30); // Required but not PHP-managed
             expect(setItemSpy).not.toHaveBeenCalledWith('session-', 'abc123', 30); // PHP-managed, should not be set
 
-            // Verify preference cookies are set by shared function
+            // Verify preference cookies are set
             expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', 30);
             expect(setItemSpy).toHaveBeenCalledWith('cookie-config-hash', 'test123hash', 30);
 
@@ -802,7 +782,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(setItemSpy).not.toHaveBeenCalledWith('analytics', '1', 365);
             expect(setItemSpy).not.toHaveBeenCalledWith('tracking', '1', 90);
 
-            // Verify total call count (3 required cookies: csrf-token, cookie-preference, cookie-config-hash)
+            // Verify total call count (3 required cookies: csrf-token, cookie-preference, cookie-config-hash from entries)
             expect(setItemSpy).toHaveBeenCalledTimes(3);
 
             // Verify update listener called with correct parameters
@@ -857,6 +837,9 @@ describe('CookieConfiguration plugin tests', () => {
                 json: () => Promise.resolve(mockApiResponse)
             });
 
+            // Set the non-required cookie first
+            CookieStorage.setItem('ga_tracking', 'GA1.2.123456789', 365);
+
             const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
             const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
 
@@ -864,21 +847,20 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._handlePermission(event);
 
-            // Verify only non-technically required cookies are removed first
-            expect(removeItemSpy).toHaveBeenCalledWith('PHPSESSID'); // not in the technically required list (session, timezone)
+            // Verify only non-required cookies are removed
             expect(removeItemSpy).toHaveBeenCalledWith('ga_tracking'); // not technically required
 
             // Verify technically required cookie is set (PHPSESSID is required but not PHP-managed)
             expect(setItemSpy).toHaveBeenCalledWith('PHPSESSID', 'session123', 30);
 
-            // Verify preference cookies are set by shared function
+            // Verify preference cookies are set
             expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', 30);
             expect(setItemSpy).toHaveBeenCalledWith('cookie-config-hash', 'standalone123hash', 30);
 
             // Verify non-required standalone cookie is NOT set
             expect(setItemSpy).not.toHaveBeenCalledWith('ga_tracking', 'GA1.2.123456789', 365);
 
-            // Verify total call count (3 required cookies: PHPSESSID, cookie-preference, cookie-config-hash)
+            // Verify total call count (3: PHPSESSID, cookie-preference, cookie-config-hash)
             expect(setItemSpy).toHaveBeenCalledTimes(3);
 
             setItemSpy.mockRestore();
@@ -924,7 +906,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(setItemSpy).toHaveBeenCalledWith('cookie-preference', '1', 30);
             expect(setItemSpy).toHaveBeenCalledWith('cookie-config-hash', 'empty123hash', 30);
 
-            // Verify total call count (2 required cookies)
+            // Verify total call count (2: cookie-preference, cookie-config-hash from entries)
             expect(setItemSpy).toHaveBeenCalledTimes(2);
 
             // PHP-managed cookies + cookies we set are considered active
@@ -1072,25 +1054,78 @@ describe('CookieConfiguration plugin tests', () => {
             expect(result).toEqual([]);
         });
 
-        test('acceptAllCookies with loadIntoMemory=true creates loading indicator', () => {
-            const createSpy = jest.spyOn(ElementLoadingIndicatorUtil, 'create').mockImplementation();
-            const removeSpy = jest.spyOn(ElementLoadingIndicatorUtil, 'remove').mockImplementation();
+        test('acceptAllCookies fetches cookie groups and sets all cookies', async () => {
+            const mockResponse = {
+                hash: 'test-hash-456',
+                elements: [
+                    {
+                        isRequired: true,
+                        entries: [
+                            {
+                                cookie: 'cookie-preference',
+                                value: '1',
+                                expiration: 30,
+                            },
+                            {
+                                cookie: 'cookie-config-hash',
+                                value: 'test-hash-456',
+                                expiration: 30,
+                            },
+                        ],
+                    },
+                    {
+                        isRequired: false,
+                        entries: [
+                            {
+                                cookie: 'analytics',
+                                value: '1',
+                                expiration: 30,
+                            },
+                            {
+                                cookie: 'marketing',
+                                value: '1',
+                                expiration: 60,
+                            },
+                        ],
+                    },
+                ],
+            };
 
-            global.fetch = jest.fn(() => Promise.resolve({
-                text: () => Promise.resolve(template)
-            }));
-
-            plugin.acceptAllCookies(true);
-
-            expect(createSpy).toHaveBeenCalledWith(plugin.el);
-
-            // Wait for async operations to complete
-            return new Promise(resolve => setTimeout(resolve, 0)).then(() => {
-                expect(removeSpy).toHaveBeenCalledWith(plugin.el);
-
-                createSpy.mockRestore();
-                removeSpy.mockRestore();
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue(mockResponse),
             });
+
+            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+
+            await plugin.acceptAllCookies(true);
+
+            expect(global.fetch).toHaveBeenCalledWith('/cookie/groups', {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+
+            // Check that cookie preference was set from the entries
+            expect(setItemSpy).toHaveBeenCalledWith(
+                'cookie-preference',
+                '1',
+                30
+            );
+
+            // Check that cookie hash was set from the entries
+            expect(setItemSpy).toHaveBeenCalledWith(
+                'cookie-config-hash',
+                'test-hash-456',
+                30
+            );
+
+            // Check that analytics cookie was set
+            expect(setItemSpy).toHaveBeenCalledWith('analytics', '1', 30);
+
+            // Check that marketing cookie was set
+            expect(setItemSpy).toHaveBeenCalledWith('marketing', '1', 60);
+
+            setItemSpy.mockRestore();
+            global.fetch.mockRestore();
         });
     });
 
@@ -1311,7 +1346,7 @@ describe('CookieConfiguration plugin tests', () => {
 
         test('openRequestConsentOffCanvas callback with offcanvas element', () => {
             const registerEventsSpy = jest.spyOn(plugin, '_registerConsentOffcanvasEvents');
-            const openSpy = jest.spyOn(AjaxOffCanvas, 'open').mockImplementation((route, reload, callback) => {
+            const openSpy = jest.spyOn(AjaxOffCanvas, 'open').mockImplementation((_route, _reload, callback) => {
                 callback();
             });
 
@@ -1408,7 +1443,7 @@ describe('CookieConfiguration plugin tests', () => {
             document.querySelector = jest.fn(() => null); // No offcanvas found
 
             const registerEventsSpy = jest.spyOn(plugin, '_registerConsentOffcanvasEvents');
-            const openSpy = jest.spyOn(AjaxOffCanvas, 'open').mockImplementation((route, reload, callback) => {
+            const openSpy = jest.spyOn(AjaxOffCanvas, 'open').mockImplementation((_route, _reload, callback) => {
                 // Simulate the callback execution
                 callback();
             });
@@ -1450,45 +1485,114 @@ describe('CookieConfiguration plugin tests', () => {
     });
 
     describe('Cookie Handling Edge Cases', () => {
-        test('_handleSubmit with cookies without values', () => {
-            // Test line 605 coverage - cookies without values should not be set
-            const mockCookies = [
-                { cookie: 'valid-cookie', value: '1', expiration: 30 },
-                { cookie: 'invalid-cookie', value: null, expiration: 30 },
-                { cookie: 'empty-cookie', value: '', expiration: 30 }
-            ];
+        test('_handleSubmit with cookies without values', async () => {
+            // Test that cookies without values are not set
+            const mockResponse = {
+                hash: 'test-hash',
+                elements: [
+                    {
+                        isRequired: true,
+                        entries: [
+                            { cookie: 'cookie-preference', value: '1', expiration: 30 },
+                        ],
+                    },
+                    {
+                        isRequired: false,
+                        entries: [
+                            { cookie: 'valid-cookie', value: '1', expiration: 30 },
+                            { cookie: 'invalid-cookie', value: null, expiration: 30 }, // No value
+                            { cookie: 'empty-cookie', value: '', expiration: 30 }, // Empty value
+                        ],
+                    },
+                ],
+            };
 
-            const getCookiesSpy = jest.spyOn(plugin, '_getCookies').mockReturnValue(mockCookies);
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue(mockResponse),
+            });
+
+            // Find the offcanvas element and add test checkboxes
+            const offcanvas = plugin._getOffCanvas();
+            const cookieList = offcanvas.querySelector('.offcanvas-cookie-list');
+
+            // Create a test cookie group
+            const testGroup = document.createElement('div');
+            testGroup.className = 'offcanvas-cookie-group';
+            testGroup.innerHTML = `
+                <div class="offcanvas-cookie-entries">
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_valid-cookie" checked="checked" data-cookie="valid-cookie" data-cookie-value="1" data-cookie-expiration="30">
+                    </div>
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_invalid-cookie" checked="checked" data-cookie="invalid-cookie">
+                    </div>
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_empty-cookie" checked="checked" data-cookie="empty-cookie" data-cookie-value="">
+                    </div>
+                </div>
+            `;
+            cookieList.appendChild(testGroup);
+
             const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
 
-            plugin._handleSubmit();
+            await plugin._handleSubmit();
 
-            // Should only set valid cookies
+            // Should only set valid cookies with values (invalid and empty should not be set due to missing/empty values)
             expect(setItemSpy).toHaveBeenCalledWith('valid-cookie', '1', 30);
             expect(setItemSpy).not.toHaveBeenCalledWith('invalid-cookie', null, 30);
             expect(setItemSpy).not.toHaveBeenCalledWith('empty-cookie', '', 30);
 
-            getCookiesSpy.mockRestore();
+            // Cleanup
+            cookieList.removeChild(testGroup);
             setItemSpy.mockRestore();
+            global.fetch.mockRestore();
         });
 
-        test('acceptAllCookies methods work correctly with different contexts', () => {
-            const closeOffCanvasSpy = jest.spyOn(plugin, 'closeOffCanvas');
-            const handleAcceptAllSpy = jest.spyOn(plugin, '_handleAcceptAll');
-            const acceptAllCookiesSpy = jest.spyOn(plugin, 'acceptAllCookies');
+        test('acceptAllCookies methods work correctly with different contexts', async () => {
+            const mockResponse = {
+                hash: 'test-hash-789',
+                elements: [
+                    {
+                        isRequired: false,
+                        entries: [
+                            {
+                                cookie: 'analytics',
+                                value: '1',
+                                expiration: 30,
+                            },
+                        ],
+                    },
+                ],
+            };
 
-            // Test acceptAllCookies without loadIntoMemory
-            plugin.acceptAllCookies(false);
-            expect(handleAcceptAllSpy).toHaveBeenCalled();
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue(mockResponse),
+            });
+
+            const closeOffCanvasSpy = jest.spyOn(plugin, 'closeOffCanvas').mockImplementation();
+            const fetchCookieGroupsSpy = jest.spyOn(plugin, '_fetchCookieGroups');
+            const applyCookieConfigurationSpy = jest.spyOn(plugin, '_applyCookieConfiguration');
+
+            // Test acceptAllCookies
+            await plugin.acceptAllCookies(false);
+            expect(fetchCookieGroupsSpy).toHaveBeenCalled();
+            expect(applyCookieConfigurationSpy).toHaveBeenCalledWith(mockResponse.elements, 'all');
             expect(closeOffCanvasSpy).toHaveBeenCalled();
 
             // Test _acceptAllCookiesFromOffCanvas
-            plugin._acceptAllCookiesFromOffCanvas();
-            expect(acceptAllCookiesSpy).toHaveBeenCalledWith();
+            fetchCookieGroupsSpy.mockClear();
+            applyCookieConfigurationSpy.mockClear();
+            closeOffCanvasSpy.mockClear();
+
+            await plugin._acceptAllCookiesFromOffCanvas();
+            expect(fetchCookieGroupsSpy).toHaveBeenCalled();
+            expect(applyCookieConfigurationSpy).toHaveBeenCalledWith(mockResponse.elements, 'all');
+            expect(closeOffCanvasSpy).toHaveBeenCalled();
 
             closeOffCanvasSpy.mockRestore();
-            handleAcceptAllSpy.mockRestore();
-            acceptAllCookiesSpy.mockRestore();
+            fetchCookieGroupsSpy.mockRestore();
+            applyCookieConfigurationSpy.mockRestore();
+            global.fetch.mockRestore();
         });
     });
 

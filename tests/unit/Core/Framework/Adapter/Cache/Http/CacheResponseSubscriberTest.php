@@ -88,6 +88,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $customer = new CustomerEntity();
@@ -120,6 +123,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $request = new Request();
@@ -147,6 +153,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $request = new Request();
@@ -174,6 +183,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $request = new Request();
@@ -205,6 +217,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -289,6 +304,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $customer = new CustomerEntity();
@@ -334,6 +352,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -390,6 +411,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $request = new Request();
@@ -436,6 +460,9 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
         );
 
         $request = new Request();
@@ -471,6 +498,18 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [
+                'uncacheable-policy' => [
+                    'no_cache' => true,
+                    'private' => true,
+                ],
+            ],
+            [
+                'storefront' => [
+                    'uncacheable' => 'uncacheable-policy',
+                ],
+            ],
+            [],
         );
 
         $response = new Response();
@@ -571,6 +610,18 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [
+                'uncacheable-policy' => [
+                    'no_cache' => true,
+                    'private' => true,
+                ],
+            ],
+            [
+                'storefront' => [
+                    'uncacheable' => 'uncacheable-policy',
+                ],
+            ],
+            [],
         );
 
         $request = new Request();
@@ -597,6 +648,7 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 
+    #[DisabledFeatures(['HTTP_CACHE_POLICIES'])]
     public function testMakeGetsCached(): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -610,6 +662,54 @@ class CacheResponseSubscriberTest extends TestCase
             '6',
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [],
+            [],
+            [],
+        );
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
+
+        $response = new Response();
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        static::assertSame('public, s-maxage=100, stale-if-error=6, stale-while-revalidate=5', $response->headers->get('cache-control'));
+    }
+
+    public function testAppliesPoliciesToGet(): void
+    {
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            $this->createMock(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            new RequestStack(),
+            '1', // should be ignored in favor of policy
+            '2', // should be ignored in favor of policy
+            $this->eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            [
+                'test-policy' => [
+                    'public' => true,
+                    'stale_while_revalidate' => 5,
+                    'stale_if_error' => 6,
+                    's_maxage' => 100,
+                ],
+            ],
+            [
+                'storefront' => [
+                    'cacheable' => 'test-policy',
+                ],
+            ],
+            [],
         );
 
         $request = new Request();
@@ -831,9 +931,9 @@ class CacheResponseSubscriberTest extends TestCase
             $subscriberConfig['staleIfError'] ?? null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
-            $subscriberConfig['storeApiDefaultTtl'] ?? null,
-            $subscriberConfig['storeApiStaleWhileRevalidate'] ?? null,
-            $subscriberConfig['storeApiStaleIfError'] ?? null,
+            $subscriberConfig['policies'] ?? [],
+            $subscriberConfig['defaultPolicies'] ?? [],
+            $subscriberConfig['routePolicies'] ?? [],
         );
 
         $request = new Request();
@@ -875,76 +975,107 @@ class CacheResponseSubscriberTest extends TestCase
             PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
         ];
 
-        yield 'Store API with defaults' => [
-            'requestResponseOptions' => $baseRequestAttributes,
-            'subscriberConfig' => [],
-            'expectedCacheControl' => 'public, s-maxage=100',
+        $basePolicies = [
+            'p_default' => [
+                'public' => true,
+                's_maxage' => 200,
+            ],
+            'no_cache_private' => [
+                'private' => true,
+                'no_cache' => true,
+                'max_age' => 0,
+                's_maxage' => 0,
+            ],
+        ];
+        $defaultPolicies = [
+            'store_api' => [
+                'cacheable' => 'p_default',
+                'uncacheable' => 'no_cache_private',
+            ],
         ];
 
-        yield 'Store API defaultTtl is used when no storeApiDefaultTtl' => [
+        yield 'Store API policy applied' => [
             'requestResponseOptions' => $baseRequestAttributes,
-            'subscriberConfig' => ['defaultTtl' => 200],
+            'subscriberConfig' => [
+                'defaultTtl' => 100,
+                'policies' => $basePolicies,
+                'defaultPolicies' => $defaultPolicies,
+            ],
             'expectedCacheControl' => 'public, s-maxage=200',
         ];
 
-        yield 'Store API storeApiDefaultTtl option has priority over defaultTtl' => [
-            'requestResponseOptions' => $baseRequestAttributes,
-            'subscriberConfig' => ['defaultTtl' => 200, 'storeApiDefaultTtl' => 300],
-            'expectedCacheControl' => 'public, s-maxage=300',
-        ];
-
-        yield 'Store API staleWhileRevalidate, staleIfError ignored' => [
-            'requestResponseOptions' => $baseRequestAttributes,
-            'subscriberConfig' => ['defaultTtl' => 200, 'staleWhileRevalidate' => '5', 'staleIfError' => '6'],
-            'expectedCacheControl' => 'public, s-maxage=200',
-        ];
-
-        yield 'Store API storeApiStaleWhileRevalidate, storeApiStaleIfError used' => [
-            'requestResponseOptions' => $baseRequestAttributes,
-            'subscriberConfig' => ['defaultTtl' => 200, 'storeApiStaleWhileRevalidate' => '5', 'storeApiStaleIfError' => '6'],
-            'expectedCacheControl' => 'public, s-maxage=200, stale-if-error=6, stale-while-revalidate=5',
-        ];
-
-        yield 'Store API custom endpoint maxAge has priority' => [
-            'requestResponseOptions' => array_merge($baseRequestAttributes, [
-                PlatformRequest::ATTRIBUTE_HTTP_CACHE => ['maxAge' => 300],
-            ]),
-            'subscriberConfig' => ['defaultTtl' => 200],
-            'expectedCacheControl' => 'public, s-maxage=300',
-        ];
-
-        yield 'Store API preconfigured no-cache directive removed' => [
+        yield 'Store API policy overwrites response cache-control' => [
             'requestResponseOptions' => array_merge($baseRequestAttributes, [
                 'responseOriginalCacheControl' => 'no-cache, private',
             ]),
-            'subscriberConfig' => [],
-            'expectedCacheControl' => 'public, s-maxage=100',
-        ];
-
-        yield 'Store API POST is not cached' => [
-            'requestResponseOptions' => array_merge($baseRequestAttributes, ['_method' => Request::METHOD_POST]),
-            'subscriberConfig' => ['staleWhileRevalidate' => '5', 'staleIfError' => '6'],
-            'expectedCacheControl' => 'no-cache, private',
-        ];
-
-        yield 'Store API endpoints without SalesChannelContext are not cached' => [
-            'requestResponseOptions' => [
-                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => null,
+            'subscriberConfig' => [
+                'defaultTtl' => 100,
+                'policies' => $basePolicies,
+                'defaultPolicies' => $defaultPolicies,
             ],
-            'subscriberConfig' => [],
-            'expectedCacheControl' => 'no-cache, private',
+            'expectedCacheControl' => 'public, s-maxage=200',
         ];
 
-        yield 'Store API endpoints without cache attributes are not cached' => [
+        // route specific policy should override defaults
+        yield 'Store API route-specific policy overrides defaults' => [
+            'requestResponseOptions' => array_merge($baseRequestAttributes, [
+                '_route' => 'store-api.product.search',
+            ]),
+            'subscriberConfig' => [
+                'defaultTtl' => 100,
+                'policies' => array_merge($basePolicies, [
+                    'p_route' => [
+                        'public' => true,
+                        's_maxage' => 300,
+                        'stale_while_revalidate' => 10,
+                    ],
+                ]),
+                'defaultPolicies' => $defaultPolicies,
+                'routePolicies' => [
+                    'store-api.product.search' => 'p_route',
+                ],
+            ],
+            'expectedCacheControl' => 'public, s-maxage=300, stale-while-revalidate=10',
+        ];
+
+        yield 'Store API POST is not cached (uncacheable policy)' => [
+            'requestResponseOptions' => array_merge($baseRequestAttributes, ['_method' => Request::METHOD_POST]),
+            'subscriberConfig' => [
+                'policies' => $basePolicies,
+                'defaultPolicies' => $defaultPolicies,
+            ],
+            'expectedCacheControl' => 'max-age=0, no-cache, private, s-maxage=0',
+        ];
+
+        yield 'Store API endpoints without cache attributes are not cached (uncacheable policy)' => [
             'requestResponseOptions' => [
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_HTTP_CACHE => null,
             ],
-            'subscriberConfig' => [],
-            'expectedCacheControl' => 'no-cache, private',
+            'subscriberConfig' => [
+                'policies' => $basePolicies,
+                'defaultPolicies' => $defaultPolicies,
+            ],
+            'expectedCacheControl' => 'max-age=0, no-cache, private, s-maxage=0',
+        ];
+
+        yield 'Store API endpoints without SalesChannelContext are ignored by subscriber' => [
+            'requestResponseOptions' => [
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => null,
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+                PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+                'responseOriginalCacheControl' => 'must-revalidate, no-cache, private',
+            ],
+            'subscriberConfig' => [
+                'policies' => $basePolicies,
+                'defaultPolicies' => $defaultPolicies,
+            ],
+            'expectedCacheControl' => 'must-revalidate, no-cache, private',
         ];
     }
 
-    #[DisabledFeatures(['STORE_API_CACHE'])]
+    #[DisabledFeatures(['HTTP_CACHE_POLICIES'])]
     public function testStoreApiBehavesLikeStorefrontWithoutFeatureFlag(): void
     {
         $cartService = $this->createMock(CartService::class);
@@ -963,9 +1094,9 @@ class CacheResponseSubscriberTest extends TestCase
             '6',
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
-            300,
-            '10',
-            '15',
+            [],
+            [],
+            [],
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -1016,7 +1147,18 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
-            100,
+            [
+                'store_api_policy' => [
+                    'public' => true,
+                    's_maxage' => 100,
+                ],
+            ],
+            [
+                'store_api' => [
+                    'cacheable' => 'store_api_policy',
+                ],
+            ],
+            [],
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -1062,7 +1204,18 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
-            100,
+            [
+                'store_api_policy' => [
+                    'public' => true,
+                    's_maxage' => 100,
+                ],
+            ],
+            [
+                'store_api' => [
+                    'cacheable' => 'store_api_policy',
+                ],
+            ],
+            [],
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

@@ -32,7 +32,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[Package('framework')]
 readonly class CacheResponseSubscriber implements EventSubscriberInterface
 {
-    private int $storeApiDefaultTtl;
+    private const POLICY_AREA_STOREFRONT = 'storefront';
+    private const POLICY_AREA_STORE_API = 'store_api';
 
     /**
      * @param array<string> $cookies
@@ -50,11 +51,13 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         private ?string $staleIfError,
         private EventDispatcherInterface $dispatcher,
         private CacheRelevantRulesResolver $ruleResolver,
-        ?int $storeApiDefaultTtl = null,
-        private ?string $storeApiStaleWhileRevalidate = null,
-        private ?string $storeApiStaleIfError = null,
+        /** @var array<string, array<string, int|bool|null>> */
+        private array $policies = [],
+        /** @var array<string, array<string, string|null>> */
+        private array $defaultPolicies = [],
+        /** @var array<string, string> */
+        private array $routePolicies = [],
     ) {
-        $this->storeApiDefaultTtl = $storeApiDefaultTtl ?? $defaultTtl;
     }
 
     /**
@@ -86,7 +89,11 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $isStoreApi = $this->isStoreApi($request);
+
         if (!$this->maintenanceResolver->shouldBeCached($request)) {
+            $this->noCache($request, $response, $isStoreApi);
+
             return;
         }
 
@@ -96,14 +103,16 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             // To still be able to serve 404 pages fast, we don't load the full context and cache the rendered html on application side
             // as we don't have the full context the state handling is broken as no customer or cart is available, even if the customer is logged in
             // @see \Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber::onError
+            $this->noCache($request, $response, $isStoreApi);
+
             return;
         }
 
         // In Store API we rely on headers to manage caching, as it more explicit and easier to parse on reverse proxy side.
         // As we don't control headers that browser sends, in storefront we have to rely on cookies. For this reason here
         // we have two separate branches of logic.
-        if ($this->isStoreApi($request) && Feature::isActive('STORE_API_CACHE')) {
-            $this->setStoreApiHeaders($request, $response);
+        if ($this->isStoreApi($request) && Feature::isActive('HTTP_CACHE_POLICIES')) {
+            $this->applyStoreApiPolicy($request, $response);
 
             return;
         }
@@ -119,6 +128,8 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
         // We need to allow it on login, otherwise the state is wrong
         if (!($route === 'frontend.account.login' || $request->isMethod(Request::METHOD_GET))) {
+            $this->noCache($request, $response, $isStoreApi);
+
             return;
         }
 
@@ -127,30 +138,41 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         /** @var bool|array{maxAge?: int, states?: list<string>}|null $cacheAttribute */
         $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
         if (!$cacheAttribute) {
+            $this->noCache($request, $response, $isStoreApi);
+
             return;
         }
 
         $cacheConfig = $cacheAttribute === true ? [] : $cacheAttribute;
 
         if ($this->hasInvalidationState($cacheConfig['states'] ?? [], $states)) {
+            $this->noCache($request, $response, $isStoreApi);
+
             return;
         }
 
-        $maxAge = $cacheConfig['maxAge'] ?? $this->defaultTtl;
-
-        $response->setSharedMaxAge($maxAge);
         $response->headers->set(
             HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
             implode(',', $cacheConfig['states'] ?? [])
         );
 
-        if ($this->staleIfError !== null) {
-            $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
+        // old behavior
+        if (!Feature::isActive('HTTP_CACHE_POLICIES')) {
+            $maxAge = $cacheConfig['maxAge'] ?? $this->defaultTtl;
+            $response->setSharedMaxAge($maxAge);
+
+            if ($this->staleIfError !== null) {
+                $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
+            }
+
+            if ($this->staleWhileRevalidate !== null) {
+                $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
+            }
+
+            return;
         }
 
-        if ($this->staleWhileRevalidate !== null) {
-            $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
-        }
+        $this->applyPolicy($request, $response, self::POLICY_AREA_STOREFRONT, true);
     }
 
     public function setResponseCacheHeader(ResponseEvent $event): void
@@ -195,37 +217,64 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
-    private function setStoreApiHeaders(Request $request, Response $response): void
+    private function noCache(Request $request, Response $response, bool $storeApi): void
     {
-        if (!$request->isMethod(Request::METHOD_GET)) {
+        if (Feature::isActive('HTTP_CACHE_POLICIES')) {
+            $this->applyPolicy($request, $response, $storeApi ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT, false);
+        }
+        // do nothing for backwards compatibility
+    }
+
+    private function applyStoreApiPolicy(Request $request, Response $response): void
+    {
+        if (!$request->isMethod(Request::METHOD_GET) || !$request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE)) {
+            $this->noCache($request, $response, true);
+
             return;
         }
 
-        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cacheAttribute */
-        $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
-        if (!$cacheAttribute) {
+        $this->applyPolicy($request, $response, self::POLICY_AREA_STORE_API, true);
+    }
+
+    private function resolvePolicyName(Request $request, string $area, bool $cacheable): ?string
+    {
+        $route = (string) $request->attributes->get('_route', '');
+
+        if ($route !== '' && isset($this->routePolicies[$route])) {
+            return $this->routePolicies[$route];
+        }
+
+        $defaults = $this->defaultPolicies[$area] ?? null;
+        if (!$defaults) {
+            return null;
+        }
+
+        return $cacheable ? ($defaults['cacheable'] ?? null) : ($defaults['uncacheable'] ?? null);
+    }
+
+    private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable): void
+    {
+        $policyName = $this->resolvePolicyName($request, $area, $cacheable);
+
+        // reset existing cache-control to avoid mixing policies
+        $response->headers->remove('cache-control');
+
+        // Fallback to no-cache if no policy could be resolved
+        if ($policyName === null || !isset($this->policies[$policyName])) {
+            $response->setCache([
+                'max_age' => 0,
+                's_maxage' => 0,
+                'public' => false,
+                'private' => true,
+                'must_revalidate' => true,
+                'no_store' => true,
+            ]);
+
             return;
         }
 
-        $cacheConfig = $cacheAttribute === true ? [] : $cacheAttribute;
-
-        $maxAge = $cacheConfig['maxAge'] ?? $this->storeApiDefaultTtl;
-
-        // Response headers have at this point 'no-cache' directive set, it has to be removed manually.
-        // The reason for this is that StoreApiResponseListener creates a new JsonResponse which is initialized
-        // with all headers in the original response, including 'no-cache' directive (that is default in Symfony responses).
-        // After that directive goes to the $cacheControl property of headers bag and is used in the header reconstruction
-        // when setSharedMaxAge is called.
-        $response->headers->removeCacheControlDirective('no-cache');
-        $response->setSharedMaxAge($maxAge);
-
-        if ($this->storeApiStaleIfError !== null) {
-            $response->headers->addCacheControlDirective('stale-if-error', $this->storeApiStaleIfError);
-        }
-
-        if ($this->storeApiStaleWhileRevalidate !== null) {
-            $response->headers->addCacheControlDirective('stale-while-revalidate', $this->storeApiStaleWhileRevalidate);
-        }
+        $policy = $this->policies[$policyName];
+        $response->setCache($policy);
     }
 
     /**

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 #[Package('framework')]
 class Configuration implements ConfigurationInterface
@@ -888,6 +889,51 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
                 ->scalarNode('soft_purge')->defaultValue(false)->end()
+                ->arrayNode('policies')
+                    ->useAttributeAsKey('name')
+                    ->defaultValue([])
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->booleanNode('public')->defaultNull()->end()
+                            ->booleanNode('private')->defaultNull()->end()
+                            ->booleanNode('no_cache')->defaultNull()->end()
+                            ->booleanNode('no_store')->defaultNull()->end()
+                            ->booleanNode('no_transform')->defaultNull()->end()
+                            ->booleanNode('must_revalidate')->defaultNull()->end()
+                            ->booleanNode('proxy_revalidate')->defaultNull()->end()
+                            ->booleanNode('immutable')->defaultNull()->end()
+                            ->integerNode('max_age')->min(0)->defaultNull()->end()
+                            ->integerNode('s_maxage')->min(0)->defaultNull()->end()
+                            ->integerNode('stale_while_revalidate')->min(0)->defaultNull()->end()
+                            ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('default_policies')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('storefront')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('cacheable')->defaultNull()->end()
+                                ->scalarNode('uncacheable')->defaultNull()->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('store_api')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('cacheable')->defaultNull()->end()
+                                ->scalarNode('uncacheable')->defaultNull()->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('route_policies')
+                    ->useAttributeAsKey('route')
+                    ->defaultValue([])
+                    ->scalarPrototype()->end()
+                ->end()
                 ->arrayNode('cookies')
                     ->performNoDeepMerging()
                     ->scalarPrototype()->end()
@@ -926,14 +972,42 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->arrayNode('store_api')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->integerNode('default_ttl')->defaultValue(1800)->end()
-                        ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
-                        ->scalarNode('stale_if_error')->defaultValue(null)->end()
-                    ->end()
-                ->end()
+            ->end()
+            ->validate()
+                ->always()
+                ->then(function (array $config) {
+                    $policies = array_keys($config['policies'] ?? []);
+
+                    $assertDefined = static function (?string $name, string $path) use ($policies): void {
+                        if ($name === null || $name === '') {
+                            return;
+                        }
+
+                        if (!\in_array($name, $policies, true)) {
+                            throw new InvalidConfigurationException(\sprintf(
+                                'Unknown cache policy "%s" referenced in "%s". Define it under shopware.http_cache.policies.',
+                                $name,
+                                $path
+                            ));
+                        }
+                    };
+
+                    foreach ((array) ($config['default_policies'] ?? []) as $area => $defaults) {
+                        if (!\is_array($defaults)) {
+                            continue;
+                        }
+
+                        foreach ($defaults as $key => $name) {
+                            $assertDefined(\is_string($name) ? $name : null, 'shopware.http_cache.default_policies.' . (string) $area . '.' . (string) $key);
+                        }
+                    }
+
+                    foreach ((array) ($config['route_policies'] ?? []) as $route => $name) {
+                        $assertDefined(\is_string($name) ? $name : null, 'shopware.http_cache.route_policies.' . (string) $route);
+                    }
+
+                    return $config;
+                })
             ->end()
         ->end();
 

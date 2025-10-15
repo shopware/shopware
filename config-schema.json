@@ -1004,33 +1004,55 @@
                     },
                     "title": "Reverse proxy configuration"
                 },
-                "store_api": {
+                "policies": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "public": { "type": "boolean" },
+                            "private": { "type": "boolean" },
+                            "no_cache": { "type": "boolean" },
+                            "no_store": { "type": "boolean" },
+                            "no_transform": { "type": "boolean" },
+                            "must_revalidate": { "type": "boolean" },
+                            "proxy_revalidate": { "type": "boolean" },
+                            "immutable": { "type": "boolean" },
+                            "max_age": { "type": "integer", "minimum": 0 },
+                            "s_maxage": { "type": "integer", "minimum": 0 },
+                            "stale_while_revalidate": { "type": "integer", "minimum": 0 },
+                            "stale_if_error": { "type": "integer", "minimum": 0 }
+                        }
+                    },
+                    "title": "Named cache control policies"
+                },
+                "default_policies": {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
-                        "default_ttl": {
-                            "type": "integer",
-                            "default": 900,
-                            "title": "Default TTL for Store API cache responses in seconds"
+                        "storefront": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "cacheable": { "type": ["string", "null"] },
+                                "uncacheable": { "type": ["string", "null"] }
+                            }
                         },
-                        "stale_while_revalidate": {
-                            "type": [
-                                "integer",
-                                "null"
-                            ],
-                            "default": 3600,
-                            "title": "Stale while revalidate value for Store API cache responses in seconds"
-                        },
-                        "stale_if_error": {
-                            "type": [
-                                "integer",
-                                "null"
-                            ],
-                            "default": 7200,
-                            "title": "Stale if error value for Store API cache responses in seconds"
+                        "store_api": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "cacheable": { "type": ["string", "null"] },
+                                "uncacheable": { "type": ["string", "null"] }
+                            }
                         }
                     },
-                    "title": "Store API cache configuration"
+                    "title": "Default policies per area"
+                },
+                "route_policies": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" },
+                    "title": "Route name to policy mapping"
                 }
             }
         },

@@ -68,88 +68,55 @@ class MailTemplateService
         $errors = [];
 
         foreach ($usedVariables as $var) {
-            if ($field = $availableVariables->get($var)) {
-                if (!($field instanceof ScalarValueType)) {
-                    $errors[] = new MailTemplateValidationWarning(
-                        $this->dataValidator,
-                        MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
-                        ['variable' => $var]
-                    );
-                }
+            if ($this->isKnownVariable($var, $availableVariables, $errors)) {
                 continue;
             }
 
-            $varParts = explode('.', $var);
+            $this->validateComplexVariable($var, $availableVariables, $errors);
+        }
 
-            if (\count($varParts) < 2) {
-                $errors[] = new MailTemplateValidationError(
+        return $errors;
+    }
+
+    /**
+     * @param MailTemplateValidationResponse[] $errors
+     */
+    private function isKnownVariable(string $var, EventDataCollection $availableVariables, array &$errors): bool
+    {
+        if ($field = $availableVariables->get($var)) {
+            if (!($field instanceof ScalarValueType)) {
+                $errors[] = new MailTemplateValidationWarning(
                     $this->dataValidator,
-                    MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
+                    MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
                     ['variable' => $var]
                 );
-                continue;
             }
+            return true;
+        }
 
-            $nestedAvVars = $availableVariables->get($varParts[0]);
+        return false;
+    }
 
-            for ($i = 0; $i < \count($varParts); ++$i) {
-                if (!$nestedAvVars) {
-                    $errors[] = new MailTemplateValidationError(
-                        $this->dataValidator,
-                        MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
-                        ['variable' => $var]
-                    );
-                    break;
-                }
+    /**
+     * @param MailTemplateValidationResponse[] $errors
+     */
+    private function validateComplexVariable(string $var, EventDataCollection $availableVariables, array &$errors): void
+    {
+        if (!str_contains($var, '.')) {
+            $errors[] = new MailTemplateValidationError(
+                $this->dataValidator,
+                MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
+                ['variable' => $var]
+            );
+            return;
+        }
 
-                if ($nestedAvVars instanceof ScalarValueType && $i === \count($varParts) - 1) {
-                    break;
-                }
+        $varParts = explode('.', $var);
 
-                if ($nestedAvVars instanceof EntityType) {
-                    $prefix = $varParts[$i];
-                    for ($j = 0; $j <= $i; ++$j) {
-                        unset($varParts[$j]);
-                    }
+        $nestedAvVars = $availableVariables->get($varParts[0]);
 
-                    $path = \implode('.', $varParts);
-
-                    $errors = $this->validateEntityField($path, $prefix, $nestedAvVars->getDefinitionClass(), $errors);
-
-                    break;
-                }
-
-                if ($nestedAvVars instanceof ArrayType) {
-                    if ($i === \count($varParts) - 1) {
-                        if (!($nestedAvVars->getType() instanceof ScalarValueType)) {
-                            $errors[] = new MailTemplateValidationWarning(
-                                $this->dataValidator,
-                                MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
-                                ['variable' => $var]
-                            );
-                        }
-                        break;
-                    }
-                    if (!($varParts[$i + 1] === 'first' || $varParts[$i + 1] === 'last' || \is_numeric($varParts[$i + 1]))) {
-                        $errors[] = new MailTemplateValidationError(
-                            $this->dataValidator,
-                            MailTemplateValidationError::TYPE_INVALID_ARRAY_ACCESS,
-                            ['variable' => $var]
-                        );
-                        break;
-                    }
-
-                    // Skipping the array access
-                    unset($varParts[$i + 1]);
-                    $varParts = \array_values($varParts);
-                    $nestedAvVars = $nestedAvVars->getType();
-                }
-
-                if ($nestedAvVars instanceof ObjectType) {
-                   $nestedAvVars = $nestedAvVars->get($varParts[$i + 1]);
-                   continue;
-                }
-
+        for ($i = 0; $i < \count($varParts); ++$i) {
+            if (!$nestedAvVars) {
                 $errors[] = new MailTemplateValidationError(
                     $this->dataValidator,
                     MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
@@ -157,9 +124,62 @@ class MailTemplateService
                 );
                 break;
             }
-        }
 
-        return $errors;
+            if ($nestedAvVars instanceof ScalarValueType && $i === \count($varParts) - 1) {
+                break;
+            }
+
+            if ($nestedAvVars instanceof EntityType) {
+                $prefix = $varParts[$i];
+                for ($j = 0; $j <= $i; ++$j) {
+                    unset($varParts[$j]);
+                }
+
+                $path = \implode('.', $varParts);
+
+                $errors = $this->validateEntityField($path, $prefix, $nestedAvVars->getDefinitionClass(), $errors);
+
+                break;
+            }
+
+            if ($nestedAvVars instanceof ArrayType) {
+                if ($i === \count($varParts) - 1) {
+                    if (!($nestedAvVars->getType() instanceof ScalarValueType)) {
+                        $errors[] = new MailTemplateValidationWarning(
+                            $this->dataValidator,
+                            MailTemplateValidationWarning::TYPE_COMPLEX_ELEMENT,
+                            ['variable' => $var]
+                        );
+                    }
+                    break;
+                }
+                if (!($varParts[$i + 1] === 'first' || $varParts[$i + 1] === 'last' || \is_numeric($varParts[$i + 1]))) {
+                    $errors[] = new MailTemplateValidationError(
+                        $this->dataValidator,
+                        MailTemplateValidationError::TYPE_INVALID_ARRAY_ACCESS,
+                        ['variable' => $var]
+                    );
+                    break;
+                }
+
+                // Skipping the array access
+                unset($varParts[$i + 1]);
+                $varParts = \array_values($varParts);
+                $nestedAvVars = $nestedAvVars->getType();
+            }
+
+            if ($nestedAvVars instanceof ObjectType) {
+                $nestedAvVars = $nestedAvVars->get($varParts[$i + 1]);
+                continue;
+            }
+
+            $errors[] = new MailTemplateValidationError(
+                $this->dataValidator,
+                MailTemplateValidationError::TYPE_UNKNOWN_VARIABLE,
+                ['variable' => $var]
+            );
+            break;
+        }
     }
 
     /**

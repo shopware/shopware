@@ -12,9 +12,7 @@ use Twig\Node\Expression\GetAttrExpression;
 use Twig\Node\Expression\NameExpression;
 use Twig\Node\Expression\Variable\AssignContextVariable;
 use Twig\Node\ForNode;
-use Twig\Node\ModuleNode;
 use Twig\Node\Node;
-use Twig\Node\Nodes;
 use Twig\Node\SetNode;
 use Twig\Node\TextNode;
 

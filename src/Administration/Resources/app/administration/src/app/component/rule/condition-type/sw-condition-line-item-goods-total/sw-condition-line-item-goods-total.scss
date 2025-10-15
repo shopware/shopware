@@ -1,42 +1,31 @@
-@import "~scss/variables";
-
-.sw-condition .sw-contidion-line-item-goods-total__numfield.sw-block-field {
-    border: none;
-}
-
-.sw-condition-line-item-goods-total__value {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    width: 100%;
-    border: 1px solid $color-gray-500;
-    border-radius: $border-radius-default;
-    overflow: hidden;
-}
-
 .sw-condition-line-item-goods-total {
     display: grid;
-    gap: 4px;
+    gap: var(--scale-size-4);
     grid-template-columns: auto 1fr;
 
-    .sw-condition-line-item-goods-total__filter {
-        background-color: $color-white;
-        padding: 4px;
+    &__numfield {
+        .mt-block-field__block {
+            border: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+
+    &__value {
+        display: grid;
+        overflow: hidden;
+        grid-template-columns: 1fr auto;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-button);
+    }
+
+    &__filter {
+        padding: var(--scale-size-4);
 
         .mt-button {
             height: 100%;
             display: flex;
             align-items: center;
-            border: none;
-            background: $color-gray-100;
-            padding: 2px 11px;
-
-            &:hover {
-                background: $color-gray-200;
-            }
-        }
-
-        .mt-icon {
-            color: $color-darkgray-200;
         }
     }
 }

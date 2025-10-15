@@ -6,18 +6,21 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
     TestDataService,
     StorefrontProductDetail,
     AddProductToCart,
-    StorefrontOffCanvasCart
+    StorefrontOffCanvasCart,
+    StorefrontCheckoutCart,
 }) => {
     const product = await TestDataService.createBasicProduct();
+    await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
 
     await test.step('Creates a screenshot of off-canvas shopping cart in storefront.', async () => {
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.expects(StorefrontOffCanvasCart.headline).toBeVisible();
 
-        await hideElements(StorefrontOffCanvasCart.page, [
-            '.cookie-permission-container',
-        ]);
+        // await hideElements(StorefrontOffCanvasCart.page, [
+        //     '.cookie-permission-container',
+        // ]);
+
         await replaceElements(StorefrontOffCanvasCart.page, [
             '.product-detail-name',
             '.product-detail-description-title',
@@ -27,6 +30,27 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
         ]);
 
         await expect(StorefrontOffCanvasCart.page).toHaveScreenshot('OffcanvasCart.png', {
+            fullPage: true,
+        });
+    });
+
+    await test.step('Creates a screenshot of shopping cart (checkout/cart) in storefront.', async () => {
+        await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+        await ShopCustomer.attemptsTo(AddProductToCart(product));
+        await ShopCustomer.expects(StorefrontOffCanvasCart.headline).toBeVisible();
+        await StorefrontOffCanvasCart.goToCartButton.click();
+
+        // await hideElements(StorefrontOffCanvasCart.page, [
+        //     '.cookie-permission-container',
+        // ]);
+        
+        await replaceElements(StorefrontCheckoutCart.page, [
+            '.line-item-label',
+            '.line-item-product-number',
+            '.line-item-delivery-date',
+        ]);
+
+        await expect(StorefrontCheckoutCart.page).toHaveScreenshot('CheckoutCart.png', {
             fullPage: true,
         });
     });

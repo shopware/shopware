@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Shipping\Cart\Error;
+namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Error;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
+use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -12,28 +12,28 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(ShippingMethodBlockedError::class)]
-class ShippingMethodBlockedErrorTest extends TestCase
+#[CoversClass(PaymentMethodBlockedError::class)]
+class PaymentMethodBlockedErrorTest extends TestCase
 {
     public function testConstruct(): void
     {
-        $error = new ShippingMethodBlockedError(
+        $error = new PaymentMethodBlockedError(
             id: Uuid::randomHex(),
             name: 'FOO',
             reason: 'BAR',
         );
 
-        static::assertSame('Shipping method FOO not available. Reason: BAR', $error->getMessage());
+        static::assertSame('Payment method FOO not available. Reason: BAR', $error->getMessage());
         static::assertFalse($error->isPersistent());
         static::assertSame([
-            'id' => $error->getShippingMethodId(),
+            'id' => $error->getPaymentMethodId(),
             'name' => 'FOO',
             'reason' => 'BAR',
         ], $error->getParameters());
         static::assertSame('FOO', $error->getName());
         static::assertTrue($error->blockOrder());
-        static::assertSame('shipping-method-blocked-' . $error->getShippingMethodId(), $error->getId());
+        static::assertSame('payment-method-blocked-' . $error->getPaymentMethodId(), $error->getId());
         static::assertSame(10, $error->getLevel());
-        static::assertSame('shipping-method-blocked', $error->getMessageKey());
+        static::assertSame('payment-method-blocked', $error->getMessageKey());
     }
 }

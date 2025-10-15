@@ -119,7 +119,7 @@ class CacheStore implements StoreInterface
 
     public function write(Request $request, Response $response): string
     {
-        $key = $this->cacheKeyGenerator->generate($request);
+        $key = $this->cacheKeyGenerator->generate($request, $response);
 
         // maintenance mode active and current ip is whitelisted > disable caching
         if ($this->maintenanceResolver->isMaintenanceRequest($request)) {

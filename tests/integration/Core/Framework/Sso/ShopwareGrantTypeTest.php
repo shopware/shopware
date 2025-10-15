@@ -94,7 +94,8 @@ class ShopwareGrantTypeTest extends TestCase
         static::assertArrayHasKey('access_token', $responseBodyData);
         static::assertArrayHasKey('refresh_token', $responseBodyData);
         static::assertSame('Bearer', $responseBodyData['token_type']);
-        static::assertSame(3600, $responseBodyData['expires_in']);
+        // Assert that expires_in is between 3590 and 3600 to account for minor delays in processing
+        static::assertTrue($responseBodyData['expires_in'] <= 3600 && $responseBodyData['expires_in'] > 3595);
         static::assertIsString($responseBodyData['access_token']);
         static::assertIsString($responseBodyData['refresh_token']);
     }

@@ -9,6 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class SalesChannelIndexerEvent extends NestedEvent
 {
+    /**
+     * @param array<array-key, string> $ids
+     * @param array<array-key, string> $skip
+     */
     public function __construct(
         private readonly array $ids,
         private readonly Context $context,
@@ -21,11 +25,17 @@ class SalesChannelIndexerEvent extends NestedEvent
         return $this->context;
     }
 
+    /**
+     * @return array<array-key, string>
+     */
     public function getIds(): array
     {
         return $this->ids;
     }
 
+    /**
+     * @return array<array-key, string>
+     */
     public function getSkip(): array
     {
         return $this->skip;

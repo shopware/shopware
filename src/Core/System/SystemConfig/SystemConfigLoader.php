@@ -49,12 +49,17 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
         return $this->buildSystemConfigArray($result->fetchAllKeyValue());
     }
 
+    /**
+     * @param array<string, mixed> $systemConfigs
+     *
+     * @return array<mixed>
+     */
     private function buildSystemConfigArray(array $systemConfigs): array
     {
         $configValues = [];
 
         foreach ($systemConfigs as $key => $value) {
-            $keys = \explode('.', (string) $key);
+            $keys = \explode('.', $key);
 
             if ($value !== null) {
                 $value = \json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
@@ -73,7 +78,11 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
     }
 
     /**
-     * @param array|bool|float|int|string|null $value
+     * @param array<mixed> $configValues
+     * @param non-empty-array<string> $keys
+     * @param mixed $value
+     *
+     * @return array<mixed>
      */
     private function getSubArray(array $configValues, array $keys, $value): array
     {
@@ -100,6 +109,11 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
         return $configValues;
     }
 
+    /**
+     * @param array<mixed> $configValues
+     *
+     * @return array<mixed>
+     */
     private function filterNotActivatedPlugins(array $configValues): array
     {
         $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(fn (Plugin $plugin) => !$plugin->isActive())->all();

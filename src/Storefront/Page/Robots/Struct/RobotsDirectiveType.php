@@ -31,28 +31,10 @@ enum RobotsDirectiveType: string
     }
 
     /**
-     * Returns all path-based directive types.
-     *
-     * @return list<self>
-     */
-    public static function getPathBased(): array
-    {
-        return [self::ALLOW, self::DISALLOW];
-    }
-
-    /**
      * Parses a case-insensitive string into a directive type.
      */
     public static function tryFromInsensitive(string $value): ?self
     {
-        $normalized = ucfirst(mb_strtolower($value));
-
-        foreach (self::cases() as $case) {
-            if (ucfirst(mb_strtolower($case->value)) === $normalized) {
-                return $case;
-            }
-        }
-
-        return null;
+        return self::tryFrom(ucfirst(mb_strtolower($value)));
     }
 }

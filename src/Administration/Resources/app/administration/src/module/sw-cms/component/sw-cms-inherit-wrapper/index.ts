@@ -5,6 +5,12 @@ import type { CmsSlotConfig, RuntimeSlot } from '../../service/cms.service';
 const { get, set, unset, has} = Shopware.Utils.object;
 const { isEmpty, isUndefined } = Shopware.Utils.types;
 
+const EVENTS = {
+    UPDATE: 'update:value',
+    RESTORE: 'inheritance:restore',
+    REMOVE: 'inheritance:remove',
+};
+
 /**
  * @private
  * @sw-package discovery
@@ -19,9 +25,9 @@ const { isEmpty, isUndefined } = Shopware.Utils.types;
 export default Shopware.Component.wrapComponentConfig({
     template,
     emits: [
-        'update:value',
-        'inheritance:restore',
-        'inheritance:remove',
+        EVENTS.UPDATE,
+        EVENTS.RESTORE,
+        EVENTS.REMOVE,
     ],
     props: {
         element: {
@@ -56,6 +62,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
         },
     },
+    data() {
+        return {
+            showModal: false,
+        };
+    },
     computed: {
         currentValue: {
             get() {
@@ -64,7 +75,7 @@ export default Shopware.Component.wrapComponentConfig({
             set(value: string) {
                 set(this.runtimeConfig, this.fullPath, value);
 
-                this.$emit('update:value', value);
+                this.$emit(EVENTS.UPDATE, value);
             },
         },
         baseConfig() {
@@ -95,6 +106,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
     methods: {
         onInheritanceRestore() {
+            this.showModal = false;
+
             set(this.runtimeConfig, this.fullPath, get(this.baseConfig, this.fullPath, null));
             unset(this.childConfig, this.field);
 
@@ -102,7 +115,7 @@ export default Shopware.Component.wrapComponentConfig({
                 unset(this.contentEntity, 'slotConfig');
             }
 
-            this.$emit('inheritance:restore');
+            this.$emit(EVENTS.RESTORE);
         },
         onInheritanceRemove() {
             if (!this.contentEntity) {
@@ -125,7 +138,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }),
             );
 
-            this.$emit('inheritance:remove');
+            this.$emit(EVENTS.REMOVE);
         },
     },
 })

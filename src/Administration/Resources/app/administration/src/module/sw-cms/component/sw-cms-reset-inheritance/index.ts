@@ -24,9 +24,6 @@ export default Shopware.Component.wrapComponentConfig({
         cmsPageStore() {
             return Shopware.Store.get('cmsPage');
         },
-        cmsPage() {
-            return this.cmsPageStore.currentPage;
-        },
         hasOverrides() {
             return !Shopware.Utils.types.isEmpty(this.contentEntity.slotConfig);
         },
@@ -35,18 +32,20 @@ export default Shopware.Component.wrapComponentConfig({
         onConfirm() {
             this.showModal = false;
 
-            this.resetSlotConfig();
-            this.resetRuntimeSlotConfig();
-        },
-        resetSlotConfig() {
             unset(this.contentEntity, 'slotConfig');
+            this.resetSlotOverrides();
         },
-        // TODO
-        resetRuntimeSlotConfig() {
-            this.cmsPage.sections.forEach((section) => {
-                section.blocks.forEach((block) => {
-                    block.slots.forEach((slot) => {
-                        slot.config = cloneDeep(slot.translated.config);
+        /**
+         * Runtime slots are the result of merging a base layout (cms_slot_translation.config)
+         * with a content page (e.g. category_translation.slot_config).
+         *
+         * Resetting a slot means to discard content page overrides for this layout.
+         */
+        resetSlotOverrides() {
+            this.cmsPageStore.currentPage?.sections?.forEach((section) => {
+                section.blocks?.forEach((block) => {
+                    block.slots?.forEach((slot) => {
+                        slot.config = cloneDeep(slot.translated!.config);
                     });
                 });
             });

@@ -8,14 +8,14 @@
         color="var(--color-module-purple-900)"
     />
 
-    Some inherited fields have been unlinked. <mt-link variant="critical" as="button" @click="showModal = true;">Reset All fields.</mt-link>
+    {{ $t('sw-cms.inherit.unlinkNotice') }} <mt-link variant="critical" as="button" @click="showModal = true;">{{ $t('sw-cms.inherit.unlinkAllButton') }}</mt-link>
 
     <sw-confirm-modal
         v-if="showModal"
         type="delete"
-        text="Are you sure you want to reset all fields? This will permanently delete all unlinked content."
-        title="Reset all fields"
-        text-confirm="Reset all fields"
+        :text="$t('sw-cms.inherit.unlinkAllConfirmText')"
+        :title="$t('sw-cms.inherit.unlinkAllTitle')"
+        :text-confirm="$t('sw-cms.inherit.unlinkAllTitle')"
         @confirm="onConfirm"
         @cancel="showModal = false;"
         @close="showModal = false;"

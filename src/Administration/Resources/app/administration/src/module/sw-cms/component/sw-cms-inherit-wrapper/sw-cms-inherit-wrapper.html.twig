@@ -7,12 +7,12 @@
             <sw-inheritance-switch
                 v-if="canInheritField"
                 :is-inherited="isInherited"
-                @inheritance-restore="onInheritanceRestore"
+                @inheritance-restore="showModal = true;"
                 @inheritance-remove="onInheritanceRemove"
             />
             <mt-icon
                 v-else
-                v-tooltip="{ message: $t('sw-cms.general.inheritTooltip') }"
+                v-tooltip="{ message: $t('sw-cms.inherit.tooltip') }"
                 name="regular-link-horizontal-slash"
                 key="inheritance-disabled-icon"
                 size="16px"
@@ -24,4 +24,15 @@
     </div>
 
     <slot v-bind="{ isInherited }"/>
+
+    <sw-confirm-modal
+        v-if="showModal"
+        type="delete"
+        :text="$t('sw-cms.inherit.unlinkFieldConfirmText')"
+        :title="$t('sw-cms.inherit.unlinkFieldTitle')"
+        :text-confirm="$t('sw-cms.inherit.unlinkFieldTitle')"
+        @confirm="onInheritanceRestore"
+        @cancel="showModal = false;"
+        @close="showModal = false;"
+    />
 </div>

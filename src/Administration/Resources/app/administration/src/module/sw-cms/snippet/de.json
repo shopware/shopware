@@ -10,9 +10,17 @@
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
       "deleteDisabledLandingPageToolTip": "Das Layout ist noch mindestens einer Landingpage zugewiesen.",
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
-      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden.",
-      "inheritTooltip": "Dieses Feld existiert nicht im Basis-Layout und kann nicht vererbt werden.",
-      "inheritFormBanner": "Diese Kategorie erbt Felder. Das bedeutet, dass Inhalt geerbt wird, solange der Status aktiv ist. Die Vererbung dieser Felder kann durch Klicken auf das Verknüpfungssymbol aufgehoben, bzw. wiederhergestellt werden."
+      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
+    },
+    "inherit": {
+      "tooltip": "Dieses Feld existiert nicht im Basis-Layout und kann nicht vererbt werden.",
+      "formBanner": "Diese Kategorie erbt Felder. Das bedeutet, dass Inhalt geerbt wird, solange der Status aktiv ist. Die Vererbung dieser Felder kann durch Klicken auf das Verknüpfungssymbol aufgehoben, bzw. wiederhergestellt werden.",
+      "unlinkNotice": "Die Vererbung mancher Felder wurde aufgehoben.",
+      "unlinkAllButton": "Alle Felder zurücksetzen.",
+      "unlinkAllConfirmText": "Möchtest Du wirklich alle Felder zurücksetzen? Dadurch werden alle überschriebenen Inhalte dauerhaft gelöscht.",
+      "unlinkFieldConfirmText": "Möchtest Du wirklich dieses Feld zurücksetzen? Dadurch werden überschriebene Inhalte dauerhaft gelöscht.",
+      "unlinkAllTitle": "All Felder zurücksetzen",
+      "unlinkFieldTitle": "Feld zurücksetzen"
     },
     "sorting": {
       "labelSort": "Sortieren nach:",

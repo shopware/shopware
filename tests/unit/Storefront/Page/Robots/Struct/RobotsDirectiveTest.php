@@ -16,7 +16,8 @@ class RobotsDirectiveTest extends TestCase
     #[DataProvider('providePathBasedCases')]
     public function testIsPathBased(string $type, bool $expected): void
     {
-        static::assertSame($expected, RobotsDirective::isPathBased($type));
+        $directive = new RobotsDirective($type, 'test-value');
+        static::assertSame($expected, $directive->isPathBased());
     }
 
     /**

@@ -4,25 +4,12 @@ namespace Shopware\Storefront\Page\Robots\Parser;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 
 #[Package('framework')]
 class RobotsDirectiveParser
 {
-    /**
-     * Known robots.txt directives.
-     */
-    private const KNOWN_DIRECTIVES = [
-        'user-agent',
-        'disallow',
-        'allow',
-        'crawl-delay',
-        'sitemap',
-        'request-rate',
-        'visit-time',
-        'host',
-    ];
-
     public function parse(string $text): ParsedRobots
     {
         $lines = explode("\n", $text);
@@ -48,18 +35,17 @@ class RobotsDirectiveParser
             $directiveType = trim($parts[0]);
             $directiveValue = trim($parts[1]);
 
-            $normalizedType = mb_strtolower($directiveType);
-
             // Validate directive
-            if (!\in_array($normalizedType, self::KNOWN_DIRECTIVES, true)) {
+            $directiveTypeEnum = RobotsDirectiveType::tryFromInsensitive($directiveType);
+            if ($directiveTypeEnum === null) {
                 continue;
             }
 
-            // Capitalize first letter for consistency
-            $directiveType = ucfirst($normalizedType);
+            // Use the canonical form from the enum
+            $directiveType = $directiveTypeEnum->value;
 
             // Handle User-agent directive
-            if ($normalizedType === 'user-agent') {
+            if ($directiveTypeEnum === RobotsDirectiveType::USER_AGENT) {
                 // If we have a current block with directives, save it
                 if (\count($currentUserAgents) > 0 && \count($currentDirectives) > 0) {
                     foreach ($currentUserAgents as $userAgent) {
@@ -84,7 +70,7 @@ class RobotsDirectiveParser
                 $currentDirectives[] = $directive;
             } else {
                 // Orphaned directive (backward compatibility)
-                if (RobotsDirective::isPathBased($directiveType)) {
+                if ($directiveTypeEnum->isPathBased()) {
                     $orphanedPathDirectives[] = $directive;
                 }
             }

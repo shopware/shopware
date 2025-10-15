@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
+use Shopware\Storefront\Page\Robots\RobotsPage;
 use Shopware\Storefront\Page\Robots\RobotsPageLoadedEvent;
 use Shopware\Storefront\Page\Robots\RobotsPageLoader;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
@@ -677,8 +678,12 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Common assertions for basic page structure
      */
-    private function assertBasicPageStructure(\Shopware\Storefront\Page\Robots\RobotsPage $page, int $expectedSitemaps, int $expectedDomainRules, int $expectedGlobalBlocks): void
-    {
+    private function assertBasicPageStructure(
+        RobotsPage $page,
+        int $expectedSitemaps,
+        int $expectedDomainRules,
+        int $expectedGlobalBlocks
+    ): void {
         static::assertCount($expectedSitemaps, $page->getSitemaps());
         static::assertCount($expectedDomainRules, $page->getDomainRules());
         static::assertCount($expectedGlobalBlocks, $page->getGlobalUserAgentBlocks());

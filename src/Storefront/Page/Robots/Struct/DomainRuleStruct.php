@@ -21,6 +21,8 @@ class DomainRuleStruct extends Struct
 
     /**
      * @param ParsedRobots|string $rules The robots.txt rules as string (legacy) or parsed object (new)
+     *
+     * @deprecated 6.7.4.0 - Passing a string as the first parameter is deprecated. Pass a ParsedRobots object instead.
      */
     public function __construct(ParsedRobots|string $rules, private readonly string $basePath)
     {
@@ -80,16 +82,18 @@ class DomainRuleStruct extends Struct
             $rule = explode(':', $rule, 2);
 
             $ruleType = mb_strtolower($rule[0] ?? '');
-            if (!\in_array($ruleType, ['allow', 'disallow'], true)) {
+            $directiveType = RobotsDirectiveType::tryFromInsensitive($ruleType);
+
+            // Only allow path-based directives in legacy format
+            if ($directiveType === null || !$directiveType->isPathBased()) {
                 continue;
             }
 
-            $directiveType = ucfirst($ruleType);
             $path = $this->basePath . '/' . ltrim(trim($rule[1] ?? ''), '/');
             $normalizedPath = '/' . ltrim($path, '/');
 
-            $this->rules[] = ['type' => $directiveType, 'path' => $normalizedPath];
-            $this->directives[] = new RobotsDirective($directiveType, $normalizedPath);
+            $this->rules[] = ['type' => $directiveType->value, 'path' => $normalizedPath];
+            $this->directives[] = new RobotsDirective($directiveType->value, $normalizedPath);
         }
     }
 }

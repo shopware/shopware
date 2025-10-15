@@ -128,8 +128,5 @@ return [
 
         // Domain exceptions should not be extended in 3rd party code
         preg_quote('ADDED: Parameter domain was added to Method invalidDomain() of class Shopware\Core\System\SystemConfig\SystemConfigException', '/'),
-
-        // Type widening from string to ParsedRobots|string is backward compatible - all existing string usage continues to work
-        preg_quote('CHANGED: The parameter $rules of Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct#__construct() changed from string to Shopware\Storefront\Page\Robots\Parser\ParsedRobots|string', '/'),
     ],
 ];

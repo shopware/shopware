@@ -3,11 +3,10 @@
 namespace Shopware\Storefront\Page\Robots\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\Hasher;
 
 #[Package('framework')]
-class RobotsUserAgentBlock extends Struct
+class RobotsUserAgentBlock
 {
     /**
      * @param RobotsDirective[] $directives
@@ -25,7 +24,7 @@ class RobotsUserAgentBlock extends Struct
     {
         return array_filter(
             $this->directives,
-            static fn (RobotsDirective $directive) => RobotsDirective::isPathBased($directive->type)
+            static fn (RobotsDirective $directive) => $directive->isPathBased()
         );
     }
 
@@ -36,7 +35,7 @@ class RobotsUserAgentBlock extends Struct
     {
         return array_filter(
             $this->directives,
-            static fn (RobotsDirective $directive) => !RobotsDirective::isPathBased($directive->type)
+            static fn (RobotsDirective $directive) => !$directive->isPathBased()
         );
     }
 
@@ -52,13 +51,18 @@ class RobotsUserAgentBlock extends Struct
 
     /**
      * Returns a unique hash for this block to enable deduplication.
+     * The hash is based on the user-agent and non-path directives only,
+     * as path directives vary by domain and should not affect deduplication.
      */
     public function getHash(): string
     {
-        $parts = [$this->userAgent];
-        foreach ($this->getNonPathDirectives() as $directive) {
-            $parts[] = $directive->type . ':' . $directive->value;
-        }
+        $parts = [
+            $this->userAgent,
+            ...array_map(
+                static fn (RobotsDirective $d) => $d->type . ':' . $d->value,
+                $this->getNonPathDirectives()
+            ),
+        ];
 
         return Hasher::hash(implode('|', $parts));
     }

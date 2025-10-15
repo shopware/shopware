@@ -3,10 +3,9 @@
 namespace Shopware\Storefront\Page\Robots\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('framework')]
-class RobotsDirective extends Struct
+class RobotsDirective
 {
     public function __construct(
         public readonly string $type,
@@ -14,14 +13,19 @@ class RobotsDirective extends Struct
     ) {
     }
 
-    public static function isPathBased(string $type): bool
+    /**
+     * Returns whether this directive is path-based (requires domain prefix).
+     */
+    public function isPathBased(): bool
     {
-        return \in_array(mb_strtolower($type), ['allow', 'disallow'], true);
+        $directiveType = RobotsDirectiveType::tryFromInsensitive($this->type);
+
+        return $directiveType?->isPathBased() ?? false;
     }
 
     public function withBasePath(string $basePath): self
     {
-        if (!self::isPathBased($this->type)) {
+        if (!$this->isPathBased()) {
             return $this;
         }
 

@@ -41,27 +41,21 @@ class DocumentRenderReadinessCheckTest extends TestCase
     use KernelTestBehaviour;
     use DocumentTrait;
 
+    private Context $context;
 
     private Connection $connection;
-
-    /**
-     * @var EntityRepository<ProductCollection>
-     */
-    private EntityRepository $productRepository;
 
     private SalesChannelContext $salesChannelContext;
 
     private DocumentGenerator $documentGenerator;
-
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->productRepository = static::getContainer()->get('product.repository');
-        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
         $this->context = Context::createDefaultContext();
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
 
         $this->salesChannelContext = static::getContainer()
             ->get(SalesChannelContextFactory::class)
@@ -90,7 +84,7 @@ class DocumentRenderReadinessCheckTest extends TestCase
         static::assertSame('No orders found; document previews are skipped.', $result->message);
     }
 
-    public function testAllDocumentsRenderedSuccessfully()
+    public function testAllDocumentsRenderedSuccessfully(): void
     {
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
@@ -101,12 +95,11 @@ class DocumentRenderReadinessCheckTest extends TestCase
         $this->generateDocument(ZugferdEmbeddedRenderer::TYPE, $orderId);
 
         $healthCheck = $this->createCheck();
-        $healtCheckResult = $healthCheck->run();
+        $healthCheckResult = $healthCheck->run();
 
-        static::assertTrue($healtCheckResult->healthy);
-        static::assertSame(Status::OK, $healtCheckResult->status);
-        static::assertSame('All documents rendered successfully.', $healtCheckResult->message);
-
+        static::assertTrue($healthCheckResult->healthy);
+        static::assertSame(Status::OK, $healthCheckResult->status);
+        static::assertSame('All documents rendered successfully.', $healthCheckResult->message);
     }
 
     private function createCheck(): DocumentRenderReadinessCheck
@@ -114,14 +107,14 @@ class DocumentRenderReadinessCheckTest extends TestCase
         return static::getContainer()->get(DocumentRenderReadinessCheck::class);
     }
 
-    private function generateDocument(string $documentType, string $orderId)
+    private function generateDocument(string $documentType, string $orderId): void
     {
         $operation = new DocumentGenerateOperation($orderId);
 
         $result = $this->documentGenerator->generate(
             $documentType,
             [$orderId => $operation],
-            $this->context
+            Context::createDefaultContext()
         )->getSuccess()->first();
 
         static::assertNotNull($result);

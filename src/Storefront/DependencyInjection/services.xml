@@ -536,6 +536,7 @@
         <service id="Shopware\Storefront\Framework\SystemCheck\DocumentRenderReadinessCheck">
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
             <argument type="tagged_iterator" tag="document.renderer"/>
 
             <tag name="shopware.system_check"/>

@@ -3,7 +3,12 @@
 namespace Shopware\Storefront\Framework\SystemCheck;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -29,34 +34,25 @@ use Shopware\Core\Checkout\Order\OrderStates;
 class DocumentRenderReadinessCheck extends BaseCheck
 {
     /*
-    Maps document types to their supported file extensions.
-    Only document types listed here will be tested.
+     * Only listed document types will be tested.
      */
     private const TESTABLE_DOCUMENT_TYPES = [
-        'invoice' => [
-            PdfRenderer::FILE_EXTENSION,
-            HtmlRenderer::FILE_EXTENSION
-        ],
-        'delivery_note' => [
-            PdfRenderer::FILE_EXTENSION,
-            HtmlRenderer::FILE_EXTENSION
-        ],
-        'zugferd_invoice' => [
-            'xml'
-        ],
-        'zugferd_embedded_invoice'=> [
-            PdfRenderer::FILE_EXTENSION
-        ],
+        InvoiceRenderer::TYPE,
+        DeliveryNoteRenderer::TYPE,
+        ZugferdRenderer::TYPE,
+        ZugferdEmbeddedRenderer::TYPE,
     ];
 
     /**
      * @param SalesChannelDomainUtil $util
      * @param Connection $connection
-     * @param AbstractDocumentRenderer $documentRenderers
+     * @param DocumentConfigLoader $documentConfigLoader
+     * @param iterable<AbstractDocumentRenderer> $documentRenderers
      */
     public function __construct(
         private readonly SalesChannelDomainUtil $util,
         private readonly Connection $connection,
+        private readonly DocumentConfigLoader $documentConfigLoader,
         private readonly iterable $documentRenderers,
     ) {
     }
@@ -97,36 +93,36 @@ class DocumentRenderReadinessCheck extends BaseCheck
         }
 
         $context = Context::createDefaultContext();
-
         $result = [];
         $extra = [];
+
         foreach ($this->documentRenderers as $renderer) {
             $documentType = $renderer->supports();
 
-            if (!array_key_exists($documentType, self::TESTABLE_DOCUMENT_TYPES)) {
-                $extra[] = [
-                    'documentType' => $documentType,
+            if (!in_array($documentType, self::TESTABLE_DOCUMENT_TYPES, true)) {
+                $result[Status::OK->name] = Status::OK;
+                $extra[$documentType] = [
                     'message' => 'This document type is not covered by this check; skipping.',
                 ];
                 continue;
             }
 
-            $orderId = $this->getOrderId($documentType);
+            $orderData = $this->getOrderData($documentType);
 
-            if (!$orderId) {
-                $extra[] = [
-                    'documentType' => $documentType,
+            if ($orderData === null) {
+                $result[Status::OK->name] = Status::OK;
+                $extra[$documentType] = [
                     'message' => 'No order with document of this type found; skipping.',
                 ];
 
                 continue;
             }
 
-            $fileTypes = self::TESTABLE_DOCUMENT_TYPES[$documentType];
+            $fileTypes = $this->resolveFileTypes($documentType, $orderData['sales_channel_id'], $context);
 
             foreach ($fileTypes as $fileType) {
                 $operation = new DocumentGenerateOperation(
-                    $orderId,
+                    $orderData['order_id'],
                     $fileType,
                     [],
                     null,
@@ -136,63 +132,44 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
                 try {
                     $processedTemplate = $renderer->render(
-                        [$orderId => $operation],
+                        [$orderData['order_id'] => $operation],
                         $context,
                         new DocumentRendererConfig()
                     );
 
-                    $error = $processedTemplate->getErrors()[$orderId] ?? [];
+                    $error = $processedTemplate->getErrors()[$orderData['order_id']] ?? null;
 
                     if($error) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra[] = [
-                            'documentType' => $documentType,
-                            'fileType' => $fileType,
-                            'message' => 'Rendering failed with errors: ' . $error->getMessage(),
-                        ];
+                        $extra[$documentType][$fileType]['message'][] = 'Rendering failed with errors: ' . $error->getMessage();
+
+                        continue;
                     }
 
-                    $success = $processedTemplate->getSuccess()[$orderId] ?? null;
+                    $success = $processedTemplate->getSuccess()[$orderData['order_id']] ?? null;
 
                     if ($success === null) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra[] = [
-                            'documentType' => $documentType,
-                            'fileType' => $fileType,
-                            'message' => 'Rendering failed without exception and without result.',
-                        ];
+                        $extra[$documentType][$fileType]['message'][] = 'Rendering failed without exception.';
                     }
 
-                    $content = $processedTemplate->getSuccess()[$orderId]->getContent();
-
-                    if (\strlen($content) < 10) {
+                    if (\strlen($success->getContent()) < 10) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra[] = [
-                            'documentType' => $documentType,
-                            'fileType' => $fileType,
-                            'message' => 'rendered content is to less or empty for type ' . $documentType . ' and fileType ' . $fileType,
-                        ];
+                        $extra[$documentType][$fileType]['message'][] = 'rendered content is to short or empty for type ' . $documentType . ' and fileType ' . $fileType;
                     }
                 } catch (\Throwable $e) {
                     $result[Status::FAILURE->name] = Status::FAILURE;
-                    $extra[] = [
-                        'documentType' => $documentType,
-                        'fileType' => $fileType,
-                        'message' => 'Rendering failed with exception: ' . $e->getMessage(),
-                    ];
+                    $extra[$documentType][$fileType]['message'][] = 'Rendering failed with exception: ' . $e->getMessage();
                     continue;
                 }
 
                 $result[Status::OK->name] = Status::OK;
-                $extra[] = [
-                    'documentType' => $documentType,
-                    'fileType' => $fileType,
-                    'message' => 'Rendering successful.',
-                ];
+                $extra[$documentType][$fileType]['message'][] = 'Rendering successful.';
             }
         }
 
         $finalStatus = \count($result) === 1 ? current($result) : Status::ERROR;
+        var_dump($finalStatus);
 
         return new Result(
             $this->name(),
@@ -204,23 +181,54 @@ class DocumentRenderReadinessCheck extends BaseCheck
     }
 
     /**
-     * Fetches an order ID that already has a generated document of the specified type
+     * Fetches an order that already has a generated document of the specified type
      * to avoid generating documents for orders that maybe do not meet all requirements.
+     *
+     * @return array<string, string>|null
      */
-    private function getOrderId(string $type)
+    private function getOrderData(string $type): ?array
     {
         $sql = '
             SELECT
-                d.order_id as id
+                d.order_id as order_id,
+                o.sales_channel_id
             FROM `document` AS d
                 INNER JOIN `document_type` AS dt ON d.document_type_id = dt.id
+                LEFT JOIN `order` AS o ON d.order_id = o.id
             WHERE
                 dt.technical_name = :type
             LIMIT 1
         ';
 
-        $binaryId = $this->connection->fetchOne($sql, ['type' => $type]);
+        $data = $this->connection->fetchAssociative($sql, ['type' => $type]);
 
-        return $binaryId ? Uuid::fromBytesToHex($binaryId) : null;
+        if ($data === false) {
+            return null;
+        }
+
+        $data['order_id'] = Uuid::fromBytesToHex($data['order_id']);
+        $data['sales_channel_id'] = Uuid::fromBytesToHex($data['sales_channel_id']);
+
+        return $data;
+    }
+
+    /**
+     * Special handling for ZUGFeRD types, as they do not have a config in the database.
+     *
+     * @return array<int, string>
+     */
+    private function resolveFileTypes(string $documentType, string $salesChannelId, Context $context): array
+    {
+        if ($documentType === ZugferdRenderer::TYPE){
+            return ['xml'];
+        }
+
+        if ($documentType === ZugferdEmbeddedRenderer::TYPE){
+            return [PdfRenderer::FILE_EXTENSION];
+        }
+
+        return $this->documentConfigLoader
+            ->load($documentType, $salesChannelId, $context)
+            ->getFileTypes();
     }
 }

@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -157,7 +159,7 @@ class CaptchaRouteListenerTest extends TestCase
             ->willReturn(true);
         $captcha->expects($this->once())
             ->method('getViolations')
-            ->willReturn(new \Symfony\Component\Validator\ConstraintViolationList());
+            ->willReturn(new ConstraintViolationList());
 
         $this->expectExceptionObject(CaptchaException::invalid($captcha));
 
@@ -170,7 +172,10 @@ class CaptchaRouteListenerTest extends TestCase
 
     public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndXmlRequestWithNoViolations(): void
     {
-        $request = new Request([], [], ['_captcha' => true], [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
+        $request = new Request(
+            attributes: ['_captcha' => true],
+            server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
+        );
 
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
@@ -190,7 +195,7 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('shouldBreak')
             ->willReturn(true);
 
-        $violations = new \Symfony\Component\Validator\ConstraintViolationList();
+        $violations = new ConstraintViolationList();
         $captcha->expects($this->once())
             ->method('getViolations')
             ->willReturn($violations);
@@ -204,10 +209,11 @@ class CaptchaRouteListenerTest extends TestCase
         $originalController = $event->getController();
         $listener->validateCaptcha($event);
 
-        // Verify that a violation was added to the list with correct properties (lines 73-82)
+        // Verify that a violation was added to the list with correct properties
+        // @see CaptchaRouteListener::validateCaptcha()
         static::assertCount(1, $violations);
         $violation = $violations->get(0);
-        static::assertInstanceOf(\Symfony\Component\Validator\ConstraintViolation::class, $violation);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
 
         // Verify all properties set in the ConstraintViolation constructor
         $expectedException = CaptchaException::invalid($captcha);
@@ -220,13 +226,17 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertNull($violation->getPlural());
         static::assertSame($expectedException->getErrorCode(), $violation->getCode());
 
-        // Verify that the controller was changed to ErrorController (line 88)
+        // Verify that the controller was changed to ErrorController
+        // @see CaptchaRouteListener::validateCaptcha()
         static::assertNotSame($originalController, $event->getController());
     }
 
     public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndXmlRequestWithExistingViolations(): void
     {
-        $request = new Request([], [], ['_captcha' => true], [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
+        $request = new Request(
+            attributes: ['_captcha' => true],
+            server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
+        );
 
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
@@ -246,8 +256,8 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('shouldBreak')
             ->willReturn(true);
 
-        $violations = new \Symfony\Component\Validator\ConstraintViolationList();
-        $violations->add(new \Symfony\Component\Validator\ConstraintViolation(
+        $violations = new ConstraintViolationList();
+        $violations->add(new ConstraintViolation(
             'Existing violation',
             'Existing violation',
             [],
@@ -266,7 +276,8 @@ class CaptchaRouteListenerTest extends TestCase
             static::getContainer()
         );
 
-        // Since violations count > 0, we expect an exception to be thrown (line 84)
+        // Since violations count > 0, we expect an exception to be thrown
+        // @see CaptchaRouteListener::validateCaptcha()
         $this->expectExceptionObject(CaptchaException::invalid($captcha));
 
         $listener->validateCaptcha($event);
@@ -275,9 +286,8 @@ class CaptchaRouteListenerTest extends TestCase
     public function testCaptchaSupportedButInvalidWithShouldBreakFalseSetsErrorController(): void
     {
         $request = new Request(
-            ['_route' => 'frontend.home.page'],
-            [],
-            ['_captcha' => true, '_route' => 'frontend.home.page']
+            query: ['_route' => 'frontend.home.page'],
+            attributes: ['_captcha' => true, '_route' => 'frontend.home.page']
         );
 
         $event = new ControllerEvent(
@@ -298,7 +308,7 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('shouldBreak')
             ->willReturn(false);
 
-        $violations = new \Symfony\Component\Validator\ConstraintViolationList();
+        $violations = new ConstraintViolationList();
         $captcha->expects($this->once())
             ->method('getViolations')
             ->willReturn($violations);
@@ -312,10 +322,11 @@ class CaptchaRouteListenerTest extends TestCase
         $originalController = $event->getController();
         $listener->validateCaptcha($event);
 
-        // Verify that the controller was changed (line 88 executed)
+        // Verify that the controller was changed
+        // @see CaptchaRouteListener::validateCaptcha()
         static::assertNotSame($originalController, $event->getController());
 
-        // Verify that the new controller is callable (set by line 88)
+        // Verify that the new controller is callable
         $newController = $event->getController();
         static::assertIsCallable($newController);
     }
@@ -355,7 +366,7 @@ class CaptchaRouteListenerTest extends TestCase
 
     private static function getRequest(ParameterBag $attributes): Request
     {
-        return new Request([], [], $attributes->all(), [], [], []);
+        return new Request(attributes: $attributes->all());
     }
 
     private function getRequestAttributes(bool $isCheckEnabled): ParameterBag

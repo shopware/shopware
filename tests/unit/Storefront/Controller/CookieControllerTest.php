@@ -32,12 +32,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute = $this->createMock(AbstractCookieRoute::class);
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
-            ->with(
-                static::callback(static function (Request $req) {
-                    return $req->query->getBoolean('translate') === false;
-                }),
-                $salesChannelContext
-            )
+            ->with($request, $salesChannelContext)
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
@@ -58,12 +53,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute = $this->createMock(AbstractCookieRoute::class);
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
-            ->with(
-                static::callback(static function (Request $req) {
-                    return $req->query->getBoolean('translate') === false;
-                }),
-                $salesChannelContext
-            )
+            ->with($request, $salesChannelContext)
             ->willThrowException(new \RuntimeException('Cookie route failed'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
@@ -86,12 +76,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute = $this->createMock(AbstractCookieRoute::class);
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
-            ->with(
-                static::callback(static function (Request $req) {
-                    return $req->query->getBoolean('translate') === false;
-                }),
-                $salesChannelContext
-            )
+            ->with($request, $salesChannelContext)
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
 
         $controller = new CookieControllerTestClass($cookieRoute);

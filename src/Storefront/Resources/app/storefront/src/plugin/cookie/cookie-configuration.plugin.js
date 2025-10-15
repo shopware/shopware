@@ -751,7 +751,7 @@ export default class CookieConfiguration extends Plugin {
      * Uses the API endpoint to fetch and accept all cookies.
      *
      * @param {boolean} _loadIntoMemory - Deprecated parameter, kept for backward compatibility
-     * @deprecated The _loadIntoMemory parameter is deprecated and has no effect
+     * @deprecated tag:v6.8.0 - The _loadIntoMemory parameter is deprecated and has no effect
      */
     // eslint-disable-next-line no-unused-vars
     async acceptAllCookies(_loadIntoMemory = false) {

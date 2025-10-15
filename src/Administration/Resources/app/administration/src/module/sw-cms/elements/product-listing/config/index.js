@@ -259,6 +259,13 @@ export default {
         createdComponent() {
             this.initElementConfig('product-listing');
 
+            this.initProductSorting();
+            this.initDefaultSorting();
+            this.unpackFilters();
+            this.loadFilterableProperties();
+        },
+
+        async initProductSorting() {
             if (Object.keys(this.productSortingsConfigValue).length === 0) {
                 this.productSortings = new EntityCollection(
                     this.productSortingRepository.route,
@@ -267,14 +274,8 @@ export default {
                     this.productSortingsCriteria,
                 );
             } else {
-                this.fetchProductSortings().then((productSortings) => {
-                    this.productSortings = productSortings;
-                });
+                this.productSortings = await this.fetchProductSortings();
             }
-
-            this.initDefaultSorting();
-            this.unpackFilters();
-            this.loadFilterableProperties();
         },
 
         fetchProductSortings() {

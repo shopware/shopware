@@ -120,7 +120,7 @@ export default {
                 },
                 {
                     value: 'inside',
-                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
                 },
                 {
                     value: 'outside',
@@ -142,6 +142,10 @@ export default {
                 this.showSlideConfig = true;
             }
 
+            await this.initSliderItems();
+        },
+
+        async initSliderItems() {
             if (this.element.config.sliderItems.source !== 'default' && this.element.config.sliderItems.value.length > 0) {
                 const mediaIds = this.element.config.sliderItems.value.map((configElement) => {
                     return configElement.mediaId;

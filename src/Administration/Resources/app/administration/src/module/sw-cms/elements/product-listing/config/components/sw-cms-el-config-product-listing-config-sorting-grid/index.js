@@ -25,6 +25,11 @@ export default {
             type: Object,
             required: true,
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

@@ -10,7 +10,7 @@ interface Translation {
     languageId: string;
 }
 
-interface TranslationWithSlotConfig extends Translation {
+interface WithSlotConfig extends Translation {
     slotConfig?: {
         [slotId: string]: CmsSlotConfig;
     };
@@ -18,7 +18,7 @@ interface TranslationWithSlotConfig extends Translation {
 
 interface Entity {
     translations: Translation[];
-    translated?: TranslationWithSlotConfig;
+    translated?: WithSlotConfig;
 }
 
 /**
@@ -40,6 +40,11 @@ export default Mixin.register(
                 type: Object,
                 required: false,
                 default: null,
+            },
+
+            contentEntity: {
+                type: Object as PropType<WithSlotConfig>,
+                required: false,
             },
 
             disabled: {
@@ -143,7 +148,7 @@ export default Mixin.register(
                     return null;
                 }
 
-                const translation = (entity.translated ?? this.getDefaultTranslations(entity)) as TranslationWithSlotConfig;
+                const translation = (entity.translated ?? this.getDefaultTranslations(entity)) as WithSlotConfig;
 
                 return translation?.slotConfig?.[this.element.id] ?? null;
             },

@@ -1,0 +1,23 @@
+<div
+    v-if="hasOverrides"
+    class="sw-category-layout-card__desc-reset"
+>
+    <mt-icon
+        name="regular-link-horizontal-slash"
+        size="16px"
+        color="var(--color-module-purple-900)"
+    />
+
+    Some inherited fields have been unlinked. <mt-link variant="critical" as="button" @click="showModal = true;">Reset All fields.</mt-link>
+
+    <sw-confirm-modal
+        v-if="showModal"
+        type="delete"
+        text="Are you sure you want to reset all fields? This will permanently delete all unlinked content."
+        title="Reset all fields"
+        text-confirm="Reset all fields"
+        @confirm="onConfirm"
+        @cancel="showModal = false;"
+        @close="showModal = false;"
+    />
+</div>

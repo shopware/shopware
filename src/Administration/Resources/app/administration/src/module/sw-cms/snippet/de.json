@@ -10,7 +10,9 @@
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
       "deleteDisabledLandingPageToolTip": "Das Layout ist noch mindestens einer Landingpage zugewiesen.",
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
-      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
+      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden.",
+      "inheritTooltip": "Dieses Feld existiert nicht im Basis-Layout und kann nicht vererbt werden.",
+      "inheritFormBanner": "Diese Kategorie erbt Felder. Das bedeutet, dass Inhalt geerbt wird, solange der Status aktiv ist. Die Vererbung dieser Felder kann durch Klicken auf das Verknüpfungssymbol aufgehoben, bzw. wiederhergestellt werden."
     },
     "sorting": {
       "labelSort": "Sortieren nach:",
@@ -290,6 +292,7 @@
         "label": "Bild-Slider",
         "config": {
           "label": {
+            "sliderItems": "Bilder",
             "navigationArrows": "Pfeil-Navigation",
             "navigationPositionNone": "Keine",
             "navigationPositionInside": "Innen",
@@ -605,6 +608,7 @@
       },
       "html": {
         "label": "HTML",
+        "labelContent": "Inhalt",
         "config": {
           "warning": "Ungefilterter HTML-Code kann zu Sicherheitsrisiken führen. Bitte füge nur HTML-Code von vertrauenswürdigen Quellen ein und teste deine Änderung vor der Veröffentlichung."
         }

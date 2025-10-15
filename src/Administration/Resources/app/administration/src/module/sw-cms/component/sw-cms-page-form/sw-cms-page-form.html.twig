@@ -3,6 +3,14 @@
     v-responsive="{ 'is--compact': el => el.width <= 1620, timeout: 100 }"
     class="sw-cms-page-form"
 >
+    <mt-banner
+        v-if="!!contentEntity"
+        class="sw-cms-page-form__banner-inheritance"
+        icon="link-horizontal"
+        variant="inherited"
+    >
+        {{ $t('sw-cms.general.inheritFormBanner') }}
+    </mt-banner>
 
     {% block sw_cms_page_form_content %}
     <template
@@ -136,6 +144,7 @@
                             :is="cmsElements[element.type].configComponent"
                             :element="element"
                             :element-data="cmsElements[element.type]"
+                            :content-entity="contentEntity"
                             @element-update="elementUpdate"
                         />
                         {% endblock %}

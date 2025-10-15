@@ -1,0 +1,27 @@
+<div
+    class="sw-cms-inherit-wrapper"
+    :class="{ 'is--inherited': isInherited }"
+>
+    <div class="sw-cms-inherit-wrapper__label">
+        <template v-if="supportsInheritance">
+            <sw-inheritance-switch
+                v-if="canInheritField"
+                :is-inherited="isInherited"
+                @inheritance-restore="onInheritanceRestore"
+                @inheritance-remove="onInheritanceRemove"
+            />
+            <mt-icon
+                v-else
+                v-tooltip="{ message: $t('sw-cms.general.inheritTooltip') }"
+                name="regular-link-horizontal-slash"
+                key="inheritance-disabled-icon"
+                size="16px"
+                class="sw-cms-inherit-wrapper__inheritance-disabled"
+            />
+        </template>
+
+        <label v-if="label">{{ label }}</label>
+    </div>
+
+    <slot v-bind="{ isInherited }"/>
+</div>

@@ -10,7 +10,9 @@
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
       "deleteDisabledLandingPageToolTip": "The layout you want to delete is still assigned to at least one landing page.",
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
-      "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>."
+      "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>.",
+      "inheritTooltip": "This field does not exist on the base layout and cannot be inherited.",
+      "inheritFormBanner": "This category has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back."
     },
     "sorting": {
       "labelSort": "Sort by:",
@@ -290,6 +292,7 @@
         "label": "Image slider",
         "config": {
           "label": {
+            "sliderItems": "Images",
             "navigationArrows": "Arrow navigation",
             "navigationPositionNone": "None",
             "navigationPositionInside": "Inside",
@@ -605,6 +608,7 @@
       },
       "html": {
         "label": "HTML",
+        "labelContent": "Content",
         "config": {
           "warning": "Unfiltered HTML code can lead to security risks. Please only insert HTML code from trusted sources and test your changes before publishing them."
         }

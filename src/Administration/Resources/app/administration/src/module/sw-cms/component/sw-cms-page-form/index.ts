@@ -1,5 +1,12 @@
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
+import { type CmsSlotConfig } from '../../service/cms.service';
+
+type CmsContentEntity = {
+    slotConfig?: {
+        [slotId: string]: CmsSlotConfig;
+    };
+}
 
 /**
  * @private
@@ -19,6 +26,10 @@ export default Shopware.Component.wrapComponentConfig({
             type: Function,
             required: false,
             default: () => {},
+        },
+        contentEntity: {
+            type: Object as CmsContentEntity,
+            required: false,
         },
     },
 

@@ -24,6 +24,14 @@
         }
     }
 
+    &__info {
+        display: flex;
+        flex-direction: column;
+        justify-items: center;
+        gap: 8px;
+        margin: auto 0;
+    }
+
     &__title {
         font-weight: $font-weight-semi-bold;
     }

@@ -1300,9 +1300,6 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $this->addEventListener($eventDispatcher, MailSentEvent::class, $listenerClosure);
 
-        $progress = $this->import($context, CustomerDefinition::ENTITY_NAME, '/fixtures/customers.csv', 'customers.csv');
-        $eventDispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
         $profile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
         $mapping = $profile->getMapping();
         $mapping[] = [

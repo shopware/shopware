@@ -6,10 +6,7 @@
     "autoload": {
         "psr-4": {
             "Shopware\\Elasticsearch\\": ""
-        },
-        "exclude-from-classmap": [
-            "/Test/"
-        ]
+        }
     },
     "config": {
         "sort-packages": true

@@ -51,9 +51,27 @@
 
                                 <div class="footer-contact-form">
                                     {% set contactSnippetKey = 'footer.serviceContactTextPage' %}
+                                    {% set contactCmsPageId = config('core.basicInformation.contactPage') %}
+                                    {% set contactUrl = contactCmsPageId ? path(cmsPath, { id: contactCmsPageId }) : '#' %}
+
+                                    {# Check for seoUrl and use it if present #}
+                                    {% for serviceMenuItem in footer.serviceMenu %}
+                                        {% if serviceMenuItem.cmsPageId == contactCmsPageId and serviceMenuItem.seoUrl %}
+                                            {% set contactUrl = serviceMenuItem.seoUrl %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {# Check footer navigation #}
+                                    {% if footer.navigation and footer.navigation.tree %}
+                                        {% for footerItem in footer.navigation.tree %}
+                                            {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
+                                                {% set contactUrl = footerItem.category.seoUrl %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
 
                                     {{ contactSnippetKey|trans({
-                                        '%url%': path(cmsPath, { id: config('core.basicInformation.contactPage') })
+                                        '%url%': contactUrl
                                     })|raw }}
                                 </div>
                             </div>
@@ -223,9 +241,28 @@
                     <div class="footer-vat">
                         {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatTextPage' : 'footer.excludeVatTextPage' %}
 
+                        {% set shippingCmsPageId = config('core.basicInformation.shippingPaymentInfoPage') %}
+                        {% set shippingUrl = shippingCmsPageId ? path(cmsPath, { id: shippingCmsPageId }) : '#' %}
+
+                        {# Check for seoUrl and use it if present #}
+                        {% for serviceMenuItem in footer.serviceMenu %}
+                            {% if serviceMenuItem.cmsPageId == shippingCmsPageId and serviceMenuItem.seoUrl %}
+                                {% set shippingUrl = serviceMenuItem.seoUrl %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {# Check footer navigation #}
+                        {% if footer.navigation and footer.navigation.tree %}
+                            {% for footerItem in footer.navigation.tree %}
+                                {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
+                                    {% set shippingUrl = footerItem.category.seoUrl %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
                         <p>
                             {{ shippingSnippetKey|trans({
-                                '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                '%url%': shippingUrl,
                                 '%star%': ''
                             })|raw }}
                         </p>

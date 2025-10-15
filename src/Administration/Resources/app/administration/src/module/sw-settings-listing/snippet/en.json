@@ -31,7 +31,8 @@
               "cheapestPrice": "Cheapest product price",
               "price": "Default price",
               "sales": "Units sold",
-              "createdAt": "Creation date"
+              "createdAt": "Creation date",
+              "available": "Available"
             },
             "customField": "Custom field",
             "_score": "_score"

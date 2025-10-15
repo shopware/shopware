@@ -3,13 +3,13 @@
         width: 100%;
         height: 100%;
         position: absolute;
-    }
 
-    .sw-review-text_ellipsis {
-        max-width: 200px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: inline-block;
+        .sw-review-text_ellipsis {
+            max-width: var(--scale-size-224);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+        }
     }
 }

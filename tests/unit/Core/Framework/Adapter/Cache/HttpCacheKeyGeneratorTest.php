@@ -10,7 +10,9 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -50,6 +52,19 @@ class HttpCacheKeyGeneratorTest extends TestCase
         );
     }
 
+    public function testCookiesFromResponseOverwriteRequestCookies(): void
+    {
+        $request = Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']);
+
+        $response = new Response();
+        $response->headers->setCookie(new Cookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'bar'));
+
+        static::assertNotSame(
+            $this->cacheKeyGenerator->generate($request),
+            $this->cacheKeyGenerator->generate($request, $response),
+        );
+    }
+
     public function testCacheKeyStaysTheSameIfEventPartsAreSortedDifferently(): void
     {
         $request = Request::create('https://domain.com/method');
@@ -82,6 +97,11 @@ class HttpCacheKeyGeneratorTest extends TestCase
             Request::create('https://domain.com/method?'),
             Request::create('https://domain.com/method'),
         ];
+
+        yield 'same Url with same cookies' => [
+            Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
+            Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
+        ];
     }
 
     public static function differentKeyProvider(): \Generator
@@ -94,6 +114,11 @@ class HttpCacheKeyGeneratorTest extends TestCase
         yield 'Urls with same Action, but different Get Parameters' => [
             Request::create('https://domain.com/actionA?limit=1'),
             Request::create('https://domain.com/actionA?limit=2'),
+        ];
+
+        yield 'same Url with different cookies' => [
+            Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
+            Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'bar']),
         ];
     }
 }

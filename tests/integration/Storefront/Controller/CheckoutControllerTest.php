@@ -21,7 +21,11 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
 use Shopware\Core\Defaults;
@@ -76,7 +80,7 @@ class CheckoutControllerTest extends TestCase
     private const TEST_CAMPAIGN_CODE = 'testCampaignCode';
     private const SHIPPING_METHOD_BLOCKED_ERROR_CONTENT = 'The shipping method "%s" is blocked for your current shopping cart.';
     private const SHIPPING_METHOD_CHANGED_ERROR_CONTENT = '"%s" shipping is not available for your current cart, the shipping was changed to "%s".';
-    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method "Cash on delivery" is blocked for your current shopping cart.';
+    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method "%s" is blocked for your current shopping cart.';
     private const PAYMENT_METHOD_CHANGED_ERROR_CONTENT = '"%s" payment is not available for your current cart, the payment was changed to "%s".';
     private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promo code "tn-08" could not be found.';
     private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Test product" is not available any more';
@@ -334,12 +338,36 @@ class CheckoutControllerTest extends TestCase
      */
     public static function errorDataProvider(): array
     {
+        /** @var EntityRepository<ShippingMethodCollection> */
+        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
+        $shippingMethods = $shippingMethodRepository->search(new Criteria(), Context::createDefaultContext());
+        $standardShippingMethodId = $shippingMethods->filter(static fn (ShippingMethodEntity $sm) => $sm->getTechnicalName() === 'shipping_standard')->first()?->getId();
+        $expressShippingMethodId = $shippingMethods->filter(static fn (ShippingMethodEntity $sm) => $sm->getTechnicalName() === 'shipping_express')->first()?->getId();
+        static::assertNotNull($standardShippingMethodId, 'Standard shipping method not found');
+        static::assertNotNull($expressShippingMethodId, 'Express shipping method not found');
+
+        /** @var EntityRepository<PaymentMethodCollection> */
+        $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+        $paymentMethods = $paymentMethodRepository->search(new Criteria(), Context::createDefaultContext());
+        $cashOnDeliveryPaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_cashpayment')->first()?->getId();
+        $paidInAdvancePaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_prepayment')->first()?->getId();
+        $invoicePaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_invoicepayment')->first()?->getId();
+        static::assertNotNull($cashOnDeliveryPaymentMethodId, 'Cash on delivery payment method not found');
+        static::assertNotNull($paidInAdvancePaymentMethodId, 'Paid in advance payment method not found');
+        static::assertNotNull($invoicePaymentMethodId, 'Invoice payment method not found');
+
         return [
             // One shipping method blocked is expected to be switched
             [
                 new ErrorCollection(
                     [
-                        new ShippingMethodChangedError('Standard', 'Express'),
+                        new ShippingMethodChangedError(
+                            oldShippingMethodId: $standardShippingMethodId,
+                            oldShippingMethodName: 'Standard',
+                            newShippingMethodId: $expressShippingMethodId,
+                            newShippingMethodName: 'Express',
+                            reason: 'foo',
+                        ),
                     ]
                 ),
                 [
@@ -350,8 +378,20 @@ class CheckoutControllerTest extends TestCase
             [
                 new ErrorCollection(
                     [
-                        new ShippingMethodChangedError('Standard', 'Express'),
-                        new ShippingMethodChangedError('Express', 'Standard'),
+                        new ShippingMethodChangedError(
+                            oldShippingMethodId: $standardShippingMethodId,
+                            oldShippingMethodName: 'Standard',
+                            newShippingMethodId: $expressShippingMethodId,
+                            newShippingMethodName: 'Express',
+                            reason: 'foo',
+                        ),
+                        new ShippingMethodChangedError(
+                            oldShippingMethodId: $expressShippingMethodId,
+                            oldShippingMethodName: 'Express',
+                            newShippingMethodId: $standardShippingMethodId,
+                            newShippingMethodName: 'Standard',
+                            reason: 'foo',
+                        ),
                     ]
                 ),
                 [
@@ -364,7 +404,13 @@ class CheckoutControllerTest extends TestCase
             [
                 new ErrorCollection(
                     [
-                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
+                        new PaymentMethodChangedError(
+                            oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                            oldPaymentMethodName: 'Cash On Delivery',
+                            newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                            newPaymentMethodName: 'Paid in advance',
+                            reason: 'bar',
+                        ),
                     ]
                 ),
                 [
@@ -375,13 +421,31 @@ class CheckoutControllerTest extends TestCase
             [
                 new ErrorCollection(
                     [
-                        new PaymentMethodChangedError('Paid in advance', 'Invoice'),
-                        new PaymentMethodChangedError('Invoice', 'Cash On Delivery'),
-                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
+                        new PaymentMethodChangedError(
+                            oldPaymentMethodId: $paidInAdvancePaymentMethodId,
+                            oldPaymentMethodName: 'Paid in advance',
+                            newPaymentMethodId: $invoicePaymentMethodId,
+                            newPaymentMethodName: 'Invoice',
+                            reason: 'bar',
+                        ),
+                        new PaymentMethodChangedError(
+                            oldPaymentMethodId: $invoicePaymentMethodId,
+                            oldPaymentMethodName: 'Invoice',
+                            newPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                            newPaymentMethodName: 'Cash On Delivery',
+                            reason: 'bar',
+                        ),
+                        new PaymentMethodChangedError(
+                            oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                            oldPaymentMethodName: 'Cash On Delivery',
+                            newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                            newPaymentMethodName: 'Paid in advance',
+                            reason: 'bar',
+                        ),
                     ]
                 ),
                 [
-                    self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT,
+                    \sprintf(self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT, 'Cash on delivery'),
                 ],
                 false,
                 true,
@@ -390,8 +454,20 @@ class CheckoutControllerTest extends TestCase
             [
                 new ErrorCollection(
                     [
-                        new ShippingMethodChangedError('Standard', 'Express'),
-                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
+                        new ShippingMethodChangedError(
+                            oldShippingMethodId: $standardShippingMethodId,
+                            oldShippingMethodName: 'Standard',
+                            newShippingMethodId: $expressShippingMethodId,
+                            newShippingMethodName: 'Express',
+                            reason: 'foo',
+                        ),
+                        new PaymentMethodChangedError(
+                            oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                            oldPaymentMethodName: 'Cash On Delivery',
+                            newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                            newPaymentMethodName: 'Paid in advance',
+                            reason: 'bar',
+                        ),
                     ]
                 ),
                 [
@@ -403,8 +479,20 @@ class CheckoutControllerTest extends TestCase
             [
                 new ErrorCollection(
                     [
-                        new ShippingMethodChangedError('Express', 'Standard'),
-                        new PaymentMethodChangedError('Invoice', 'Paid in advance'),
+                        new ShippingMethodChangedError(
+                            oldShippingMethodId: $expressShippingMethodId,
+                            oldShippingMethodName: 'Express',
+                            newShippingMethodId: $standardShippingMethodId,
+                            newShippingMethodName: 'Standard',
+                            reason: 'foo',
+                        ),
+                        new PaymentMethodChangedError(
+                            oldPaymentMethodId: $invoicePaymentMethodId,
+                            oldPaymentMethodName: 'Invoice',
+                            newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                            newPaymentMethodName: 'Paid in advance',
+                            reason: 'bar',
+                        ),
                     ]
                 ),
                 [
@@ -859,8 +947,8 @@ class CheckoutControllerTest extends TestCase
 
         if ($error instanceof ShippingMethodChangedError) {
             $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-            $blockedId = $this->getShippingMethodIdByName($error->getOldShippingMethodName());
-            $newId = $this->getShippingMethodIdByName($error->getNewShippingMethodName());
+            $blockedId = $error->getOldShippingMethodId();
+            $newId = $error->getNewShippingMethodId();
 
             $shippingMethodRepository->update([
                 [
@@ -891,8 +979,8 @@ class CheckoutControllerTest extends TestCase
 
         if ($error instanceof PaymentMethodChangedError) {
             $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
-            $blockedId = $this->getPaymentMethodIdByName($error->getOldPaymentMethodName());
-            $newId = $this->getPaymentMethodIdByName($error->getNewPaymentMethodName());
+            $blockedId = $error->getOldPaymentMethodId();
+            $newId = $error->getNewPaymentMethodId();
 
             $paymentMethodRepository->update([
                 [
@@ -994,33 +1082,5 @@ class CheckoutControllerTest extends TestCase
         ], Context::createDefaultContext());
 
         return $ruleId;
-    }
-
-    private function getShippingMethodIdByName(string $name): string
-    {
-        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-        $c = new Criteria();
-        $c->addFilter(
-            new EqualsFilter('name', $name)
-        );
-
-        $shippingMethodId = $shippingMethodRepository->searchIds($c, Context::createDefaultContext())->firstId();
-        static::assertNotNull($shippingMethodId);
-
-        return $shippingMethodId;
-    }
-
-    private function getPaymentMethodIdByName(string $name): string
-    {
-        $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
-        $c = new Criteria();
-        $c->addFilter(
-            new EqualsFilter('name', $name)
-        );
-
-        $paymentMethodId = $paymentMethodRepository->searchIds($c, Context::createDefaultContext())->firstId();
-        static::assertNotNull($paymentMethodId);
-
-        return $paymentMethodId;
     }
 }

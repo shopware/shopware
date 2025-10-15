@@ -105,6 +105,7 @@
       "labelInputSnippet": "Textbaustein-Set",
       "buttonDeleteDomain": "Domain löschen",
       "messageDeleteDomainError": "Die Domain \"{url}\" konnte nicht gelöscht werden, da sie mit bestehenden Produktexporten verknüpft ist.",
+      "foreignKeyDelete": "Dieser Verkaufskanal kann nicht gelöscht werden, da er noch von {assignment} verwendet wird.",
       "buttonAddDomain": "Domain hinzufügen",
       "deleteDomainModalTitle": "Domain löschen",
       "textConfirmDeleteDomain": "Möchtest Du diese Domain wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich",

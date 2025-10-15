@@ -35,7 +35,6 @@ class TranslationControllerTest extends TestCase
     public function testTranslationsRoute(): void
     {
         $expectedParams = $this->getDefaultViewParams();
-        $expectedParams['supportedLanguages'] = []; // Override with empty array as set in controller
 
         $this->twig->expects($this->once())->method('render')
             ->with('@Installer/installer/translation.html.twig', $expectedParams)

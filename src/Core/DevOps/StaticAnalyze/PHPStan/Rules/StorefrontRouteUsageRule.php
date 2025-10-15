@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class StorefrontRouteUsageRUle implements Rule
+class StorefrontRouteUsageRule implements Rule
 {
     /**
      * @var list<string>
@@ -57,17 +57,24 @@ class StorefrontRouteUsageRUle implements Rule
         }
 
         $value = $node->value;
-        /** @phpstan-ignore shopware.storefrontRouteUsage (As the PHPStan rule checks itself, this needs to be ignored) */
-        if (str_starts_with($value, 'frontend.')) {
-            $message = \sprintf('Using a route name starting with "frontend." is not allowed in the "%s" namespace (found: "%s").', $namespace, $value);
+        /** @phpstan-ignore shopware.storefrontRouteUsage, shopware.storefrontRouteUsage (As the PHPStan rule checks itself, this needs to be ignored) */
+        foreach (['frontend.', 'widgets.'] as $notAllowedStorefrontRoutesPrefix) {
+            if (str_starts_with($value, $notAllowedStorefrontRoutesPrefix)) {
+                $message = \sprintf(
+                    'Using a route name starting with "%s" is not allowed in the "%s" namespace (found: "%s").',
+                    $notAllowedStorefrontRoutesPrefix,
+                    $namespace,
+                    $value
+                );
 
-            return [
-                RuleErrorBuilder::message($message)
-                    ->line($node->getStartLine())
-                    ->identifier('shopware.storefrontRouteUsage')
-                    ->tip('Routes starting with "frontend." are provided by the Storefront package, which is not always installed.')
-                    ->build(),
-            ];
+                return [
+                    RuleErrorBuilder::message($message)
+                        ->line($node->getStartLine())
+                        ->identifier('shopware.storefrontRouteUsage')
+                        ->tip(\sprintf('Routes starting with "%s" are provided by the Storefront package, which is not always installed.', $notAllowedStorefrontRoutesPrefix))
+                        ->build(),
+                ];
+            }
         }
 
         return [];

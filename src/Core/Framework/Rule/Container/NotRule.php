@@ -33,6 +33,10 @@ class NotRule extends Container
 
         $rule = array_shift($rules);
 
+        if ($rule instanceof \__PHP_Incomplete_Class) {
+            return false;
+        }
+
         if (!$rule instanceof Rule) {
             throw RuleException::unsupportedValue(\gettype($rule), self::class);
         }

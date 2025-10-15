@@ -17,7 +17,7 @@ class XorRule extends Container
     {
         $matches = 0;
 
-        foreach ($this->rules as $rule) {
+        foreach ($this->getRules() as $rule) {
             $match = $rule->match($scope);
             if (!$match) {
                 continue;

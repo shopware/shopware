@@ -2,6 +2,12 @@
 
 ## Core
 
+### Missing plugin conditions in stored carts
+
+Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
+Unavailable child conditions are skipped; the remaining conditions determine whether the container matches.
+An AND container with no remaining conditions matches, while a NOT container whose child is unavailable does not match.
+
 ### Promotion code rate limiting
 
 Promotion code submissions through the Store API and Storefront now share a separate rate limit.

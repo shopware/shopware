@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Assert\Serialization;
 
 /**
  * @internal
@@ -20,6 +21,18 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(NotRule::class)]
 class NotRuleTest extends TestCase
 {
+    public function testMissingConditionAfterUnserializationDoesNotMatch(): void
+    {
+        $original = new NotRule([new SimpleRule()]);
+
+        // Replace the class name with an unavailable name of the same length to keep the serialized data valid.
+        $serialized = str_replace(SimpleRule::class, 'Shopware\Core\Framework\Rule\AbsentRule', serialize($original));
+        $rule = Serialization::assertUnserializedInstanceOf(NotRule::class, $serialized);
+        static::assertStringContainsString('AbsentRule', serialize($rule));
+
+        static::assertFalse($rule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class))));
+    }
+
     public function testUnsupportedValue(): void
     {
         if (!Feature::isActive('v6.8.0.0')) {

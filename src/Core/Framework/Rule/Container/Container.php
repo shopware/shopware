@@ -53,7 +53,12 @@ abstract class Container extends Rule implements ContainerInterface
      */
     public function getRules(): array
     {
-        return $this->rules;
+        // PHP can restore unavailable plugin classes as incomplete objects inside this array.
+        // Keep the stored data intact, but never expose these objects as executable rules.
+        return array_values(array_filter(
+            $this->rules,
+            static fn ($rule): bool => !$rule instanceof \__PHP_Incomplete_Class
+        ));
     }
 
     public function getConstraints(): array

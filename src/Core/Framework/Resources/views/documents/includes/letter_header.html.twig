@@ -20,7 +20,9 @@ All blocks of this template are available in the template which renders this tem
                     {% if feature('v6.7.0.0') %}
                         <span class="company-address-small">{{ addressParts|join(' - ')|sw_sanitize(null, true) }}</span><br><br>
                     {% else %}
-                        <span class="company-address-small">{{ config.companyName|sw_sanitize(null, true) }} {{ config.companyAddress|sw_sanitize(null, true) }}</span><br><br>
+                        <span class="company-address-small">
+                            {% if config.companyName %}{{ config.companyName|sw_sanitize(null, true) }}{% endif %} {% if config.companyAddress %}{{ config.companyAddress|sw_sanitize(null, true) }}{% endif %}
+                        </span><br><br>
                     {% endif %}
                 {% endset %}
 

@@ -208,6 +208,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(MediaService::class),
             $documentRepository,
+            $this->createMock(Connection::class)
         );
 
         $this->expectException(DocumentException::class);

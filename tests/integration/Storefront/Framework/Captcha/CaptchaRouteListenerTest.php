@@ -154,7 +154,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         $data = [
             'shopware_basic_captcha_confirm' => 'invalid',
-            'redirectTo' => 'frontend.checkout.register.page',
+            'errorRoute' => 'frontend.checkout.register.page',
         ];
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());

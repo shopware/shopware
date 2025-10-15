@@ -27,9 +27,9 @@
             {% block robots_txt_content_domain_rules_container %}
                 {% for domainRules in page.domainRules %}
                     {% block robots_txt_content_domain_rules %}
-                        {% for rule in domainRules.rules %}
+                        {% for directive in domainRules.directives %}
                             {% block robots_txt_content_domain_rules_rule %}
-                                {{ rule.type }}: {{ rule.path }}
+                                {{ directive.type.value }}: {{ directive.value }}
                             {% endblock %}
                         {% endfor %}
                     {% endblock %}
@@ -42,7 +42,7 @@
                         {% block robots_txt_content_global_user_agent_block %}
                             User-agent: {{ block.userAgent }}
                             {% for directive in block.directives %}
-                                {{ directive.type }}: {{ directive.value }}
+                                {{ directive.type.value }}: {{ directive.value }}
                             {% endfor %}
                         {% endblock %}
                     {% endfor %}

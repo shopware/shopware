@@ -204,11 +204,21 @@ class CaptchaRouteListenerTest extends TestCase
         $originalController = $event->getController();
         $listener->validateCaptcha($event);
 
-        // Verify that a violation was added to the list
+        // Verify that a violation was added to the list with correct properties (lines 73-82)
         static::assertCount(1, $violations);
         $violation = $violations->get(0);
         static::assertInstanceOf(\Symfony\Component\Validator\ConstraintViolation::class, $violation);
+
+        // Verify all properties set in the ConstraintViolation constructor
+        $expectedException = CaptchaException::invalid($captcha);
+        static::assertSame($expectedException->getMessage(), $violation->getMessage());
         static::assertSame('Invalid captcha', $violation->getMessageTemplate());
+        static::assertSame($expectedException->getParameters(), $violation->getParameters());
+        static::assertSame('', $violation->getRoot());
+        static::assertSame('', $violation->getPropertyPath());
+        static::assertSame('', $violation->getInvalidValue());
+        static::assertNull($violation->getPlural());
+        static::assertSame($expectedException->getErrorCode(), $violation->getCode());
 
         // Verify that the controller was changed to ErrorController (line 88)
         static::assertNotSame($originalController, $event->getController());

@@ -306,14 +306,14 @@ class SnippetService
     }
 
     /**
-     *  Collects snippet files for each given locale (ISO code).
+     *  Collects snippet files for each given locale.
      *
-     *  For each locale (e.g., "en-GB"), the method first tries to load files
+     *  For each locale (e.g., "es-AR"), the method first tries to load files
      *  that match the exact locale. If that locale contains a region separator ("-"),
-     *  it will also load files for the base language (e.g., "en").
+     *  it will also load files for the base language (e.g., "es").
      *
-     *  The base-language snippet files are prepended, ensuring region-specific
-     *  snippets (e.g., "en-GB") override more general ones ("en").
+     *  The base language snippet files are prepended, ensuring country-specific
+     *  snippets (e.g. "es-AR") override more general ones ("es").
      *
      * @param array<string, string> $isoList
      *
@@ -323,23 +323,24 @@ class SnippetService
     {
         $result = [];
         foreach ($isoList as $iso) {
-            // Load all snippet files that match the exact locale (e.g., "en-GB")
+            // Load all snippet files that match the exact locale (e.g., "es-AR")
             $files = $this->snippetFileCollection->getSnippetFilesByIso($iso);
+            preg_match(
+                SnippetPatterns::COMPLETE_LOCALE_PATTERN,
+                $iso,
+                $matchedPattern,
+                \PREG_UNMATCHED_AS_NULL
+            );
 
-            // If the locale has a region (e.g., "de-AT"), try to load its base language ("de")
-            if (\str_contains($iso, '-')) {
-                [$baseIso] = \explode('-', $iso, 2);
-
-                if ($baseIso !== $iso) {
-                    // Load snippet files for the base language
-                    $fallbackFiles = $this->snippetFileCollection->getSnippetFilesByIso($baseIso);
-
-                    // Prepend fallback files so region-specific ones override them
-                    $files = [...$fallbackFiles, ...$files];
-                }
+            // If the locale has a region (e.g., "es-AR"), try to load its base language ("es")
+            if (!empty($matchedPattern['region']) && strtolower($matchedPattern['region']) !== $iso) {
+                \assert(!empty($matchedPattern['language']));
+                \assert(!empty($matchedPattern['region']));
+                $fallbackFiles = $this->snippetFileCollection->getSnippetFilesByIso($matchedPattern['language']);
+                // Prepend fallback files so region-specific ones override them
+                $files = [...$fallbackFiles, ...$files];
             }
 
-            // Store all resolved snippet files for the current locale
             $result[$iso] = $files;
         }
 

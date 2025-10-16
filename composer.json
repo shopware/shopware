@@ -152,6 +152,7 @@
     "symfony/options-resolver": "~7.3.0",
     "symfony/polyfill-php83": ">=1.31.0",
     "symfony/polyfill-php84": ">=1.31.0",
+    "symfony/polyfill-php85": "^1.33",
     "symfony/process": "~7.3.0",
     "symfony/property-access": "~7.3.0",
     "symfony/property-info": "~7.3.0",
@@ -421,7 +422,26 @@
     "phpstan": [
       "Composer\\Config::disableProcessTimeout",
       "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+      "echo '\nRunning PHPStan in \"src\" directory\n'",
+      "phpstan analyze --memory-limit=2G -v -c phpstan-src.neon",
+      "echo '\nRunning PHPStan in \"tests\" directory\n'",
+      "phpstan analyze --memory-limit=2G -v -c phpstan-tests.neon"
+    ],
+    "phpstan:all": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+      "echo '\nRunning PHPStan together in \"src\" and \"tests\" directory\n'",
       "phpstan analyze --memory-limit=2G -v"
+    ],
+    "phpstan:src": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+      "phpstan analyze --memory-limit=2G -v -c phpstan-src.neon"
+    ],
+    "phpstan:tests": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+      "phpstan analyze --memory-limit=2G -v -c phpstan-tests.neon"
     ],
     "phpstan-errors-by-area": [
       "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"

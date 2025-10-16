@@ -7,7 +7,6 @@ parameters:
     tmpDir: var/cache/phpstan
     paths:
         - src
-        - tests
 
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
@@ -26,14 +25,9 @@ parameters:
 
         # node_modules
         - src/**/node_modules/*
-        - tests/**/node_modules/*
 
         # @todo NEXT-22697 - Remove when re-enabling cms-aware
         - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-        - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
-
-        # PHPStan rule test files
-        - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
         # Compatibility traits for Redis can be removed, once we are requiring Redis 6.0.0
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
@@ -43,29 +37,6 @@ parameters:
         - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
 
     ignoreErrors:
-        # The symfony extension checks against the "normal" container, not the test container
-        # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
-        -
-            message: '#Service ".*" is not registered in the container\.#'
-            paths:
-                - tests/unit
-                - tests/integration
-                - src/Core/Framework/Test/TestCaseBase/*.php
-        -
-            message: '#Service ".*" is private#'
-            paths:
-                - tests/performance/**/*Bench.php
-                - tests/unit/**/*Test.php
-                - tests/devops/**/*Test.php
-                - tests/migration/**/*Test.php
-                - tests/integration/**/*Test.php
-                - tests/integration/**/*TestCase.php
-
-        - # ignore errors caused by static::markTestSkipped
-            message: '#Unreachable statement - code above always terminates.#'
-            paths:
-                - tests/**/*Test.php
-
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
@@ -91,11 +62,15 @@ parameters:
             paths:
                 - src/Core/Test/Stub/DataAbstractionLayer/StaticSalesChannelRepository.php
 
+        - # Do not report unused traits, as they are used in the tests directory
+            identifier: trait.unused
+            paths:
+                - **/Test/*
+
         # Route scopes for controllers
         -
            message: '#.* has no route scope defined.*#'
            paths:
-            - **/*Test.php
             - src/Core/Installer
 
         -
@@ -111,9 +86,6 @@ parameters:
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
             path: src/*/*Hydrator.php
         -
-            message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
-            path: tests/*/*Hydrator.php
-        -
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
 
@@ -126,22 +98,6 @@ parameters:
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*(class|interface) Shopware\\#'
 
-        - # tests are allowed to add dummy classes in the same file
-            message: '#Multiple class\/interface\/trait is not allowed in single file#'
-            paths:
-                - tests/**
-
-        # ArrayFacadeTest explicitly tests array access on object, so it works from twig scripts
-        - identifier: offsetAssign.dimType
-          path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
-
-        - identifier: typePerfect.noArrayAccessOnObject
-          path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
-
-        # DefaultsTest explicitly tests that the default values are not changed
-        - identifier: staticMethod.alreadyNarrowedType
-          path: tests/devops/Core/DefaultsTest.php
-
         - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'
             path: src/Core/Framework/DataAbstractionLayer/Field/Field.php
@@ -152,9 +108,6 @@ parameters:
             paths:
                 - src/Core/Framework/Test/Plugin/_fixture/plugins/*
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
-                - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
-                - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
-                - tests/integration/Core/Framework/Plugin/_fixtures/*
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
@@ -177,13 +130,3 @@ parameters:
             message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'
             count: 4
             path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
-
-        - # The AnnotatePackageProcessorTest sets not allowed package names on purpose for easier understanding the tests
-            message: '#Parameter \#1 \$package of attribute class Shopware\\Core\\Framework\\Log\\Package constructor#'
-            identifier: argument.type
-            path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-        - # With the active `reportWrongPhpDocTypeInVarTag` phpstan parameter we should resolve this issue per area
-            message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
-            paths:
-                - tests/**

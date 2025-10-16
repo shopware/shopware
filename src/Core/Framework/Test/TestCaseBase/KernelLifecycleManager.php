@@ -64,8 +64,9 @@ class KernelLifecycleManager
      */
     public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false): TestBrowser
     {
-        /** @var TestBrowser $apiBrowser */
+        /** @phpstan-ignore symfonyContainer.serviceNotFound (PHPStan could not detect correctly, as this service is defined in the test environment) */
         $apiBrowser = $kernel->getContainer()->get('test.client');
+        \assert($apiBrowser instanceof TestBrowser);
 
         if ($enableReboot) {
             $apiBrowser->enableReboot();

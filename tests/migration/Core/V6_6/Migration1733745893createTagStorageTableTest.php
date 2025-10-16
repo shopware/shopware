@@ -46,7 +46,7 @@ class Migration1733745893createTagStorageTableTest extends TestCase
 
         $cols = $sm->listTableColumns('invalidation_tags');
         static::assertCount(2, $cols);
-        static::assertSame('tag', $cols['tag']->getName());
-        static::assertSame('id', $cols['id']->getName());
+        static::assertSame('tag', $cols['tag']->getObjectName()->toString());
+        static::assertSame('id', $cols['id']->getObjectName()->toString());
     }
 }

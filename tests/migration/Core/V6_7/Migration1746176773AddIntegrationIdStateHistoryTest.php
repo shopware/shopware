@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Types\BinaryType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -36,8 +37,12 @@ class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
         $columns = $manager->listTableColumns('state_machine_history');
         $foreignKeys = $manager->listTableForeignKeys('state_machine_history');
 
-        $filteredForeignKeys = array_filter($foreignKeys, static fn (ForeignKeyConstraint $key) => $key->getName() === 'fk.state_machine_history.integration_id');
-        $foreignKey = array_pop($filteredForeignKeys);
+         $foreignKey = array_first(
+            array_filter(
+                $foreignKeys,
+                static fn (ForeignKeyConstraint $fk) => $fk->getObjectName()?->getIdentifier()->toNormalizedValue(UnquotedIdentifierFolding::LOWER) === 'fk.state_machine_history.integration_id'
+            )
+        );
 
         static::assertInstanceOf(ForeignKeyConstraint::class, $foreignKey);
         static::assertSame('id', $foreignKey->getReferencedColumnNames()[0]->toString());

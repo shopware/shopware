@@ -1,0 +1,104 @@
+includes:
+    - phpstan-baseline.neon
+    - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
+    - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
+
+parameters:
+    tmpDir: var/cache/phpstan
+    paths:
+        - tests
+
+    scanDirectories:
+        - src
+
+    bootstrapFiles:
+        - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
+    # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
+    symfony:
+        constantHassers: false
+        containerXmlPath: 'var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
+        consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
+
+    excludePaths:
+        # node_modules
+        - tests/**/node_modules/*
+
+        # @todo NEXT-22697 - Remove when re-enabling cms-aware
+        - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
+
+        # PHPStan rule test files
+        - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
+
+    universalObjectCratesClasses:
+        - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
+
+    ignoreErrors:
+        # The symfony extension checks against the "normal" container, not the test container
+        # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
+        -
+            message: '#Service ".*" is not registered in the container\.#'
+            paths:
+                - tests/unit
+                - tests/integration
+        -
+            message: '#Service ".*" is private#'
+            paths:
+                - tests/performance/**/*Bench.php
+                - tests/unit/**/*Test.php
+                - tests/devops/**/*Test.php
+                - tests/migration/**/*Test.php
+                - tests/integration/**/*Test.php
+                - tests/integration/**/*TestCase.php
+
+        - # ignore errors caused by static::markTestSkipped
+            message: '#Unreachable statement - code above always terminates.#'
+            paths:
+                - tests/**/*Test.php
+
+        # Route scopes for controllers
+        -
+           message: '#.* has no route scope defined.*#'
+           paths:
+            - **/*Test.php
+
+        # dynamic hydrator performance
+        -
+            message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
+            path: tests/*/*Hydrator.php
+
+
+        # Internal deprecations of Shopware are handled in other places
+        - '#deprecated.*(class|interface) Shopware\\#'
+
+        - # tests are allowed to add dummy classes in the same file
+            message: '#Multiple class\/interface\/trait is not allowed in single file#'
+            paths:
+                - tests/**
+
+        # ArrayFacadeTest explicitly tests array access on object, so it works from twig scripts
+        - identifier: offsetAssign.dimType
+          path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
+
+        - identifier: typePerfect.noArrayAccessOnObject
+          path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
+
+        # DefaultsTest explicitly tests that the default values are not changed
+        - identifier: staticMethod.alreadyNarrowedType
+          path: tests/devops/Core/DefaultsTest.php
+
+        - # test plugin implementations in fixtures, the files can't be excluded as that would lead to errors when they are used
+            message: '#.*#'
+            paths:
+                - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
+                - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
+                - tests/integration/Core/Framework/Plugin/_fixtures/*
+
+        - # The AnnotatePackageProcessorTest sets not allowed package names on purpose for easier understanding the tests
+            message: '#Parameter \#1 \$package of attribute class Shopware\\Core\\Framework\\Log\\Package constructor#'
+            identifier: argument.type
+            path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
+
+        - # With the active `reportWrongPhpDocTypeInVarTag` phpstan parameter we should resolve this issue per area
+            message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
+            paths:
+                - tests/**

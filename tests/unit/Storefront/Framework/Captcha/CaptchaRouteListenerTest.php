@@ -13,7 +13,6 @@ use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Shopware\Storefront\Framework\Captcha\CaptchaRouteListener;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -38,7 +37,12 @@ class CaptchaRouteListenerTest extends TestCase
 
     public function testThrowsExceptionWhenValidationFails(): void
     {
-        $event = $this->getControllerEventMock();
+        $event = new ControllerEvent(
+            $this->createMock(HttpKernelInterface::class),
+            function (): void {},
+            new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
+            HttpKernelInterface::MAIN_REQUEST
+        );
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->method('get')->willReturn([]);
@@ -56,7 +60,12 @@ class CaptchaRouteListenerTest extends TestCase
 
     public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndNonXmlRequest(): void
     {
-        $event = $this->getControllerEventMock();
+        $event = new ControllerEvent(
+            $this->createMock(HttpKernelInterface::class),
+            function (): void {},
+            new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
+            HttpKernelInterface::MAIN_REQUEST
+        );
 
         $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
         $captcha->expects($this->once())
@@ -310,30 +319,5 @@ class CaptchaRouteListenerTest extends TestCase
             ->willReturn(true);
 
         return [$captcha];
-    }
-
-    private function getControllerEventMock(): ControllerEvent
-    {
-        return new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
-            function (): void {
-            },
-            self::getRequest($this->getRequestAttributes(true)),
-            HttpKernelInterface::MAIN_REQUEST
-        );
-    }
-
-    private static function getRequest(ParameterBag $attributes): Request
-    {
-        return new Request(attributes: $attributes->all());
-    }
-
-    private function getRequestAttributes(bool $isCheckEnabled): ParameterBag
-    {
-        $param = [
-            PlatformRequest::ATTRIBUTE_CAPTCHA => $isCheckEnabled ? true : null,
-        ];
-
-        return new ParameterBag($isCheckEnabled ? $param : []);
     }
 }

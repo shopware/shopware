@@ -2,7 +2,7 @@ import template from './sw-cms-inherit-wrapper.html.twig';
 import './sw-cms-inherit-wrapper.scss';
 import type { CmsSlotConfig, RuntimeSlot } from '../../service/cms.service';
 
-const { get, set, unset, has} = Shopware.Utils.object;
+const { get, set, unset, has } = Shopware.Utils.object;
 const { isEmpty, isUndefined } = Shopware.Utils.types;
 
 const EVENTS = {
@@ -50,11 +50,13 @@ export default Shopware.Component.wrapComponentConfig({
     ],
     props: {
         element: {
-            type: Object as PropType<RuntimeSlot & {
-                translated: {
-                    config?: CmsSlotConfig;
+            type: Object as PropType<
+                RuntimeSlot & {
+                    translated: {
+                        config?: CmsSlotConfig;
+                    };
                 }
-            }>,
+            >,
             required: true,
         },
         contentEntity: {
@@ -160,4 +162,4 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit(EVENTS.REMOVE);
         },
     },
-})
+});

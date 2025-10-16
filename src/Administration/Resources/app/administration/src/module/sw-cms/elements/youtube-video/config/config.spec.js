@@ -67,6 +67,10 @@ async function createWrapper() {
 
                     'sw-upload-listener': true,
                     'sw-media-modal-v2': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: ['field', 'element', 'contentEntity', 'label'],
+                    },
                 },
             },
         },

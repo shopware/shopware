@@ -91,6 +91,10 @@ async function createWrapper(activeTab = 'sorting') {
                     'router-link': true,
                     'sw-data-grid-skeleton': true,
                     'sw-provide': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: ['field', 'element', 'contentEntity', 'label'],
+                    },
                 },
                 provide: {
                     cmsService: {

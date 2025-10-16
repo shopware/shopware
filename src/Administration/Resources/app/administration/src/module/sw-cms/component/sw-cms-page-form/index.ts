@@ -1,7 +1,7 @@
+import type { PropType } from 'vue';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 import { type CmsSlotConfig } from '../../service/cms.service';
-import type { PropType } from 'vue';
 
 type CmsContentEntity = {
     slotConfig?: {

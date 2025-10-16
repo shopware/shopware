@@ -18,6 +18,10 @@ async function createWrapper() {
                 'sw-product-variant-info': true,
                 'sw-select-field': true,
                 'sw-select-result': true,
+                'sw-cms-inherit-wrapper': {
+                    template: '<div><slot :isInherited="false"></slot></div>',
+                    props: ['field', 'element', 'contentEntity', 'label'],
+                },
             },
         },
     });

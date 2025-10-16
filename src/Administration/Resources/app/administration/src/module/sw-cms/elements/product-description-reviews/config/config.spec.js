@@ -29,6 +29,10 @@ async function createWrapper() {
                     'sw-product-variant-info': true,
                     'sw-select-result': true,
                     'sw-select-field': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: ['field', 'element', 'contentEntity', 'label'],
+                    },
                 },
                 provide: {
                     cmsService: {

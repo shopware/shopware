@@ -44,11 +44,12 @@
                         value-types="string"
                     >
                         <sw-text-editor
-                            v-model:value="element.config.content.value"
+                            :value="element.config.content.value"
                             :disabled="isInherited"
                             :allow-inline-data-mapping="true"
                             :sanitize-info-warn="true"
                             enable-transparent-background
+                            @update:value="onInput"
                             @blur="onBlur"
                         />
 

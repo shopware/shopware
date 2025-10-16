@@ -88,16 +88,16 @@ Useful when URL param name differs from internal naming convention.
 
 ### Constraints
 
-Optional filters in resolution config:
+Optional filters in resolution config. Uses QueryStringParser format (same as Admin API):
 
 ```php
-"constraints": {
-  "active": true,           // Scalar → EqualsFilter
-  "stock": {"gte": 10}      // Range → RangeFilter (gte/lte/gt/lt/eq/neq)
-}
+"constraints": [
+  {"type": "equals", "field": "active", "value": true},
+  {"type": "range", "field": "stock", "parameters": {"gte": 10}}
+]
 ```
 
-Multiple constraints combine with AND. Use for status, availability, or business rule filtering.
+Multiple constraints combine with AND. Supported filter types: equals, range, contains, prefix, suffix, equalsAny, multi, and, or, not, nand, nor. Use for status, availability, or business rule filtering.
 
 ## Performance: Query Batching
 

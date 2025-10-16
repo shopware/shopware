@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Routing\IdResolution;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ResolutionConfig
 {
     /**
-     * @param array<string, mixed> $constraints e.g., ['stock' => ['gte' => 100]]
+     * @param list<Filter> $constraints
      */
     public function __construct(
         public string $entity,

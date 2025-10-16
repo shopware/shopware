@@ -71,16 +71,16 @@ If `placeholder` field omitted, defaults to parameter name.
 
 ### Constraints
 
-Optional constraint filters in ResolutionConfig:
+Optional constraint filters in ResolutionConfig. Uses QueryStringParser format:
 
 ```php
 'constraints' => [
-    'active' => true,           // Scalar → EqualsFilter
-    'stock' => ['gte' => 10],   // Array → RangeFilter (gte/lte/gt/lt/eq/neq)
+    ['type' => 'equals', 'field' => 'active', 'value' => true],
+    ['type' => 'range', 'field' => 'stock', 'parameters' => ['gte' => 10]],
 ]
 ```
 
-Multiple constraints combine with AND. Use cases: status filtering, stock availability, price ranges.
+Multiple constraints combine with AND. Supported filter types: equals, range, contains, prefix, suffix, equalsAny, multi, and, or, not, nand, nor.
 
 ## Entity Query Mechanics
 

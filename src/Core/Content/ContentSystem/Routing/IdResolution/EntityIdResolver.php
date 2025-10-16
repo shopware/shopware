@@ -10,8 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -93,23 +92,17 @@ class EntityIdResolver
      */
     private function buildEntityCriteria(array $resolutionParameters): Criteria
     {
-        $filters = [];
+        $criteria = new Criteria();
         foreach ($resolutionParameters as $resolutionParameter) {
             $matchField = $resolutionParameter->resolutionConfig->matchField;
             $value = $resolutionParameter->value;
             $constraints = $resolutionParameter->resolutionConfig->constraints;
 
-            $andFilters = [new EqualsFilter($matchField, $value)];
-
-            foreach ($constraints as $field => $constraint) {
-                $andFilters[] = $this->buildConstraintFilter($field, $constraint);
-            }
-
-            $filters[] = new MultiFilter(MultiFilter::CONNECTION_AND, $andFilters);
+            $criteria->addFilter(new EqualsFilter($matchField, $value));
+            array_walk($constraints, static function (Filter $constraint) use ($criteria): void {
+                $criteria->addFilter($constraint);
+            });
         }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
 
         $matchFields = array_unique(array_map(
             fn ($item) => $item->resolutionConfig->matchField,
@@ -123,22 +116,6 @@ class EntityIdResolver
         }
 
         return $criteria;
-    }
-
-    private function buildConstraintFilter(string $field, mixed $constraint): MultiFilter|EqualsFilter
-    {
-        if (\is_array($constraint)) {
-            $filters = [];
-            foreach ($constraint as $operator => $value) {
-                $filters[] = new RangeFilter($field, [
-                    $operator => $value,
-                ]);
-            }
-
-            return new MultiFilter(MultiFilter::CONNECTION_AND, $filters);
-        }
-
-        return new EqualsFilter($field, $constraint);
     }
 
     /**

@@ -231,9 +231,9 @@ Resolution parameters query the database to find entity IDs.
       "resolution": {
         "entity": "product",
         "match_field": "productNumber",
-        "constraints": {
-          "active": true
-        }
+        "constraints": [
+          {"type": "equals", "field": "active", "value": true}
+        ]
       }
     }
   },
@@ -257,7 +257,7 @@ Fields:
 - `placeholder` - Name used in layouts (e.g., `{{product_id}}`)
 - `resolution` - Entity lookup configuration
 - `match_field` - Entity field to query
-- `constraints` - Additional filters (e.g., only active products)
+- `constraints` - Array of criteria filter objects (same as Admin API)
 - `layoutId` - Static layout UUID or null
 - `layoutCascade` - Dynamic lookup array or null
 - `priority` - Route matching priority (higher checked first)
@@ -270,6 +270,51 @@ Process:
 3. Query database: `SELECT id FROM product WHERE productNumber = 'SW10234' AND active = true`
 4. Result: `product_id` = "019456789abc..."
 5. Placeholder `{{product_id}}` available in layout
+
+#### Constraints
+
+Constraints filter entity resolution using Shopware's standard filter format (same as Admin API). Each constraint is a filter object with `type`, `field`, and `value` or `parameters`. Multiple constraints combine with AND logic.
+
+**Equals Filter** - Exact match:
+```json
+"constraints": [
+  {"type": "equals", "field": "active", "value": true}
+]
+```
+
+**Range Filter** - Numeric/date ranges:
+```json
+"constraints": [
+  {"type": "range", "field": "stock", "parameters": {"gte": 10, "lte": 100}}
+]
+```
+
+**Multiple Constraints** - Combined with AND:
+```json
+"constraints": [
+  {"type": "equals", "field": "active", "value": true},
+  {"type": "range", "field": "stock", "parameters": {"gte": 10}},
+  {"type": "contains", "field": "name", "value": "Premium"}
+]
+```
+
+**Multi Filter** - Nested conditions:
+```json
+"constraints": [
+  {
+    "type": "multi",
+    "operator": "OR",
+    "queries": [
+      {"type": "equals", "field": "stock", "value": 0},
+      {"type": "equals", "field": "isCloseout", "value": true}
+    ]
+  }
+]
+```
+
+Available filter types: `equals`, `equalsAny`, `contains`, `range`, `prefix`, `suffix`, `not`, `multi` (with `AND`/`OR` operators).
+
+For complete filter reference, see [Shopware Filters Documentation](https://developer.shopware.com/docs/resources/references/core-reference/dal-reference/filters-reference.html).
 
 #### Passthrough Parameters
 
@@ -837,9 +882,9 @@ Combined example showing routing, data loading, and context distribution.
       "resolution": {
         "entity": "product",
         "match_field": "productNumber",
-        "constraints": {
-          "active": true
-        }
+        "constraints": [
+          {"type": "equals", "field": "active", "value": true}
+        ]
       }
     }
   },

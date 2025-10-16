@@ -15,7 +15,13 @@ Routes are filtered by sales channel through their **layout assignments**, not t
 
 **How it works:**
 
-RouteCollectionBuilder filters routes by querying:
+Routes are included if:
+- Route has at least one layout assignment for the current sales channel, OR
+- Route has at least one layout assignment with null salesChannelId (global)
+
+Routes without any layout assignments won't be returned by RouteCollectionBuilder.
+
+**Implementation:**
 ```php
 $criteria->addFilter(new OrFilter([
     new EqualsFilter('layoutAssignments.salesChannelId', $context->getSalesChannel()->getId()),
@@ -23,11 +29,7 @@ $criteria->addFilter(new OrFilter([
 ]));
 ```
 
-RouteCollectionBuilder filters routes by querying with sales channel context. Routes are included if:
-- Route has layout assignment for current sales channel, OR
-- Route has layout assignment with null salesChannelId (global)
-
-Routes without any layout assignments won't be returned. See `RouteCollectionBuilder::build()` for Criteria implementation.
+See `RouteCollectionBuilder::build()` for full implementation.
 
 ### Entity Structure
 

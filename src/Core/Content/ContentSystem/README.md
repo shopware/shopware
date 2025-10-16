@@ -2,11 +2,13 @@
 
 Runtime content routing and layout rendering. Routes stored in DB, not container config, because merchants create them through the admin UI. Routes can be assigned to specific sales channels.
 
-Three-phase architecture:
+Five-phase pipeline architecture:
 
-1. **Routing**: URL → content route → entity IDs (Routing/)
-2. **Layout Resolution**: Route + context → content layout (Routing/LayoutResolution/)
-3. **Hydration**: Layout + data requirements → populated content tree (Hydration/)
+1. **Route Matching**: URL → matched content route (Routing/Router/)
+2. **Entity Resolution**: URL parameters → entity IDs (Routing/IdResolution/)
+3. **Layout Resolution**: Route + context → content layout (Routing/LayoutResolution/)
+4. **Refinement**: Layout + resolved data → refined layout (Layout/Refinery/)
+5. **Hydration**: Refined layout + data requirements → populated content tree (Hydration/)
 
 Store API entry point (`/store-api/content/{path}`) orchestrates full pipeline in SalesChannel/.
 

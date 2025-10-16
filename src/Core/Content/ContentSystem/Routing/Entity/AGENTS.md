@@ -36,7 +36,10 @@ See `RouteCollectionBuilder::build()` for full implementation.
 Routes must have:
 - `url_pattern`: Pattern with `{placeholders}`
 - `parameter_bindings`: Maps placeholders to resolution rules (`array<string, ParameterBinding>`)
-- `priority`: Tie-breaker for pattern matching
+- `priority`: Tie-breaker for pattern matching (optional, default: 0)
+- `name`: Human-readable route identifier (required)
+- `active`: Boolean flag, inactive routes excluded from matching (default: true)
+- `overrides`: Optional configuration overrides
 
 Layout assignments stored in `content_layout_assignment` table with `route_id` foreign key.
 

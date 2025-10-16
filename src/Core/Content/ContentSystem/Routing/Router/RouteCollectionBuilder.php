@@ -21,6 +21,21 @@ use Symfony\Component\Routing\RouteCollection;
 class RouteCollectionBuilder
 {
     /**
+     * Parameter name for storing the matched ContentRouteEntity in route defaults
+     */
+    public const PARAM_CONTENT_ROUTE = '_content_route';
+
+    /**
+     * Parameter name for storing the matched ContentRouteEntity ID in route defaults
+     */
+    public const PARAM_CONTENT_ROUTE_ID = '_content_route_id';
+
+    /**
+     * Symfony's standard route name parameter
+     */
+    public const PARAM_ROUTE = '_route';
+
+    /**
      * @internal
      *
      * @param EntityRepository<ContentRouteCollection> $contentRouteRepository
@@ -46,11 +61,10 @@ class RouteCollectionBuilder
 
         $collection = new RouteCollection();
 
-        /** @var ContentRouteEntity $contentRoute */
         foreach ($routes as $contentRoute) {
             $route = new Route($contentRoute->getUrlPattern());
-            $route->setDefault('_content_route_id', $contentRoute->getId());
-            $route->setDefault('_content_route', $contentRoute);
+            $route->setDefault(self::PARAM_CONTENT_ROUTE_ID, $contentRoute->getId());
+            $route->setDefault(self::PARAM_CONTENT_ROUTE, $contentRoute);
 
             $collection->add('content_route_' . $contentRoute->getId(), $route);
         }

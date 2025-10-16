@@ -14,10 +14,18 @@ final readonly class EntityIdMap
     /**
      * @param array<string, string> $map Placeholder name => Entity UUID
      */
-    public function __construct(
+    private function __construct(
         private array $map = []
     ) {
         $this->validate();
+    }
+
+    /**
+     * @param array<string, string> $ids
+     */
+    public static function from(array $ids): self
+    {
+        return new self($ids);
     }
 
     public static function empty(): self

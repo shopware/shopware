@@ -47,7 +47,7 @@ class ContentRouteLoader
         $resolvedData = $this->entityIdResolver->resolve($match, $context);
 
         try {
-            $layoutId = $this->layoutResolver->resolve($match, $resolvedData, $context);
+            $layoutId = $this->layoutResolver->resolve($match->route, $resolvedData, $context);
         } catch (\Throwable $e) {
             throw ContentSystemException::resolutionFailed($route->getName(), $e->getMessage(), $e);
         }

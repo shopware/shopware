@@ -44,7 +44,7 @@ class EntityIdResolver
             $resolvedEntityIdSets[] = $ids;
         }
 
-        return new ResolvedData(new EntityIdMap(array_merge([], ...$resolvedEntityIdSets)), $passthroughParameters);
+        return new ResolvedData(EntityIdMap::from(array_merge(...$resolvedEntityIdSets)), $passthroughParameters);
     }
 
     /**
@@ -75,10 +75,11 @@ class EntityIdResolver
             }
 
             if (!$found) {
+                $valueStr = \is_scalar($value) ? (string) $value : (\json_encode($value) ?: 'complex value');
                 throw ContentSystemException::parameterResolutionFailed(
                     $entityType,
                     $matchField,
-                    $value,
+                    $valueStr,
                     $placeholder
                 );
             }

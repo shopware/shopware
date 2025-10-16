@@ -12,7 +12,7 @@
 
 ### Method Behavior
 
-**LayoutResolver::resolve(RouteMatchResult, ResolvedData, SalesChannelContext): ?string**
+**LayoutResolver::resolve(ContentRouteEntity, ResolvedData, SalesChannelContext): ?string**
 
 Returns layout ID or NULL. Never throws on no match - NULL indicates fallback needed upstream.
 

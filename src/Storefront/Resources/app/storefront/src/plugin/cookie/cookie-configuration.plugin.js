@@ -183,7 +183,8 @@ export default class CookieConfiguration extends Plugin {
      */
     async _fetchCookieGroups() {
         try {
-            const response = await fetch('/cookie/groups', {
+            const url = window.router['frontend.cookie.groups'];
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',

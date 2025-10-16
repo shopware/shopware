@@ -9,6 +9,7 @@
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator"/>
             <argument>%shopware.messenger.enforce_message_size%</argument>
+            <argument>%shopware.messenger.message_max_kib_size%</argument>
 
             <tag name="kernel.event_listener" event="Symfony\Component\Messenger\Event\SendMessageToTransportsEvent"/>
         </service>

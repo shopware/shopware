@@ -323,6 +323,11 @@
                     "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
                     "default": false
                 },
+                "message_max_kib_size": {
+                    "type": "integer",
+                    "default": 1024,
+                    "title": "Defines the maximum message size in KiB. Messages exceeding this size will be rejected with an exception. If set to 0, no limit is enforced."
+                },
                 "stats": {
                     "type": [
                         "object",

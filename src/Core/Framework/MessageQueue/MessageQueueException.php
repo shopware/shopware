@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -59,9 +59,16 @@ class MessageQueueException extends HttpException
         );
     }
 
-    public static function queueMessageSizeExceeded(string $messageName, float $size): self
+    /**
+     * @deprecated tag:v6.8.0 - Parameter $maxSize will be required and not nullable.
+     */
+    public static function queueMessageSizeExceeded(string $messageName, float $size, ?int $maxSize = null): self
     {
-        $message = 'The message "{{ message }}" exceeds the {{ maxSize }} kB size limit with its size of {{ size }} kB.';
+        if ($maxSize === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Parameter "maxSize" will be required and not nullable');
+        }
+
+        $message = 'The message "{{ message }}" exceeds the {{ maxSize }} KiB size limit with its size of {{ size }} KiB.';
 
         return new self(
             Response::HTTP_REQUEST_ENTITY_TOO_LARGE,
@@ -69,8 +76,8 @@ class MessageQueueException extends HttpException
             $message,
             [
                 'message' => $messageName,
+                'maxSize' => $maxSize,
                 'size' => $size,
-                'maxSize' => MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT / 1024,
             ]
         );
     }

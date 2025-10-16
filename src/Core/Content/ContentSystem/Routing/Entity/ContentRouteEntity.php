@@ -19,7 +19,7 @@ class ContentRouteEntity extends Entity
     protected string $name;
 
     /**
-     * Symfony route pattern with placeholders (e.g., /product/{seoUrl})
+     * Normalized during persistence to ensure leading slash.
      */
     protected string $urlPattern;
 

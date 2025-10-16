@@ -127,6 +127,13 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\UrlPatternFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <!-- Type Registry System -->
         <service id="Shopware\Core\Content\ContentSystem\Layout\ElementType\Registry\ContentElementTypeRegistry"/>
 

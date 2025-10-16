@@ -34,6 +34,7 @@ class ContentRouteLoader
 
     public function load(string $path, Request $request, SalesChannelContext $context): ContentPage
     {
+        // Normalize to match stored URL patterns (normalized during persistence)
         $pathInfo = '/' . ltrim($path, '/');
 
         $match = $this->contentRouter->match($pathInfo, $context);

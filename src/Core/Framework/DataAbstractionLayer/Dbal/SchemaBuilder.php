@@ -17,6 +17,7 @@ use Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterListField;
 use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingField;
 use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Routing\Field\ResolutionConfigField;
+use Shopware\Core\Content\ContentSystem\Routing\Field\UrlPatternField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
@@ -130,6 +131,8 @@ class SchemaBuilder
         FlowTemplateConfigField::class => Types::JSON,
         CheapestPriceField::class => Types::JSON,
         MeasurementUnitsField::class => Types::JSON,
+
+        UrlPatternField::class => Types::STRING,
         ContentElementField::class => Types::JSON,
         DataRequirementsField::class => Types::JSON,
         ElementSlotsField::class => Types::JSON,

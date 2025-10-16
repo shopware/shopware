@@ -82,7 +82,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             throw PaymentException::invalidToken($token);
         }
 
-        if (!($savedToken = $this->has($token))) {
+        if (!($savedToken = $this->getSavedToken($token))) {
             throw PaymentException::tokenInvalidated($token);
         }
 
@@ -133,7 +133,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
     /**
      * @return false|array<string, mixed>
      */
-    private function has(string $token): bool|array
+    private function getSavedToken(string $token): bool|array
     {
         return $this->connection->fetchAssociative(
             'SELECT token, consumed FROM payment_token WHERE token = :token',

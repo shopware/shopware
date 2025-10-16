@@ -3,20 +3,20 @@ title: Repeat payment finalize
 issue: #12593
 ---
 # Core
-* Added `src/Core/Migration/V6_7/Migration1760438732AddConsumedToPaymentToken.php`, which introduces a new consumed column to the payment_token table to track token usage.
-* Added `src/Core/Checkout/Payment/Cleanup/CleanupPaymentTokenTask.php`, a scheduled task that runs daily to clean up expired tokens.
-* Added the feature flag `REPEATED_PAYMENT_FINALIZE` to enable the new behavior.
-* Changed `src/Core/Checkout/Payment/Controller/PaymentController.php` to perform an early return if a token has already been consumed, preventing redundant finalizations.
-* Changed `src/Core/Checkout/Payment/Cart/Token/JWTFactoryV2.php and src/Core/Checkout/Payment/Cart/Token/TokenStruct.php` to support the new consumed logic and ensure consistency during token creation and handling.
+* Added `src/Core/Checkout/Payment/Cleanup/CleanupPaymentTokenTask.php` to daily clean up old payment tokens.
+* Added the feature flag `REPEATED_PAYMENT_FINALIZE` to enable repeated calls to the `/payment-finalize` step without running into errors.
+* Changed `src/Core/Checkout/Payment/Controller/PaymentController.php` to redirect to the finalize url if the payment token was already used.
 ___
 # Upgrade Information
-## Payment Token Management
-### Database Schema
-A new consumed column has been added to payment_token. Run migrations after upgrading.
-### Token Finalization
-Finalizing the same token multiple times will no longer result in an error, if the token is valid and has already been processed.
-## Cleanup Task
-A new scheduled task will automatically remove expired and consumed tokens to keep the database clean.
+## Multiple payment finalize calls allowed
+With the feature flag `REPEATED_PAYMENT_FINALIZE`, the `/payment-finalize` endpoint can now be called multiple times using the same payment token.
+If the token has already been consumed, the user will be redirected directly to the finish page instead of triggering a PaymentException.
+To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
+Payment tokens are no longer deleted immediately after use. A new scheduled task automatically removes expired tokens to keep the `payment_token` table clean.
 ___
 # Next Major Version Changes
-The feature flag will be removed and the behavior become standard
+## Multiple payment finalize calls allowed
+Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.
+If the token has already been consumed, the user is redirected to the finish page without triggering a PaymentException.
+To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
+Since tokens are no longer deleted after use, a new scheduled task runs daily to remove all expired tokens and keep the system clean.

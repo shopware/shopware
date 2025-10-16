@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Payment\Cleanup;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cleanup\CleanupPaymentTokenTaskHandler;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -24,9 +25,9 @@ class CleanupPaymentTokenHandlerTest extends TestCase
         $sql = <<<SQL
                 INSERT INTO payment_token (token, expires)
                 VALUES
-                    ('token-1', '{$now->modify('-10 minutes')->format('Y-m-d H:i:s.v')}'),
-                    ('token-2', '{$now->modify('-15 minutes')->format('Y-m-d H:i:s.v')}'),
-                    ('token-3', '{$now->modify('+30 minutes')->format('Y-m-d H:i:s.v')}')
+                    ('token-1', '{$now->modify('-10 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT)}'),
+                    ('token-2', '{$now->modify('-15 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT)}'),
+                    ('token-3', '{$now->modify('+30 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT)}')
             SQL;
 
         $connection->executeStatement($sql);

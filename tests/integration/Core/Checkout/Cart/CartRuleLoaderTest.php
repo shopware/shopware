@@ -67,7 +67,7 @@ class CartRuleLoaderTest extends TestCase
         $cart = new Cart('test');
 
         $result = $cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior());
-        static::assertSame($result->getCart()->getPrice()->getTaxStatus(), $expectedTaxConfig);
+        static::assertSame($expectedTaxConfig, $result->getCart()->getPrice()->getTaxStatus());
     }
 
     public static function taxConfigProvider(): \Generator

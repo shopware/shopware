@@ -59,7 +59,7 @@ class HealthCheckController
         $executionContextRaw = (string) $request->get('context', SystemCheckExecutionContext::WEB->value);
         $executionContext = SystemCheckExecutionContext::tryFrom($executionContextRaw);
         if (!$executionContext instanceof SystemCheckExecutionContext) {
-            throw ApiException::badRequest('invalid execution context ' . $executionContextRaw);
+            throw ApiException::badRequest('Invalid execution context: ' . $executionContextRaw);
         }
 
         $result = $this->systemChecker->check($executionContext);

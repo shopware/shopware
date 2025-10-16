@@ -1,11 +1,11 @@
 ---
-title: update health check api
+title: Update health check API
 author: Malte Janz
 author_email: m.janz@shopware.com
 author_github: @MalteJanz
 ---
 # Core
-* Added `AdministrationReadinessCheck.php` that is part of the `pre_rollout` context
+* Added `\Shopware\Administration\Framework\SystemCheck\AdministrationReadinessCheck` that is part of the `pre_rollout` context
   to validate the administration is build correctly and healthy.
 * Added optional `shopware.api.static_token` config option to `shopware.yaml`,
   that is best set as environment variable (because it should be secret).

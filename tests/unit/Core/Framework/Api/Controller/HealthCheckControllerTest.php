@@ -47,7 +47,13 @@ class HealthCheckControllerTest extends TestCase
             'responseTime' => 0.07630205154418945,
         ];
 
-        $result = new Result('SaleChannelReadiness', Status::OK, 'All sales channels are OK', true, $extra);
+        $result = new Result(
+            'SaleChannelReadiness',
+            Status::OK,
+            'All sales channels are OK',
+            true,
+            $extra
+        );
         $this->systemChecker->expects($this->once())
             ->method('check')
             ->willReturn([$result]);
@@ -85,8 +91,12 @@ class HealthCheckControllerTest extends TestCase
     }
 
     #[DataProvider('authorizationTokenProvider')]
-    public function testSystemHealthCheckAuthorization(bool $expectedOAuthServerException, ?string $headerValue = null, ?string $staticToken = null, ?string $validBearer = null): void
-    {
+    public function testSystemHealthCheckAuthorization(
+        bool $expectedOAuthServerException,
+        ?string $headerValue = null,
+        ?string $staticToken = null,
+        ?string $validBearer = null
+    ): void {
         $controller = $this->createHealthCheckController($staticToken, $validBearer);
         $request = Request::create('', 'GET', []);
         if ($headerValue !== null) {
@@ -153,25 +163,29 @@ class HealthCheckControllerTest extends TestCase
         ];
     }
 
-    private function createHealthCheckController(?string $staticToken = null, ?string $validBearer = null): HealthCheckController
-    {
+    private function createHealthCheckController(
+        ?string $staticToken = null,
+        ?string $validBearer = null
+    ): HealthCheckController {
         $this->eventDispatcher = new CollectingEventDispatcher();
         $this->systemChecker = $this->createMock(SystemChecker::class);
 
         $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
-        $tokenValidator->method('validateAuthorization')->willReturnCallback(function (Request $request) use ($validBearer): void {
-            // simplified mock of original implementation in src/Core/Framework/Api/OAuth/SymfonyBearerTokenValidator.php
-            if ($request->headers->has(HealthCheckController::HEADER_AUTHORIZATION) === false) {
-                throw OAuthServerException::accessDenied('Missing "Authorization" header');
-            }
+        $tokenValidator->method('validateAuthorization')->willReturnCallback(
+            function (Request $request) use ($validBearer): void {
+                // simplified mock of original implementation in src/Core/Framework/Api/OAuth/SymfonyBearerTokenValidator.php
+                if ($request->headers->has(HealthCheckController::HEADER_AUTHORIZATION) === false) {
+                    throw OAuthServerException::accessDenied('Missing "Authorization" header');
+                }
 
-            $header = $request->headers->get(HealthCheckController::HEADER_AUTHORIZATION, '');
-            $jwt = \trim((string) \preg_replace('/^\s*Bearer\s/', '', $header));
+                $header = $request->headers->get(HealthCheckController::HEADER_AUTHORIZATION, '');
+                $jwt = \trim((string) \preg_replace('/^\s*Bearer\s/', '', $header));
 
-            if (empty($validBearer) || $jwt !== $validBearer) {
-                throw OAuthServerException::accessDenied('Access token is invalid');
+                if (empty($validBearer) || $jwt !== $validBearer) {
+                    throw OAuthServerException::accessDenied('Access token is invalid');
+                }
             }
-        });
+        );
 
         return new HealthCheckController(
             $this->eventDispatcher,

@@ -47,7 +47,7 @@ readonly class MessageQueueSizeRestrictListener
         if ($messageLengthInBytes > $this->messageMaxKiBSize * 1024) {
             $messageName = $event->getEnvelope()->getMessage()::class;
 
-            throw MessageQueueException::queueMessageSizeExceeded($messageName, $messageLengthInBytes / 1024, $this->messageMaxKiBSize);
+            throw MessageQueueException::maxQueueMessageSizeExceeded($messageName, $messageLengthInBytes / 1024, $this->messageMaxKiBSize);
         }
     }
 }

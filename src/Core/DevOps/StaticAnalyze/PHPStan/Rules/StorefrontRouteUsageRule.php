@@ -23,6 +23,13 @@ class StorefrontRouteUsageRule implements Rule
 {
     /**
      * @var list<string>
+     *
+     * @phpstan-ignore shopware.storefrontRouteUsage, shopware.storefrontRouteUsage (As the PHPStan rule checks itself, this needs to be ignored)
+     */
+    private const NOT_ALLOWED_STOREFRONT_ROUTE_PREFIXES = ['frontend.', 'widgets.'];
+
+    /**
+     * @var list<string>
      */
     private array $allowedStorefrontRouteNamespaces;
 
@@ -57,8 +64,7 @@ class StorefrontRouteUsageRule implements Rule
         }
 
         $value = $node->value;
-        /** @phpstan-ignore shopware.storefrontRouteUsage, shopware.storefrontRouteUsage (As the PHPStan rule checks itself, this needs to be ignored) */
-        foreach (['frontend.', 'widgets.'] as $notAllowedStorefrontRoutesPrefix) {
+        foreach (self::NOT_ALLOWED_STOREFRONT_ROUTE_PREFIXES as $notAllowedStorefrontRoutesPrefix) {
             if (str_starts_with($value, $notAllowedStorefrontRoutesPrefix)) {
                 $message = \sprintf(
                     'Using a route name starting with "%s" is not allowed in the "%s" namespace (found: "%s").',

@@ -54,7 +54,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
-        $salesChannelByLanguage = $this->languageLoader->loadLanguages();
+        $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
         $visibilities = [];

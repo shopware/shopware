@@ -144,6 +144,29 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
         });
 
+        it('should reset the width when sidebar was collapsed through the button', async () => {
+            mockLocalStorage.getItem.mockReturnValue('600');
+
+            const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: true,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('600px');
+
+            await wrapper.find('.sw-sidebar-renderer__button-collapse').trigger('click');
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('480px');
+            expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '480');
+        });
+
         it('should not render handle when resizing is not allowed', async () => {
             const wrapper = await createWrapper();
 

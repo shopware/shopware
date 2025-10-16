@@ -12,6 +12,8 @@ use Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsField;
+use Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterField;
+use Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterListField;
 use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingField;
 use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Routing\Field\ResolutionConfigField;
@@ -136,6 +138,8 @@ class SchemaBuilder
         ParameterBindingField::class => Types::JSON,
         ParameterBindingsField::class => Types::JSON,
         ResolutionConfigField::class => Types::JSON,
+        CriteriaFilterField::class => Types::JSON,
+        CriteriaFilterListField::class => Types::JSON,
 
         ChildCountField::class => Types::INTEGER,
         IntField::class => Types::INTEGER,

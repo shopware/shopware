@@ -19,7 +19,7 @@ class ResolutionConfigField extends JsonField
         $propertyMapping = [
             new StringField('entity', 'entity'),
             new StringField('match_field', 'matchField'),
-            new JsonField('constraints', 'constraints'),
+            new CriteriaFilterListField('constraints', 'constraints'),
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);

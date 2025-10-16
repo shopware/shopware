@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
@@ -19,6 +21,15 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @phpstan-import-type EqualsFilterType from QueryStringParser
+ * @phpstan-import-type NotFilterType from QueryStringParser
+ * @phpstan-import-type MultiFilterType from QueryStringParser
+ * @phpstan-import-type ContainsFilterType from QueryStringParser
+ * @phpstan-import-type PrefixFilterType from QueryStringParser
+ * @phpstan-import-type SuffixFilterType from QueryStringParser
+ * @phpstan-import-type RangeFilterType from QueryStringParser
+ * @phpstan-import-type EqualsAnyFilterType from QueryStringParser
+ *
  * @internal
  */
 #[Package('discovery')]
@@ -26,7 +37,8 @@ class ResolutionConfigFieldSerializer extends AbstractFieldSerializer
 {
     public function __construct(
         ValidatorInterface $validator,
-        DefinitionInstanceRegistry $definitionRegistry
+        DefinitionInstanceRegistry $definitionRegistry,
+        private readonly CriteriaFilterFieldSerializer $filterSerializer
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -74,24 +86,41 @@ class ResolutionConfigFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('resolution', 'array', \gettype($value));
         }
 
+        /** @var array<string, mixed> $value */
         return $this->deserializeResolutionConfig($value);
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     entity: string,
+     *     match_field: string,
+     *     constraints?: list<EqualsFilterType|NotFilterType|MultiFilterType|ContainsFilterType|PrefixFilterType|SuffixFilterType|RangeFilterType|EqualsAnyFilterType>
+     * }
      */
     public function serializeResolutionConfig(ResolutionConfig $config): array
     {
-        $array = [
+        $serializedResolutionConfig = [
             'entity' => $config->entity,
             'match_field' => $config->matchField,
         ];
 
         if ($config->constraints !== []) {
-            $array['constraints'] = $config->constraints;
+            $serializedConstraints = [];
+            foreach ($config->constraints as $filter) {
+                if ($filter instanceof Filter) {
+                    $serializedConstraints[] = $this->filterSerializer->serializeCriteriaFilter($filter);
+                    continue;
+                }
+
+                if (\is_array($filter)) {
+                    $serializedConstraints[] = $filter;
+                }
+            }
+
+            $serializedResolutionConfig['constraints'] = $serializedConstraints;
         }
 
-        return $array;
+        return $serializedResolutionConfig;
     }
 
     /**
@@ -99,7 +128,28 @@ class ResolutionConfigFieldSerializer extends AbstractFieldSerializer
      */
     public function deserializeResolutionConfig(array $data): ResolutionConfig
     {
-        return new ResolutionConfig($data['entity'] ?? '', $data['match_field'] ?? 'id', $data['constraints'] ?? []);
+        $entity = $data['entity'] ?? '';
+        $matchField = $data['match_field'] ?? 'id';
+        $constraintsData = $data['constraints'] ?? [];
+
+        $filters = [];
+        if ($entity !== '' && $constraintsData !== []) {
+            $definition = $this->definitionRegistry->getByEntityName($entity);
+
+            foreach ($constraintsData as $index => $constraintData) {
+                if (!\is_array($constraintData)) {
+                    continue;
+                }
+
+                $filters[] = $this->filterSerializer->deserializeCriteriaFilter(
+                    $constraintData,
+                    $definition,
+                    '/constraints/' . $index
+                );
+            }
+        }
+
+        return new ResolutionConfig($entity, $matchField, $filters);
     }
 
     protected function getConstraints(Field $field): array

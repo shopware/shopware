@@ -29,6 +29,7 @@ class ContentSystemException extends HttpException
 
     public const INVALID_FIELD_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_TYPE';
     public const INVALID_FIELD_VALUE_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE';
+    public const CRITERIA_FILTER_FIELD_DECODE_NOT_SUPPORTED = 'CONTENT_SYSTEM__CRITERIA_FILTER_FIELD_DECODE_NOT_SUPPORTED';
 
     public const ELEMENT_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_NOT_FOUND';
     public const INVALID_ELEMENT_ID = 'CONTENT_SYSTEM__INVALID_ELEMENT_ID';
@@ -203,6 +204,15 @@ class ContentSystemException extends HttpException
             self::PATH_INTEGRITY_VIOLATION,
             'Path integrity violation: {{ reason }}',
             ['reason' => $reason]
+        );
+    }
+
+    public static function criteriaFilterFieldDecodeNotSupported(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CRITERIA_FILTER_FIELD_DECODE_NOT_SUPPORTED,
+            'CriteriaFilterField does not support decode. Use ResolutionConfigField for full encode/decode support with entity context.'
         );
     }
 }

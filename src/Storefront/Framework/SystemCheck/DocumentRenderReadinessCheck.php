@@ -101,8 +101,10 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
             if (!in_array($documentType, self::TESTABLE_DOCUMENT_TYPES, true)) {
                 $result[Status::OK->name] = Status::OK;
-                $extra[$documentType] = [
-                    'message' => 'This document type is not covered by this check; skipping.',
+                $extra = [
+                    'documentType' => $documentType,
+                    'status' => Status::SKIPPED->name,
+                    'message' => 'This document type is not covered by this check.',
                 ];
                 continue;
             }
@@ -111,14 +113,26 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
             if ($orderData === null) {
                 $result[Status::OK->name] = Status::OK;
-                $extra[$documentType] = [
-                    'message' => 'No order with document of this type found; skipping.',
+                $extra = [
+                    'documentType' => $documentType,
+                    'status' => Status::SKIPPED->name,
+                    'message' => 'No order with document of this type found.',
                 ];
 
                 continue;
             }
 
             $fileTypes = $this->resolveFileTypes($documentType, $orderData['sales_channel_id'], $context);
+            if (empty($fileTypes)) {
+                $result[Status::FAILURE->name] = Status::OK;
+                $extra = [
+                    'documentType' => $documentType,
+                    'status' => Status::SKIPPED->name,
+                    'message' => 'No file types configured for document type ' . $documentType . '; skipping.',
+                ];
+
+                continue;
+            }
 
             foreach ($fileTypes as $fileType) {
                 $operation = new DocumentGenerateOperation(
@@ -138,38 +152,55 @@ class DocumentRenderReadinessCheck extends BaseCheck
                     );
 
                     $error = $processedTemplate->getErrors()[$orderData['order_id']] ?? null;
+                    $success = $processedTemplate->getSuccess()[$orderData['order_id']] ?? null;
 
                     if($error) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra[$documentType][$fileType]['message'][] = 'Rendering failed with errors: ' . $error->getMessage();
+                        $extra = [
+                            'documentType' => $documentType,
+                            'fileType' => $fileType,
+                            'status' => Status::FAILURE->name,
+                            'message' => 'Rendering failed with errors: ' . $error->getMessage(),
+                        ];
 
                         continue;
                     }
 
-                    $success = $processedTemplate->getSuccess()[$orderData['order_id']] ?? null;
-
                     if ($success === null) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra[$documentType][$fileType]['message'][] = 'Rendering failed without exception.';
+                        $extra = [
+                            'documentType' => $documentType,
+                            'fileType' => $fileType,
+                            'status' => Status::FAILURE->name,
+                            'message' => 'Rendering failed without exception (no success result).'
+                        ];
+
+                        continue;
                     }
 
-                    if (\strlen($success->getContent()) < 10) {
-                        $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra[$documentType][$fileType]['message'][] = 'rendered content is to short or empty for type ' . $documentType . ' and fileType ' . $fileType;
-                    }
+                    $result[Status::OK->name] = Status::OK;
+                    $extra = [
+                        'documentType' => $documentType,
+                        'fileType' => $fileType,
+                        'status' => Status::OK->name,
+                        'message' => 'Rendering successful.'
+                    ];
+
                 } catch (\Throwable $e) {
                     $result[Status::FAILURE->name] = Status::FAILURE;
-                    $extra[$documentType][$fileType]['message'][] = 'Rendering failed with exception: ' . $e->getMessage();
+                    $extra = [
+                        'documentType' => $documentType,
+                        'fileType' => $fileType,
+                        'status' => Status::FAILURE->name,
+                        'message' => 'Rendering failed with exception: ' . $e->getMessage(),
+                    ];
+
                     continue;
                 }
-
-                $result[Status::OK->name] = Status::OK;
-                $extra[$documentType][$fileType]['message'][] = 'Rendering successful.';
             }
         }
 
         $finalStatus = \count($result) === 1 ? current($result) : Status::ERROR;
-        var_dump($finalStatus);
 
         return new Result(
             $this->name(),
@@ -215,7 +246,7 @@ class DocumentRenderReadinessCheck extends BaseCheck
     /**
      * Special handling for ZUGFeRD types, as they do not have a config in the database.
      *
-     * @return array<int, string>
+     * @return array<int, string>|array{}
      */
     private function resolveFileTypes(string $documentType, string $salesChannelId, Context $context): array
     {

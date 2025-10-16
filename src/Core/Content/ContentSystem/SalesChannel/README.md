@@ -11,7 +11,7 @@ Store API entry point for content system. Single route orchestrates full pipelin
 
 ## Endpoint
 
-`POST /store-api/content/{path}?elementId={id}` - Optional `elementId` for partial rendering.
+`GET|POST /store-api/content/{path}?elementId={id}` - Supports GET and POST methods. Optional `elementId` for partial rendering.
 
 ## Query Parameters
 
@@ -20,14 +20,15 @@ The endpoint accepts optional query parameters:
 
 ## Pipeline Orchestration
 
-ContentRouteLoader orchestrates six phases:
+ContentRouteLoader orchestrates five phases:
 
 1. **Route Matching**: ContentRouter matches URL to content route
 2. **Entity Resolution**: EntityIdResolver extracts parameters, queries entities
 3. **Layout Resolution**: LayoutResolver determines layout (static or cascade)
 4. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
 5. **Hydration**: ContentElementHydrator loads data + resolves context
-6. **Output Processing**: SubTreeExtractor for partial rendering (if elementId present)
+
+If `elementId` query parameter is present, SubTreeExtractor performs partial rendering after hydration.
 
 ContentRoute delegates to loader, transforms result to DecomposedContentPage for API response.
 

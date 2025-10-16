@@ -26,9 +26,8 @@ Routes contain:
 - `url_pattern`: Pattern with placeholders (`/product/{seoUrl}`)
 - `parameter_bindings`: Maps placeholders to entity resolution rules (`array<string, ParameterBinding>`)
 - `priority`: Tie-breaker when patterns have equal specificity
-- `sales_channels`: Sales channel assignments (optional)
 
-Routes can be global (visible in all sales channels) or channel-specific (assigned to specific sales channels). Routes without sales channel assignments are available across all channels. Routes with assignments are filtered per sales channel context.
+Routes can be global (visible in all sales channels) or channel-specific (assigned to specific sales channels). Route visibility is determined by layout assignments: routes require at least one layout assignment (either sales-channel-specific or global with null salesChannelId) to be visible. Routes with assignments are filtered per sales channel context in RouteCollectionBuilder.
 
 Layout assignments are stored in `content_layout_assignment` table with `route_id` foreign key. LayoutResolver evaluates assignments in priority order (DESC), matching by entity type/ID or association path. First match wins.
 

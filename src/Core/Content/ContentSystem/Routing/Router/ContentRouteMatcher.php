@@ -28,14 +28,17 @@ class ContentRouteMatcher
             return null;
         }
 
-        /** @var ContentRouteEntity|null $contentRoute */
-        $contentRoute = $parameters['_content_route'] ?? null;
+        $contentRoute = $parameters[RouteCollectionBuilder::PARAM_CONTENT_ROUTE] ?? null;
 
         if (!$contentRoute instanceof ContentRouteEntity) {
             return null;
         }
 
-        unset($parameters['_content_route'], $parameters['_content_route_id'], $parameters['_route']);
+        unset(
+            $parameters[RouteCollectionBuilder::PARAM_CONTENT_ROUTE],
+            $parameters[RouteCollectionBuilder::PARAM_CONTENT_ROUTE_ID],
+            $parameters[RouteCollectionBuilder::PARAM_ROUTE]
+        );
 
         return new RouteMatchResult($contentRoute, $parameters);
     }

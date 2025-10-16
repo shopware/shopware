@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\ContentSystem\Routing\LayoutResolution;
 
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentCollection;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentEntity;
+use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteEntity;
 use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
-use Shopware\Core\Content\ContentSystem\Routing\Router\RouteMatchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -34,16 +34,13 @@ final class LayoutResolver
     ) {
     }
 
-    public function resolve(RouteMatchResult $match, ResolvedData $resolvedData, SalesChannelContext $context): ?string
+    public function resolve(ContentRouteEntity $route, ResolvedData $resolvedData, SalesChannelContext $context): ?string
     {
-        $route = $match->route;
-
         $assignments = $this->loadAssignments($route->getId(), $context);
         if ($assignments->count() === 0) {
             return null;
         }
 
-        /** @var ContentLayoutAssignmentEntity $assignment */
         foreach ($assignments as $assignment) {
             $matches = $assignment->getAssociationPath() === null
                 ? $this->matchesDirect($assignment, $resolvedData)
@@ -123,7 +120,7 @@ final class LayoutResolver
         }
 
         $associatedIds = $this->loadNestedAssociation($sourceEntity, $sourceId, $associationPath, $parts, $context);
-        if (empty($associatedIds)) {
+        if ($associatedIds === []) {
             return false;
         }
 
@@ -156,8 +153,7 @@ final class LayoutResolver
         $associationCriteria = $criteria->getAssociation($associationPath);
         $associationCriteria->addFields(['id']);
 
-        $definition = $this->definitionRegistry->getByEntityName($sourceEntity);
-        $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
+        $repository = $this->definitionRegistry->getRepository($sourceEntity);
 
         $entity = $repository->search($criteria, $context->getContext())->first();
         if (!$entity instanceof Entity) {
@@ -181,7 +177,7 @@ final class LayoutResolver
      */
     private function traverseAndCollectIds(Entity $entity, array $remainingParts): array
     {
-        if (empty($remainingParts)) {
+        if ($remainingParts === []) {
             return [$entity->getUniqueIdentifier()];
         }
 
@@ -195,7 +191,7 @@ final class LayoutResolver
         if ($value instanceof EntityCollection) {
             $ids = [];
             foreach ($value as $item) {
-                $ids = array_merge($ids, $this->traverseAndCollectIds($item, $remainingParts));
+                array_push($ids, ...$this->traverseAndCollectIds($item, $remainingParts));
             }
 
             return array_values(array_unique($ids));

@@ -41,11 +41,6 @@ class ContentRouteDefinition extends EntityDefinition
         return ContentRouteCollection::class;
     }
 
-    public function since(): ?string
-    {
-        return '6.7.0.0';
-    }
-
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

@@ -31,7 +31,8 @@ class Migration1758018340ContentRoute extends MigrationStep
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                INDEX `idx.content_route.active` (`active`)
+                INDEX `idx.content_route.active` (`active`),
+                INDEX `idx.content_route.priority` (`priority`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL;
 

@@ -195,7 +195,6 @@ class SchemaUpdaterTest extends TestCase
 
         $table = $schema->getTable($table);
 
-        dd($table->getObjectName());
         foreach ($columns as $column) {
             // strtolower required for assertContains
             static::assertTrue(

@@ -6,6 +6,7 @@ test('Creates a screenshot of the Storefront Search Result Page.', { tag: '@Visu
     StorefrontHome,
     SearchForTerm,
     StorefrontSearchSuggest,
+    CheckVisibilityInHome,
 
 }) => {
     const currency = await TestDataService.getCurrency('EUR');
@@ -23,21 +24,11 @@ test('Creates a screenshot of the Storefront Search Result Page.', { tag: '@Visu
             },
         ],
     });
-    await TestDataService.clearCaches();
     await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
-
-    await ShopCustomer.expects(async () => {
-        await test.step('Wait for products to be visible.', async () => {
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-            const productLocator1 = await StorefrontHome.getListingItemByProductName(product.name);
-            await ShopCustomer.expects(productLocator1.productName).toBeVisible();
-        });
-    }).toPass({
-        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-    });
 
     await test.step('Search with valid input and sees results and take a screenshot.', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
+        await CheckVisibilityInHome(product.name);
         await ShopCustomer.attemptsTo(SearchForTerm(product.name));
         await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestTotalLink).toBeVisible();
         await expect(StorefrontHome.page).toHaveScreenshot('Search-Result-Dropdown.png', {

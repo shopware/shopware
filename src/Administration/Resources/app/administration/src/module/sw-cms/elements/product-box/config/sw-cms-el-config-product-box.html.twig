@@ -32,11 +32,11 @@
                     >
                         <sw-select-result v-bind="{ item, index }">
                             {% block sw_entity_single_select_base_results_list_result_label %}
-                                <span class="sw-select-result__result-item-text">
-                                    <sw-product-variant-info :variations="item.variation">
-                                        {{ item.translated.name || item.name }}
-                                    </sw-product-variant-info>
-                                </span>
+                            <span class="sw-select-result__result-item-text">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </span>
                             {% endblock %}
                         </sw-select-result>
                     </slot>
@@ -87,14 +87,14 @@
         :content-entity="contentEntity"
         :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
     >
-       <template #default="{ isInherited }">
-           <mt-select
-               v-model="element.config.verticalAlign.value"
-               :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
-               :options="verticalAlignOptions"
-               :disabled="isInherited"
-           />
-       </template>
+        <template #default="{ isInherited }">
+            <mt-select
+                v-model="element.config.verticalAlign.value"
+                :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                :options="verticalAlignOptions"
+                :disabled="isInherited"
+            />
+        </template>
     </sw-cms-inherit-wrapper>
     {% endblock %}
 </div>

@@ -78,24 +78,24 @@
 
                 <sw-context-button>
                     {% block sw_category_detail_layout_desc_actions_designer %}
-                        <sw-context-menu-item
-                            class="sw-category-detail-layout__open-in-pagebuilder"
-                            :disabled="!acl.can('category.editor')"
-                            @click="openInPagebuilder"
-                        >
-                            {{ $t('global.default.edit') }}
-                        </sw-context-menu-item>
+                    <sw-context-menu-item
+                        class="sw-category-detail-layout__open-in-pagebuilder"
+                        :disabled="!acl.can('category.editor')"
+                        @click="openInPagebuilder"
+                    >
+                        {{ $t('global.default.edit') }}
+                    </sw-context-menu-item>
                     {% endblock %}
 
                     {% block sw_category_detail_layout_desc_actions_remove %}
-                        <sw-context-menu-item
-                            v-if="cmsPage"
-                            :disabled="!acl.can('category.editor')"
-                            class="sw-category-detail-layout__layout-reset"
-                            @click="onLayoutReset"
-                        >
-                            {{ $t('global.default.delete') }}
-                        </sw-context-menu-item>
+                    <sw-context-menu-item
+                        v-if="cmsPage"
+                        :disabled="!acl.can('category.editor')"
+                        class="sw-category-detail-layout__layout-reset"
+                        @click="onLayoutReset"
+                    >
+                        {{ $t('global.default.delete') }}
+                    </sw-context-menu-item>
                     {% endblock %}
                 </sw-context-button>
             </div>

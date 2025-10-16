@@ -60,16 +60,16 @@
                     :label="$t('sw-cms.elements.productSlider.config.label.productAssignmentType')"
                     @inheritance:restore="onRestoreInheritance"
                 >
-                   <template #default="{ isInherited }">
-                       <sw-single-select
-                           v-model:value="element.config.products.source"
-                           class="sw-cms-el-config-product-slider__tab-content-product-assignment-type-select"
-                           :options="productAssignmentTypes"
-                           :disabled="isInherited"
-                           show-clearable-button
-                           @update:value="onChangeAssignmentType"
-                       />
-                   </template>
+                    <template #default="{ isInherited }">
+                        <sw-single-select
+                            v-model:value="element.config.products.source"
+                            class="sw-cms-el-config-product-slider__tab-content-product-assignment-type-select"
+                            :options="productAssignmentTypes"
+                            :disabled="isInherited"
+                            show-clearable-button
+                            @update:value="onChangeAssignmentType"
+                        />
+                    </template>
                 </sw-cms-inherit-wrapper>
                 {% endblock %}
 
@@ -81,7 +81,6 @@
                         :content-entity="contentEntity"
                         :label="$t('sw-cms.elements.productSlider.config.label.productStreamChoice')"
                         @inheritance:restore="onRestoreInheritance"
-
                     >
                         <template #default="{ isInherited }">
                             <sw-entity-single-select
@@ -206,11 +205,11 @@
                                 >
                                     <sw-select-result v-bind="{ item, index, selected: isSelected(item.id)}">
                                         {% block sw_entity_single_select_base_results_list_result_label %}
-                                            <span class="sw-select-result__result-item-text">
-                                                <sw-product-variant-info :variations="item.variation">
-                                                    {{ item.translated.name || item.name }}
-                                                </sw-product-variant-info>
-                                            </span>
+                                        <span class="sw-select-result__result-item-text">
+                                            <sw-product-variant-info :variations="item.variation">
+                                                {{ item.translated.name || item.name }}
+                                            </sw-product-variant-info>
+                                        </span>
                                         {% endblock %}
                                     </sw-select-result>
                                 </slot>

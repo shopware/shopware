@@ -8,7 +8,13 @@
         color="var(--color-module-purple-900)"
     />
 
-    {{ $t('sw-cms.inherit.unlinkNotice') }} <mt-link variant="critical" as="button" @click="showModal = true;">{{ $t('sw-cms.inherit.unlinkAllButton') }}</mt-link>
+    {{ $t('sw-cms.inherit.unlinkNotice') }} <mt-link
+        variant="critical"
+        as="button"
+        @click="showModal = true;"
+    >
+        {{ $t('sw-cms.inherit.unlinkAllButton') }}
+    </mt-link>
 
     <sw-confirm-modal
         v-if="showModal"

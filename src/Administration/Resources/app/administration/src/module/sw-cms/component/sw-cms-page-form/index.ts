@@ -1,6 +1,7 @@
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 import { type CmsSlotConfig } from '../../service/cms.service';
+import type { PropType } from 'vue';
 
 type CmsContentEntity = {
     slotConfig?: {
@@ -28,7 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: () => {},
         },
         contentEntity: {
-            type: Object as CmsContentEntity,
+            type: Object as PropType<CmsContentEntity>,
             required: false,
         },
     },
@@ -81,19 +82,19 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        getBlockTitle(block: Entity<'cms_block'>) {
+        getBlockTitle(block: Entity<'cms_block'>): string {
             if (typeof block.name === 'string' && block.name.length !== 0) {
                 return block.name;
             }
 
             if (this.cmsBlocks[block.type]) {
-                return this.cmsBlocks[block.type]!.label;
+                return this.cmsBlocks[block.type]!.label ?? '';
             }
 
             return '';
         },
 
-        displaySectionType(block: Entity<'cms_block'>) {
+        displaySectionType(block: Entity<'cms_block'>): boolean {
             const blockSection = this.page.sections!.find((section) => section.id === block.sectionId);
 
             if (!blockSection) {

@@ -8,60 +8,60 @@
     >
         <template #default="{ isInherited }">
             {% block sw_cms_element_image_config_media_upload %}
-                <sw-cms-mapping-field
-                    v-model:config="element.config.media"
-                    value-types="entity"
-                    entity="media"
-                >
-                    <sw-media-upload-v2
-                        variant="regular"
-                        :upload-tag="uploadTag"
-                        :source="previewSource"
-                        :allow-multi-select="false"
-                        :default-folder="cmsPageState.pageEntityName"
-                        :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
-                        :disabled="isInherited"
-                        @media-upload-sidebar-open="onOpenMediaModal"
-                        @media-upload-remove-image="onImageRemove"
-                    />
-
-                    <template #preview="{ demoValue }">
-                        <div class="sw-cms-el-config-image__mapping-preview">
-                            <img
-                                v-if="demoValue.url"
-                                :src="demoValue.url"
-                                alt=""
-                            >
-                            <mt-banner
-                                v-else
-                                class="sw-cms-el-config-image__preview-info"
-                                variant="info"
-                            >
-                                {{ $t('sw-cms.detail.label.mappingEmptyPreview') }}
-                            </mt-banner>
-                        </div>
-                    </template>
-                </sw-cms-mapping-field>
-
-                <sw-upload-listener
+            <sw-cms-mapping-field
+                v-model:config="element.config.media"
+                value-types="entity"
+                entity="media"
+            >
+                <sw-media-upload-v2
+                    variant="regular"
                     :upload-tag="uploadTag"
-                    auto-upload
-                    @media-upload-finish="onImageUpload"
+                    :source="previewSource"
+                    :allow-multi-select="false"
+                    :default-folder="cmsPageState.pageEntityName"
+                    :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
+                    :disabled="isInherited"
+                    @media-upload-sidebar-open="onOpenMediaModal"
+                    @media-upload-remove-image="onImageRemove"
                 />
+
+                <template #preview="{ demoValue }">
+                    <div class="sw-cms-el-config-image__mapping-preview">
+                        <img
+                            v-if="demoValue.url"
+                            :src="demoValue.url"
+                            alt=""
+                        >
+                        <mt-banner
+                            v-else
+                            class="sw-cms-el-config-image__preview-info"
+                            variant="info"
+                        >
+                            {{ $t('sw-cms.detail.label.mappingEmptyPreview') }}
+                        </mt-banner>
+                    </div>
+                </template>
+            </sw-cms-mapping-field>
+
+            <sw-upload-listener
+                :upload-tag="uploadTag"
+                auto-upload
+                @media-upload-finish="onImageUpload"
+            />
             {% endblock %}
 
             {% block sw_cms_element_image_config_media_modal %}
-                <sw-media-modal-v2
-                    v-if="mediaModalIsOpen"
-                    variant="full"
-                    :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
-                    :entity-context="cmsPageState.entityName"
-                    :allow-multi-select="false"
-                    :initial-folder-id="cmsPageState.defaultMediaFolderId"
-                    @media-upload-remove-image="onImageRemove"
-                    @media-modal-selection-change="onSelectionChanges"
-                    @modal-close="onCloseModal"
-                />
+            <sw-media-modal-v2
+                v-if="mediaModalIsOpen"
+                variant="full"
+                :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+                :entity-context="cmsPageState.entityName"
+                :allow-multi-select="false"
+                :initial-folder-id="cmsPageState.defaultMediaFolderId"
+                @media-upload-remove-image="onImageRemove"
+                @media-modal-selection-change="onSelectionChanges"
+                @modal-close="onCloseModal"
+            />
             {% endblock %}
         </template>
     </sw-cms-inherit-wrapper>
@@ -80,7 +80,7 @@
                 :help-text="$t('sw-cms.elements.general.config.helpText.displayMode')"
                 :options="displayModeOptions"
                 :disabled="isInherited"
-                @update:value="emitUpdate"
+                @update:model-value="emitUpdate"
             />
         </template>
     </sw-cms-inherit-wrapper>
@@ -88,21 +88,21 @@
 
     <template v-if="element.config.displayMode.value === 'cover'">
         {% block sw_cms_element_image_config_min_height %}
-            <sw-cms-inherit-wrapper
-                field="minHeight"
-                :element="element"
-                :content-entity="contentEntity"
-                :label="$t('sw-cms.elements.image.config.label.minHeight')"
-                @update:value="onChangeMinHeight"
-            >
-                <template #default="{ isInherited }">
-                    <mt-text-field
-                        v-model:model-value="element.config.minHeight.value"
-                        :placeholder="$t('sw-cms.elements.image.config.placeholder.enterMinHeight')"
-                        :disabled="isInherited"
-                    />
-                </template>
-            </sw-cms-inherit-wrapper>
+        <sw-cms-inherit-wrapper
+            field="minHeight"
+            :element="element"
+            :content-entity="contentEntity"
+            :label="$t('sw-cms.elements.image.config.label.minHeight')"
+            @update:value="onChangeMinHeight"
+        >
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    v-model:model-value="element.config.minHeight.value"
+                    :placeholder="$t('sw-cms.elements.image.config.placeholder.enterMinHeight')"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
         {% endblock %}
     </template>
 
@@ -113,14 +113,14 @@
         :content-entity="contentEntity"
         :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
     >
-       <template #default="{ isInherited }">
-           <mt-select
-               v-model:model-value="element.config.verticalAlign.value"
-               :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
-               :disabled="isInherited || ['cover'].includes(element.config.displayMode.value)"
-               :options="verticalAlignOptions"
-           />
-       </template>
+        <template #default="{ isInherited }">
+            <mt-select
+                v-model:model-value="element.config.verticalAlign.value"
+                :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                :disabled="isInherited || ['cover'].includes(element.config.displayMode.value)"
+                :options="verticalAlignOptions"
+            />
+        </template>
     </sw-cms-inherit-wrapper>
     {% endblock %}
 
@@ -198,14 +198,14 @@
             :content-entity="contentEntity"
             :label="$t('sw-cms.elements.image.config.label.ariaLabel')"
         >
-           <template #default="{ isInherited }">
-               <mt-text-field
-                   v-model="element.config.ariaLabel.value"
-                   class="sw-cms-el-config-image__link-aria-label"
-                   :help-text="$tc('sw-cms.elements.image.config.label.ariaLabelHelpText')"
-                   :disabled="isInherited"
-               />
-           </template>
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    v-model="element.config.ariaLabel.value"
+                    class="sw-cms-el-config-image__link-aria-label"
+                    :help-text="$tc('sw-cms.elements.image.config.label.ariaLabelHelpText')"
+                    :disabled="isInherited"
+                />
+            </template>
         </sw-cms-inherit-wrapper>
 
         <sw-cms-inherit-wrapper

@@ -15,6 +15,25 @@ const EVENTS = {
  * @private
  * @sw-package discovery
  *
+ * @description This component is used to provide inheritance support for CMS element configuration fields.
+ *              The intended use is to wrap individual input fields of a CMS element configuration component,
+ *              which means that a <sw-cms-inherit-wrapper /> is managing the state of a specific field of the
+ *              elements cms_slot_translation.config or category_translation.slot_config.
+ * @component-example
+ * <sw-cms-inherit-wrapper
+ *     :element="element"
+ *     :content-entity="category"
+ *     field="backgroundColor"
+ *     :label="$tc('sw-cms.elements.image.labelBackgroundColor')"
+ * >
+ *     <template #default={ isInherited }>
+ *         <mt-colorpicker
+               v-model=element.config.backgroundColor.value
+ *             :disabled="isInherited"
+ *         />
+ *     </template>
+ * </sw-cms-inherit-wrapper>
+ *
  * @prop {Object} element - The CMS element object containing configuration and translation data.
  * @prop {Object} [contentEntity=null] - The content entity object that may contain slot configuration overrides,
  *                                       usually a product, category or landing page.

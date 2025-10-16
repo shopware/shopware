@@ -295,22 +295,22 @@
                     </sw-cms-inherit-wrapper>
 
                     {% block sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item %}
-                        <sw-cms-inherit-wrapper
-                            field="useFetchPriorityOnFirstItem"
-                            :element="element"
-                            :content-entity="contentEntity"
-                        >
-                            <template #default="{ isInherited }">
-                                <mt-switch
-                                    class="sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item"
-                                    :model-value="element.config.useFetchPriorityOnFirstItem.value"
-                                    :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
-                                    :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
-                                    :disabled="isInherited"
-                                    @update:model-value="onChangeUseFetchPriorityOnFirstItem"
-                                />
-                            </template>
-                        </sw-cms-inherit-wrapper>
+                    <sw-cms-inherit-wrapper
+                        field="useFetchPriorityOnFirstItem"
+                        :element="element"
+                        :content-entity="contentEntity"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                class="sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item"
+                                :model-value="element.config.useFetchPriorityOnFirstItem.value"
+                                :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
+                                :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
+                                :disabled="isInherited"
+                                @update:model-value="onChangeUseFetchPriorityOnFirstItem"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
 
                     {% block sw_cms_element_image_slider_config_settings_links %}
@@ -321,45 +321,45 @@
                             class="sw-cms-el-config-image-slider__settings-link"
                         >
                             {% block sw_cms_element_image_slider_config_settings_link_url %}
-                                <sw-container
-                                    :key="sliderItem.mediaId"
-                                    class="sw-cms-el-config-image-slider__settings-link-container"
+                            <sw-container
+                                :key="sliderItem.mediaId"
+                                class="sw-cms-el-config-image-slider__settings-link-container"
+                            >
+                                <img
+                                    v-if="sliderItem.mediaUrl"
+                                    class="sw-cms-el-config-image-slider__settings-link-prefix"
+                                    :src="sliderItem.mediaUrl"
+                                    alt=""
                                 >
-                                    <img
-                                        v-if="sliderItem.mediaUrl"
-                                        class="sw-cms-el-config-image-slider__settings-link-prefix"
-                                        :src="sliderItem.mediaUrl"
-                                        alt=""
-                                    >
 
-                                    <mt-url-field
-                                        v-model="sliderItem.url"
-                                        class="sw-cms-el-config-image-slider__settings-link-input"
-                                        :name="sliderItem.mediaUrl"
-                                        :placeholder="$t('sw-cms.elements.image.config.placeholder.enterUrl')"
-                                        :label="$t('sw-cms.elements.image.config.label.linkTo')"
-                                    />
-                                </sw-container>
+                                <mt-url-field
+                                    v-model="sliderItem.url"
+                                    class="sw-cms-el-config-image-slider__settings-link-input"
+                                    :name="sliderItem.mediaUrl"
+                                    :placeholder="$t('sw-cms.elements.image.config.placeholder.enterUrl')"
+                                    :label="$t('sw-cms.elements.image.config.label.linkTo')"
+                                />
+                            </sw-container>
                             {% endblock %}
 
                             {% block sw_cms_element_image_slider_config_settings_link_aria_label %}
-                                <mt-text-field
-                                    v-model="sliderItem.ariaLabel"
-                                    class="sw-cms-el-config-image-slider__settings-link-aria-label"
-                                    :name="sliderItem.ariaLabel"
-                                    :help-text="$t('sw-cms.elements.image.config.label.ariaLabelHelpText')"
-                                    :label="$t('sw-cms.elements.image.config.label.ariaLabel')"
-                                />
+                            <mt-text-field
+                                v-model="sliderItem.ariaLabel"
+                                class="sw-cms-el-config-image-slider__settings-link-aria-label"
+                                :name="sliderItem.ariaLabel"
+                                :help-text="$t('sw-cms.elements.image.config.label.ariaLabelHelpText')"
+                                :label="$t('sw-cms.elements.image.config.label.ariaLabel')"
+                            />
                             {% endblock %}
 
                             {% block sw_cms_element_image_slider_config_settings_link_target %}
-                                <mt-switch
-                                    v-model="sliderItem.newTab"
-                                    class="sw-cms-el-config-image-slider__settings-link-tab"
-                                    :name="sliderItem.mediaId"
-                                    :label="$t('sw-cms.elements.image.config.label.linkNewTab')"
-                                    bordered
-                                />
+                            <mt-switch
+                                v-model="sliderItem.newTab"
+                                class="sw-cms-el-config-image-slider__settings-link-tab"
+                                :name="sliderItem.mediaId"
+                                :label="$t('sw-cms.elements.image.config.label.linkNewTab')"
+                                bordered
+                            />
                             {% endblock %}
                         </div>
                     </div>

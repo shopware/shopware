@@ -66,25 +66,25 @@
                             @update:value="onProductChange"
                         >
                             {% block sw_cms_element_buy_box_config_product_variant_label %}
-                                <template #selection-label-property="{ item }">
-                                    <sw-product-variant-info :variations="item.variation">
-                                        {{ item.translated.name || item.name }}
-                                    </sw-product-variant-info>
-                                </template>
+                            <template #selection-label-property="{ item }">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </template>
                             {% endblock %}
 
                             {% block sw_cms_element_buy_box_config_product_select_result_item %}
-                                <template #result-item="{ item, index }">
-                                    <sw-select-result v-bind="{ item, index }">
+                            <template #result-item="{ item, index }">
+                                <sw-select-result v-bind="{ item, index }">
                                         {% block sw_entity_single_select_base_results_list_result_label %}
-                                            <span class="sw-select-result__result-item-text">
-                                                <sw-product-variant-info :variations="item.variation">
-                                                    {{ item.translated.name || item.name }}
-                                                </sw-product-variant-info>
-                                            </span>
+                                    <span class="sw-select-result__result-item-text">
+                                        <sw-product-variant-info :variations="item.variation">
+                                            {{ item.translated.name || item.name }}
+                                        </sw-product-variant-info>
+                                    </span>
                                         {% endblock %}
-                                    </sw-select-result>
-                                </template>
+                                </sw-select-result>
+                            </template>
                             {% endblock %}
                         </sw-entity-single-select>
                     </template>

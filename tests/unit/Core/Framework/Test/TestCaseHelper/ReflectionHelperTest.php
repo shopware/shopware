@@ -15,7 +15,7 @@ class ReflectionHelperTest extends TestCase
 {
     public function testGetMethodFromProtectedScope(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $class = new FakeClassForHelper();
 
@@ -26,7 +26,7 @@ class ReflectionHelperTest extends TestCase
 
     public function testGetMethodFromPrivateScope(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $class = new FakeClassForHelper();
 
@@ -55,7 +55,7 @@ class ReflectionHelperTest extends TestCase
 
     public function testGetPropertyFromPrivateScope(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $class = new FakeClassForHelper();
         $expectedValue = [5, 6, 7];
@@ -68,7 +68,7 @@ class ReflectionHelperTest extends TestCase
 
     public function testGetPropertyFromProtectedScope(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $class = new FakeClassForHelper();
         $expectedValue = 'override with this';

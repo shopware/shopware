@@ -29,9 +29,7 @@ export interface AmplitudeRequestPayload {
     request_metadata?: Record<string, unknown>;
 }
 
-const PRODUCT_ANALYTICS_HOST = 'https://api.eu.amplitude.com/2/httpapi';
-const DEFAULT_TIMEOUT = 2000;
-
+const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
 
 test('As a merchant, I want to make sure admin events are sent correctly.', { tag: '@ProductAnalytics' }, async ({
     ShopAdmin,
@@ -59,13 +57,10 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     const customer = await TestDataService.createCustomer();
     const order = await TestDataService.createOrder([{ product: product, quantity: 1 }], customer);
 
-    await test.step('Intercept and assert the api call to product analytics', async () => {
+    await test.step('Intercept the api call to product analytics', async () => {
 
         // Intercept the exact Amplitude ingestion endpoint.
-        await AdminDashboard.page.route(PRODUCT_ANALYTICS_HOST, handler);
-
-        // small pause for app init
-        await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
+        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, handler);
     });
 
     await test.step('Set consent for product analytics', async () => {
@@ -73,63 +68,101 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     });
 
     await test.step('Navigate via Link to order page from Dashboard', async () => {
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         await AdminDashboard.adminMenuOrder.click();
         await AdminDashboard.adminMenuOrderOverview.click();
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+
         await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
-        // small pause for request to be sent
-        await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
     });
 
     await test.step('Navigate via Link to detail order page', async () => {
-       const orderRow = await AdminOrderListing.getLineItemByOrderNumber(order.orderNumber);
-       await ShopAdmin.expects(orderRow.orderNumberText).toBeVisible()
-       await orderRow.orderNumberText.click();
-        // small pause for request to be sent
-       await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
+        const orderRow = await AdminOrderListing.getLineItemByOrderNumber(order.orderNumber);
+        await ShopAdmin.expects(orderRow.orderNumberText).toBeVisible()
+        await orderRow.orderNumberText.click();
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+
     });
 
     await test.step('Navigate via Button to save order', async () => {
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         await ShopAdmin.expects(AdminOrderDetail.saveButton).toBeVisible();
         await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
         await AdminOrderDetail.saveButton.click();
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+
         await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
-        // small pause for request to be sent
-        await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
+
     });
 
     await test.step('Navigate via page view to dashboard page', async () => {
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         await ShopAdmin.goesTo(AdminDashboard.url());
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+
         await ShopAdmin.expects(AdminDashboard.adminMenuOrder).toBeVisible();
         // eslint-disable-next-line playwright/no-conditional-in-test
         if (!await isSaaSInstance(TestDataService.AdminApiClient)) {
             await ShopAdmin.expects(AdminDashboard.welcomeHeadline).toBeVisible();
         }
-        // small pause for request to be sent
-        await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
     });
 
     await test.step('Validate captured requests for product analytics', async () => {
-        // 5 requests should be captured (2x page view, 2x link visit, 1x button click)
-        // Potentially flaky if requests are delayed
-        expect(captured.length).toBe(5);
 
-        const allEvents = parseCapturedEvents(captured);
+        const events = parseCapturedEvents(captured);
 
-        const findByName = (name: string) =>
-            allEvents.find(
-                (e) =>
-                    (typeof e.event_type === 'string' && e.event_type === name)
-            );
+        expect(events).toHaveLength(8);
 
-        const pageViewed = findByName('Page Viewed');
-        const buttonClicked = findByName('Button Click');
-        const linkVisited = findByName('Link Visited');
+        const eventIds = events.map(e => e.event_id);
+        expect(eventIds).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
 
-        expect(pageViewed, 'expected a Page Viewed event attempt').toBeTruthy();
-        expect(buttonClicked, 'expected a Button Click event attempt').toBeTruthy();
-        expect(linkVisited, 'expected a Link Visited event attempt').toBeTruthy();
+        const eventTypes = events.map(e => e.event_type);
+        expect(eventTypes).toEqual([
+            'Link Visited',   // event_id 1
+            'Page Viewed',    // event_id 2
+            'Page Viewed',    // event_id 3
+            'Page Viewed',    // event_id 4
+            'Link Visited',   // event_id 5
+            'Page Viewed',    // event_id 6
+            'Button Click',   // event_id 7
+            'Page Viewed',    // event_id 8
+        ]);
 
-        // Validate first page view event dashboard -> order listing
+        // Destructure for easier references (index order matches event_id order)
+        const [
+            firstLinkVisited,    // event_id 1
+            pageViewed,          // event_id 2
+            pageViewed2,         // event_id 3
+            pageViewed3,         // event_id 4
+            linkVisited,         // event_id 5
+            pageViewedDetail,    // event_id 6
+            buttonClicked,       // event_id 7
+            pageViewedBackToDash,// event_id 8
+        ] = events;
+
+        // ----------------------
+        // event_id = 1: first Link Visited (dashboard -> order listing)
+        // ----------------------
+        const firstLinkVisitedProperties = firstLinkVisited.event_properties;
+
+        expect(firstLinkVisitedProperties.sw_link_href).toBeDefined();
+        expect(firstLinkVisitedProperties.sw_link_type).toBeDefined();
+        expect(firstLinkVisitedProperties.sw_page_path).toBeDefined();
+        expect(firstLinkVisitedProperties.sw_page_name).toBeDefined();
+
+        expect(firstLinkVisitedProperties.sw_link_href).toBe('#/sw/order/index');
+        expect(firstLinkVisitedProperties.sw_link_type).toBe('internal');
+        expect(firstLinkVisitedProperties.sw_page_path).toBe('/sw/dashboard/index');
+        expect(firstLinkVisitedProperties.sw_page_name).toBe('sw.dashboard.index');
+
+        // ----------------------
+        // event_id = 2: first Page Viewed (dashboard -> order listing)
+        // ----------------------
         const pageViewEventProperties = pageViewed.event_properties;
 
         expect(pageViewEventProperties.sw_route_from_name).toBeDefined();
@@ -139,7 +172,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewEventProperties.sw_page_name).toBeDefined();
         expect(pageViewEventProperties.sw_page_path).toBeDefined();
 
-        // Value assertions (ensures correct navigation transition)
         expect(pageViewEventProperties.sw_route_from_name).toBe('sw.dashboard.index');
         expect(pageViewEventProperties.sw_route_from_href).toBe('/sw/dashboard/index');
         expect(pageViewEventProperties.sw_route_to_name).toBe('sw.order.index');
@@ -147,7 +179,87 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewEventProperties.sw_page_name).toBe('sw.order.index');
         expect(pageViewEventProperties.sw_page_path).toBe('/sw/order/index');
 
-        // Validate button click event
+        // ----------------------
+        // event_id = 3: Page Viewed (order listing, query param present)
+        // ----------------------
+        const pageViewed2Props = pageViewed2.event_properties;
+
+        expect(pageViewed2Props.sw_route_from_name).toBeDefined();
+        expect(pageViewed2Props.sw_route_from_href).toBeDefined();
+        expect(pageViewed2Props.sw_route_to_name).toBeDefined();
+        expect(pageViewed2Props.sw_route_to_href).toBeDefined();
+        expect(pageViewed2Props.sw_route_to_query).toBeDefined();
+        expect(pageViewed2Props.sw_page_name).toBeDefined();
+        expect(pageViewed2Props.sw_page_path).toBeDefined();
+
+        expect(pageViewed2Props.sw_route_from_name).toBe('sw.order.index');
+        expect(pageViewed2Props.sw_route_from_href).toBe('/sw/order/index');
+        expect(pageViewed2Props.sw_route_to_name).toBe('sw.order.index');
+        expect(pageViewed2Props.sw_route_to_href).toBe('/sw/order/index');
+        expect(pageViewed2Props.sw_route_to_query).toBe('limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
+        expect(pageViewed2Props.sw_page_name).toBe('sw.order.index');
+        expect(pageViewed2Props.sw_page_path).toBe('/sw/order/index');
+
+        // ----------------------
+        // event_id = 4: Page Viewed (order listing, grid.filter.order=null added to query)
+        // ----------------------
+        const pageViewed3Props = pageViewed3.event_properties;
+
+        expect(pageViewed3Props.sw_route_from_name).toBeDefined();
+        expect(pageViewed3Props.sw_route_from_href).toBeDefined();
+        expect(pageViewed3Props.sw_route_to_name).toBeDefined();
+        expect(pageViewed3Props.sw_route_to_href).toBeDefined();
+        expect(pageViewed3Props.sw_route_to_query).toBeDefined();
+        expect(pageViewed3Props.sw_page_name).toBeDefined();
+        expect(pageViewed3Props.sw_page_path).toBeDefined();
+
+        expect(pageViewed3Props.sw_route_from_name).toBe('sw.order.index');
+        expect(pageViewed3Props.sw_route_from_href).toBe('/sw/order/index');
+        expect(pageViewed3Props.sw_route_to_name).toBe('sw.order.index');
+        expect(pageViewed3Props.sw_route_to_href).toBe('/sw/order/index');
+        expect(pageViewed3Props.sw_route_to_query).toBe('limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false&grid.filter.order=null');
+        expect(pageViewed3Props.sw_page_name).toBe('sw.order.index');
+        expect(pageViewed3Props.sw_page_path).toBe('/sw/order/index');
+
+        // ----------------------
+        // event_id = 5: Link Visited (clicking into order detail from listing)
+        // ----------------------
+        const linkVisitedProps = linkVisited.event_properties;
+
+        expect(linkVisitedProps.sw_link_href).toBeDefined();
+        expect(linkVisitedProps.sw_link_type).toBeDefined();
+        expect(linkVisitedProps.sw_page_path).toBeDefined();
+        expect(linkVisitedProps.sw_page_name).toBeDefined();
+
+        expect(linkVisitedProps.sw_link_href).toContain('#/sw/order/detail/');
+        expect(linkVisitedProps.sw_link_type).toBe('internal');
+        expect(linkVisitedProps.sw_page_path).toBe('/sw/order/index');
+        expect(linkVisitedProps.sw_page_name).toBe('sw.order.index');
+
+        // ----------------------
+        // event_id = 6: Page Viewed (order detail.general)
+        // ----------------------
+        const pageViewedDetailProps = pageViewedDetail.event_properties;
+
+        expect(pageViewedDetailProps.sw_route_from_name).toBeDefined();
+        expect(pageViewedDetailProps.sw_route_from_href).toBeDefined();
+        expect(pageViewedDetailProps.sw_route_to_name).toBeDefined();
+        expect(pageViewedDetailProps.sw_route_to_href).toBeDefined();
+        expect(pageViewedDetailProps.sw_page_name).toBeDefined();
+        expect(pageViewedDetailProps.sw_page_path).toBeDefined();
+        expect(pageViewedDetailProps.sw_page_full_path).toBeDefined();
+
+        expect(pageViewedDetailProps.sw_route_from_name).toBe('sw.order.index');
+        expect(pageViewedDetailProps.sw_route_from_href).toBe('/sw/order/index');
+        expect(pageViewedDetailProps.sw_route_to_name).toBe('sw.order.detail.general');
+        expect(pageViewedDetailProps.sw_route_to_href).toContain('/sw/order/detail/');
+        expect(pageViewedDetailProps.sw_page_name).toBe('sw.order.detail.general');
+        expect(pageViewedDetailProps.sw_page_path).toContain('/sw/order/detail/');
+        expect(pageViewedDetailProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
+
+        // ----------------------
+        // event_id = 7: Button Click
+        // ----------------------
         const buttonEventProperties = buttonClicked.event_properties;
 
         expect(buttonEventProperties.sw_element_id).toBeDefined();
@@ -158,23 +270,26 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(buttonEventProperties.sw_element_id).toBe('sw-order-detail.save-edits');
         expect(buttonEventProperties.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
         expect(buttonEventProperties.sw_page_path).toBe(`/sw/order/detail/${order.id}/general`);
-        expect(buttonEventProperties.sw_page_name).toBe(`sw.order.detail.general`);
+        expect(buttonEventProperties.sw_page_name).toBe('sw.order.detail.general');
 
-        // Validate link visit event (to dashboard)
-        const linkVisitedEventProperties = linkVisited.event_properties;
+        // ----------------------
+        // event_id = 8: final Page Viewed (back to dashboard)
+        // ----------------------
+        const pageViewedBackToDashProps = pageViewedBackToDash.event_properties;
 
-        expect(linkVisitedEventProperties.sw_link_href).toBeDefined();
-        expect(linkVisitedEventProperties.sw_link_type).toBeDefined();
-        expect(linkVisitedEventProperties.sw_page_path).toBeDefined();
-        expect(linkVisitedEventProperties.sw_page_name).toBeDefined();
+        expect(pageViewedBackToDashProps.sw_route_from_name).toBeDefined();
+        expect(pageViewedBackToDashProps.sw_route_from_href).toBeDefined();
+        expect(pageViewedBackToDashProps.sw_route_to_name).toBeDefined();
+        expect(pageViewedBackToDashProps.sw_route_to_href).toBeDefined();
+        expect(pageViewedBackToDashProps.sw_page_name).toBeDefined();
+        expect(pageViewedBackToDashProps.sw_page_path).toBeDefined();
 
-        expect(linkVisitedEventProperties.sw_link_href).toBe('#/sw/order/index');
-        expect(linkVisitedEventProperties.sw_link_type).toBe('internal');
-        expect(linkVisitedEventProperties.sw_page_path).toBe('/sw/dashboard/index');
-        expect(linkVisitedEventProperties.sw_page_name).toBe('sw.dashboard.index');
-
-        // Cleanup route so other tests are not affected
-        await AdminDashboard.page.unroute(PRODUCT_ANALYTICS_HOST, handler);
+        expect(pageViewedBackToDashProps.sw_route_from_name).toBe('sw.order.detail.general');
+        expect(pageViewedBackToDashProps.sw_route_from_href).toBe(`/sw/order/detail/${order.id}/general`);
+        expect(pageViewedBackToDashProps.sw_route_to_name).toBe('sw.dashboard.index');
+        expect(pageViewedBackToDashProps.sw_route_to_href).toBe('/sw/dashboard/index');
+        expect(pageViewedBackToDashProps.sw_page_name).toBe('sw.dashboard.index');
+        expect(pageViewedBackToDashProps.sw_page_path).toBe('/sw/dashboard/index');
     });
 });
 
@@ -203,32 +318,23 @@ test.skip('As a merchant, I want to make sure no admin events are sent when I do
    await test.step('Intercept and assert the api call to product analytics', async () => {
 
         // Intercept the exact Amplitude ingestion endpoint.
-        await AdminDashboard.page.route(PRODUCT_ANALYTICS_HOST, handler);
-
-        // small pause for app init
-        await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
+        await AdminDashboard.page.route(PRODUCT_ANALYTICS_ENDPOINT, handler);
     });
 
-
-
     await test.step('Navigate via Link to order page from Dashboard', async () => {
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         await AdminDashboard.adminMenuOrder.click();
         await AdminDashboard.adminMenuOrderOverview.click();
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+
         await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
-        // small pause for request to be sent
-        await AdminDashboard.page.waitForTimeout(DEFAULT_TIMEOUT);
     });
 
     await test.step('Validate no captured requests for product analytics', async () => {
 
-        // No requests should be captured
-        expect(captured.length).toBe(0);
-
         const allEvents = parseCapturedEvents(captured);
         expect(allEvents.length).toBe(0);
-
-        // Cleanup route so other tests are not affected
-        await AdminDashboard.page.unroute(PRODUCT_ANALYTICS_HOST, handler);
     });
 });
 
@@ -249,5 +355,21 @@ function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
         }
     }
 
-    return events;
+    const seen = new Map<string, AmplitudeEvent>();
+
+    for (const ev of events) {
+        if (ev.insert_id !== undefined && ev.insert_id !== null) {
+            const key = String(ev.insert_id);
+            if (!seen.has(key)) {
+                seen.set(key, ev); // first-seen wins
+            }
+        } else {
+            const fingerprint = `__noid__:${ev.insert_id ?? ev.time ?? JSON.stringify(ev)}`;
+            if (!seen.has(fingerprint)) {
+                seen.set(fingerprint, ev);
+            }
+        }
+    }
+
+    return Array.from(seen.values());
 }

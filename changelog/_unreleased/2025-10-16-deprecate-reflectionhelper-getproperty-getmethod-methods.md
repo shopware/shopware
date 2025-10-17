@@ -15,7 +15,7 @@ ___
 # Next Major Version Changes
 ## Removed `\Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper::{getProperty,getMethod}` methods
 
-As the accessible modifications are not needed anymore for reflection properties and methods since PHP 8.1, the `Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper::{getProperty,getMethod}` methods are an overhead, and therefore are removed. They should be replaced by their native implementations, i.e. `\ReflectionMethod('My\Class\Name', 'myMethod')` and `\ReflectionProperty('My\Class\Name', 'myMethod')`:
+As the accessible modifications are not needed anymore for reflection properties and methods since PHP 8.1, the `Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper::{getProperty,getMethod}` methods are an overhead, and therefore were removed. They need to be replaced by their native implementations, i.e. `\ReflectionMethod('My\Class\Name', 'myMethod')` and `\ReflectionProperty('My\Class\Name', 'myMethod')`:
 ```diff
 - $property = ReflectionHelper->getProperty(MyClass::class, 'myProperty');
 + $property = \ReflectionProperty(MyClass::class, 'myProperty');

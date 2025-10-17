@@ -3,7 +3,7 @@ import { satisfies } from 'compare-versions';
 
 test(
     'Customers is able to to register an account and selects a non-shippable country for their billing address.',
-    { tag: '@Account @Address' },
+    { tag: ['@Account', '@Address', '@Storefront'] },
     async ({
         StorefrontAccountLogin,
         StorefrontAccount,
@@ -68,7 +68,7 @@ test(
 
 test(
     'Customers is not able to set new shipping address with a non-shippable country.',
-    { tag: '@Account @Address' },
+    { tag: ['@Account', '@Address', '@Storefront'] },
     async ({
         IdProvider,
         ShopCustomer,

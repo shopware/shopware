@@ -6,22 +6,32 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
 #[CoversClass(HttpCacheKeyGenerator::class)]
+#[CoversClass(HttpCacheKeyEvent::class)]
 #[Group('cache')]
 class HttpCacheKeyGeneratorTest extends TestCase
 {
+    use EventDispatcherBehaviour;
+
     private HttpCacheKeyGenerator $cacheKeyGenerator;
+
+    private EventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
-        $this->cacheKeyGenerator = new HttpCacheKeyGenerator('foo', new EventDispatcher(), ['_ga']);
+        $this->eventDispatcher = new EventDispatcher();
+        $this->cacheKeyGenerator = new HttpCacheKeyGenerator('foo', $this->eventDispatcher, ['_ga']);
     }
 
     #[DataProvider('differentKeyProvider')]
@@ -42,6 +52,35 @@ class HttpCacheKeyGeneratorTest extends TestCase
         );
     }
 
+    public function testCookiesFromResponseOverwriteRequestCookies(): void
+    {
+        $request = Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']);
+
+        $response = new Response();
+        $response->headers->setCookie(new Cookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'bar'));
+
+        static::assertNotSame(
+            $this->cacheKeyGenerator->generate($request),
+            $this->cacheKeyGenerator->generate($request, $response),
+        );
+    }
+
+    public function testCacheKeyStaysTheSameIfEventPartsAreSortedDifferently(): void
+    {
+        $request = Request::create('https://domain.com/method');
+        $firstHash = $this->cacheKeyGenerator->generate($request);
+
+        $this->addEventListener($this->eventDispatcher, HttpCacheKeyEvent::class, static function (HttpCacheKeyEvent $event): void {
+            $uri = $event->get('uri');
+            self::assertIsString($uri);
+            $event->remove('uri');
+            $event->add('uri', $uri);
+        });
+
+        $secondHash = $this->cacheKeyGenerator->generate($request);
+        static::assertSame($firstHash, $secondHash);
+    }
+
     public static function sameKeyProvider(): \Generator
     {
         yield 'same Url with same get Parameter in different order' => [
@@ -58,6 +97,11 @@ class HttpCacheKeyGeneratorTest extends TestCase
             Request::create('https://domain.com/method?'),
             Request::create('https://domain.com/method'),
         ];
+
+        yield 'same Url with same cookies' => [
+            Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
+            Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
+        ];
     }
 
     public static function differentKeyProvider(): \Generator
@@ -70,6 +114,11 @@ class HttpCacheKeyGeneratorTest extends TestCase
         yield 'Urls with same Action, but different Get Parameters' => [
             Request::create('https://domain.com/actionA?limit=1'),
             Request::create('https://domain.com/actionA?limit=2'),
+        ];
+
+        yield 'same Url with different cookies' => [
+            Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
+            Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'bar']),
         ];
     }
 }

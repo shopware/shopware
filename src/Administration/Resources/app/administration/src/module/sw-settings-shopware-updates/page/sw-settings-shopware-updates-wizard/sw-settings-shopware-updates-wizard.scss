@@ -1,4 +1,10 @@
 .sw-settings-shopware-updates-wizard {
+    &__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
     .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
         height: initial;
         min-height: 42px;

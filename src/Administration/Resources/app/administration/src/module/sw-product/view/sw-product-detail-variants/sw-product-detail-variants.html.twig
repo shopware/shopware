@@ -45,24 +45,13 @@
         <sw-skeleton v-if="isLoading" />
 
         {% block sw_product_detail_variants_sw_card_empty_state %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="!isLoading && !propertiesAvailable"
-            class="sw-product-detail-variants__generated-variants-empty-state"
-            :absolute="false"
-            :title="$tc('sw-product.variations.emptyStatePropertyTitle')"
-            :subline="$tc('sw-product.variations.emptyStatePropertyDescription')"
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-product.variations.emptyStatePropertyTitle')"
+            :description="$tc('sw-product.variations.emptyStatePropertyDescription')"
         >
-
-            <template #icon>
-                {% block sw_product_properties_empty_state_image %}
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-product.properties.titleEmptyState')"
-                >
-                {% endblock %}
-            </template>
-
-            <template #actions>
+            <template #button>
                 {% block sw_product_properties_empty_state_button_property %}
                 <mt-button
                     v-tooltip="{
@@ -79,7 +68,7 @@
                 </mt-button>
                 {% endblock %}
             </template>
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
 
         {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
@@ -98,24 +87,13 @@
         {% endblock %}
 
         {% block sw_product_detail_variants_sw_card_empty_state_variant %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="!isLoading && propertiesAvailable && variants.length === 0"
-            class="sw-product-detail-variants__generated-variants-empty-state"
-            :absolute="false"
-            :title="$tc('sw-product.variations.emptyStateTitle')"
-            :subline="$tc('sw-product.variations.emptyStateDescription')"
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-product.variations.emptyStateTitle')"
+            :description="$tc('sw-product.variations.emptyStateDescription')"
         >
-
-            <template #icon>
-                {% block sw_product_properties_empty_state_image %}
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-product.properties.titleEmptyState')"
-                >
-                {% endblock %}
-            </template>
-
-            <template #actions>
+            <template #button>
                 {% block sw_product_properties_empty_state_button %}
                 <mt-button
                     v-tooltip="{
@@ -133,7 +111,7 @@
                 </mt-button>
                 {% endblock %}
             </template>
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
     </mt-card>
     {% endblock %}

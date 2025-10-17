@@ -190,7 +190,7 @@ const missingTests = [
     'src/core/service/api/seo-url-template.api.service.js',
     'src/core/service/api/seo-url.api.service.js',
     'src/core/service/api/snippet-set.api.service.js',
-    'src/core/service/api/snippet.api.service.js',
+    'src/core/service/api/snippet.api.service.ts',
     'src/core/service/api/state-machine.api.service.js',
     'src/core/service/api/store-context.api.service.ts',
     'src/core/service/api/user-input-sanitize.service.js',
@@ -352,6 +352,7 @@ const missingTests = [
     'src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal/index.js',
     'src/module/sw-first-run-wizard/index.js',
     'src/module/sw-first-run-wizard/page/index/index.js',
+    'src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-data-import/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-defaults/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js',
@@ -404,7 +405,6 @@ const missingTests = [
     'src/module/sw-order/component/sw-order-create-invalid-promotion-modal/index.js',
     'src/module/sw-order/component/sw-order-create-promotion-modal/index.js',
     'src/module/sw-order/component/sw-order-customer-comment/index.js',
-    'src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js',
     'src/module/sw-order/component/sw-order-inline-field/index.js',
     'src/module/sw-order/component/sw-order-leave-page-modal/index.js',
     'src/module/sw-order/component/sw-order-nested-line-items-row/index.js',
@@ -545,6 +545,8 @@ const missingTests = [
     'src/app/init/component.init.ts',
     'src/module/sw-settings-services/index.ts',
     'src/module/sw-settings-services/service/index.ts',
+    // Has only a DTO
+    'src/core/telemetry/types.ts',
 ];
 
 /**

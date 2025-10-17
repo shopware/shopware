@@ -37,7 +37,7 @@ class CookieControllerTest extends TestCase
                 }),
                 $salesChannelContext
             )
-            ->willReturn(new CookieRouteResponse($cookieGroups));
+            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
 
@@ -68,7 +68,7 @@ class CookieControllerTest extends TestCase
                 }),
                 $salesChannelContext
             )
-            ->willReturn(new CookieRouteResponse($cookieGroups));
+            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
 
@@ -115,7 +115,7 @@ class CookieControllerTest extends TestCase
 
         $cookieRoute = $this->createMock(AbstractCookieRoute::class);
         $cookieRoute->method('getCookieGroups')
-            ->willReturn(new CookieRouteResponse($cookieGroups));
+            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
 

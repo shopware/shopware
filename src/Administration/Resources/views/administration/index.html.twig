@@ -57,6 +57,7 @@
                     systemLanguageId: '{{ systemLanguageId }}',
                     apiVersion: {{ apiVersion }},
                     assetPath: '{{ asset('', 'asset') }}',
+                    refreshTokenTtl: {{ refreshTokenTtl }},
                     serviceRegistryUrl: '{{ serviceRegistryUrl }}',
                 },
                 appContext: {
@@ -66,6 +67,7 @@
                     systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
                     adminEsEnable: {{ adminEsEnable ? 'true' : 'false' }},
                     storefrontEsEnable: {{ storefrontEsEnable ? 'true' : 'false' }},
+                    productStreamIndexingEnabled: {{ productStreamIndexingEnabled ? 'true' : 'false' }},
                 }
             });
         };

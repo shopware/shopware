@@ -9,15 +9,15 @@
           "Cookies"
         ],
         "summary": "Fetch all cookie groups",
-        "description": "Fetch all cookie groups available in the system. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+        "description": "Fetch all cookie groups available in the system with configuration hash. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "readCookieGroups",
         "responses": {
           "200": {
-            "description": "Successful response with a collection of cookie groups.",
+            "description": "Successful response with a collection of cookie groups and their configuration hash.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CookieGroupCollection"
+                  "$ref": "#/components/schemas/CookieRouteResponse"
                 }
               }
             }

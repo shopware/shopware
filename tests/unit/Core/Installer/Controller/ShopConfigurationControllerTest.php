@@ -16,6 +16,7 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
@@ -76,7 +77,9 @@ class ShopConfigurationControllerTest extends TestCase
             new Uri('http://localhost:8000'),
             [],
             [],
-            new LanguageCollection([]),
+            new LanguageCollection([
+                new Language('en-US', 'English (US)'),
+            ]),
             new PluginMappingCollection(),
             new Uri('http://localhost:8000/metadata.json'),
             []
@@ -92,6 +95,8 @@ class ShopConfigurationControllerTest extends TestCase
                 'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                 'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                 'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
             ],
             ['EUR', 'USD', 'GBP']
         );
@@ -121,7 +126,11 @@ class ShopConfigurationControllerTest extends TestCase
                 ['iso3' => 'USA', 'iso' => 'US'],
             ]);
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                return $this->getLanguageTranslations()[$key] ?? $key;
+            }
+        );
 
         $this->twig->expects($this->once())->method('render')
             ->with(
@@ -138,10 +147,13 @@ class ShopConfigurationControllerTest extends TestCase
                         'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                        'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                        'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
                     ],
                     'allAvailableLanguages' => [
                         'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                         'en-GB' => ['id' => 'en-GB', 'label' => 'English'],
+                        'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                     ],
                     'parameters' => [
                         'config_shop_language' => $expectedShopLanguage,
@@ -272,8 +284,11 @@ class ShopConfigurationControllerTest extends TestCase
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
-
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                return $this->getLanguageTranslations()[$key] ?? $key;
+            }
+        );
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
@@ -289,10 +304,13 @@ class ShopConfigurationControllerTest extends TestCase
                         'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                         'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                         'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                        'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                        'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
                     ],
                     'allAvailableLanguages' => [
                         'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                         'en-GB' => ['id' => 'en-GB', 'label' => 'English'],
+                        'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
                     ],
                     'parameters' => [
                         'config_shop_language' => 'de-DE',
@@ -332,21 +350,22 @@ class ShopConfigurationControllerTest extends TestCase
             ['iso3' => 'DEU', 'iso' => 'DE'],
         ];
 
-        $translations = [
-            'shopware.installer.select_country_gbr' => 'Great Britain',
-            'shopware.installer.select_country_bgr' => 'Bulgaria',
-            'shopware.installer.select_country_est' => 'Estonia',
-            'shopware.installer.select_country_hrv' => 'Croatia',
-            'shopware.installer.select_country_deu' => 'Germany',
-        ];
-
         $this->connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($countries);
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $translations[$key]);
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                $allTranslations = array_merge(
+                    $this->getLanguageTranslations(),
+                    $this->getCountryTranslations()
+                );
+
+                return $allTranslations[$key] ?? $key;
+            }
+        );
 
         $this->twig->expects($this->once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
             static::assertSame('@Installer/installer/shop-configuration.html.twig', $view);
@@ -373,5 +392,31 @@ class ShopConfigurationControllerTest extends TestCase
         yield ['de', 'de-DE', 'EUR', 'DEU'];
         yield ['en-US', 'en-US', 'USD', 'USA'];
         yield ['en', 'en-GB', 'GBP', 'GBR'];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getLanguageTranslations(): array
+    {
+        return [
+            'shopware.installer.select_language_de-DE' => 'Deutsch',
+            'shopware.installer.select_language_en-GB' => 'English',
+            'shopware.installer.select_language_en-US' => 'English (US)',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getCountryTranslations(): array
+    {
+        return [
+            'shopware.installer.select_country_gbr' => 'Great Britain',
+            'shopware.installer.select_country_bgr' => 'Bulgaria',
+            'shopware.installer.select_country_est' => 'Estonia',
+            'shopware.installer.select_country_hrv' => 'Croatia',
+            'shopware.installer.select_country_deu' => 'Germany',
+        ];
     }
 }

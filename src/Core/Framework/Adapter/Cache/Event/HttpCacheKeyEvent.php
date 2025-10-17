@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 class HttpCacheKeyEvent
 {
     /**
-     * @param array<string, string> $parts - Contains a associative array of all parts which are
+     * @param array<string, string> $parts - Contains an associative array of all parts that are:
      *
      * @examples $parts = [
      *  'uri' => 'https://www.my-domain.com/shoes',
@@ -27,9 +27,9 @@ class HttpCacheKeyEvent
         return isset($this->parts[$key]);
     }
 
-    public function get(string $key): string
+    public function get(string $key): ?string
     {
-        return $this->parts[$key];
+        return $this->parts[$key] ?? null;
     }
 
     /**
@@ -37,7 +37,10 @@ class HttpCacheKeyEvent
      */
     public function getParts(): array
     {
-        return $this->parts;
+        $parts = $this->parts;
+        ksort($parts);
+
+        return $parts;
     }
 
     public function remove(string ...$key): self

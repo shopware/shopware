@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want breadcrumb to update when I select a category to understand my location on the site.',
-    { tag: '@Categories' },
+    { tag: ['@Categories', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, TestDataService }) => {
         
         const category1 = await TestDataService.createCategory({ type: 'folder' });

@@ -46,6 +46,7 @@
             :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
             size="default"
+            data-analytics-id="sw-order-list.add-order"
             @click="$router.push({ name: 'sw.order.create' })"
         >
             {{ $tc('sw-order.list.buttonAddOrder') }}
@@ -68,9 +69,21 @@
         {% block sw_order_list_content_slot %}
         <div class="sw-order-list__content">
 
+            {% block sw_order_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                class="mt-empty-state--center"
+                :icon="$route.meta.$module.icon"
+                :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-order.list.messageEmpty')"
+                :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
+                :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="filterCriteria.length || isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            />
+            {% endblock %}
+
             {% block sw_order_list_grid %}
             <sw-data-grid
-                v-if="entitySearchable"
+                v-else-if="entitySearchable"
                 ref="orderGrid"
                 :data-source="orders"
                 :columns="orderColumns"
@@ -234,6 +247,7 @@
                     <sw-context-menu-item
                         variant="danger"
                         :disabled="disableDeletion(item)"
+                        data-analytics-id="sw-order-list.delete-order"
                         @click="onDelete(item.id)"
                     >
                         {{ $tc('sw-order.list.contextMenuDelete') }}
@@ -263,6 +277,7 @@
                             <mt-button
                                 size="small"
                                 variant="secondary"
+                                data-analytics-id="sw-order-list.delete-modal-cancel"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
@@ -273,6 +288,7 @@
                             <mt-button
                                 variant="critical"
                                 size="small"
+                                data-analytics-id="sw-order-list.delete-modal-confirm"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-order.list.buttonDelete') }}
@@ -423,44 +439,6 @@
                 </template>
                 {% endblock %}
             </sw-data-grid>
-            {% endblock %}
-
-            {% block sw_order_list_empty_state %}
-            <template v-if="!isLoading && !total">
-                <sw-empty-state
-                    v-if="filterCriteria.length || isValidTerm(term)"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                >
-                    <template #icon>
-                        <img
-                            :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
-                            :alt="$tc('sw-empty-state.messageNoResultTitle')"
-                        >
-                    </template>
-
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
-                <sw-empty-state
-                    v-else
-                    :title="$tc('sw-order.list.messageEmpty')"
-                >
-                    <template #icon>
-                        <img
-                            :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
-                            :alt="$tc('sw-order.list.messageEmpty')"
-                        >
-                    </template>
-                </sw-empty-state>
-            </template>
             {% endblock %}
         </div>
         {% endblock %}

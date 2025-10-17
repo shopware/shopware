@@ -151,6 +151,10 @@ export default {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         createdComponent() {
             this.mediaService.getDefaultFolderId('product_download').then((folderId) => {
@@ -160,58 +164,72 @@ export default {
             this.variantsGenerator = new VariantsGenerator();
             this.term = '';
 
-            this.variantsGenerator.on('queues', (queues) => {
-                const optionIdsToSearch = this.product.configuratorSettings.reduce((result, element) => {
-                    if (result.indexOf(element.option.id) < 0) {
-                        result.push(element.option.id);
-                    }
+            this.variantsGenerator.on('queues', this.onQueuesHandler);
 
-                    return result;
-                }, []);
+            this.variantsGenerator.on('progress-max', this.onProgressMaxHandler);
 
-                if (optionIdsToSearch.length > 0) {
-                    const criteria = new Criteria(1, 500);
-                    criteria.addFilter(Criteria.equalsAny('id', optionIdsToSearch));
-                    criteria.addAssociation('group');
+            this.variantsGenerator.on('progress-actual', this.onProgressActualHandler);
+        },
 
-                    this.optionRepository.search(criteria).then((options) => {
-                        queues.createQueue.forEach((item, index) => {
-                            item.options.forEach((option) => {
-                                option.entity = options.get(option.id);
-                            });
+        beforeUnmountComponent() {
+            if (this.variantsGenerator.off) {
+                this.variantsGenerator.off('queues', this.onQueuesHandler);
+                this.variantsGenerator.off('progress-max', this.onProgressMaxHandler);
+                this.variantsGenerator.off('progress-actual', this.onProgressActualHandler);
+            }
+        },
 
-                            item.options.sort((firstOption, secondOption) => {
-                                const firstGroupName = firstOption.entity.group.name;
-                                const secondGroupName = secondOption.entity.group.name;
+        onQueuesHandler(queues) {
+            const optionIdsToSearch = this.product.configuratorSettings.reduce((result, element) => {
+                if (result.indexOf(element.option.id) < 0) {
+                    result.push(element.option.id);
+                }
 
-                                return firstGroupName.localeCompare(secondGroupName);
-                            });
+                return result;
+            }, []);
 
-                            item.downloads = [];
-                            item.productStates = [];
-                            item.id = item.productNumber;
-                            this.idToIndex[item.id] = index;
+            if (optionIdsToSearch.length > 0) {
+                const criteria = new Criteria(1, 500);
+                criteria.addFilter(Criteria.equalsAny('id', optionIdsToSearch));
+                criteria.addAssociation('group');
+
+                this.optionRepository.search(criteria).then((options) => {
+                    queues.createQueue.forEach((item, index) => {
+                        item.options.forEach((option) => {
+                            option.entity = options.get(option.id);
                         });
 
-                        this.variantGenerationQueue = queues;
-                        this.total = queues.createQueue.length;
+                        item.options.sort((firstOption, secondOption) => {
+                            const firstGroupName = firstOption.entity.group.name;
+                            const secondGroupName = secondOption.entity.group.name;
+
+                            return firstGroupName.localeCompare(secondGroupName);
+                        });
+
+                        item.downloads = [];
+                        item.productStates = [];
+                        item.id = item.productNumber;
+                        this.idToIndex[item.id] = index;
                     });
-                } else {
+
                     this.variantGenerationQueue = queues;
                     this.total = queues.createQueue.length;
-                }
-                this.isLoading = false;
-            });
+                });
+            } else {
+                this.variantGenerationQueue = queues;
+                this.total = queues.createQueue.length;
+            }
+            this.isLoading = false;
+        },
 
-            this.variantsGenerator.on('progress-max', (maxProgress) => {
-                this.maxProgress = maxProgress.progress;
-                this.progressType = maxProgress.type;
-            });
+        onProgressMaxHandler(maxProgress) {
+            this.maxProgress = maxProgress.progress;
+            this.progressType = maxProgress.type;
+        },
 
-            this.variantsGenerator.on('progress-actual', (actualProgress) => {
-                this.actualProgress = actualProgress.progress;
-                this.progressType = actualProgress.type;
-            });
+        onProgressActualHandler(actualProgress) {
+            this.actualProgress = actualProgress.progress;
+            this.progressType = actualProgress.type;
         },
 
         /**

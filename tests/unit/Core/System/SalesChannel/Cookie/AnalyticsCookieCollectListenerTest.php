@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -47,7 +48,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
 
         $context = Generator::generateSalesChannelContext(salesChannel: $salesChannel);
 
-        $event = new CookieGroupCollectEvent(new CookieGroupCollection(), $context);
+        $event = new CookieGroupCollectEvent(new CookieGroupCollection(), new Request(), $context);
 
         $this->listener->__invoke($event);
     }
@@ -62,7 +63,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
         /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
         $cookieCollection = $this->createMock(CookieGroupCollection::class);
         $cookieCollection->expects($this->never())->method('get');
-        $event = new CookieGroupCollectEvent($cookieCollection, $context);
+        $event = new CookieGroupCollectEvent($cookieCollection, new Request(), $context);
 
         $analyticsEntity = $this->createChannelAnalyticsEntity(active: false);
 
@@ -77,7 +78,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
 
         $cookieGroupCollection = new CookieGroupCollection([new CookieGroup('test')]);
 
-        $event = new CookieGroupCollectEvent($cookieGroupCollection, $context);
+        $event = new CookieGroupCollectEvent($cookieGroupCollection, new Request(), $context);
         $this->listener->__invoke($event);
 
         static::assertCount(1, $event->cookieGroupCollection);
@@ -91,7 +92,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
         $marketingGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
         $cookieGroupCollection = new CookieGroupCollection([$statisticalGroup, $marketingGroup]);
 
-        $event = new CookieGroupCollectEvent($cookieGroupCollection, $context);
+        $event = new CookieGroupCollectEvent($cookieGroupCollection, new Request(), $context);
 
         $this->listener->__invoke($event);
 

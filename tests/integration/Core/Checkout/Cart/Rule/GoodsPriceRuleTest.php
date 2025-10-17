@@ -275,7 +275,7 @@ class GoodsPriceRuleTest extends TestCase
         /** @var AndRule $andRule */
         $andRule = $rule->getPayload();
         static::assertInstanceOf(GoodsPriceRule::class, $andRule->getRules()[0]);
-        $filterRule = new \ReflectionProperty(GoodsPriceRule::class, 'filter')->getValue($andRule->getRules()[0]);
+        $filterRule = (new \ReflectionProperty(GoodsPriceRule::class, 'filter'))->getValue($andRule->getRules()[0]);
         static::assertInstanceOf(AndRule::class, $filterRule);
         static::assertInstanceOf(LineItemOfTypeRule::class, $filterRule->getRules()[0]);
     }

@@ -318,23 +318,22 @@ test.skip('As a merchant, I want to make sure no admin events are sent when I do
    await test.step('Intercept and assert the api call to product analytics', async () => {
 
         // Intercept the exact Amplitude ingestion endpoint.
-        await AdminDashboard.page.route(PRODUCT_ANALYTICS_ENDPOINT, handler);
+        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, handler);
     });
 
     await test.step('Navigate via Link to order page from Dashboard', async () => {
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, { timeout: 5000 });
         await AdminDashboard.adminMenuOrder.click();
         await AdminDashboard.adminMenuOrderOverview.click();
         const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+        expect(request.failure()).not.toBeNull();
 
         await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
     });
 
     await test.step('Validate no captured requests for product analytics', async () => {
 
-        const allEvents = parseCapturedEvents(captured);
-        expect(allEvents.length).toBe(0);
+        expect(captured.length).toBe(0);
     });
 });
 

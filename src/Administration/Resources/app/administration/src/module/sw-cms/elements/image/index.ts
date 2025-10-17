@@ -65,5 +65,9 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: false,
         },
+        fetchPriorityHigh: {
+            source: 'static',
+            value: false,
+        },
     },
 });

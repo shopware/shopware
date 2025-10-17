@@ -15,7 +15,7 @@ jobs:
     name: "PHP lint"
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
@@ -96,7 +96,7 @@ jobs:
     name: "BC check"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           fetch-depth: "0"
           fetch-tags: "1"
@@ -242,7 +242,7 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # 5
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -272,7 +272,7 @@ jobs:
     name: "composer audit"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2

@@ -27,7 +27,7 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
 
         await StorefrontProductDetail.page.setViewportSize({ width: 1440, height: 800 });
 
-        await expect(StorefrontProductDetail.page.locator('.offcanvas')).toHaveScreenshot('OffcanvasCart.png', {});
+        await expect(StorefrontProductDetail.page.locator('.offcanvas')).toHaveScreenshot('OffcanvasCart.png');
     });
 
     await test.step('Creates a screenshot of shopping cart (checkout/cart) in storefront.', async () => {

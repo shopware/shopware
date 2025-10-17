@@ -4,7 +4,7 @@ includes:
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 
 parameters:
-    tmpDir: var/cache/phpstan
+    tmpDir: var/cache/phpstan-tests
     paths:
         - tests
 

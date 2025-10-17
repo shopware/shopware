@@ -3,17 +3,25 @@
 namespace Shopware\Core\Content\Media\Api;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('discovery')]
 class MediaPresignedUploadController extends AbstractController
 {
+    /**
+     * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     */
     public function __construct(
         private readonly EntityRepository $mediaRepository,
         private readonly FilesystemOperator $publicFilesystem,
@@ -37,8 +45,8 @@ class MediaPresignedUploadController extends AbstractController
         if (!$fileName || !$extension) {
             return new JsonResponse([
                 'errors' => [
-                    ['detail' => 'fileName and extension are required']
-                ]
+                    ['detail' => 'fileName and extension are required'],
+                ],
             ], 400);
         }
 
@@ -52,8 +60,8 @@ class MediaPresignedUploadController extends AbstractController
         if (!$presignedData) {
             return new JsonResponse([
                 'errors' => [
-                    ['detail' => 'S3 storage not configured. Presigned URLs require S3.']
-                ]
+                    ['detail' => 'S3 storage not configured. Presigned URLs require S3.'],
+                ],
             ], 400);
         }
 
@@ -96,8 +104,8 @@ class MediaPresignedUploadController extends AbstractController
         if (!$mediaId || !$s3Key) {
             return new JsonResponse([
                 'errors' => [
-                    ['detail' => 'mediaId and path are required']
-                ]
+                    ['detail' => 'mediaId and path are required'],
+                ],
             ], 400);
         }
 
@@ -105,8 +113,8 @@ class MediaPresignedUploadController extends AbstractController
         if (!$this->presignedUrlGenerator->verifyUpload($s3Key)) {
             return new JsonResponse([
                 'errors' => [
-                    ['detail' => "File not found in S3: {$s3Key}"]
-                ]
+                    ['detail' => "File not found in S3: {$s3Key}"],
+                ],
             ], 404);
         }
 
@@ -115,8 +123,8 @@ class MediaPresignedUploadController extends AbstractController
         if (!$fileMetadata) {
             return new JsonResponse([
                 'errors' => [
-                    ['detail' => "Could not retrieve file metadata from S3: {$s3Key}"]
-                ]
+                    ['detail' => "Could not retrieve file metadata from S3: {$s3Key}"],
+                ],
             ], 404);
         }
 
@@ -143,4 +151,3 @@ class MediaPresignedUploadController extends AbstractController
         ]);
     }
 }
-

@@ -2,7 +2,7 @@
  * Gateway for the presigned media upload API
  * @class
  * @extends ApiService
- * @sw-package content
+ * @sw-package discovery
  */
 const ApiService = Shopware.Classes.ApiService;
 

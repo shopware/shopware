@@ -19,8 +19,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class PresignedUploadUrlGenerator
 {
     private readonly S3Client $s3Client;
+
     private readonly string $bucket;
+
     private readonly string $region;
+
     private readonly bool $enabled;
 
     /**
@@ -46,7 +49,7 @@ class PresignedUploadUrlGenerator
         $this->region = $s3Config['region'] ?? 'us-east-1';
 
         $credentials = $s3Config['credentials'] ?? [];
-        
+
         $this->s3Client = new S3Client([
             'region' => $this->region,
             'endpoint' => $s3Config['endpoint'] ?? null,
@@ -103,7 +106,6 @@ class PresignedUploadUrlGenerator
                 's3Key' => $s3Key,
                 'expiresAt' => $expiresAt->format('c'),
             ];
-
         } catch (\Exception $e) {
             return null;
         }
@@ -119,6 +121,7 @@ class PresignedUploadUrlGenerator
                 'Bucket' => $this->bucket,
                 'Key' => $s3Key,
             ]);
+
             return true;
         } catch (\Exception) {
             return false;

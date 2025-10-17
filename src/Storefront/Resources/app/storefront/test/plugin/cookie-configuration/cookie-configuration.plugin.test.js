@@ -68,6 +68,7 @@ describe('CookieConfiguration plugin tests', () => {
     beforeEach(() => {
         window.router = {
             'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
+            'frontend.cookie.groups': 'https://shop.example.com/cookie/groups',
             'frontend.account.login.page': 'https://shop.example.com/login',
         };
 
@@ -366,7 +367,7 @@ describe('CookieConfiguration plugin tests', () => {
 
         await plugin._acceptAllCookiesFromCookieBar();
 
-        expect(global.fetch).toHaveBeenCalledWith('/cookie/groups', {
+        expect(global.fetch).toHaveBeenCalledWith(window.router['frontend.cookie.groups'], {
             method: 'GET',
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         });
@@ -501,7 +502,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._checkCookieConfigurationHash();
 
-            expect(mockFetch).toHaveBeenCalledWith('/cookie/groups', {
+            expect(mockFetch).toHaveBeenCalledWith(window.router['frontend.cookie.groups'], {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -759,7 +760,7 @@ describe('CookieConfiguration plugin tests', () => {
             await plugin._handlePermission(event);
 
             // Verify API call
-            expect(mockFetch).toHaveBeenCalledWith('/cookie/groups', {
+            expect(mockFetch).toHaveBeenCalledWith(window.router['frontend.cookie.groups'], {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -1099,7 +1100,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin.acceptAllCookies(true);
 
-            expect(global.fetch).toHaveBeenCalledWith('/cookie/groups', {
+            expect(global.fetch).toHaveBeenCalledWith(window.router['frontend.cookie.groups'], {
                 method: 'GET',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
             });
@@ -1609,7 +1610,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             const result = await plugin._fetchCookieGroups();
 
-            expect(global.fetch).toHaveBeenCalledWith('/cookie/groups', {
+            expect(global.fetch).toHaveBeenCalledWith(window.router['frontend.cookie.groups'], {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',

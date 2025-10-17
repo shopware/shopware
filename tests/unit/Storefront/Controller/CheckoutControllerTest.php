@@ -131,7 +131,13 @@ class CheckoutControllerTest extends TestCase
     public function testGetCartRedirectOnShippingErrors(): void
     {
         $cart = new Cart(Uuid::randomHex());
-        $cart->addErrors(new ShippingMethodChangedError('old', 'new'));
+        $cart->addErrors(new ShippingMethodChangedError(
+            oldShippingMethodId: Uuid::randomHex(),
+            oldShippingMethodName: 'old',
+            newShippingMethodId: Uuid::randomHex(),
+            newShippingMethodName: 'new',
+            reason: 'reason',
+        ));
 
         $cartPage = new CheckoutCartPage();
         $cartPage->setCart($cart);
@@ -153,7 +159,13 @@ class CheckoutControllerTest extends TestCase
     public function testGetCartRedirectOnShippingErrorsPreventLoop(): void
     {
         $cart = new Cart(Uuid::randomHex());
-        $cart->addErrors(new ShippingMethodChangedError('old', 'new'));
+        $cart->addErrors(new ShippingMethodChangedError(
+            oldShippingMethodId: Uuid::randomHex(),
+            oldShippingMethodName: 'old',
+            newShippingMethodId: Uuid::randomHex(),
+            newShippingMethodName: 'new',
+            reason: 'reason',
+        ));
 
         $cartPage = new CheckoutCartPage();
         $cartPage->setCart($cart);
@@ -247,7 +259,13 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
-        $cart->addErrors(new ShippingMethodChangedError('old', 'new'));
+        $cart->addErrors(new ShippingMethodChangedError(
+            oldShippingMethodId: Uuid::randomHex(),
+            oldShippingMethodName: 'old',
+            newShippingMethodId: Uuid::randomHex(),
+            newShippingMethodName: 'new',
+            reason: 'reason',
+        ));
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
@@ -595,7 +613,13 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
-        $cart->addErrors(new ShippingMethodChangedError('old', 'new'));
+        $cart->addErrors(new ShippingMethodChangedError(
+            oldShippingMethodId: Uuid::randomHex(),
+            oldShippingMethodName: 'old',
+            newShippingMethodId: Uuid::randomHex(),
+            newShippingMethodName: 'new',
+            reason: 'reason',
+        ));
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());

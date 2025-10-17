@@ -26,10 +26,9 @@ class DeleteExpiredFilesService
     public function countFiles(Context $context): int
     {
         $criteria = $this->buildCriteria();
-        $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        return $this->fileRepository->search($criteria, $context)->getTotal();
+        return $this->fileRepository->searchIds($criteria, $context)->getTotal();
     }
 
     public function deleteFiles(Context $context): void

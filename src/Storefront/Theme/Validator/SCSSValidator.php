@@ -216,6 +216,11 @@ class SCSSValidator
      *
      * It supports both classic and modern syntax.
      * Will forward to isHSLA for classic syntax with 'hsla'.
+     * Supports SCSS functions like hue(), saturation(), lightness().
+     *
+     * The relative color syntax is not supported.
+     * It will fail in combination with SCSS color functions.
+     * Patterns like `hsl(from <color> H S L[ / A])` are not valid.
      */
     private static function isHSL(string $hslCode): bool
     {
@@ -231,17 +236,30 @@ class SCSSValidator
         $percent = '(?:100|[1-9]?\d)%';
         $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
 
+        // SCSS function call pattern (e.g., hue($var), saturation($var))
+        $scssFunction = '[a-z-]+\([^)]+\)';
+
+        // Allow either numeric values or SCSS functions
+        $hueOrFunction = '(?:' . $hue . '(?:deg)?|' . $scssFunction . ')';
+        $percentOrFunction = '(?:' . $percent . '|' . $scssFunction . ')';
+        $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
+
         // Modern: hsl(h s% l% / a?)  (spaces; optional / alpha)
-        $patternModern = '/^hsl\(\s*' . $hue . '(?:deg)?\s+' . $percent . '\s+' . $percent . '(?:\s*\/\s*' . $alpha . ')?\s*\)$/i';
+        $patternModern = '/^hsl\(\s*' . $hueOrFunction . '\s+' . $percentOrFunction . '\s+' . $percentOrFunction . '(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
 
         // Legacy: hsl(h, s%, l%)  (commas; no alpha)
-        $patternLegacy = '/^hsl\(\s*' . $hue . '(?:deg)?\s*,\s*' . $percent . '\s*,\s*' . $percent . '\s*\)$/i';
+        $patternLegacy = '/^hsl\(\s*' . $hueOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $percentOrFunction . '\s*\)$/i';
 
         return preg_match($patternModern, $hslCode) === 1 || preg_match($patternLegacy, $hslCode) === 1;
     }
 
     /**
      * Validates if the given HSLA code is valid.
+     * Supports SCSS functions like hue(), saturation(), lightness().
+     *
+     * The relative color syntax is not supported.
+     * It will fail in combination with SCSS color functions.
+     * Patterns like `hsla(from <color> H S L A)` are not valid.
      */
     private static function isHSLA(string $hslaCode): bool
     {
@@ -249,8 +267,16 @@ class SCSSValidator
         $percent = '(?:100|[1-9]?\d)%';
         $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
 
+        // SCSS function call pattern (e.g., hue($var), saturation($var))
+        $scssFunction = '[a-z-]+\([^)]+\)';
+
+        // Allow either numeric values or SCSS functions
+        $hueOrFunction = '(?:' . $hue . '(?:deg)?|' . $scssFunction . ')';
+        $percentOrFunction = '(?:' . $percent . '|' . $scssFunction . ')';
+        $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
+
         // Legacy HSLA: hsla(h, s%, l%, a)
-        $patternHsla = '/^hsla\(\s*' . $hue . '(?:deg)?\s*,\s*' . $percent . '\s*,\s*' . $percent . '\s*,\s*' . $alpha . '\s*\)$/i';
+        $patternHsla = '/^hsla\(\s*' . $hueOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
 
         return preg_match($patternHsla, $hslaCode) === 1;
     }
@@ -259,7 +285,12 @@ class SCSSValidator
      * Validates if the given RGB code is valid.
      *
      * It supports both classic and modern syntax.
+     * Allows SCSS variables, hex colors, and SCSS functions like red(), green(), blue().
      * Will forward to isRGBA for classic syntax with 'rgba'.
+     *
+     * The relative color syntax is not supported.
+     * It will fail in combination with SCSS color functions.
+     * Patterns like `rgb(from <color> R G B[ / A])` are not valid.
      */
     private static function isRGB(string $rgbCode): bool
     {
@@ -271,18 +302,60 @@ class SCSSValidator
             return self::isRGBA($rgbCode);
         }
 
-        $patternRgb = '/^rgb\(\s*(?:(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s+(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s+(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)(?:\s*\/\s*(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%))?|(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%))\s*\)$/i';
+        $rgbValue = '(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)';
+        $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
 
-        return preg_match($patternRgb, $rgbCode) === 1;
+        // SCSS function call pattern (e.g., red($var), green($var))
+        $scssFunction = '[a-z-]+\([^)]+\)';
+
+        // Allow either numeric values or SCSS functions
+        $rgbOrFunction = '(?:' . $rgbValue . '|' . $scssFunction . ')';
+        $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
+
+        // Modern: rgb(r g b / a?)  (spaces; optional / alpha)
+        $patternModern = '/^rgb\(\s*' . $rgbOrFunction . '\s+' . $rgbOrFunction . '\s+' . $rgbOrFunction . '(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
+
+        // Legacy: rgb(r, g, b)  (commas; no alpha)
+        $patternLegacy = '/^rgb\(\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*\)$/i';
+
+        // SCSS variable or hex color format: rgb($variable / alpha?) or rgb(#fff / alpha?)
+        $scssVariable = '\$(?![0-9])[a-zA-Z0-9-_]+';
+        $hexColor = '#[a-f0-9]{3,8}';
+        $patternRgbWithColorOrVariable = '/^rgb\(\s*(?:' . $scssVariable . '|' . $hexColor . ')(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
+
+        return preg_match($patternModern, $rgbCode) === 1
+            || preg_match($patternLegacy, $rgbCode) === 1
+            || preg_match($patternRgbWithColorOrVariable, $rgbCode) === 1;
     }
 
     /**
      * Validates if the given RGBA code is valid.
+     * Allows SCSS variables, hex colors, and SCSS functions like red(), green(), blue(), alpha().
+     *
+     * The relative color syntax is not supported.
+     * It will fail in combination with SCSS color functions.
+     * Patterns like `rgba(from <color> R G B A)` are not valid.
      */
     private static function isRGBA(string $rgbaCode): bool
     {
-        $patternRgba = '/^rgba\(\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)\s*,\s*(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)\s*\)$/i';
+        $rgbValue = '(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)';
+        $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
 
-        return preg_match($patternRgba, $rgbaCode) === 1;
+        // SCSS function call pattern (e.g., red($var), green($var))
+        $scssFunction = '[a-z-]+\([^)]+\)';
+
+        // Allow either numeric values or SCSS functions
+        $rgbOrFunction = '(?:' . $rgbValue . '|' . $scssFunction . ')';
+        $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
+
+        // Classic 4-value format: rgba(r, g, b, a)
+        $patternRgba = '/^rgba\(\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
+
+        // SCSS variable or hex color format: rgba($variable, alpha) or rgba(#fff, alpha)
+        $scssVariable = '\$(?![0-9])[a-zA-Z0-9-_]+';
+        $hexColor = '#[a-f0-9]{3,8}';
+        $patternRgbaWithColorOrVariable = '/^rgba\(\s*(?:' . $scssVariable . '|' . $hexColor . ')\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
+
+        return preg_match($patternRgba, $rgbaCode) === 1 || preg_match($patternRgbaWithColorOrVariable, $rgbaCode) === 1;
     }
 }

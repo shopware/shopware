@@ -14,7 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -78,7 +78,9 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
     public function testSwitchBlockedOriginalSwitchToDefault(): void
     {
-        $errorCollection = $this->getErrorCollection(['original-payment-method-name']);
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-payment-method-id', 'name' => 'original-payment-method-name'],
+        ]);
         $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
 
         static::assertSame('default-payment-method-id', $newPaymentMethod->getId());
@@ -91,14 +93,19 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         $error = $errorCollectionFiltered->first();
         static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
-            'newPaymentMethodName' => 'default-payment-method-name',
+            'oldPaymentMethodId' => 'original-payment-method-id',
             'oldPaymentMethodName' => 'original-payment-method-name',
+            'newPaymentMethodId' => 'default-payment-method-id',
+            'newPaymentMethodName' => 'default-payment-method-name',
+            'reason' => 'Payment method blocked',
         ], $error->getParameters());
     }
 
     public function testSwitchBlockedOriginalWithTranslatedName(): void
     {
-        $errorCollection = $this->getErrorCollection(['original-payment-method-name']);
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-payment-method-id', 'name' => 'original-payment-method-name'],
+        ]);
 
         $this->paymentMethodCollection->remove('any-other-payment-method-id');
         $this->paymentMethodCollection->remove('default-payment-method-id');
@@ -119,14 +126,20 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         $error = $errorCollectionFiltered->first();
         static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
-            'newPaymentMethodName' => 'translated-payment-method-name',
+            'oldPaymentMethodId' => 'original-payment-method-id',
             'oldPaymentMethodName' => 'original-payment-method-name',
+            'newPaymentMethodId' => 'translated-payment-method-id',
+            'newPaymentMethodName' => 'translated-payment-method-name',
+            'reason' => 'Payment method blocked',
         ], $error->getParameters());
     }
 
     public function testSwitchBlockedOriginalAndDefaultSwitchToAnyOther(): void
     {
-        $errorCollection = $this->getErrorCollection(['original-payment-method-name', 'default-payment-method-name']);
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-payment-method-id', 'name' => 'original-payment-method-name'],
+            ['id' => 'default-payment-method-id', 'name' => 'default-payment-method-name'],
+        ]);
         $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
 
         static::assertSame('any-other-payment-method-id', $newPaymentMethod->getId());
@@ -139,23 +152,33 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $expectedParameters = [
             [
-                'newPaymentMethodName' => 'any-other-payment-method-name',
+                'oldPaymentMethodId' => 'original-payment-method-id',
                 'oldPaymentMethodName' => 'original-payment-method-name',
+                'newPaymentMethodId' => 'any-other-payment-method-id',
+                'newPaymentMethodName' => 'any-other-payment-method-name',
+                'reason' => 'Payment method blocked',
             ],
             [
-                'newPaymentMethodName' => 'any-other-payment-method-name',
+                'oldPaymentMethodId' => 'default-payment-method-id',
                 'oldPaymentMethodName' => 'default-payment-method-name',
+                'newPaymentMethodId' => 'any-other-payment-method-id',
+                'newPaymentMethodName' => 'any-other-payment-method-name',
+                'reason' => 'Payment method blocked',
             ],
         ];
 
+        $i = 0;
         foreach ($errorCollectionFiltered as $error) {
-            static::assertContainsEquals($error->getParameters(), $expectedParameters);
+            static::assertSame($error->getParameters(), $expectedParameters[$i]);
+            ++$i;
         }
     }
 
     public function testSwitchBlockedOriginalAndNoDefaultSwitchToAnyOther(): void
     {
-        $errorCollection = $this->getErrorCollection(['original-payment-method-name']);
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-payment-method-id', 'name' => 'original-payment-method-name'],
+        ]);
         $salesChannelContext = $this->getSalesChannelContext(true);
         $newPaymentMethod = $this->switcher->switch($errorCollection, $salesChannelContext);
 
@@ -170,8 +193,11 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         $error = $errorCollectionFiltered->first();
         static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
-            'newPaymentMethodName' => 'any-other-payment-method-name',
+            'oldPaymentMethodId' => 'original-payment-method-id',
             'oldPaymentMethodName' => 'original-payment-method-name',
+            'newPaymentMethodId' => 'any-other-payment-method-id',
+            'newPaymentMethodName' => 'any-other-payment-method-name',
+            'reason' => 'Payment method blocked',
         ], $error->getParameters());
     }
 
@@ -180,7 +206,10 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         $switcher = new BlockedPaymentMethodSwitcher(
             $this->getPaymentMethodRoute(true)
         );
-        $errorCollection = $this->getErrorCollection(['original-payment-method-name', 'default-payment-method-name']);
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-payment-method-id', 'name' => 'original-payment-method-name'],
+            ['id' => 'default-payment-method-id', 'name' => 'default-payment-method-name'],
+        ]);
         $newPaymentMethod = $switcher->switch($errorCollection, $this->salesChannelContext);
 
         static::assertSame('original-payment-method-id', $newPaymentMethod->getId());
@@ -196,7 +225,9 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
     public function testOnlyAvailableFlagIsSet(): void
     {
         $paymentMethod = $this->paymentMethodCollection->get('original-payment-method-id');
-        $errors = $this->getErrorCollection(['original-payment-method-name']);
+        $errors = $this->getErrorCollection([
+            ['id' => 'original-payment-method-id', 'name' => 'original-payment-method-name'],
+        ]);
 
         $context = Generator::generateSalesChannelContext(paymentMethod: $paymentMethod);
 
@@ -221,19 +252,19 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         if ($searchIds === []) {
             static::assertCount(1, $criteria->getFilters());
 
-            $nand = $criteria->getFilters()[0];
+            $notEqualsAnyFilter = $criteria->getFilters()[0];
 
-            static::assertInstanceOf(NandFilter::class, $nand);
-            static::assertCount(1, $nand->getQueries());
+            static::assertInstanceOf(NotEqualsAnyFilter::class, $notEqualsAnyFilter);
+            static::assertCount(1, $notEqualsAnyFilter->getQueries());
 
-            $nameFilter = $nand->getQueries()[0];
+            $idsFilter = $notEqualsAnyFilter->getQueries()[0];
 
-            static::assertInstanceOf(EqualsAnyFilter::class, $nameFilter);
+            static::assertInstanceOf(EqualsAnyFilter::class, $idsFilter);
 
-            $names = $nameFilter->getValue();
+            $ids = $idsFilter->getValue();
 
             $collection = $this->paymentMethodCollection->filter(
-                fn (PaymentMethodEntity $entity) => !\in_array($entity->getName() ?? '', $names, true)
+                fn (PaymentMethodEntity $entity) => !\in_array($entity->getId(), $ids, true)
             );
         } else {
             $collection = $this->paymentMethodCollection->filter(
@@ -272,14 +303,18 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
     }
 
     /**
-     * @param array<string> $blockedPaymentMethodNames
+     * @param list<array{id: string, name: string}> $blockedPaymentMethods
      */
-    private function getErrorCollection(array $blockedPaymentMethodNames = []): ErrorCollection
+    private function getErrorCollection(array $blockedPaymentMethods = []): ErrorCollection
     {
         $errorCollection = new ErrorCollection();
 
-        foreach ($blockedPaymentMethodNames as $name) {
-            $errorCollection->add(new PaymentMethodBlockedError($name, 'Payment method blocked'));
+        foreach ($blockedPaymentMethods as $method) {
+            $errorCollection->add(new PaymentMethodBlockedError(
+                id: $method['id'],
+                name: $method['name'],
+                reason: 'Payment method blocked',
+            ));
         }
 
         return $errorCollection;

@@ -13,10 +13,13 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 #[CoversClass(ReflectionHelper::class)]
 class ReflectionHelperTest extends TestCase
 {
-    public function testGetMethodFromProtectedScope(): void
+    protected function setUp(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
+    }
 
+    public function testGetMethodFromProtectedScope(): void
+    {
         $class = new FakeClassForHelper();
 
         $method = ReflectionHelper::getMethod(FakeClassForHelper::class, 'myProtectedMethod');
@@ -26,8 +29,6 @@ class ReflectionHelperTest extends TestCase
 
     public function testGetMethodFromPrivateScope(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $class = new FakeClassForHelper();
 
         $method = ReflectionHelper::getMethod(FakeClassForHelper::class, 'myPrivateMethod');
@@ -55,8 +56,6 @@ class ReflectionHelperTest extends TestCase
 
     public function testGetPropertyFromPrivateScope(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $class = new FakeClassForHelper();
         $expectedValue = [5, 6, 7];
 
@@ -68,8 +67,6 @@ class ReflectionHelperTest extends TestCase
 
     public function testGetPropertyFromProtectedScope(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $class = new FakeClassForHelper();
         $expectedValue = 'override with this';
 

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
@@ -19,6 +20,7 @@ class StorefrontControllerTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use RequestStackTestBehaviour;
+    use SalesChannelApiTestBehaviour;
     use SessionTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
@@ -26,7 +28,8 @@ class StorefrontControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->testCategoryId = $this->createTestCategory();
+        $salesChannel = $this->createSalesChannel();
+        $this->testCategoryId = $this->createTestCategory($salesChannel['navigationCategoryId']);
     }
 
     /**
@@ -65,11 +68,9 @@ class StorefrontControllerTest extends TestCase
     /**
      * Creates a test category with special characters for testing JavaScript escaping
      */
-    private function createTestCategory(): string
+    private function createTestCategory(string $rootId): string
     {
         $categoryId = Uuid::randomHex();
-        $connection = static::getContainer()->get('Doctrine\DBAL\Connection');
-        $rootId = $connection->fetchOne('SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel LIMIT 1');
 
         $category = [
             'id' => $categoryId,
@@ -80,7 +81,7 @@ class StorefrontControllerTest extends TestCase
             'visible' => true,
         ];
 
-        static::getContainer()->get('category.repository')->create(
+        self::getContainer()->get('category.repository')->create(
             [$category],
             Context::createDefaultContext()
         );

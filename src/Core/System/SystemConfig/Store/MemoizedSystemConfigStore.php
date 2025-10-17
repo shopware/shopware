@@ -33,7 +33,7 @@ final class MemoizedSystemConfigStore implements EventSubscriberInterface, Reset
     }
 
     /**
-     * @param array<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function setConfig(?string $salesChannelId, array $config): void
     {
@@ -41,7 +41,7 @@ final class MemoizedSystemConfigStore implements EventSubscriberInterface, Reset
     }
 
     /**
-     * @return ?array<mixed>
+     * @return ?array<string, mixed>
      */
     public function getConfig(?string $salesChannelId): ?array
     {

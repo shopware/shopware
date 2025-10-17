@@ -9,7 +9,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class SystemConfigDomainLoadedEvent extends Event
 {
     /**
-     * @param array<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function __construct(
         private readonly string $domain,
@@ -20,7 +20,7 @@ class SystemConfigDomainLoadedEvent extends Event
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function getConfig(): array
     {
@@ -28,7 +28,7 @@ class SystemConfigDomainLoadedEvent extends Event
     }
 
     /**
-     * @param array<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function setConfig(array $config): void
     {

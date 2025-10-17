@@ -42,7 +42,7 @@ class SystemConfigFacade
      * @param string $key The key of the configuration value e.g. `core.listing.defaultSorting`.
      * @param string|null $salesChannelId The SalesChannelId if you need the config value for a specific SalesChannel, if you don't provide a SalesChannelId, the one of the current Context is used as default.
      *
-     * @return array<mixed>|bool|float|int|string|null
+     * @return array<string, mixed>|bool|float|int|string|null
      *
      * @example test-config/script.twig 4 1 Read an arbitrary system_config value.
      */
@@ -70,7 +70,7 @@ class SystemConfigFacade
      * @param string $key The name of the configuration value specified in the config.xml e.g. `exampleTextField`.
      * @param string|null $salesChannelId The SalesChannelId if you need the config value for a specific SalesChannel, if you don't provide a SalesChannelId, the one of the current Context is used as default.
      *
-     * @return array<mixed>|bool|float|int|string|null
+     * @return array<string, mixed>|bool|float|int|string|null
      *
      * @example test-config/script.twig 5 1 Read your app's config value.
      */

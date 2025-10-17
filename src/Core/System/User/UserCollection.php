@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class UserCollection extends EntityCollection
 {
     /**
-     * @return array<array-key, string>
+     * @return array<string, string>
      */
     public function getLocaleIds(): array
     {

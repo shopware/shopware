@@ -52,7 +52,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
     /**
      * @param array<string, mixed> $systemConfigs
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function buildSystemConfigArray(array $systemConfigs): array
     {
@@ -78,11 +78,11 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
     }
 
     /**
-     * @param array<mixed> $configValues
+     * @param array<string, mixed> $configValues
      * @param non-empty-array<string> $keys
-     * @param array<mixed>|bool|float|int|string|null $value
+     * @param array<string, mixed>|bool|float|int|string|null $value
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function getSubArray(array $configValues, array $keys, $value): array
     {
@@ -110,9 +110,9 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
     }
 
     /**
-     * @param array<mixed> $configValues
+     * @param array<string, mixed> $configValues
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function filterNotActivatedPlugins(array $configValues): array
     {

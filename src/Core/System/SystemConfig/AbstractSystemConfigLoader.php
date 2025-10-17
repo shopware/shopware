@@ -10,7 +10,7 @@ abstract class AbstractSystemConfigLoader
     abstract public function getDecorated(): AbstractSystemConfigLoader;
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     abstract public function load(?string $salesChannelId): array;
 }

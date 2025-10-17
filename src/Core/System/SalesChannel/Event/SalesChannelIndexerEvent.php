@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 class SalesChannelIndexerEvent extends NestedEvent
 {
     /**
-     * @param array<array-key, string> $ids
-     * @param array<array-key, string> $skip
+     * @param array<string> $ids
+     * @param array<string> $skip
      */
     public function __construct(
         private readonly array $ids,
@@ -26,7 +26,7 @@ class SalesChannelIndexerEvent extends NestedEvent
     }
 
     /**
-     * @return array<array-key, string>
+     * @return array<string>
      */
     public function getIds(): array
     {
@@ -34,7 +34,7 @@ class SalesChannelIndexerEvent extends NestedEvent
     }
 
     /**
-     * @return array<array-key, string>
+     * @return array<string>
      */
     public function getSkip(): array
     {

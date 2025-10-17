@@ -5,6 +5,8 @@ area: core
 tags: [php, symfony, dependency]
 ---
 
+## Superseded as this was intended more like advice for plugin developers to use new Symfony features
+
 ## Context
 
 The process of configuring dependencies has been upgraded with various new features in recent versions of Symfony.

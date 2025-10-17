@@ -12,9 +12,11 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
         // Get and store current config
-        const getCurrentConfig = await TestDataService.AdminApiClient.get('/api/_action/system-config?domain=core.basicInformation');
-        const currentConfigText = await getCurrentConfig.text();
-        originalConfig = JSON.parse(currentConfigText);
+        const getCurrentConfig = await TestDataService.AdminApiClient.get('_action/system-config?domain=core.basicInformation');
+        if (!getCurrentConfig.ok()) {
+            throw new Error(`Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`);
+        }
+        originalConfig = await getCurrentConfig.json();
 
         // Merge in the googleReCaptchaV2 settings
         const updatedConfig = {
@@ -36,17 +38,25 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
         };
 
         // Post the complete merged config
-        await TestDataService.AdminApiClient.post('/api/_action/system-config/batch', {
+        const updateResponse = await TestDataService.AdminApiClient.post('_action/system-config/batch', {
             data: updatedConfig
         });
+        if (!updateResponse.ok()) {
+            throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
+        }
 
         // Clear cache to ensure config takes effect
-        await TestDataService.AdminApiClient.delete('/_action/cache');
+        const cacheResponse = await TestDataService.AdminApiClient.delete('_action/cache');
+        if (!cacheResponse.ok()) {
+            throw new Error(`Failed to clear cache: ${cacheResponse.status()} ${cacheResponse.statusText()}`);
+        }
 
         // Verify the config was actually set
-        const verifyResponse = await TestDataService.AdminApiClient.get('/api/_action/system-config?domain=core.basicInformation');
-        const verifyConfigText = await verifyResponse.text();
-        const verifyConfig = JSON.parse(verifyConfigText);
+        const verifyResponse = await TestDataService.AdminApiClient.get('_action/system-config?domain=core.basicInformation');
+        if (!verifyResponse.ok()) {
+            throw new Error(`Failed to verify system config: ${verifyResponse.status()} ${verifyResponse.statusText()}`);
+        }
+        const verifyConfig = await verifyResponse.json();
 
         const captchaActive = verifyConfig['core.basicInformation.activeCaptchasV2']?.googleReCaptchaV2?.isActive;
         if (!captchaActive) {
@@ -57,12 +67,12 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
     test.afterEach(async ({ TestDataService }) => {
         // Restore original config
         if (Object.keys(originalConfig).length > 0) {
-            await TestDataService.AdminApiClient.post('/api/_action/system-config/batch', {
+            await TestDataService.AdminApiClient.post('_action/system-config/batch', {
                 data: { null: originalConfig }
             });
 
             // Clear cache after restoring
-            await TestDataService.AdminApiClient.delete('/_action/cache');
+            await TestDataService.AdminApiClient.delete('_action/cache');
         }
     });
 

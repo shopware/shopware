@@ -5,9 +5,11 @@ let originalConfig: Record<string, unknown> = {};
 test.describe('Wishlist Guest Functionalities', () => {
     test.beforeEach(async ({ TestDataService }) => {
         // Get and store current config
-        const getCurrentConfig = await TestDataService.AdminApiClient.get('/api/_action/system-config?domain=core');
-        const currentConfigText = await getCurrentConfig.text();
-        originalConfig = JSON.parse(currentConfigText);
+        const getCurrentConfig = await TestDataService.AdminApiClient.get('_action/system-config?domain=core');
+        if (!getCurrentConfig.ok()) {
+            throw new Error(`Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`);
+        }
+        originalConfig = await getCurrentConfig.json();
 
         const updatedConfig = {
             null: {
@@ -17,20 +19,26 @@ test.describe('Wishlist Guest Functionalities', () => {
             },
         };
 
-        await TestDataService.AdminApiClient.post('/api/_action/system-config/batch', {
+        const updateResponse = await TestDataService.AdminApiClient.post('_action/system-config/batch', {
             data: updatedConfig
         });
+        if (!updateResponse.ok()) {
+            throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
+        }
 
-        await TestDataService.AdminApiClient.delete('/_action/cache');
+        const cacheResponse = await TestDataService.AdminApiClient.delete('_action/cache');
+        if (!cacheResponse.ok()) {
+            throw new Error(`Failed to clear cache: ${cacheResponse.status()} ${cacheResponse.statusText()}`);
+        }
     });
 
     test.afterEach(async ({ TestDataService }) => {
         if (Object.keys(originalConfig).length > 0) {
-            await TestDataService.AdminApiClient.post('/api/_action/system-config/batch', {
+            await TestDataService.AdminApiClient.post('_action/system-config/batch', {
                 data: { null: originalConfig }
             });
 
-            await TestDataService.AdminApiClient.delete('/_action/cache');
+            await TestDataService.AdminApiClient.delete('_action/cache');
         }
     });
 

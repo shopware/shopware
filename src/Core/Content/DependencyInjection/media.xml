@@ -357,5 +357,21 @@
         <service id="Shopware\Core\Content\Media\SalesChannel\MediaRoute" public="true">
             <argument type="service" id="media.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator">
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy"/>
+            <argument>%shopware.filesystem.public%</argument>
+            <argument>%shopware.media.presigned_upload_expiration_minutes%</argument>
+            <argument>%shopware.media.enable_presigned_upload%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Api\MediaPresignedUploadController" public="true">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

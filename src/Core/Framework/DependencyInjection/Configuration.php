@@ -333,6 +333,9 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
                     ->validate()->always()->then(fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                ->end()
+                ->booleanNode('enable_presigned_upload')->defaultFalse()->end()
+                ->integerNode('presigned_upload_expiration_minutes')->defaultValue(5)->end()
             ->end();
 
         return $rootNode;

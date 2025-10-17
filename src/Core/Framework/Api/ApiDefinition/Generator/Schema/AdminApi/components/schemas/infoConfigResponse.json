@@ -114,6 +114,10 @@
                 "type": "boolean",
                 "description": "State of the URL upload feature."
               },
+              "enablePresignedUpload": {
+                "type": "boolean",
+                "description": "State of the presigned URL upload feature for direct S3 uploads."
+              },
               "appUrlReachable": {
                 "type": "boolean",
                 "description": "Whether configured APP_URL is externally reachable."

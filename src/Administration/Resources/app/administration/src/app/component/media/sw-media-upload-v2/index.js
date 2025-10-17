@@ -30,6 +30,7 @@ export default {
         'mediaService',
         'feature',
         'fileValidationService',
+        'mediaPresignedUploadService',
     ],
 
     emits: [
@@ -480,9 +481,88 @@ export default {
                 }
             }
 
+            // Check if presigned upload is supported before attempting
+            const isPresignedSupported = this.mediaPresignedUploadService.isSupported();
+
+            if (isPresignedSupported) {
+                // Try presigned upload with fallback for individual file failures
+                const uploadResults = await Promise.allSettled(
+                    newMediaFiles.map(file => this.handlePresignedUpload(file)),
+                );
+
+                // Check for failed uploads
+                const failedUploads = uploadResults
+                    .map((result, index) => ({ result, file: newMediaFiles[index], index }))
+                    .filter(({ result }) => result.status === 'rejected');
+
+                if (failedUploads.length > 0) {
+                    // Traditional upload for failed files
+                    const failedFiles = failedUploads.map(({ file }) => file);
+                    await this.handleTraditionalUpload(failedFiles);
+                }
+            } else {
+                // Presigned upload not supported, use traditional upload
+                await this.handleTraditionalUpload(newMediaFiles);
+            }
+        },
+
+        async handlePresignedUpload(file) {
+            const { fileName, extension } = fileReader.getNameAndExtensionFromFile(file);
+
+            try {
+                // call prepare
+                const prepareResponse = await this.mediaPresignedUploadService.prepareUpload(
+                    fileName,
+                    extension,
+                );
+
+                const { mediaId, uploadUrl, path } = prepareResponse;
+
+                // upload to S3
+                const uploadResponse = await fetch(uploadUrl, {
+                    method: 'PUT',
+                    body: file,
+                    headers: {
+                        'Content-Type': file.type || 'application/octet-stream',
+                    },
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error(`S3 upload failed: ${uploadResponse.status}`);
+                }
+
+                // call finalize
+                await this.mediaPresignedUploadService.finalizeUpload(
+                    mediaId,
+                    path,
+                    fileName,
+                    extension,
+                );
+
+                if (this.mediaService.hasListeners(this.uploadTag)) {
+                    this.mediaService.$listeners[this.uploadTag].forEach((listener) => {
+                        listener(this.mediaService._createUploadEvent('media-upload-finish', this.uploadTag, {
+                            targetId: mediaId,
+                            fileName: fileName,
+                            successAmount: 1,
+                            failureAmount: 0,
+                            totalAmount: 1,
+                        }));
+                    });
+                }
+
+                return { success: true, mediaId, fileName };
+
+            } catch (error) {
+                console.error('Presigned upload failed for:', fileName, error.message);
+                throw error;
+            }
+        },
+
+        async handleTraditionalUpload(files) {
             const syncEntities = [];
 
-            const uploadData = newMediaFiles.map((fileHandle) => {
+            const uploadData = files.map((fileHandle) => {
                 const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
                 const targetEntity = this.getMediaEntityForUpload();
                 syncEntities.push(targetEntity);

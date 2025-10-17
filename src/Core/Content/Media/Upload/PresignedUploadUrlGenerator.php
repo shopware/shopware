@@ -1,0 +1,187 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Media\Upload;
+
+use AsyncAws\S3\Input\PutObjectRequest;
+use AsyncAws\S3\S3Client;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
+use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+
+/**
+ * Service to generate presigned URLs for direct S3 uploads
+ *
+ * @internal
+ */
+#[Package('discovery')]
+class PresignedUploadUrlGenerator
+{
+    private readonly S3Client $s3Client;
+    private readonly string $bucket;
+    private readonly string $region;
+    private readonly bool $enabled;
+
+    /**
+     * @param array<string, mixed> $filesystemConfig
+     */
+    public function __construct(
+        private readonly AbstractMediaPathStrategy $mediaPathStrategy,
+        array $filesystemConfig,
+        private readonly int $expirationMinutes = 5,
+        bool $enabled = true
+    ) {
+        $this->enabled = $enabled;
+
+        // Only initialize S3 if feature is enabled and filesystem type is S3
+        if (!$this->enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
+            return;
+        }
+
+        $s3Config = $filesystemConfig['config'] ?? [];
+        $this->validateS3Config($s3Config);
+
+        $this->bucket = $s3Config['bucket'];
+        $this->region = $s3Config['region'] ?? 'us-east-1';
+
+        $credentials = $s3Config['credentials'] ?? [];
+        
+        $this->s3Client = new S3Client([
+            'region' => $this->region,
+            'endpoint' => $s3Config['endpoint'] ?? null,
+            'pathStyleEndpoint' => $s3Config['use_path_style_endpoint'] ?? false,
+            'accessKeyId' => $credentials['key'] ?? null,
+            'accessKeySecret' => $credentials['secret'] ?? null,
+        ]);
+    }
+
+    /**
+     * Generate a presigned URL for direct file upload to S3
+     *
+     * @return array{url: string, mediaId: string, s3Key: string, expiresAt: string}|null
+     */
+    public function generatePresignedUrl(
+        string $fileName,
+        string $extension,
+        string $mimeType,
+        ?string $mediaFolderId = null
+    ): ?array {
+        if (!$this->enabled) {
+            return null;
+        }
+
+        try {
+            $mediaId = Uuid::randomHex();
+
+            $location = new MediaLocationStruct(
+                id: $mediaId,
+                extension: $extension,
+                fileName: pathinfo($fileName, \PATHINFO_FILENAME),
+                uploadedAt: new \DateTimeImmutable()
+            );
+
+            $paths = $this->mediaPathStrategy->generate([$location]);
+            $s3Key = $paths[$mediaId] ?? throw MediaException::strategyNotFound('media-path-strategy');
+
+            $expiresAt = new \DateTimeImmutable("+{$this->expirationMinutes} minutes");
+
+            $putObjectRequest = new PutObjectRequest([
+                'Bucket' => $this->bucket,
+                'Key' => $s3Key,
+                'ContentType' => $mimeType,
+            ]);
+
+            $presignedUrl = $this->s3Client->presign(
+                $putObjectRequest,
+                $expiresAt
+            );
+
+            return [
+                'url' => $presignedUrl,
+                'mediaId' => $mediaId,
+                's3Key' => $s3Key,
+                'expiresAt' => $expiresAt->format('c'),
+            ];
+
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Verify that a file was successfully uploaded to S3
+     */
+    public function verifyUpload(string $s3Key): bool
+    {
+        try {
+            $this->s3Client->headObject([
+                'Bucket' => $this->bucket,
+                'Key' => $s3Key,
+            ]);
+            return true;
+        } catch (\Exception) {
+            return false;
+        }
+    }
+
+    /**
+     * Get file metadata from S3
+     *
+     * @return array{size: int, lastModified: string, etag: string}|null
+     */
+    public function getFileMetadata(string $s3Key): ?array
+    {
+        try {
+            $result = $this->s3Client->headObject([
+                'Bucket' => $this->bucket,
+                'Key' => $s3Key,
+            ]);
+
+            return [
+                'size' => (int) $result->getContentLength(),
+                'lastModified' => $result->getLastModified()->format('c'),
+            ];
+        } catch (\Exception) {
+            return null;
+        }
+    }
+
+    public function isSupported(): bool
+    {
+        return $this->enabled && $this->isS3Configured();
+    }
+
+    /**
+     * Validate S3 configuration array
+     *
+     * @param array<string, mixed> $s3Config
+     */
+    private function validateS3Config(array $s3Config): void
+    {
+        if (empty($s3Config['bucket'])) {
+            throw MediaException::invalidRequest('S3 configuration missing: bucket');
+        }
+
+        $credentials = $s3Config['credentials'] ?? [];
+        $missingKeys = [];
+
+        foreach (['key', 'secret'] as $expectedKey) {
+            if (!\array_key_exists($expectedKey, $credentials) || empty($credentials[$expectedKey])) {
+                $missingKeys[] = "credentials.{$expectedKey}";
+            }
+        }
+
+        if (!empty($missingKeys)) {
+            throw MediaException::invalidRequest('S3 configuration missing: ' . implode(', ', $missingKeys));
+        }
+    }
+
+    /**
+     * Check if S3 is properly configured
+     */
+    private function isS3Configured(): bool
+    {
+        return !empty($this->bucket);
+    }
+}

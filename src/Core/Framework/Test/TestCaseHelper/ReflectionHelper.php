@@ -36,8 +36,6 @@ class ReflectionHelper
     }
 
     /**
-     * @param class-string<object> $className
-     *
      * @deprecated tag:v6.8.0 - will be removed without replacement. Use native \ReflectionProperty directly in tests.
      */
     public static function getPropertyValue(object $object, string $propertyName): mixed

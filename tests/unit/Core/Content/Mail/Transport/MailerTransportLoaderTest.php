@@ -24,6 +24,7 @@ use Symfony\Component\Mailer\Transport\SendmailTransportFactory;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
+use Symfony\Component\Mailer\Transport\Transports;
 
 /**
  * @internal
@@ -246,7 +247,7 @@ class MailerTransportLoaderTest extends TestCase
             'fallback' => 'null://localhost:25',
         ];
 
-        $transports = (new \ReflectionProperty(MailerTransportLoader::class, 'transports'))->getValue($loader->fromStrings($dsns));
+        $transports = (new \ReflectionProperty(Transports::class, 'transports'))->getValue($loader->fromStrings($dsns));
         static::assertArrayHasKey('main', $transports);
         static::assertArrayHasKey('fallback', $transports);
 

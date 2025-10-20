@@ -1,5 +1,5 @@
 ---
-title: Deprecate `ReflectionHelper::{getProperty,getMethod}` methods
+title: Deprecate `ReflectionHelper`
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

@@ -67,7 +67,7 @@ class SnippetFileHandler
             return [];
         }
 
-        return $this->findSnippetFilesByPath($bundleDir . '/Resources/app/*/src/');
+        return $this->findSnippetFilesByPath($bundleDir . '/Resources/app/*/src/', SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN);
     }
 
     /**
@@ -95,13 +95,13 @@ class SnippetFileHandler
     /**
      * @return list<string>
      */
-    private function findSnippetFilesByPath(string $path): array
+    private function findSnippetFilesByPath(string $path, string $pattern = SnippetPatterns::CORE_SNIPPET_FILE_PATTERN): array
     {
         $finder = (new Finder())
             ->files()
             ->in($path)
             ->ignoreUnreadableDirs()
-            ->name(SnippetPatterns::CORE_SNIPPET_FILE_PATTERN);
+            ->name($pattern);
 
         $iterator = $finder->getIterator();
         $files = [];

@@ -31,6 +31,9 @@ export interface AmplitudeRequestPayload {
 
 const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
 
+// Annotate entire file as serial.
+test.describe.configure({ mode: 'serial' });
+
 test('As a merchant, I want to make sure admin events are sent correctly.', { tag: '@ProductAnalytics' }, async ({
     ShopAdmin,
     FeatureService,

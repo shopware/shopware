@@ -1,3 +1,36 @@
+# 6.7.3.1
+## Opensearch 3.x compatibility
+
+OpenSearch 3.x introduced a breaking change that disallows defining index mapping fields with empty array `properties`. For e.g: 
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "customFields": {
+        "type": "object",
+        "properties": []
+      }
+    }
+  }
+}
+```
+
+So instead of defining a index mapping with empty `properties`, we should omit `properties` entirely or define it with empty object `{}`:
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "customFields": {
+        "type": "object",
+        "properties": {} // or can be omitted entirely
+      }
+    }
+  }
+}
+```
+
 # 6.7.3.0
 ## Migration from controller variables to activeRoute
 Replace `controllerName` and `controllerAction` with `activeRoute`:

@@ -79,14 +79,6 @@ export default defineConfig({
     /* Configure projects for major browsers */
     projects: [
         {
-            name: 'Product Analytics',
-            use: {
-                ...devices['Desktop Chrome'],
-            },
-            dependencies: ['Setup'],
-            grep: /@ProductAnalytics/,
-        },
-        {
             name: 'Setup',
             use: {
                 ...devices['Desktop Chrome'],
@@ -101,8 +93,8 @@ export default defineConfig({
                     args: ['--remote-debugging-port=9222'],
                 },
             },
-            dependencies: ['Product Analytics'],
-            grepInvert: /@Install|@Update|@Visual|@Setup|@ProductAnalytics.*/,
+            dependencies: ['Setup'],
+            grepInvert: /@Install|@Update|@Visual|@Setup.*/,
         },
         {
             name: 'Install',

@@ -33,10 +33,14 @@ class FlowBuilder
         return new Flow($id, $sequences, $flat);
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $flowSequences
+     *
+     * @return list<array<string, mixed>>
+     */
     private function buildHierarchyTree(array $flowSequences, ?string $parentId = null): array
     {
         $children = [];
-
         foreach ($flowSequences as $key => $flowSequence) {
             if ($flowSequence['parent_id'] !== $parentId) {
                 continue;
@@ -48,7 +52,6 @@ class FlowBuilder
         }
 
         $items = [];
-
         foreach ($children as $child) {
             $child['children'] = $this->buildHierarchyTree($flowSequences, $child['sequence_id']);
             $items[] = $child;

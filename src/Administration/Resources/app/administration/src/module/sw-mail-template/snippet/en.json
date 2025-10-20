@@ -94,7 +94,7 @@
         "hintAvailableVariables": "Please select a flow trigger to show available variables.",
         "languageNotAssignedToSalesChannel": "The current language is not assigned to the selected sales channel.",
         "titleValidation": "Validate email template",
-        "buttonValidation": "Flow trigger",
+        "selectValidation": "Flow trigger",
         "hintValidation": "Validation may not be fully accurate. Please review the resulting email."
       },
       "previewModalTitle": "Preview",

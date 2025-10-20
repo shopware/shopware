@@ -35,6 +35,7 @@ final readonly class HasValidRSAJWKSignature implements Constraint
     {
         $this->validateAlgorithm($token);
         $key = $this->getValidKey($token);
+        /** @var non-empty-string $pem */
         $pem = $this->convertToPem($key);
 
         $signer = $this->getSigner($token->headers()->get('alg'));
@@ -70,9 +71,6 @@ final readonly class HasValidRSAJWKSignature implements Constraint
         throw JWTException::invalidJwt('Key ID (kid) could not be found');
     }
 
-    /**
-     * @return non-empty-string
-     */
     private function convertToPem(JWKStruct $key): string
     {
         if ($key->kty !== 'RSA') {

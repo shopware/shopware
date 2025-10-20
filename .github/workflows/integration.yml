@@ -44,7 +44,7 @@ jobs:
             shard-count: 1
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
       - uses: ./.github/actions/ats
         with:
           project: ${{ matrix.name }}
@@ -62,13 +62,13 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v4
         with:
           fetch-depth: 0 # Fetch full history in order to see what's changed
 
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v46
         with:
           files: |
             tests/acceptance/tests/**/*.spec.ts
@@ -92,7 +92,7 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
       - id: generate-matrix
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
@@ -197,7 +197,7 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Clone platform
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
   php-security:
     runs-on: ubuntu-24.04
     name: "Composer dependencies"
@@ -205,7 +205,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
     steps:
       - name: Clone platform
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
@@ -234,21 +234,21 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@181d5eefc20863364f96762470ba6f862bdef56b #  v3.29.2
+        uses: github/codeql-action/init@f443b600d91635bebf5b0d9ebc620189c0d6fba5 #  v4.30.8
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@181d5eefc20863364f96762470ba6f862bdef56b #  v3.29.2
+        uses: github/codeql-action/autobuild@f443b600d91635bebf5b0d9ebc620189c0d6fba5 #  v4.30.8
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@181d5eefc20863364f96762470ba6f862bdef56b #  v3.29.2
+        uses: github/codeql-action/analyze@f443b600d91635bebf5b0d9ebc620189c0d6fba5 #  v4.30.8
 
   tested-update-versions:
     name: tested-versions
@@ -319,7 +319,7 @@ jobs:
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
       - name: Checkout template
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           repository: shopware/production
           path: old-shopware
@@ -346,7 +346,7 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # 4
         with:
           node-version: 22
 
@@ -471,7 +471,7 @@ jobs:
         run: composer init:testdb
 
       - name: Checkout current major version
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           ref: ${{ github.ref }}
 
@@ -486,7 +486,7 @@ jobs:
           bin/console system:update:finish
 
       - name: Checkout previous major version again
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           ref: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
 
@@ -551,7 +551,7 @@ jobs:
             run: composer init:testdb
 
           - name: Checkout current major version
-            uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+            uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
             with:
                 ref: ${{ github.ref }}
 

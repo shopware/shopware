@@ -11,6 +11,26 @@
       "notificationGeneralSyntaxValidationErrorMessage": "Invalid template, check syntax.",
       "missingMailTemplateTypeErrorMessage": "A required mail template type is not available."
     },
+    "validation": {
+      "result": {
+        "error": {
+          "title": "{number} issue found | {number} issues found"
+        },
+        "success": {
+          "title": "Validation successful"
+        }
+      },
+      "error": {
+        "levelName": "Error",
+        "unknownVariable": "Unknown variable: \"{variable}\".",
+        "syntax": "Syntax error found: {message}",
+        "arrayAccess": "Unable to access array: \"{variable}\"."
+      },
+      "warning": {
+        "levelName": "Warning",
+        "complexElement": "Complex element found: \"{variable}\". Verify output manually."
+      }
+    },
     "list": {
       "textMailTemplateOverview": "Email templates",
       "tabMailTemplates": "Templates",
@@ -71,7 +91,11 @@
         "titleShowPreview": "Show preview",
         "titleShowAvailableVariables": "Variables",
         "copyTooltip": "Copy to clipboard.",
-        "languageNotAssignedToSalesChannel": "The current language is not assigned to the selected sales channel."
+        "hintAvailableVariables": "Please select a flow trigger to show available variables.",
+        "languageNotAssignedToSalesChannel": "The current language is not assigned to the selected sales channel.",
+        "titleValidation": "Validate email template",
+        "buttonValidation": "Flow trigger",
+        "hintValidation": "Validation may not be fully accurate. Please review the resulting email."
       },
       "previewModalTitle": "Preview",
       "buttonSave": "Save",

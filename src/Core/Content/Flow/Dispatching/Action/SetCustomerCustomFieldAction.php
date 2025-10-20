@@ -37,7 +37,7 @@ class SetCustomerCustomFieldAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function requirements(): array
     {

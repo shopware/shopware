@@ -1,5 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { POLL_BACKGROUND_INTERVAL } from '../../core/worker/worker-notification-listener';
+import type { NotificationType } from './notification.store';
 
 describe('notifications.store', () => {
     beforeAll(() => {
@@ -266,5 +267,20 @@ describe('notifications.store', () => {
 
         expect(notification.notifications.a).toEqual(expect.objectContaining({ uuid: 'a', title: 'updated' }));
         expect(Object.values(notification.growlNotifications)[0]).toEqual(expect.objectContaining({ title: 'updated' }));
+    });
+
+    it('passes notifications to transformers if registered', () => {
+        const notification = Shopware.Store.get('notification');
+        notification.registerTransformer('test', (n: NotificationType) => ({ ...n, message: 'transformed' }));
+
+        const newId = notification.createNotification({ title: 'test', message: 'test' }) ?? '';
+
+        expect(notification.notifications[newId]).toEqual(
+            expect.objectContaining({
+                uuid: newId,
+                title: 'test',
+                message: 'transformed',
+            }),
+        );
     });
 });

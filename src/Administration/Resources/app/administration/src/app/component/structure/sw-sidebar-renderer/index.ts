@@ -49,6 +49,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         const collapseSidebar = () => {
             sidebarSetWidth.value = MIN_SIDEBAR_WIDTH;
+            localStorage.setItem('sw-sidebar-width', MIN_SIDEBAR_WIDTH.toString());
         };
 
         const handleSidebarResize = (event: MouseEvent) => {

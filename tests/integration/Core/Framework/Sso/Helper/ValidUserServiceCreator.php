@@ -50,7 +50,6 @@ class ValidUserServiceCreator extends TestCase
         $validator->method('validate')->willReturn(true);
 
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
-        $validatorProperty->setAccessible(true);
         $validatorProperty->setValue($idTokenParser, $validator);
 
         $userRepository = self::getContainer()->get('user.repository');

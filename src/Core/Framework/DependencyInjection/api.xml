@@ -59,6 +59,8 @@
         <service id="Shopware\Core\Framework\Api\Controller\HealthCheckController" public="true">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\SystemCheck\SystemChecker"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
+            <argument type="string">%shopware.api.static_token.health_check%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">

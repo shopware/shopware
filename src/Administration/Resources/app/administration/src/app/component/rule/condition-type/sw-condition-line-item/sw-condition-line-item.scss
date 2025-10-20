@@ -1,8 +1,6 @@
 .sw-condition-line-item {
-    .sw-label {
-        .sw-product-variant-info {
-            max-width: 180px;
-        }
+    .sw-product-variant-info {
+        max-width: var(--scale-size-160);
     }
 
     .sw-select-result__result-item-text {

@@ -93,6 +93,12 @@ export default {
             // we need to check the media url since media.fileExtension is set directly after upload
             return this.item?.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
         },
+
+        extensionSdkButtons() {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+                return button.entity === 'media' && button.view === 'item';
+            });
+        },
     },
 
     watch: {
@@ -358,6 +364,22 @@ export default {
             };
 
             this.$emit('update:item', { ...this.item, ...newItemConfig });
+        },
+
+        runAppAction(action) {
+            if (typeof action.callback !== 'function') {
+                return;
+            }
+
+            const { fileName, mimeType, fileSize, url, id } = this.item;
+
+            action.callback({
+                id,
+                url,
+                fileName,
+                mimeType,
+                fileSize,
+            });
         },
     },
 };

@@ -5,8 +5,8 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Test\Stub\Storefront\ThemeRuntimeConfigTestService;
 use Shopware\Storefront\Storefront;
+use Shopware\Storefront\Test\Theme\ThemeRuntimeConfigTestService;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -150,9 +150,7 @@ class ThemeInheritanceBuilderTest extends TestCase
         $bundle = new $pluginClass(true, __DIR__ . '/fixtures/SimplePlugin');
 
         $reflection = new \ReflectionClass($pluginClass);
-        $name = $reflection->getProperty('name');
-        $name->setAccessible(true);
-        $name->setValue($bundle, $pluginName);
+        $reflection->getProperty('name')->setValue($bundle, $pluginName);
 
         return $bundle;
     }

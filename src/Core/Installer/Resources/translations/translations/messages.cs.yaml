@@ -20,30 +20,32 @@ shopware.installer:
     select_language_bs-BA: Bosenština
     select_language_cs-CZ: Čeština
     select_language_da-DK: Dánština
-    select_language_de-DE: Německy
+    select_language_de-DE: Němčina (Německo)
+    select_language_de-CH: Němčina (Švýcarsko)
+    select_language_de-AT: Němčina (Rakousko)
     select_language_el-GR: Řečtina
-    select_language_en-US: Anglicky (Spojené státy americké)
-    select_language_en-GB: Anglicky (Spojené království)
-    select_language_es-ES: Španělsky
+    select_language_en-US: Angličtina (Spojené státy)
+    select_language_en-GB: Angličtina (Spojené království)
+    select_language_es-ES: Španělština
     select_language_fi-FI: Finština
-    select_language_fr-FR: Francouzsky
+    select_language_fr-FR: Francouzština
     select_language_hi-IN: Hindština
     select_language_hr-HR: Chorvatština
     select_language_hu-HU: Maďarština
     select_language_id-ID: Indonéština
-    select_language_it-IT: Italsky
+    select_language_it-IT: Italština
     select_language_ko-KR: Korejština
     select_language_lv-LV: Lotyština
-    select_language_nl-NL: Holandsky
-    select_language_nn-NO: Norský
-    select_language_pl-PL: Polsky
-    select_language_pt-PT: Portugalsky
+    select_language_nl-NL: Nizozemština
+    select_language_nn-NO: Norština
+    select_language_pl-PL: Polština
+    select_language_pt-PT: Portugalština
     select_language_ro-RO: Rumunština
     select_language_ru-RU: Ruština
     select_language_sk-SK: Slovenština
     select_language_sl-SI: Slovinština
     select_language_sr-RS: Srbština
-    select_language_sv-SE: Švédský
+    select_language_sv-SE: Švédština
     select_language_tr-TR: Turečtina
     select_language_uk-UA: Ukrajinština
     select_language_vi-VN: Vietnamština

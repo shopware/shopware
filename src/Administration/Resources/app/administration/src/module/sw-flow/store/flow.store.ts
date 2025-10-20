@@ -199,6 +199,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
 
         setFlow(flow: Flow & { config?: Flow }) {
             this.flow = flow;
+
             if (flow.config) {
                 this.flow.description = flow.config.description;
                 this.flow.sequences = flow.config.sequences;
@@ -207,10 +208,27 @@ const swFlowStore = Shopware.Store.register('swFlow', {
         },
 
         setOriginFlow(flow: Flow) {
-            this.originFlow = {
-                ...flow,
-                sequences: flow.sequences?.map((item) => ({ ...item })) as Sequences,
-            } as Flow;
+            const clonedFlow = Shopware.Utils.object.cloneDeep(flow);
+
+            if (!flow.sequences) {
+                this.originFlow = clonedFlow;
+                return;
+            }
+
+            const sequences = new EntityCollection(
+                flow.sequences.source,
+                flow.sequences.entity,
+                Shopware.Context.api,
+                null,
+                [],
+            );
+
+            flow.sequences.forEach((item) => {
+                sequences.add(Shopware.Utils.object.cloneDeep(item) as Sequence);
+            });
+
+            clonedFlow.sequences = sequences;
+            this.originFlow = clonedFlow;
         },
 
         setEventName(eventName: string) {

@@ -154,6 +154,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
                     this._fireRequest(event);
                     return true;
                 }
+                return false;
             });
         } else {
             this._fireRequest(event);
@@ -193,21 +194,22 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             method = submitter.getAttribute('formMethod').toLowerCase();
         }
 
-        if (method === 'get') {
-            fetch(action, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            })
-                .then(response => response.text())
-                .then(response => this._onAfterAjaxSubmit(response));
-        } else {
-            fetch(action, {
-                method: method ?? 'post',
-                body: this._getFormData(),
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            })
-                .then(response => response.text())
-                .then(response => this._onAfterAjaxSubmit(response));
+        const fetchOptions = {
+            method: method === 'get' ? 'get' : (method ?? 'post'),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        };
+
+        if (method !== 'get') {
+            fetchOptions.body = this._getFormData();
         }
+
+        fetch(action, fetchOptions)
+            .then(response => response.text())
+            .then(response => this._onAfterAjaxSubmit(response))
+            .catch(error => {
+                console.error('Form submission error:', error);
+                this._removeLoadingIndicators();
+            });
     }
 
     /**
@@ -262,7 +264,9 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         if (this.options.replaceSelectors) {
             this.options.replaceSelectors.forEach((selector) => {
                 const elements = document.querySelectorAll(selector);
-                elements.forEach(el => ElementLoadingIndicatorUtil.create(el));
+                elements.forEach(el => {
+                    ElementLoadingIndicatorUtil.create(el);
+                });
             });
         }
 
@@ -275,12 +279,16 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _removeLoadingIndicators() {
-        this.options.replaceSelectors.forEach((selector) => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => ElementLoadingIndicatorUtil.remove(el));
-        });
+        if (this.options.replaceSelectors) {
+            this.options.replaceSelectors.forEach((selector) => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    ElementLoadingIndicatorUtil.remove(el);
+                });
+            });
+        }
 
-        this.$emitter.publish('createLoadingIndicators');
+        this.$emitter.publish('removeLoadingIndicators');
     }
 
     /**

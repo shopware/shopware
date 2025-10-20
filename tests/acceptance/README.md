@@ -35,6 +35,10 @@ APP_URL="<shop base url>"
 # optional with default dev setup
 SHOPWARE_ACCESS_KEY_ID="<your-api-client-id>"
 SHOPWARE_SECRET_ACCESS_KEY="<your-api-secret>"
+MAILPIT_BASE_URL=http://localhost:8025
+
+# If you are using a self-signed certificate or OrbStack domains
+SHOPWARE_PLAYWRIGHT_IGNORE_HTTPS_ERRORS=1
 ```
 
 To generate the access key you can use the following symfony command:

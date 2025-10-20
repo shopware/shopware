@@ -48,6 +48,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="string">%env(SERVICE_REGISTRY_URL)%</argument>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
             <call method="setContainer">
@@ -124,6 +126,15 @@
             <tag name="shopware.route_scope"/>
         </service>
 
+        <service id="Shopware\Administration\Framework\SystemCheck\AdministrationReadinessCheck">
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
+            <argument type="service" id="filesystem"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
         <service id="Shopware\Administration\Snippet\AppAdministrationSnippetDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -145,6 +156,13 @@
         <service id="Shopware\Administration\Snippet\CachedSnippetFinder" decorates="Shopware\Administration\Snippet\SnippetFinder">
             <argument type="service" id="Shopware\Administration\Snippet\CachedSnippetFinder.inner" />
             <argument type="service" id="cache.object" />
+        </service>
+
+        <service id="Shopware\Administration\Snippet\AppLifecycleSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a merchant, I would be able to adjust storefront rounding for defined country', { tag: '@Settings' }, async ({
+test('As a merchant, I would be able to adjust storefront rounding for defined country', { tag: ['@Settings', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     DefaultSalesChannel,
@@ -49,7 +49,7 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
 
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontHome.url());
-    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
+    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
     const productListingLocatorsByProductId = await StorefrontHome.getListingItemByProductName(product.name);
     await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(currency.isoCode + ' 22.556');
 

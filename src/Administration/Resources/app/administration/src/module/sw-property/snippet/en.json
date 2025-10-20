@@ -17,7 +17,8 @@
       "messageEmpty": "No properties yet",
       "columnDescription": "Description",
       "buttonDelete": "Delete",
-      "textDeleteConfirm": "Are you sure you really want to delete the property \"{name}\"?"
+      "textDeleteConfirm": "Are you sure you really want to delete the property \"{name}\"?",
+      "errorDelete": "Property could not be deleted because it is still in use by products."
     },
     "detail": {
       "mediaDisplayType": "Image",

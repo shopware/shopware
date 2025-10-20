@@ -44,13 +44,23 @@ export default {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         createdComponent() {
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Alt' || (event.key === 'c' && event.altKey)) {
-                    event.preventDefault();
-                }
-            });
+            document.addEventListener('keydown', this.keydownEventListener);
+        },
+
+        beforeUnmountComponent() {
+            document.removeEventListener('keydown', this.keydownEventListener);
+        },
+
+        keydownEventListener(event) {
+            if (event.key === 'Alt' || (event.key === 'c' && event.altKey)) {
+                event.preventDefault();
+            }
         },
 
         openModal() {

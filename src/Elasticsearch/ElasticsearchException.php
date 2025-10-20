@@ -13,6 +13,7 @@ class ElasticsearchException extends HttpException
     public const DEFINITION_NOT_FOUND = 'ELASTICSEARCH__DEFINITION_NOT_FOUND';
     public const UNSUPPORTED_DEFINITION = 'ELASTICSEARCH__UNSUPPORTED_DEFINITION';
     public const INDEXING_ERROR = 'ELASTICSEARCH__INDEXING_ERROR';
+    public const INDEX_CREATION_ERROR = 'ELASTICSEARCH__INDEX_CREATION_ERROR';
     public const NESTED_AGGREGATION_MISSING = 'ELASTICSEARCH__NESTED_FILTER_AGGREGATION_MISSING';
     public const UNSUPPORTED_AGGREGATION = 'ELASTICSEARCH__UNSUPPORTED_AGGREGATION';
     public const UNSUPPORTED_FILTER = 'ELASTICSEARCH__UNSUPPORTED_FILTER';
@@ -149,6 +150,19 @@ class ElasticsearchException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::EMPTY_INDEXING_REQUEST,
             'Empty indexing request provided'
+        );
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    public static function indexCreationFailed(string $index, array $config, \Throwable $exception): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INDEX_CREATION_ERROR,
+            'Creating index {{ index }} failed with payload {{ payload }}. Reason: {{ reason }}',
+            ['index' => $index, 'reason' => $exception->getMessage(), 'payload' => json_encode($config, \JSON_THROW_ON_ERROR)]
         );
     }
 

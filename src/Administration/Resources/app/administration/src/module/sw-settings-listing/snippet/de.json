@@ -31,7 +31,8 @@
               "cheapestPrice": "Günstigster Produkt-Preis",
               "price": "Standard Preis",
               "sales": "Verkaufte Einheiten",
-              "createdAt": "Erstellungsdatum"
+              "createdAt": "Erstellungsdatum",
+              "available": "Verfügbar"
             },
             "customField": "Zusatzfeld",
             "_score": "_score"

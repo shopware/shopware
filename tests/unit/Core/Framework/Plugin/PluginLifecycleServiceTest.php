@@ -50,6 +50,7 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -115,7 +116,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->pluginServiceMock,
             $this->createMock(VersionSanitizer::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            $this->createMock(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
     }
 

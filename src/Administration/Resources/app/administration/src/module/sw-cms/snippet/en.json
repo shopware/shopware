@@ -259,7 +259,7 @@
             "fetchPriorityHigh": "Fetch priority high"
           },
           "helpText": {
-            "fetchPriorityHigh": "Activate this option if the image is the first image on the page. This image will then be assigned the attribute \"fetchpriority=high\". This tells the browser that this image should be loaded with higher priority, which can improve the LCP (Largest Contentful Paint).",
+            "fetchPriorityHigh": "Activate this option if the image is the first one on the page. The image will then be assigned the attribute 'fetchpriority=\"high\"', telling the browser to load it with higher priority. This can help improve the Largest Contentful Paint (LCP).",
             "isDecorative": "When this option is enabled, the image information will not be read out by screen readers. This means that the \"alt\" and \"title\" tags will remain empty."
           },
           "placeholder": {

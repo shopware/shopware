@@ -12,6 +12,9 @@ class InitialStateIdLoader implements ResetInterface
 {
     final public const CACHE_KEY = 'state-machine-initial-state-ids';
 
+    /**
+     * @var array<string, string>
+     */
     private array $ids = [];
 
     /**
@@ -39,6 +42,9 @@ class InitialStateIdLoader implements ResetInterface
         return $this->ids[$name];
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function load(): array
     {
         return $this->cache->get(self::CACHE_KEY, fn () => $this->connection->fetchAllKeyValue(

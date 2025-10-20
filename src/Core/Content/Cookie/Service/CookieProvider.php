@@ -29,6 +29,7 @@ class CookieProvider
     final public const SNIPPET_NAME_COOKIE_GROUP_STATISTICAL = 'cookie.groupStatistical';
     final public const SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES = 'cookie.groupComfortFeatures';
     final public const SNIPPET_NAME_COOKIE_GROUP_MARKETING = 'cookie.groupMarketing';
+    final public const COOKIE_ENTRY_CONFIG_HASH_COOKIE = 'cookie-config-hash';
 
     private readonly string $sessionName;
 
@@ -77,6 +78,7 @@ class CookieProvider
             $this->getRequiredSessionEntry(),
             $this->getRequiredTimezoneEntry(),
             $this->getRequiredAcceptedEntry(),
+            $this->getRequiredCookieConfigHashEntry(),
         ]));
         $cookieGroupRequired->isRequired = true;
 
@@ -108,6 +110,15 @@ class CookieProvider
         $entryRequiredAccepted->hidden = true;
 
         return $entryRequiredAccepted;
+    }
+
+    private function getRequiredCookieConfigHashEntry(): CookieEntry
+    {
+        $entryRequiredCookieHash = new CookieEntry(self::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        $entryRequiredCookieHash->name = 'cookie.groupRequiredCookieHash';
+        $entryRequiredCookieHash->hidden = true;
+
+        return $entryRequiredCookieHash;
     }
 
     private function getCookieGroupStatistical(): CookieGroup

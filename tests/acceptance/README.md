@@ -353,7 +353,7 @@ These settings can be applied per test or globally in **playwright.config.ts** f
   - Also supports waiting for:
     - A network request (requestURL)
     - A specific selector to appear before measuring
-    - _Be sure to always use one of the waiting options! If not, the method will wait for the message queue to appear, which causes an unnecessary delay of around 5 seconds._
+    - Be sure to always use one of the waiting options! If not, the method will wait for the message queue to appear, which causes an unnecessary delay of around 5 seconds.
 - **Selective viewports**
   - Use `assertScreenshot` to capture only a specific element or a section of the page. (default: '.sw-desktop__content')
 - **Handling dynamic elements:**  

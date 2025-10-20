@@ -161,7 +161,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->setParameter('folderType', CategoryDefinition::TYPE_FOLDER);
 
         $this->eventDispatcher->dispatch(
-            new SitemapQueryEvent($query, $context, $limit, $offset, self::QUERY_EVENT_NAME)
+            new SitemapQueryEvent($query, $limit, $offset, $context, self::QUERY_EVENT_NAME)
         );
 
         /** @var list<array{id: string, created_at: string, updated_at: string}> $result */

@@ -3,19 +3,21 @@
 namespace Shopware\Core\Content\Sitemap\Event;
 
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\GenericEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('discovery')]
-final class SitemapQueryEvent extends Event implements GenericEvent
+final class SitemapQueryEvent extends Event implements GenericEvent, ShopwareSalesChannelEvent
 {
     public function __construct(
-        private readonly QueryBuilder $query,
-        private readonly SalesChannelContext $context,
-        private readonly int $limit,
-        private readonly ?int $offset,
+        public readonly QueryBuilder $query,
+        public readonly int $limit,
+        public readonly ?int $offset,
+        private readonly SalesChannelContext $salesChannelContext,
         private readonly string $name,
     ) {
     }
@@ -25,23 +27,13 @@ final class SitemapQueryEvent extends Event implements GenericEvent
         return $this->name;
     }
 
-    public function getQuery(): QueryBuilder
+    public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->query;
+        return $this->salesChannelContext;
     }
 
-    public function getContext(): SalesChannelContext
+    public function getContext(): Context
     {
-        return $this->context;
-    }
-
-    public function getLimit(): int
-    {
-        return $this->limit;
-    }
-
-    public function getOffset(): ?int
-    {
-        return $this->offset;
+        return $this->salesChannelContext->getContext();
     }
 }

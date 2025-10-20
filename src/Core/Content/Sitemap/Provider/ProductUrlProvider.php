@@ -163,7 +163,7 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
         $this->eventDispatcher->dispatch(
-            new SitemapQueryEvent($query, $context, $limit, $offset, self::QUERY_EVENT_NAME)
+            new SitemapQueryEvent($query, $limit, $offset, $context, self::QUERY_EVENT_NAME)
         );
 
         /** @var list<array{id: string, created_at: string, updated_at: string}> $result */

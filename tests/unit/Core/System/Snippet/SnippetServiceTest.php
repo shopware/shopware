@@ -320,16 +320,16 @@ class SnippetServiceTest extends TestCase
     public function testGetList(string $iso, array $expectedSnippets): void
     {
         $availableFixtures = [
-            'base.es',
+            'agnostic.es',
             'country.es-AR',
             'country.fr-CA',
-            'base.zh',
+            'agnostic.zh',
             'country.zh-Hans-CN',
         ];
 
         $baseIso = \explode('-', $iso, 2)[0];
 
-        $baseFileName = 'base.' . $baseIso;
+        $baseFileName = 'agnostic.' . $baseIso;
         $countryFileName = 'country.' . $iso;
 
         $snippetCollection = new SnippetFileCollection();
@@ -391,11 +391,11 @@ class SnippetServiceTest extends TestCase
      */
     public static function getListDataProvider(): \Generator
     {
-        yield 'base locale es without country' => [
+        yield 'agnostic locale es without country' => [
             'iso' => 'es',
             'expectedSnippets' => [
-                'title' => 'Base ES',
-                'baseOnly' => 'Base ES',
+                'title' => 'Agnostic ES',
+                'baseOnly' => 'Agnostic ES',
             ],
         ];
 
@@ -403,7 +403,7 @@ class SnippetServiceTest extends TestCase
             'iso' => 'es-AR',
             'expectedSnippets' => [
                 'title' => 'Country es-AR',
-                'baseOnly' => 'Base ES',
+                'baseOnly' => 'Agnostic ES',
             ],
         ];
 
@@ -417,8 +417,8 @@ class SnippetServiceTest extends TestCase
         yield 'country es-EM does not exist - only base es exists' => [
             'iso' => 'es-EM',
             'expectedSnippets' => [
-                'title' => 'Base ES',
-                'baseOnly' => 'Base ES',
+                'title' => 'Agnostic ES',
+                'baseOnly' => 'Agnostic ES',
             ],
         ];
     }

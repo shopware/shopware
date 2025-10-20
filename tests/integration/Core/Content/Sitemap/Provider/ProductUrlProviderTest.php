@@ -239,14 +239,7 @@ class ProductUrlProviderTest extends TestCase
 
     private function getProductUrlProvider(): ProductUrlProvider
     {
-        return new ProductUrlProvider(
-            static::getContainer()->get(ConfigHandler::class),
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get(ProductDefinition::class),
-            static::getContainer()->get(IteratorFactory::class),
-            static::getContainer()->get(RouterInterface::class),
-            static::getContainer()->get(SystemConfigService::class)
-        );
+        return static::getContainer()->get(ProductUrlProvider::class);
     }
 
     /**

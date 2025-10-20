@@ -239,16 +239,16 @@ jobs:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@f443b600d91635bebf5b0d9ebc620189c0d6fba5 #  v4.30.8
+        uses: github/codeql-action/init@16140ae1a102900babc80a33c44059580f687047 #  v4.30.9
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@f443b600d91635bebf5b0d9ebc620189c0d6fba5 #  v4.30.8
+        uses: github/codeql-action/autobuild@16140ae1a102900babc80a33c44059580f687047 #  v4.30.9
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@f443b600d91635bebf5b0d9ebc620189c0d6fba5 #  v4.30.8
+        uses: github/codeql-action/analyze@16140ae1a102900babc80a33c44059580f687047 #  v4.30.9
 
   tested-update-versions:
     name: tested-versions
@@ -346,7 +346,7 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # 4
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # 4
         with:
           node-version: 22
 

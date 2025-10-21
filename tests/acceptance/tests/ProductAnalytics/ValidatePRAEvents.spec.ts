@@ -321,7 +321,7 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
         await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, handler);
     });
 
-    await test.step('Navigate via Link to order page from dashboard', async () => {
+    await test.step('Navigate via link to order page from dashboard', async () => {
 
         const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, { timeout: 3000 });
         await AdminDashboard.adminMenuOrder.click();

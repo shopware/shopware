@@ -56,7 +56,7 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
 
     await test.step('Navigate to home and accept cookies', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
-        await StorefrontHome.consentAcceptAllCookiesButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentAcceptAllCookiesButton);
 
         // Wait for banner to disappear
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();

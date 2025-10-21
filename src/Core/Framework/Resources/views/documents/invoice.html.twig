@@ -38,14 +38,14 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% block shipping_address %}
     {% if config.displayDivergentDeliveryAddress %}
         <div class="shipping-address-container" tabindex="0">
-            <br><p class="bold">{{ 'document.shippingAddress'|trans|sw_sanitize }}</p>
-            {{ shippingAddress.company }}
-            {{ shippingAddress.department }} <br>
-            {{ shippingAddress.firstName }} {{ shippingAddress.lastName }} <br>
-            {{ shippingAddress.street }}<br>
-            {{ shippingAddress.zipcode }} {{ shippingAddress.city }}<br>
+            <br><p class="bold">{{ 'document.shippingAddress'|trans|sw_sanitize(null, true) }}</p>
+            {{ shippingAddress.company|sw_sanitize(null, true) }}
+            {{ shippingAddress.department|sw_sanitize(null, true) }} <br>
+            {{ shippingAddress.firstName|sw_sanitize(null, true) }} {{ shippingAddress.lastName|sw_sanitize(null, true) }} <br>
+            {{ shippingAddress.street|sw_sanitize(null, true) }}<br>
+            {{ shippingAddress.zipcode|sw_sanitize(null, true) }} {{ shippingAddress.city|sw_sanitize(null, true) }}<br>
             {{ shippingAddress.country.translated.name }}<br>
-            {{ shippingAddress.phoneNumber }}
+            {{ shippingAddress.phoneNumber|sw_sanitize(null, true) }}
         </div>
     {% else %}
         {{ parent() }}

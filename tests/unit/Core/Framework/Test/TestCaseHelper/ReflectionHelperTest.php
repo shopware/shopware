@@ -113,7 +113,7 @@ final class FakeClassForHelper
         }
     }
 
-    protected function myProtectedMethod(): bool
+    protected function myProtectedMethod(): true
     {
         return true;
     }

@@ -57,16 +57,18 @@ class ConfigReader extends XmlReader
     {
         $cardDefinitions = [];
 
-        foreach ($xml->getElementsByTagName('card') as $index => $element) {
-            $cardDefinitions[] = [
+        foreach ($xml->getElementsByTagName('card') as $element) {
+            $cardDefinition = [
                 'title' => $this->getCardTitles($element),
                 'name' => $this->getCardName($element),
                 'elements' => $this->getElements($element),
             ];
 
             if ($this->getCardFlag($element) !== null) {
-                $cardDefinitions[$index]['flag'] = $this->getCardFlag($element);
+                $cardDefinition['flag'] = $this->getCardFlag($element);
             }
+
+            $cardDefinitions[] = $cardDefinition;
         }
 
         return $cardDefinitions;

@@ -73,14 +73,14 @@ class ViteFileAccessorDecoratorTest extends TestCase
         // Dynamically check the keys
         $previousValue = null;
         foreach ($assetKeys as $key) {
-            // First iteration get value from service result
+            // First iteration: get value from service result
             if ($previousValue === null) {
                 static::assertArrayHasKey($key, $result);
                 $previousValue = $result[$key];
                 continue;
             }
 
-            // Use previous collected value to check the next key
+            // Use the previous collected value to check the next key
             static::assertArrayHasKey($key, $previousValue);
             $previousValue = $previousValue[$key];
         }

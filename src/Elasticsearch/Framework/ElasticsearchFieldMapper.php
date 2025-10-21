@@ -137,8 +137,6 @@ class ElasticsearchFieldMapper
             }
         }
 
-        // Convert grouped items into a numerically indexed array. Somehow PHPStan cannot resolve it
-        /** @phpstan-ignore argument.unresolvableType, function.unresolvableReturnType */
         return array_values($groupedItems);
     }
 

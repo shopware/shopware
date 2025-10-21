@@ -424,9 +424,9 @@ class RegisterRoute extends AbstractRegisterRoute
 
         return new \DateTime(\sprintf(
             '%d-%d-%d',
-            $birthdayYear,
-            $birthdayMonth,
-            $birthdayDay
+            (int) $birthdayYear,
+            (int) $birthdayMonth,
+            (int) $birthdayDay
         ));
     }
 

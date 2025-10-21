@@ -62,7 +62,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{registeredApiPrefixes: list<string>, requestUri: string}>
+     * @return iterable<string, array{registeredApiPrefixes: list<string>, requestUri: string}>
      */
     public static function notRequiredSalesChannelProvider(): iterable
     {

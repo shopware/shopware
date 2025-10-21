@@ -17,7 +17,7 @@ class ShippingAddressSalutationMissingError extends SalutationMissingError
             'A salutation needs to be defined for the shipping address "%s %s, %s %s".',
             $address->getFirstName(),
             $address->getLastName(),
-            $address->getZipcode(),
+            (string) $address->getZipcode(),
             $address->getCity()
         );
 

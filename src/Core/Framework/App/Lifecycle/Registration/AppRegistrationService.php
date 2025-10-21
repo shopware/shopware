@@ -46,14 +46,21 @@ class AppRegistrationService
 
         try {
             $appName = $manifest->getMetadata()->getName();
-            $appResponse = $this->registerWithApp($manifest, $context);
+
+            // Fetch existing app to support secret rotation with dual signatures
+            $app = $this->getApp($id, $context);
+
+            $appResponse = $this->registerWithApp($manifest, $app, $context);
 
             $secret = $appResponse['secret'];
             $confirmationUrl = $appResponse['confirmation_url'];
 
-            $this->saveAppSecret($id, $context, $secret);
+            // Sign confirmation with dual signatures for re-registration
+            // shopware-shop-signature (new secret) + shopware-shop-signature-previous (current secret)
+            $this->confirmRegistration($id, $context, $secret, $app->getAppSecret(), $secretAccessKey, $confirmationUrl);
 
-            $this->confirmRegistration($id, $context, $secret, $secretAccessKey, $confirmationUrl);
+            // After successful confirmation, save the new secret
+            $this->saveAppSecret($id, $context, $secret);
         } catch (RequestException $e) {
             if ($e->hasResponse() && $e->getResponse() !== null) {
                 $response = $e->getResponse();
@@ -75,9 +82,9 @@ class AppRegistrationService
      *
      * @return array<string, string>
      */
-    private function registerWithApp(Manifest $manifest, Context $context): array
+    private function registerWithApp(Manifest $manifest, AppEntity $app, Context $context): array
     {
-        $handshake = $this->handshakeFactory->create($manifest);
+        $handshake = $this->handshakeFactory->create($manifest, $app);
 
         $request = $handshake->assembleRequest();
         $response = $this->httpClient->send($request, [AuthMiddleware::APP_REQUEST_CONTEXT => $context]);
@@ -99,6 +106,7 @@ class AppRegistrationService
         Context $context,
         #[\SensitiveParameter]
         string $secret,
+        ?string $currentSecret,
         #[\SensitiveParameter]
         string $secretAccessKey,
         string $confirmationUrl
@@ -107,11 +115,20 @@ class AppRegistrationService
 
         $signature = $this->signPayload($payload, $secret);
 
+        $headers = [
+            'shopware-shop-signature' => $signature,
+            'sw-version' => $this->shopwareVersion,
+        ];
+
+        // For re-registration, also send signature with current/old secret
+        // shopware-shop-signature (new) + shopware-shop-signature-previous (current)
+        if ($currentSecret !== null) {
+            $previousSignature = $this->signPayload($payload, $currentSecret);
+            $headers['shopware-shop-signature-previous'] = $previousSignature;
+        }
+
         $this->httpClient->post($confirmationUrl, [
-            'headers' => [
-                'shopware-shop-signature' => $signature,
-                'sw-version' => $this->shopwareVersion,
-            ],
+            'headers' => $headers,
             AuthMiddleware::APP_REQUEST_CONTEXT => $context,
             'json' => $payload,
         ]);

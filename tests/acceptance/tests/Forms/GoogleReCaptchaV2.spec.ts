@@ -49,7 +49,8 @@ test('As a customer, I can perform a registration by validating to be not a robo
         });
 
         await test.step('Customer validates via the reCaptcha V2', async () => {
-            await reCaptchaCheckbox.click();
+            // Cannot use ShopCustomer.presses() as the Captcha does not add visible focus indicator when selected
+            await reCaptchaCheckbox.press('Space');
             await ShopCustomer.expects(reCaptchaCheckbox).toBeChecked();
         });
 
@@ -114,54 +115,56 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         InstanceMeta ,
     }) => {
 
-        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
+            test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
-        await TestDataService.setSystemConfig({
-            'core.basicInformation.activeCaptchasV2': {
-                googleReCaptchaV2: {
-                    name: 'googleReCaptchaV2',
-                    isActive: true,
-                    config: {
-                        siteKey: reCaptcha_V2_site_key,
-                        secretKey: reCaptcha_V2_secret_key,
-                        invisible: true,
+            await TestDataService.setSystemConfig({
+                'core.basicInformation.activeCaptchasV2': {
+                    googleReCaptchaV2: {
+                        name: 'googleReCaptchaV2',
+                        isActive: true,
+                        config: {
+                            siteKey: reCaptcha_V2_site_key,
+                            secretKey: reCaptcha_V2_secret_key,
+                            invisible: true,
+                        },
                     },
                 },
-            },
-        });
+            });
 
-        const customer = {
-            salutation: 'Mr.',
-            firstName: 'Jeff',
-            lastName: 'Goldblum',
-            email: `${IdProvider.getIdPair().uuid}@test.com`,
-            password: 'shopware',
-            street: 'Ebbinghof 10',
-            city: 'Schöppingen',
-            country: 'Germany',
-            postalCode: '48624',
-        };
+            const customer = {
+                salutation: 'Mr.',
+                firstName: 'Jeff',
+                lastName: 'Goldblum',
+                email: `${IdProvider.getIdPair().uuid}@test.com`,
+                password: 'shopware',
+                street: 'Ebbinghof 10',
+                city: 'Schöppingen',
+                country: 'Germany',
+                postalCode: '48624',
+            };
 
-        await test.step('Customer goes to registration page', async () => {
-            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+            await test.step('Customer goes to registration page', async () => {
+                await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-            const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
-            await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
-        });
+                const reCaptchaNotice = StorefrontAccountLogin.page.getByText('This site is protected by reCAPTCHA');
+                await ShopCustomer.expects(reCaptchaNotice).toBeVisible();
+            });
 
-        await test.step('Customer attempts to register but forgets to fill out a required field', async () => {
+            await test.step('Customer attempts to register but forgets to fill out a required field', async () => {
 
-            await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
-            await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
-            await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
-            await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
+            await ShopCustomer.presses(StorefrontAccountLogin.salutationSelect, 'Space');
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.salutationSelect, customer.salutation);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.firstNameInput, customer.firstName);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.registerEmailInput, customer.email);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.registerPasswordInput, customer.password);
 
-            await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
-            await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
-            await StorefrontAccountLogin.cityInput.fill(customer.city);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.streetAddressInput, customer.street);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.postalCodeInput, customer.postalCode);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.cityInput, customer.city);
+            await ShopCustomer.presses(StorefrontAccountLogin.countryInput, 'Space');
             await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
 
-            await StorefrontAccountLogin.registerButton.click();
+            await ShopCustomer.presses(StorefrontAccountLogin.registerButton, 'Enter');
 
             /**
              * Submitting the form triggers a request to google to validate the captcha.
@@ -174,10 +177,8 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         });
 
         await test.step('Customer fills out the missing field and re-attempts the registration', async() => {
-            await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
-
-            await StorefrontAccountLogin.registerButton.click();
-
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.lastNameInput, customer.lastName);
+            await ShopCustomer.presses(StorefrontAccountLogin.registerButton, 'Enter');
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         });
     }
@@ -214,7 +215,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
 
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await StorefrontHome.contactFormLink.click();
+            await ShopCustomer.presses(StorefrontHome.contactFormLink, 'Enter');
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 
             const reCaptchaNotice = StorefrontContactForm.page.getByText('This site is protected by reCAPTCHA');
@@ -222,13 +223,14 @@ test('As a customer, I want to fill out and submit the contact form that is vali
         });
 
         await test.step('Fill out all necessary contact information.', async () => {
+            await ShopCustomer.presses(StorefrontContactForm.salutationSelect, 'Space');
             await StorefrontContactForm.salutationSelect.selectOption('Mr.');
-            await StorefrontContactForm.firstNameInput.fill('John');
-            await StorefrontContactForm.lastNameInput.fill('Doe');
-            await StorefrontContactForm.emailInput.fill('mail@test.com');
-            await StorefrontContactForm.phoneInput.fill('0123456789');
-            await StorefrontContactForm.subjectInput.fill('Test: Product question');
-            await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
+            await ShopCustomer.fillsIn(StorefrontContactForm.firstNameInput, 'John');
+            await ShopCustomer.fillsIn(StorefrontContactForm.lastNameInput, 'Doe');
+            await ShopCustomer.fillsIn(StorefrontContactForm.emailInput, 'mail@test.com');
+            await ShopCustomer.fillsIn(StorefrontContactForm.phoneInput, '0123456789');
+            await ShopCustomer.fillsIn(StorefrontContactForm.subjectInput, 'Test: Product question');
+            await ShopCustomer.fillsIn(StorefrontContactForm.commentInput, 'Test: Hello, I have a question about your products.');
         });
 
         await ShopCustomer.expects(async () => {

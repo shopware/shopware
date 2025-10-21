@@ -190,7 +190,7 @@ class SCSSValidator
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private static function extractSCSSvars(string $value): array
     {

@@ -13,18 +13,6 @@ parameters:
 			path: src/Core/Content/Flow/Dispatching/FlowBuilder.php
 
 		-
-			message: '#^Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowBuilder\:\:buildHierarchyTree\(\) has parameter \$flowSequences with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/FlowBuilder.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowBuilder\:\:buildHierarchyTree\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/FlowBuilder.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowBuilder\:\:createNestedAction\(\) has parameter \$currentSequence with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

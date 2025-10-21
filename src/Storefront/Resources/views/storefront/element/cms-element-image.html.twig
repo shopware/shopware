@@ -18,11 +18,16 @@
                                         'class': 'cms-image',
                                         'alt': element.translated.config.isDecorative.value ? '' : (element.data.media.translated.alt ?: ''),
                                         'title': element.translated.config.isDecorative.value ? '' : (element.data.media.translated.title ?: ''),
-                                        'loading': 'lazy'
                                     } %}
 
                                     {% if isCover or element.translated.config.displayMode.value == 'contain' %}
                                         {% set attributes = attributes|merge({ 'data-object-fit': element.translated.config.displayMode.value }) %}
+                                    {% endif %}
+
+                                    {% if element.translated.config.fetchPriorityHigh is defined and element.translated.config.fetchPriorityHigh.value %}
+                                        {% set attributes = attributes|merge({ 'fetchpriority': 'high' }) %}
+                                    {% else %}
+                                        {% set attributes = attributes|merge({ 'loading': 'lazy' }) %}
                                     {% endif %}
 
                                     {% sw_thumbnails 'cms-image-thumbnails' with {

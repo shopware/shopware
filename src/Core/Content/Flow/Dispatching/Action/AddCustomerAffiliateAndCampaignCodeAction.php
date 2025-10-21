@@ -35,7 +35,7 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements De
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function requirements(): array
     {

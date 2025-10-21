@@ -22,7 +22,7 @@ class DeliveryTransformer
      * @param array<string, array<string, mixed>> $lineItems
      * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
-     * @return array<int, DeliveryArray>
+     * @return list<DeliveryArray>
      */
     public static function transformCollection(
         DeliveryCollection $deliveries,

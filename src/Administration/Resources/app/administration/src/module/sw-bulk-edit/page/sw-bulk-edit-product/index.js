@@ -1214,6 +1214,10 @@ export default {
 
                 let bulkEditValue = this.product[key];
 
+                if (key === 'active' && bulkEditValue == null) {
+                    bulkEditValue = false;
+                }
+
                 if (
                     [
                         'minPurchase',

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -125,5 +126,13 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame('ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND', $exception->getErrorCode());
         static::assertSame('Could not get AWS credentials', $exception->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOperatorNotAllowed(): void
+    {
+        $exception = ElasticsearchException::operatorNotAllowed('foo');
+        static::assertInstanceOf(\InvalidArgumentException::class, $exception);
+        static::assertSame('Operator foo not allowed', $exception->getMessage());
     }
 }

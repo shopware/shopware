@@ -156,4 +156,20 @@ class CartPromotionsDataDefinitionTest extends TestCase
 
         static::assertSame('100', $tuple->getCode());
     }
+
+    /**
+     * This test verifies that getAllCodes returns only a string array.
+     */
+    #[Group('promotions')]
+    public function testGetAllCodeReturnsStringArray(): void
+    {
+        $promotion1 = new PromotionEntity();
+        $promotion2 = new PromotionEntity();
+
+        $definition = new CartPromotionsDataDefinition();
+        $definition->addCodePromotions('100', [$promotion1]);
+        $definition->addCodePromotions('test', [$promotion2]);
+
+        static::assertContainsOnly('string', $definition->getAllCodes());
+    }
 }

@@ -238,7 +238,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Product\SearchConfigLoader">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
@@ -246,7 +246,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\StopwordTokenFilter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Elasticsearch\Product\SearchConfigLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
             <argument type="service" id="Shopware\Elasticsearch\TokenQueryBuilder"/>
         </service>
 

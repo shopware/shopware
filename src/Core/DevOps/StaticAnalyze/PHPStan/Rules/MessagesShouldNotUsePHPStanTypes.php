@@ -12,6 +12,7 @@ use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\PhpDocParser;
 use PHPStan\PhpDocParser\Parser\TokenIterator;
 use PHPStan\PhpDocParser\Parser\TypeParser;
+use PHPStan\PhpDocParser\ParserConfig;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -91,10 +92,11 @@ class MessagesShouldNotUsePHPStanTypes implements Rule
 
     private function parsePhpDoc(string $tokens): PhpDocNode
     {
-        $lexer = new Lexer();
-        $constExprParser = new ConstExprParser();
-        $typeParser = new TypeParser($constExprParser);
-        $phpDocParser = new PhpDocParser($typeParser, $constExprParser);
+        $parserConfig = new ParserConfig([]);
+        $lexer = new Lexer($parserConfig);
+        $constExprParser = new ConstExprParser($parserConfig);
+        $typeParser = new TypeParser($parserConfig, $constExprParser);
+        $phpDocParser = new PhpDocParser($parserConfig, $typeParser, $constExprParser);
 
         $tokenIterator = new TokenIterator($lexer->tokenize($tokens));
 

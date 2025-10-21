@@ -402,4 +402,14 @@ class MediaExceptionTest extends TestCase
         static::assertSame(MediaException::MEDIA_THUMBNAIL_GENERATION_DISABLED, $exception->getErrorCode());
         static::assertSame('Remote thumbnails are enabled. Skipping thumbnail generation.', $exception->getMessage());
     }
+
+    public function testUnknownLocationType(): void
+    {
+        $exception = MediaException::unknownLocationType();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_UNKNOWN_LOCATION_TYPE, $exception->getErrorCode());
+        static::assertSame('Unknown location type', $exception->getMessage());
+        static::assertSame([], $exception->getParameters());
+    }
 }

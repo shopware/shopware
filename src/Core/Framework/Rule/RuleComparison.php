@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
 
 #[Package('fundamentals@after-sales')]
@@ -30,7 +29,7 @@ class RuleComparison
             Rule::OPERATOR_LT => FloatComparator::lessThan($itemValue, $ruleValue),
             Rule::OPERATOR_EQ => FloatComparator::equals($itemValue, $ruleValue),
             Rule::OPERATOR_NEQ => FloatComparator::notEquals($itemValue, $ruleValue),
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }
 
@@ -44,7 +43,7 @@ class RuleComparison
             Rule::OPERATOR_EQ => strcasecmp($ruleValue, $itemValue) === 0,
             Rule::OPERATOR_NEQ => strcasecmp($ruleValue, $itemValue) !== 0,
             Rule::OPERATOR_EMPTY => empty(trim($itemValue)),
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }
 
@@ -60,7 +59,7 @@ class RuleComparison
         return match ($operator) {
             Rule::OPERATOR_EQ => \in_array(mb_strtolower($itemValue), $ruleValue, true),
             Rule::OPERATOR_NEQ => !\in_array(mb_strtolower($itemValue), $ruleValue, true),
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }
 
@@ -84,7 +83,7 @@ class RuleComparison
             Rule::OPERATOR_EQ => !empty($diff),
             Rule::OPERATOR_NEQ => empty($diff),
             Rule::OPERATOR_EMPTY => empty($itemValue),
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }
 
@@ -97,7 +96,7 @@ class RuleComparison
             Rule::OPERATOR_LT => $itemValue < $ruleValue,
             Rule::OPERATOR_GTE => $itemValue >= $ruleValue,
             Rule::OPERATOR_LTE => $itemValue <= $ruleValue,
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }
 

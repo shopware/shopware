@@ -17,11 +17,10 @@ class RedisConnectionFactoryTest extends TestCase
     #[DataProvider('prefixProvider')]
     public function testPrefix(?string $aPrefix, ?string $bPrefix, bool $equals): void
     {
-        /** @var string $url */
-        $url = EnvironmentHelper::getVariable('REDIS_URL');
+        $url = (string) EnvironmentHelper::getVariable('REDIS_URL');
 
-        if (!$url) {
-            static::markTestSkipped('No redis server configured');
+        if ($url === '') {
+            static::markTestSkipped('Redis is not available');
         }
 
         $a = (new RedisConnectionFactory($aPrefix))->create($url);

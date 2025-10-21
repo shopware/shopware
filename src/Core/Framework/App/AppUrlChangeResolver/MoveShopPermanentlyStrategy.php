@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -62,7 +61,7 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
             // no resolution needed
             return;
         } catch (AppUrlChangeDetectedException $e) {
-            $this->shopIdProvider->setShopId($e->getShopId(), (string) EnvironmentHelper::getVariable('APP_URL'));
+            $this->shopIdProvider->regenerateAndSetShopId($e->getShopId()->id);
         }
 
         $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {

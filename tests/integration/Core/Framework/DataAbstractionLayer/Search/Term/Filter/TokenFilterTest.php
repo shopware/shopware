@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -20,10 +21,13 @@ class TokenFilterTest extends TestCase
 
     private Connection $connection;
 
+    private SearchConfigLoader $configLoader;
+
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->connection = static::getContainer()->get(Connection::class);
+        $this->configLoader = static::getContainer()->get(SearchConfigLoader::class);
     }
 
     /**
@@ -36,7 +40,7 @@ class TokenFilterTest extends TestCase
     {
         $this->updateProductSearchConfig($excludedTerms);
 
-        $service = new TokenFilter($this->connection);
+        $service = new TokenFilter($this->configLoader);
         $keywords = $service->filter($tokens, $this->context);
 
         sort($expected);

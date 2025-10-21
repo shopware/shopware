@@ -11,9 +11,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,7 +26,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('fundamentals@after-sales')]
 class ImportExportActionControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminApiTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository<EntityCollection<ImportExportProfileEntity>>
@@ -324,7 +329,8 @@ class ImportExportActionControllerTest extends TestCase
 
     private function getUploadFile(string $type = 'text/csv', string $forceFileName = '', ?string $content = null): UploadedFile
     {
-        $file = tempnam(sys_get_temp_dir(), 'upl');
+        $fileSystem = new Filesystem();
+        $file = $fileSystem->tempnam(sys_get_temp_dir(), 'upl');
         static::assertIsString($file);
 
         switch ($type) {
@@ -343,7 +349,7 @@ class ImportExportActionControllerTest extends TestCase
                 $content ??= '"foo";"bar";"123"';
                 $fileName = 'test.csv';
         }
-        file_put_contents($file, $content);
+        $fileSystem->dumpFile($file, $content);
 
         if (!empty($forceFileName)) {
             $fileName = $forceFileName;

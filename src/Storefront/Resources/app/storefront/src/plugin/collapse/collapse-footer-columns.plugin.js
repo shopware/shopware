@@ -41,7 +41,7 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
             const collapseEl = column.querySelector(this.options.collapseColumnContentSelector);
 
             if (this._isInAllowedViewports()) {
-                this._initCollapse(collapseEl);
+                this._initCollapse(trigger, collapseEl);
             } else {
                 this._disposeCollapse(trigger, collapseEl);
             }
@@ -51,19 +51,30 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
     }
 
     /**
-     * Initializes new collapse.
-     *
-     * @param {HTMLElement} collapseEl
-     * @private
-     */
-    _initCollapse(collapseEl) {
-        if (!collapseEl) {
-            return;
+     +  * Initializes new collapse (mobile/tablet). Also ensures trigger has
+     +  * proper data-API attributes so Bootstrap will toggle it.
+     +  *
+     +  * @param {HTMLElement} trigger
+     +  * @param {HTMLElement} collapseEl
+     +  * @private
+     +  */
+    _initCollapse(trigger, collapseEl) {
+        if (!collapseEl) return;
+
+        // Ensure the collapse element has a stable id the trigger can target
+        if (!collapseEl.id) {
+            collapseEl.id = `footer-collapse-${Math.random().toString(36).slice(2)}`;
         }
 
-        new bootstrap.Collapse(collapseEl, {
-            toggle: false,
-        });
+        if (trigger) {
+            trigger.setAttribute('data-bs-toggle', 'collapse');
+            trigger.setAttribute('data-bs-target', `#${collapseEl.id}`);
+            trigger.setAttribute('aria-controls', collapseEl.id);
+            trigger.classList.add('collapsed');
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        new bootstrap.Collapse(collapseEl, { toggle: false });
     }
 
     /**
@@ -84,6 +95,10 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
             collapse.dispose();
         }
 
+        trigger.removeAttribute('data-bs-toggle');
+        trigger.removeAttribute('data-bs-target');
+        trigger.removeAttribute('aria-controls');
+        trigger.classList.remove('collapsed');
         trigger.setAttribute('aria-expanded', 'true');
     }
 

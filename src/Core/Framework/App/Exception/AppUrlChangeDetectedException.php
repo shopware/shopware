@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Exception;
 
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,7 +14,7 @@ class AppUrlChangeDetectedException extends \Exception
     public function __construct(
         private readonly string $previousUrl,
         private readonly string $currentUrl,
-        private readonly string $shopId,
+        private readonly ShopId $shopId,
     ) {
         parent::__construct(\sprintf('Detected APP_URL change, was "%s" and is now "%s".', $previousUrl, $currentUrl));
     }
@@ -28,7 +29,7 @@ class AppUrlChangeDetectedException extends \Exception
         return $this->currentUrl;
     }
 
-    public function getShopId(): string
+    public function getShopId(): ShopId
     {
         return $this->shopId;
     }

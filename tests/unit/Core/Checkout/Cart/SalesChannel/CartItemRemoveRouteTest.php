@@ -28,7 +28,7 @@ class CartItemRemoveRouteTest extends TestCase
         $cartLocker
             ->expects($this->once())
             ->method('locked')
-            ->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
+            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $cart = new Cart('test');
         $lineItem = new LineItem('test', 'test');

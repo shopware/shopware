@@ -28,7 +28,7 @@ class CartItemUpdateRouteTest extends TestCase
         $cartLocker
             ->expects($this->once())
             ->method('locked')
-            ->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
+            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $lineItemFactory = $this->createMock(LineItemFactoryRegistry::class);
         $lineItemFactory

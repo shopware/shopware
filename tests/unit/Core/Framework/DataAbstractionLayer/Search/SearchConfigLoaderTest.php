@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Elasticsearch\Product;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -9,10 +9,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
-use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 /**
  * @internal
@@ -51,10 +52,10 @@ class SearchConfigLoaderTest extends TestCase
         static::assertEquals($expectedResult, $result);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testLoadWithNoResult(): void
     {
         static::expectExceptionObject(ElasticsearchProductException::configNotFound());
-        static::expectExceptionMessage('Configuration for product elasticsearch definition not found');
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -82,6 +83,8 @@ class SearchConfigLoaderTest extends TestCase
             'configKeyedByLanguageId' => [
                 Defaults::LANGUAGE_SYSTEM => [[
                     'and_logic' => 'and',
+                    'excluded_terms' => json_encode(['term1', 'term2']),
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 2,
@@ -90,6 +93,8 @@ class SearchConfigLoaderTest extends TestCase
             'expectedResult' => [
                 [
                     'and_logic' => 'and',
+                    'excluded_terms' => ['term1', 'term2'],
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 2,
@@ -104,9 +109,13 @@ class SearchConfigLoaderTest extends TestCase
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 100,
+                    'excluded_terms' => json_encode(['term1', 'term2']),
+                    'min_search_length' => 5,
                 ]],
                 Uuid::randomHex() => [[
                     'and_logic' => 'and',
+                    'excluded_terms' => json_encode(['term3', 'term4']),
+                    'min_search_length' => 15,
                     'field' => 'name',
                     'tokenize' => 0,
                     'ranking' => 50,
@@ -115,6 +124,8 @@ class SearchConfigLoaderTest extends TestCase
             'expectedResult' => [
                 [
                     'and_logic' => 'and',
+                    'excluded_terms' => ['term1', 'term2'],
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 100,

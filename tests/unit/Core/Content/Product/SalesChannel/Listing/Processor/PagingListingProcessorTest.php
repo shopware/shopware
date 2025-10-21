@@ -64,6 +64,20 @@ class PagingListingProcessorTest extends TestCase
             'page' => 2,
             'limit' => 50,
         ];
+
+        yield 'Empty criteria, request with page 0' => [
+            'criteria' => new Criteria(),
+            'request' => new Request(['p' => 0]),
+            'page' => 1,
+            'limit' => 24,
+        ];
+
+        yield 'Empty criteria, request with page -1' => [
+            'criteria' => new Criteria(),
+            'request' => new Request(['p' => -1]),
+            'page' => 1,
+            'limit' => 24,
+        ];
     }
 
     #[DataProvider('provideTestPrepare')]

@@ -162,7 +162,7 @@ export default {
         createdComponent() {
             this.initElementConfig('product-slider');
 
-            this.originProductsValue = this.element.translated.config.products.value;
+            this.originProductsValue = this.element.translated?.config.products.value;
             this.productCollection = new EntityCollection('/product', 'product', Shopware.Context.api);
 
             if (this.element.config.products.value.length <= 0) {

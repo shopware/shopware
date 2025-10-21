@@ -124,12 +124,17 @@ export default Shopware.Component.wrapComponentConfig({
         fullPath() {
             return this.field.concat('.', this.fieldPath);
         },
+        sourcePath() {
+            return this.field.concat('.', 'source');
+        },
     },
     methods: {
         onInheritanceRestore() {
             this.showModal = false;
 
             set(this.runtimeConfig, this.fullPath, get(this.baseConfig, this.fullPath, null));
+            set(this.runtimeConfig, this.sourcePath, get(this.baseConfig, this.sourcePath, null));
+
             unset(this.childConfig, this.field);
 
             if (isEmpty(this.childConfig)) {

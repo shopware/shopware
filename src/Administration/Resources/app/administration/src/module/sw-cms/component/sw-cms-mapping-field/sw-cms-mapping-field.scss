@@ -80,6 +80,11 @@
     .sw-cms-mapping-field__empty-demo {
         margin: 0;
     }
+
+    &.is--disabled .sw-cms-mapping-field__info {
+        pointer-events: none;
+        opacity: 0.7;
+    }
 }
 
 .sw-cms-mapping-field__options {

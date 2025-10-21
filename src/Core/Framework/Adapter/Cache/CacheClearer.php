@@ -183,9 +183,11 @@ class CacheClearer
 
         // The execution is blocked until the key is found or the time to live is reached.
         if ($lock->acquire(true)) {
-            $closure();
-
-            $lock->release();
+            try {
+                $closure();
+            } finally {
+                $lock->release();
+            }
         }
     }
 

@@ -53,6 +53,7 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity#$type changed from Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity to Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaId changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $text of Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter#sanitize() changed from string to string|null', '/'),
 
         // Fix for promotion discount entity property initialization error - necessary to prevent runtime errors
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$sorterKey changed from string to string|null', '/'),

@@ -1315,7 +1315,22 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $this->addEventListener($this->listener, MailSentEvent::class, $listenerClosure);
 
-        $progress = $this->import($context, CustomerDefinition::ENTITY_NAME, '/fixtures/customers.csv', 'customers.csv');
+        $profile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
+        $mapping = $profile->getMapping();
+        $mapping[] = [
+            'key' => 'password',
+            'mappedKey' => 'password',
+        ];
+        $this->updateProfileMapping($profile->getId(), $mapping);
+
+        $progress = $this->import(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            '/fixtures/customers.csv',
+            'customers.csv',
+            $profile->getId(),
+        );
+
         $this->listener->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
@@ -1336,6 +1351,12 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertTrue($result->has('0a1dea4bd2de43929ac210fd17339dde'));
         $customerWithMultipleAddresses = $result->get('0a1dea4bd2de43929ac210fd17339dde');
 
+        $passwords = \array_values(array_map(fn (CustomerEntity $customer) => $customer->getPassword(), $result->getElements()));
+        static::assertCount(3, $passwords);
+        static::assertNull($passwords[0]);
+        static::assertNull($passwords[1]);
+        static::assertNull($passwords[2]);
+
         static::assertInstanceOf(CustomerAddressCollection::class, $customerWithMultipleAddresses->getAddresses());
         static::assertCount(4, $customerWithMultipleAddresses->getAddresses());
         static::assertInstanceOf(CustomerAddressEntity::class, $customerWithMultipleAddresses->getDefaultBillingAddress());
@@ -1349,7 +1370,13 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertInstanceOf(CustomerAddressEntity::class, $customerWithUpdatedAddresses->getDefaultShippingAddress());
         static::assertSame('shopware AG', $customerWithUpdatedAddresses->getDefaultShippingAddress()->getCompany());
 
-        $progress = $this->export($context, CustomerDefinition::ENTITY_NAME);
+        $progress = $this->export(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            null,
+            null,
+            $profile->getId()
+        );
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
@@ -1358,6 +1385,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertStringContainsString('shopware AG', $csv);
         static::assertStringContainsString('en-GB', $csv);
         static::assertStringContainsString('Standard customer group', $csv);
+        static::assertStringNotContainsString('password', $csv);
     }
 
     public function testImportWithCreateAndUpdateConfig(): void

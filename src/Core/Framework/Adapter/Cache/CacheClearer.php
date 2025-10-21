@@ -95,7 +95,7 @@ class CacheClearer
 
         $this->lock(function () use ($containerCaches): void {
             $this->filesystem->remove($containerCaches);
-        }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
+        }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL, 'clear container cache');
     }
 
     public function scheduleCacheFolderCleanup(): void
@@ -155,7 +155,7 @@ class CacheClearer
         if ($remove !== []) {
             $this->lock(function () use ($remove): void {
                 $this->filesystem->remove($remove);
-            }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
+            }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL, 'cleanup old container cache directories');
         }
     }
 
@@ -174,14 +174,18 @@ class CacheClearer
      *
      * @see https://symfony.com/doc/current/components/lock.html
      */
-    private function lock(\Closure $closure, string $key, int $timeToLive): void
+    private function lock(\Closure $closure, string $key, int $timeToLive, string $operation): void
     {
         $lock = $this->lockFactory->createLock('cache-clearer::' . $key, $timeToLive);
 
-        // The execution is blocked until the key is found or the time to live is reached.
-        if ($lock->acquire(true)) {
-            $closure();
+        // Non-blocking lock acquisition
+        if (!$lock->acquire(false)) {
+            throw AdapterException::cacheCleanerLocked($operation, $key);
+        }
 
+        try {
+            $closure();
+        } finally {
             $lock->release();
         }
     }

@@ -362,7 +362,7 @@ function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
                 seen.set(key, ev); // first-seen wins
             }
         } else {
-            const fingerprint = `__noid__:${ev.insert_id ?? ev.time ?? JSON.stringify(ev)}`;
+            const fingerprint = `__noid__:${ev.time ?? JSON.stringify(ev)}`;
             if (!seen.has(fingerprint)) {
                 seen.set(fingerprint, ev);
             }

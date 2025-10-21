@@ -301,6 +301,7 @@ export default {
 
         onRestoreInheritance() {
             if (this.element.config.products.source === 'product_stream') {
+                this.element.config.products.value = this.originProductsValue;
                 this.loadProductStream();
             } else {
                 this.element.config.products.value = this.originProductsValue;

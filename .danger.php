@@ -68,6 +68,26 @@ return (new Config())
                     );
                 }
             },
+            function (Context $context): void {
+                $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.neon');
+                if (!$phpstanBaseline instanceof File) {
+                    return;
+                }
+
+                $additions = $phpstanBaseline->additions ?? 0;
+                if ($additions === 0) {
+                    return;
+                }
+
+                $deletions = $phpstanBaseline->deletions ?? 0;
+                if (($deletions - $additions) < 0) {
+                    $context->failure(
+                        'It is not allowed to add new ignored PHPStan errors to the baseline. ' .
+                        'Only removals are allowed. Try to fix the error(s) instead. ' .
+                        'If this should not be possible, please add a `@phpstan-ignore` annotation to the affected line with the correct identifier and a proper comment, why a fix is not possible right now.'
+                    );
+                }
+            },
         ]
     ))
     ->useRule(function (Context $context): void {

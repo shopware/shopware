@@ -116,8 +116,8 @@
 
         .sw-label,
         .sw-label--dismissable:hover {
-            background-color: var(--color-interaction-secondary-disabled);
-            color: var(--color-text-primary-disabled);
+            background-color: var(--color-background-tertiary-default);
+            color: var(--color-text-primary-default);
             border-color: var(--color-border-primary-default);
 
             .sw-label__dismiss {

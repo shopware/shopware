@@ -46,12 +46,16 @@
 
 // review form
 .product-detail-review-form-radio {
-    display: none;
+    @include visually-hidden();
 }
 
 .product-detail-review-form-rating-input {
     display: flex;
-    align-items: center;
+
+    .product-detail-review-form-rating-text {
+        margin-left: $spacer-sm;
+        margin-bottom: 0;
+    }
 }
 
 .product-review-point svg {
@@ -66,8 +70,6 @@
 
 .point-rating {
     display: block;
-    top: 0;
-    left: 0;
 
     &.point-blank {
         .icon {
@@ -80,13 +82,12 @@
     position: absolute;
 }
 
-.product-detail-review-form-rating-text {
-    margin-left: $spacer-sm;
-    margin-bottom: 0;
-}
-
 .product-detail-review-form-star {
     margin-right: 10px;
+
+    &:has(.product-detail-review-form-radio:focus-visible) {
+        box-shadow: $input-btn-focus-box-shadow;
+    }
 }
 
 .product-detail-review-login .login-card .card-body {

@@ -82,8 +82,11 @@ class StorefrontCartFacadeTest extends TestCase
         $error = $filtered->first();
         static::assertInstanceOf(ShippingMethodChangedError::class, $error);
         static::assertSame([
-            'newShippingMethodName' => 'fallback-shipping-method-name',
+            'oldShippingMethodId' => 'original-shipping-method-id',
             'oldShippingMethodName' => 'original-shipping-method-name',
+            'newShippingMethodId' => 'fallback-shipping-method-id',
+            'newShippingMethodName' => 'fallback-shipping-method-name',
+            'reason' => 'reason',
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -124,8 +127,11 @@ class StorefrontCartFacadeTest extends TestCase
         $error = $filtered->first();
         static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
-            'newPaymentMethodName' => 'fallback-payment-method-name',
+            'oldPaymentMethodId' => 'original-payment-method-id',
             'oldPaymentMethodName' => 'original-payment-method-name',
+            'newPaymentMethodId' => 'fallback-payment-method-id',
+            'newPaymentMethodName' => 'fallback-payment-method-name',
+            'reason' => 'reason',
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -170,8 +176,11 @@ class StorefrontCartFacadeTest extends TestCase
         $error = $filtered->first();
         static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
-            'newPaymentMethodName' => 'fallback-payment-method-name',
+            'oldPaymentMethodId' => 'original-payment-method-id',
             'oldPaymentMethodName' => 'original-payment-method-name',
+            'newPaymentMethodId' => 'fallback-payment-method-id',
+            'newPaymentMethodName' => 'fallback-payment-method-name',
+            'reason' => 'reason',
         ], $error->getParameters());
 
         $filtered = $errorCollection->filterInstance(ShippingMethodChangedError::class);
@@ -179,8 +188,11 @@ class StorefrontCartFacadeTest extends TestCase
         $error = $filtered->first();
         static::assertInstanceOf(ShippingMethodChangedError::class, $error);
         static::assertSame([
-            'newShippingMethodName' => 'fallback-shipping-method-name',
+            'oldShippingMethodId' => 'original-shipping-method-id',
             'oldShippingMethodName' => 'original-shipping-method-name',
+            'newShippingMethodId' => 'fallback-shipping-method-id',
+            'newShippingMethodName' => 'fallback-shipping-method-name',
+            'reason' => 'reason',
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -216,7 +228,9 @@ class StorefrontCartFacadeTest extends TestCase
         $error = $filtered->first();
         static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
         static::assertSame([
+            'id' => $error->getShippingMethodId(),
             'name' => 'original-shipping-method-name',
+            'reason' => 'reason',
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -252,7 +266,9 @@ class StorefrontCartFacadeTest extends TestCase
         $error = $filtered->first();
         static::assertInstanceOf(PaymentMethodBlockedError::class, $error);
         static::assertSame([
+            'id' => $error->getPaymentMethodId(),
             'name' => 'original-payment-method-name',
+            'reason' => 'reason',
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -340,7 +356,9 @@ class StorefrontCartFacadeTest extends TestCase
         $error = $filtered->first();
         static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
         static::assertSame([
+            'id' => $error->getShippingMethodId(),
             'name' => 'original-shipping-method-name',
+            'reason' => 'reason',
         ], $error->getParameters());
 
         static::assertCount(0, $errorCollection->filterInstance(PaymentMethodChangedError::class));
@@ -349,7 +367,9 @@ class StorefrontCartFacadeTest extends TestCase
         $error = $filtered->first();
         static::assertInstanceOf(PaymentMethodBlockedError::class, $error);
         static::assertSame([
+            'id' => $error->getPaymentMethodId(),
             'name' => 'original-payment-method-name',
+            'reason' => 'reason',
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -394,43 +414,53 @@ class StorefrontCartFacadeTest extends TestCase
 
     public function callbackShippingMethodSwitcherReturnFallbackMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
     {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('fallback-shipping-method-id');
+        $shippingMethod->setName('fallback-shipping-method-name');
+
         foreach ($errors as $error) {
             if (!$error instanceof ShippingMethodBlockedError) {
                 continue;
             }
 
+            static::assertNotNull($shippingMethod->getName());
+
             // Exchange cart blocked warning with notice
             $errors->remove($error->getId());
             $errors->add(new ShippingMethodChangedError(
-                $error->getName(),
-                'fallback-shipping-method-name'
+                oldShippingMethodId: $error->getShippingMethodId(),
+                oldShippingMethodName: $error->getName(),
+                newShippingMethodId: $shippingMethod->getId(),
+                newShippingMethodName: $shippingMethod->getName(),
+                reason: $error->getReason(),
             ));
         }
-
-        $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setId('fallback-shipping-method-id');
-        $shippingMethod->setName('fallback-shipping-method-name');
 
         return $shippingMethod;
     }
 
     public function callbackShippingMethodSwitcherUnswitchableCart(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
     {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('fallback-shipping-method-id');
+        $shippingMethod->setName('fallback-shipping-method-name');
+
         foreach ($errors as $error) {
             if (!$error instanceof ShippingMethodBlockedError) {
                 continue;
             }
 
+            static::assertNotNull($shippingMethod->getName());
+
             // Exchange cart blocked warning with notice
             $errors->add(new ShippingMethodChangedError(
-                $error->getName(),
-                'fallback-shipping-method-name'
+                oldShippingMethodId: $error->getShippingMethodId(),
+                oldShippingMethodName: $error->getName(),
+                newShippingMethodId: $shippingMethod->getId(),
+                newShippingMethodName: $shippingMethod->getName(),
+                reason: $error->getReason(),
             ));
         }
-
-        $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setId('fallback-shipping-method-id');
-        $shippingMethod->setName('fallback-shipping-method-name');
 
         return $shippingMethod;
     }
@@ -442,43 +472,53 @@ class StorefrontCartFacadeTest extends TestCase
 
     public function callbackPaymentMethodSwitcherReturnFallbackMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): PaymentMethodEntity
     {
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId('fallback-payment-method-id');
+        $paymentMethod->setName('fallback-payment-method-name');
+
         foreach ($errors as $error) {
             if (!$error instanceof PaymentMethodBlockedError) {
                 continue;
             }
 
+            static::assertNotNull($paymentMethod->getName());
+
             // Exchange cart blocked warning with notice
             $errors->remove($error->getId());
             $errors->add(new PaymentMethodChangedError(
-                $error->getName(),
-                'fallback-payment-method-name'
+                oldPaymentMethodId: $error->getPaymentMethodId(),
+                oldPaymentMethodName: $error->getName(),
+                newPaymentMethodId: $paymentMethod->getId(),
+                newPaymentMethodName: $paymentMethod->getName(),
+                reason: $error->getReason(),
             ));
         }
-
-        $paymentMethod = new PaymentMethodEntity();
-        $paymentMethod->setId('fallback-payment-method-id');
-        $paymentMethod->setName('fallback-payment-method-name');
 
         return $paymentMethod;
     }
 
     public function callbackPaymentMethodSwitcherUnswitchableCart(ErrorCollection $errors, SalesChannelContext $salesChannelContext): PaymentMethodEntity
     {
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId('fallback-payment-method-id');
+        $paymentMethod->setName('fallback-payment-method-name');
+
         foreach ($errors as $error) {
             if (!$error instanceof PaymentMethodBlockedError) {
                 continue;
             }
 
+            static::assertNotNull($paymentMethod->getName());
+
             // Exchange cart blocked warning with notice
             $errors->add(new PaymentMethodChangedError(
-                $error->getName(),
-                'fallback-payment-method-name'
+                oldPaymentMethodId: $error->getPaymentMethodId(),
+                oldPaymentMethodName: $error->getName(),
+                newPaymentMethodId: $paymentMethod->getId(),
+                newPaymentMethodName: $paymentMethod->getName(),
+                reason: $error->getReason(),
             ));
         }
-
-        $paymentMethod = new PaymentMethodEntity();
-        $paymentMethod->setId('fallback-payment-method-id');
-        $paymentMethod->setName('fallback-payment-method-name');
 
         return $paymentMethod;
     }
@@ -507,7 +547,9 @@ class StorefrontCartFacadeTest extends TestCase
         if ($blockShippingMethod) {
             $cartErrors->add(
                 new ShippingMethodBlockedError(
-                    'original-shipping-method-name'
+                    id: 'original-shipping-method-id',
+                    name: 'original-shipping-method-name',
+                    reason: 'reason',
                 )
             );
         }
@@ -515,8 +557,9 @@ class StorefrontCartFacadeTest extends TestCase
         if ($blockPaymentMethod) {
             $cartErrors->add(
                 new PaymentMethodBlockedError(
-                    'original-payment-method-name',
-                    ''
+                    id: 'original-payment-method-id',
+                    name: 'original-payment-method-name',
+                    reason: 'reason',
                 )
             );
         }

@@ -8,16 +8,17 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-enum Status
+enum Status implements \JsonSerializable
 {
     case OK;
     case UNKNOWN;
-
     case SKIPPED;
-
     case WARNING;
-
     case ERROR;
-
     case FAILURE;
+
+    public function jsonSerialize(): string
+    {
+        return $this->name;
+    }
 }

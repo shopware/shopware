@@ -68,42 +68,42 @@ return (new Config())
                     );
                 }
             },
-            function (Context $context): void {
-                $files = $context->platform->pullRequest->getFiles();
-
-                $newRepoUseInFrontend = array_merge(
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                );
-
-                if (count($newRepoUseInFrontend) > 0) {
-                    $errorFiles = [];
-                    foreach ($newRepoUseInFrontend as $file) {
-                        if ($file->name !== '.danger.php') {
-                            $errorFiles[] = $file->name . '<br/>';
-                        }
-                    }
-
-                    if (count($errorFiles) === 0) {
-                        return;
-                    }
-
-                    $context->failure(
-                        'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).'
-                        . ' Use Store-Api Routes instead.<br/>'
-                        . implode('<br>', $errorFiles)
-                    );
-                }
-            },
         ]
     ))
+    ->useRule(function (Context $context): void {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $newRepoUseInFrontend = array_merge(
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+        );
+
+        if (count($newRepoUseInFrontend) > 0) {
+            $errorFiles = [];
+            foreach ($newRepoUseInFrontend as $file) {
+                if ($file->name !== '.danger.php') {
+                    $errorFiles[] = $file->name . '<br/>';
+                }
+            }
+
+            if (count($errorFiles) === 0) {
+                return;
+            }
+
+            $context->failure(
+                'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).'
+                . ' Use Store-Api Routes instead.<br/>'
+                . implode('<br>', $errorFiles)
+            );
+        }
+    })
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
@@ -449,6 +449,7 @@ return (new Config())
 
         if ($domLoad === false) {
             $context->failure(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
+
             return;
         }
 
@@ -468,16 +469,16 @@ return (new Config())
                 $filePath = $file->name;
             } else {
                 $nodeType = 'directory';
-                $filePath = str_replace($root .'/', '', $filePath);
+                $filePath = str_replace($root . '/', '', $filePath);
                 $filePath = explode('/', $filePath);
-                $filePath = $root .'/'. current($filePath);
+                $filePath = $root . '/' . current($filePath);
             }
 
             $matches = array_filter($nodes, function ($item) use ($filePath) {
                 return str_contains($filePath, $item);
             });
             if (empty($matches)) {
-                $missing[] = htmlentities('<' . $nodeType . '>'. $filePath .'</' . $nodeType . '>');
+                $missing[] = htmlentities('<' . $nodeType . '>' . $filePath . '</' . $nodeType . '>');
             }
         }
 

@@ -7,6 +7,7 @@
     <parameters>
         <parameter key="shopware.app_dir">%kernel.project_dir%/custom/apps</parameter>
     </parameters>
+
     <services>
         <service id="Shopware\Core\Framework\App\Manifest\ManifestFactory">
         </service>
@@ -30,6 +31,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\FingerprintGenerator"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Manifest\ModuleLoader">
@@ -221,6 +224,15 @@
             <argument>%kernel.shopware_version%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
             <argument type="string">%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
@@ -263,7 +275,6 @@
             <argument type="service" id="custom_entity.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
-
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -466,6 +477,13 @@
 
         <service id="Shopware\Core\Framework\App\Command\ResolveAppUrlChangeCommand">
             <argument type="service" id="Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\RotateAppSecretCommand">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
 
             <tag name="console.command"/>
         </service>

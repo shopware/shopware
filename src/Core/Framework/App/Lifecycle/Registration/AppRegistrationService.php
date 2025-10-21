@@ -38,7 +38,7 @@ class AppRegistrationService
     ) {
     }
 
-    public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void
+    public function registerApp(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): void
     {
         if (!$manifest->getSetup()) {
             return;
@@ -46,14 +46,21 @@ class AppRegistrationService
 
         try {
             $appName = $manifest->getMetadata()->getName();
-            $appResponse = $this->registerWithApp($manifest, $context);
+
+            // Fetch existing app to support secret rotation with dual signatures
+            $app = $this->getApp($id, $context);
+
+            $appResponse = $this->registerWithApp($manifest, $app, $context);
 
             $secret = $appResponse['secret'];
             $confirmationUrl = $appResponse['confirmation_url'];
 
-            $this->saveAppSecret($id, $context, $secret);
+            // Sign confirmation with dual signatures for re-registration
+            // shopware-shop-signature (new secret) + shopware-shop-signature-previous (current secret)
+            $this->confirmRegistration($id, $context, $secret, $app->getAppSecret(), $secretAccessKey, $confirmationUrl);
 
-            $this->confirmRegistration($id, $context, $secret, $secretAccessKey, $confirmationUrl);
+            // After successful confirmation, save the new secret
+            $this->saveAppSecret($id, $context, $secret);
         } catch (RequestException $e) {
             if ($e->hasResponse() && $e->getResponse() !== null) {
                 $response = $e->getResponse();
@@ -75,9 +82,9 @@ class AppRegistrationService
      *
      * @return array<string, string>
      */
-    private function registerWithApp(Manifest $manifest, Context $context): array
+    private function registerWithApp(Manifest $manifest, AppEntity $app, Context $context): array
     {
-        $handshake = $this->handshakeFactory->create($manifest);
+        $handshake = $this->handshakeFactory->create($manifest, $app);
 
         $request = $handshake->assembleRequest();
         $response = $this->httpClient->send($request, [AuthMiddleware::APP_REQUEST_CONTEXT => $context]);
@@ -85,7 +92,7 @@ class AppRegistrationService
         return $this->parseResponse($manifest->getMetadata()->getName(), $handshake, $response);
     }
 
-    private function saveAppSecret(string $id, Context $context, string $secret): void
+    private function saveAppSecret(string $id, Context $context, #[\SensitiveParameter] string $secret): void
     {
         $update = ['id' => $id, 'appSecret' => $secret];
 
@@ -97,7 +104,10 @@ class AppRegistrationService
     private function confirmRegistration(
         string $id,
         Context $context,
+        #[\SensitiveParameter]
         string $secret,
+        ?string $currentSecret,
+        #[\SensitiveParameter]
         string $secretAccessKey,
         string $confirmationUrl
     ): void {
@@ -105,11 +115,20 @@ class AppRegistrationService
 
         $signature = $this->signPayload($payload, $secret);
 
+        $headers = [
+            'shopware-shop-signature' => $signature,
+            'sw-version' => $this->shopwareVersion,
+        ];
+
+        // For re-registration, also send signature with current/old secret
+        // shopware-shop-signature (new) + shopware-shop-signature-previous (current)
+        if ($currentSecret !== null) {
+            $previousSignature = $this->signPayload($payload, $currentSecret);
+            $headers['shopware-shop-signature-previous'] = $previousSignature;
+        }
+
         $this->httpClient->post($confirmationUrl, [
-            'headers' => [
-                'shopware-shop-signature' => $signature,
-                'sw-version' => $this->shopwareVersion,
-            ],
+            'headers' => $headers,
             AuthMiddleware::APP_REQUEST_CONTEXT => $context,
             'json' => $payload,
         ]);
@@ -149,7 +168,7 @@ class AppRegistrationService
     /**
      * @return array<string, string>
      */
-    private function getConfirmationPayload(string $id, string $secretAccessKey, Context $context): array
+    private function getConfirmationPayload(string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): array
     {
         $app = $this->getApp($id, $context);
 
@@ -179,7 +198,7 @@ class AppRegistrationService
     /**
      * @param array<string, string> $body
      */
-    private function signPayload(array $body, string $secret): string
+    private function signPayload(array $body, #[\SensitiveParameter] string $secret): string
     {
         return hash_hmac('sha256', (string) json_encode($body, \JSON_THROW_ON_ERROR), $secret);
     }

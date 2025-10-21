@@ -9,7 +9,6 @@ use League\Flysystem\Filesystem as Flysystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -313,8 +312,6 @@ class SnippetServiceTest extends TestCase
 
     /**
      * @param array<string,string> $expectedSnippets
-     *
-     * @throws Exception
      */
     #[DataProvider('getListDataProvider')]
     public function testGetList(string $iso, array $expectedSnippets): void
@@ -436,8 +433,6 @@ class SnippetServiceTest extends TestCase
      *
      * @param StaticEntityRepository<SnippetCollection>|null $snippetRepository
      * @param StaticEntityRepository<SnippetSetCollection>|null $snippetSetRepository
-     *
-     * @throws Exception
      */
     private function createSnippetService(
         ?EventDispatcherInterface $eventDispatcher = null,
@@ -448,14 +443,21 @@ class SnippetServiceTest extends TestCase
         ?SnippetFilterFactory $snippetFilterFactory = null,
         ?ExtensionDispatcher $extensionDispatcher = null
     ): SnippetService {
-        // Use provided or fall back to sensible defaults and mocks.
-        $snippetRepository = $snippetRepository ?? $this->createMock(EntityRepository::class);
-        $snippetSetRepository = $snippetSetRepository ?? $this->createMock(EntityRepository::class);
+        if ($snippetRepository === null) {
+            $snippetRepository = new StaticEntityRepository([]);
+        }
+
+        if ($snippetSetRepository === null) {
+            $snippetSetRepository = new StaticEntityRepository([]);
+        }
+
         $snippetFileCollection = $snippetFileCollection ?? $this->snippetCollection;
         $connection = $connection ?? $this->connection;
         $snippetFilterFactory = $snippetFilterFactory ?? $this->createMock(SnippetFilterFactory::class);
         $extensionDispatcher = $extensionDispatcher ?? new ExtensionDispatcher(new EventDispatcher());
 
+        /** @var EntityRepository<SnippetCollection> $snippetRepository */
+        /** @var EntityRepository<SnippetSetCollection> $snippetSetRepository */
         return new SnippetService(
             $connection,
             $snippetFileCollection,

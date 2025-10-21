@@ -31,7 +31,7 @@ test(
 
         await test.step('Customer cannot select non-shippable country for shipping address during registration', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-            await ShopCustomer.presses(StorefrontAccountLogin.countryInput, 'Space');
+            await ShopCustomer.presses(StorefrontAccountLogin.countryInput);
             await StorefrontAccountLogin.countryInput.selectOption({ label: registrationData.country });
             await ShopCustomer.expects(
             await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country)
@@ -39,7 +39,7 @@ test(
         });
 
         await test.step('Customer submits the registration form successfully with a shippable country', async () => {
-            await ShopCustomer.presses(StorefrontAccountLogin.salutationSelect, 'Space');
+            await ShopCustomer.presses(StorefrontAccountLogin.salutationSelect);
             await StorefrontAccountLogin.salutationSelect.selectOption(registrationData.salutation);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.firstNameInput, registrationData.firstName);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.lastNameInput, registrationData.lastName);
@@ -48,10 +48,10 @@ test(
             await ShopCustomer.fillsIn(StorefrontAccountLogin.streetAddressInput, registrationData.street);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.postalCodeInput, registrationData.postalCode);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.cityInput, registrationData.city);
-            await ShopCustomer.presses(StorefrontAccountLogin.countryInput, 'Space');
+            await ShopCustomer.presses(StorefrontAccountLogin.countryInput);
             await StorefrontAccountLogin.countryInput.selectOption({ label: shippableCountry.name });
-            await ShopCustomer.presses(StorefrontAccountLogin.differentShippingAddressCheckbox, 'Space');
-            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressSalutationSelect, 'Space');
+            await ShopCustomer.presses(StorefrontAccountLogin.differentShippingAddressCheckbox);
+            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressSalutationSelect);
             await StorefrontAccountLogin.shippingAddressSalutationSelect.selectOption(
                 registrationData.salutation
             );
@@ -60,11 +60,11 @@ test(
             await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressStreetAddressInput, registrationData.street);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressPostalCodeInput, registrationData.postalCode);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressCityInput, registrationData.city);
-            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressCountryInput, 'Space');
+            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressCountryInput);
             await StorefrontAccountLogin.shippingAddressCountryInput.selectOption({ label: shippableCountry.name });
-            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressStateInput, 'Space');
+            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressStateInput);
             await StorefrontAccountLogin.shippingAddressStateInput.selectOption({ label: registrationData.state });
-            await ShopCustomer.presses(StorefrontAccountLogin.registerButton, 'Enter');
+            await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
             const customerId = (await TestDataService.getCustomerByEmail(customer.email)).id;
             TestDataService.addCreatedRecord('customer', customerId);
             await ShopCustomer.expects(StorefrontAccount.headline).toBeVisible();

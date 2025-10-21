@@ -20,9 +20,9 @@ test('Customers are able to cancel orders in storefront account.', { tag: ['@Ord
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-    await ShopCustomer.presses(orderItemLocators.orderActionsButton, 'Enter');
-    await ShopCustomer.presses(orderItemLocators.orderCancelButton, 'Enter');
-    await ShopCustomer.presses(StorefrontAccountOrder.dialogOrderCancelButton, 'Enter');
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderCancelButton);
+    await ShopCustomer.presses(StorefrontAccountOrder.dialogOrderCancelButton);
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderShippingStatus).toContainText('Open');
     await ShopCustomer.expects(orderItemLocators.orderPaymentStatus).toContainText('Open');
@@ -53,10 +53,10 @@ test('Customers are able to cancel orders on the final checkout page in storefro
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-    await ShopCustomer.presses(orderItemLocators.orderActionsButton, 'Enter');
-    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton, 'Enter');
-    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.orderCancelButton, 'Enter');
-    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.dialogOrderCancelButton, 'Enter');
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
+    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.orderCancelButton);
+    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.dialogOrderCancelButton);
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderShippingStatus).toContainText('Open');
     await ShopCustomer.expects(orderItemLocators.orderPaymentStatus).toContainText('Open');
@@ -87,8 +87,8 @@ test('Customers are not able to cancel orders on the final checkout page in stor
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-    await ShopCustomer.presses(orderItemLocators.orderActionsButton, 'Enter');
-    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton, 'Enter');
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
 
     await ShopCustomer.expects(StorefrontCheckoutOrderEdit.orderCancelButton).not.toBeVisible();
 });
@@ -113,7 +113,7 @@ test('Customers are not able to cancel orders in storefront account.', { tag: ['
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-    await ShopCustomer.presses(orderItemLocators.orderActionsButton, 'Enter');
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
 
     await ShopCustomer.expects(orderItemLocators.orderCancelButton).not.toBeVisible();
 });

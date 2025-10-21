@@ -23,11 +23,11 @@ test('Customers can update the payment method for an existing order in the store
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText('Invoice');
 
-    await ShopCustomer.presses(orderItemLocators.orderActionsButton, 'Enter');
-    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton, 'Enter');
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
 
     await ShopCustomer.attemptsTo(SelectPaymentMethod(newPaymentMethod.name));
-    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.completePaymentButton, 'Enter');
+    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.completePaymentButton);
 
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText(newPaymentMethod.name);

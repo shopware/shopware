@@ -98,9 +98,9 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 
     await test.step('Reset all filters and verify that all filters are enabled', async () => {
-        await ShopCustomer.presses(StorefrontHome.manufacturerFilter, 'Space');
+        await ShopCustomer.presses(StorefrontHome.manufacturerFilter);
         await ShopCustomer.expects(StorefrontHome.resetAllButton).toBeVisible();
-        await ShopCustomer.presses(StorefrontHome.resetAllButton, 'Enter');
+        await ShopCustomer.presses(StorefrontHome.resetAllButton);
         await StorefrontHome.loader.waitFor({ state: 'hidden' });
         await CheckVisibilityInHome(freeShipProduct.name)();
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
@@ -146,11 +146,11 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled();
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
-        await ShopCustomer.presses(StorefrontHome.resetAllButton, 'Enter');
+        await ShopCustomer.presses(StorefrontHome.resetAllButton);
     });
 
     await test.step('Select filter by free shipping, verify that all filters are disabled', async () => {
-        await ShopCustomer.presses(StorefrontHome.freeShippingFilter, 'Space');
+        await ShopCustomer.presses(StorefrontHome.freeShippingFilter);
         await StorefrontHome.loader.waitFor({ state: 'hidden' });
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled();
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled();
@@ -202,9 +202,9 @@ test('Customer should see unavailable filter options disabled when filtering by 
     });
 
     await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
-        await ShopCustomer.presses(StorefrontHome.productRatingButton, 'Space');
+        await ShopCustomer.presses(StorefrontHome.productRatingButton);
         const ratingLocator = await StorefrontHome.getRatingItemLocatorByRating(3);
-        await ShopCustomer.presses(ratingLocator, 'Enter');
+        await ShopCustomer.presses(ratingLocator);
         await StorefrontHome.loader.waitFor({ state: 'hidden' });
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled();
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();

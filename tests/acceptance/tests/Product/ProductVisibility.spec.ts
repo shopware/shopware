@@ -148,6 +148,18 @@ test('Product is not visible without adding it to the sales channel.', { tag: ['
         });
     });
 
+    await test.step('Verify the product does not appear in the Home category listing.', async () => {
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
+        await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
+    });
+
+    await test.step('Verify the product does not appear in storefront search results.', async () => {
+        await ShopCustomer.attemptsTo(SearchForTerm(product.name));
+        // if we have other test products the result might not be empty but our product should not be in the list
+        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).not.toBeVisible();
+    });
+
     await test.step('Verify the product can still be accessed directly via its URL.', async () => {
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1', { hasText: product.name })).not.toBeVisible();

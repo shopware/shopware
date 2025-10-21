@@ -14,7 +14,7 @@ test('As a shop customer, I want to see reviews of a product.', {
     await TestDataService.createProductReview(productWithRating1.id, { points: 4 });
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(productWithRating1));
-    await ShopCustomer.presses(StorefrontProductDetail.reviewsTab, 'Enter');
+    await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
 
     await ShopCustomer.expects(StorefrontProductDetail.productReviewRating).toBeVisible();
     await ShopCustomer.expects(StorefrontProductDetail.productReviewsLink).toHaveText('2 Reviews');
@@ -38,7 +38,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
 
     await test.step('Navigate to review tab within product detail page.', async () => {
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab, 'Enter');
+        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
     });
 
     await test.step('Validate the empty state of the reviews tab.', async () => {
@@ -49,7 +49,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
     });
 
     await test.step('Login for review writing and validate the review form.', async () => {
-        await ShopCustomer.presses(StorefrontProductDetail.reviewTeaserButton, 'Enter');
+        await ShopCustomer.presses(StorefrontProductDetail.reviewTeaserButton);
         await ShopCustomer.expects(StorefrontProductDetail.reviewLoginForm).toBeVisible();
         await ShopCustomer.expects(StorefrontProductDetail.forgottenPasswordLink).toBeVisible();
         const loginResponse = await StorefrontProductDetail.page.request.post('account/login');
@@ -59,15 +59,15 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
 
         // collapse depend on page-level initialization (JS event listeners, aria-expanded, etc.) which don’t re-fire after DOM patching.
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab, 'Enter');
+        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
         await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserButton).toBeVisible();
-        await ShopCustomer.presses(StorefrontProductDetail.reviewTeaserButton, 'Enter');
+        await ShopCustomer.presses(StorefrontProductDetail.reviewTeaserButton);
         await ShopCustomer.expects(StorefrontProductDetail.reviewForm).toBeVisible();
         await ShopCustomer.expects(StorefrontProductDetail.reviewRatingPoints).toHaveCount(5);
 
         const starRatingPoints = await StorefrontProductDetail.reviewRatingPoints.count();
         for (let i = 0; i < starRatingPoints; i++) {
-            await ShopCustomer.presses(StorefrontProductDetail.reviewRatingPoints.nth(i), 'Enter');
+            await ShopCustomer.presses(StorefrontProductDetail.reviewRatingPoints.nth(i));
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingPoints.nth(i)).toHaveClass('product-detail-review-form-star is-active');
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).not.toHaveClass('d-none');
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toBeVisible();
@@ -84,7 +84,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
         };
         await ShopCustomer.fillsIn(StorefrontProductDetail.reviewTitleInput, reviewContent.title);
         await ShopCustomer.fillsIn(StorefrontProductDetail.reviewReviewTextInput, reviewContent.content);
-        await ShopCustomer.presses(StorefrontProductDetail.reviewSubmitButton, 'Enter');
+        await ShopCustomer.presses(StorefrontProductDetail.reviewSubmitButton);
 
         await ShopCustomer.expects(StorefrontProductDetail.reviewSubmitMessage).toBeVisible()
         await ShopCustomer.expects(StorefrontProductDetail.reviewCounter).toContainText('1 review');
@@ -100,7 +100,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
     await test.step('Logout the customer and validate the submitted review is unpublished.', async () => {
         await ShopCustomer.attemptsTo(Logout());
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab, 'Enter');
+        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
 
         await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserButton).toBeVisible();
         await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserButton).toContainText('Write review');
@@ -125,7 +125,7 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
 
     await test.step('Validate the setup and functionality of the filters.', async () => {
         await ShopCustomer.goesTo(StorefrontProductDetail.url(productWithRating1));
-        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab, 'Enter');
+        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);
 
         let reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Excellent');
@@ -143,10 +143,10 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionText).toHaveText('Acceptable (2)');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionPercentage).toHaveText('67%');
 
-        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox, 'Space');
+        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
-        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox, 'Space');
+        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).not.toBeChecked();
 
         reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
@@ -154,10 +154,10 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionText).toHaveText('Unsatisfactory (1)');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionPercentage).toHaveText('33%');
 
-        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox, 'Space');
+        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(1);
-        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox, 'Space');
+        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).not.toBeChecked();
 
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);

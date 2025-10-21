@@ -46,7 +46,7 @@ test(
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
-            await ShopCustomer.presses(orderLocators.orderDetailButton, 'Enter');
+            await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toHaveText('€3.19');
         });
     }
@@ -101,7 +101,7 @@ test(
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
-            await ShopCustomer.presses(orderLocators.orderDetailButton, 'Enter');
+            await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toHaveText('€1.30');
         });
     }
@@ -159,7 +159,7 @@ test(
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
-            await ShopCustomer.presses(orderLocators.orderDetailButton, 'Enter');
+            await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice.nth(0)).toHaveText('€3.19');
             await ShopCustomer.expects(orderLocators.taxPrice.nth(1)).toHaveText('€1.31');
         });
@@ -212,7 +212,7 @@ test(
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
-            await ShopCustomer.presses(orderLocators.orderDetailButton, 'Enter');
+            await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toHaveText('€0.00');
         });
     }

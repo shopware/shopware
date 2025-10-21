@@ -30,8 +30,8 @@ test('Shop customers should be able to view products in different languages.', {
     });
 
     await test.step('Customer can select a different language', async () => {
-        await ShopCustomer.presses(StorefrontHome.languagesDropdown, 'Space');
-        await ShopCustomer.presses(StorefrontHome.languagesMenuOptions.getByText('Deutsch'), 'Enter');
+        await ShopCustomer.presses(StorefrontHome.languagesDropdown);
+        await ShopCustomer.presses(StorefrontHome.languagesMenuOptions.getByText('Deutsch'));
         await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('Deutsch');
         await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
     });

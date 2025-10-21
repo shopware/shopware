@@ -109,17 +109,17 @@ export default Shopware.Component.wrapComponentConfig({
             return this.element.config;
         },
         supportsInheritance() {
-            return !!this.contentEntity;
+            return !!this.contentEntity && has(this.baseConfig, this.fullPath)
         },
         canInheritField() {
-            return has(this.baseConfig, this.fullPath);
+            return this.supportsInheritance && has(this.baseConfig, this.fullPath);
         },
         /**
          * Fields are inherited if the layout is used on a content page (product, category, landing page)
          * and the field is not overridden in the <entity>.slot_config
          */
         isInherited() {
-            return this.contentEntity && isUndefined(get(this.childConfig, this.fullPath));
+            return this.supportsInheritance && isUndefined(get(this.childConfig, this.fullPath));
         },
         fullPath() {
             return this.field.concat('.', this.fieldPath);

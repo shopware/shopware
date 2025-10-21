@@ -16,7 +16,7 @@ test('As a shop customer, I want to accept only the technically required cookies
     });
 
     await test.step('Verify default cookie consent settings', async () => {
-        await ShopCustomer.presses(StorefrontHome.consentConfigureButton, 'Enter');
+        await ShopCustomer.presses(StorefrontHome.consentConfigureButton);
         await ShopCustomer.expects(StorefrontHome.consentDialogTechnicallyRequiredCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontHome.consentDialogStatisticsCheckbox).not.toBeChecked();
         await ShopCustomer.expects(StorefrontHome.consentDialogMarketingdCheckbox).not.toBeChecked();

@@ -11,12 +11,12 @@ test(
 
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await ShopCustomer.presses(StorefrontHome.contactFormLink, 'Enter');
+            await ShopCustomer.presses(StorefrontHome.contactFormLink);
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
         });
 
         await test.step('Fill out all necessary contact information.', async () => {
-            await ShopCustomer.presses(StorefrontContactForm.salutationSelect, 'Space');
+            await ShopCustomer.presses(StorefrontContactForm.salutationSelect);
             await StorefrontContactForm.salutationSelect.selectOption('Mr.');
             await ShopCustomer.fillsIn(StorefrontContactForm.firstNameInput, 'John');
             await ShopCustomer.fillsIn(StorefrontContactForm.lastNameInput, 'Doe');
@@ -34,7 +34,7 @@ test(
         });
 
         await test.step('Send and validate the unaccomplished contact form.', async () => {
-            await ShopCustomer.presses(StorefrontContactForm.submitButton, 'Enter');
+            await ShopCustomer.presses(StorefrontContactForm.submitButton);
 
             await StorefrontContactForm.page.waitForResponse(resp => resp.url().includes('basic-captcha-validate'));
 

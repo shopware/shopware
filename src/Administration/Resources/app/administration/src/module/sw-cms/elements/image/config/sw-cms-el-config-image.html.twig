@@ -154,9 +154,10 @@
         >
             <template #default="{ isInherited }">
                 <mt-switch
-                    v-model:model-value="element.config.isDecorative.value"
+                    v-model="element.config.isDecorative.value"
                     class="sw-cms-el-config-image__is-decorative"
                     :disabled="isInherited"
+                    @update:model-value="onChangeIsDecorative"
                 />
             </template>
         </sw-cms-inherit-wrapper>

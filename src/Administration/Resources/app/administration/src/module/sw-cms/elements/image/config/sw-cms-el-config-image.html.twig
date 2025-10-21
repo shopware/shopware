@@ -173,7 +173,7 @@
                 <mt-switch
                     v-model:model-value="element.config.fetchPriorityHigh.value"
                     :help-text="$t('sw-cms.elements.image.config.helpText.fetchPriorityHigh')"
-                    bordered
+                    :disabled="isInherited"
                 />
             </template>
         </sw-cms-inherit-wrapper>

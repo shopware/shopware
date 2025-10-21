@@ -46,7 +46,7 @@
             />
             {% endblock %}
 
-            {% block sw_review_list_content_list %}
+        {% block sw_review_list_content_list %}
             <sw-entity-listing
                 v-else-if="isLoading || items"
                 ref="listing"
@@ -65,6 +65,7 @@
                 @page-change="onPageChange"
                 @column-sort="onSortColumn"
             >
+
                 {% block sw_review_list_content_list_status %}
                 <template #column-status="{ item }">
                     <sw-data-grid-column-boolean

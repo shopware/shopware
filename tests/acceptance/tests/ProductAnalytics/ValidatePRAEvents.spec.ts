@@ -316,7 +316,7 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
         // TO-DO: implement via UI once available and Feature flag is disabled by default
     });
 
-   await test.step('Intercept the api call to product analytics', async () => {
+   await test.step('Intercept the API call to product analytics', async () => {
 
         await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, handler);
     });

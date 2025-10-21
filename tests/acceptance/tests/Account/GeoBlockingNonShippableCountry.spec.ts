@@ -34,7 +34,7 @@ test(
             await ShopCustomer.presses(StorefrontAccountLogin.countryInput);
             await StorefrontAccountLogin.countryInput.selectOption({ label: registrationData.country });
             await ShopCustomer.expects(
-            await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country)
+                await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country)
             ).toBeDisabled();
         });
 

@@ -14,7 +14,7 @@ class ScalarBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInt
 {
     private string $string = 'string';
 
-    private bool $bool = true;
+    private true $bool = true;
 
     private int $int = 3;
 

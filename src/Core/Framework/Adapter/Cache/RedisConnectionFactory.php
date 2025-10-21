@@ -10,12 +10,12 @@ use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 /**
- * Used to create new Redis connection based on a connection dsn.
+ * Used to create a new Redis connection based on a connection DSN.
  * Existing connections are reused if there are any.
  *
  * @final
  *
- * @phpstan-type RedisTypeHint \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay|Cluster
+ * @phpstan-type RedisTypeHint \Redis|\RedisCluster|ClientInterface|Relay|Cluster
  */
 #[Package('framework')]
 class RedisConnectionFactory

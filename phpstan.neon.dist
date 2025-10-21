@@ -187,7 +187,3 @@ parameters:
             message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
             paths:
                 - tests/**
-
-        - # Ignore redis for now
-            message: '#Predis\\ClientInterface\|Redis\|RedisArray\|RedisCluster\|Relay\\Cluster|Relay\\Relay::#'
-            identifier: method.notFound

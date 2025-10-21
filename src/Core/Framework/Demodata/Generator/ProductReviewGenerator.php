@@ -46,6 +46,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
         $customerIds = $this->getCustomerIds();
         $productIds = $this->getProductIds();
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+        \assert($salesChannelIds !== []);
         $points = [1, 2, 3, 4, 5];
 
         $payload = [];

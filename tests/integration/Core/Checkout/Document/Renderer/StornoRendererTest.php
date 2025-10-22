@@ -122,6 +122,7 @@ class StornoRendererTest extends TestCase
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
             [
+                'documentComment' => '<script></script>This is a cancellation invoice.',
                 'custom' => [
                     'invoiceNumber' => '1001',
                 ],

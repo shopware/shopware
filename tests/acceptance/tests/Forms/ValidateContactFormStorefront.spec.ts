@@ -30,7 +30,7 @@ test(
                 const contactFormPromise = StorefrontContactForm.page.waitForResponse(
                     `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
                 );
-                await StorefrontContactForm.submitButton.click();
+                await ShopCustomer.presses(StorefrontContactForm.submitButton);
                 const contactFormResponse = await contactFormPromise;
                 expect(contactFormResponse.status()).toBe(200);
 
@@ -54,7 +54,7 @@ test(
         });
 
         await test.step('Send and validate the negative contact form result.', async () => {
-            await StorefrontContactForm.submitButton.click();
+            await ShopCustomer.presses(StorefrontContactForm.submitButton);
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 
             await ShopCustomer.expects(StorefrontContactForm.salutationSelect).toHaveCSS('border-color', 'rgb(194, 0, 23)');

@@ -25,7 +25,7 @@ test('Shop customers should be able to view products in different currencies.', 
     });
 
     await test.step('Customer can select a different currency', async () => {
-        await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.symbol));
+        await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
         await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText(currency.name);
         await ShopCustomer.expects(productListing.productPrice).toContainText(currency.isoCode);
     });

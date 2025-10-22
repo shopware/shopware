@@ -7,10 +7,7 @@
             "LandingPage": {
                 "description": "Added since version: 6.4.0.0",
                 "required": [
-                    "apiAlias",
-                    "id",
-                    "name",
-                    "url"
+                    "apiAlias"
                 ],
                 "properties": {
                     "id": {

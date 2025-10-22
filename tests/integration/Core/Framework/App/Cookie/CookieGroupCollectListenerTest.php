@@ -188,4 +188,126 @@ class CookieGroupCollectListenerTest extends TestCase
         $groups = $event->cookieGroupCollection;
         static::assertEmpty($groups);
     }
+
+    public function testCookieGroupRedirectionWithDefaultTargetGroup(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/redirectWithDefaultTargetGroup');
+
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $this->listener->__invoke($event);
+
+        $groups = $event->cookieGroupCollection;
+        static::assertCount(1, $groups);
+
+        // Should be redirected to Statistical group via default-target-group
+        $statisticalGroup = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        static::assertNotNull($statisticalGroup);
+        static::assertSame(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL, $statisticalGroup->name);
+
+        $entries = $statisticalGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(2, $entries);
+
+        $pageviewCookie = $entries->get('testapp-analytics-pageview');
+        static::assertNotNull($pageviewCookie);
+        static::assertSame('testapp-analytics-pageview', $pageviewCookie->cookie);
+        static::assertSame('testapp.analytics.pageview', $pageviewCookie->name);
+
+        $sessionCookie = $entries->get('testapp-analytics-session');
+        static::assertNotNull($sessionCookie);
+        static::assertSame('testapp-analytics-session', $sessionCookie->cookie);
+        static::assertSame('testapp.analytics.session', $sessionCookie->name);
+    }
+
+    public function testCookieGroupRedirectionWithTargetGroupOverride(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/redirectWithTargetGroup');
+
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $this->listener->__invoke($event);
+
+        $groups = $event->cookieGroupCollection;
+        static::assertCount(2, $groups);
+
+        // First group should be redirected to Statistical (target-group overrides default)
+        $statisticalGroup = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        static::assertNotNull($statisticalGroup);
+
+        $statisticalEntries = $statisticalGroup->getEntries();
+        static::assertNotNull($statisticalEntries);
+        static::assertCount(1, $statisticalEntries);
+
+        $analyticsCookie = $statisticalEntries->get('testapp-analytics-pageview');
+        static::assertNotNull($analyticsCookie);
+        static::assertSame('testapp-analytics-pageview', $analyticsCookie->cookie);
+        static::assertSame('testapp.analytics.pageview', $analyticsCookie->name);
+
+        // Second group should be redirected to Marketing (default-target-group)
+        $marketingGroup = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
+        static::assertNotNull($marketingGroup);
+
+        $marketingEntries = $marketingGroup->getEntries();
+        static::assertNotNull($marketingEntries);
+        static::assertCount(1, $marketingEntries);
+
+        $trackingCookie = $marketingEntries->get('testapp-tracking-conversion');
+        static::assertNotNull($trackingCookie);
+        static::assertSame('testapp-tracking-conversion', $trackingCookie->cookie);
+        static::assertSame('testapp.tracking.conversion', $trackingCookie->name);
+    }
+
+    public function testCookieGroupRedirectionMergesWithExistingCoreGroup(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/redirectWithDefaultTargetGroup');
+
+        // Simulate existing core cookies in the Statistical group
+        $coreCookieEntry = new CookieEntry('core-analytics');
+        $coreCookieEntry->name = 'cookie.core.analytics';
+
+        $statisticalGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        $statisticalGroup->setEntries(new CookieEntryCollection([$coreCookieEntry]));
+
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection([$statisticalGroup]),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $this->listener->__invoke($event);
+
+        $groups = $event->cookieGroupCollection;
+        static::assertCount(1, $groups);
+
+        $statisticalGroup = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        static::assertNotNull($statisticalGroup);
+
+        $entries = $statisticalGroup->getEntries();
+        static::assertNotNull($entries);
+        // Should have 3 cookies: 1 from core + 2 from app
+        static::assertCount(3, $entries);
+
+        // Core cookie should still be there
+        $coreCookie = $entries->get('core-analytics');
+        static::assertNotNull($coreCookie);
+        static::assertSame('core-analytics', $coreCookie->cookie);
+
+        // App cookies should be merged in
+        $appPageviewCookie = $entries->get('testapp-analytics-pageview');
+        static::assertNotNull($appPageviewCookie);
+        static::assertSame('testapp-analytics-pageview', $appPageviewCookie->cookie);
+
+        $appSessionCookie = $entries->get('testapp-analytics-session');
+        static::assertNotNull($appSessionCookie);
+        static::assertSame('testapp-analytics-session', $appSessionCookie->cookie);
+    }
 }

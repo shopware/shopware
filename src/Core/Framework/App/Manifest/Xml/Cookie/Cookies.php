@@ -17,11 +17,15 @@ class Cookies extends XmlElement
     private const VALUE_TAG = 'value';
     private const EXPIRATION_TAG = 'expiration';
     private const ENTRIES_TAG = 'entries';
+    private const DEFAULT_TARGET_GROUP_ATTR = 'default-target-group';
+    private const TARGET_GROUP_ATTR = 'target-group';
 
     /**
      * @var list<array<string, mixed>>
      */
     protected array $cookies = [];
+
+    protected ?string $defaultTargetGroup = null;
 
     /**
      * @return list<array<string, mixed>>
@@ -31,9 +35,20 @@ class Cookies extends XmlElement
         return $this->cookies;
     }
 
+    public function getDefaultTargetGroup(): ?string
+    {
+        return $this->defaultTargetGroup;
+    }
+
     protected static function parse(\DOMElement $element): array
     {
         $values = [];
+        $defaultTargetGroup = null;
+
+        // Parse default-target-group attribute from cookies element
+        if ($element->hasAttribute(self::DEFAULT_TARGET_GROUP_ATTR)) {
+            $defaultTargetGroup = $element->getAttribute(self::DEFAULT_TARGET_GROUP_ATTR);
+        }
 
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
@@ -43,7 +58,10 @@ class Cookies extends XmlElement
             $values = self::parseChild($child, $values);
         }
 
-        return ['cookies' => $values];
+        return [
+            'cookies' => $values,
+            'defaultTargetGroup' => $defaultTargetGroup !== '' ? $defaultTargetGroup : null,
+        ];
     }
 
     /**
@@ -54,6 +72,14 @@ class Cookies extends XmlElement
     private static function parseChild(\DOMElement $element, array $values): array
     {
         $cookie = [];
+
+        // Parse target-group attribute from group element
+        if ($element->hasAttribute(self::TARGET_GROUP_ATTR)) {
+            $targetGroup = $element->getAttribute(self::TARGET_GROUP_ATTR);
+            if ($targetGroup !== '') {
+                $cookie['target_group'] = $targetGroup;
+            }
+        }
 
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {

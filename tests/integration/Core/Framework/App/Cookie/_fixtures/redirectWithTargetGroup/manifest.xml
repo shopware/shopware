@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>TestAppRedirectGroup</name>
+        <label>Test App Redirect Group</label>
+        <description>Test app for cookie group redirection with target-group attribute</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+    <cookies default-target-group="cookie.groupMarketing">
+        <!-- This group should go to Statistical (target-group overrides default) -->
+        <group target-group="cookie.groupStatistical">
+            <snippet-name>testapp.analytics</snippet-name>
+            <snippet-description>Analytics cookies from test app</snippet-description>
+            <entries>
+                <cookie>
+                    <snippet-name>testapp.analytics.pageview</snippet-name>
+                    <cookie>testapp-analytics-pageview</cookie>
+                </cookie>
+            </entries>
+        </group>
+        <!-- This group should go to Marketing (default-target-group) -->
+        <group>
+            <snippet-name>testapp.tracking</snippet-name>
+            <snippet-description>Tracking cookies from test app</snippet-description>
+            <entries>
+                <cookie>
+                    <snippet-name>testapp.tracking.conversion</snippet-name>
+                    <cookie>testapp-tracking-conversion</cookie>
+                </cookie>
+            </entries>
+        </group>
+    </cookies>
+</manifest>

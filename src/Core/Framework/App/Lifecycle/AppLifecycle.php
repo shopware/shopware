@@ -41,6 +41,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
+use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
@@ -224,7 +225,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['id'] = $id;
         $metadata['modules'] = [];
         $metadata['iconRaw'] = $this->getIcon($manifest);
-        $metadata['cookies'] = $manifest->getCookies() !== null ? $manifest->getCookies()->getCookies() : [];
+        $metadata['cookies'] = $this->prepareCookiesMetadata($manifest->getCookies());
         $metadata['baseAppUrl'] = $manifest->getAdmin()?->getBaseAppUrl();
         $metadata['allowedHosts'] = $manifest->getAllHosts();
         $metadata['templateLoadPriority'] = $manifest->getStorefront() ? $manifest->getStorefront()->getTemplateLoadPriority() : 0;
@@ -729,6 +730,32 @@ class AppLifecycle extends AbstractAppLifecycle
         $fs = $this->sourceResolver->filesystemForManifest($manifest);
 
         return $fs->has($iconPath) ? $fs->read($iconPath) : null;
+    }
+
+    /**
+     * Prepares cookies metadata from manifest for storage in the database.
+     * Propagates the app-level default-target-group to individual cookies if not already set.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function prepareCookiesMetadata(?Cookies $cookies): array
+    {
+        if ($cookies === null) {
+            return [];
+        }
+
+        $cookiesData = $cookies->getCookies();
+        $defaultTargetGroup = $cookies->getDefaultTargetGroup();
+
+        if ($defaultTargetGroup === null) {
+            return $cookiesData;
+        }
+
+        // Propagate app-level default-target-group to cookies that don't have it set
+        return array_map(
+            fn (array $cookieData) => $cookieData + ['default_target_group' => $defaultTargetGroup],
+            $cookiesData
+        );
     }
 
     /**

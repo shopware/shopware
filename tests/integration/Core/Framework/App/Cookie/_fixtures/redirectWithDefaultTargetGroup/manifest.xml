@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>TestAppRedirectDefault</name>
+        <label>Test App Redirect Default</label>
+        <description>Test app for cookie group redirection with default-target-group</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+    <cookies default-target-group="cookie.groupStatistical">
+        <group>
+            <snippet-name>testapp.analytics</snippet-name>
+            <snippet-description>Analytics cookies from test app</snippet-description>
+            <entries>
+                <cookie>
+                    <snippet-name>testapp.analytics.pageview</snippet-name>
+                    <cookie>testapp-analytics-pageview</cookie>
+                </cookie>
+                <cookie>
+                    <snippet-name>testapp.analytics.session</snippet-name>
+                    <cookie>testapp-analytics-session</cookie>
+                </cookie>
+            </entries>
+        </group>
+    </cookies>
+</manifest>

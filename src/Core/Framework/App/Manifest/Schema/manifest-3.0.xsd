@@ -473,6 +473,7 @@
             <xs:element name="cookie" type="cookie" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="group" type="cookie-group" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
+        <xs:attribute name="default-target-group" type="xs:string" use="optional"/>
     </xs:complexType>
     <xs:complexType name="cookie-entries">
         <xs:sequence>
@@ -494,6 +495,7 @@
             <xs:element type="xs:string" name="snippet-description" minOccurs="0"/>
             <xs:element name="entries" type="cookie-entries" minOccurs="0"/>
         </xs:choice>
+        <xs:attribute name="target-group" type="xs:string" use="optional"/>
     </xs:complexType>
     <xs:complexType name="payments">
         <xs:sequence>

@@ -244,6 +244,100 @@ class AppCookieCollectListenerTest extends TestCase
         static::assertEmpty($groups);
     }
 
+    public function testCookieGroupRedirectsViaManifestTargetGroup(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'snippet_name' => 'myapp.tracking',
+                'cookie' => 'myapp-tracking',
+                'target_group' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING,
+            ],
+        ]);
+
+        $this->createListener($appEntity)->__invoke($event);
+
+        $groups = $event->cookieGroupCollection;
+        static::assertCount(1, $groups);
+
+        // Should be redirected to marketing group via manifest target_group
+        $marketingGroup = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
+        static::assertNotNull($marketingGroup);
+
+        $entries = $marketingGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(1, $entries);
+        static::assertSame('myapp-tracking', $entries->first()?->cookie);
+    }
+
+    public function testCookieGroupRedirectsViaManifestDefaultTargetGroup(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'snippet_name' => 'myapp.preferences',
+                'cookie' => 'myapp-preferences',
+                'default_target_group' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES,
+            ],
+        ]);
+
+        $this->createListener($appEntity)->__invoke($event);
+
+        $groups = $event->cookieGroupCollection;
+        static::assertCount(1, $groups);
+
+        // Should be redirected to comfort features group via manifest default_target_group
+        $comfortGroup = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
+        static::assertNotNull($comfortGroup);
+
+        $entries = $comfortGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(1, $entries);
+        static::assertSame('myapp-preferences', $entries->first()?->cookie);
+    }
+
+    public function testManifestTargetGroupHasHigherPriorityThanDefaultTargetGroup(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'snippet_name' => 'myapp.priority',
+                'cookie' => 'myapp-priority',
+                'target_group' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL,
+                'default_target_group' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING,
+            ],
+        ]);
+
+        $this->createListener($appEntity)->__invoke($event);
+
+        $groups = $event->cookieGroupCollection;
+        static::assertCount(1, $groups);
+
+        // target_group should have higher priority than default_target_group
+        $statisticalGroup = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        static::assertNotNull($statisticalGroup);
+
+        $entries = $statisticalGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(1, $entries);
+        static::assertSame('myapp-priority', $entries->first()?->cookie);
+    }
+
     /**
      * @param list<Cookie> $cookies
      */
@@ -252,15 +346,26 @@ class AppCookieCollectListenerTest extends TestCase
         return (new AppEntity())->assign([
             'id' => $appId,
             '_uniqueIdentifier' => $appId,
+            'active' => true,
             'cookies' => $cookies,
         ]);
     }
 
-    private function createListener(AppEntity ...$appEntity): AppCookieCollectListener
+    private function createListener(?AppEntity $entity = null, ?AppEntity $entity2 = null): AppCookieCollectListener
     {
+        $apps = [];
+
+        if ($entity !== null) {
+            $apps[] = $entity;
+        }
+
+        if ($entity2 !== null) {
+            $apps[] = $entity2;
+        }
+
         /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([
-            new AppCollection([...$appEntity]),
+            new AppCollection($apps),
         ]);
 
         return new AppCookieCollectListener($appRepo);

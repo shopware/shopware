@@ -5,16 +5,12 @@
     "components": {
         "schemas": {
             "LandingPage": {
-                "required": [
-                    "apiAlias"
-                ],
+                "required": ["apiAlias"],
                 "type": "object",
                 "properties": {
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "landing_page"
-                        ]
+                        "enum": ["landing_page"]
                     }
                 }
             }

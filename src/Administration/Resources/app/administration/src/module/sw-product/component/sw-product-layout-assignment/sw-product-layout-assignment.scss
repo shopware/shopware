@@ -10,7 +10,6 @@
     }
 
     &__heading {
-        margin: 0 0 16px;
         font-size: $font-size-xs;
 
         * {
@@ -28,7 +27,7 @@
         display: flex;
         flex-direction: column;
         justify-items: center;
-        gap: 8px;
+        gap: 16px;
         margin: auto 0;
     }
 

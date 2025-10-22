@@ -21,6 +21,8 @@ class MailSender extends AbstractMailSender
     public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';
 
     /**
+     * @deprecated tag:v6.8.0 - Use the configuration option `shopware.messenger.message_max_kib_size` instead.
+     *
      * Referenced from {@see MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT}
      * The maximum size of a message in the message queue is used to determine if a mail should be sent directly or via the message queue.
      */
@@ -37,6 +39,7 @@ class MailSender extends AbstractMailSender
         private readonly SystemConfigService $configService,
         private readonly int $maxContentLength,
         private readonly LoggerInterface $logger,
+        private readonly int $messageMaxKiBSize,
         private readonly ?MessageBusInterface $messageBus = null,
     ) {
     }
@@ -88,7 +91,7 @@ class MailSender extends AbstractMailSender
 
         // We add 40% buffer to the mail data length to account for the overhead of the transport envelope & serialization
         $mailDataLength = \strlen($mailData) * 1.4;
-        if ($mailDataLength <= self::MAIL_MESSAGE_SIZE_LIMIT) {
+        if ($this->messageMaxKiBSize <= 0 || $mailDataLength <= $this->messageMaxKiBSize * 1024) {
             try {
                 $this->mailer->send($email);
             } catch (\Throwable $e) {

@@ -36,6 +36,7 @@ class MailSenderTest extends TestCase
             $configService,
             0,
             $this->createMock(LoggerInterface::class),
+            0,
             $messageBus
         );
         $mail = new Email();
@@ -60,6 +61,7 @@ class MailSenderTest extends TestCase
             $configService,
             0,
             $this->createMock(LoggerInterface::class),
+            0,
             null
         );
         $mail = new Email();
@@ -79,15 +81,18 @@ class MailSenderTest extends TestCase
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $maxMessageSizeKiB = 1024;
         $mailSender = new MailSender(
             $mailer,
             $fileSystem,
             $configService,
             0,
             $this->createMock(LoggerInterface::class),
+            $maxMessageSizeKiB,
             $messageBus
         );
-        $text = str_repeat('a', MailSender::MAIL_MESSAGE_SIZE_LIMIT);
+        static::assertIsInt($maxMessageSizeKiB);
+        $text = str_repeat('a', $maxMessageSizeKiB * 1024);
         $mail = new Email(null, new TextPart($text));
 
         $testStruct = new ArrayStruct();
@@ -122,7 +127,7 @@ class MailSenderTest extends TestCase
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
         $logger = $this->createMock(LoggerInterface::class);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, $messageBus);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus);
         $mail = new Email();
 
         $logger->expects($this->once())
@@ -152,6 +157,7 @@ class MailSenderTest extends TestCase
             $configService,
             5,
             $this->createMock(LoggerInterface::class),
+            0,
             $messageBus
         );
 

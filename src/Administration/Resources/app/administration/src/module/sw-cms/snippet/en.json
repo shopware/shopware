@@ -255,7 +255,12 @@
             "useFetchPriorityOnFirstItem": "Load first image with higher priority",
             "useFetchPriorityOnFirstItemHelpText": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
             "linkNewTab": "Open link in new tab",
-            "linkTo": "Link target"
+            "linkTo": "Link target",
+            "fetchPriorityHigh": "Fetch priority high"
+          },
+          "helpText": {
+            "fetchPriorityHigh": "Activate this option if the image is the first one on the page. The image will then be assigned the attribute 'fetchpriority=\"high\"', telling the browser to load it with higher priority. This can help improve the Largest Contentful Paint (LCP).",
+            "isDecorative": "When this option is enabled, the image information will not be read out by screen readers. This means that the \"alt\" and \"title\" tags will remain empty."
           },
           "placeholder": {
             "enterMinHeight": "Enter a minimum height...",

@@ -323,6 +323,12 @@
                     "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
                     "default": false
                 },
+                "message_max_kib_size": {
+                    "type": "integer",
+                    "default": 1024,
+                    "title": "Defines the maximum message size in KiB. Messages exceeding this size will be rejected with an exception. If set to 0, no limit is enforced.",
+                    "description": "The current default value of 1024 KiB (1 MiB) is the maximum size supported by AWS SQS, which is most restrictive among the supported transports. See https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html"
+                },
                 "stats": {
                     "type": [
                         "object",

@@ -47,6 +47,10 @@ const defaultProps = {
                 source: 'static',
                 value: false,
             },
+            fetchPriorityHigh: {
+                source: 'static',
+                value: false,
+            },
         },
         data: {
             media: '',
@@ -84,6 +88,7 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
                     'mt-switch': true,
+                    'sw-container': true,
                 },
                 provide: {
                     repositoryFactory: {

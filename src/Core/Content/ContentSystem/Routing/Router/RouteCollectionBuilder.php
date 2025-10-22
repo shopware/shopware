@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ContentSystem\Routing\Router;
 
 use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteCollection;
-use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -41,7 +40,7 @@ class RouteCollectionBuilder
      * @param EntityRepository<ContentRouteCollection> $contentRouteRepository
      */
     public function __construct(
-        protected readonly EntityRepository $contentRouteRepository
+        private readonly EntityRepository $contentRouteRepository
     ) {
     }
 

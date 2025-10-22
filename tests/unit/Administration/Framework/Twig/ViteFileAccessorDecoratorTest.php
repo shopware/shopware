@@ -59,7 +59,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
     }
 
     /**
-     * @param list<string|int> $assetKeys
+     * @param list<string> $assetKeys
      */
     #[DataProvider('getDataProvider')]
     public function testGetData(bool $pullFromCache, string $configName, array $assetKeys, string $expectedAssetUrl): void

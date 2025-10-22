@@ -298,20 +298,20 @@ jobs:
     name: "Smoke test with lowest dependencies"
     if: inputs.nightly == 'true'
     steps:
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
-        with:
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
+        - name: Setup Shopware
+          uses: shopware/setup-shopware@main
+          with:
+              shopware-version: ${{ github.ref }}
+              shopware-repository: ${{ github.repository }}
 
-      - name: Install lowest dependencies
-        run: composer update --prefer-lowest
+        - name: Install lowest dependencies
+          run: composer update --prefer-lowest
 
-      - name: Generate Schema
-        run: composer run framework:schema:dump
+        - name: Generate Schema
+          run: composer run framework:schema:dump
 
-      - name: Run PHPStan as smoke test
-        run: composer phpstan
+        - name: Run PHPStan as smoke test
+          run: composer phpstan
 
   php-check:
     if: always()

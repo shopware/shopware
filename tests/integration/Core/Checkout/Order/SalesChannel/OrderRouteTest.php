@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -22,7 +21,6 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -43,7 +41,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -170,7 +167,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
     }
 
     public function testGetOrderGuest(): void
@@ -214,7 +211,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
     }
 
     public function testGetOrderGuestWrongDeepLink(): void
@@ -361,7 +358,8 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertIsArray($response);
         static::assertArrayHasKey('paymentChangeable', $response);
         static::assertCount(1, $response['paymentChangeable']);
         static::assertTrue(array_pop($response['paymentChangeable']));
@@ -395,7 +393,7 @@ class OrderRouteTest extends TestCase
         static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->last());
-        static::assertEquals($this->defaultPaymentMethodId, $transaction->getPaymentMethodId());
+        static::assertSame($this->defaultPaymentMethodId, $transaction->getPaymentMethodId());
     }
 
     public function testSetAnotherPaymentMethodToOrder(): void
@@ -406,12 +404,11 @@ class OrderRouteTest extends TestCase
         }
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -446,12 +443,11 @@ class OrderRouteTest extends TestCase
     public function testSetSamePaymentMethodToOrder(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -516,7 +512,7 @@ class OrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('technicalName', $response);
-        static::assertEquals('cancelled', $response['technicalName']);
+        static::assertSame('cancelled', $response['technicalName']);
     }
 
     public function testOrderSalesChannelRestriction(): void
@@ -559,117 +555,8 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertCount(1, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
-        static::assertEquals(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
-    }
-
-    public function testPaymentOrderNotManipulable(): void
-    {
-        $ids = new IdsCollection();
-
-        // get non default country id
-        $country = $this->getValidCountries()->filter(fn (CountryEntity $country) => $country->getId() !== $this->defaultCountryId)->first();
-        $countryId = $country?->getId() ?? '';
-
-        // create rule for that country now, so it is set in the order
-        $ruleId = Uuid::randomHex();
-        static::getContainer()->get('rule.repository')->create([
-            [
-                'id' => $ruleId,
-                'name' => 'test',
-                'priority' => 1,
-                'conditions' => [
-                    [
-                        'type' => (new BillingCountryRule())->getName(),
-                        'value' => [
-                            'operator' => '=',
-                            'countryIds' => [$countryId],
-                        ],
-                    ],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        static::getContainer()->get('product.repository')->create([
-            (new ProductBuilder($ids, '1000'))
-                ->price(10)
-                ->name('Test product')
-                ->active(true)
-                ->visibility()
-                ->build(),
-        ], Context::createDefaultContext());
-
-        $this->browser->request(
-            'POST',
-            '/store-api/checkout/cart/line-item',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'items' => [
-                    [
-                        'id' => $ids->get('1000'),
-                        'referencedId' => $ids->get('1000'),
-                        'quantity' => 1,
-                        'type' => 'product',
-                    ],
-                ],
-            ]) ?: ''
-        );
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertCount(0, $response['errors']);
-
-        $this->browser->request(
-            'POST',
-            '/store-api/checkout/order',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            \json_encode([]) ?: ''
-        );
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertArrayNotHasKey('errors', $response);
-
-        $orderId = $response['id'];
-
-        // change customer country, so rule is valid
-        static::getContainer()->get('customer.repository')->update([
-            [
-                'id' => $this->customerId,
-                'defaultBillingAddress' => [
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $countryId,
-                ],
-            ],
-        ], Context::createDefaultContext());
-        $paymentId = $this->createCustomPaymentWithRule($ruleId);
-
-        // Request payment change
-        $this->browser->request(
-            'POST',
-            '/store-api/order/payment',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            \json_encode([
-                'orderId' => $orderId,
-                'paymentMethodId' => $paymentId,
-            ], \JSON_THROW_ON_ERROR) ?: ''
-        );
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertArrayHasKey('errors', $response);
-        static::assertEquals('CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE', $response['errors'][0]['code']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
     }
 
     protected function getValidPaymentMethods(): PaymentMethodCollection
@@ -853,29 +740,5 @@ class OrderRouteTest extends TestCase
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
-    }
-
-    private function createCustomPaymentWithRule(string $ruleId): string
-    {
-        $paymentId = Uuid::randomHex();
-
-        static::getContainer()->get('payment_method.repository')->create([
-            [
-                'id' => $paymentId,
-                'name' => 'Test Payment with Rule',
-                'technicalName' => 'payment_test_rule',
-                'description' => 'Payment rule test',
-                'active' => true,
-                'afterOrderEnabled' => true,
-                'availabilityRuleId' => $ruleId,
-                'salesChannels' => [
-                    [
-                        'id' => TestDefaults::SALES_CHANNEL,
-                    ],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        return $paymentId;
     }
 }

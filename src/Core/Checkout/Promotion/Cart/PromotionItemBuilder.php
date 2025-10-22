@@ -186,6 +186,7 @@ class PromotionItemBuilder
         $promotionItem->setPayload($discount->getPayload());
         $promotionItem->setPriceDefinition($priceDefinition);
         $promotionItem->setPrice($price);
+        $promotionItem->setExtensions($discount->getExtensions());
 
         return $promotionItem;
     }
@@ -242,6 +243,9 @@ class PromotionItemBuilder
         // specifies if the promotion is not combinable with any other promotion
         $payload['preventCombination'] = $promotion->isPreventCombination();
 
+        // set whether the promotion has limited redemptions
+        $payload['limitedRedemptions'] = $promotion->getMaxRedemptionsGlobal() || $promotion->getMaxRedemptionsPerCustomer();
+
         // If all combinations are prevented the exclusions dont matter
         // otherwise sets a list of excluded promotion ids
         $payload['exclusions'] = $payload['preventCombination'] ? [] : $promotion->getExclusionIds();
@@ -271,6 +275,7 @@ class PromotionItemBuilder
         }
 
         $payload['filter'] = [
+            'considerAdvancedRules' => false,
             'sorterKey' => null,
             'applierKey' => null,
             'usageKey' => null,
@@ -279,6 +284,7 @@ class PromotionItemBuilder
 
         if ($discount->isConsiderAdvancedRules()) {
             $payload['filter'] = [
+                'considerAdvancedRules' => true,
                 'sorterKey' => $discount->getSorterKey(),
                 'applierKey' => $discount->getApplierKey(),
                 'usageKey' => $discount->getUsageKey(),

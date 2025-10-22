@@ -44,7 +44,7 @@ class ConfigGetCommandTest extends TestCase
     public function testConfigGetScalar(string $key, string $output): void
     {
         $commandOutput = $this->executeCommand($key, 'scalar');
-        static::assertEquals($commandOutput, $output);
+        static::assertSame($commandOutput, $output);
     }
 
     public static function configFormatScalarProvider(): \Generator
@@ -60,7 +60,7 @@ class ConfigGetCommandTest extends TestCase
     public function testConfigGetDefault(string $key, string $output): void
     {
         $commandOutput = $this->executeCommand($key);
-        static::assertEquals($commandOutput, $output);
+        static::assertSame($commandOutput, $output);
     }
 
     public static function configFormatDefaultProvider(): \Generator

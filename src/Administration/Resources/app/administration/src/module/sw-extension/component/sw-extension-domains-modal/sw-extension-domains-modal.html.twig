@@ -3,6 +3,7 @@
     class="sw-extension-domains-modal"
     :title="modalTitle"
     variant="small"
+    @modal-close="close"
 >
 
     {% block sw_extension_domains_modal_description %}
@@ -34,7 +35,6 @@
     {% block sw_extension_domains_modal_footer %}
     <template #modal-footer>
         {% block sw_extension_domains_modal_footer_inner %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             size="small"

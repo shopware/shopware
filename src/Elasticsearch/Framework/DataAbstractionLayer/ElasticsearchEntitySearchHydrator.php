@@ -69,10 +69,10 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
             /** @var array{ hits: array{ hits: array<int, array<mixed>>}} $inner */
             $inner = $hit['inner_hits']['inner'];
 
-            $nested = $this->extractHits($inner);
+            $innerHits = $this->extractHits($inner);
 
-            foreach ($nested as $inner) {
-                $records[] = $inner;
+            foreach ($innerHits as $innerHit) {
+                $records[] = $innerHit;
             }
         }
 

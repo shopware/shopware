@@ -1,0 +1,131 @@
+{% block sw_settings_message_stats %}
+<sw-page class="sw-settings-message-stats">
+    <template #smart-bar-header>
+        <h2>{{ $tc('sw-settings-message-stats.general.mainMenuItemGeneral') }}</h2>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            <template v-else>
+                <template v-if="isStatsDisabled">
+                    <div class="sw-settings-message-stats__banner-container">
+                        <mt-banner
+                            variant="attention"
+                            :title="$tc('sw-settings-message-stats.general.statsDisabledTitle')"
+                        >
+                            {{  $tc('sw-settings-message-stats.general.statsDisabledContent') }}
+                        </mt-banner>
+                    </div>
+                </template>
+
+                <mt-card
+                    position-identifier="sw-settings-message-stats-overview"
+                    :title="$tc('sw-settings-message-stats.general.statsCardTitle')"
+                    :is-loading="isLoading"
+                >
+                    <template #headerRight>
+                        <mt-button
+                            :is-loading="isLoading"
+                            :disabled="isLoading"
+                            variant="secondary"
+                            size="small"
+                            @click="loadStats"
+                        >
+                            <mt-icon
+                                name="regular-sync"
+                                size="12px"
+                            />
+                            {{ $tc('sw-settings-message-stats.general.refreshButton') }}
+                        </mt-button>
+                    </template>
+
+                    <p class="sw-settings-message-stats__description">
+                        {{ $tc('sw-settings-message-stats.general.description') }}
+                    </p>
+
+                    <div class="sw-settings-message-stats__stats-grid">
+                        <div
+                            v-for="stat in statBlocks"
+                            :key="stat.key"
+                            v-tooltip="{
+                                message: stat.tooltip,
+                                width: 280
+                            }"
+                            class="sw-settings-message-stats__stat-item"
+                        >
+                            <div class="sw-settings-message-stats__stat-item-accent"></div>
+                            <div class="sw-settings-message-stats__stat-content">
+                                <div class="sw-settings-message-stats__stat-header">
+                                    {{ stat.label }}
+                                </div>
+                                <div class="sw-settings-message-stats__stat-value">
+                                    {{ stat.value }}
+                                </div>
+                            </div>
+                            <mt-icon
+                                class="sw-settings-message-stats__stat-icon"
+                                name="solid-question-circle"
+                                size="16"
+                                color="#189eff"
+                            />
+                        </div>
+                    </div>
+
+                    <hr class="sw-settings-message-stats__divider">
+
+                    <div
+                        v-if="hasStats"
+                        class="sw-settings-message-stats__message-types"
+                    >
+                        <sw-data-grid
+                            :data-source="sortedMessageTypeStats"
+                            :columns="columns"
+                            :show-selection="false"
+                            :show-actions="false"
+                            :plain-appearance="true"
+                        >
+                            <template #column-type="{ item }">
+                                <div>
+                                    {{ item.type }}
+                                </div>
+                            </template>
+                            <template #column-count="{ item }">
+                                <div>
+                                    {{ item.count }}
+                                </div>
+                            </template>
+                        </sw-data-grid>
+                    </div>
+
+                    <div v-else>
+                        <mt-empty-state
+                            :headline="$tc('sw-settings-message-stats.general.emptyStateTitle')"
+                            :description="$tc('sw-settings-message-stats.general.emptyStateSubline')"
+                            icon="regular-bars-square"
+                        />
+                        {# rendering button separately as mt-empty-state does not support custom button icons #}
+                        {# button should be moved into a `button` slot in https://github.com/shopware/shopware/issues/9685 #}
+                        <mt-button
+                            variant="primary"
+                            class="sw-settings-message-stats__empty-state-button"
+                            @click="loadStats"
+                        >
+                            <mt-icon
+                                name="regular-sync"
+                                size="12px"
+                            />
+                            {{ $tc('sw-settings-message-stats.general.refreshButton') }}
+                        </mt-button>
+                    </div>
+
+                </mt-card>
+            </template>
+        </sw-card-view>
+    </template>
+</sw-page>
+{% endblock %}

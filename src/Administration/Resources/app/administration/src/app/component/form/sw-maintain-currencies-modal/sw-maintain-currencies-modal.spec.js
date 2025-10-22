@@ -44,10 +44,6 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
-                'sw-icon': {
-                    inheritAttrs: false,
-                    template: '<div class="sw-icon" @click="$emit(\'click\', $event)"></div>',
-                },
                 'sw-data-grid-skeleton': true,
                 'sw-list-price-field': true,
                 'sw-checkbox-field': true,
@@ -75,18 +71,13 @@ async function createWrapper() {
 }
 
 describe('src/app/component/form/sw-maintain-currencies-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to remove inheritance', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
         expect(inheritanceSwitch.isVisible()).toBe(true);
-        const icon = inheritanceSwitch.find('.sw-icon');
+        const icon = inheritanceSwitch.find('.mt-icon');
         expect(icon.isVisible()).toBe(true);
 
         // check if switch show inheritance
@@ -108,7 +99,7 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
 
         const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
         expect(inheritanceSwitch.isVisible()).toBe(true);
-        const icon = inheritanceSwitch.find('.sw-icon');
+        const icon = inheritanceSwitch.find('.mt-icon');
         expect(icon.isVisible()).toBe(true);
 
         // check if switch show inheritance

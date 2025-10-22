@@ -89,7 +89,7 @@ class AdminSearchControllerTest extends TestCase
         $request->request->set('term', 'test');
         $response = $controller->elastic($request, Context::createDefaultContext());
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = $response->getContent();
         static::assertIsString($content);
@@ -98,9 +98,9 @@ class AdminSearchControllerTest extends TestCase
 
         static::assertNotEmpty($data['promotion']);
 
-        static::assertEquals(1, $data['promotion']['total']);
+        static::assertSame(1, $data['promotion']['total']);
         static::assertNotEmpty($data['promotion']['data']);
-        static::assertEquals('promotion-listing', $data['promotion']['indexer']);
-        static::assertEquals('sw-admin-promotion-listing', $data['promotion']['index']);
+        static::assertSame('promotion-listing', $data['promotion']['indexer']);
+        static::assertSame('sw-admin-promotion-listing', $data['promotion']['index']);
     }
 }

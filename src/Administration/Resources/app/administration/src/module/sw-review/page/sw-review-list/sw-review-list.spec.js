@@ -1,5 +1,5 @@
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -42,7 +42,11 @@ async function createWrapper() {
                         },
                     }),
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             stubs: {
                 'sw-page': {
@@ -53,7 +57,6 @@ async function createWrapper() {
                         <slot></slot>
                     </div>`,
                 },
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-entity-listing': true,
                 'sw-language-switch': true,
@@ -64,52 +67,51 @@ async function createWrapper() {
                 'sw-rating-stars': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
+                'sw-time-ago': true,
             },
         },
     });
 }
 
 describe('module/sw-review/page/sw-review-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
+        await wrapper.setData({ total: 2 });
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(deleteMenuItem.attributes()['allow-delete']).toBeFalsy();
+        expect(deleteMenuItem.attributes()['allow-delete']).toBe('false');
     });
 
     it('should be able to delete', async () => {
         global.activeAclRoles = ['review.deleter'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ total: 2 });
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(deleteMenuItem.attributes()['allow-delete']).toBeTruthy();
+        expect(deleteMenuItem.attributes()['allow-delete']).toBe('true');
     });
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ total: 2 });
+        await flushPromises();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(editMenuItem.attributes()['allow-edit']).toBeFalsy();
+        expect(editMenuItem.attributes()['allow-edit']).toBe('false');
     });
 
     it('should be able to edit', async () => {
         global.activeAclRoles = ['review.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ total: 2 });
+        await flushPromises();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(editMenuItem.attributes()['allow-edit']).toBeTruthy();
+        expect(editMenuItem.attributes()['allow-edit']).toBe('true');
     });
 });

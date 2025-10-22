@@ -34,7 +34,7 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 
         $affectedPrices = $packages->getAffectedPrices();
 
-        $totalOriginalSum = $affectedPrices->sum()->getTotalPrice();
+        $totalOriginalSum = $affectedPrices->getTotalPriceAmount();
         $discountValue = -min(abs($definition->getPrice()), $totalOriginalSum);
 
         $price = $this->priceCalculator->calculate(
@@ -53,7 +53,7 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
     }
 
     /**
-     * @return DiscountCompositionItem[]
+     * @return list<DiscountCompositionItem>
      */
     private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages, float $totalOriginalSum): array
     {

@@ -14,8 +14,8 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: `<div class="sw-card">
+                    'mt-card': {
+                        template: `<div class="mt-card">
                     <slot name="toolbar"></slot>
                     <slot name="grid"></slot>
                     <slot></slot>
@@ -26,7 +26,6 @@ async function createWrapper() {
                     },
                     'sw-field': true,
                     'sw-modal': true,
-                    'sw-icon': true,
                     'sw-one-to-many-grid': {
                         props: ['collection'],
                         template: `
@@ -106,10 +105,6 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show text on last name column  when edit mode is off', async () => {

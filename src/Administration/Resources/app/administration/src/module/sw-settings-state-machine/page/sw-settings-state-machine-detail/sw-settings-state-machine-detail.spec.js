@@ -67,7 +67,6 @@ async function createWrapper(privileges = []) {
                             </div>
                         `,
                     },
-                    'sw-card': true,
                     'sw-card-deprecated': true,
                     'sw-container': true,
                     'sw-text-field': true,
@@ -83,13 +82,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-state-machine/page/sw-settings-state-machine-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should allow to save via shortcut', async () => {
         const wrapper = await createWrapper(['state_machine.editor']);
         await flushPromises();

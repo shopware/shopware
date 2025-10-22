@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGoodsTotalRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -29,6 +30,7 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 #[CoversClass(LineItemGoodsTotalRule::class)]
 #[Group('rules')]
+#[Package('checkout')]
 class LineItemGoodsTotalRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

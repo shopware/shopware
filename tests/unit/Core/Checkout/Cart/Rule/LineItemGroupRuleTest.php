@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -18,6 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  */
 #[CoversClass(LineItemGroupRule::class)]
+#[Package('checkout')]
 class LineItemGroupRuleTest extends TestCase
 {
     public function testMatchReturnsFalseBecauseOfWrongScope(): void
@@ -47,7 +49,7 @@ class LineItemGroupRuleTest extends TestCase
         $cart = new Cart('test');
         $lineItemGroupBuilder = $this->createMock(LineItemGroupBuilder::class);
         $result = new LineItemGroupBuilderResult();
-        $lineItemGroupBuilder->expects(static::once())->method('findGroupPackages')->willReturn($result);
+        $lineItemGroupBuilder->expects($this->once())->method('findGroupPackages')->willReturn($result);
         $cart->getData()->set(LineItemGroupBuilder::class, $lineItemGroupBuilder);
         $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
@@ -62,8 +64,8 @@ class LineItemGroupRuleTest extends TestCase
         $cart = new Cart('test');
         $lineItemGroupBuilder = $this->createMock(LineItemGroupBuilder::class);
         $result = $this->createMock(LineItemGroupBuilderResult::class);
-        $result->expects(static::once())->method('hasFoundItems')->willReturn(true);
-        $lineItemGroupBuilder->expects(static::once())->method('findGroupPackages')->willReturn($result);
+        $result->expects($this->once())->method('hasFoundItems')->willReturn(true);
+        $lineItemGroupBuilder->expects($this->once())->method('findGroupPackages')->willReturn($result);
         $cart->getData()->set(LineItemGroupBuilder::class, $lineItemGroupBuilder);
         $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 

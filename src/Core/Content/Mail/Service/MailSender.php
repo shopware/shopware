@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Mail\Service;
 
 use League\Flysystem\FilesystemOperator;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Framework\Log\Package;
@@ -10,7 +11,6 @@ use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictList
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Email;
@@ -21,6 +21,8 @@ class MailSender extends AbstractMailSender
     public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';
 
     /**
+     * @deprecated tag:v6.8.0 - Use the configuration option `shopware.messenger.message_max_kib_size` instead.
+     *
      * Referenced from {@see MessageQueueSizeRestrictListener::MESSAGE_SIZE_LIMIT}
      * The maximum size of a message in the message queue is used to determine if a mail should be sent directly or via the message queue.
      */
@@ -36,6 +38,8 @@ class MailSender extends AbstractMailSender
         private readonly FilesystemOperator $filesystem,
         private readonly SystemConfigService $configService,
         private readonly int $maxContentLength,
+        private readonly LoggerInterface $logger,
+        private readonly int $messageMaxKiBSize,
         private readonly ?MessageBusInterface $messageBus = null,
     ) {
     }
@@ -50,6 +54,17 @@ class MailSender extends AbstractMailSender
         $disabled = $this->configService->get(self::DISABLE_MAIL_DELIVERY);
 
         if ($disabled) {
+            $receiver = array_map(fn ($address) => $address->getAddress(), $email->getTo());
+
+            $this->logger->info(
+                'Tried to send mail but delivery is disabled.',
+                [
+                    'subject' => $email->getSubject(),
+                    'receiver' => implode(', ', $receiver),
+                    'content' => $email->getTextBody(),
+                ]
+            );
+
             return;
         }
 
@@ -76,7 +91,7 @@ class MailSender extends AbstractMailSender
 
         // We add 40% buffer to the mail data length to account for the overhead of the transport envelope & serialization
         $mailDataLength = \strlen($mailData) * 1.4;
-        if ($mailDataLength <= self::MAIL_MESSAGE_SIZE_LIMIT) {
+        if ($this->messageMaxKiBSize <= 0 || $mailDataLength <= $this->messageMaxKiBSize * 1024) {
             try {
                 $this->mailer->send($email);
             } catch (\Throwable $e) {

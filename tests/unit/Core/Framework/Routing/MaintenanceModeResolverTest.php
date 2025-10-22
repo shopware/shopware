@@ -19,7 +19,7 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MaintenanceModeRequestEvent::class));
 
@@ -31,7 +31,7 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MaintenanceModeRequestEvent::class));
 
@@ -43,7 +43,7 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MaintenanceModeRequestEvent::class))
             ->willReturnCallback(function (MaintenanceModeRequestEvent $event) {
@@ -61,7 +61,7 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MaintenanceModeRequestEvent::class))
             ->willReturnCallback(function (MaintenanceModeRequestEvent $event) {

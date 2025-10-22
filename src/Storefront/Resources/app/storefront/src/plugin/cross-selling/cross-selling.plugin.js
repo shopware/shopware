@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 
 export default class CrossSellingPlugin extends Plugin {
@@ -14,7 +13,7 @@ export default class CrossSellingPlugin extends Plugin {
     }
 
     _registerEvents() {
-        const crossSellingTabs = DomAccess.querySelectorAll(this.el, this.options.tabSelector);
+        const crossSellingTabs = this.el.querySelectorAll(this.options.tabSelector);
         crossSellingTabs.forEach((tab) => {
             tab.addEventListener('shown.bs.tab', this._rebuildCrossSellingSlider.bind(this));
         });
@@ -26,9 +25,9 @@ export default class CrossSellingPlugin extends Plugin {
         }
 
         const id = event.target.id;
-        const correspondingContent = DomAccess.querySelector(document, `#${id}-pane`);
+        const correspondingContent = document.querySelector(`#${id}-pane`);
 
-        const slider = DomAccess.querySelector(correspondingContent, this.options.productSliderSelector, false);
+        const slider = correspondingContent.querySelector(this.options.productSliderSelector);
 
         if (slider === false) {
             return;

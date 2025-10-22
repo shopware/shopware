@@ -6,9 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,8 +27,14 @@ class SearchKeywordUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $salesChannelLanguageRepository;
 
     private Connection $connection;
@@ -35,6 +44,11 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->salesChannelLanguageRepository = static::getContainer()->get('sales_channel_language.repository');
         $this->connection = static::getContainer()->get(Connection::class);
+
+        // Guarantees a clean state for assertDictionary(), assertKeywords(), assertLanguageHasNoDictionary
+        $this->connection->executeStatement('DELETE FROM product');
+        $this->connection->executeStatement('DELETE FROM product_search_keyword');
+        $this->connection->executeStatement('DELETE FROM product_keyword_dictionary');
     }
 
     /**
@@ -118,6 +132,9 @@ class SearchKeywordUpdaterTest extends TestCase
 
         static::getContainer()->get(SearchKeywordUpdater::class)
             ->update($ids->getList(['p1', 'p2']), Context::createDefaultContext());
+
+        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, []);
+        $this->assertKeywords($ids->get('p2'), Defaults::LANGUAGE_SYSTEM, []);
     }
 
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void
@@ -131,6 +148,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'id' => $ids->get('language'),
                 'name' => 'Español',
                 'localeId' => $esLocale,
+                'active' => true,
                 'translationCodeId' => $esLocale,
             ],
         ], Context::createDefaultContext());
@@ -153,6 +171,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 '1000', // productNumber
                 'product', // part of name
                 'test', // part of name
+                'test product', // product name
             ]
         );
         $this->assertKeywords($ids->get('1000'), $ids->get('language'), []);
@@ -177,11 +196,13 @@ class SearchKeywordUpdaterTest extends TestCase
                     '1000', // productNumber
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'produkt', // part of name
                     'test', // part of name
+                    'test produkt', // product name
                 ],
             ],
             'test it uses parent languages' => [
@@ -194,11 +215,13 @@ class SearchKeywordUpdaterTest extends TestCase
                     '1000', // productNumber
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
             ],
             'test it uses correct languages for association' => [
@@ -213,12 +236,14 @@ class SearchKeywordUpdaterTest extends TestCase
                     'manufacturer', // manufacturer name
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'Hersteller', // manufacturer name
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
             ],
             'test it uses correct translation from parent' => [
@@ -238,11 +263,13 @@ class SearchKeywordUpdaterTest extends TestCase
                     '1000', // productNumber
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'produkt', // part of name
                     'test', // part of name
+                    'test produkt', // product name
                 ],
                 ['1001'],
             ],
@@ -264,12 +291,14 @@ class SearchKeywordUpdaterTest extends TestCase
                     'manufacturer', // manufacturer name
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'Hersteller', // manufacturer name
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 ['1001'],
             ],
@@ -292,7 +321,7 @@ class SearchKeywordUpdaterTest extends TestCase
             ]
         );
 
-        static::assertEquals($expectedKeywords, $keywords);
+        static::assertEquals($expectedKeywords, $keywords, 'no match: ' . print_r($keywords, true));
     }
 
     private function assertLanguageHasNoKeywords(string $languageId): void
@@ -325,7 +354,7 @@ class SearchKeywordUpdaterTest extends TestCase
             ]
         );
 
-        static::assertEquals($expectedKeywords, $dictionary);
+        static::assertSame($expectedKeywords, $dictionary);
     }
 
     private function assertLanguageHasNoDictionary(string $languageId): void

@@ -16,6 +16,6 @@ class MediaThumbnailStructTest extends TestCase
         $thumbnail->setWidth(120);
         $thumbnail->setHeight(100);
 
-        static::assertEquals('120x100', $thumbnail->getIdentifier());
+        static::assertSame('120x100', $thumbnail->getIdentifier());
     }
 }

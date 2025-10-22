@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -89,12 +90,10 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<CustomerRecoveryCollection> $repo */
         $repo = static::getContainer()->get('customer_recovery.repository');
 
-        /** @var CustomerRecoveryEntity $recovery */
-        $recovery = $repo->search($criteria, Context::createDefaultContext())->first();
-
+        $recovery = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerRecoveryEntity::class, $recovery);
 
         $this->browser
@@ -146,11 +145,10 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<CustomerRecoveryCollection> $repo */
         $repo = static::getContainer()->get('customer_recovery.repository');
 
-        /** @var CustomerRecoveryEntity $recovery */
-        $recovery = $repo->search($criteria, Context::createDefaultContext())->first();
+        $recovery = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerRecoveryEntity::class, $recovery);
 

@@ -45,9 +45,6 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                    'sw-icon': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-context-menu-divider': await wrapTestComponent('sw-context-menu-divider'),
@@ -68,10 +65,6 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show correct tooltip', async () => {

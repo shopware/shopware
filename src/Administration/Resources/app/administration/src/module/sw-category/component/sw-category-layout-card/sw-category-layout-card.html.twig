@@ -1,5 +1,5 @@
 {% block sw_category_layout_card %}
-<sw-card
+<mt-card
     class="sw-category-layout-card"
     position-identifier="sw-category-layout"
     :title="$tc('sw-category.base.cms.title')"
@@ -65,11 +65,11 @@
             <div class="sw-category-layout-card__desc-actions">
 
                 {% block sw_category_detail_layout_desc_actions_layout %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-category-detail-layout__change-layout-action"
                     size="small"
                     :disabled="!acl.can('category.editor')"
+                    variant="secondary"
                     @click="openLayoutModal"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
@@ -77,11 +77,11 @@
                 {% endblock %}
 
                 {% block sw_category_detail_layout_desc_actions_designer %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-category-detail-layout__open-in-pagebuilder"
                     size="small"
                     :disabled="!acl.can('category.editor')"
+                    variant="secondary"
                     @click="openInPagebuilder"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder') : $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
@@ -89,18 +89,18 @@
                 {% endblock %}
 
                 {% block sw_category_detail_layout_desc_actions_remove %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-if="cmsPage"
                     size="small"
                     :disabled="!acl.can('category.editor')"
                     class="sw-category-detail-layout__layout-reset"
                     square
+                    variant="secondary"
                     @click="onLayoutReset"
                 >
-                    <sw-icon
+                    <mt-icon
                         name="regular-trash"
-                        small
+                        size="16px"
                     />
                 </mt-button>
                 {% endblock %}
@@ -112,5 +112,5 @@
         {% endblock %}
 
     </div>
-</sw-card>
+</mt-card>
 {% endblock %}

@@ -97,13 +97,13 @@ class CmsSlotsDataResolverTest extends TestCase
         $this->formResolver->method('collect')->willReturn($collection);
 
         $this->formResolver->method('getType')->willReturn('form');
-        $this->formResolver->expects(static::once())->method('enrich');
+        $this->formResolver->expects($this->once())->method('enrich');
 
         $this->htmlResolver->method('getType')->willReturn('html');
-        $this->htmlResolver->expects(static::once())->method('enrich');
+        $this->htmlResolver->expects($this->once())->method('enrich');
 
         $this->textResolver->method('getType')->willReturn('text');
-        $this->textResolver->expects(static::never())->method('enrich');
+        $this->textResolver->expects($this->never())->method('enrich');
 
         $context = Generator::generateSalesChannelContext();
         $resolverContext = new ResolverContext($context, new Request());
@@ -125,7 +125,7 @@ class CmsSlotsDataResolverTest extends TestCase
         ]);
 
         $this->formResolver->method('getType')->willReturn('form');
-        $this->formResolver->expects(static::once())->method('enrich');
+        $this->formResolver->expects($this->once())->method('enrich');
 
         $criteria = new Criteria(['id-1', 'id-2']);
         $criteriaCollection = new CriteriaCollection();
@@ -138,13 +138,13 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $this->dispatcher
             // 3 extensions, each dispatched as pre- and post-event
-            ->expects(static::exactly(6))
+            ->expects($this->exactly(6))
             ->method('dispatch')
             ->willReturnCallback(function (Extension $extension) use ($slots, $resolverContext, $criteriaCollection) {
                 switch (true) {
                     case $extension instanceof CmsSlotsDataResolveExtension:
-                        static::assertEquals($slots, $extension->slots);
-                        static::assertEquals($resolverContext, $extension->resolverContext);
+                        static::assertSame($slots, $extension->slots);
+                        static::assertSame($resolverContext, $extension->resolverContext);
 
                         if ($extension->result) {
                             static::assertInstanceOf(CmsSlotCollection::class, $extension->result);
@@ -154,17 +154,17 @@ class CmsSlotsDataResolverTest extends TestCase
                         return $extension;
                     case $extension instanceof CmsSlotsDataCollectExtension:
                         static::assertCount(1, $extension->slots);
-                        static::assertEquals($resolverContext, $extension->resolverContext);
+                        static::assertSame($resolverContext, $extension->resolverContext);
 
                         if ($extension->result) {
-                            static::assertEquals(['slot-1' => $criteriaCollection], $extension->result);
+                            static::assertSame(['slot-1' => $criteriaCollection], $extension->result);
                         }
 
                         return $extension;
                     case $extension instanceof CmsSlotsDataEnrichExtension:
-                        static::assertEquals($slots, $extension->slots);
-                        static::assertEquals(['slot-1' => $criteriaCollection], $extension->criteriaList);
-                        static::assertEquals($resolverContext, $extension->resolverContext);
+                        static::assertSame($slots, $extension->slots);
+                        static::assertSame(['slot-1' => $criteriaCollection], $extension->criteriaList);
+                        static::assertSame($resolverContext, $extension->resolverContext);
 
                         if ($extension->result) {
                             static::assertInstanceOf(CmsSlotCollection::class, $extension->result);

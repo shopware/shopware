@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -27,7 +28,7 @@ class ApiRouteLoaderTest extends TestCase
 
         $loader = new ApiRouteLoader($definitionRegistry);
 
-        static::assertTrue($loader->supports('resource', 'api'));
+        static::assertTrue($loader->supports('resource', ApiRouteScope::ID));
 
         $routes = $loader->load('resource');
 
@@ -40,7 +41,7 @@ class ApiRouteLoaderTest extends TestCase
         static::assertArrayHasKey('api.product.search-ids', $routes->all());
         static::assertArrayHasKey('api.product.create', $routes->all());
 
-        static::expectExceptionObject(ApiException::apiRoutesAreAlreadyLoaded());
-        $loader->load('resource', 'api');
+        $this->expectExceptionObject(ApiException::apiRoutesAreAlreadyLoaded());
+        $loader->load('resource', ApiRouteScope::ID);
     }
 }

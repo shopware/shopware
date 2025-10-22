@@ -44,10 +44,10 @@ class ElasticsearchResetCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $answer = $io->ask('Are you sure you want to reset the Elasticsearch indexing?', 'yes');
+        $confirm = $io->confirm('Are you sure you want to reset the Elasticsearch indexing?');
 
-        if ($answer !== 'yes') {
-            $io->error('Canceled clearing indexing process');
+        if (!$confirm) {
+            $io->caution('Canceled clearing indexing process');
 
             return self::SUCCESS;
         }

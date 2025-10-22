@@ -14,7 +14,7 @@ However, if all classes and properties had to be considered public api by us, we
 Therefore, we mark the elements that we do not consider to be public API. To do this, we have the following tools at our disposal.
 
 ## Decoration pattern
-Classes that are intended for **service decoration** are provided with an abstract class. This class is then provided with a `getDecorated` function to pass unimplemented functions directly to the core classes. [Read more](https://github.com/shopware/platform/blob/trunk/adr/2020-11-25-decoration-pattern.md)
+Classes that are intended for **service decoration** are provided with an abstract class. This class is then provided with a `getDecorated` function to pass unimplemented functions directly to the core classes. [Read more](https://github.com/shopware/shopware/blob/trunk/adr/2020-11-25-decoration-pattern.md)
 
 ## Final classes
 Tendentiously, just about all classes in Shopware should be declared as `final`. We do this for the following reasons:

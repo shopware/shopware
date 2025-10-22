@@ -39,21 +39,17 @@ async function createWrapper(privileges = [], props = {}) {
                     </div>
                 `,
                 },
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-internal-link': await wrapTestComponent('sw-internal-link'),
                 'router-link': {
                     props: ['to'],
                     // eslint-disable-next-line no-template-curly-in-string
                     template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>',
                 },
-                'sw-icon': true,
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-context-menu-item': true,
                 'sw-data-grid-skeleton': true,
                 'sw-pagination': true,
-                'sw-empty-state': true,
                 'sw-search-bar': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
@@ -81,13 +77,22 @@ async function createWrapper(privileges = [], props = {}) {
                         return privileges.includes(identifier);
                     },
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             mocks: {
                 $route: {
                     query: {
                         page: 1,
                         limit: 25,
+                    },
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
                     },
                 },
             },

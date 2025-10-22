@@ -140,12 +140,9 @@ async function createWrapper(
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'router-link': {
                         template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
                         props: ['to'],
@@ -155,7 +152,6 @@ async function createWrapper(
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-pagination': true,
@@ -190,6 +186,15 @@ async function createWrapper(
                     shortcutService: {
                         startEventListener: jest.fn(),
                         stopEventListener: jest.fn(),
+                    },
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
             },
@@ -303,7 +308,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .router-link').exists()).toBe(false);
 
         // Expect empty states to be present
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-product img').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
 
         // Loader should not be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBe(false);
@@ -639,8 +644,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper(defaultProps, ['product'], repositoryOverwriteMock);
         await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').setChecked(true);
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').setChecked(true);
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').trigger('click');
 
         await wrapper.find('.sw-settings-rule-detail-assignments__entity-listing .link-danger').trigger('click');
 

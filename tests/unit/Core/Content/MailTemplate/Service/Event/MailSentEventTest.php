@@ -40,9 +40,9 @@ class MailSentEventTest extends TestCase
         static::assertArrayHasKey('contents', $flow->data());
         static::assertArrayHasKey('recipients', $flow->data());
 
-        static::assertEquals('my-subject', $flow->data()['subject']);
-        static::assertEquals(['foo' => 'bar'], $flow->data()['recipients']);
-        static::assertEquals(['mixed' => 'content'], $flow->data()['contents']);
+        static::assertSame('my-subject', $flow->data()['subject']);
+        static::assertSame(['foo' => 'bar'], $flow->data()['recipients']);
+        static::assertSame(['mixed' => 'content'], $flow->data()['contents']);
     }
 
     public function testInstantiate(): void

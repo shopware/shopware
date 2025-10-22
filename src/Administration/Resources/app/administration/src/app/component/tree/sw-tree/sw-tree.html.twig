@@ -19,7 +19,7 @@
                 @update:model-value="searchItems"
             >
                 <template #prefix>
-                    <sw-icon name="regular-search" />
+                    <mt-icon name="regular-search" />
                 </template>
             </mt-text-field>
         </div>
@@ -32,8 +32,7 @@
             v-if="checkedElementsCount > 0"
             class="sw-tree-actions__headline"
         >
-            <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, { count: checkedElementsCount }) }}:</span>
             <mt-button
                 class="sw-tree-actions__delete_categories"
                 :disabled="!allowDeleteCategories || undefined"
@@ -111,14 +110,14 @@
                 v-if="toDeleteItem.childCount > 0"
                 class="sw_tree__confirm-delete-text"
             >
-                {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}<br>
+                {{ $tc(`${translationContext}.modal.textDeleteConfirm`, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}<br>
                 <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
             </p>
             <p
                 v-else
                 class="sw_tree__confirm-delete-text"
             >
-                {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}
+                {{ $tc(`${translationContext}.modal.textDeleteConfirm`, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}
             </p>
         </div>
         <div v-else>
@@ -126,14 +125,14 @@
                 v-if="checkedElementsChildCount > 0"
                 class="sw_tree__confirm-delete-text"
             >
-                {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}<br>
+                {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, { count: checkedElementsCount }) }}<br>
                 <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
             </p>
             <p
                 v-else
                 class="sw_tree__confirm-delete-text"
             >
-                {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}
+                {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, { count: checkedElementsCount }) }}
             </p>
         </div>
         {% endblock %}
@@ -141,9 +140,9 @@
         {% block sw_tree_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_tree_delete_modal_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -151,7 +150,6 @@
             {% endblock %}
 
             {% block sw_tree_delete_modal_confirm %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="critical"
                 size="small"

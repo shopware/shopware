@@ -1,8 +1,8 @@
 {% block sw_data_grid_select_item_checkbox %}
-<sw-checkbox-field
+<mt-checkbox
     v-tooltip="getSelectableTooltip(item)"
     :disabled="!isRecordSelectable(item)"
-    :value="isSelected(item[itemIdentifierProperty])"
-    @update:value="selectItem($event, item)"
+    :checked="isSelected(item[itemIdentifierProperty])"
+    @update:checked="selectItem($event, item)"
 />
 {% endblock %}

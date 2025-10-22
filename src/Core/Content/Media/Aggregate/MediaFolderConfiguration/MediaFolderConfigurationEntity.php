@@ -15,7 +15,7 @@ class MediaFolderConfigurationEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected MediaFolderCollection $mediaFolders;
+    protected ?MediaFolderCollection $mediaFolders = null;
 
     protected bool $createThumbnails;
 

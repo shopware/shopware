@@ -5,11 +5,11 @@ namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppUrlChangeResolver\MoveShopPermanentlyStrategy;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -59,12 +59,12 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::once())
+        $registrationsService->expects($this->once())
             ->method('registerApp')
             ->with(
                 static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
                 $app->getId(),
-                static::isType('string'),
+                static::isString(),
                 static::isInstanceOf(Context::class)
             );
 
@@ -84,7 +84,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         static::assertNotNull($app->getIntegration());
         static::assertNotNull($updatedApp->getIntegration());
 
-        static::assertNotEquals(
+        static::assertNotSame(
             $app->getIntegration()->getSecretAccessKey(),
             $updatedApp->getIntegration()->getSecretAccessKey()
         );
@@ -95,10 +95,10 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $appDir = __DIR__ . '/../Lifecycle/Registration/_fixtures/no-setup';
         $this->loadAppsFromDir($appDir);
 
-        $shopId = $this->changeAppUrl();
+        $shopId = $this->changeAppUrl(false);
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::never())
+        $registrationsService->expects($this->never())
             ->method('registerApp');
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
@@ -113,7 +113,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         static::assertSame($shopId, $this->shopIdProvider->getShopId());
     }
 
-    private function changeAppUrl(): string
+    private function changeAppUrl(bool $expectsToThrow = true): string
     {
         $shopId = $this->shopIdProvider->getShopId();
 
@@ -122,11 +122,12 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $wasThrown = false;
 
         try {
+            $this->shopIdProvider->reset();
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException) {
+        } catch (ShopIdChangeSuggestedException) {
             $wasThrown = true;
         }
-        static::assertTrue($wasThrown);
+        static::assertSame($expectsToThrow, $wasThrown);
 
         return $shopId;
     }

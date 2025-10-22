@@ -3,23 +3,26 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemException;
-use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
@@ -28,6 +31,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,12 +39,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class InfoController extends AbstractController
 {
-    private const API_SCOPE_ADMIN = 'api';
-
     /**
      * @internal
      */
@@ -57,7 +59,11 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
-        private readonly FilesystemOperator $filesystem,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Administration dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
+        private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
+        private readonly Filesystem $filesystem,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly StatsService $messageStatsService,
     ) {
     }
 
@@ -96,8 +102,18 @@ class InfoController extends AbstractController
 
         return new JsonResponse(array_map(static fn (array $entry) => [
             'name' => $entry['key'],
-            'size' => (int) $entry['count'],
+            'size' => $entry['count'],
         ], array_values($entries)));
+    }
+
+    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', methods: ['GET'])]
+    public function messageStats(): JsonResponse
+    {
+        $response = new JsonResponse();
+        $response->setEncodingOptions($response->getEncodingOptions() | \JSON_PRESERVE_ZERO_FRACTION);
+        $response->setData($this->messageStatsService->getStats());
+
+        return $response;
     }
 
     #[Route(
@@ -162,6 +178,8 @@ class InfoController extends AbstractController
     {
         return new JsonResponse([
             'version' => $this->getShopwareVersion(),
+            'shopId' => $this->getShopId(),
+            'appUrl' => (string) EnvironmentHelper::getVariable('APP_URL'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
@@ -208,7 +226,7 @@ class InfoController extends AbstractController
     {
         $endpoints = array_map(
             static fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
-            $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_ADMIN)
+            $this->apiRouteInfoResolver->getApiRoutes(ApiRouteScope::ID)
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
@@ -239,24 +257,16 @@ class InfoController extends AbstractController
                 continue;
             }
 
-            $bundleDirectoryName = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
-            if ($bundleDirectoryName === null) {
-                throw ApiException::unableGenerateBundle($bundle->getName());
+            if (!$this->viteFileAccessorDecorator) {
+                // Admin bundle is not there, admin assets are not available
+                continue;
             }
 
-            try {
-                $viteEntryPoints = \json_decode(
-                    $this->filesystem->read(\sprintf('bundles/%s/administration/.vite/%s', $bundleDirectoryName, ViteFileAccessorDecorator::FILES[ViteFileAccessorDecorator::ENTRYPOINTS])),
-                    true,
-                    flags: \JSON_THROW_ON_ERROR
-                );
-            } catch (FilesystemException|\JsonException $e) {
-                // ignore
-            }
+            $viteEntryPoints = $this->viteFileAccessorDecorator->getBundleData($bundle);
 
             $technicalBundleName = $this->getTechnicalBundleName($bundle);
-            $styles = $this->normalizeAssetPath($viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? []);
-            $scripts = $this->normalizeAssetPath($viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? []);
+            $styles = $viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? [];
+            $scripts = $viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? [];
             $baseUrl = $this->getBaseUrl($bundle);
 
             if (empty($styles) && empty($scripts) && $baseUrl === null) {
@@ -288,19 +298,11 @@ class InfoController extends AbstractController
 
     private function getBaseUrl(Bundle $bundle): ?string
     {
-        if (!$bundle instanceof Plugin) {
-            return null;
-        }
-
         if ($bundle->getAdminBaseUrl()) {
             return $bundle->getAdminBaseUrl();
         }
 
-        try {
-            if (!$this->filesystem->fileExists(\sprintf('bundles/%s/meteor-app/index.html', mb_strtolower($bundle->getName())))) {
-                return null;
-            }
-        } catch (FilesystemException $e) {
+        if (!$this->filesystem->exists($bundle->getPath() . '/Resources/public/meteor-app/index.html')) {
             return null;
         }
 
@@ -309,7 +311,13 @@ class InfoController extends AbstractController
             return $this->router->generate(
                 'administration.plugin.index',
                 [
-                    'pluginName' => \mb_strtolower($bundle->getName()),
+                    /**
+                     * Adopted from symfony, as they also strip the bundle suffix:
+                     * https://github.com/symfony/symfony/blob/7.2/src/Symfony/Bundle/FrameworkBundle/Command/AssetsInstallCommand.php#L128
+                     *
+                     * @see Plugin\Util\AssetService::getTargetDirectory
+                     */
+                    'pluginName' => preg_replace('/bundle$/', '', mb_strtolower($bundle->getName())),
                 ],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
@@ -336,7 +344,7 @@ LEFT JOIN acl_role ar on app.acl_role_id = ar.id
 WHERE app.active = 1 AND app.base_app_url is not null');
 
         return array_map(static function (array $item) {
-            $privileges = $item['privileges'] ? json_decode((string) $item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
+            $privileges = $item['privileges'] ? json_decode($item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
             $item['privileges'] = [];
 
@@ -370,20 +378,12 @@ WHERE app.active = 1 AND app.base_app_url is not null');
         return str_replace('_', '-', $bundle->getContainerPrefix());
     }
 
-    /**
-     * Makes the asset path absolute respecting the asset server configuration.
-     *
-     * @param array<string> $relativeAssetString
-     *
-     * @return list<string>
-     */
-    private function normalizeAssetPath(array $relativeAssetString): array
+    private function getShopId(): string
     {
-        $assets = [];
-        foreach ($relativeAssetString as $asset) {
-            $assets[] = $this->filesystem->publicUrl($asset);
+        try {
+            return $this->shopIdProvider->getShopId();
+        } catch (ShopIdChangeSuggestedException $e) {
+            return $e->shopId->id;
         }
-
-        return $assets;
     }
 }

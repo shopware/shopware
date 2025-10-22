@@ -11,9 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,6 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
 class SortingListingProcessor extends AbstractListingProcessor
 {
     /**
+     * @param EntityRepository<ProductSortingCollection> $sortingRepository
+     *
      * @internal
      */
     public function __construct(
@@ -41,7 +41,7 @@ class SortingListingProcessor extends AbstractListingProcessor
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         if (!$request->get('order')) {
-            $key = $request->query->has('search') ? 'core.listing.defaultSearchResultSorting' : 'core.listing.defaultSorting';
+            $key = $request->get('search') ? 'core.listing.defaultSearchResultSorting' : 'core.listing.defaultSorting';
             $request->request->set('order', $this->getDefaultSortingKey($key, $context));
         }
 
@@ -52,8 +52,13 @@ class SortingListingProcessor extends AbstractListingProcessor
         $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
         if ($currentSorting !== null) {
+            $fallbackSorting = null;
+            if ($this->hasQueriesOrTerm($criteria)) {
+                $fallbackSorting = new FieldSorting('_score', FieldSorting::DESCENDING);
+            }
+
             $criteria->addSorting(
-                ...$currentSorting->createDalSorting()
+                ...$currentSorting->createDalSorting($fallbackSorting)
             );
         }
 
@@ -71,6 +76,11 @@ class SortingListingProcessor extends AbstractListingProcessor
         }
 
         $result->setAvailableSortings($sortings);
+    }
+
+    private function hasQueriesOrTerm(Criteria $criteria): bool
+    {
+        return !empty($criteria->getQueries()) || $criteria->getTerm();
     }
 
     private function getCurrentSorting(ProductSortingCollection $sortings, Request $request, string $salesChannelId): ?ProductSortingEntity
@@ -96,7 +106,6 @@ class SortingListingProcessor extends AbstractListingProcessor
         /** @var string[] $availableSortings */
         $availableSortings = $request->get('availableSortings');
         $availableSortingsById = [];
-        $availableSortingsByName = [];
 
         if ($availableSortings) {
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
@@ -106,19 +115,6 @@ class SortingListingProcessor extends AbstractListingProcessor
 
             $filter = new EqualsAnyFilter('id', $availableSortingsById);
 
-            $availableSortingsByName = array_filter($availableSortingsFilter, fn ($filter) => !Uuid::isValid($filter));
-            if (!Feature::isActive('v6.7.0.0') && $availableSortingsByName) {
-                Feature::triggerDeprecationOrThrow(
-                    'v6.7.0.0',
-                    'The sorting key in the product listing CMS element configuration has been replaced with the sorting ID. Please use the sorting ID instead.',
-                );
-
-                $filter = new OrFilter([
-                    $filter,
-                    new EqualsAnyFilter('key', $availableSortingsByName),
-                ]);
-            }
-
             $criteria->addFilter($filter);
         }
 
@@ -126,14 +122,10 @@ class SortingListingProcessor extends AbstractListingProcessor
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('priority', 'DESC'));
 
-        /** @var ProductSortingCollection $sortings */
         $sortings = $this->sortingRepository->search($criteria, $context)->getEntities();
 
         if ($availableSortingsById) {
             $sortings->sortByIdArray($availableSortingsById);
-        }
-        if ($availableSortingsByName && !Feature::isActive('v6.7.0.0')) {
-            $sortings->sortByKeyArray($availableSortingsByName);
         }
 
         return $sortings;

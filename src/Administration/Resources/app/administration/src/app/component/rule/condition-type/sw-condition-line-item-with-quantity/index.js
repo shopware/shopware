@@ -13,7 +13,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-line-item-with-quantity :condition="condition" :level="0"></sw-condition-line-item-with-quantity>
  */
-Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -68,4 +69,4 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line
             return this.conditionValueOperatorError || this.conditionValueQuantityError || this.conditionValueIdError;
         },
     },
-});
+};

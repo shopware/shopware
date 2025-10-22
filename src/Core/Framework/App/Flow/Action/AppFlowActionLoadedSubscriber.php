@@ -20,12 +20,12 @@ class AppFlowActionLoadedSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<AppFlowActionEntity> $event
+     */
     public function unserialize(EntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $appFlowAction) {
-            if (!$appFlowAction instanceof AppFlowActionEntity) {
-                continue;
-            }
             $iconRaw = $appFlowAction->getIconRaw();
 
             if ($iconRaw !== null) {

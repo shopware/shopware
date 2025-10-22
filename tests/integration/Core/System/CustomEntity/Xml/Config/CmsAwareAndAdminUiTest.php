@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class CmsAwareAndAdminUiTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -106,7 +105,7 @@ class CmsAwareAndAdminUiTest extends TestCase
 
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals(self::APP_NAME, $appEntity->getName());
+        static::assertSame(self::APP_NAME, $appEntity->getName());
 
         return $appEntity;
     }
@@ -252,7 +251,7 @@ class CmsAwareAndAdminUiTest extends TestCase
         static::assertCount(2, $cmsAwareAndAdminUiSettings);
 
         static::assertIsString($flagsJson = file_get_contents(__DIR__ . '/_fixtures/other/flags.json'));
-        static::assertEquals(
+        static::assertSame(
             $this->jsonDecode($flagsJson),
             $this->jsonDecode($cmsAwareAndAdminUiSettings['flags'])
         );
@@ -263,7 +262,7 @@ class CmsAwareAndAdminUiTest extends TestCase
      */
     private function assertCmsAwareAndAdminUiIsUninstalled(): void
     {
-        static::assertEquals(
+        static::assertSame(
             0,
             $this->connection->executeQuery(
                 'SELECT COUNT(*) FROM custom_entity'

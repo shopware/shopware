@@ -3,6 +3,10 @@
 namespace Shopware\Core\Content\Cms\Command;
 
 use Faker\Factory;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\CmsPageCollection;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,6 +37,12 @@ class CreatePageCommand extends Command
      */
     private array $media;
 
+    /**
+     * @param EntityRepository<CmsPageCollection> $cmsPageRepository
+     * @param EntityRepository<ProductCollection> $productRepository
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     */
     public function __construct(
         private readonly EntityRepository $cmsPageRepository,
         private readonly EntityRepository $productRepository,

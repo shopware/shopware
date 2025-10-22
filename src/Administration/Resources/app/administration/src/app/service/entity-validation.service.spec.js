@@ -178,4 +178,28 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(customValidator.mock.calls[0][2]).toBe(Shopware.EntityDefinition.get(testEntity.getEntityName())); // entity definition
         expect(customValidator.mock.results[0].value).toEqual(expectedErrors); // should return the errors
     });
+
+    it('should validate a complete product with ignore fields and report no errors', () => {
+        const service = createService();
+        service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
+        const testEntity = entityFactory.create('product');
+        testEntity.name = null;
+        testEntity.stock = 5;
+        testEntity.productNumber = 'MyProductNumber';
+        testEntity.taxId = 'some-tax-uuid';
+        testEntity.price = [
+            {
+                gross: 10,
+                net: 10,
+            },
+        ];
+
+        const ignoreFields = ['name'];
+
+        const isValid = service.validate(testEntity, undefined, ignoreFields);
+        expect(isValid).toBe(true);
+
+        expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
+        expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([]);
+    });
 });

@@ -1,7 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { satisfies } from 'compare-versions';
 
-test('Customers can add or remove products from their wishlist.',{ tag: '@Wishlist' }, async ({ 
+test('Customers can add or remove products from their wishlist.', { tag: ['@Wishlist', '@Storefront'] }, async ({
     TestDataService,
     ShopCustomer,
     StorefrontHome,
@@ -11,13 +10,11 @@ test('Customers can add or remove products from their wishlist.',{ tag: '@Wishli
     StorefrontWishlist,
     AddProductToCartFromWishlist,
     StorefrontOffCanvasCart,
-    InstanceMeta,
+    HomeProducts,
 }) => {
     await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
 
-    const product1 = await TestDataService.createBasicProduct();
-    const product2 = await TestDataService.createBasicProduct();
-    const product3 = await TestDataService.createBasicProduct();
+    const [product1, product2, product3] = HomeProducts;
 
     const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
     const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);
@@ -55,16 +52,12 @@ test('Customers can add or remove products from their wishlist.',{ tag: '@Wishli
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).toContainText('1');
     });
 
-    // TO-DO: This step is skipped, please check the details from ticket : https://shopware.atlassian.net/browse/NEXT-40639
-    // eslint-disable-next-line playwright/no-conditional-in-test
-    if (satisfies(InstanceMeta.version, '<6.7')) {
-        await test.step('Add product to cart from wishlist and verify it is added and wishlist icon is visible on offcanvas', async () => {       
-            await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
-            const offCanvasSubtotal = await StorefrontOffCanvasCart.subTotalPrice.innerText();
-            const expectedPrice = await product1Locators.productPrice.innerText();
-            ShopCustomer.expects(offCanvasSubtotal).toBe(expectedPrice);
-            const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);
-            await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible();      
+    await test.step('Add product to cart from wishlist and verify it is added and wishlist icon is visible on offcanvas', async () => {
+        await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
+        const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);
+        const expectedPrice = await product1Locators.productPrice.innerText();
+        const itemPrice = await offcanvasItem.productTotalPriceValue.innerText();
+        await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible();
+        await ShopCustomer.expects(itemPrice).toBe(expectedPrice);
     });
-    }
 });

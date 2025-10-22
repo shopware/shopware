@@ -60,9 +60,13 @@ export default {
                 return '';
             }
 
-            return this.$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', this.currentSelection.length, {
-                code: this.currentSelection[0].code || '',
-            });
+            return this.$tc(
+                'sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm',
+                {
+                    code: this.currentSelection[0].code || '',
+                },
+                this.currentSelection.length,
+            );
         },
 
         codeColumns() {
@@ -90,6 +94,9 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },

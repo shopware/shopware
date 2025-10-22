@@ -58,7 +58,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         defaultThemeAsset(): string {
-            return Shopware.Filter.getByName('asset')('administration/static/img/theme/default_theme_preview.jpg');
+            return Shopware.Filter.getByName('asset')(
+                'administration/administration/static/img/theme/default_theme_preview.jpg',
+            );
         },
 
         image(): string {

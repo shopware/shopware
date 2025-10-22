@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -22,7 +21,6 @@ class AppActionTest extends TestCase
 {
     public function testAsPayload(): void
     {
-        $targetUrl = 'https://my-server.com/action';
         $shopUrl = 'https://my-shop.com';
         $appVersion = '1.0.0';
         $entity = 'product';
@@ -32,10 +30,11 @@ class AppActionTest extends TestCase
         $app = new AppEntity();
         $app->setAppSecret('s3cr3t');
         $app->setName('TestApp');
+
         $result = new AppAction(
             $app,
             new Source($shopUrl, $shopId, $appVersion),
-            $targetUrl,
+            'https://my-server.com/action',
             $entity,
             $action,
             $ids,
@@ -45,8 +44,8 @@ class AppActionTest extends TestCase
         $expected = [
             'source' => [
                 'url' => $shopUrl,
-                'appVersion' => $appVersion,
                 'shopId' => $shopId,
+                'appVersion' => $appVersion,
                 'inAppPurchases' => null,
             ],
             'data' => [
@@ -56,48 +55,43 @@ class AppActionTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $result->asPayload());
+        static::assertSame($expected, $result->asPayload());
     }
 
     public function testInvalidTargetUrl(): void
     {
-        static::expectException(InvalidArgumentException::class);
         $targetUrl = 'https://my-server:.com/action';
-        $shopUrl = 'https://my-shop.com';
-        $appVersion = '1.0.0';
-        $entity = 'product';
-        $action = 'detail';
-        $shopId = Random::getAlphanumericString(12);
-        $ids = [Uuid::randomHex()];
+        $this->expectExceptionObject(AppException::invalidArgument($targetUrl . ' is not a valid url'));
+
         new AppAction(
             new AppEntity(),
-            new Source($shopUrl, $shopId, $appVersion),
-            $targetUrl,
-            $entity,
-            $action,
-            $ids,
-            Uuid::randomHex()
+            new Source(
+                url: 'https://my-shop.com',
+                shopId: Random::getAlphanumericString(12),
+                appVersion: '1.0.0'
+            ),
+            targetUrl: $targetUrl,
+            entity: 'product',
+            action: 'detail',
+            ids: [Uuid::randomHex()],
+            actionId: Uuid::randomHex()
         );
     }
 
     public function testRelativeTargetUrlIsValid(): void
     {
-        $targetUrl = '/api/script/custom-script';
-        $shopUrl = 'https://my-shop.com';
-        $appVersion = '1.0.0';
-        $entity = 'product';
-        $action = 'detail';
-        $shopId = Random::getAlphanumericString(12);
-        $ids = [Uuid::randomHex()];
-
         $action = new AppAction(
-            new AppEntity(),
-            new Source($shopUrl, $shopId, $appVersion),
-            $targetUrl,
-            $entity,
-            $action,
-            $ids,
-            Uuid::randomHex()
+            app: new AppEntity(),
+            source: new Source(
+                url: 'https://my-shop.com',
+                shopId: Random::getAlphanumericString(12),
+                appVersion: '1.0.0'
+            ),
+            targetUrl: '/api/script/custom-script',
+            entity: 'product',
+            action: 'detail',
+            ids: [Uuid::randomHex()],
+            actionId: Uuid::randomHex()
         );
 
         static::assertSame('/api/script/custom-script', $action->getTargetUrl());
@@ -105,87 +99,80 @@ class AppActionTest extends TestCase
 
     public function testEmptyEntity(): void
     {
-        static::expectException(AppException::class);
-        $targetUrl = 'https://my-server.com/action';
-        $shopUrl = 'https://my-shop.com';
-        $appVersion = '1.0.0';
-        $entity = '';
-        $action = 'detail';
-        $shopId = Random::getAlphanumericString(12);
-        $ids = [Uuid::randomHex()];
+        $this->expectExceptionObject(AppException::missingRequestParameter('entity'));
+
         new AppAction(
-            new AppEntity(),
-            new Source($shopUrl, $shopId, $appVersion),
-            $targetUrl,
-            $entity,
-            $action,
-            $ids,
-            Uuid::randomHex()
+            app: new AppEntity(),
+            source: new Source(
+                url: 'https://my-shop.com',
+                shopId: Random::getAlphanumericString(12),
+                appVersion: '1.0.0'
+            ),
+            targetUrl: 'https://my-server.com/action',
+            entity: '',
+            action: 'detail',
+            ids: [Uuid::randomHex()],
+            actionId: Uuid::randomHex()
         );
     }
 
     public function testEmptyAction(): void
     {
-        static::expectException(AppException::class);
-        $targetUrl = 'https://my-server.com/action';
-        $shopUrl = 'https://my-shop.com';
-        $appVersion = '1.0.0';
-        $entity = 'product';
-        $action = '';
-        $shopId = Random::getAlphanumericString(12);
-        $ids = [Uuid::randomHex()];
+        $this->expectExceptionObject(AppException::missingRequestParameter('action'));
+
         new AppAction(
-            new AppEntity(),
-            new Source($shopUrl, $shopId, $appVersion),
-            $targetUrl,
-            $entity,
-            $action,
-            $ids,
-            Uuid::randomHex()
+            app: new AppEntity(),
+            source: new Source(
+                url: 'https://my-shop.com',
+                shopId: Random::getAlphanumericString(12),
+                appVersion: '1.0.0'
+            ),
+            targetUrl: 'https://my-server.com/action',
+            entity: 'product',
+            action: '',
+            ids: [Uuid::randomHex()],
+            actionId: Uuid::randomHex()
         );
     }
 
     public function testInvalidId(): void
     {
-        static::expectException(InvalidArgumentException::class);
-        $targetUrl = 'https://my-server.com/action';
-        $shopUrl = 'https://my-shop.com';
-        $appVersion = '1.0.0';
-        $entity = 'product';
-        $action = 'detail';
-        $shopId = Random::getAlphanumericString(12);
-        $ids = [Uuid::randomHex(), 'test'];
+        $this->expectExceptionObject(AppException::invalidArgument('test is not a valid uuid'));
+
         new AppAction(
-            new AppEntity(),
-            new Source($shopUrl, $shopId, $appVersion),
-            $targetUrl,
-            $entity,
-            $action,
-            $ids,
-            Uuid::randomHex()
+            app: new AppEntity(),
+            source: new Source(
+                url: 'https://my-shop.com',
+                shopId: Random::getAlphanumericString(12),
+                appVersion: '1.0.0'
+            ),
+            targetUrl: 'https://my-server.com/action',
+            entity: 'product',
+            action: 'detail',
+            ids: [Uuid::randomHex(), 'test'],
+            actionId: Uuid::randomHex()
         );
     }
 
     public function testInvalidAppSecret(): void
     {
-        static::expectException(AppException::class);
-        $targetUrl = 'https://my-server.com/action';
-        $shopUrl = 'https://my-shop.com';
-        $appVersion = '1.0.0';
-        $entity = 'product';
-        $action = 'detail';
-        $shopId = Random::getAlphanumericString(12);
-        $ids = [Uuid::randomHex()];
+        $this->expectExceptionObject(AppException::missingRequestParameter('app secret'));
+
         $app = new AppEntity();
         $app->setAppSecret('');
+
         new AppAction(
-            $app,
-            new Source($shopUrl, $shopId, $appVersion),
-            $targetUrl,
-            $entity,
-            $action,
-            $ids,
-            Uuid::randomHex()
+            app: $app,
+            source: new Source(
+                url: 'https://my-shop.com',
+                shopId: Random::getAlphanumericString(12),
+                appVersion: '1.0.0'
+            ),
+            targetUrl: 'https://my-server.com/action',
+            entity: 'product',
+            action: 'detail',
+            ids: [Uuid::randomHex()],
+            actionId: Uuid::randomHex()
         );
     }
 }

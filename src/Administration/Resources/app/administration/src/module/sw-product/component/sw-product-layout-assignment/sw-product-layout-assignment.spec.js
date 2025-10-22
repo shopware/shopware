@@ -9,7 +9,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-cms-list-item': true,
-                'sw-icon': true,
             },
         },
     });

@@ -259,7 +259,7 @@ class PluginLifecycleService
         if ($pluginBaseClass->executeComposerCommands()) {
             $this->executeComposerRequireWhenNeeded($plugin, $pluginBaseClass, $updateContext->getUpdatePluginVersion(), $shopwareContext);
         } else {
-            if ($plugin->getManagedByComposer()) {
+            if ($plugin->getManagedByComposer() && $plugin->isLocatedInCustomDirectory()) {
                 // If the plugin was previously managed by composer, but should no longer due to the update, we need to remove the composer dependency
                 $this->executeComposerRemoveCommand($plugin, $shopwareContext);
             }
@@ -291,7 +291,7 @@ class PluginLifecycleService
         }
 
         if ($plugin->getActive() && !$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+            $this->assetInstaller->copyAssets($pluginBaseClass);
         }
 
         $this->runMigrations($updateContext);
@@ -368,7 +368,7 @@ class PluginLifecycleService
         $this->runMigrations($activateContext);
 
         if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+            $this->assetInstaller->copyAssets($pluginBaseClass);
         }
 
         $this->updatePluginData(

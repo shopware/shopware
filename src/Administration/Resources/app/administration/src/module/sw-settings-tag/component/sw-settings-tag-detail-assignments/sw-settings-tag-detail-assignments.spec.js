@@ -146,18 +146,20 @@ async function createWrapper() {
                             searchIds: jest.fn(() => Promise.resolve()),
                         }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
-                    'sw-card': true,
                     'sw-card-section': true,
-                    'sw-switch-field': true,
+
                     'sw-container': true,
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
                     'sw-tabs-deprecated': true,
                     'sw-card-filter': true,
-                    'sw-icon': true,
                     'sw-data-grid': true,
                     'sw-checkbox-field': true,
                     'sw-inheritance-switch': true,
@@ -174,13 +176,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should fetch all and assigned entities', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

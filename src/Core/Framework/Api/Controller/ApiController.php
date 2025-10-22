@@ -39,7 +39,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,7 +54,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 /**
  * @phpstan-type EntityPathSegment array{entity: string, value: ?string, definition: EntityDefinition, field: ?Field}
  */
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class ApiController extends AbstractController
 {
@@ -272,6 +274,7 @@ class ApiController extends AbstractController
 
         $aggregations = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): AggregationResultCollection => $repository->aggregate($criteria, $context));
 
+        /** @var EntitySearchResult<covariant EntityCollection<covariant Entity>> */
         $result = new EntitySearchResult($entityName, 0, new EntityCollection(), $aggregations, $criteria, $context);
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $context);
@@ -422,7 +425,7 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @return array{0: Criteria, 1: EntityRepository}
+     * @return array{0: Criteria, 1: EntityRepository<covariant EntityCollection<covariant Entity>>}
      */
     private function resolveSearch(Request $request, Context $context, string $entityName, string $path): array
     {

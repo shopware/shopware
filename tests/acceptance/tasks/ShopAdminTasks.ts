@@ -31,6 +31,12 @@ import { CreateLandingPage } from '@tasks/ShopAdmin/Category/CreateLandingPage';
 import { CustomerGroupActivation } from '@tasks/ShopAdmin/Customers/CustomerGroupActivation';
 
 /**
+ * Orders
+ */
+import { AddCreditItem } from '@tasks/ShopAdmin/Orders/AddCreditItemViaAPI';
+import { CreateInvoice } from '@tasks/ShopAdmin/Orders/CreateInvoiceViaAPI';
+
+/**
  * Rules
  */
 import { CreateRule } from '@tasks/ShopAdmin/RuleBuilder/CreateRule';
@@ -42,5 +48,7 @@ export const test = mergeTests(
     CreateCustomField,
     CreateLandingPage,
     CustomerGroupActivation,
+    AddCreditItem,
+    CreateInvoice,
     CreateRule,
 );

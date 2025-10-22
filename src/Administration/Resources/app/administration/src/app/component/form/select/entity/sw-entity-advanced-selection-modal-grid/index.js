@@ -1,13 +1,11 @@
 import template from './sw-entity-advanced-selection-modal-grid.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package framework
  * @status prototype
  */
-Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing', {
+export default {
     template,
 
     props: {
@@ -116,4 +114,4 @@ Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing',
             return callbackResult.tooltip;
         },
     },
-});
+};

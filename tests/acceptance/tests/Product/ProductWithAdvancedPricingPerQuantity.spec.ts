@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test('Customer gets a special product price depending on the amount of products bought.', {
-    tag: ['@Product', '@Checkout'],
+    tag: ['@Product', '@Checkout', '@Storefront'],
 }, async ({
     ShopCustomer,
     TestDataService,
@@ -49,14 +49,19 @@ test('Customer gets a special product price depending on the amount of products 
     });
 
     await test.step('Testing product listing contains cheapest price @product', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url());
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            await ShopCustomer.expects(StorefrontHome.productListItems
+                .filter({ hasText: product.name })
+                .locator('.product-price-wrapper')
+            ).toContainText('From €70.00');
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
+
         await ShopCustomer.expects(StorefrontHome.productListItems
             .filter({ hasText: product.name })
-            .locator('.product-price-wrapper')
-        ).toContainText('From €70.00');
-        await ShopCustomer.expects(StorefrontHome.productListItems
-            .filter({ hasText: product.name })
-            .getByTitle('Details')
+            .getByText('Details')
         ).toBeVisible();
     });
 });

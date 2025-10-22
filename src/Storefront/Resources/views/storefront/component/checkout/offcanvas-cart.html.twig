@@ -23,7 +23,9 @@
                 <div class="row align-items-center offcanvas-cart-header">
 
                     <div class="col">
-                        <h4>{{- 'checkout.cartHeader'|trans|sw_sanitize -}}</h4>
+                        <h4 data-id="off-canvas-headline">
+                            {{- 'checkout.cartHeader'|trans|sw_sanitize -}}
+                        </h4>
                     </div>
 
                     {% set checkoutItemCounter = page.cart.lineItems|length %}

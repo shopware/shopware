@@ -28,8 +28,6 @@ class CustomEntitySchemaUpdater
 
     public function update(): void
     {
-        $this->connection->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-
         $this->lock(function (): void {
             /** @var list<array{name: string, fields: string}> $tables */
             $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
@@ -100,7 +98,7 @@ class CustomEntitySchemaUpdater
 
             foreach ($table->getForeignKeys() as $foreignKey) {
                 if (\str_starts_with($foreignKey->getName(), 'fk_ce_')) {
-                    $table->removeForeignKey($foreignKey->getName());
+                    $table->dropForeignKey($foreignKey->getName());
                 }
             }
 

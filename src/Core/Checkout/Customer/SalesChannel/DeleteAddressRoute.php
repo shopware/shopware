@@ -8,11 +8,13 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class DeleteAddressRoute extends AbstractDeleteAddressRoute
 {
@@ -49,17 +51,19 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
             throw CustomerException::cannotDeleteDefaultAddress($addressId);
         }
 
-        $activeBillingAddress = $customer->getActiveBillingAddress();
-        $activeShippingAddress = $customer->getActiveShippingAddress();
+        $this->addressRepository->delete([['id' => $addressId]], $context->getContext());
 
-        if (
-            ($activeBillingAddress && $addressId === $activeBillingAddress->getId())
-            || ($activeShippingAddress && $addressId === $activeShippingAddress->getId())
-        ) {
-            throw CustomerException::cannotDeleteActiveAddress($addressId);
+        if ($addressId === $customer->getActiveBillingAddress()?->getId()) {
+            /** @deprecated tag:v6.8.0 - Use setter instead */
+            $customer->assign(['activeBillingAddress' => $customer->getDefaultBillingAddress()]);
+            // $customer->setActiveBillingAddress($customer->getDefaultBillingAddress());
         }
 
-        $this->addressRepository->delete([['id' => $addressId]], $context->getContext());
+        if ($addressId === $customer->getActiveShippingAddress()?->getId()) {
+            /** @deprecated tag:v6.8.0 - Use setter instead */
+            $customer->assign(['activeShippingAddress' => $customer->getDefaultShippingAddress()]);
+            // $customer->setActiveShippingAddress($customer->getDefaultShippingAddress());
+        }
 
         return new NoContentResponse();
     }

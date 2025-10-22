@@ -105,7 +105,7 @@ class CheckoutConfirmPageLoader
     ): void {
         $validation = $this->addressValidationFactory->create($context);
         if ($billingAddress) {
-            $validation->set('zipcode', new CustomerZipCode(['countryId' => $billingAddress->getCountryId()]));
+            $validation->set('zipcode', new CustomerZipCode(countryId: $billingAddress->getCountryId()));
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
@@ -130,7 +130,7 @@ class CheckoutConfirmPageLoader
     ): void {
         $validation = $this->addressValidationFactory->create($context);
         if ($shippingAddress) {
-            $validation->set('zipcode', new CustomerZipCode(['countryId' => $shippingAddress->getCountryId()]));
+            $validation->set('zipcode', new CustomerZipCode(countryId: $shippingAddress->getCountryId()));
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());

@@ -1,5 +1,6 @@
+{# @deprecated tag:v6.8.0 - File will be removed. No longer used. #}
 {% block sw_order_detail_base_order_overview %}
-<sw-card
+<mt-card
     class="sw-order-user-card"
     position-identifier="sw-order-user-card"
     :title="$tc('sw-order.detailBase.cardTitleDetails')"
@@ -119,11 +120,12 @@
                         {% block sw_order_detail_base_order_overview_billing_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-if="isEditing"
                                 class="sw-order-user-card__address-edit-button"
                                 size="small"
+                                variant="secondary"
+                                data-analytics-id="sw-order-user-card.edit-billing-address"
                                 @click="onEditBillingAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
@@ -181,11 +183,12 @@
                         {% block sw_order_detail_base_order_overview_shipping_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-show="hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-edit-button"
                                 size="small"
+                                variant="secondary"
+                                data-analytics-id="sw-order-user-card.edit-delivery-address"
                                 @click="onEditDeliveryAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
@@ -196,12 +199,13 @@
                             <span>
                                 {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
                             </span>
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-show="!hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-add-button"
                                 size="small"
                                 block
+                                variant="secondary"
+                                data-analytics-id="sw-order-user-card.add-new-delivery-address"
                                 @click="onAddNewDeliveryAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
@@ -344,7 +348,6 @@
                             </dt>
                             <dd>
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_display_content %}
-                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                 <mt-button
                                     v-for="trackingCode in delivery.trackingCodes"
                                     :key="trackingCode"
@@ -352,6 +355,7 @@
                                     size="x-small"
                                     :link="renderTrackingUrl(trackingCode, delivery.shippingMethod)"
                                     :disabled="!renderTrackingUrl(trackingCode, delivery.shippingMethod)"
+                                    variant="secondary"
                                 >{{ trackingCode }}</mt-button>
                                 {% endblock %}
                             </dd>
@@ -396,6 +400,6 @@
 
         </sw-container>
     </template>
-</sw-card>
+</mt-card>
 
 {% endblock %}

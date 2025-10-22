@@ -69,9 +69,8 @@ async function createWrapper() {
                     },
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'sw-entity-single-select': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-bulk-edit-modal': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
@@ -95,15 +94,6 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = ['product_search_config.viewer'];
-
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render empty state when isEmpty variable is true', async () => {

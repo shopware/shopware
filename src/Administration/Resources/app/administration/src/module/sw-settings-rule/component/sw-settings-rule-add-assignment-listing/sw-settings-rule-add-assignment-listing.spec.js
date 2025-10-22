@@ -75,8 +75,6 @@ async function createWrapper(props = defaultProps) {
             props,
             global: {
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -89,7 +87,6 @@ async function createWrapper(props = defaultProps) {
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-product-variant-info': true,
-                    'sw-icon': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,

@@ -18,7 +18,7 @@ trait AssertValuesTrait
             if (\is_array($value)) {
                 $this->assertValues($value, $actual[$key]);
             } else {
-                TestCase::assertEquals($value, $actual[$key]);
+                TestCase::assertSame($value, $actual[$key]);
             }
         }
     }

@@ -26,7 +26,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Group('cache')]
 class HttpCacheIntegrationTest extends TestCase
 {
@@ -95,7 +94,6 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertIsString($appUrl);
 
         $request = $this->createRequest($appUrl);
-        $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'a');
 
         $response = $kernel->handle($request);
         $this->assertCacheHeader('GET /: miss, store', $response);

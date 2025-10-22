@@ -113,7 +113,7 @@ class UpdatedByFieldTest extends TestCase
         )->getEntities()->first();
 
         static::assertNotNull($result);
-        static::assertEquals($userId, $result->getUpdatedById());
+        static::assertSame($userId, $result->getUpdatedById());
     }
 
     private function getAdminContext(string $userId): Context

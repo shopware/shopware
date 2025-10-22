@@ -17,7 +17,9 @@ responses.addResponse({
                     id: 'sales-channel-domain-id',
                     salesChannelId: 'sales-channel-id',
                     salesChannel: {
-                        name: 'Test sales channel',
+                        translated: {
+                            name: 'Test sales channel',
+                        },
                     },
                     url: 'http://localhost:8000',
                 },
@@ -40,9 +42,9 @@ async function createWrapper() {
                     }),
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'i18n-t': true,
-
-                    'sw-icon': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
                     'sw-loader': true,
                     'router-link': true,
                 },
@@ -72,11 +74,6 @@ async function createWrapper() {
 
 describe('module/sw-customer-imitate-customer-modal', () => {
     let wrapper;
-
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should fetch all sales channel domains', async () => {
         wrapper = await createWrapper();

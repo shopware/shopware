@@ -186,12 +186,10 @@ async function createWrapper() {
                         sync: true,
                     }),
                     'sw-product-variants-configurator-selection': true,
-                    'sw-icon': true,
-                    'sw-progress-bar': true,
-
+                    'mt-progress-bar': true,
                     'sw-upload-listener': true,
                     'sw-media-compact-upload-v2': true,
-                    'sw-switch-field': true,
+
                     'sw-data-grid': true,
                     'sw-card-filter': true,
                     'sw-pagination': true,
@@ -211,6 +209,9 @@ async function createWrapper() {
                         },
                         buildSearchQueriesForEntity: () => {
                             return null;
+                        },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
                         },
                     },
                     mediaService: {
@@ -242,12 +243,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 },
             };
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should remove file for all variants', async () => {

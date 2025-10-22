@@ -71,7 +71,7 @@ class NavigationPageTest extends TestCase
 
         $seoUrl = $seoUrlHandler->replace($canonical, $request->getHost(), $context);
 
-        static::assertEquals('/', $seoUrl);
+        static::assertSame('/', $seoUrl);
     }
 
     protected function getPageLoader(): NavigationPageLoader

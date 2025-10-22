@@ -1,0 +1,413 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/theme/{themeId}": {
+            "patch": {
+                "tags": ["Theme"],
+                "summary": "Update theme configuration",
+                "description": "Updates the configuration of a theme. The theme configuration is a collection of fields that are provided as variables in the theme's SCSS files and the templates.",
+                "operationId": "updateThemeConfiguration",
+                "parameters": [
+                    {
+                        "name": "themeId",
+                        "description": "The ID of the theme to update",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "parentThemeId",
+                        "description": "The ID of the parent theme to inherit the configuration from.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "reset",
+                        "description": "If true, the theme configuration will be reset to the default values from the theme.json file.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "validate",
+                        "description": "If true, the theme configuration will be validated before being updated.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sanitize",
+                        "description": "If true, the theme configuration will be sanitized during validation. before being updated. Only applies if validate is true.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Theme updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/theme/{themeId}/configuration": {
+            "get": {
+                "tags": ["Theme"],
+                "summary": "Get theme configuration",
+                "description": "Returns the theme configuration including fields, blocks, and current values",
+                "operationId": "getThemeConfiguration",
+                "parameters": [
+                    {
+                        "name": "themeId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Theme merged configuration",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "fields": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "deprecated": true,
+                                                        "description": "This field is deprecated and will be removed in v6.8.0.0"
+                                                    },
+                                                    "helpText": {
+                                                        "type": ["string", "null"],
+                                                        "deprecated": true,
+                                                        "description": "This field is deprecated and will be removed in v6.8.0.0"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "value": {
+                                                        "type": ["string", "null"]
+                                                    },
+                                                    "editable": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "block": {
+                                                        "type": ["string", "null"]
+                                                    },
+                                                    "section": {
+                                                        "type": ["string", "null"]
+                                                    },
+                                                    "tab": {
+                                                        "type": ["string", "null"]
+                                                    },
+                                                    "order": {
+                                                        "type": ["integer", "null"]
+                                                    },
+                                                    "sectionOrder": {
+                                                        "type": ["integer", "null"]
+                                                    },
+                                                    "blockOrder": {
+                                                        "type": ["integer", "null"]
+                                                    },
+                                                    "tabOrder": {
+                                                        "type": ["integer", "null"]
+                                                    },
+                                                    "custom": {
+                                                        "type": ["object", "null"],
+                                                        "additionalProperties": true
+                                                    },
+                                                    "scss": {
+                                                        "type": ["string", "null"]
+                                                    },
+                                                    "fullWidth": {
+                                                        "type": ["boolean", "null"]
+                                                    }
+                                                },
+                                                "required": ["name", "label", "type", "value", "editable"]
+                                            }
+                                        },
+                                        "blocks": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "label": {
+                                                        "type": "object",
+                                                        "deprecated": true,
+                                                        "description": "This field is deprecated and will be removed in v6.8.0.0",
+                                                        "additionalProperties": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "required": ["label"]
+                                            }
+                                        },
+                                        "configInheritance": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "themeTechnicalName": {
+                                            "type": "string"
+                                        },
+                                        "currentFields": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "isInherited": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "value": {
+                                                        "type": ["string", "null"]
+                                                    }
+                                                },
+                                                "required": ["isInherited", "value"]
+                                            }
+                                        },
+                                        "baseThemeFields": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "isInherited": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "value": {
+                                                        "type": ["string", "null"]
+                                                    }
+                                                },
+                                                "required": ["isInherited", "value"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["fields", "blocks", "themeTechnicalName", "currentFields", "baseThemeFields"]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/theme/{themeId}/assign/{salesChannelId}": {
+            "post": {
+                "tags": ["Theme"],
+                "summary": "Assign theme to sales channel",
+                "description": "Assigns a theme to a specific sales channel",
+                "operationId": "assignTheme",
+                "parameters": [
+                    {
+                        "name": "themeId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "salesChannelId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Theme assigned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/theme/{themeId}/reset": {
+            "patch": {
+                "tags": ["Theme"],
+                "summary": "Reset theme configuration",
+                "description": "Resets the theme configuration to its default values",
+                "operationId": "resetTheme",
+                "parameters": [
+                    {
+                        "name": "themeId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Theme reset successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/theme/{themeId}/structured-fields": {
+            "get": {
+                "tags": ["Theme"],
+                "summary": "Get theme configuration fields in structured format",
+                "description": "Returns the theme configuration fields in a structured format with tabs, blocks, sections and fields",
+                "operationId": "getThemeConfigurationStructuredFields",
+                "parameters": [
+                    {
+                        "name": "themeId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Structured theme configuration",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tabs": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "labelSnippetKey": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "deprecated": true,
+                                                        "description": "This field is deprecated and will be removed in v6.8.0.0"
+
+                                                    },
+                                                    "blocks": {
+                                                        "type": "object",
+                                                        "additionalProperties": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "labelSnippetKey": {
+                                                                    "type": "string"
+                                                                },
+                                                                "label": {
+                                                                    "type": "string",
+                                                                    "deprecated": true,
+                                                                    "description": "This field is deprecated and will be removed in v6.8.0.0"
+                                                                },
+                                                                "sections": {
+                                                                    "type": "object",
+                                                                    "additionalProperties": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "labelSnippetKey": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "label": {
+                                                                                "type": "string",
+                                                                                "deprecated": true,
+                                                                                "description": "This field is deprecated and will be removed in v6.8.0.0"
+                                                                            },
+                                                                            "fields": {
+                                                                                "type": "object",
+                                                                                "additionalProperties": {
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "labelSnippetKey": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "helpTextSnippetKey": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "type": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "custom": {
+                                                                                            "type": ["object", "null"],
+                                                                                            "additionalProperties": true
+                                                                                        },
+                                                                                        "fullWidth": {
+                                                                                            "type": ["boolean", "null"]
+                                                                                        },
+                                                                                        "label": {
+                                                                                            "type": "string",
+                                                                                            "deprecated": true,
+                                                                                            "description": "This field is deprecated and will be removed in v6.8.0.0"
+
+                                                                                        },
+                                                                                        "helpText": {
+                                                                                            "type": ["string", "null"],
+                                                                                            "deprecated": true,
+                                                                                            "description": "This field is deprecated and will be removed in v6.8.0.0"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": ["labelSnippetKey", "helpTextSnippetKey", "type", "label"]
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "required": ["labelSnippetKey", "label", "fields"]
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": ["labelSnippetKey", "label", "sections"]
+                                                        }
+                                                    }
+                                                },
+                                                "required": ["labelSnippetKey", "label", "blocks"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["tabs"]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

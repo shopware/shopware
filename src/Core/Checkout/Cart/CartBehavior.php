@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -9,6 +10,8 @@ use Shopware\Core\Framework\Struct\Struct;
 class CartBehavior extends Struct
 {
     /**
+     * @deprecated tag:v6.8.0 - $isRecalculation will be removed and is replaced by specific {@see CheckoutPermissions::*}
+     *
      * @param array<string, bool> $permissions
      */
     public function __construct(
@@ -33,9 +36,19 @@ class CartBehavior extends Struct
         return $this->hookAware;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see $this->hasPermission(CheckoutPermissions::*)}
+     */
     public function isRecalculation(): bool
     {
-        return $this->isRecalculation;
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(
+            self::class,
+            __METHOD__,
+            'v6.8.0.0',
+            self::class . '::hasPermission(CheckoutPermissions::*)',
+        ));
+
+        return !Feature::isActive('v6.8.0.0') && $this->isRecalculation;
     }
 
     /**

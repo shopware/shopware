@@ -10,7 +10,6 @@ async function createWrapper() {
             stubs: {
                 'sw-loader': true,
                 'sw-data-grid': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-checkbox-field': true,
             },
@@ -52,10 +51,6 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
         Shopware.Application.view.deleteReactive = () => {};
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get data source once component created', async () => {

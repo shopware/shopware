@@ -4,7 +4,8 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
-import { MtSwitch } from '@shopware-ag/meteor-component-library';
+import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
+import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 
 async function createWrapper(activeTab = 'content', sliderItems = []) {
     return mount(
@@ -57,11 +58,9 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     'sw-container': true,
                     'sw-field': true,
                     'sw-text-field': true,
-                    'sw-number-field': true,
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
                     'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -74,11 +73,11 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                         props: ['item'],
                     },
                     'sw-media-modal-v2': true,
-                    'sw-url-field': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'mt-switch': MtSwitch,
+                    'mt-url-field': MtUrlField,
                 },
             },
             props: {
@@ -128,6 +127,10 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                             source: 'static',
                             value: false,
                         },
+                        useFetchPriorityOnFirstItem: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -169,21 +172,14 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await import('src/module/sw-cms/elements/image-slider');
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should keep minHeight value when changing display mode', async () => {
         const wrapper = await createWrapper('settings');
-        const displayModeSelect = wrapper.find('.sw-cms-el-config-image-slider__setting-display-mode');
 
-        await displayModeSelect.setValue('cover');
+        await selectMtSelectOptionByText(wrapper, 'sw-cms.elements.general.config.label.displayModeCover');
 
         expect(wrapper.vm.element.config.minHeight.value).toBe('300px');
 
-        await displayModeSelect.setValue('standard');
+        await selectMtSelectOptionByText(wrapper, 'sw-cms.elements.general.config.label.displayModeStandard');
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('300px');
@@ -191,7 +187,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
 
     it('should change the isDecorative value', async () => {
         const wrapper = await createWrapper('settings');
-        const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image-slider__is-decorative input');
+        const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image-slider__settings-is-decorative input');
 
         await isDecorativeSwitch.setValue(true);
 
@@ -200,6 +196,21 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await isDecorativeSwitch.setValue(false);
 
         expect(wrapper.vm.element.config.isDecorative.value).toBe(false);
+    });
+
+    it('should change the useFetchPriorityOnFirstItem value', async () => {
+        const wrapper = await createWrapper('settings');
+        const useFetchPriorityOnFirstItemSwitch = wrapper.find(
+            '.sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item input',
+        );
+
+        await useFetchPriorityOnFirstItemSwitch.setValue(true);
+
+        expect(wrapper.vm.element.config.useFetchPriorityOnFirstItem.value).toBe(true);
+
+        await useFetchPriorityOnFirstItemSwitch.setValue(false);
+
+        expect(wrapper.vm.element.config.useFetchPriorityOnFirstItem.value).toBe(false);
     });
 
     /**

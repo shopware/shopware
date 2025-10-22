@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Newsletter\ScheduledTask;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -53,7 +54,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $taskHandler = $this->getTaskHandler();
         $taskHandler->run();
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<NewsletterRecipientCollection> */
         $repository = static::getContainer()->get('newsletter_recipient.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 

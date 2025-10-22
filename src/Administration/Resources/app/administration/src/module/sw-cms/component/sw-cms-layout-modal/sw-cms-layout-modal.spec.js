@@ -52,7 +52,11 @@ async function createWrapper() {
                             search: searchMock,
                         }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     systemConfigApiService: {
                         getValues: (query) => {
                             if (query !== 'core.cms') {
@@ -86,7 +90,6 @@ async function createWrapper() {
                 },
 
                 stubs: {
-                    'sw-icon': true,
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
@@ -117,6 +120,7 @@ async function createWrapper() {
                     'sw-help-text': true,
                     'sw-ai-copilot-badge': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
+                    'sw-time-ago': true,
                 },
             },
         },
@@ -293,7 +297,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
             const expected = productMocks[productIndex];
 
             const checkbox = wrapper
-                .findAll('.sw-cms-layout-modal__content-item .sw-field__checkbox input')
+                .findAll('.sw-cms-layout-modal__content-item .mt-field--checkbox__container input')
                 .at(productIndex);
 
             await checkbox.setChecked(true);

@@ -19,6 +19,6 @@ class InstallServicesTaskTest extends TestCase
         static::assertSame(86_400, InstallServicesTask::getDefaultInterval());
 
         static::assertTrue(InstallServicesTask::shouldRun(new ParameterBag()));
-        static::assertFalse(InstallServicesTask::shouldRescheduleOnFailure());
+        static::assertTrue(InstallServicesTask::shouldRescheduleOnFailure());
     }
 }

@@ -1,0 +1,65 @@
+{% block component_address_field_country %}
+    {% if initialCountryId is not defined %}
+        {% set initialCountryId = context.salesChannel.countryId %}
+    {% endif %}
+
+    {% if data.get('countryId') %}
+        {% set initialCountryId = data.get('countryId') %}
+    {% elseif page.countries|length == 1 and disableNonShippableCountries is not defined %}
+        {% set initialCountryId = (page.countries|first).id %}
+    {% endif %}
+
+    {% if formViolations.getViolations('/countryId') is not empty %}
+        {% set violationPath = '/countryId' %}
+    {% elseif formViolations.getViolations("/#{prefix}/countryId") is not empty %}
+        {% set violationPath = "/#{prefix}/countryId" %}
+    {% endif %}
+
+    {% set countryAutocomplete = 'country-name' %}
+
+    {% if prefix == 'shippingAddress' %}
+        {% set countryAutocomplete = 'shipping country-name' %}
+    {% elseif prefix == 'billingAddress' %}
+        {% set countryAutocomplete = 'billing country-name' %}
+    {% endif %}
+
+    {% set countryOptions %}
+        {% if not initialCountryId %}
+            <option value=""
+                    disabled="disabled"
+                    selected="selected">
+                {{ 'address.countryPlaceholder'|trans|sw_sanitize }}
+            </option>
+        {% endif %}
+        {% for country in page.countries %}
+            <option value="{{ country.id }}"
+                    {% if country.id == initialCountryId %}selected="selected"{% endif %}
+                    data-zipcode-required="{{ country.postalCodeRequired }}"
+                    data-vat-id-required="{{ country.vatIdRequired }}"
+                    data-state-required="{{ country.forceStateInRegistration }}"
+                    {% if not country.shippingAvailable and disableNonShippableCountries %}disabled="disabled"{% endif %}>
+
+                {{ country.translated.name }}
+
+                {% if showNoShippingPostfix and not country.shippingAvailable %}
+                    {{ 'address.countryPostfixNoShipping'|trans|sw_sanitize }}
+                {% endif %}
+            </option>
+        {% endfor %}
+    {% endset %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+        label: 'address.countryLabel'|trans|sw_sanitize,
+        id: idPrefix ~ prefix ~ 'AddressCountry',
+        name: prefix ~ '[countryId]',
+        autocomplete: countryAutocomplete,
+        options: countryOptions,
+        violationPath: violationPath,
+        validationRules: 'required',
+        additionalClass: additionalClass ?? 'col-md-6',
+        additionalSelectClass: 'country-select',
+        attributes: {
+            'data-initial-country-id': initialCountryId,
+        }
+    } %}
+{% endblock %}

@@ -4,14 +4,16 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\StoreException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -22,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], '_acl' => ['system.plugin_maintain']])]
 #[Package('checkout')]
 class ExtensionStoreActionsController extends AbstractController
 {
@@ -32,13 +34,17 @@ class ExtensionStoreActionsController extends AbstractController
         private readonly PluginService $pluginService,
         private readonly PluginManagementService $pluginManagementService,
         private readonly Filesystem $fileSystem,
-        private readonly bool $runtimeExtensionManagementAllowed
+        private readonly bool $runtimeExtensionManagementAllowed,
     ) {
     }
 
     #[Route(path: '/api/_action/extension/refresh', name: 'api.extension.refresh', methods: ['POST'])]
     public function refreshExtensions(Context $context): Response
     {
+        if (!$this->runtimeExtensionManagementAllowed) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
+
         $this->pluginService->refreshPlugins($context, new NullIO());
 
         return new Response('', Response::HTTP_NO_CONTENT);
@@ -52,7 +58,12 @@ class ExtensionStoreActionsController extends AbstractController
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
         if (!$file) {
-            throw RoutingException::missingRequestParameter('file');
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @deprecated tag:v6.8.0 - remove this if block
+                throw RoutingException::missingRequestParameter('file'); // @phpstan-ignore shopware.domainException
+            }
+
+            throw StoreException::missingRequestParameter('file');
         }
 
         if ($file->getPathname() === '') {
@@ -62,11 +73,11 @@ class ExtensionStoreActionsController extends AbstractController
         if ($file->getMimeType() !== 'application/zip') {
             try {
                 $this->fileSystem->remove($file->getPathname());
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 // Do nothing because the tmp file is already deleted by os
             }
 
-            throw new PluginNotAZipFileException((string) $file->getMimeType());
+            throw StoreException::pluginNotAZipFile((string) $file->getMimeType());
         }
 
         try {

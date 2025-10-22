@@ -1,0 +1,215 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "App System API",
+    "version": "v1"
+  },
+  "paths": {
+    "/app-system/privileges/requested": {
+      "get": {
+        "tags": [
+          "App System"
+        ],
+        "summary": "Get requested privileges for all apps",
+        "description": "Returns the list of requested privileges for all apps. Requires admin scope and `acl_role:read` permission to read.",
+        "operationId": "getRequestedPrivileges",
+        "security": [
+          {
+            "oAuth": [
+              "admin"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A JSON object containing requested privileges.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "privileges": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "privileges": {
+                    "SwagAnalytics": ["customer:read", "order:read"],
+                    "SwagExample": ["product:write"]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request."
+          },
+          "401": {
+            "description": "Unauthorized Access."
+          },
+          "403": {
+            "description": "Forbidden. Not a valid integration source."
+          }
+        }
+      }
+    },
+    "/app-system/{appName}/privileges/accepted": {
+      "get": {
+        "tags": [
+          "App System"
+        ],
+        "summary": "Get accepted privileges for an app",
+        "description": "Returns the list of accepted privileges for the current integration. Requires admin scope with an integration.",
+        "operationId": "getAcceptedPrivileges",
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "oAuth": [
+              "admin"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A JSON object containing accepted privileges.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "privileges": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "privileges": {
+                    "customer:read": true,
+                    "order:read": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request."
+          },
+          "401": {
+            "description": "Unauthorized Access."
+          },
+          "403": {
+            "description": "Forbidden. Not a valid integration source."
+          },
+          "404": {
+            "description": "App not found."
+          }
+        }
+      }
+    },
+    "/app-system/{appName}/privileges": {
+      "patch": {
+        "tags": ["App System"],
+        "summary": "Accept or revoke privileges for an app",
+        "description": "Accepts or revokes specified privileges for the given app.",
+        "operationId": "managePrivileges",
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accept": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "revoke": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "example": {
+                "accept": ["customer:read", "order:read"],
+                "revoke": ["product:write"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Returns no content if privileges were managed successfully."
+          },
+          "400": {
+            "description": "Malformed request."
+          },
+          "401": {
+            "description": "Unauthorized Access."
+          },
+          "403": {
+            "description": "Forbidden. Not a valid integration source."
+          },
+          "404": {
+            "description": "App not found."
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oAuth": {
+        "type": "oauth2",
+        "description": "Authentication using OAuth 2.0",
+        "flows": {
+          "password": {
+            "tokenUrl": "/api/oauth/token",
+            "scopes": {
+              "admin": "Admin scope for administrative operations"
+            }
+          }
+        }
+      }
+    }
+  }
+}

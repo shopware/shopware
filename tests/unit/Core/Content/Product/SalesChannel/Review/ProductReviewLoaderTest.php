@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -41,8 +40,6 @@ class ProductReviewLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $this->systemConfigService = new StaticSystemConfigService();
         $this->systemConfigService->set('core.listing.reviewsPerPage', 10, 'salesChannelId');
     }
@@ -306,7 +303,7 @@ class ProductReviewLoaderTest extends TestCase
             $criteria->addAssociation('language.translationCode.code');
         }
 
-        $reviewFilters[] = new EqualsFilter('status', true);
+        $reviewFilters = [new EqualsFilter('status', true)];
 
         if ($context->getCustomer() !== null) {
             $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomerId());

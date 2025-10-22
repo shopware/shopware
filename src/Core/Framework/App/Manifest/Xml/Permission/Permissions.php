@@ -65,7 +65,7 @@ class Permissions extends XmlElement
      *     'category:read',
      * ]
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function asParsedPrivileges(): array
     {
@@ -95,6 +95,15 @@ class Permissions extends XmlElement
                 continue;
             }
 
+            if ($child->tagName === 'crud') {
+                $permissions[$child->nodeValue][] = AclRoleDefinition::PRIVILEGE_READ;
+                $permissions[$child->nodeValue][] = AclRoleDefinition::PRIVILEGE_CREATE;
+                $permissions[$child->nodeValue][] = AclRoleDefinition::PRIVILEGE_UPDATE;
+                $permissions[$child->nodeValue][] = AclRoleDefinition::PRIVILEGE_DELETE;
+
+                continue;
+            }
+
             $permissions[$child->nodeValue][] = $child->tagName;
         }
 
@@ -105,7 +114,7 @@ class Permissions extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function generatePrivileges(): array
     {

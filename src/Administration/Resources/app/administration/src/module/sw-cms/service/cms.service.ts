@@ -57,6 +57,7 @@ type CmsElementConfig = {
     appData?: {
         baseUrl: string;
     };
+    hover?: boolean;
 };
 
 type CmsBlockConfig = {
@@ -428,7 +429,9 @@ class CmsService {
                     entityIds.push(val.mediaId);
                 });
             } else {
-                entityIds.push(...configValue);
+                configValue.forEach((id) => {
+                    entityIds.push(id as string);
+                });
             }
 
             entityData.value = entityIds;
@@ -562,4 +565,11 @@ Application.addServiceProvider('cmsService', () => new CmsService());
  * @private
  * @sw-package discovery
  */
-export { CmsService, type CmsElementConfig, type CmsBlockConfig, type CmsSlotConfig, type RuntimeSlot };
+export {
+    CmsService,
+    type CmsElementConfig,
+    type CmsBlockConfig,
+    type CmsSlotConfig,
+    type RuntimeSlot,
+    type EnrichedSlotData,
+};

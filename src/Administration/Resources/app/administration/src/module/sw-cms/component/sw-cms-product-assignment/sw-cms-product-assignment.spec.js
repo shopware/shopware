@@ -27,8 +27,8 @@ async function createWrapper() {
                         template: '<div class="sw-context-menu-item"></div>',
                         props: ['disabled'],
                     },
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot /><slot name="grid"></slot></div>',
                     },
                     'sw-select-result-list': true,
                     'sw-select-result': true,
@@ -49,12 +49,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-product-assignment', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled sw-select-base', async () => {
         const wrapper = await createWrapper();
 

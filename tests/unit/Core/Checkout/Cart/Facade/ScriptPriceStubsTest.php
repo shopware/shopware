@@ -12,11 +12,13 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(ScriptPriceStubs::class)]
+#[Package('checkout')]
 class ScriptPriceStubsTest extends TestCase
 {
     // fake some static id for the iso
@@ -41,9 +43,9 @@ class ScriptPriceStubsTest extends TestCase
             $actualPrice = $actual->getCurrencyPrice($expectedPrice->getCurrencyId());
 
             static::assertInstanceOf(Price::class, $actualPrice);
-            static::assertEquals($expectedPrice->getNet(), $actualPrice->getNet());
-            static::assertEquals($expectedPrice->getGross(), $actualPrice->getGross());
-            static::assertEquals($expectedPrice->getLinked(), $actualPrice->getLinked());
+            static::assertSame($expectedPrice->getNet(), $actualPrice->getNet());
+            static::assertSame($expectedPrice->getGross(), $actualPrice->getGross());
+            static::assertSame($expectedPrice->getLinked(), $actualPrice->getLinked());
         }
     }
 

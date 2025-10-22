@@ -2,8 +2,6 @@ import { inject } from 'vue';
 import template from './sw-switch-field-deprecated.html.twig';
 import './sw-switch-field-deprecated.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -14,7 +12,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-switch-field-deprecated v-model="aBooleanProperty" label="Name"></sw-switch-field>
  */
-Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -77,4 +75,4 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
             this.$emit('inheritance-restore', event);
         },
     },
-});
+};

@@ -61,6 +61,7 @@
         </service>
 
         <service id="shopware.number_range.redis" class="Redis">
+            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getConnection"/>
             <argument>%shopware.number_range.config.connection%</argument>
         </service>
 

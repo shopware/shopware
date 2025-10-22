@@ -44,8 +44,9 @@
         {% endblock %}
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_invisible %}
-        <sw-switch-field
-            v-model:value="currentValue.googleReCaptchaV2.config.invisible"
+
+        <mt-switch
+            v-model="currentValue.googleReCaptchaV2.config.invisible"
             bordered
             name="googleReCaptchaV2Invisible"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2Invisible')"
@@ -86,8 +87,8 @@
         {% endblock %}
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_threshold_score %}
-        <sw-number-field
-            v-model:value="currentValue.googleReCaptchaV3.config.thresholdScore"
+        <mt-number-field
+            v-model="currentValue.googleReCaptchaV3.config.thresholdScore"
             name="googleReCaptchaV3ThresholdScore"
             number-type="float"
             :min="0"
@@ -101,5 +102,16 @@
     </sw-container>
     {% endblock %}
 
+    {% block sw_settings_captcha_select_v2_basic_captcha_notice %}
+    <sw-container v-if="currentValue.basicCaptcha.isActive">
+        <mt-banner
+            variant="neutral"
+            :title="$tc('sw-settings-basic-information.captcha.basicCaptchaNoticeTitle')"
+            class="sw-settings-captcha-select-v2__basic-captcha-notice"
+        >
+            {{ $tc('sw-settings-basic-information.captcha.basicCaptchaNotice') }}
+        </mt-banner>
+    </sw-container>
+    {% endblock %}
 </sw-container>
 {% endblock %}

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -28,6 +29,9 @@ class StatesUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private StatesUpdater $statesUpdater;
@@ -60,9 +64,9 @@ class StatesUpdaterTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product1);
         static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertInstanceOf(ProductEntity::class, $product3);
-        static::assertEquals([State::IS_DOWNLOAD], $product1->getStates());
-        static::assertEquals([State::IS_PHYSICAL], $product2->getStates());
-        static::assertEquals([State::IS_PHYSICAL], $product3->getStates());
+        static::assertSame([State::IS_DOWNLOAD], $product1->getStates());
+        static::assertSame([State::IS_PHYSICAL], $product2->getStates());
+        static::assertSame([State::IS_PHYSICAL], $product3->getStates());
     }
 
     public function prepareProducts(IdsCollection $ids): void

@@ -6,6 +6,9 @@ import template from './sw-order-create-details-header.html.twig';
 
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

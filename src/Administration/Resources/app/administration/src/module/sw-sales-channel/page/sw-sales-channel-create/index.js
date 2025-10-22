@@ -22,6 +22,8 @@ export default {
 
     beforeRouteUpdate: insertIdIntoRoute,
 
+    inject: ['systemConfigApiService'],
+
     computed: {
         allowSaving() {
             return this.acl.can('sales_channel.creator');
@@ -42,7 +44,27 @@ export default {
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
 
-            this.$super('createdComponent');
+            this.setMeasurementUnits()
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
+                    });
+                })
+                .finally(() => {
+                    this.$super('createdComponent');
+                });
+        },
+
+        async setMeasurementUnits() {
+            const measurementUnits = await this.getMeasurementUnits();
+
+            this.salesChannel.measurementUnits = {
+                system: measurementUnits['core.measurementUnits.system'],
+                units: {
+                    length: measurementUnits['core.measurementUnits.length'],
+                    weight: measurementUnits['core.measurementUnits.weight'],
+                },
+            };
         },
 
         saveFinish() {
@@ -55,6 +77,10 @@ export default {
 
         onSave() {
             this.$super('onSave');
+        },
+
+        getMeasurementUnits() {
+            return this.systemConfigApiService.getValues('core.measurementUnits');
         },
     },
 };

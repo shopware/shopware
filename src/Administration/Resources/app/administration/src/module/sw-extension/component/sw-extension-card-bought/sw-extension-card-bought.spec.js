@@ -67,8 +67,7 @@ async function createWrapper(extension) {
             ],
             stubs: {
                 'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
@@ -77,10 +76,6 @@ async function createWrapper(extension) {
                 'sw-loader': await wrapTestComponent('sw-loader', {
                     sync: true,
                 }),
-                'sw-icon': await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'router-link': {
                     template: '<div class="sw-router-link"><slot></slot></div>',
@@ -109,6 +104,7 @@ async function createWrapper(extension) {
                 'sw-loader-deprecated': true,
                 'i18n-t': true,
                 'sw-label': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
             provide: {
                 extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
@@ -217,7 +213,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
         expect(wrapper.find('.sw-extension-icon img').attributes('src')).toBe('https://example.com');
         expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
-            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
+            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021,02:30',
         );
     });
 
@@ -256,10 +252,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
         expect(wrapper.find('.sw-extension-icon img').attributes().src).toBe(
-            'administration/static/img/theme/default_theme_preview.jpg',
+            'administration/administration/static/img/theme/default_theme_preview.jpg',
         );
         expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
-            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
+            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021,02:30',
         );
     });
 
@@ -586,7 +582,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             const infoSubscriptionExpiry = wrapper.get('.sw-extension-card-bought__info-subscription-expiry');
             expect(infoSubscriptionExpiry.text()).toBe(expectedTextSnippet);
 
-            const icon = infoSubscriptionExpiry.findComponent('.sw-icon');
+            const icon = infoSubscriptionExpiry.findComponent('.mt-icon');
 
             if (expectedIcon) {
                 // eslint-disable-next-line jest/no-conditional-expect

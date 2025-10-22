@@ -8,9 +8,7 @@ async function createWrapper(propsData = {}) {
                     return key + JSON.stringify(Object.values(values));
                 },
             },
-            stubs: {
-                'sw-switch-field': true,
-            },
+            stubs: {},
         },
         props: {
             extensionName: 'Awesome extension',

@@ -31,7 +31,7 @@ class RequirementsController extends InstallerController
             $checks = $validator->validateRequirements($checks);
         }
 
-        if ($request->isMethod('POST') && !$checks->hasError()) {
+        if ($request->isMethod(Request::METHOD_POST) && !$checks->hasError()) {
             return $this->redirectToRoute('installer.license');
         }
 

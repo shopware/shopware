@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinitio
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -57,7 +56,7 @@ class ProductReviewSubscriber implements EventSubscriberInterface
             }
 
             $changeset = $result->getChangeSet();
-            \assert($changeset instanceof ChangeSet);
+            \assert($changeset !== null);
 
             $id = $changeset->getBefore('customer_id');
 

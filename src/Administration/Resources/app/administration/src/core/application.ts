@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import type Bottle from 'bottlejs';
 import type { App } from 'vue';
 import { reactive } from 'vue';
@@ -536,13 +537,12 @@ class ApplicationBootstrapper {
      * Initialize the initializers right away cause these are the mandatory services for the application
      * to boot successfully.
      */
-    private initializeLoginInitializer(): Promise<unknown[]> {
+    private async initializeLoginInitializer(): Promise<unknown[]> {
         const loginInitializer = [
             'login',
             'baseComponents',
-            'locale',
             'coreDirectives',
-            'apiServices',
+            'locale',
             'store',
         ];
 
@@ -573,6 +573,9 @@ class ApplicationBootstrapper {
         });
 
         this.$container.digest(pre);
+        // Ensure that the api services are available for the locale.init.ts
+        await Shopware.Application.getContainer('init-pre').apiServices;
+
         this.$container.digest(init);
         this.$container.digest(post);
 
@@ -850,6 +853,17 @@ class ApplicationBootstrapper {
 
         // To keep permissions reactive no matter if empty or not
         extension.permissions = permissions ?? reactive({});
+
+        // Check if extension is a plugin, then it has full permissions access
+        if (extension.type === 'plugin') {
+            extension.permissions = {
+                additional: ['*'],
+                create: ['*'],
+                read: ['*'],
+                update: ['*'],
+                delete: ['*'],
+            };
+        }
 
         Shopware.Store.get('extensions').addExtension(extension);
     }

@@ -13,8 +13,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @description This event allows intercepting the loading preview of product listing when the product IDs should be determined
  *
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
- *
  * @codeCoverageIgnore
  *
  * @extends Extension<array>

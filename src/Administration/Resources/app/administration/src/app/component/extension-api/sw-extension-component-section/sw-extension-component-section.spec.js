@@ -27,8 +27,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
 
     beforeAll(async () => {
         stubs = {
-            'sw-card': await wrapTestComponent('sw-card'),
-            'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
             'sw-tabs': await wrapTestComponent('sw-tabs'),
             'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
             'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
@@ -40,18 +38,12 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             'sw-ai-copilot-badge': await wrapTestComponent('sw-ai-copilot-badge'),
             'sw-context-button': await wrapTestComponent('sw-context-button'),
             'sw-loader': await wrapTestComponent('sw-loader'),
-            'sw-icon': await wrapTestComponent('sw-icon'),
             'router-link': true,
         };
     });
 
     beforeEach(async () => {
         Shopware.Store.get('extensionComponentSections').identifier = {};
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not render tabs in card section', async () => {

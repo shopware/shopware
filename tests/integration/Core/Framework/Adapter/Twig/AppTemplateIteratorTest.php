@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,7 +29,7 @@ class AppTemplateIteratorTest extends TestCase
 
     public function testItAddsAppDatabaseTemplates(): void
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = static::getContainer()->get('app.repository');
 
         $appRepository->create([

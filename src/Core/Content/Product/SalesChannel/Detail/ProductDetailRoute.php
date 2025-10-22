@@ -7,13 +7,14 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,7 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,12 +34,17 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
+    private const SKIP_CONFIGURATOR = 'skipConfigurator';
+    private const SKIP_CMS_PAGE = 'skipCmsPage';
+
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
@@ -47,7 +55,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         private readonly SalesChannelProductDefinition $productDefinition,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -74,34 +83,39 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             );
 
             $this->dispatcher->dispatch($resolveVariantIdEvent);
-            $productId = $resolveVariantIdEvent->getResolvedVariantId() ?? $this->findBestVariant($productId, $context);
+
+            if ($resolveVariantIdEvent->getResolvedVariantId()) {
+                $productId = $resolveVariantIdEvent->getResolvedVariantId();
+            } else {
+                $term = $request->query->get('search');
+                $variantId = $term ? $this->findBestVariantByTerm($term, $productId, $context) : null;
+                $productId = $variantId ?? $this->findBestVariant($productId, $context);
+            }
 
             $this->addFilters($context, $criteria);
 
             $criteria->setIds([$productId]);
             $criteria->setTitle('product-detail-route');
 
-            $product = $this->productRepository
-                ->search($criteria, $context)
-                ->first();
-
+            $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             if (!($product instanceof SalesChannelProductEntity)) {
-                throw new ProductNotFoundException($productId);
+                throw ProductException::productNotFound($productId);
             }
 
             $parent = $product->getParentId() ?? $product->getId();
 
-            $this->dispatcher->dispatch(new AddCacheTagEvent(EntityCacheKeyGenerator::buildProductTag($parent)));
+            $this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($parent));
 
             $product->setSeoCategory(
                 $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
             );
 
-            $configurator = $this->configuratorLoader->load($product, $context);
+            $loadConfigurator = !$request->query->getBoolean(self::SKIP_CONFIGURATOR);
+            $configurator = $loadConfigurator ? $this->configuratorLoader->load($product, $context) : null;
 
+            $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $pageId = $product->getCmsPageId();
-
-            if ($pageId) {
+            if ($loadCmsPage && $pageId) {
                 // clone product to prevent recursion encoding (see NEXT-17603)
                 $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, clone $product);
 
@@ -166,7 +180,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
         $variantListingConfig = json_decode((string) $productData['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
-        if (isset($variantListingConfig['displayParent']) && $variantListingConfig['displayParent'] === true) {
+        if (isset($variantListingConfig['displayParent']) && (bool) $variantListingConfig['displayParent'] === true) {
             return null;
         }
 
@@ -188,6 +202,21 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $variantId = $this->productRepository->searchIds($criteria, $context);
 
         return $variantId->firstId() ?? $productId;
+    }
+
+    private function findBestVariantByTerm(string $term, string $productId, SalesChannelContext $context): ?string
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('product.parentId', $productId))
+            ->setLimit(1);
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setTerm($term);
+
+        $criteria->setTitle('product-detail-route::find-best-variant-by-term');
+        $variantId = $this->productRepository->searchIds($criteria, $context);
+
+        return $variantId->firstId();
     }
 
     private function createCriteria(string $pageId, Request $request): Criteria

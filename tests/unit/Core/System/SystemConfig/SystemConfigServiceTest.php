@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
@@ -47,6 +48,7 @@ class SystemConfigServiceTest extends TestCase
             $this->configLoader,
             $this->eventDispatcher,
             new SymfonySystemConfigService([]),
+            $this->createMock(CacheTagCollector::class),
         );
     }
 
@@ -62,7 +64,7 @@ class SystemConfigServiceTest extends TestCase
             static::assertSame(40, $event->getConfig()['foo.bar']);
         };
 
-        $expects = static::exactly(7);
+        $expects = $this->exactly(7);
         $this->eventDispatcher
             ->expects($expects)
             ->method('dispatch')
@@ -87,6 +89,7 @@ class SystemConfigServiceTest extends TestCase
             $this->configLoader,
             $this->eventDispatcher,
             new SymfonySystemConfigService(['default' => ['core.test' => true]]),
+            $this->createMock(CacheTagCollector::class),
         );
 
         // Setting the same value is okay

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
@@ -42,6 +42,9 @@ class ProductUrlProviderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
@@ -191,7 +194,7 @@ class ProductUrlProviderTest extends TestCase
 
         $host = $this->getHost($this->salesChannelContext);
         $urlGenerate = $this->getComparisonUrl($canonicalProductId);
-        static::assertEquals($urlGenerate, $host . '/' . $urls[0]->getLoc());
+        static::assertSame($urlGenerate, $host . '/' . $urls[0]->getLoc());
     }
 
     public function testContainsOutOfStockCloseoutProducts(): void
@@ -307,7 +310,7 @@ class ProductUrlProviderTest extends TestCase
             }
         }
 
-        throw new InvalidDomainException('Empty domain');
+        throw new \RuntimeException('Empty domain');
     }
 
     private function getComparisonUrl(string $productId): string

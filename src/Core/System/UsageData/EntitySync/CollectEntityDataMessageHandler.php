@@ -11,10 +11,10 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler(handles: CollectEntityDataMessage::class)]
 #[Package('data-services')]
-final class CollectEntityDataMessageHandler
+final readonly class CollectEntityDataMessageHandler
 {
     public function __construct(
-        private readonly EntityDispatchService $entityDispatchService,
+        private EntityDispatchService $entityDispatchService,
     ) {
     }
 

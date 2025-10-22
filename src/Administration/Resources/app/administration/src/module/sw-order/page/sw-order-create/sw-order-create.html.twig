@@ -17,8 +17,12 @@
         {% block sw_order_create_smart_bar_actions_slot %}
         <template v-if="!showInitialModal">
             {% block sw_order_create_smart_bar_actions_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
-            <mt-button @click="onCancelOrder">
+            <mt-button
+                variant="secondary"
+                size="default"
+                data-analytics-id="sw-order-create.cancel-order"
+                @click="onCancelOrder"
+            >
                 {{ $tc('global.default.cancel') }}
             </mt-button>
             {% endblock %}
@@ -28,6 +32,7 @@
                 :disabled="isLoading"
                 :is-loading="isLoading"
                 :process-success="isSaveSuccessful"
+                data-analytics-id="sw-order-create.save-order"
                 @update:process-success="saveFinish"
                 @click.prevent="onSaveOrder"
             >
@@ -114,20 +119,21 @@
 
             <template #modal-footer>
                 {% block sw_order_create_remind_payment_modal_footer %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-order-create__remind-payment-modal-decline"
                     size="small"
+                    variant="secondary"
+                    data-analytics-id="sw-order-create.remind-payment-modal-cancel"
                     @click="onRemindPaymentModalClose"
                 >
                     {{ $tc('global.default.no') }}
                 </mt-button>
 
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-order-create__remind-payment-modal-remind"
                     variant="primary"
                     size="small"
+                    data-analytics-id="sw-order-create.remind-customer"
                     @click="onRemindCustomer"
                 >
                     {{ $tc('sw-order.create.remindPaymentModal.primaryAction') }}

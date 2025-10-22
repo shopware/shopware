@@ -9,7 +9,7 @@
     class="sw-product-detail-layout"
 >
     {% block sw_product_detail_layout_assignment %}
-    <sw-card
+    <mt-card
         position-identifier="sw-product-detail-layout-assignment"
         :title="$tc('sw-product.layout.title')"
         :subtitle="$tc('sw-product.layout.subtitle')"
@@ -34,7 +34,7 @@
             @modal-close="onCloseLayoutModal"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_layout_cms_config %}
@@ -46,25 +46,25 @@
             :element-update="elementUpdate"
         />
 
-        <sw-card
+        <mt-card
             v-else
             class="sw-product-detail-layout__no-config"
             position-identifier="sw-product-detail-layout-no-config"
             :is-loading="isConfigLoading"
         >
             <p>{{ $tc('sw-product.layout.textNoConfig') }}</p>
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         {% block sw_product_detail_layout_cms_content_info %}
-        <sw-card
+        <mt-card
             hero
             position-identifier="sw-product-detail-layout-cms-info"
         >
             <p class="sw-product-detail-layout__content-info">
                 {{ $tc('sw-product.layout.textContentInfo') }}
             </p>
-        </sw-card>
+        </mt-card>
         {% endblock %}
     </template>
     {% endblock %}

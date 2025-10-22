@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-custom-entity-input-field.html.twig';
 
 /**
@@ -50,6 +49,10 @@ export default Shopware.Component.wrapComponentConfig({
         currentValue: {
             // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
             get(): string | number | unknown {
+                if (this.type === 'boolean') {
+                    return Boolean(this.value);
+                }
+
                 return this.value;
             },
 

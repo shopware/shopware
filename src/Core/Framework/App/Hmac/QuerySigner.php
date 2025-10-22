@@ -35,20 +35,21 @@ class QuerySigner
             throw AppException::appSecretMissing($app->getName());
         }
 
-        $uri = Uri::withQueryValues(new Uri($uri), [
+        $unsignedUri = Uri::withQueryValues(new Uri($uri), [
             'shop-id' => $this->shopIdProvider->getShopId(),
             'shop-url' => $this->shopUrl,
             'timestamp' => (string) (new \DateTime())->getTimestamp(),
             'sw-version' => $this->shopwareVersion,
+            'app-version' => $app->getVersion(),
             'in-app-purchases' => \urlencode($this->inAppPurchase->getJWTByExtension($app->getName()) ?? ''),
             AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
             AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
         ]);
 
         return Uri::withQueryValue(
-            $uri,
+            $unsignedUri,
             'shopware-shop-signature',
-            (new RequestSigner())->signPayload($uri->getQuery(), $secret)
+            (new RequestSigner())->signPayload($unsignedUri->getQuery(), $secret)
         );
     }
 }

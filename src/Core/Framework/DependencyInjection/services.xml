@@ -198,6 +198,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\CoreSubscriber">
             <argument>%shopware.security.csp_templates%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -219,6 +220,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\CanonicalRedirectService" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\RouteEventSubscriber">
@@ -253,7 +255,7 @@ frame-ancestors 'none';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
 
             <tag name="monolog.logger"/>
         </service>
@@ -265,8 +267,10 @@ frame-ancestors 'none';
             <argument type="service" id="snippet.repository"/>
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
-            <argument type="service" id="service_container" />
-            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="filesystem"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">
@@ -282,6 +286,9 @@ frame-ancestors 'none';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="shopware.filesystem.private"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
@@ -397,6 +404,10 @@ frame-ancestors 'none';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\Filter\LeadingSpacesFilter" >
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Cocur\Slugify\Bridge\Twig\SlugifyExtension">
             <argument type="service" id="slugify"/>
             <tag name="twig.extension"/>
@@ -418,7 +429,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer">
             <argument type="service" id="twig"/>
-            <argument>%twig.cache%</argument>
+            <argument>%shopware.cache.twig.string_template_renderer_cache_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator"
@@ -538,6 +549,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator">
@@ -546,6 +558,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter">
@@ -554,6 +567,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator">
@@ -562,6 +576,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />
@@ -632,6 +647,8 @@ frame-ancestors 'none';
             <argument>%shopware.html_sanitizer.sets%</argument>
             <argument>%shopware.html_sanitizer.fields%</argument>
             <argument>%shopware.html_sanitizer.enabled%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
@@ -701,6 +718,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%session.storage.options%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument>%shopware.http_cache.soft_purge%</argument>
+            <argument type="service" id="messenger.bus.default"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">
@@ -711,6 +730,16 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator">
             <argument>%shopware.cache.invalidation.http_cache%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

@@ -1,8 +1,7 @@
-import template from './sw-order-document-settings-storno-modal.html.twig';
-
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
+import template from './sw-order-document-settings-storno-modal.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -31,7 +30,7 @@ export default {
                     stornoNumber: '',
                     invoiceNumber: '',
                 },
-                documentNumber: 0,
+                documentNumber: '',
                 documentComment: '',
                 documentDate: '',
             },
@@ -45,7 +44,11 @@ export default {
 
         invoices() {
             return this.order.documents.filter((document) => {
-                return document.documentType.technicalName === 'invoice';
+                return (
+                    document.documentType.technicalName === 'invoice' ||
+                    document.documentType.technicalName === 'zugferd_invoice' ||
+                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                );
             });
         },
 
@@ -54,8 +57,18 @@ export default {
                 return String(this.documentConfig.documentNumber);
             },
             set(value) {
-                this.documentConfig.documentNumber = Number(value);
+                this.documentConfig.documentNumber = value;
             },
+        },
+
+        invoiceOptions() {
+            return this.invoices.map((item, index) => {
+                return {
+                    id: index,
+                    value: item.config.custom.invoiceNumber,
+                    label: `${item.config.custom.invoiceNumber}`,
+                };
+            });
         },
     },
 

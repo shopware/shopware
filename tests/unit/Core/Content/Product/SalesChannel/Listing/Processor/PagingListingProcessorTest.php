@@ -24,49 +24,131 @@ class PagingListingProcessorTest extends TestCase
     public static function provideTestPrepare(): \Generator
     {
         yield 'Empty criteria, empty request' => [
-            new Criteria(),
-            new Request(),
-            1,
-            24,
+            'criteria' => new Criteria(),
+            'request' => new Request(),
+            'page' => 1,
+            'limit' => 24,
         ];
 
         yield 'Empty criteria, request with page' => [
-            new Criteria(),
-            new Request(['p' => 2]),
-            2,
-            24,
+            'criteria' => new Criteria(),
+            'request' => new Request(['p' => 2]),
+            'page' => 2,
+            'limit' => 24,
         ];
 
         yield 'Criteria with limit, empty request' => [
-            (new Criteria())->setLimit(50),
-            new Request(),
-            1,
-            50,
+            'criteria' => (new Criteria())->setLimit(50),
+            'request' => new Request(),
+            'page' => 1,
+            'limit' => 50,
         ];
 
         yield 'Criteria with limit, request with page' => [
-            (new Criteria())->setLimit(50),
-            new Request(['p' => 2]),
-            2,
-            50,
+            'criteria' => (new Criteria())->setLimit(50),
+            'request' => new Request(['p' => 2]),
+            'page' => 2,
+            'limit' => 50,
+        ];
+
+        yield 'Criteria with limit & page, empty request' => [
+            'criteria' => (new Criteria())->setLimit(50)->setOffset(50),
+            'request' => new Request(),
+            'page' => 2,
+            'limit' => 50,
+        ];
+
+        yield 'Criteria with limit & page, request with page (should use request query parameter over criteria)' => [
+            'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
+            'request' => new Request(['p' => 2]),
+            'page' => 2,
+            'limit' => 50,
+        ];
+
+        yield 'Criteria with limit & page, request with page (should use request body parameter over criteria)' => [
+            'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
+            'request' => new Request(request: ['p' => 2]),
+            'page' => 2,
+            'limit' => 50,
+        ];
+
+        yield 'Criteria with limit & page, post request with page (should use request body parameter over query parameter and criteria)' => [
+            'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
+            'request' => new Request(['p' => 2, 'limit' => 10], ['p' => 3, 'limit' => 25]),
+            'page' => 3,
+            'limit' => 25,
+        ];
+
+        yield 'Criteria with limit and max limit given' => [
+            'criteria' => (new Criteria())->setLimit(200),
+            'request' => new Request([]),
+            'page' => 1,
+            'limit' => 100,
+            'maxLimit' => 100,
+        ];
+
+        yield 'Empty criteria with limit and max limit given' => [
+            'criteria' => new Criteria(),
+            'request' => new Request([]),
+            'page' => 1,
+            'limit' => 10,
+            'maxLimit' => 10,
+        ];
+
+        yield 'Empty criteria, request with page 0' => [
+            'criteria' => new Criteria(),
+            'request' => new Request(['p' => 0]),
+            'page' => 1,
+            'limit' => 24,
+        ];
+
+        yield 'Empty criteria, request with page -1' => [
+            'criteria' => new Criteria(),
+            'request' => new Request(['p' => -1]),
+            'page' => 1,
+            'limit' => 24,
+        ];
+
+        yield 'Empty criteria, request with limit given' => [
+            'criteria' => new Criteria(),
+            'request' => new Request(['p' => 1, 'limit' => 200]),
+            'page' => 1,
+            'limit' => 100,
+        ];
+
+        yield 'Empty criteria, request with limit and max limit given' => [
+            'criteria' => new Criteria(),
+            'request' => new Request(['p' => 1, 'limit' => 200]),
+            'page' => 1,
+            'limit' => 100,
+            'maxLimit' => 100,
+        ];
+
+        yield 'Criteria with limit & page, and request with limit' => [
+            'criteria' => (new Criteria())->setLimit(50)->setOffset(50),
+            'request' => new Request(['p' => 1, 'limit' => 200]),
+            'page' => 1, // page should be taken from request
+            'limit' => 200, // limit should be taken from request,
+            'maxLimit' => 300,
         ];
     }
 
     #[DataProvider('provideTestPrepare')]
-    public function testPrepare(Criteria $criteria, Request $request, int $page, int $limit): void
+    public function testPrepare(Criteria $criteria, Request $request, int $page, int $limit, int $maxLimit = 100): void
     {
         $context = $this->createMock(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService([
                 'core.listing.productsPerPage' => 24,
-            ])
+            ]),
+            $maxLimit
         );
 
         $processor->prepare($request, $criteria, $context);
 
-        static::assertEquals(($page - 1) * $limit, $criteria->getOffset());
-        static::assertEquals($limit, $criteria->getLimit());
+        static::assertSame(($page - 1) * $limit, $criteria->getOffset());
+        static::assertSame($limit, $criteria->getLimit());
     }
 
     public function testProcess(): void
@@ -86,7 +168,7 @@ class PagingListingProcessorTest extends TestCase
 
         $processor->process($request, $result, $context);
 
-        static::assertEquals(2, $result->getPage());
-        static::assertEquals(10, $result->getLimit());
+        static::assertSame(2, $result->getPage());
+        static::assertSame(10, $result->getLimit());
     }
 }

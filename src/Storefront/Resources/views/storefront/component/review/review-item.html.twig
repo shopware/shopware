@@ -69,7 +69,7 @@
 
         {% block component_review_item_content %}
             <p class="product-detail-review-item-content" itemprop="description"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
-                {{ review.content }}
+                {{ review.content|nl2br }}
             </p>
         {% endblock %}
 

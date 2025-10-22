@@ -73,7 +73,6 @@ describe('components/sw-select-rule-create', () => {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-field-error': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-highlight-text': {
                         props: ['text'],
@@ -98,11 +97,6 @@ describe('components/sw-select-rule-create', () => {
             },
         });
     }
-
-    it('should be a vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should disable restricted rules', async () => {
         const wrapper = await createWrapper();

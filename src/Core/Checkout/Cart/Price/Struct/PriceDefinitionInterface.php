@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraint;
 
 #[Package('checkout')]
 interface PriceDefinitionInterface
@@ -10,7 +11,7 @@ interface PriceDefinitionInterface
     /**
      * Return the type of this PriceDefinition. At the moment three definitions exist: AbsolutePriceDefinition,
      * QuantityPriceDefinition and PercentagePriceDefinition. The type of the definition changes how a price is
-     * calculated, but they all share the same datastructure. See the corresponding classes for exactly how each
+     * calculated, but they all share the same data structure. See the corresponding classes for exactly how each
      * of them works.
      *
      * @see QuantityPriceDefinition
@@ -23,7 +24,7 @@ interface PriceDefinitionInterface
     /**
      * Returns the priority of this price definitions, which determines in which order prices are calculated.
      * Some PriceDefinitions change the final price based on the amount of the prices already calculated, and thus
-     * can only be calculated after all others have finished. This applies for example to percental discounts.
+     * can only be calculated after all others have finished. This applies for example to percentile discounts.
      * The default order of calculation for the base definitions is:
      * 1. QuantityPriceDefinition
      * 2. AbsolutePriceDefinition
@@ -38,6 +39,8 @@ interface PriceDefinitionInterface
      *
      * @see PercentagePriceDefinition
      * @see Rule
+     *
+     * @return array<string, list<Constraint>>
      */
     public static function getConstraints(): array;
 }

@@ -13,8 +13,8 @@
     {% endblock %}
 
     {% block sw_category_seo_form_meta_description %}
-    <sw-textarea-field
-        v-model:value="category.metaDescription"
+    <mt-textarea
+        v-model="category.metaDescription"
         maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaDescription')"

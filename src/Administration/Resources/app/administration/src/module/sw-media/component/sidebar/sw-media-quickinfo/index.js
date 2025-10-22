@@ -56,6 +56,9 @@ export default {
             fileNameError: null,
             arReady: false,
             defaultArReady: false,
+            arPlacement: 'horizontal',
+            defaultArPlacement: 'horizontal',
+            arPlacementOptions: [],
         };
     },
 
@@ -90,6 +93,12 @@ export default {
             // we need to check the media url since media.fileExtension is set directly after upload
             return this.item?.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
         },
+
+        extensionSdkButtons() {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+                return button.entity === 'media' && button.view === 'item';
+            });
+        },
     },
 
     watch: {
@@ -117,10 +126,27 @@ export default {
         fetchSpatialItemConfig() {
             this.systemConfigApiService.getValues('core.media').then((values) => {
                 this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
+                this.defaultArPlacement = values['core.media.defaultARPlacement'];
+            });
+
+            this.systemConfigApiService.getConfig('core.media').then((config) => {
+                config
+                    .flat()[0]
+                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
+                    .forEach((element) => {
+                        this.arPlacementOptions = element.config.options.map((option) => {
+                            return {
+                                id: option.id,
+                                value: option.id,
+                                label: this.$tc(`sw-media.sidebar.actions.${option.id}`),
+                            };
+                        });
+                    });
             });
 
             this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {
                 this.arReady = entity?.config?.spatial?.arReady;
+                this.arPlacement = entity?.config?.spatial?.arPlacement;
             });
         },
 
@@ -144,6 +170,26 @@ export default {
             });
         },
 
+        async onSave() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            try {
+                await this.mediaRepository.save(this.item, Context.api);
+                this.isSaveSuccessful = true;
+            } catch (error) {
+                this.createNotificationError({
+                    message: error.message,
+                });
+            } finally {
+                this.isLoading = false;
+                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Use `onSave` instead
+         */
         async onSaveCustomFields(item) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
@@ -174,24 +220,16 @@ export default {
             }
         },
 
-        async onSubmitTitle(value) {
+        onSubmitTitle(value) {
             this.item.title = value;
 
-            try {
-                await this.mediaRepository.save(this.item, Context.api);
-            } catch {
-                this.$refs.inlineEditFieldTitle.cancelSubmit();
-            }
+            return this.onSave();
         },
 
-        async onSubmitAltText(value) {
+        onSubmitAltText(value) {
             this.item.alt = value;
 
-            try {
-                await this.mediaRepository.save(this.item, Context.api);
-            } catch {
-                this.$refs.inlineEditFieldAlt.cancelSubmit();
-            }
+            return this.onSave();
         },
 
         async onChangeFileName(value) {
@@ -293,6 +331,7 @@ export default {
             const newSpatialConfig = {
                 spatial: {
                     arReady: newValue,
+                    arPlacement: this.arPlacement,
                     updatedAt: Date.now(),
                 },
             };
@@ -304,6 +343,43 @@ export default {
             };
 
             this.$emit('update:item', { ...this.item, ...newItemConfig });
+        },
+
+        /**
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
+         */
+        changeARPlacement(newPlacement) {
+            const newSpatialConfig = {
+                spatial: {
+                    arReady: this.arReady,
+                    arPlacement: newPlacement,
+                    updatedAt: Date.now(),
+                },
+            };
+            const newItemConfig = {
+                config: {
+                    ...this.item.config,
+                    ...newSpatialConfig,
+                },
+            };
+
+            this.$emit('update:item', { ...this.item, ...newItemConfig });
+        },
+
+        runAppAction(action) {
+            if (typeof action.callback !== 'function') {
+                return;
+            }
+
+            const { fileName, mimeType, fileSize, url, id } = this.item;
+
+            action.callback({
+                id,
+                url,
+                fileName,
+                mimeType,
+                fileSize,
+            });
         },
     },
 };

@@ -1,0 +1,92 @@
+{
+  "sw-dashboard": {
+    "general": {
+      "mainMenuItemGeneral": "Dashboard",
+      "descriptionTextModule": "Startseite, Statistiken und Systeminformationen"
+    },
+    "introduction": {
+      "headlineUnkownUser": "Willkommen bei Shopware.",
+      "daytimeHeadline": {
+        "5h": [
+          "Guten Morgen, {greetingName}.",
+          "Moin, {greetingName}!"
+        ],
+        "11h": [
+          "Hallo, {greetingName}.",
+          "Guten Tag, {greetingName}.",
+          "Hey, {greetingName}!"
+        ],
+        "18h": [
+          "Hi, {greetingName}!",
+          "Guten Abend, {greetingName}."
+        ],
+        "23h": [
+          "Schön dich zu sehen, {greetingName}!",
+          "Noch wach, {greetingName}?"
+        ]
+      },
+      "daytimeWelcomeText": {
+        "5h": [
+          "Erstmal eine Tasse Kaffee. Oder trinkst Du lieber Tee?",
+          "Wir hoffen, Du hast einen tollen Start in den Tag!",
+          "Heute viel zu tun? Konzentriere Dich auf die 20% der Aufgaben, die 80% der Wirkung ausmachen!",
+          "Du siehst heute einfach großartig aus!"
+        ],
+        "11h": [
+          "Ein neuer Tag, eine neue Chance Dein Geschäft auszubauen.",
+          "Du hast heute die Chance, jemandes Leben zu verändern.",
+          "Du siehst heute echt toll aus!",
+          "Du hast heute die Chance, das Morgen zu gestalten, so wie Du es Dir wünschst."
+        ],
+        "18h": [
+          "Der Tag ist fast um, Zeit die neuesten Aktivitäten in Deinem Shop anzuschauen.",
+          "Zeit zurückzublicken - Schau Dir an, was heute in Deinem Shop passiert ist.",
+          "Mit dem was Du heute tust, gestaltest Du das Morgen."
+        ],
+        "23h": [
+          "Finde die Schönheit in allem und lass Dich davon inspirieren.",
+          "Schau, draußen hat jemand den Darkmode angemacht.",
+          "Viele Dinge lassen sich reparieren, indem man den Stecker für ein paar Minuten aus der Steckdose zieht. Das gilt auch für Dich. Mach mal Pause!"
+        ]
+      }
+    },
+    "helpcard": {
+      "headline": "Mach Dich bereit, Deine Produkte zu verkaufen.",
+      "helpcenter": "Shopware-Hilfe-Zentrum",
+      "helpcenterLink": "https://docs.shopware.com/de/shopware-6-de",
+      "takeOffTip": "Tipps für Deinen ersten Verkauf",
+      "takeOffTipLink": "https://www.shopware.com/de/news/durchstarten-im-e-commerce-10-tipps-fuer-deine-ersten-verkaeufe/",
+      "getToKnowSales": "Lerne Verkaufskanäle kennen",
+      "getToKnowSalesLink": "https://www.youtube.com/watch?v=vFORvXev624"
+    },
+    "feedbackCard": {
+      "headline": "Der erste Eindruck zählt.",
+      "text": "Berichte uns von Deinen ersten Erfahrungen und hilf uns, Shopware besser zu machen.",
+      "feedback": "Feedback geben",
+      "feedbackLink": "https://feedback.shopware.com"
+    },
+    "todayStats": {
+      "headline": "Statistik des Tages",
+      "orders": "Bestellungen",
+      "turnover": "Gesamtwert",
+      "orderTime": "Zeitpunkt"
+    },
+    "monthStats": {
+      "headline": "Statistiken",
+      "dateRanges": {
+        "30Days": "Letzte 30 Tage",
+        "14Days": "Letzte 14 Tage",
+        "7Days": "Letzte 7 Tage",
+        "24Hours": "Letzte 24 Stunden",
+        "yesterday": "Seit gestern"
+      },
+      "orderNumber": "Bestellungen",
+      "turnover": "Umsatz",
+      "numberOfOrders": "Anzahl",
+      "totalTurnover": "Gesamt",
+      "helperText": "Die Umsatzgrafik zeigt nur Bestellungen an, deren Zahlungsstatus auf \"bezahlt\" steht.",
+      "linkOrders": "Bestellungen anzeigen",
+      "linkPaidOrders": "Bezahlte Bestellungen anzeigen"
+    }
+  }
+}

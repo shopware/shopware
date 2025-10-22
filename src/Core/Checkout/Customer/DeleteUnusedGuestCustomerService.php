@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Customer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,6 +21,8 @@ class DeleteUnusedGuestCustomerService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -36,11 +40,11 @@ class DeleteUnusedGuestCustomerService
 
         $criteria = $this->getUnusedCustomerCriteria($maxLifeTime);
 
-        $criteria
-            ->setLimit(1)
-            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria->addAggregation(new CountAggregation('customer-count', 'id'));
 
-        return $this->customerRepository->search($criteria, $context)->getTotal();
+        $aggregation = $this->customerRepository->aggregate($criteria, $context)->get('customer-count');
+
+        return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }
 
     /**
@@ -54,8 +58,8 @@ class DeleteUnusedGuestCustomerService
             return [];
         }
 
-        $criteria = $this->getUnusedCustomerCriteria($maxLifeTime);
-        $criteria->setLimit(self::DELETE_CUSTOMERS_BATCH_SIZE);
+        $criteria = $this->getUnusedCustomerCriteria($maxLifeTime)
+            ->setLimit(self::DELETE_CUSTOMERS_BATCH_SIZE);
 
         /** @var list<string> $ids */
         $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
@@ -68,24 +72,17 @@ class DeleteUnusedGuestCustomerService
 
     private function getUnusedCustomerCriteria(\DateTime $maxLifeTime): Criteria
     {
-        $criteria = new Criteria();
-
-        $criteria->addAssociation('orderCustomers');
-
-        $criteria->addFilter(
-            new AndFilter(
-                [
-                    new EqualsFilter('guest', true),
-                    new EqualsFilter('orderCustomers.id', null),
-                    new RangeFilter(
-                        'createdAt',
-                        [
-                            RangeFilter::LTE => $maxLifeTime->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                        ]
-                    ),
-                ]
-            )
-        );
+        $criteria = (new Criteria())
+            ->addAssociation('orderCustomers')
+            ->addFilter(new AndFilter([
+                new EqualsFilter('guest', true),
+                new EqualsFilter('orderCustomers.id', null),
+                new RangeFilter(
+                    'createdAt',
+                    [
+                        RangeFilter::LTE => $maxLifeTime->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ]
+                )]));
 
         return $criteria;
     }

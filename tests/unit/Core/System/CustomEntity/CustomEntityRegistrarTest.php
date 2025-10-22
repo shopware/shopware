@@ -27,12 +27,12 @@ class CustomEntityRegistrarTest extends TestCase
     public function testSkipsRegistrationIfFetchingCustomEntitiesFailWithException(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willThrowException(TestExceptionFactory::createException('test'));
 
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $definitionInstanceRegistry->expects(static::never())
+        $definitionInstanceRegistry->expects($this->never())
             ->method('register');
 
         $container = new Container();
@@ -57,7 +57,7 @@ class CustomEntityRegistrarTest extends TestCase
         ];
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -105,7 +105,7 @@ class CustomEntityRegistrarTest extends TestCase
         ];
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [

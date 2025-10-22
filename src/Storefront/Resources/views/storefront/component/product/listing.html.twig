@@ -52,15 +52,16 @@
                 {% endif %}
 
                 {% block element_product_listing_row %}
-                    {% set ariaLiveText %}{% apply spaceless %}
-                        {% if searchResult.total > searchResult.limit %}
-                            {{ 'listing.filterPanelAriaLivePaginated'|trans({'%count%': searchResult.elements|length, '%total%': searchResult.total})|sw_sanitize }}
-                        {% else %}
-                            {{ 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize }}
-                        {% endif %}
-                    {% endapply %}{% endset %}
+                    {% if searchResult.total > searchResult.limit %}
+                        {% set ariaLiveText = 'listing.filterPanelAriaLivePaginated'|trans({
+                            '%count%': searchResult.elements|length,
+                            '%total%': searchResult.total}
+                        )|sw_sanitize %}
+                    {% else %}
+                        {% set ariaLiveText = 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize %}
+                    {% endif %}
 
-                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{ ariaLiveText }}"{% if searchResult.total > 0 %} role="list"{% endif %}>
+                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}"{% if searchResult.total > 0 %} role="list"{% endif %}>
                         {% if searchResult.total > 0 %}
                             {% block element_product_listing_col %}
                                 {% for product in searchResult %}

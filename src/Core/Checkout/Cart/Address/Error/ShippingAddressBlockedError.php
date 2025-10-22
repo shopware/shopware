@@ -10,7 +10,7 @@ class ShippingAddressBlockedError extends Error
 {
     private const KEY = 'shipping-address-blocked';
 
-    public function __construct(private readonly string $name)
+    public function __construct(protected readonly string $name)
     {
         $this->message = \sprintf(
             'Shippings to shipping address %s are not possible.',

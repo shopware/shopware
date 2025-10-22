@@ -1,0 +1,1681 @@
+{
+  "global": {
+    "error-codes": {
+      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen.",
+      "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen.",
+      "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein.",
+      "PARENT_MUST_NOT_BE_EMPTY": "Das vererbende Feld darf nicht leer sein.",
+      "INVALID_MEDIA_URL": "Bitte gib eine gültige URL ein, um eine Datei hochzuladen.",
+      "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
+      "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
+      "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
+      "SHOPWARE_INVALID_IP_CIDR": "Bitte gib eine gültige IP-Adresse oder eine IP-Adresse mit CIDR-Maske ein.",
+      "INVALID_URL": "Bitte gib eine gültige URL ein.",
+      "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
+      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
+      "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
+      "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
+      "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
+      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator.",
+      "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\"."
+    },
+    "default": {
+      "add": "Hinzufügen",
+      "apply": "Anwenden",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "remove": "Entfernen",
+      "edit": "Bearbeiten",
+      "duplicate": "Duplizieren",
+      "copy": "Kopie",
+      "error": "Fehler",
+      "warning": "Warnung",
+      "save": "Speichern",
+      "success": "Erfolg",
+      "info": "Info",
+      "yes": "Ja",
+      "no": "Nein",
+      "confirm": "Bestätigen",
+      "view": "Anzeigen",
+      "ascending": "Aufsteigend",
+      "descending": "Absteigend",
+      "xTimesIn": "{n} mal in",
+      "open": "Öffnen",
+      "close": "Schließen",
+      "from": "Von",
+      "to": "Bis",
+      "bulkEdit": "Mehrfachänderung",
+      "back": "Zurück",
+      "discard": "Verwerfen",
+      "submit": "Absenden",
+      "attention": "Warnung"
+    },
+    "notification": {
+      "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
+      "notificationSaveErrorMessageRequiredFieldsInvalid": "Bitte fülle alle Pflichtfelder aus.",
+      "notificationSaveErrorMessageRequiredField": "Dieses Feld ist ein Pflichtfeld.",
+      "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
+      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
+      "messageDeleteSuccess": "\"{name}\" gelöscht.",
+      "messageDeleteFailed": "Die Entität \"{entityName}\" wird in folgenden Modulen verwendet: ",
+      "noTitle": "Ein Titel wurde nicht definiert",
+      "noMessage": "Eine Nachricht wurde nicht definiert",
+      "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
+    },
+    "sw-desktop": {
+      "stagingBarText": "Der Shop befindet sich im Staging-Modus."
+    },
+    "sw-skip-link": {
+      "label": "Navigation überspringen"
+    },
+    "notification-center": {
+      "title": "Mitteilungen",
+      "emptyText": "Nicht viel los hier.",
+      "deleteModal": {
+        "title": "Mitteilungen löschen",
+        "textConfirm": "Möchtest Du wirklich alle Mitteilungen löschen?"
+      },
+      "worker-listener": {
+        "thumbnailGeneration": {
+          "title": "Vorschaubilder werden generiert",
+          "message": "Keine Bilder verbleibend. | Noch ein Bild verbleibend ... | {n} Bilder verbleibend ...",
+          "messageSuccess": "Vorschaubilder generiert."
+        },
+        "esIndexing": {
+          "message": "Elasticsearch indexiert. | Noch ein Indexierungsaufruf verbleibend ... | {n} Indexierungsaufrufe verbleibend ...",
+          "messageSuccess": "Elasticsearch indexiert."
+        },
+        "dalIndexing": {
+          "message": "Alle Daten werden indexiert. | Weitere Daten zur Indexierung verbleibend ...",
+          "messageSuccess": "Daten indexiert."
+        },
+        "productStream": {
+          "title": "Indexierung der dynamischen Produktgruppen",
+          "message": "Dynamische Produktgruppe indexiert. | Noch eine dynamische Produktgruppe verbleibend ... | Circa {n} dynamische Produktgruppen verbleibend ...",
+          "messageSuccess": "Dynamische Produktgruppen indexiert."
+        },
+        "category": {
+          "title": "Kategorie-Indexierung",
+          "message": "Kategorie indexiert. | Noch eine Kategorie verbleibend ... | Circa {n} Kategorien verbleibend ...",
+          "messageSuccess": "Kategorien indexiert."
+        },
+        "media": {
+          "title": "Medien-Indexierung",
+          "message": "Medium indexiert. | Noch ein Medium verbleibend ... | Circa {n} Medien verbleibend ...",
+          "messageSuccess": "Medien indexiert."
+        },
+        "salesChannel": {
+          "title": "Verkaufskanal-Indexierung",
+          "message": "Verkaufskanal indexiert. | Noch ein Verkaufskanal verbleibend ... | Circa {n} Verkaufskanäle verbleibend ...",
+          "messageSuccess": "Verkaufskanäle indexiert."
+        },
+        "rule": {
+          "title": "Regel-Indexierung",
+          "message": "Regeln indexiert. | Noch eine Regel verbleibend ... | Circa {n} Regeln verbleibend ...",
+          "messageSuccess": "Regeln indexiert."
+        },
+        "product": {
+          "title": "Produkt-Indexierung",
+          "message": "Produkte indexiert. | Noch ein Produkt verbleibend ... | Circa {n} Produkte verbleibend ...",
+          "messageSuccess": "Produkte indexiert."
+        },
+        "promotion": {
+          "title": "Indexierung der Rabattaktionen",
+          "message": "Rabattaktion indexiert. | Noch eine Rabattaktion verbleibend ... | Circa {n} Rabattaktionen verbleibend ...",
+          "messageSuccess": "Rabattaktionen indexiert."
+        },
+        "importExport": {
+          "title": "Import/Export",
+          "message": "Daten werden importiert/exportiert.",
+          "messageSuccess": "Alle Importe/Exporte abgeschlossen."
+        },
+        "flow": {
+          "title": "Info/Success",
+          "message": "Flow wird indiziert.",
+          "messageSuccess": "Flows wurden indiziert."
+        },
+        "newsletterRecipient": {
+          "title": "Info/Success",
+          "message": "Indiziere Newsletter-Empfänger.",
+          "messageSuccess": "Newsletter-Empfänger wurden indiziert."
+        }
+      },
+      "plugin-updates-listener": {
+        "updatesAvailableTitle": "Updates verfügbar.",
+        "updatesAvailableMessage": "Für einige Erweiterungen stehen Updates bereit."
+      },
+      "shopware-updates-listener": {
+        "updatesAvailableTitle": "Die neue Shopware-Version {version} ist verfügbar",
+        "updatesAvailableMessage": "Starte den Auto-Updater, um die Installation zu starten.",
+        "updateNow": "Update öffnen"
+      }
+    },
+    "sw-admin-menu": {
+      "linkLogout": "Abmelden",
+      "linkMinimizeMenu": "Menü einklappen",
+      "textShopwareAdmin": "Shopware Administration",
+      "textProjectName": "Administration",
+      "administrator": "Administrator",
+      "navigation": {
+        "label": "Hauptnavigation",
+        "mainMenuItemCatalogue": "Kataloge",
+        "mainMenuItemContent": "Inhalte",
+        "mainMenuItemMarketing": "Marketing"
+      }
+    },
+    "entity-components": {
+      "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
+      "deleteTitle": "Eintrag löschen",
+      "placeholderToManyAssociationCard": "Nach Assoziationen suchen ...",
+      "labelRemoveAssociation": "Zuweisung aufheben",
+      "productStreamPreview": {
+        "emptyMessageNoStream": "Keine dynamische Produktgruppe ausgewählt",
+        "emptyMessageNoProducts": "Keine Produkte gefunden",
+        "emptyMessageNoSearchResults": "Keine Produkte gefunden für \"{term}\""
+      }
+    },
+    "accessibility": {
+      "optionWarning": "Im Interesse der Barrierefreiheit ist es nicht empfehlenswert, diese Option zu aktivieren."
+    },
+    "sw-field": {
+      "notification": {
+        "notificationCopySuccessMessage": "Der Text wurde in die Zwischenablage kopiert.",
+        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden."
+      },
+      "titleShowPassword": "Passwort anzeigen",
+      "titleHidePassword": "Passwort verbergen",
+      "tooltipRestoreInheritance": "Vererbung wiederherstellen",
+      "tooltipRemoveInheritance": "Vererbung entfernen"
+    },
+    "sw-field-copyable": {
+      "tooltip": {
+        "wasCopied": "In Zwischenablage kopiert.",
+        "canCopy": "In Zwischenablage kopieren."
+      }
+    },
+    "sw-file-input": {
+      "buttonChoose": "Datei auswählen",
+      "notification": {
+        "invalidFileType": {
+          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
+        }
+      },
+      "caption": "Datei zum Hochladen hierhin ziehen"
+    },
+    "sw-gtc-checkbox": {
+      "label": "Ich akzeptiere die",
+      "link": "AGB.",
+      "url": "https://www.shopware.com/de/agb"
+    },
+    "sw-price-field": {
+      "labelPriceGross": "Preis (Brutto)",
+      "labelPriceNet": "Preis (Netto)",
+      "toggleLinkedCurrency": "Verknüpfung von Brutto- und Nettopreis umschalten"
+    },
+    "sw-list-price-field": {
+      "labelListPriceGross": "Streichpreis (Brutto)",
+      "helpTextListPriceGross": "Streichpreise weisen auf ein preisreduziertes Produkt hin. Der Streichpreis zeigt den ursprünglichen Preis als durchgestrichenen, roten Text an. Der gültige Preis wird daneben in der Standardtextfarbe dargestellt.",
+      "labelListPriceNet": "Streichpreis (Netto)",
+      "labelRegulationPriceGross": "Günstigster Preis (letzten 30 Tage, Brutto)",
+      "helpTextRegulationPriceGross": "Dieses Feld musst Du ausfüllen, wenn Du in der EU mit Preisermäßigungen in Deinem Shop werben möchtest. Diese Angaben sollen von Kunden in der EU überprüft werden können. Bei Preisermäßigungen muss deshalb neben der Preisermäßigung auf den aktuellen Preis auch der niedrigste Preis der Ware in den letzten 30 Tagen vor der Preisermäßigung angegeben werden. Das ist in Art. 6 a der Richtlinie 98/6/EG vorgeschrieben.",
+      "labelRegulationPriceNet": "Günstigster Preis (letzten 30 Tage, Netto)"
+    },
+    "sw-text-editor": {
+      "labelTextLength": "{count} Zeichen | {count} Zeichen"
+    },
+    "sw-code-editor": {
+      "sanitizeInfo": "Potenziell gefährlicher Code wird bereinigt und automatisch aus dem Editor entfernt.",
+      "sanitizedHint": "Einige Deiner Eingaben wurden bereinigt. Bitte prüfe Deine Inhalte."
+    },
+    "sw-tag-field": {
+      "title": "Tags",
+      "listItemAdd": "\"{term}\" hinzufügen",
+      "placeholder": "Tags durchsuchen ..."
+    },
+    "sw-snippet-field": {
+      "tooltip": "Bearbeite und übersetze diesen Textbaustein"
+    },
+    "sw-snippet-field-edit-modal": {
+      "title": "Textbaustein",
+      "labelName": "Name"
+    },
+    "sw-data-grid": {
+      "tooltipListSettings": "Listeneinstellungen",
+      "labelSettingsCompactMode": "Kompaktmodus verwenden",
+      "labelSettingsPreviewImages": "Vorschaubilder anzeigen",
+      "labelColumnHide": "Spalte ausblenden",
+      "labelSelectionCount": "Ausgewählt:",
+      "labelDeSelectAll": "Alle abwählen",
+      "maximumSelectionExceed": "Maximale Anzahl Einträge ausgewählt",
+      "columnsActions": "Spaltenaktionen",
+      "actionsMenu": "Aktionsmenü öffnen",
+      "labelSelectAll": "Alles auswählen",
+      "labelSelected": "Ausgewählt"
+    },
+    "sw-pagination": {
+      "labelItemsPerPage": "Einträge pro Seite:",
+      "previousPage": "Zur vorherigen Seite gehen",
+      "nextPage": "Zur nächsten Seite gehen",
+      "page": "Gehe zu Seite {page}"
+    },
+    "sw-modal": {
+      "labelClose": "Schließen"
+    },
+    "sw-text-preview": {
+      "showMoreButton": "Mehr zeigen"
+    },
+    "sw-time-ago": {
+      "justNow": "Gerade eben",
+      "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten",
+      "aboutNow": "In Kürze",
+      "minutesFromNow": "In einer Minute | In {minutesFromNow} Minuten"
+    },
+    "sw-media-field": {
+      "labelToggleSearchExisting": "Medien durchsuchen ...",
+      "labelToggleUploadNew": "Neue Medien hochladen",
+      "labelUnlink": "Verknüpfung aufheben"
+    },
+    "sw-media-folder-item": {
+      "labelContextMenuRename": "Umbenennen",
+      "labelContextMenuMove": "Verschieben",
+      "labelContextMenuShowMedia": "Medien anzeigen",
+      "labelContextMenuShowSettings": "Einstellungen",
+      "labelContextMenuDissolve": "Auflösen",
+      "notification": {
+        "errorBlankItemName": {
+          "message": "Der Ordner konnte nicht gespeichert werden. Bitte füge einen Ordnernamen hinzu."
+        },
+        "renamingError": {
+          "message": "Fehler beim Speichern des Ordners."
+        },
+        "errorInvalidItemName": {
+          "message": "Der Ordner konnte nicht gespeichert werden. Bitte gib einen gültigen Ordnernamen ein."
+        }
+      }
+    },
+    "sw-media-media-item": {
+      "labelContextMenuCopyLink": "Link kopieren",
+      "labelContextMenuReplace": "Ersetzen",
+      "labelContextMenuRename": "Umbenennen",
+      "labelContextMenuDetail": "Informationen",
+      "labelContextMenuMove": "Verschieben",
+      "notification": {
+        "errorBlankItemName": {
+          "message": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu."
+        },
+        "renamingSuccess": {
+          "message": "Medium erfolgreich umbenannt."
+        },
+        "renamingError": {
+          "message": "Fehler beim Umbenennen."
+        },
+        "fileNameTooLong": {
+          "message": "Der angegebene Dateiname ist zu lang. Die Maximallänge beträgt {length} Zeichen."
+        },
+        "settingsSuccess": {
+          "message": "Einstellungen erfolgreich gespeichert."
+        }
+      },
+      "labelUploading": "Wird hochgeladen ..."
+    },
+    "sw-media-modal-delete": {
+      "titleModal": {
+        "media": "Medien löschen",
+        "folder": "Ordner löschen",
+        "mediaAndFolder": "Ordner und Medien löschen"
+      },
+      "deleteMessage": {
+        "media": "Möchtest Du die Datei \"{name}\" wirklich löschen? | Möchtest Du diese {count} Dateien wirklich löschen?",
+        "folder": "Möchtest Du den Ordner \"{name}\" wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht. | Möchtest Du diese {count} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht.",
+        "mediaAndFolder": "Möchtest Du {mediaCount} Dateien und {folderCount} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Dateien aus den Ordner gelöscht."
+      },
+      "mediaQuickInfoMessage": "Diese Mediendatei wird derzeit verwendet von",
+      "mediaInUsagesMessage": "Die folgenden Mediendateien werden derzeit noch verwendet",
+      "notification": {
+        "errorSingle": {
+          "message": {
+            "media": "Fehler beim Löschen der Datei \"{name}\".",
+            "folder": "Fehler beim Löschen des Ordners \"{name}\"."
+          }
+        },
+        "successOverall": {
+          "message": {
+            "media": "Keine Datei erfolgreich gelöscht. | Eine Datei erfolgreich gelöscht. | {count} / {total} Dateien erfolgreich gelöscht.",
+            "folder": "Kein Ordner erfolgreich gelöscht. | Ein Ordner erfolgreich gelöscht. | {count} / {total} Ordner erfolgreich gelöscht.",
+            "mediaAndFolder": "Keine Dateien bzw. kein Ordner erfolgreich gelöscht. | Eine Datei bzw. ein Ordner erfolgreich gelöscht. | {count} / {total} Dateien bzw. Ordner erfolgreich gelöscht."
+          }
+        },
+        "errorOverall": {
+          "message": {
+            "media": "Die Dateien konnten nicht gelöscht werden.",
+            "folder": "Die Ordner konnten nicht gelöscht werden.",
+            "mediaAndFolder": "Die Dateien und Ordner konnten nicht gelöscht werden."
+          }
+        }
+      }
+    },
+    "sw-media-modal-folder-dissolve": {
+      "dissolveMessage": "Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
+      "buttonDissolve": "Auflösen",
+      "notification": {
+        "successSingle": {
+          "message": "Ordner \"{folderName}\" erfolgreich aufgelöst."
+        },
+        "errorSingle": {
+          "message": "Fehler beim Auflösen von \"{folderName}\"."
+        },
+        "successOverall": {
+          "message": "Ordner erfolgreich aufgelöst."
+        },
+        "errorOverall": {
+          "message": "Die Ordner konnten nicht aufgelöst werden."
+        }
+      }
+    },
+    "sw-duplicated-media": {
+      "titleModal": "Datei existiert bereits",
+      "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
+      "buttonReplace": "Datei ersetzen",
+      "buttonRename": "Datei umbenennen",
+      "buttonSkip": "Datei überspringen",
+      "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden.",
+      "labelOptionReplace": "Hochladen und ersetzen",
+      "labelOptionRename": "Hochladen und umbenennen",
+      "labelOptionSkip": "Datei überspringen",
+      "labelOldFile": "Bereits existierende Datei",
+      "labelNewFile": "Hochzuladende Datei"
+    },
+    "sw-duplicated-media-v2": {
+      "titleModal": "Datei existiert bereits",
+      "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
+      "buttonReplace": "Datei ersetzen",
+      "buttonRename": "Datei umbenennen",
+      "buttonKeep": "Datei verwenden",
+      "buttonSkip": "Datei überspringen",
+      "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden",
+      "labelOptionReplace": "Hochladen und ersetzen",
+      "labelOptionRename": "Hochladen und umbenennen",
+      "labelOptionKeep": "Vorhandene Datei verwenden",
+      "labelOptionSkip": "Datei überspringen",
+      "labelOldFile": "Bereits existierende Datei",
+      "labelNewFile": "Hochzuladende Datei"
+    },
+    "sw-media-modal-move": {
+      "titleModal": "\"{mediaName}\" verschieben | {count} Objekte verschieben",
+      "buttonMove": "Verschieben",
+      "notification": {
+        "successSingle": {
+          "message": "\"{mediaName}\" erfolgreich verschoben."
+        },
+        "errorSingle": {
+          "message": "\"{mediaName}\" konnte nicht verschoben werden."
+        },
+        "successOverall": {
+          "message": "Objekte erfolgreich verschoben."
+        },
+        "errorOverall": {
+          "message": "Objekte konnten nicht verschoben werden."
+        },
+        "errorFetchNavigation": {
+          "message": "Ordner-Navigation konnte nicht geladen werden."
+        }
+      }
+    },
+    "sw-media-modal-replace": {
+      "titleModal": "Medien ersetzen",
+      "buttonUpload": "Upload",
+      "buttonReplace": "Ersetzen",
+      "warningFileExtension": "Die neue Datei hat eine andere Dateiendung ({extension}). Die Datei muss bei Suchmaschinen ggf. neu indexiert werden."
+    },
+    "sw-media-preview": {
+      "fallbackVideoTagSupport": "Dein Browser unterstützt diesen Video-Tag nicht",
+      "fallbackAudioTagSupport": "Dein Browser unterstützt diesen Audio-Tag nicht",
+      "textNoMedia": "Kein Medium verfügbar"
+    },
+    "sw-media-preview-v2": {
+      "fallbackVideoTagSupport": "Dein Browser unterstützt diesen Video-Tag nicht",
+      "fallbackAudioTagSupport": "Dein Browser unterstützt diesen Audio-Tag nicht",
+      "textNoMedia": "Kein Medium verfügbar"
+    },
+    "sw-media-upload": {
+      "buttonFileUpload": "Dateien hochladen",
+      "buttonUrlUpload": "Über URL hochladen",
+      "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
+      "buttonSwitchToUrlUpload": "Datei von URL hochladen",
+      "buttonOpenMedia": "Medien öffnen",
+      "notification": {
+        "success": {
+          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
+        },
+        "assigned": {
+          "message": "Mediendatei zugewiesen."
+        },
+        "failure": {
+          "message": "Fehler beim Hochladen."
+        },
+        "illegalFilename": {
+          "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
+        },
+        "illegalFileUrl": {
+          "title": "Ungültige URL",
+          "message": "Hochladen über lokale URLs nicht erlaubt."
+        }
+      },
+      "caption": "Dateien zum Hochladen hierhin ziehen"
+    },
+    "sw-media-upload-v2": {
+      "switchMode": "Upload-Modus wechseln",
+      "buttonFileUpload": "Dateien hochladen",
+      "buttonFilesUpload": "Dateien hochladen",
+      "buttonUrlUpload": "Über URL hochladen",
+      "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
+      "buttonSwitchToUrlUpload": "Datei von URL hochladen",
+      "buttonOpenMedia": "Medien öffnen",
+      "notification": {
+        "success": {
+          "title": "Medienupload",
+          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
+        },
+        "failure": {
+          "message": "Fehler beim Hochladen."
+        },
+        "illegalFilename": {
+          "title": "Ungültiger Dateiname",
+          "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
+        },
+        "invalidFileType": {
+          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
+        },
+        "invalidUrl": {
+          "message": "Die eingegebene URL ist ungültig."
+        }
+      },
+      "caption": "Dateien zum Hochladen hierhin ziehen"
+    },
+    "sw-media-url-form": {
+      "title": "Datei über URL hochladen",
+      "upload": "Hochladen",
+      "example": "https://www.beispiel.de",
+      "labelFileExtension": "Dateiendung",
+      "missingFileExtension": "In der angegebenen URL konnte keine Dateiendung gefunden werden. Bitte gib eine Dateiendung an."
+    },
+    "sw-media-modal-folder-settings": {
+      "labelSettings": "Einstellungen",
+      "labelSystem": "Systemordner",
+      "labelThumbnails": "Thumbnails",
+      "labelFolderName": "Name",
+      "labelInheritSettings": "Einstellungen vom überliegenden Ordner übernehmen",
+      "labelGenerateThumbnails": "Thumbnails für diesen Ordner generieren",
+      "labelThumbnailQuality": "Thumbnail-Qualität",
+      "labelThumbnailSize": "Thumbnail-Größe",
+      "labelKeepProportions": "Seitenverhältnis beibehalten",
+      "notification": {
+        "success": {
+          "message": "Einstellungen erfolgreich gespeichert."
+        },
+        "error": {
+          "message": "Fehler beim Speichern der Einstellungen.",
+          "messageThumbnailSizeExisted": "Thumbnail-Größe existiert bereits."
+        }
+      },
+      "labelDefaultFolder": "Medien-Standardspeicherort für",
+      "placeholderDefaultFolder": "Entität auswählen ...",
+      "tooltipCanNotDeleteThumbnailSize": "Thumbnail-Größe kann nicht gelöscht werden, weil diese verwendet wird."
+    },
+    "sw-media-add-thumbnail-form": {
+      "labelMaximumSize": "Maximalmaße"
+    },
+    "sw-sidebar-media-item": {
+      "title": "Medien",
+      "placeholderSearch": "Suchen ...",
+      "labelLoadMore": "Mehr laden"
+    },
+    "sw-media-list-selection-item": {
+      "buttonRemove": "Entfernen"
+    },
+    "sw-media-list-selection-item-v2": {
+      "buttonRemove": "Entfernen"
+    },
+    "sw-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
+    },
+    "sw-select-base": {
+      "buttonClear": "Alle Elemente löschen"
+    },
+    "sw-select-result-list": {
+      "messageNoResults": "Es wurden keine Ergebnisse gefunden."
+    },
+    "sw-single-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "valuePlaceholder": "Bitte auswählen ...",
+      "labelEntity": "Element",
+      "labelEntityAdd": "{entity} \"{term}\" neu erstellen",
+      "labelEntityAddedSuccess": "\"{entity}\" mit dem Namen \"{term}\" wurde erfolgreich erstellt."
+    },
+    "sw-meteor-single-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "valuePlaceholder": "Bitte auswählen ..."
+    },
+    "sw-multi-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
+    },
+    "sw-multi-tag-select": {
+      "enterValidData": "Gültigen Wert eingeben ...",
+      "addData": "Eintrag hinzufügen"
+    },
+    "sw-multi-tag-ip-select": {
+      "enterValidIp": "Gültige IPv4- oder IPv6-Adresse eingeben ...",
+      "addIpAddress": "IP-Adresse hinzufügen",
+      "knownIps": {
+        "you": "Du",
+        "youIPv6Block56": "Du und andere (Selber Standort)",
+        "youIPv6Block64": "Du und andere (Heimnetzwerk)"
+      }
+    },
+    "sw-entity-advanced-selection-modal": {
+      "link": "Erweiterte Auswahl verwenden",
+      "title": "Erweiterte Auswahl: {entity}",
+      "searchPlaceholder": "Suchen ...",
+      "filter": "Filter",
+      "resetFilters": "Filter zurücksetzen",
+      "applySelection": "Auswahl anwenden",
+      "entity": {
+        "product": "Produkte",
+        "rule": "Regeln"
+      }
+    },
+    "sw-entity-multi-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
+    },
+    "sw-entity-many-to-many-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
+    },
+    "sw-search-bar": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
+      "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
+      "placeholderTypeSearchField": "Alle {entity} durchsuchen ...",
+      "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen.",
+      "placeholderSearchShortcutInfo": "<strong>Tipp:</strong> Drücke <span>f</span> um die Suche von überall zu öffnen.",
+      "placeholderESSearchShortcutInfo": "<strong>Tipp:</strong> Um genauere Ergebnisse zu erhalten können Sie die <a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax\" target=\"_blank\">Elasticsearch Abfragen</a> verwenden.",
+      "moduleFiltersHeadline": "Modulfilter",
+      "placeholderFilterShortcutInfo": "Tippe <span>#produkte</span> in die Suche ein, um den Modulfilter zu setzen.",
+      "searchTypeAll": "Alle",
+      "moduleFilter": "Modulfilter",
+      "messageNoResultsV2": "Keine genauen Übereinstimmungen mit \"{term}\" gefunden.",
+      "messageNoResultsDetailV2": "Versuche es mit anderen Schlüsselwörtern oder überprüfe die Konfiguration Deiner Suche.",
+      "addNew": "neue hinzufügen"
+    },
+    "sw-search-bar-item": {
+      "typeLabelCustomer": "Kunde",
+      "typeLabelProduct": "Produkt",
+      "typeLabelOrder": "Bestellung",
+      "typeLabelMedia": "Medium",
+      "typeLabelCategory": "Kategorie",
+      "typeLabelCms": "CMS",
+      "typeLabelModule": "Modul",
+      "typeLabelAction": "Aktion",
+      "addNewEntity": "Neue {entity} hinzufügen",
+      "shortcuts": {
+        "product": "G P | A P",
+        "category": "G C | &nbsp;",
+        "customers": "G U | A U",
+        "property": "G P R | A P R",
+        "manufacturer": "G M | A M",
+        "settings-rule": "G S R | A R",
+        "sales-channel": " | A S",
+        "cms": "G E | A E",
+        "dashboard": "G H | &nbsp;",
+        "product-stream": "G D | &nbsp;",
+        "order": "G O | &nbsp;",
+        "media": "G M E | &nbsp;",
+        "promotion-v2": "G P O | &nbsp;",
+        "settings": "G S | &nbsp;",
+        "newsletter-recipient": "G N | &nbsp;",
+        "settings-snippet": "G S | &nbsp;",
+        "settings-payment": "G S P | &nbsp;",
+        "settings-shipping": "G S S | &nbsp;"
+      }
+    },
+    "sw-search-more-results": {
+      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
+      "labelShowResultsInModuleV2": "Alle Suchtreffer in {entityName} anzeigen ..."
+    },
+    "sw-tagged-field": {
+      "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
+    },
+    "sw-condition": {
+      "operator": {
+        "placeholder": "Operator auswählen ...",
+        "lowerThanEquals": "Ist kleiner/gleich | Sind kleiner/gleich",
+        "equals": "Ist gleich | Sind gleich",
+        "greaterThanEquals": "Ist größer/gleich | Sind größer/gleich",
+        "lowerThan": "Ist kleiner | Sind kleiner",
+        "greaterThan": "Ist größer | Sind größer",
+        "notEquals": "Ist ungleich | Sind ungleich",
+        "isOneOf": "Ist eine von | Sind eine von",
+        "isNoneOf": "Ist keine von | Sind keine von",
+        "gross": "Brutto",
+        "net": "Netto",
+        "empty": "Ist leer | Sind leer"
+      },
+      "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
+      "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
+      "condition": {
+        "dateRangeRule": {
+          "label": "Datumsbereich",
+          "useTime": "Zeit verwenden"
+        },
+        "placeholder": "Bedingungen durchsuchen ...",
+        "orderCountRule": "Anzahl abgeschlossener Bestellungen",
+        "salesChannelRule": "Verkaufskanal",
+        "currencyRule": "Währung",
+        "languageRule": "Sprache",
+        "customerIsActiveRule": "Kunde ist aktiv",
+        "billingCountryRule": "Rechnungsadresse: Land",
+        "billingCityRule": "Rechnungsadresse: Stadt",
+        "billingStreetRule": "Rechnungsadresse: Straße",
+        "billingStateRule": "Rechnungsadresse: Bundesland",
+        "billingZipCodeRule": "Rechnungsadresse: Postleitzahl",
+        "customerGroupRule": "Kundengruppe",
+        "customerRequestedGroupRule": "Angefragte Kundengruppe",
+        "customerTagRule": "Kunde mit Tag",
+        "customerNumberRule": "Kundennummer",
+        "differentAddressesRule": "Kunde mit abweichender Lieferadresse",
+        "emailRule": {
+          "label": "Kunden-E-Mail-Adresse",
+          "placeholder": "Eindeutige E-Mail-Adresse eingeben, oder \"*\" als Platzhalterzeichen verwenden ..."
+        },
+        "lastNameRule": "Kundennachname",
+        "isCompanyRule": "Firmenkunde",
+        "cartTaxDisplay": {
+          "label": "Steuerdarstellung",
+          "gross": "Brutto",
+          "net": "Netto"
+        },
+        "isGuestRule": "Gastbesteller",
+        "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
+        "daysSinceLastOrderRule": "Zeit seit letzter abgeschlossenen Bestellung",
+        "shippingCountryRule": "Lieferadresse: Land",
+        "shippingCityRule": "Lieferadresse: Stadt",
+        "shippingStreetRule": "Lieferadresse: Straße",
+        "shippingStateRule": "Lieferadresse: Bundesland",
+        "shippingZipCodeRule": "Lieferadresse: Postleitzahl",
+        "customerLoggedInRule": "Angemeldeter Kunde",
+        "customerAgeRule": "Kundenalter",
+        "customerDaysSinceLastLogin": "Zeit seit der letzten Anmeldung",
+        "customerDaysSinceFirstLogin": "Zeit seit der ersten Anmeldung",
+        "customerAffiliateCodeRule": "Affiliate-Code (Kunde)",
+        "customerCampaignCodeRule": "Kampagnen-Code (Kunde)",
+        "orderAffiliateCodeRule": "Affiliate-Code (Bestellung)",
+        "orderCampaignCodeRule": "Kampagnen-Code (Bestellung)",
+        "cartAmountRule": "Gesamtsumme",
+        "cartPositionPrice": "Summe",
+        "goodsCountRule": "Gesamtanzahl unterschiedlicher Produkte",
+        "goodsPriceRule": "Zwischensumme aller Positionen",
+        "cartTotalPurchasePrice": "Summe aller Einkaufspreise",
+        "lineItemOfTypeRule": {
+          "label": "Position vom Typ",
+          "product": "Produkt",
+          "discount_surcharge": "Rabatt / Aufschlag"
+        },
+        "lineItemRule": "Positionen im Warenkorb",
+        "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
+        "promotionsInCartCountRule": "Anzahl der Rabatte",
+        "lineItemUnitPriceRule": "Positionsstückpreis",
+        "lineItemTotalPriceRule": "Positionszwischensumme",
+        "lineItemWithQuantityRule": "Positionsanzahl",
+        "orderTagRule": "Bestellung mit Tag",
+        "orderTrackingCodeRule": "Sendungsnummer",
+        "orderDeliveryStatusRule": "Lieferstatus (Flow)",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt (Flow)",
+        "adminSalesChannelSourceRule": "In Administration verwendbar",
+        "orderTransactionStatusRule": "Zahlungsstatus",
+        "orderStatusRule": "Bestellstatus",
+        "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
+        "orderDocumentTypeRule": "Bestellung mit Dokument",
+        "orderDocumentTypeSentRule": "Bestellung mit gesendetem Dokument",
+        "withTime": "Mit Zeitabfrage",
+        "withoutTime": "Ohne Zeitabfrage",
+        "and": "Und",
+        "or": "Oder",
+        "field": {
+          "valuePlaceholder": "Gib einen Wert ein ..."
+        },
+        "placeholder-warning": "Wähle eine Bedingung aus ...",
+        "not-found": {
+          "label": "Die Bedingung konnte nicht gefunden werden",
+          "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields} | Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"
+        },
+        "lineItemCondition": {
+          "any": "Mind. eine",
+          "all": "Alle"
+        },
+        "AddAndCondition": "UND-Bedingung hinzufügen",
+        "AddOrCondition": "ODER-Bedingung hinzufügen",
+        "AddSubCondition": "Unterbedingungen hinzufügen",
+        "deleteConditions": "Container entfernen",
+        "deleteAllConditions": "Alle Bedingungen entfernen",
+        "createBefore": "Davor erstellen",
+        "createAfter": "Danach erstellen",
+        "hasDeliveryFreeItemRule": "Position ist versandkostenfrei",
+        "timeRangeRule": "Zeitraum",
+        "weightOfCartRule": "Gesamtgewicht aller Produkte",
+        "volumeOfCartRule": "Gesamtvolumen aller Produkte",
+        "cartShippingCost": "Versandkosten",
+        "dayOfWeekRule": "Wochentag",
+        "lineItemTagRule": "Position mit Tag",
+        "alwaysValidRule": "Immer zutreffend",
+        "lineItemPropertyRule": "Position mit Varianten- oder Eigenschaftsausprägung",
+        "lineItemNoveltyRule": "Neuheiten",
+        "lineItemCustomFieldRule": "Position mit Zusatzfeld",
+        "lineItemIsNewRule": "Position als \"neu\" markiert",
+        "lineItemOfManufacturerRule": "Position mit Hersteller",
+        "lineItemPurchasePriceRule": "Position mit Einkaufspreis",
+        "lineItemCreationDateRule": "Position mit Erstellungsdatum",
+        "lineItemReleaseDateRule": "Position mit Erscheinungsdatum",
+        "lineItemClearanceSale": "Position im Abverkauf",
+        "lineItemPromotedRule": "Position ist hervorgehoben",
+        "lineItemInCategoryRule": "Position in Kategorie",
+        "categoryWithProductStreamTooltip": "Produkte in dieser Kategorie werden durch eine dynamische Produktgruppe zugewiesen. Bitte verwende die Bedingung \"Position in dynamischer Produktgruppe\" um dynamisch auf diese Produkte zuzugreifen.",
+        "lineItemInProductStreamRule": "Position in dynamischer Produktgruppe",
+        "lineItemTaxationRule": "Position mit Steuersatz",
+        "lineItemDimensionWidthRule": "Position mit Breite",
+        "lineItemDimensionHeightRule": "Position mit Höhe",
+        "lineItemDimensionLengthRule": "Position mit Länge",
+        "lineItemDimensionWeightRule": "Position mit Gewicht",
+        "lineItemDimensionVolumeRule": "Position mit Volumen",
+        "lineItemListPriceRule": "Position mit Streichpreis",
+        "lineItemListPriceRatioRule": "Position mit Preis/Streichpreis-Verhältnis",
+        "lineItemActualStockRule": "Position mit Lagerbestand",
+        "lineItemStockRule": "Position mit verfügbarem Bestand",
+        "lineItemProductStates": "Position mit Produktzustand",
+        "numberOfReviews": "Anzahl freigegebener Bewertungen",
+        "paymentMethodRule": "Verwendete Zahlungsart",
+        "shippingMethodRule": "Verwendete Versandart",
+        "lineItemGoodsTotalRule": "Gesamtanzahl aller Produkte",
+        "orderTotalAmountRule": "Gesamtwert aller abgeschlossenen Bestellungen",
+        "promotionValueRule": "Zwischensumme aller Rabatte",
+        "promotionCodeOfType": "Rabattaktionen mit Aktionscodetyp",
+        "promotionCodeOfTypeRule": {
+          "global": "Keiner",
+          "fixed": "Festgelegt",
+          "individual": "Individuell"
+        },
+        "promotionLineItemRule": "Rabattaktion",
+        "lineItemCustomField": {
+          "field": {
+            "fieldSetSelect": {
+              "placeholder": "Fieldset wählen ..."
+            },
+            "customFieldSelect": {
+              "placeholder": "Zusatzfeld wählen ...",
+              "tooltip": "Dieses Zusatzfeld ist aktuell in Warenkörben nicht verfügbar. In den <a href=\"{customFieldSettingsLink}\" target=\"_blank\">Einstellungen</a> dieses Zusatzfeldes kannst du es für Warenkörbe  aktivieren."
+            }
+          }
+        },
+        "customerCustomFieldRule": "Kunde mit Zusatzfeld",
+        "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ...",
+        "customerBirthdayRule": "Kundengeburtstag",
+        "customerCreatedByAdminRule": "Kunde vom Administrator erstellt",
+        "customerSalutationRule": "Kundenanrede",
+        "lineItemPropertyValueRule": "Position mit Eigenschaftsausprägung",
+        "lineItemVariantValueRule": "Position mit Variantenausprägung"
+      }
+    },
+    "sw-condition-generic": {
+      "dayOfWeek": {
+        "dayOfWeek": {
+          "options": {
+            "1": "Montag",
+            "2": "Dienstag",
+            "3": "Mittwoch",
+            "4": "Donnerstag",
+            "5": "Freitag",
+            "6": "Samstag",
+            "7": "Sonntag"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "Produkt",
+            "promotion": "Rabatt / Aufschlag"
+          }
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeType": {
+          "options": {
+            "global": "Keiner",
+            "fixed": "Festgelegt",
+            "individual": "Individuell"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-download": "Digital",
+            "is-physical": "Physisch"
+          }
+        }
+      },
+      "units": {
+        "dimension": "mm",
+        "weight": "kg",
+        "volume": "mm³",
+        "age": "Jahre",
+        "kg": "Kilogramm",
+        "g": "Gramm",
+        "mg": "Milligramm",
+        "oz": "Unze",
+        "lb": "Pfund",
+        "m": "Meter",
+        "cm": "Zentimeter",
+        "mm": "Millimeter",
+        "km": "Kilometer",
+        "in": "Zoll",
+        "ft": "Fuß",
+        "mi": "Meilen",
+        "hr": "Stunden",
+        "yr": "Jahre",
+        "mth": "Monate",
+        "wk": "Wochen",
+        "d": "Tage",
+        "min": "Minuten",
+        "m3": "Kubikmeter",
+        "cm3": "Kubikzentimeter",
+        "mm3": "Kubikmillimeter",
+        "in3": "Kubikzoll",
+        "ft3": "Kubikfuß",
+        "short": {
+          "hr": "std",
+          "yr": "j",
+          "mth": "mo",
+          "wk": "w",
+          "d": "t",
+          "min": "min",
+          "kg": "kg",
+          "g": "g",
+          "mg": "mg",
+          "oz": "oz",
+          "lb": "lb",
+          "m": "m",
+          "cm": "cm",
+          "mm": "mm",
+          "km": "km",
+          "in": "in",
+          "ft": "ft",
+          "mi": "mi",
+          "m3": "m³",
+          "cm3": "cm³",
+          "mm3": "mm³",
+          "in3": "in³",
+          "ft3": "ft³"
+        }
+      }
+    },
+    "sw-product-image": {
+      "context": {
+        "buttonAsCover": "Als Cover nutzen",
+        "buttonRemove": "Entfernen",
+        "buttonPreviewImage": "Vorschau-Bild"
+      }
+    },
+    "sw-simple-search-field": {
+      "defaultPlaceholder": "Suche ..."
+    },
+    "sw-tabs-item": {
+      "tooltipTabHasErrors": "Diese Seite enthält Fehler.",
+      "tooltipTabHasWarnings": "Diese Seite enthält Warnungen."
+    },
+    "entities": {
+      "all": "Alle",
+      "custom_field": "Zusatzfeld | Zusatzfelder",
+      "cart": "Warenkorb | Warenkörbe",
+      "category": "Kategorie | Kategorien",
+      "cms_page": "Layout | Layouts",
+      "document": "Dokument | Dokumente",
+      "property": "Eigenschaft | Eigenschaften",
+      "country": "Land | Länder",
+      "currency": "Währung | Währungen",
+      "customer": "Kunde | Kunden",
+      "customer_address": "Adresse | Adressen",
+      "customer_group": "Kundengruppe | Kundengruppen",
+      "extension": "Erweiterung | Erweiterungen",
+      "integration": "Integration | Integrationen",
+      "language": "Sprache | Sprachen",
+      "mail_header_footer": "Header & Footer",
+      "mail_template": "E-Mail-Template | E-Mail-Templates",
+      "media": "Medium | Medien",
+      "media_default_folder": "Standardordner",
+      "media_folder": "Ordner",
+      "media_thumbnail": "Thumbnail | Thumbnails",
+      "media_thumbnail_size": "Thumbnailgröße | Thumbnailgrößen",
+      "newsletter_recipient": "Newsletter-Empfänger",
+      "number_range": "Nummernkreis | Nummernkreise",
+      "order": "Bestellung | Bestellungen",
+      "order_address": "Adresse | Adressen",
+      "order_delivery": "Lieferung | Lieferungen",
+      "order_line_item": "Bestellposition | Bestellpositionen",
+      "order_state": "Bestellstatus | Bestellstatus",
+      "order_transaction": "Zahlung | Zahlungen",
+      "order_transaction_state": "Zahlungsstatus | Zahlungsstatus",
+      "payment_method": "Zahlungsart | Zahlungsarten",
+      "privacy": "Datenschutz",
+      "plugin_manager": "Plugins",
+      "product": "Produkt | Produkte",
+      "product_manufacturer": "Hersteller",
+      "product_media": "Produktmedium | Produktmedien",
+      "product_price": "Produktpreis | Produktpreise",
+      "product_stream": "Produktgruppe | Produktgruppen",
+      "product_review": "Bewertung | Bewertungen",
+      "product_variation": "Variante | Varianten",
+      "promotion": "Promotion | Promotions",
+      "promotion_order_rule": "Bestellregel | Bestellregeln",
+      "promotion_cart_rule": "Warenkorbregel | Warenkorbregeln",
+      "promotion_persona_rule": "Promotion-Zielgruppe | Promotion-Zielgruppen",
+      "rule": "Regel | Regeln",
+      "rule_condition": "Bedingung | Bedingungen",
+      "sales_channel": "Verkaufskanal | Verkaufskanäle",
+      "sales_channel_type": "Verkaufskanaltyp | Verkaufskanaltypen",
+      "salutation": "Anrede | Anreden",
+      "seo_url": "SEO-URL | SEO-URLs",
+      "shipping_method": "Versandart | Versandarten",
+      "snippet": "Textbaustein | Textbausteine",
+      "tag": "Tag | Tags",
+      "tax": "Steuern",
+      "tax_rule": "Steuerregel | Steuerregeln",
+      "theme": "Theme | Themes",
+      "unit": "Maßeinheit | Maßeinheiten",
+      "user": "Benutzer",
+      "landing_page": "Landingpage | Landingpages",
+      "delivery_time": "Lieferzeit | Lieferzeiten",
+      "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
+      "feature_set": "Template | Templates",
+      "property_group": "Eigenschaftsgruppe | Eigenschaftsgruppen",
+      "property_group_option": "Eigenschaftsgruppen-Option | Eigenschaftsgruppen-Optionen",
+      "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen",
+      "product_feature_set": "Neues Template | Neue Templates",
+      "custom-field-set": "Zusatzfeld-Set",
+      "store_settings": "Produkt-Sortierung",
+      "flow": "Flow Builder",
+      "module": "Modul",
+      "frequently_used": "Häufig verwendete",
+      "recently_searched": "Kürzlich gesucht",
+      "flow_sequence": "Flow"
+    },
+    "day-of-week": {
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
+    },
+    "businessEvents": {
+      "checkout_customer_before_login": "Kunde hat Anmeldungsanfrage gestellt",
+      "checkout_customer_changed-payment-method": "Kunde ändert Zahlungsart",
+      "checkout_customer_deleted": "Kundenkonto wurde gelöscht",
+      "checkout_customer_double_opt_in_guest_order": "Gastbestellerkonto wurde registriert mit Double-Opt-in",
+      "checkout_customer_double_opt_in_registration": "Kundenkonto wurde registriert mit Double-Opt-in",
+      "checkout_customer_guest_register": "Gastbestellerkonto wurde registriert",
+      "checkout_customer_login": "Kunde meldet sich an",
+      "checkout_customer_logout": "Kunde meldet sich ab",
+      "checkout_customer_register": "Kundenkonto wurde registriert",
+      "checkout_order_placed": "Bestellung ist eingegangen",
+      "checkout_order_payment_method_changed": "Zahlungsmethode einer Bestellung wurde geändert",
+      "contact_form_send": "Kontaktformular wurde verschickt",
+      "review_form_send": "Produktbewertung wurde verschickt",
+      "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
+      "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
+      "customer_recovery_request": "Kunde fordert neues Passwort an",
+      "mail_after_create_message": "E-Mail wurde erzeugt",
+      "mail_before_send": "E-Mail wird gesendet",
+      "mail_sent": "E-Mail wurde gesendet",
+      "newsletter_confirm": "Newsletteranmeldung wurde bestätigt",
+      "newsletter_register": "Newsletteranmeldung wurde registriert",
+      "newsletter_unsubscribe": "Newsletter wurde abbestellt",
+      "newsletter_update": "Newsletteranmeldung wurde aktualisiert",
+      "product_export_log": "Produktexport wurde aufgeführt",
+      "state_enter_order_state_cancelled": "Bestellung erreicht Status abgebrochen",
+      "state_enter_order_state_completed": "Bestellung erreicht Status abgeschlossen",
+      "state_enter_order_state_in_progress": "Bestellung erreicht Status in Bearbeitung",
+      "state_enter_order_state_open": "Bestellung erreicht Status offen",
+      "state_enter_order_delivery_state_cancelled": "Lieferung erreicht Status abgebrochen",
+      "state_enter_order_delivery_state_open": "Lieferung erreicht Status offen",
+      "state_enter_order_delivery_state_returned": "Lieferung erreicht Status zurückgesendet",
+      "state_enter_order_delivery_state_returned_partially": "Lieferung erreicht Status teilweise zurückgesendet",
+      "state_enter_order_delivery_state_shipped": "Lieferung erreicht Status versandt",
+      "state_enter_order_delivery_state_shipped_partially": "Lieferung erreicht Status teilweise versandt",
+      "state_enter_order_transaction_state_authorized": "Zahlung erreicht Status autorisiert",
+      "state_enter_order_transaction_state_cancelled": "Zahlung erreicht Status abgebrochen",
+      "state_enter_order_transaction_state_chargeback": "Zahlung erreicht Status erstattet",
+      "state_enter_order_transaction_state_failed": "Zahlung erreicht Status fehlgeschlagen",
+      "state_enter_order_transaction_state_in_progress": "Zahlung erreicht Status in Bearbeitung",
+      "state_enter_order_transaction_state_open": "Zahlung erreicht Status offen",
+      "state_enter_order_transaction_state_paid": "Zahlung erreicht Status bezahlt",
+      "state_enter_order_transaction_state_paid_partially": "Zahlung erreicht Status teilweise bezahlt",
+      "state_enter_order_transaction_state_refunded": "Zahlung erreicht Status erstattet",
+      "state_enter_order_transaction_state_refunded_partially": "Zahlung erreicht Status teilweise erstattet",
+      "state_enter_order_transaction_state_reminded": "Zahlung erreicht Status Erinnerung versandt",
+      "state_enter_order_transaction_state_unconfirmed": "Zahlung erreicht Status unbestätigt",
+      "state_leave_order_state_cancelled": "Bestellung verlässt Status abgebrochen",
+      "state_leave_order_state_completed": "Bestellung verlässt Status abgeschlossen",
+      "state_leave_order_state_in_progress": "Bestellung verlässt Status in Bearbeitung",
+      "state_leave_order_state_open": "Bestellung verlässt Status offen",
+      "state_leave_order_delivery_state_cancelled": "Lieferung verlässt Status abgebrochen",
+      "state_leave_order_delivery_state_open": "Lieferung verlässt Status offen",
+      "state_leave_order_delivery_state_returned": "Lieferung verlässt Status zurückgesendet",
+      "state_leave_order_delivery_state_returned_partially": "Lieferung verlässt Status teilweise zurückgesendet",
+      "state_leave_order_delivery_state_shipped": "Lieferung verlässt Status versandt",
+      "state_leave_order_delivery_state_shipped_partially": "Lieferung verlässt Status teilweise versandt",
+      "state_leave_order_transaction_state_authorized": "Zahlung verlässt Status autorisiert",
+      "state_leave_order_transaction_state_cancelled": "Zahlung verlässt Status abgebrochen",
+      "state_leave_order_transaction_state_chargeback": "Zahlung verlässt Status erstattet",
+      "state_leave_order_transaction_state_failed": "Zahlung verlässt Status fehlgeschlagen",
+      "state_leave_order_transaction_state_in_progress": "Zahlung verlässt Status in Bearbeitung",
+      "state_leave_order_transaction_state_open": "Zahlung verlässt Status offen",
+      "state_leave_order_transaction_state_paid": "Zahlung verlässt Status bezahlt",
+      "state_leave_order_transaction_state_paid_partially": "Zahlung verlässt Status teilweise bezahlt",
+      "state_leave_order_transaction_state_refunded": "Zahlung verlässt Status erstattet",
+      "state_leave_order_transaction_state_refunded_partially": "Zahlung verlässt Status teilweise erstattet",
+      "state_leave_order_transaction_state_reminded": "Zahlung verlässt Status Erinnerung versandt",
+      "state_leave_order_transaction_state_unconfirmed": "Zahlung verlässt Status unbestätigt",
+      "user_recovery_request": "Benutzer-Wiederherstellungsanfrage gestellt"
+    },
+    "tax-rates": {
+      "Standard rate": "Standard-Satz",
+      "Reduced rate": "Ermäßigter Satz",
+      "Reduced rate 2": "Stark ermäßigter Satz"
+    },
+    "sw-bulk-edit-modal": {
+      "bulkEdit": "Mehrfachänderung",
+      "startBulkEdit": "Mehrfachänderung starten",
+      "bulkEditModalTitle": "Mehrfachänderung - {count} Element ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
+    },
+    "sw-search-preferences-modal": {
+      "title": "Sucheinstellungen",
+      "description": "Nur die hier ausgewählten Elemente werden als Suchergebnisse angezeigt. Für detailierte Anpassungen der Suche <span id='sw-search-preferences-modal-link'>öffne die Sucheinstellungen &#8594;</span>",
+      "columnActive": "Aktiv",
+      "columnModuleName": "Modulname"
+    },
+    "sw-help-center": {
+      "title": "Support",
+      "documentation": {
+        "headline": "Brauchst Du Hilfe?",
+        "linkText": "Dokumentation ansehen",
+        "linkUrl": "https://docs.shopware.com/de/shopware-6-de"
+      },
+      "support": {
+        "headline": "Wir sind für dich da!",
+        "paragraph": "Du hast in unserer Dokumentation nichts Hilfreiches gefunden? Dann wende Dich an den Shopware-Support und wir kümmern uns um Dein Problem.",
+        "linkText": "Supportanfrage erstellen",
+        "linkUrl": "https://account.shopware.com/shops/support"
+      }
+    },
+    "sw-page": {
+      "backButton": "Zurückgehen"
+    }
+  },
+  "mt-text-editor-toolbar-button-link": {
+    "label": "Link"
+  },
+  "sw-text-editor-toolbar-button-link": {
+    "modalTitle": "Link einfügen oder bearbeiten",
+    "linkTo": "Link zu",
+    "linkUrl": "URL",
+    "linkPhone": "Telefonnummer",
+    "linkPhonePrefix": "tel:",
+    "linkDetail": "Produkt",
+    "linkEmail": "E-Mail-Adresse",
+    "linkEmailPlaceholder": "E-Mail-Adresse eingeben ...",
+    "detailPlaceholder": "Produkt auswählen ...",
+    "categoryPlaceholder": "Kategorie auswählen ...",
+    "displayAsButton": "Link als Button darstellen",
+    "openInNewTab": "In neuem Tab öffnen",
+    "applyLink": "Link einfügen",
+    "linkType": "Link-Typ",
+    "removeLink": "Link entfernen",
+    "linkOptions": {
+      "link": "URL",
+      "product": "Produkt",
+      "category": "Kategorie",
+      "media": "Datei",
+      "email": "E-Mail-Adresse",
+      "phoneNumber": "Telefonnummer"
+    },
+    "buttonVariantPrimary": "Primär",
+    "buttonVariantSecondary": "Sekundär",
+    "buttonVariantPrimarySmall": "Primär (klein)",
+    "buttonVariantSecondarySmall": "Sekundär (klein)"
+  },
+  "sw-text-editor-toolbar-button-cms-data-mapping": {
+    "label": "Variable einfügen"
+  },
+  "sw-text-editor-toolbar": {
+    "link": {
+      "openInNewTab": "Link in neuem Tab öffnen",
+      "displayAsButton": "Link als Button darstellen",
+      "buttonVariant": "Buttontyp",
+      "buttonVariantPrimary": "Primär",
+      "buttonVariantSecondary": "Sekundär",
+      "buttonVariantPrimarySmall": "Primär (klein)",
+      "buttonVariantSecondarySmall": "Sekundär (klein)",
+      "linkTo": "Link zu",
+      "placeholder": "URL eingeben ...",
+      "labelUrl": "URL",
+      "labelType": "Link-Typ",
+      "labelLink": "Link",
+      "labelProduct": "Produkt",
+      "labelCategory":"Kategorie",
+      "labelMedia": "Datei",
+      "labelEmail": "E-Mail-Adresse",
+      "labelPhoneNumber": "Telefonnummer",
+      "placeholderPhoneNumber": "Telefonnummer eingeben ...",
+      "placeholderEmail": "E-Mail-Adresse eingeben ...",
+      "placeholderProduct": "Produkt auswählen ...",
+      "placeholderCategory": "Kategorie auswählen ..."
+    },
+    "table": {
+      "addHeading": "Tabellenkopf hinzufügen",
+      "cols": "Spalten",
+      "rows": "Zeilen",
+      "editInfo": "Tabelle kann nachträglich erweitert werden."
+    },
+    "title": {
+      "format": "Vorlage",
+      "paragraph": "Absatz",
+      "h1": "Überschrift 1",
+      "h2": "Überschrift 2",
+      "h3": "Überschrift 3",
+      "h4": "Überschrift 4",
+      "h5": "Überschrift 5",
+      "h6": "Überschrift 6",
+      "blockquote": "Zitat",
+      "text-color": "Textfarbe",
+      "bold": "Fett",
+      "data-mapping": "Variable einfügen",
+      "italic": "Kursiv",
+      "underline": "Unterstrichen",
+      "strikethrough": "Durchgestrichen",
+      "superscript": "Hochgestellt",
+      "subscript": "Tiefgestellt",
+      "textAlign": "Text-Ausrichtung",
+      "alignLeft": "Linksbündig",
+      "alignCenter": "Zentriert",
+      "alignRight": "Rechtsbündig",
+      "justify": "Blocksatz",
+      "insert-unordered-list": "Ungeordnete Liste hinzufügen",
+      "insert-ordered-list": "Geordnete Liste hinzufügen",
+      "link": "Link",
+      "undo": "Rückgängig",
+      "redo": "Wiederholen",
+      "insert-table": "Tabelle hinzufügen",
+      "code-switch": "Bearbeitungsmodus wechseln"
+    }
+  },
+  "sw-tree": {
+    "general": {
+      "placeholderSearch": "Suche ...",
+      "treeHeadSelected": "{count} ausgewählt",
+      "treeHeadline": "Baumstruktur",
+      "buttonCreate": "Element erstellen",
+      "actions": {
+        "createSub": "Neues Unterelement",
+        "createBefore": "Neues Element davor",
+        "createAfter": "Neues Element danach",
+        "actionsDisabledInLanguage": "Elemente können nur in der System-Standardsprache erstellt werden."
+      }
+    },
+    "modal": {
+      "textDeleteConfirm": "Möchtest Du das Element \"{name}\" wirklich löschen?",
+      "textDeleteMultipleConfirm": "Möchtest Du die \"{count}\" gewählten Elemente wirklich löschen?",
+      "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht."
+    }
+  },
+  "sw-tree-item": {
+    "toggleTreeItem": "Baumstruktur umschalten \"{name}\"",
+    "toggleItem": "\"{name}\" Checkbox umschalten ",
+    "childrenLabel": "Unterelemente für \"{name}\""
+  },
+  "sw-sidebar-collapse": {
+    "collapseIndicator": "Seitenleiste verbergen"
+  },
+  "sw-category-tree-field": {
+    "emptySearchResults": "Keine Kategorien gefunden."
+  },
+  "sw-error": {
+    "general": {
+      "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden.",
+      "textLink": "Zurück"
+    }
+  },
+  "sw-property-search": {
+    "placeholderSearch": "Ausprägungen durchsuchen ...",
+    "selected": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",
+    "noPropertiesFound": "Keine Ausprägungen gefunden",
+    "noPropertiesFoundDescription": "Versuche es mit einem anderen Suchbegriff."
+  },
+  "sw-property-assignment": {
+    "columnGroup": "Eigenschaft",
+    "columnOptions": "Ausprägungen",
+    "messageEmptyTitle": "Noch keine Eigenschaften",
+    "messageEmptySubline": "Zum Anlegen von Gruppen gehe ins Eigenschaften-Modul."
+  },
+  "sw-language-info": {
+    "infoTextChildLanguage": "Darstellung von \"{entityDescription}\" in der Sprache <span>\"{language}\"</span>. Diese erbt von",
+    "infoTextRootLanguage": "Darstellung von \"{entityDescription}\" in der Sprache <span>\"{language}\"</span>. Der Fallback ist die System-Standardsprache.",
+    "infoTextNewEntity": "\"{entityDescription}\" wird in der Systemstandardsprache angezeigt. Neue Daten müssen in der Standardsprache immer gepflegt sein."
+  },
+  "sw-language-switch": {
+    "messageModalUnsavedChanges": "Du hast in der aktuellen Sprache noch ungespeicherte Änderungen. Möchtest Du diese jetzt speichern?",
+    "titleModalUnsavedChanges": "Nicht gespeicherte Änderungen",
+    "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen"
+  },
+  "sw-inheritance-warning": {
+    "infoTextInheritedField": "{moduleName} hat vererbte Felder. Das bedeutet, dass solange der vererbte Zustand aktiv ist, der Inhalt vererbt wird. Vererbte Felder können durch Anklicken des Link-Symbols aufgelöst werden. Ein erneuter Klick auf das Symbol setzt den vererbten Zustand wieder zurück."
+  },
+  "sw-license-violation": {
+    "title": "Erweiterungs-Warnung",
+    "reload": "Neu laden",
+    "alertText": "Für mindestens eine der Erweiterungen in dieser Installation liegt eine Lizenzverletzung vor. Buche ein Abonnement für die Erweiterung nach oder kaufe/miete die Erweiterung (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden.\nNutzt Du die Erweiterung nicht mehr? Dann lösche sie vollständig. Falls Du keinen dieser Schritte vollziehst, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
+    "deletePlugin": "Erweiterung vollständig entfernen",
+    "messageDeleteConfirm": "Möchtest Du die Erweiterung \"{pluginName}\" vollständig löschen?",
+    "checkboxMessage": "Ich habe die Warnung gelesen und verstehe die möglichen Konsequenzen.",
+    "closeModal": "Warnung schließen",
+    "ignorePlugin": "Dauerhaft ignorieren",
+    "successfullyDeleted": "Erweiterung wurde gelöscht",
+    "table": {
+      "plugin": "Erweiterung",
+      "warning": "Warnung"
+    }
+  },
+  "sw-sales-channel-switch": {
+    "messageModalUnsavedChanges": "Du hast noch ungespeicherte Änderungen in diesem Verkaufskanal. Möchtest Du diese jetzt speichern?",
+    "placeholderSelect": "Suchen ...",
+    "titleModalUnsavedChanges": "Nicht gespeicherte Änderungen",
+    "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
+    "labelDefaultOption": "Alle Verkaufskanäle"
+  },
+  "sw-config-form-renderer": {
+    "placeholder": "Bitte \"{name}\" ausfüllen ...",
+    "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt ...",
+    "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:"
+  },
+  "locale": {
+    "de-DE": "Deutsch",
+    "en-GB": "Englisch (GB)",
+    "bg-BG": "Bulgarisch",
+    "bs-BA": "Bosnisch",
+    "cs-CZ": "Tschechisch",
+    "da-DK": "Dänisch",
+    "el-GR": "Griechisch",
+    "en-US": "Englisch (US)",
+    "es-ES": "Spanisch",
+    "fi-FI": "Finnisch",
+    "fr-FR": "Französisch",
+    "hi-IN": "Hindi",
+    "hr-HR": "Kroatisch",
+    "hu-HU": "Ungarisch",
+    "id-ID": "Indonesisch",
+    "it-IT": "Italienisch",
+    "ko-KR": "Koreanisch",
+    "lv-LV": "Lettisch",
+    "nl-NL": "Niederländisch",
+    "nn-NO": "Norwegisch",
+    "pl-PL": "Polnisch",
+    "pt-PT": "Portugiesisch",
+    "ro-RO": "Rumänisch",
+    "ru-RU": "Russisch",
+    "sk-SK": "Slowakisch",
+    "sl-SI": "Slowenisch",
+    "sr-RS": "Serbisch",
+    "sv-SE": "Schwedisch",
+    "tr-TR": "Türkisch",
+    "uk-UA": "Ukrainisch",
+    "vi-VN": "Vietnamesisch"
+  },
+  "sw-image-slider": {
+    "imageAlt": "Bild {index} / {total}"
+  },
+  "sw-confirm-modal": {
+    "defaultText": "Möchtest Du wirklich fortfahren?"
+  },
+  "sw-rule-modal": {
+    "modalTitleNew": "Neue globale Regel erstellen",
+    "labelDescription": "Beschreibung",
+    "placeholderDescription": "Lege eine Beschreibung für diese Regel fest ...",
+    "labelName": "Name",
+    "placeholderName": "Lege einen Namen für diese Regel fest ...",
+    "labelPriority": "Priorität",
+    "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
+    "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
+    "ruleCard": "Bedingungen",
+    "messageSaveError": "Beim Speichern der Regel ist ein Fehler aufgetreten",
+    "modalTitleModify": "Globale Regel anpassen"
+  },
+  "sw-select-rule-create": {
+    "addNewRule": "Neue Regel erstellen ..."
+  },
+  "sw-shortcut-overview": {
+    "title": "Tastenkürzel",
+    "iconTooltip": "Drücke die `{key}` Taste für die Tastenkürzel-Übersicht",
+    "modalTitle": "Tastenkürzel",
+    "sectionAddingItems": "Hinzufügen von Elementen",
+    "sectionNavigation": "Navigation",
+    "sectionSpecialShortcuts": "Spezielle Tastenkürzel",
+    "function": "Funktion",
+    "keyboardShortcut": "Tastenkürzel",
+    "functionAddProduct": "Produkt hinzufügen",
+    "keyboardShortcutAddProduct": "A P",
+    "functionAddCategory": "Kategorie hinzufügen",
+    "keyboardShortcutAddCategory": "A C",
+    "functionAddShoppingExperienceLayout": "Erlebniswelt hinzufügen",
+    "keyboardShortcutAddShoppingExperienceLayout": "A E",
+    "functionAddCustomer": "Kunden hinzufügen",
+    "keyboardShortcutAddCustomer": "A U",
+    "functionAddProperties": "Eigenschaft hinzufügen",
+    "keyboardShortcutAddProperties": "A P R",
+    "functionAddManufacturer": "Hersteller hinzufügen",
+    "keyboardShortcutAddManufacturer": "A M",
+    "functionAddRule": "Regel hinzufügen",
+    "keyboardShortcutAddRule": "A R",
+    "functionAddSaleschannel": "Verkaufskanal hinzufügen",
+    "keyboardShortcutAddSaleschannel": "A S",
+    "functionGoToDashboard": "Gehe zu Dashboard",
+    "keyboardShortcutGoToDashboard": "G H",
+    "functionGoToProducts": "Gehe zu Produkten",
+    "keyboardShortcutGoToProducts": "G P",
+    "functionGoToCategories": "Gehe zu Kategorien",
+    "keyboardShortcutGoToCategories": "G C",
+    "functionGoToDynamicProductGroups": "Gehe zu dynamische Produktgruppen",
+    "keyboardShortcutGoToDynamicProductGroups": "G D",
+    "functionGoToProperties": "Gehe zu Eigenschaften",
+    "keyboardShortcutGoToProperties": "G P R",
+    "functionGoToManufacturers": "Gehe zu Hersteller",
+    "keyboardShortcutGoToManufacturers": "G M",
+    "functionGoToOrders": "Gehe zu Bestellungen",
+    "keyboardShortcutGoToOrders": "G O",
+    "functionGoToCustomers": "Gehe zu Kunden",
+    "keyboardShortcutGoToCustomers": "G U",
+    "functionGoToShoppingExperience": "Gehe zu Erlebniswelten",
+    "keyboardShortcutGoToShoppingExperience": "G E",
+    "functionGoToMedia": "Gehe zu Medien",
+    "keyboardShortcutGoToMedia": "G M E",
+    "functionGoToPromotion": "Gehe zu Rabatte & Aktionen",
+    "keyboardShortcutGoToPromotion": "G P O",
+    "functionGoToNewsletterRecipients": "Gehe zu Newsletter-Empfänger",
+    "keyboardShortcutGoToNewsletterRecipients": "G N",
+    "functionGoToSettingsListing": "Gehe zu Einstellung",
+    "keyboardShortcutGoToSettingsListing": "G S",
+    "functionGoToSnippets": "Gehe zu Textbausteine",
+    "keyboardShortcutGoToSnippets": "G S N",
+    "functionGoToPayment": "Gehe zu Zahlungsarten",
+    "keyboardShortcutGoToPayment": "G S P",
+    "functionGoToShipping": "Gehe zu Versand",
+    "keyboardShortcutGoToShipping": "G S S",
+    "functionGoToRuleBuilder": "Gehe zu Rule Builder",
+    "keyboardShortcutGoToRuleBuilder": "G S R",
+    "functionGoToPlugins": "Gehe zu \"Meine Erweiterungen\"",
+    "keyboardShortcutGoToPlugins": "G A",
+    "functionSpecialShortcutFocusSearch": "Fokussiere Suche",
+    "keyboardShortcutSpecialShortcutFocusSearch": "f",
+    "functionSpecialShortcutShortcutListing": "Tastenkürzel-Übersicht",
+    "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
+    "functionSpecialShortcutSaveDetailViewWindows": "Windows: Speichern in Detailansicht",
+    "keyboardShortcutSpecialShortcutSaveDetailViewWindows": "alt s",
+    "functionSpecialShortcutSaveDetailViewMac": "Mac: Speichern in Detailansicht",
+    "keyboardShortcutSpecialShortcutSaveDetailViewMac": "control s",
+    "functionSpecialShortcutSaveDetailViewLinux": "Linux: Speichern in Detailansicht",
+    "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "alt s",
+    "functionSpecialShortcutCancelDetailView": "Abbrechen in Detailansicht",
+    "keyboardShortcutSpecialShortcutCancelDetailView": "Esc",
+    "functionSpecialShortcutClearCacheWindows": "Windows: Cache löschen",
+    "keyboardShortcutSpecialShortcutClearCacheWindows": "alt c",
+    "functionSpecialShortcutClearCacheMac": "Mac: Cache löschen",
+    "keyboardShortcutSpecialShortcutClearCacheMac": "control c",
+    "functionSpecialShortcutClearCacheLinux": "Linux: Cache löschen",
+    "keyboardShortcutSpecialShortcutClearCacheLinux": "alt c"
+  },
+  "sw-discard-changes-modal": {
+    "title": "Ungespeicherte Änderungen verwerfen?",
+    "message": "Es gibt ungespeicherte Änderungen. Möchtest Du die Seite verlassen und die Änderungen verwerfen?",
+    "actions": {
+      "discard": "Änderungen verwerfen",
+      "keepEditing": "Weiter bearbeiten"
+    }
+  },
+  "sw-maintain-currencies-modal": {
+    "title": "Währungen pflegen",
+    "columnPrice": "Preise (Brutto / Netto)",
+    "columnListPriceHeader": "Streichpreise (Brutto / Netto)",
+    "columnReferencePriceHeader": "Günstigster Preis (letzte 30 Tage, Brutto / Netto)"
+  },
+  "sw-privileges": {
+    "tooltip": {
+      "warning": "Du hast nicht die erforderlichen Berechtigungen."
+    },
+    "error": {
+      "description": "Für diese Aktion fehlen Dir die nötigen Berechtigungen, bitte frage diese bei Deinem Administrator an. Die benötigten Berechtigungen sind:"
+    }
+  },
+  "sw-custom-field-set-renderer": {
+    "labelCustomFieldSetSelectSwitch": "Zusatzfeld-Sets auswählen",
+    "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus ...",
+    "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
+    "messagePluginSets": "Plugin-Zusatzfeld-Sets (Können nicht entfernt werden)"
+  },
+  "sw-rating-stars": {
+    "ratingTooltipText": "{actual} von {max} Sternen"
+  },
+  "sw-app": {
+    "component": {
+      "sw-app-actions": {
+        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden der App-Actions aufgetreten.",
+        "closeWindow": "Fenster schließen",
+        "iframeModalConfirmMessage": "Möchten Sie \"{title}\" wirklich schließen?",
+        "iframeModalConfirmMessageDescription": "Bitte stellen Sie sicher, dass alle Prozesse abgeschlossen sind.",
+        "dontAskMeAgain": "Mich nicht erneut fragen"
+      },
+      "sw-app-shop-id-change-modal": {
+        "title": "Änderung der Shop-ID wird vorgeschlagen",
+        "description": {
+          "explanation": "In Deinem System bzw. der Umgebung wurden Änderungen festgestellt, die auf eine Änderung der Shop-ID hindeuten. Solange Du keine Option ausgewählt hast, findet keine Kommunikation mit Apps statt, um Probleme mit der Shop-Identifikation oder Datenkorruption zu vermeiden.",
+          "shopId": {
+            "title": "Was ist die Shop-ID?",
+            "explanation": "Die Shop-ID ist ein Bestandteil des App-Systems von Shopware. Apps, bei denen Dein Shop registriert ist, nutzen diese, um Deinen Shop eindeutig zu identifizieren. Daher ist es wichtig, dass Shop-IDs einzigartig bleiben und nicht zwischen verschiedenen Shops geteilt werden – auch nicht zwischen unterschiedlichen Umgebungen (z. B. einer Staging- oder Testkopie) desselben Shops."
+          }
+        },
+        "affectedApps": "Die folgenden Apps sind betroffen:",
+        "detectedChanges": "Die folgenden Änderungen wurden festgestellt:",
+        "success": "Shop-ID erfolgreich aktualisiert.",
+        "error": "Aktualisierung der Shop-ID fehlgeschlagen.",
+        "oldValue": "Alter Wert",
+        "newValue": "Neuer Wert",
+        "remindMeLater": "Später erinnern",
+        "selectAnOption": "Lies die verfügbaren Optionen sorgfältig durch und wähle diejenige, die am besten zu Deinem Szenario passt:",
+        "fingerprints": {
+          "app_url": {
+            "label": "APP_URL Umgebungsvariable",
+            "description": "Die APP_URL wird von Apps verwendet, um sich mit der Admin-API Deines Shops zu verbinden."
+          },
+          "installation_path": {
+            "label": "Installationspfad"
+          },
+          "sales_channel_domain_urls": {
+            "label": "Verkaufskanal-Domains",
+            "description": "Die Prüfsumme der Verkaufskanal-Domains ändert sich, wenn bestehende Domains geändert oder gelöscht werden oder neue Domains hinzugefügt werden."
+          }
+        },
+        "strategies": {
+          "move-shop-permanently": {
+            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor.",
+            "name": "Shop-ID beibehalten"
+          },
+          "reinstall-apps": {
+            "description": "Das ist in der Regel die richtige Option, wenn Du eine Kopie Deines Shops erstellt hast (z. B. eine Staging- oder Testumgebung eines Produktionsshops) und die Apps auch in dieser Kopie nutzen möchtest. Shopware installiert die Apps neu und registriert sich mit der neuen Shop-ID erneut bei den App-Servern. Dein Shop identifiziert sich als neuer Shop.",
+            "name": "Neue Shop-ID generieren"
+          },
+          "uninstall-apps": {
+            "name": "Apps deinstallieren",
+            "description": "Das ist in der Regel die richtige Option, wenn Du eine Kopie Deines Shops erstellt hast (z. B. eine Staging- oder Testumgebung eines Produktionsshops) und die Apps in dieser Kopie nicht nutzen möchtest. Shopware löscht die Apps, ohne die App-Server zu benachrichtigen. Eine neue Shop-ID wird generiert und Dein Shop identifiziert sich als neuer Shop."
+          }
+        }
+      },
+      "sw-app-wrong-app-url-modal": {
+        "title": "Fehlerhaft konfigurierte APP_URL",
+        "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
+        "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
+        "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
+        "labelLearnMoreButton": "Lerne mehr",
+        "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
+      }
+    }
+  },
+  "sw-wizard": {
+    "backButton": "Zurück",
+    "closeButton": "Schließen",
+    "finishButton": "Abschließen",
+    "nextButton": "Weiter"
+  },
+  "sw-meteor": {
+    "navigation": {
+      "backButton": "Zurück"
+    }
+  },
+  "sw-base-filter": {
+    "resetButton": "Zurücksetzen"
+  },
+  "sw-boolean-filter": {
+    "placeholder": "Alle",
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+  "sw-date-filter": {
+    "selectTimeframe": {
+      "placeholder": "Zeitraum auswählen"
+    }
+  },
+  "sw-existence-filter": {
+    "placeholder": "Alle",
+    "noCriteria": "Kein {criteriaName}",
+    "hasCriteria": "Hat {criteriaName}"
+  },
+  "sw-filter-panel": {
+    "titleSidebarItemFilter": "Filter"
+  },
+  "sw-sidebar-filter-panel": {
+    "resetButton": "Alle zurücksetzen"
+  },
+  "sw-empty-state": {
+    "messageNoResultTitle": "Nichts gefunden",
+    "messageNoResultSublineSimple": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden.",
+    "messageNoResultSubline": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch die Konfiguration Deiner Suche.",
+    "messageNoResultSublineBefore": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch",
+    "messageNoResultSublineLink": "die Konfiguration",
+    "messageNoResultLink": "Zu den Sucheinstellungen",
+    "messageNoResultSublineAfter": "Deiner Suche."
+  },
+  "sw-restricted-rules": {
+    "restrictedAssignment": {
+      "general": "Diese Regel verwendet Bedingungen, die für die Zuweisung zu {relation} nicht zulässig sind.",
+      "productPrices": "Preis-Regel",
+      "shippingMethodPrices": "Preis-Regel",
+      "shippingMethodPriceCalculations": "Versankosten-Berechnungs-Regel",
+      "shippingMethods": "Versandarten-Regel",
+      "paymentMethods": "Zahlarten-Regel",
+      "flowSequences": "Flow-Builder-Regeln",
+      "personaPromotions": "Kunden-Regel|Kunden-Regeln",
+      "orderPromotions": "Bestellungs-Regel|Bestellungs-Regeln",
+      "cartPromotions": "Warenkorb-Regel|Warenkorb-Regeln",
+      "promotionDiscounts": "Produkt-Regel|Produkt-Regeln",
+      "promotionSetGroups": "Produkt-Regel|Produkt-Regeln",
+      "notEqualsViolationTooltip": "Diese Regel verwendet Bedingungen, die die Zuweisung zu {entityLabel} verhindern. Diese Bedingungen sind: {conditions}.",
+      "equalsAnyViolationTooltip": "Diese Regel muss mindestens eine der folgenden Bedingungen verwenden, um {entityLabel} zugewiesen zu werden: {conditions}."
+    },
+    "restrictedConditions": {
+      "restrictedConditionTooltip": "Diese Regel ist an folgenden Stellen zugewiesen:<br/><br/>{assignments}<br/><br/>Die Verwendung dieser Bedingung ist in diesem Zusammenhang nicht möglich.",
+      "relation": {
+        "flowTrigger": "Flows mit Auslöser: {assignments}",
+        "promotion": "Rabattaktionen als: {assignments}",
+        "productPrices": "Produkte als: {assignments}",
+        "shippingMethods": "Versandarten als: {assignments}",
+        "shippingMethodPrices": "Versandarten als: {assignments}",
+        "paymentMethods": "Zahlarten als: {assignments}"
+      }
+    },
+    "and": "und",
+    "or": "oder"
+  },
+  "sw-ai-copilot-warning": {
+    "text": "AI-Antworten können ungenau oder irreführend sein."
+  },
+  "sw-in-app-purchase-checkout": {
+    "exsTitle": "Shopware Extension Store aktivieren"
+  },
+  "sidebar": {
+    "ariaLabelButtonClose": "Seitenleiste schließen",
+    "ariaLabelButtonOpen": "Seitenleiste öffnen",
+    "ariaLabelButtonCollapse": "Seitenleiste minimieren",
+    "buttonCollapse": "minimieren"
+  },
+  "help-center": {
+    "sidebar": {
+      "title": "Hilfe",
+      "ariaLabelButtonOpen": "Hilfe öffnen",
+      "ariaLabelButtonClose": "Hilfe schließen",
+      "ariaLabelButtonShortcut": "Tastenkürzel-Übersicht öffnen",
+      "support": {
+        "title": "Support",
+        "documentation": {
+          "text": "Dokumentation",
+          "href": "https://docs.shopware.com/de"
+        },
+        "createSupportRequest": {
+          "text": "Supportanfrage erstellen",
+          "href": "https://account.shopware.com/"
+        }
+      }
+    }
+  },
+  "sw-datepicker": {
+    "date": {
+      "placeholder": "Datum auswählen ..."
+    },
+    "time": {
+      "placeholder": "Zeit auswählen ..."
+    },
+    "datetime": {
+      "placeholder": "Datum und Zeit auswählen ..."
+    }
+  },
+  "sw-context-button": {
+    "ariaLabel": "Kontextmenü öffnen"
+  }
+}

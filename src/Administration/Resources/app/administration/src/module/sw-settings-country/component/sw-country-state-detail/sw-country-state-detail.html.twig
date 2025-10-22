@@ -32,8 +32,8 @@
         {% endblock %}
 
         {% block sw_country_state_detail_modal_position %}
-        <sw-number-field
-            v-model:value="countryState.position"
+        <mt-number-field
+            v-model="countryState.position"
             name="sw-field--countryState-position"
             :disabled="!acl.can('country.editor') || undefined"
             :tooltip-text="$tc('sw-country-state-detail.tooltipPosition')"
@@ -46,17 +46,16 @@
     {% block sw_country_state_detail_modal_footer %}
     <template #modal-footer>
         {% block sw_country_state_detail_modal_footer_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="onCancel"
+            variant="secondary"
         >
             {{ $tc('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
         {% block sw_country_state_detail_modal_footer_save %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipSave"
             class="sw-country-state-detail__save-button"

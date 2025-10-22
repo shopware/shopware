@@ -27,7 +27,7 @@ class AppActionControllerTest extends TestCase
     public function testGetActionsPerViewEmpty(): void
     {
         $url = '/api/app-system/action-button/product/index';
-        $this->getBrowser()->request('GET', $url);
+        $this->getBrowser()->jsonRequest('GET', $url);
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
@@ -42,7 +42,7 @@ class AppActionControllerTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
         $url = '/api/app-system/action-button/order/detail';
-        $this->getBrowser()->request('GET', $url);
+        $this->getBrowser()->jsonRequest('GET', $url);
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
@@ -96,11 +96,7 @@ class AppActionControllerTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        $postData = \json_encode($postData);
-        static::assertNotFalse($postData);
-        static::assertJson($postData);
-
-        $this->getBrowser()->request('POST', $url, [], [], [], $postData);
+        $this->getBrowser()->jsonRequest('POST', $url, $postData);
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -151,12 +147,8 @@ class AppActionControllerTest extends TestCase
 
         $url = '/api/app-system/action-button/run/' . $action->getId();
 
-        $postData = \json_encode(['ids' => []]);
-        static::assertNotFalse($postData);
-        static::assertJson($postData);
-
         $this->appendNewResponse(new Response(200));
-        $this->getBrowser()->request('POST', $url, [], [], [], $postData);
+        $this->getBrowser()->jsonRequest('POST', $url, ['ids' => []]);
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -181,11 +173,7 @@ class AppActionControllerTest extends TestCase
     {
         $url = '/api/app-system/action-button/run/' . Uuid::randomHex();
 
-        $postData = \json_encode(['ids' => []]);
-        static::assertNotFalse($postData);
-        static::assertJson($postData);
-
-        $this->getBrowser()->request('POST', $url, [], [], [], $postData);
+        $this->getBrowser()->jsonRequest('POST', $url, ['ids' => []]);
 
         static::assertSame(404, $this->getBrowser()->getResponse()->getStatusCode());
     }
@@ -205,7 +193,7 @@ class AppActionControllerTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext())
             ->firstId();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/app-system/action-button/run/' . $actionId,
             [
@@ -231,7 +219,7 @@ class AppActionControllerTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
         $url = '/api/app-system/modules';
-        $this->getBrowser()->request('GET', $url);
+        $this->getBrowser()->jsonRequest('GET', $url);
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());

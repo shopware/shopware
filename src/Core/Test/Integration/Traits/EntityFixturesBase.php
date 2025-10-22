@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -14,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 trait EntityFixturesBase
 {
@@ -31,10 +32,11 @@ trait EntityFixturesBase
         $this->entityFixtureContext = $context;
     }
 
+    /**
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
+     */
     public static function getFixtureRepository(string $fixtureName): EntityRepository
     {
-        self::ensureATransactionIsActive();
-
         $container = KernelLifecycleManager::getKernel()->getContainer();
 
         if ($container->has('test.service_container')) {
@@ -47,6 +49,7 @@ trait EntityFixturesBase
 
     /**
      * @param array<string, array<string, mixed>> $fixtureData
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
      */
     public function createFixture(string $fixtureName, array $fixtureData, EntityRepository $repository): Entity
     {

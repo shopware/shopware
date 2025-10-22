@@ -25,9 +25,11 @@ class AddressHashSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<CustomerAddressEntity|OrderAddressEntity> $event
+     */
     public function generateAddressHash(EntityLoadedEvent $event): void
     {
-        /** @var CustomerAddressEntity|OrderAddressEntity $address */
         foreach ($event->getEntities() as $address) {
             $address->setHash(Hasher::hash([
                 'firstName' => $address->getFirstName(),

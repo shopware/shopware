@@ -86,6 +86,9 @@ async function createWrapper() {
         search: () => {
             return Promise.resolve({ total: 0 });
         },
+        searchIds: () => {
+            return Promise.resolve({ total: 0 });
+        },
     };
 
     return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {
@@ -117,9 +120,9 @@ async function createWrapper() {
                     },
                 },
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                             <slot name="title"></slot>
                             <slot name="grid"></slot>
@@ -164,7 +167,6 @@ async function createWrapper() {
                 'sw-product-add-properties-modal': true,
                 'sw-loader': true,
                 'sw-simple-search-field': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-help-text': true,
             },
@@ -197,14 +199,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 isChild: () => true,
             },
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get group ids successful', async () => {
@@ -306,6 +300,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
+        const getPropertiesSpy = jest.spyOn(wrapper.vm, 'getProperties').mockImplementation(() => Promise.resolve());
+
         Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
@@ -331,6 +327,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 }),
             ]),
         );
+        expect(getPropertiesSpy).toHaveBeenCalled();
+
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 

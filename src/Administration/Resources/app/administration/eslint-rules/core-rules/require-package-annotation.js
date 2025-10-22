@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // Should be kept in sync with phpstan-type in src/Core/Framework/Log/Package.php

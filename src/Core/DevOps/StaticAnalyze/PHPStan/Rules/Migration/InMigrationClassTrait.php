@@ -18,6 +18,6 @@ trait InMigrationClassTrait
             return false;
         }
 
-        return $scope->getClassReflection()->isSubclassOf(MigrationStep::class);
+        return $scope->getClassReflection()->is(MigrationStep::class);
     }
 }

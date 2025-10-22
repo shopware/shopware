@@ -16,7 +16,6 @@ async function createWrapper(config = null) {
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-single-select': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                 },
                 provide: {

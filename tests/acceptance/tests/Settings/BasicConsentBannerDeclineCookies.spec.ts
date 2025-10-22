@@ -1,15 +1,13 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test(
-    'As a shop customer, I want to continue shopping without accepting the cookies in the storefront.', { tag: '@Settings' }, async ({
+    'As a shop customer, I want to continue shopping without accepting the cookies in the storefront.', { tag: ['@Settings', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,
     InstanceMeta,
 }) => {
     test.skip(InstanceMeta.isSaaS, 'Cache invalidation does not happen immediately on SaaS');
-    test.skip(InstanceMeta.features['ACCESSIBILITY_TWEAKS'], 'Blocked by https://shopware.atlassian.net/browse/NEXT-40635, ' +
-        'https://shopware.atlassian.net/browse/NEXT-40156');
 
     await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});
     const product = await TestDataService.createBasicProduct();
@@ -22,10 +20,10 @@ test(
         await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).toBeVisible();
     });
 
-    await test.step('Dismiss cookie banner using the configure option', async () => {
+    await test.step('Dismiss cookie banner using the configure option without choosing a preference, cookie banner should be displayed again', async () => {
         await StorefrontHome.consentConfigureButton.click();
         await StorefrontHome.offcanvasBackdrop.click();
-        await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
     });
 
     await test.step('Verify cookies after dismissing the cookie banner', async () => {
@@ -35,7 +33,7 @@ test(
 
     await test.step('Navigate to the product page and verify the cookie banner', async () => {
         const productListItemLocators = await StorefrontHome.getListingItemByProductName(product.name);
-        await productListItemLocators.productImage.click();
+        await productListItemLocators.productName.click();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
     });
 });

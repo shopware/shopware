@@ -16,9 +16,15 @@ class LogEntryEntity extends Entity
 
     protected string $channel;
 
-    protected ?string $context = null;
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $context = null;
 
-    protected ?string $extra = null;
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $extra = null;
 
     public function getMessage(): string
     {
@@ -50,22 +56,34 @@ class LogEntryEntity extends Entity
         $this->channel = $channel;
     }
 
-    public function getContext(): ?string
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getContext(): ?array
     {
         return $this->context;
     }
 
-    public function setContext(?string $context): void
+    /**
+     * @param array<string, mixed>|null $context
+     */
+    public function setContext(?array $context): void
     {
         $this->context = $context;
     }
 
-    public function getExtra(): ?string
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getExtra(): ?array
     {
         return $this->extra;
     }
 
-    public function setExtra(?string $extra): void
+    /**
+     * @param array<string, mixed>|null $extra
+     */
+    public function setExtra(?array $extra): void
     {
         $this->extra = $extra;
     }

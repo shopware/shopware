@@ -30,10 +30,6 @@ describe('src/app/component/structure/sw-language-switch', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should change the language', async () => {
         Shopware.Store.get('context').api.languageId = '123';
 

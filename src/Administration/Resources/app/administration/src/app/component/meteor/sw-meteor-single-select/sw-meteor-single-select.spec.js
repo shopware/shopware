@@ -55,7 +55,6 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-icon': true,
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': true,

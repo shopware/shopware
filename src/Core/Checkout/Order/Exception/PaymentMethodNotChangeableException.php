@@ -2,28 +2,29 @@
 
 namespace Shopware\Core\Checkout\Order\Exception;
 
+use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed. Use OrderException::paymentMethodNotChangeable instead
+ */
 #[Package('checkout')]
-class PaymentMethodNotChangeableException extends ShopwareHttpException
+class PaymentMethodNotChangeableException extends OrderException
 {
     public function __construct(string $id)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0')
+        );
+
         parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            'CHECKOUT__PAYMENT_METHOD_UNCHANGEABLE',
             'The order has an active transaction - {{ id }}',
             ['id' => $id]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'CHECKOUT__PAYMENT_METHOD_UNCHANGEABLE';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
     }
 }

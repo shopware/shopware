@@ -115,7 +115,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
-        static::assertEquals([], $result);
+        static::assertSame([], $result);
     }
 
     public function testGetSystemConfigByDomainWithException(): void
@@ -134,7 +134,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
-        static::assertEquals($result, []);
+        static::assertSame($result, []);
     }
 
     /**
@@ -142,7 +142,7 @@ class SystemConfigValidatorTest extends TestCase
      * @param array<int, mixed> $expected
      */
     #[DataProvider('dataProviderTestGetRuleByKey')]
-    public function testBuildConstraintsWithConfigs(array $elementConfig, array $expected): void
+    public function testBuildConstraintsWithConfigs(array $elementConfig, array $expected, bool $allowNulls): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
         $dataValidatorMock = $this->createMock(DataValidator::class);
@@ -151,7 +151,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'buildConstraintsWithConfigs');
 
-        $result = $refMethod->invoke($systemConfigValidation, $elementConfig);
+        $result = $refMethod->invoke($systemConfigValidation, $elementConfig, $allowNulls);
 
         static::assertEquals($expected, $result);
     }
@@ -161,6 +161,7 @@ class SystemConfigValidatorTest extends TestCase
         yield 'element config is empty' => [
             'elementConfig' => [],
             'expected' => [],
+            'allowNulls' => false,
         ];
 
         yield 'element config with type string' => [
@@ -171,11 +172,12 @@ class SystemConfigValidatorTest extends TestCase
                 'maxLength' => 255,
             ],
             'expected' => [
-                new Assert\Length(['min' => 1]),
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(min: 1),
+                new Assert\Length(max: 255),
                 new Assert\Type('string'),
                 new Assert\NotBlank(),
             ],
+            'allowNulls' => false,
         ];
 
         yield 'element config with type int' => [
@@ -186,11 +188,44 @@ class SystemConfigValidatorTest extends TestCase
                 'max' => 100,
             ],
             'expected' => [
-                new Assert\Range(['min' => 1]),
-                new Assert\Range(['max' => 100]),
+                new Assert\Range(min: 1),
+                new Assert\Range(max: 100),
                 new Assert\Type('int'),
                 new Assert\NotBlank(),
             ],
+            'allowNulls' => false,
+        ];
+
+        yield 'element config with type string, nulls allowed' => [
+            'elementConfig' => [
+                'required' => true,
+                'dataType' => 'string',
+                'minLength' => 1,
+                'maxLength' => 255,
+            ],
+            'expected' => [
+                new Assert\Length(min: 1),
+                new Assert\Length(max: 255),
+                new Assert\Type('string'),
+                new Assert\NotBlank(null, null, true),
+            ],
+            'allowNulls' => true,
+        ];
+
+        yield 'element config with string values for minLength and maxLength' => [
+            'elementConfig' => [
+                'required' => false,
+                'dataType' => 'string',
+                'minLength' => '5',
+                'maxLength' => '100',
+            ],
+            'expected' => [
+                new Assert\Length(min: 5),
+                new Assert\Length(max: 100),
+                new Assert\Type('string'),
+                new Assert\NotBlank(),
+            ],
+            'allowNulls' => false,
         ];
     }
 

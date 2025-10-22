@@ -35,8 +35,6 @@ const createWrapper = async (repositoryFactoryMock) => {
         global: {
             stubs: {
                 'router-link': true,
-                'sw-icon': true,
-
                 'sw-loader': true,
             },
             provide: {
@@ -78,10 +76,6 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                 icon: 'default-action-settings',
             },
         };
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be correct to show media in used information when user select a media', async () => {

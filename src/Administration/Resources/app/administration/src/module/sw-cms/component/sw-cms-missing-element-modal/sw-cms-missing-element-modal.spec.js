@@ -29,7 +29,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-icon': true,
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),

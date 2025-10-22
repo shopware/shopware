@@ -16,24 +16,24 @@
     {% endblock %}
 
     {% block sw_data_grid_inline_edit_type_number %}
-    <sw-number-field
+    <mt-number-field
         v-else-if="column.inlineEdit === 'number'"
         key="number"
-        v-model:value="currentValue"
+        v-model="currentValue"
         name="sw-field--currentValue"
         :size="inputFieldSize"
         :number-align-end="true"
-        @update:value="emitInput"
+        @update:model-value="emitInput"
     />
     {% endblock %}
 
     {% block sw_data_grid_inline_edit_type_boolean %}
-    <sw-checkbox-field
+    <mt-checkbox
         v-else-if="column.inlineEdit === 'boolean'"
         key="boolean"
-        v-model:value="currentValue"
+        v-model:checked="currentValue"
         name="sw-field--currentValue"
-        @update:value="emitInput"
+        @update:checked="emitInput"
     />
     {% endblock %}
 

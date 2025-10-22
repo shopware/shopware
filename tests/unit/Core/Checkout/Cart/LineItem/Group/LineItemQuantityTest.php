@@ -24,7 +24,7 @@ class LineItemQuantityTest extends TestCase
     {
         $item = new LineItemQuantity('ID1', 2);
 
-        static::assertEquals('ID1', $item->getLineItemId());
+        static::assertSame('ID1', $item->getLineItemId());
     }
 
     /**
@@ -36,7 +36,7 @@ class LineItemQuantityTest extends TestCase
     {
         $item = new LineItemQuantity('ID1', 2);
 
-        static::assertEquals(2, $item->getQuantity());
+        static::assertSame(2, $item->getQuantity());
     }
 
     /**
@@ -50,6 +50,6 @@ class LineItemQuantityTest extends TestCase
 
         $item->setQuantity(5);
 
-        static::assertEquals(5, $item->getQuantity());
+        static::assertSame(5, $item->getQuantity());
     }
 }

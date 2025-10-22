@@ -25,7 +25,7 @@ async function createWrapper(privileges = [], editMode = false) {
                     'sw-card-view': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot></div>',
                     },
                     'sw-container': true,
@@ -112,10 +112,6 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it("should keep the customer's account type as private even when the company field is set", async () => {

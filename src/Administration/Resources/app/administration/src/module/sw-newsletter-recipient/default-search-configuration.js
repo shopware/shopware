@@ -1,8 +1,7 @@
-import { searchRankingPoint } from 'src/app/service/search-ranking.service';
-
 /**
  * @sw-package after-sales
  */
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const defaultSearchConfiguration = {
     _searchable: false,

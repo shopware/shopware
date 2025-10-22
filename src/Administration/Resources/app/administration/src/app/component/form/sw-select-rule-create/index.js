@@ -1,7 +1,6 @@
 import template from './sw-select-rule-create.html.twig';
 import './sw-select-rule-create.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -18,7 +17,7 @@ const { Criteria } = Shopware.Data;
  *     \@dismiss-rule="onDismissRule">
  * </sw-select-rule-create>
  */
-Component.register('sw-select-rule-create', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -31,6 +30,7 @@ Component.register('sw-select-rule-create', {
     emits: [
         'save-rule',
         'dismiss-rule',
+        'update:rules',
     ],
 
     props: {
@@ -85,6 +85,12 @@ Component.register('sw-select-rule-create', {
                 return '';
             },
         },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
     },
 
     data() {
@@ -132,6 +138,10 @@ Component.register('sw-select-rule-create', {
             }
         },
 
+        onUpdateCollection(collection) {
+            this.$emit('update:rules', collection);
+        },
+
         openCreateRuleModal() {
             this.showRuleModal = true;
         },
@@ -175,4 +185,4 @@ Component.register('sw-select-rule-create', {
             );
         },
     },
-});
+};

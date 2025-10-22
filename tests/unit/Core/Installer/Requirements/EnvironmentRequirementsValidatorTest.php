@@ -50,9 +50,9 @@ class EnvironmentRequirementsValidatorTest extends TestCase
         $composer->method('getRepositoryManager')->willReturn($repoManagerMock);
 
         if ($coreComposerName) {
-            $composer->expects(static::never())->method('getPackage');
+            $composer->expects($this->never())->method('getPackage');
         } else {
-            $composer->expects(static::once())->method('getPackage')->willReturn($corePackage);
+            $composer->expects($this->once())->method('getPackage')->willReturn($corePackage);
         }
 
         $validator = new EnvironmentRequirementsValidator($composer, $systemEnvironment);

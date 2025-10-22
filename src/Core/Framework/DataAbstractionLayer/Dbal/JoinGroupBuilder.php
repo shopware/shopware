@@ -60,11 +60,11 @@ class JoinGroupBuilder
 
             unset($groups['operator'], $groups['negated']);
 
-            foreach ($groups as $path => $filters) {
+            foreach ($groups as $path => $groupFilters) {
                 $relevant = \in_array($path, $duplicates, true) || $negated;
 
                 if (!$relevant) {
-                    $new = array_merge($new, $filters);
+                    $new = array_merge($new, $groupFilters);
 
                     continue;
                 }
@@ -73,7 +73,7 @@ class JoinGroupBuilder
                     continue;
                 }
 
-                $new[] = new JoinGroup($filters, $path, '_' . $level, $operator);
+                $new[] = new JoinGroup($groupFilters, $path, '_' . $level, $operator);
                 ++$level;
             }
         }

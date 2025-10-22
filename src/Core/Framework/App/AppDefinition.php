@@ -77,6 +77,7 @@ class AppDefinition extends EntityDefinition
             'templateLoadPriority' => 0,
             'sourceType' => 'local',
             'selfManaged' => false,
+            'requestedPrivileges' => [],
         ];
     }
 
@@ -109,10 +110,12 @@ class AppDefinition extends EntityDefinition
             new ListField('allowed_hosts', 'allowedHosts', StringField::class),
             new IntField('template_load_priority', 'templateLoadPriority'),
             new StringField('checkout_gateway_url', 'checkoutGatewayUrl'),
+            new StringField('context_gateway_url', 'contextGatewayUrl'),
             new StringField('in_app_purchases_gateway_url', 'inAppPurchasesGatewayUrl'),
             new StringField('source_type', 'sourceType'),
             new JsonField('source_config', 'sourceConfig'),
             new BoolField('self_managed', 'selfManaged'),
+            (new ListField('requested_privileges', 'requestedPrivileges', StringField::class))->addFlags(new Required()),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),

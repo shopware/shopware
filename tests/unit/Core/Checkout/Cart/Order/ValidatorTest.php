@@ -9,12 +9,14 @@ use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Validator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
 #[CoversClass(Validator::class)]
+#[Package('checkout')]
 class ValidatorTest extends TestCase
 {
     public function testValidate(): void
@@ -37,7 +39,7 @@ class ValidatorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $cart = new Cart('test');
 
-        $mockValidator->expects(static::once())->method('validate')->with($cart, static::anything(), $context);
+        $mockValidator->expects($this->once())->method('validate')->with($cart, static::anything(), $context);
 
         $errors = $validator->validate($cart, $context);
         static::assertCount(1, $errors);

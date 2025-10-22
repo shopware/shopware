@@ -26,17 +26,17 @@ class KeyFetcherTest extends TestCase
     {
         $storeRequestOptionsProvider = $this->createMock(StoreRequestOptionsProvider::class);
 
-        $storeRequestOptionsProvider->expects(static::once())
+        $storeRequestOptionsProvider->expects($this->once())
             ->method('getDefaultQueryParameters')
             ->willReturn(['storeToken' => 'test']);
 
-        $storeRequestOptionsProvider->expects(static::once())
+        $storeRequestOptionsProvider->expects($this->once())
             ->method('getAuthenticationHeader')
             ->willReturn(['Authorization' => 'Bearer test']);
 
         $client = $this->createMock(ClientInterface::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('request')
             ->with(
                 'GET',
@@ -67,15 +67,15 @@ class KeyFetcherTest extends TestCase
 
         $storeRequestOptionsProvider = $this->createMock(StoreRequestOptionsProvider::class);
 
-        $storeRequestOptionsProvider->expects(static::never())
+        $storeRequestOptionsProvider->expects($this->never())
             ->method('getDefaultQueryParameters');
 
-        $storeRequestOptionsProvider->expects(static::never())
+        $storeRequestOptionsProvider->expects($this->never())
             ->method('getAuthenticationHeader');
 
         $client = $this->createMock(ClientInterface::class);
 
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('request');
 
         $keyFetcher = new KeyFetcher(
@@ -96,17 +96,17 @@ class KeyFetcherTest extends TestCase
     {
         $storeRequestOptionsProvider = $this->createMock(StoreRequestOptionsProvider::class);
 
-        $storeRequestOptionsProvider->expects(static::once())
+        $storeRequestOptionsProvider->expects($this->once())
             ->method('getDefaultQueryParameters')
             ->willReturn(['storeToken' => 'test']);
 
-        $storeRequestOptionsProvider->expects(static::once())
+        $storeRequestOptionsProvider->expects($this->once())
             ->method('getAuthenticationHeader')
             ->willReturn(['Authorization' => 'Bearer test']);
 
         $client = $this->createMock(ClientInterface::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('request')
             ->with(
                 'GET',

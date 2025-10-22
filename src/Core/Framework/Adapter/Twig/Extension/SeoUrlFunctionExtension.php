@@ -27,6 +27,9 @@ class SeoUrlFunctionExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function seoUrl(string $name, array $parameters = []): string
     {
         return $this->seoUrlReplacer->generate($name, $parameters);

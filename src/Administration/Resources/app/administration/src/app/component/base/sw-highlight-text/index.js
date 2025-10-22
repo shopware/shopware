@@ -1,7 +1,7 @@
 import { h } from 'vue';
 import './sw-highlight-text.scss';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 
 /**
  * @sw-package framework
@@ -13,7 +13,7 @@ const { Component, Context } = Shopware;
  * @component-example
  * <sw-highlight-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" searchTerm="sit"></sw-highlight-text>
  */
-Component.register('sw-highlight-text', {
+export default {
     template: '',
 
     render(createElement) {
@@ -75,4 +75,4 @@ Component.register('sw-highlight-text', {
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
         },
     },
-});
+};

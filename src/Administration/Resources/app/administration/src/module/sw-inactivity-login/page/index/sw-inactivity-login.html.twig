@@ -4,11 +4,11 @@
     <sw-modal
         v-if="lastKnownUser"
         class="sw-inactivity-login__modal"
-        :title="$tc('sw-inactivity-login.modal.title')"
+        :title="$t('global.sw-inactivity-login.modal.title')"
         :closable="false"
     >
-        <sw-password-field
-            v-model:value="password"
+        <mt-password-field
+            v-model="password"
             v-autofocus
             :label="$tc('sw-login.index.labelPassword')"
             :disabled="isLoading"
@@ -16,8 +16,8 @@
             @keydown.enter="loginUserWithPassword"
         />
 
-        <sw-checkbox-field
-            v-model:value="rememberMe"
+        <mt-checkbox
+            v-model:checked="rememberMe"
             :label="$tc('sw-login.index.labelKeepLoggedIn')"
         />
 
@@ -28,16 +28,15 @@
                 @click="onBackToLogin"
                 @keydown.enter="onBackToLogin"
             >
-                {{ $tc('sw-inactivity-login.modal.actions.backToLogin') }}
+                {{ $t('global.sw-inactivity-login.modal.actions.backToLogin') }}
             </a>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="primary"
                 :is-loading="isLoading"
                 @click="loginUserWithPassword"
             >
-                {{ $tc('sw-login.index.buttonLogin') }}
+                {{ $t('sw-login.index.buttonLogin') }}
             </mt-button>
         </template>
     </sw-modal>

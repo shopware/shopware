@@ -10,19 +10,19 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Package('checkout')]
-final class DecodedPurchaseStruct
+final readonly class DecodedPurchaseStruct
 {
     #[NotNull, NotBlank, Type('string')]
-    public readonly string $identifier;
+    public string $identifier;
 
     #[Type('string')]
-    public readonly ?string $nextBookingDate;
+    public ?string $nextBookingDate;
 
     #[NotNull, Type('integer')]
-    public readonly int $quantity;
+    public int $quantity;
 
     #[NotNull, NotBlank, Type('string')]
-    public readonly string $sub;
+    public string $sub;
 
     /**
      * @param array{identifier: string, nextBookingDate: string|null, quantity: int, sub: string} $data

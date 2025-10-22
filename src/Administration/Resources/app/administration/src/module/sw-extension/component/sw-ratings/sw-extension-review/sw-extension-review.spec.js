@@ -9,7 +9,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () 
             global: {
                 stubs: {
                     'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars'),
-                    'sw-icon': true,
                     'sw-extension-review-reply': true,
                 },
             },

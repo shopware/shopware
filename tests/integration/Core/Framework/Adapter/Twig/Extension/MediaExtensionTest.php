@@ -32,7 +32,7 @@ class MediaExtensionTest extends TestCase
             'context' => Context::createDefaultContext(),
         ]);
 
-        static::assertEquals('testImage/', $result);
+        static::assertSame('testImage/', $result);
     }
 
     public function testMultiSearch(): void
@@ -52,7 +52,7 @@ class MediaExtensionTest extends TestCase
             'context' => Context::createDefaultContext(),
         ]);
 
-        static::assertEquals('image-1/image-2/', $result);
+        static::assertSame('image-1/image-2/', $result);
     }
 
     public function testEmptySearch(): void
@@ -62,7 +62,7 @@ class MediaExtensionTest extends TestCase
             'context' => Context::createDefaultContext(),
         ]);
 
-        static::assertEquals('', $result);
+        static::assertSame('', $result);
     }
 
     /**

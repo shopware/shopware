@@ -23,6 +23,7 @@ const baseRules = {
     'comma-dangle': ['error', 'always-multiline'],
     'sw-core-rules/require-position-identifier': ['error', {
         components: [
+            'sw-button',
             'sw-card',
             'sw-tabs',
             'sw-extension-component-section',
@@ -36,6 +37,9 @@ const baseRules = {
         ignores: ['index.html'],
     }],
     'func-names': 'off',
+    'listeners/no-missing-remove-event-listener': "error",
+    'listeners/matching-remove-event-listener': "error",
+    'listeners/no-inline-function-event-listener': "error",
 };
 
 module.exports = {
@@ -69,6 +73,7 @@ module.exports = {
         'sw-deprecation-rules',
         'sw-test-rules',
         'filename-rules',
+        'listeners',
     ],
 
     settings: {
@@ -120,6 +125,7 @@ module.exports = {
             rules: {
                 ...baseRules,
                 'sw-core-rules/require-explicit-emits': 'error',
+                'sw-core-rules/enforce-async-component-registers': 'error',
                 'vue/require-prop-types': 'error',
                 'vue/require-default-prop': 'error',
                 'vue/no-mutating-props': 'error',
@@ -206,8 +212,23 @@ module.exports = {
                 'sw-deprecation-rules/no-deprecated-components': ['error', {
                     fix: true,
                     activatedComponents: [
+                        'sw-button',
+                        'sw-colorpicker',
                         'sw-alert',
-                        'sw-text-field'
+                        'sw-progress-bar',
+                        'sw-button',
+                        'sw-text-field',
+                        'sw-email-field',
+                        'sw-card',
+                        'sw-switch-field',
+                        'sw-textarea-field',
+                        'sw-icon',
+                        'sw-url-field',
+                        'sw-datepicker',
+                        'sw-select-field',
+                        'sw-checkbox-field',
+                        'sw-number-field',
+                        'sw-password-field',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
@@ -248,7 +269,6 @@ module.exports = {
                 'jest/require-top-level-describe': 'error',
                 'jest/prefer-to-contain': 'error',
                 'jest/prefer-to-have-length': 'error',
-                'jest/no-disabled-tests': 'warn',
                 'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
                 'jest/valid-expect': [
                     'error',
@@ -295,6 +315,7 @@ module.exports = {
                 'no-shadow': 'off',
                 '@typescript-eslint/no-shadow': ['error'],
                 '@typescript-eslint/consistent-type-imports': ['error'],
+                '@typescript-eslint/no-misused-spread': 'error',
                 'import/extensions': [
                     'error',
                     'ignorePackages',
@@ -314,6 +335,7 @@ module.exports = {
                 ],
                 '@typescript-eslint/prefer-promise-reject-errors': 'warn',
                 'sw-deprecation-rules/no-compat-conditions': ['error'],
+                'sw-core-rules/enforce-async-component-registers': 'error',
                 'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
                 'sw-deprecation-rules/no-vue-options-api': 'off',
             },

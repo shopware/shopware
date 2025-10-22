@@ -27,7 +27,7 @@ export default {
     },
 
     watch: {
-        disabled() {
+        isAddOnly() {
             this.selectOptions(this.$refs.optionGrid);
         },
     },

@@ -7,7 +7,7 @@
 >
 
     <p class="sw-confirm-modal__text">
-        {{ $tc('sw-category.entry-point-overwrite-modal.textBefore', salesChannels.length) }}
+        {{ $tc('sw-category.entry-point-overwrite-modal.textBefore', {}, salesChannels.length) }}
     </p>
 
     <ul>
@@ -20,7 +20,7 @@
     </ul>
 
     <p class="sw-confirm-modal__text">
-        {{ $tc('sw-category.entry-point-overwrite-modal.textAfter', salesChannels.length) }}
+        {{ $tc('sw-category.entry-point-overwrite-modal.textAfter', {}, salesChannels.length) }}
     </p>
 </sw-confirm-modal>
 {% endblock %}

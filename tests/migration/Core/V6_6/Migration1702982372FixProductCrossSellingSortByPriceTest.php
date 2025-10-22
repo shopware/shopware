@@ -18,7 +18,7 @@ class Migration1702982372FixProductCrossSellingSortByPriceTest extends TestCase
 {
     public function testGetCreationTimestamp(): void
     {
-        static::assertEquals('1702982372', (new Migration1702982372FixProductCrossSellingSortByPrice())->getCreationTimestamp());
+        static::assertSame(1702982372, (new Migration1702982372FixProductCrossSellingSortByPrice())->getCreationTimestamp());
     }
 
     public function testMigrationChangesSortBy(): void
@@ -51,6 +51,6 @@ class Migration1702982372FixProductCrossSellingSortByPriceTest extends TestCase
         SELECT `sort_by` from `product_cross_selling` WHERE `id` = :id
         ', ['id' => $crossSellingId])->fetchOne();
 
-        static::assertEquals('cheapestPrice', $sortBy);
+        static::assertSame('cheapestPrice', $sortBy);
     }
 }

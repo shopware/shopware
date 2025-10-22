@@ -1,9 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-// Annotate entire file as serial run.
-test.describe.configure({ mode: 'serial' });
-
-test('Customers are able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are able to cancel orders in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,
@@ -35,7 +32,7 @@ test('Customers are able to cancel orders in storefront account.', { tag: '@Orde
     await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
 });
 
-test('Customers are able to cancel orders on the final checkout page in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are able to cancel orders on the final checkout page in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,
@@ -69,7 +66,7 @@ test('Customers are able to cancel orders on the final checkout page in storefro
     await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
 });
 
-test('Customers are not able to cancel orders on the final checkout page in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are not able to cancel orders on the final checkout page in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,
@@ -95,7 +92,7 @@ test('Customers are not able to cancel orders on the final checkout page in stor
     await ShopCustomer.expects(StorefrontCheckoutOrderEdit.orderCancelButton).not.toBeVisible();
 });
 
-test('Customers are not able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are not able to cancel orders in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,

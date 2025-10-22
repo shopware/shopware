@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "license": "MIT",
     "require": {
-        "shopware/core": "~6.6.0"
+        "shopware/core": "~6.7.0"
     },
     "extra": {
         "shopware-plugin-class": "{{ namespace }}\\{{ className }}",

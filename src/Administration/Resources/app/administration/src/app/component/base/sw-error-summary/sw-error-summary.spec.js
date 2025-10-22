@@ -10,9 +10,6 @@ async function createWrapper(errors = {}, options = {}) {
     return mount(await wrapTestComponent('sw-error-summary', { sync: true }), {
         attachTo: document.body,
         global: {
-            stubs: {
-                'sw-icon': true,
-            },
             ...options,
         },
     });
@@ -24,10 +21,6 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not show alert box without errors', () => {

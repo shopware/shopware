@@ -5,13 +5,13 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -23,8 +23,8 @@ class TemplateDataSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly HreflangLoaderInterface $hreflangLoader,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly StorefrontPluginRegistry $themeRegistry,
         private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -62,7 +62,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException) {
+        } catch (ShopIdChangeSuggestedException) {
             return;
         }
 
@@ -84,19 +84,11 @@ class TemplateDataSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $themeConfig = $this->themeRegistry->getByTechnicalName($theme);
-        if (!$themeConfig) {
+        $runtimeConfig = $this->runtimeConfigService->getRuntimeConfigByName($theme);
+        if (!$runtimeConfig) {
             return;
         }
 
-        $iconConfig = [];
-        foreach ($themeConfig->getIconSets() as $pack => $path) {
-            $iconConfig[$pack] = [
-                'path' => $path,
-                'namespace' => $theme,
-            ];
-        }
-
-        $event->setParameter('themeIconConfig', $iconConfig);
+        $event->setParameter('themeIconConfig', $runtimeConfig->iconSets);
     }
 }

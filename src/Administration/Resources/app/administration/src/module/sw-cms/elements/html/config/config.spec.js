@@ -36,11 +36,6 @@ describe('src/module/sw-cms/elements/html/config', () => {
         await setupCmsEnvironment();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should update element onBlur', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.onBlur('Foo');

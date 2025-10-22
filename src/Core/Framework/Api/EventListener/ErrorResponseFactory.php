@@ -117,8 +117,7 @@ class ErrorResponseFactory
                 $array[$key] = $this->convert($value);
             }
 
-            // NEXT-21735 - This is covered randomly
-            // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart - This is covered randomly
             if (\is_string($value)) {
                 $encodings = mb_detect_order();
                 if (!ctype_print($value) && mb_strlen($value) === 16) {
@@ -135,6 +134,10 @@ class ErrorResponseFactory
             $isResource = \is_resource($value) || ($value !== null && !\is_scalar($value) && !\is_array($value) && !\is_object($value));
             if ($isResource) {
                 $array[$key] = \sprintf('<%s>', get_resource_type($value));
+            }
+
+            if ($value instanceof \UnitEnum) {
+                $array[$key] = $value::class;
             }
         }
 

@@ -10,9 +10,9 @@ use Symfony\Contracts\Service\ResetInterface;
 final class InAppPurchase implements ResetInterface
 {
     /**
-     * @var array<string, list<string>>
+     * @var ?array<string, list<string>>
      */
-    private array $activePurchases = [];
+    private ?array $activePurchases = null;
 
     /**
      * @internal
@@ -27,10 +27,10 @@ final class InAppPurchase implements ResetInterface
      */
     public function formatPurchases(): array
     {
-        $this->ensureRegistration();
+        $activePurchases = $this->getActivePurchases();
 
         $formatted = [];
-        foreach ($this->activePurchases as $extensionName => $purchases) {
+        foreach ($activePurchases as $extensionName => $purchases) {
             foreach ($purchases as $identifier) {
                 $formatted[] = $extensionName . '-' . $identifier;
             }
@@ -44,9 +44,7 @@ final class InAppPurchase implements ResetInterface
      */
     public function all(): array
     {
-        $this->ensureRegistration();
-
-        return $this->activePurchases;
+        return $this->getActivePurchases();
     }
 
     /**
@@ -54,9 +52,9 @@ final class InAppPurchase implements ResetInterface
      */
     public function getByExtension(string $extensionName): array
     {
-        $this->ensureRegistration();
+        $activePurchases = $this->getActivePurchases();
 
-        return $this->activePurchases[$extensionName] ?? [];
+        return $activePurchases[$extensionName] ?? [];
     }
 
     public function getJWTByExtension(string $extensionName): ?string
@@ -66,22 +64,25 @@ final class InAppPurchase implements ResetInterface
 
     public function reset(): void
     {
-        $this->activePurchases = [];
+        $this->activePurchases = null;
     }
 
     public function isActive(string $extensionName, string $identifier): bool
     {
-        $this->ensureRegistration();
+        $activePurchases = $this->getActivePurchases();
 
-        return \in_array($identifier, $this->activePurchases[$extensionName] ?? [], true);
+        return \in_array($identifier, $activePurchases[$extensionName] ?? [], true);
     }
 
-    private function ensureRegistration(): void
+    /**
+     * @return array<string, list<string>>
+     */
+    private function getActivePurchases(): array
     {
-        if (\count($this->activePurchases)) {
-            return;
+        if ($this->activePurchases !== null) {
+            return $this->activePurchases;
         }
 
-        $this->activePurchases = $this->inAppPurchaseProvider->getPurchases();
+        return $this->activePurchases = $this->inAppPurchaseProvider->getPurchases();
     }
 }

@@ -1,0 +1,92 @@
+{
+  "sw-dashboard": {
+    "general": {
+      "mainMenuItemGeneral": "Dashboard",
+      "descriptionTextModule": "The Administration's front page, displaying statistics and system information"
+    },
+    "introduction": {
+      "headlineUnkownUser": "Welcome to Shopware.",
+      "daytimeHeadline": {
+        "5h": [
+          "Good morning, {greetingName}.",
+          "Hi, {greetingName}!"
+        ],
+        "11h": [
+          "Hello, {greetingName}.",
+          "Good day, {greetingName}.",
+          "Howdy, {greetingName}!"
+        ],
+        "18h": [
+          "Good evening, {greetingName}.",
+          "Hi, {greetingName}!"
+        ],
+        "23h": [
+          "Good to see you, {greetingName}.",
+          "Still up, {greetingName}?"
+        ]
+      },
+      "daytimeWelcomeText": {
+        "5h": [
+          "Time for coffee, right?",
+          "You’re off to a great start!",
+          "Too much to do today? Focus on those tasks that will have most of the impact.",
+          "You look stunning today!"
+        ],
+        "11h": [
+          "Another day, another chance to grow your business.",
+          "You can impact someone's life today.",
+          "You look fabulous today!",
+          "Today you've got the chance to shape the tomorrow you want."
+        ],
+        "18h": [
+          "The day is almost done, time to check your shop's latest activities.",
+          "Time to evaluate - Have a look at how your shop has been doing today.",
+          "Today's actions are tomorrow's result."
+        ],
+        "23h": [
+          "Find beauty in everything to inspire yourself.",
+          "Look, outside someone has toggled the dark mode.",
+          "Almost everything will work again, if you unplug it for a few minutes - that includes you. Take a break."
+        ]
+      }
+    },
+    "helpcard": {
+      "headline": "Get ready to sell your products.",
+      "helpcenter": "Shopware Help Center",
+      "helpcenterLink": "https://docs.shopware.com/en/shopware-6-en",
+      "takeOffTip": "Learn how to make your first sale",
+      "takeOffTipLink": "https://www.shopware.com/en/news/take-off-in-ecommerce-10-tips-for-your-initial-sales/",
+      "getToKnowSales": "Get to know Sales Channels",
+      "getToKnowSalesLink": "https://www.youtube.com/watch?v=RsEeersOgIo"
+    },
+    "feedbackCard": {
+      "headline": "First impressions count.",
+      "text": "Share your first impressions and help us improve the overall Shopware experience.",
+      "feedback": "Give feedback",
+      "feedbackLink": "https://feedback.shopware.com"
+    },
+    "todayStats": {
+      "headline": "Today's statistics",
+      "orders": "Orders",
+      "turnover": "Total value",
+      "orderTime": "Time"
+    },
+    "monthStats": {
+      "headline": "Statistics",
+      "dateRanges": {
+        "30Days": "Last 30 days",
+        "14Days": "Last 14 days",
+        "7Days": "Last 7 days",
+        "24Hours": "Last 24 hours",
+        "yesterday": "Since yesterday"
+      },
+      "orderNumber": "Orders",
+      "turnover": "Turnover",
+      "numberOfOrders": "Count",
+      "totalTurnover": "Total",
+      "helperText": "The turnover graph only displays orders in payment status \"paid\".",
+      "linkOrders": "View orders",
+      "linkPaidOrders": "View paid orders"
+    }
+  }
+}

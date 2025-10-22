@@ -33,7 +33,10 @@ class OrderConverterControllerTest extends TestCase
         $converter = $this->createMock(OrderConverter::class);
         $persister = $this->createMock(AbstractCartPersister::class);
 
-        $controller = new OrderConverterController($converter, $persister, new StaticEntityRepository([new OrderCollection([])]));
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([new OrderCollection([])]);
+
+        $controller = new OrderConverterController($converter, $persister, $orderRepository);
         $controller->convertToCart($orderId, Context::createDefaultContext());
     }
 
@@ -48,21 +51,24 @@ class OrderConverterControllerTest extends TestCase
 
         $cart = new Cart('test');
         $converter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToCart')
             ->with($order)
             ->willReturn($cart);
         $converter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->willReturn($this->createMock(SalesChannelContext::class));
 
         $persister
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('save')
             ->with($cart);
 
-        $controller = new OrderConverterController($converter, $persister, new StaticEntityRepository([new OrderCollection([$order])]));
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
+
+        $controller = new OrderConverterController($converter, $persister, $orderRepository);
         $response = $controller->convertToCart($orderId, Context::createDefaultContext());
         $data = json_decode((string) $response->getContent(), true);
 

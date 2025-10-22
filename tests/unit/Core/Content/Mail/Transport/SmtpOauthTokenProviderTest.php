@@ -25,7 +25,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $httpClient = $this->createMock(HttpClientInterface::class);
         $configService = $this->createMock(SystemConfigService::class);
 
-        $cache->expects(static::once())
+        $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
             ->willReturn('cached-token');
@@ -45,7 +45,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $cacheItem = $this->createMock(ItemInterface::class);
         $response = $this->createMock(ResponseInterface::class);
 
-        $cache->expects(static::once())
+        $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
             ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
@@ -61,7 +61,7 @@ class SmtpOauthTokenProviderTest extends TestCase
                 ['core.mailerSettings.oauthUrl', null, 'https://oauth.example.com/token'],
             ]);
 
-        $httpClient->expects(static::once())
+        $httpClient->expects($this->once())
             ->method('request')
             ->with(
                 'POST',
@@ -78,15 +78,15 @@ class SmtpOauthTokenProviderTest extends TestCase
             )
             ->willReturn($response);
 
-        $response->expects(static::once())
+        $response->expects($this->once())
             ->method('getStatusCode')
             ->willReturn(Response::HTTP_OK);
 
-        $response->expects(static::once())
+        $response->expects($this->once())
             ->method('toArray')
             ->willReturn(['access_token' => 'new-token', 'expires_in' => 3600]);
 
-        $cacheItem->expects(static::once())
+        $cacheItem->expects($this->once())
             ->method('expiresAfter')
             ->with(3540); // 3600 - 60 seconds
 
@@ -105,7 +105,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $cacheItem = $this->createMock(ItemInterface::class);
         $response = $this->createMock(ResponseInterface::class);
 
-        $cache->expects(static::once())
+        $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
             ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
@@ -121,15 +121,15 @@ class SmtpOauthTokenProviderTest extends TestCase
                 ['core.mailerSettings.oauthUrl', null, 'https://oauth.example.com/token'],
             ]);
 
-        $httpClient->expects(static::once())
+        $httpClient->expects($this->once())
             ->method('request')
             ->willReturn($response);
 
-        $response->expects(static::once())
+        $response->expects($this->once())
             ->method('getStatusCode')
             ->willReturn(Response::HTTP_BAD_REQUEST);
 
-        $response->expects(static::once())
+        $response->expects($this->once())
             ->method('getContent')
             ->willReturn('Error details');
 

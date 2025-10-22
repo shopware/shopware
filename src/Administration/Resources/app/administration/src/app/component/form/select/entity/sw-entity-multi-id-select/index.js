@@ -4,13 +4,13 @@
 
 import template from './sw-entity-multi-id-select.html.twig';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-entity-multi-id-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -120,4 +120,4 @@ Component.register('sw-entity-multi-id-select', {
             this.$emit('update:value', collection.getIds());
         },
     },
-});
+};

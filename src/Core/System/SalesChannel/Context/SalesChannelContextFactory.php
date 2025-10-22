@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
-use Shopware\Core\System\SalesChannel\BaseContext;
+use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
@@ -52,7 +52,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly iterable $taxRuleTypeFilter,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,
-        private readonly AbstractBaseContextFactory $baseContextFactory
+        private readonly AbstractBaseSalesChannelContextFactory $baseSalesChannelContextFactory,
     ) {
     }
 
@@ -64,11 +64,11 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
     {
         // we split the context generation to allow caching of the base context
-        $base = $this->baseContextFactory->create($salesChannelId, $options);
+        $base = $this->baseSalesChannelContextFactory->create($salesChannelId, $options);
 
         // customer
         $customer = null;
-        if (\array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options) && $options[SalesChannelContextService::CUSTOMER_ID] !== null) {
+        if (\is_string($options[SalesChannelContextService::CUSTOMER_ID] ?? null)) {
             // load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $base->getContext());
         }
@@ -108,11 +108,15 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $itemRounding
         );
 
+        $salesChannel = $base->getSalesChannel();
+
+        $domainId = \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null;
+
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
-            $options[SalesChannelContextService::DOMAIN_ID] ?? null,
-            $base->getSalesChannel(),
+            $domainId,
+            $salesChannel,
             $base->getCurrency(),
             $customerGroup,
             $taxRules,
@@ -125,7 +129,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $base->getLanguageInfo(),
         );
 
-        if (\array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {
+        $salesChannelContext->setMeasurementSystem($base->getMeasurementSystemInfo());
+
+        if (\is_array($options[SalesChannelContextService::PERMISSIONS] ?? null)) {
             $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
 
             $event = new SalesChannelContextPermissionsChangedEvent($salesChannelContext, $options[SalesChannelContextService::PERMISSIONS]);
@@ -134,7 +140,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $salesChannelContext->lockPermissions();
         }
 
-        if (\array_key_exists(SalesChannelContextService::IMITATING_USER_ID, $options)) {
+        if (\is_string($options[SalesChannelContextService::IMITATING_USER_ID] ?? null)) {
             $salesChannelContext->setImitatingUserId($options[SalesChannelContextService::IMITATING_USER_ID]);
         }
 
@@ -143,7 +149,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return $salesChannelContext;
     }
 
-    private function getTaxRules(BaseContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
+    private function getTaxRules(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $taxes = $context->getTaxRules()->getElements();
 
@@ -189,7 +195,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @param array<string, mixed> $options
      */
-    private function getPaymentMethod(array $options, BaseContext $context, ?CustomerEntity $customer): PaymentMethodEntity
+    private function getPaymentMethod(array $options, BaseSalesChannelContext $context, ?CustomerEntity $customer): PaymentMethodEntity
     {
         if ($customer === null || isset($options[SalesChannelContextService::PAYMENT_METHOD_ID])) {
             return $context->getPaymentMethod();
@@ -236,8 +242,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
         ]));
 
-        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
-        if (!$customer) {
+        $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
+        // active check here instead of DAL filter due to no DB index
+        if (!$customer?->getActive()) {
             return null;
         }
 
@@ -278,7 +285,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */
-    private function getCashRounding(BaseContext $context, ShippingLocation $shippingLocation): array
+    private function getCashRounding(BaseSalesChannelContext $context, ShippingLocation $shippingLocation): array
     {
         if ($context->getShippingLocation()->getCountry()->getId() === $shippingLocation->getCountry()->getId()) {
             return [$context->getItemRounding(), $context->getTotalRounding()];

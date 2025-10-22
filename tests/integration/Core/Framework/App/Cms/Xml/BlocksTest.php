@@ -20,7 +20,7 @@ class BlocksTest extends TestCase
         $firstBlock = $cmsExtensions->getBlocks()->getBlocks()[0];
         static::assertSame('first-block-name', $firstBlock->getName());
         static::assertSame('text-image', $firstBlock->getCategory());
-        static::assertEquals(
+        static::assertSame(
             [
                 'en-GB' => 'First block from app',
                 'de-DE' => 'Erster Block einer App',

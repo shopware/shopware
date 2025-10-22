@@ -97,6 +97,8 @@ class ExtensionStruct extends Struct
 
     protected ?PermissionCollection $permissions = null;
 
+    protected ?PermissionCollection $requestedPermissions = null;
+
     protected bool $active = false;
 
     /**
@@ -140,6 +142,8 @@ class ExtensionStruct extends Struct
     protected string $updateSource = self::SOURCE_LOCAL;
 
     protected bool $allowDisable = true;
+
+    protected bool $allowUpdate = true;
 
     /**
      * @var array<string>
@@ -563,6 +567,16 @@ class ExtensionStruct extends Struct
     public function setAllowDisable(bool $allowDisable): void
     {
         $this->allowDisable = $allowDisable;
+    }
+
+    public function isAllowUpdate(): bool
+    {
+        return $this->allowUpdate;
+    }
+
+    public function setAllowUpdate(bool $allowUpdate): void
+    {
+        $this->allowUpdate = $allowUpdate;
     }
 
     /**

@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -12,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
@@ -30,8 +33,14 @@ class SqlQueryParserTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $repository;
 
+    /**
+     * @var EntityRepository<ProductManufacturerCollection>
+     */
     private EntityRepository $manufacturerRepository;
 
     private Context $context;
@@ -69,7 +78,7 @@ class SqlQueryParserTest extends TestCase
             $this->ids->get('product2-without-category'),
         ];
 
-        static::assertEquals($productsWithoutCategory, $result->getIds());
+        static::assertSame($productsWithoutCategory, $result->getIds());
     }
 
     public function testFindProductsWithCategory(): void
@@ -83,7 +92,7 @@ class SqlQueryParserTest extends TestCase
             $this->ids->get('product1-with-category'),
         ];
 
-        static::assertEquals($productsWithoutCategory, $result->getIds());
+        static::assertSame($productsWithoutCategory, $result->getIds());
     }
 
     #[DataProvider('whenToUseNullSafeOperatorProvider')]
@@ -100,7 +109,7 @@ class SqlQueryParserTest extends TestCase
             $has = $has || str_contains((string) $where, '<=>');
         }
 
-        static::assertEquals($expected, $has);
+        static::assertSame($expected, $has);
     }
 
     /**
@@ -214,6 +223,43 @@ class SqlQueryParserTest extends TestCase
         static::assertNotContains($erroneousId, $foundIds->getIds());
     }
 
+    public function testEqualsAnyFilter(): void
+    {
+        $testIds = [
+            'nullLink' => $this->createManufacturer([]), // null link
+            'specialLink1' => $this->createManufacturer(['link' => 'specialLink1']),
+            'specialLink2' => $this->createManufacturer(['link' => 'specialLink2']),
+        ];
+
+        // empty array
+        $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', []));
+        /** @var list<string> $foundIds */
+        $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        static::assertCount(0, array_intersect($foundIds, $testIds));
+
+        // string scenario
+        $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', ['specialLink2']));
+        /** @var list<string> $foundIds */
+        $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        static::assertCount(1, array_intersect($foundIds, $testIds));
+        static::assertContains($testIds['specialLink2'], $foundIds);
+
+        // null scenario
+        $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', [null]));
+        /** @var list<string> $foundIds */
+        $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        static::assertCount(1, array_intersect($foundIds, $testIds));
+        static::assertContains($testIds['nullLink'], $foundIds);
+
+        // combined scenario
+        $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', [null, 'specialLink1']));
+        /** @var list<string> $foundIds */
+        $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        static::assertCount(2, array_intersect($foundIds, $testIds));
+        static::assertContains($testIds['nullLink'], $foundIds);
+        static::assertContains($testIds['specialLink1'], $foundIds);
+    }
+
     /**
      * @param array<mixed> $parameters
      */
@@ -253,6 +299,6 @@ class SqlQueryParserTest extends TestCase
                 ->build(),
         ];
 
-        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        $this->repository->create($products, Context::createDefaultContext());
     }
 }

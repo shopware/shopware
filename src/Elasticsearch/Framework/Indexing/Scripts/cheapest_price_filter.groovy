@@ -28,6 +28,9 @@ double getPrice(def accessors, def doc, def decimals, def round, def multiplier)
 def price = getPrice(params['accessors'], doc, params['decimals'], params['round'], params['multiplier']);
 
 def match = true;
+if (params.containsKey('eq')) {
+    match = match && price == params['eq'];
+}
 if (params.containsKey('gte')) {
     match = match && price >= params['gte'];
 }

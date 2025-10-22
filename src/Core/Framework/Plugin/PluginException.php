@@ -124,7 +124,7 @@ class PluginException extends HttpException
         if (!Feature::isActive('v6.8.0.0')) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
-                Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'PluginException::invalidContainerParameter')
+                Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'PluginException::invalidContainerParameter')
             );
 
             return new self(

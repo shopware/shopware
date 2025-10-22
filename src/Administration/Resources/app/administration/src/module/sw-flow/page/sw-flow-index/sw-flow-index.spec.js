@@ -34,7 +34,6 @@ async function createWrapper(privileges = []) {
                 </div>
             `,
                     },
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-card-view': true,
                     'sw-tabs': true,
@@ -72,7 +71,11 @@ async function createWrapper(privileges = []) {
                         },
                     },
 
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
             },
         },

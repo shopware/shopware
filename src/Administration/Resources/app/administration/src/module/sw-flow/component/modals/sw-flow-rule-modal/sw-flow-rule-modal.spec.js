@@ -55,8 +55,6 @@ async function createWrapper() {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-modal': {
@@ -71,7 +69,6 @@ async function createWrapper() {
                     'sw-button-process': {
                         template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                     },
-                    'sw-icon': true,
                     'sw-condition-tree': true,
                     'sw-extension-component-section': true,
                     'router-link': true,

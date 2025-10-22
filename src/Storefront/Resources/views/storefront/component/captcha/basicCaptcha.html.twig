@@ -22,7 +22,10 @@
                     <div class="basic-captcha-content-image" id="{{ formId }}-basic-captcha-content-image"></div>
 
                     {% block component_basic_captcha_refresh_icon %}
-                        <button type="button" class="btn btn-outline-primary basic-captcha-content-refresh-icon" id="{{ formId }}-basic-captcha-content-refresh-icon">
+                        <button type="button" 
+                                class="btn btn-outline-primary basic-captcha-content-refresh-icon" 
+                                id="{{ formId }}-basic-captcha-content-refresh-icon"
+                                aria-label="{{ 'captcha.basicCaptchaRefreshButton'|trans|sw_sanitize }}">
                             {% sw_icon 'arrow-switch' %}
                         </button>
                     {% endblock %}
@@ -30,14 +33,13 @@
             {% endblock %}
 
             {% block component_basic_captcha_fields %}
-
                 {% block component_basic_captcha_input %}
                     <div id="{{ formId }}-basic-captcha-field">
                         {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
                             label: 'captcha.basicCaptchaLabel'|trans|sw_sanitize|replace({'*': ''}),
                             id: formId ~ '-basic-captcha-input',
                             name: constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER'),
-                            violationPath: '/' ~ constant("Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER"),
+                            violationPath: '/' ~ constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER'),
                             validationRules: 'required,basicCaptcha',
                         } %}
                     </div>

@@ -20,7 +20,7 @@ class RepositoryIterator
     private readonly Criteria $criteria;
 
     /**
-     * @var EntityRepository<TEntityCollection>
+     * @var EntityRepository<covariant TEntityCollection>
      */
     private readonly EntityRepository $repository;
 
@@ -29,7 +29,7 @@ class RepositoryIterator
     private bool $autoIncrement = false;
 
     /**
-     * @param EntityRepository<TEntityCollection> $repository
+     * @param EntityRepository<covariant TEntityCollection> $repository
      */
     public function __construct(
         EntityRepository $repository,
@@ -82,7 +82,7 @@ class RepositoryIterator
         }
 
         if (!$this->autoIncrement) {
-            $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+            $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
             return $values;
         }
@@ -108,7 +108,7 @@ class RepositoryIterator
         $result = $this->repository->search(clone $this->criteria, $this->context);
 
         // increase offset for next iteration
-        $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+        $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
         if (empty($result->getIds())) {
             return null;

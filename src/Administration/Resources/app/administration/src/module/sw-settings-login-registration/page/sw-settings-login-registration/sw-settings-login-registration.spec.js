@@ -4,7 +4,7 @@ const classes = {
     root: 'sw-page__main-content',
     cardView: 'sw-card-view',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card',
+    settingsCard: 'mt-card',
 };
 
 /**
@@ -42,10 +42,6 @@ async function createWrapper() {
                           <slot></slot>
                      </div>`,
                     },
-                    'sw-icon': true,
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
-                    },
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },
@@ -58,6 +54,7 @@ async function createWrapper() {
 
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         },
@@ -69,10 +66,6 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the settings card system', async () => {

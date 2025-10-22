@@ -21,7 +21,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         this.products = {};
     }
 
-    async bulkEdit(entityIds, payload) {
+    async bulkEdit(entityIds, payload, context) {
         this.entityIds = entityIds;
         const taxId = payload.find((change) => change.field === 'taxId')?.value;
         const price = payload.find((change) => change.field === 'price')?.value;
@@ -65,15 +65,14 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             return Promise.resolve({ data: [] });
         }
 
-        const syncPayloadStringified = JSON.stringify(syncPayload, (k, v) => (v === undefined ? null : v));
-
         return RetryHelper.retry(() => {
             return this.syncService.sync(
-                syncPayloadStringified,
+                syncPayload,
                 {},
                 {
                     'single-operation': 1,
                     'sw-language-id': Shopware.Context.api.languageId,
+                    ...context,
                 },
             );
         });

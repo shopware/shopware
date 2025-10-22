@@ -6,6 +6,7 @@
         <sw-search-bar
             initial-search-type="media"
             :initial-search="term"
+            :type-search-always-in-container="false"
             @search="onSearch"
         />
     </template>
@@ -20,7 +21,7 @@
                 {% block sw_media_index_bread_crumb_navigation_icon %}
                 <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
                     <img
-                        :src="assetFilter('/administration/static/img/media/folder--back--breadcrumb.svg')"
+                        :src="assetFilter('/administration/administration/static/img/media/folder--back--breadcrumb.svg')"
                         class="sw-media-index__navigation-breadcrumb"
                         alt="Folder back breadcrumb"
                     >

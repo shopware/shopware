@@ -1,5 +1,5 @@
 {% block sw_users_permissions_role_listing %}
-<sw-card
+<mt-card
     class="sw-users-permissions-role-listing"
     position-identifier="sw-users-permissions-role-listing"
     :title="$tc('sw-users-permissions.roles.general.cardLabel')"
@@ -21,12 +21,12 @@
             {% endblock %}
 
             {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
                 class="sw-users-permissions-role-listing__add-role-button"
+                variant="secondary"
                 @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
             >
                 {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
@@ -38,7 +38,7 @@
 
     {% block sw_users_permissions_role_listing_verify_modal %}
     <sw-verify-user-modal
-        v-if="confirmPasswordModal"
+        v-if="isConfirmingPasswordModalOpen"
         @verified="deleteRole"
         @close="onCloseConfirmPasswordModal"
     />
@@ -95,7 +95,7 @@
         <template #action-modals="{ item }">
             {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
             <sw-modal
-                v-if="getItemToDelete(item)"
+                v-if="isConfirmDeleteModalOpen"
                 :title="$tc('sw-users-permissions.roles.role-grid.titleModalDelete')"
                 variant="small"
                 @modal-close="onCloseDeleteModal"
@@ -109,9 +109,9 @@
                 {% block sw_users_permissions_role_listing_grid_actions_modals_modal_footer %}
                 <template #modal-footer>
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
+                        variant="secondary"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}
@@ -119,8 +119,8 @@
                     {% endblock %}
 
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_confirm_delete %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
+                        class="sw-users-permissions-role-listing__confirm-delete-button"
                         variant="critical"
                         size="small"
                         @click="onConfirmDelete(item)"
@@ -150,13 +150,13 @@
     {% endblock %}
 
     {% block sw_users_permissions_role_listing_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-else
-        :absolute="false"
-        :title="$tc('sw-users-permissions.roles.role-grid.messageEmptyTitle')"
-        :subline="$tc('sw-users-permissions.roles.role-grid.messageEmptySubline')"
+        :icon="$route.meta.$module.icon"
+        :headline="$tc('sw-users-permissions.roles.role-grid.messageEmptyTitle')"
+        :description="$tc('sw-users-permissions.roles.role-grid.messageEmptySubline')"
     />
     {% endblock %}
 
-</sw-card>
+</mt-card>
 {% endblock %}

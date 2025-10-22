@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 import useSystem from '../../../../app/composables/use-system';
 
-async function createWrapper(loginSuccessfull) {
+async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'https://sso.test') {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
         global: {
             mocks: {
@@ -51,6 +51,9 @@ async function createWrapper(loginSuccessfull) {
 
                         localStorage.setItem('rememberMe', `${+duration}`);
                     },
+                    getLoginTemplateConfig: () => {
+                        return Promise.resolve({ useDefault: useDefault, ssoProviders: [], url: ssoUrl });
+                    },
                 },
                 userService: {},
                 licenseViolationService: {},
@@ -62,14 +65,11 @@ async function createWrapper(loginSuccessfull) {
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-password-field': await wrapTestComponent('sw-password-field'),
-                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'router-link': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -80,30 +80,39 @@ async function createWrapper(loginSuccessfull) {
 
     await flushPromises();
 
-    return wrapper;
+    if (!useDefault) {
+        return { wrapper };
+    }
+
+    const passwordInput = wrapper.findByLabel('["sw-login.index.labelPassword"]');
+    const usernameInput = wrapper.get('#sw-field--username');
+    const rememberMeCheckbox = wrapper.find('.mt-field--checkbox__container input');
+
+    return { wrapper, passwordInput, usernameInput, rememberMeCheckbox };
 }
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
-    let wrapper;
+    let originalLocation;
 
     beforeAll(() => {
         useSystem().locales.value.push(navigator.language);
+
+        originalLocation = window.location;
+        delete window.location;
+        window.location = { href: '' };
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(false);
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
+    afterAll(() => {
+        window.location = originalLocation;
     });
 
     it('should show a warning if the login is rate limited', async () => {
-        wrapper = await createWrapper(false);
+        const { wrapper, usernameInput, passwordInput } = await createWrapper(false);
         jest.useFakeTimers();
         jest.spyOn(global, 'setTimeout');
 
-        await wrapper.get('#sw-field--username').setValue('Username');
-        await wrapper.get('#sw-field--password').setValue('Password');
+        await usernameInput.setValue('Username');
+        await passwordInput.setValue('Password');
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
 
@@ -125,15 +134,11 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
     });
 
     it('should handle login', async () => {
-        wrapper = await createWrapper(true);
+        const { wrapper, usernameInput, passwordInput, rememberMeCheckbox } = await createWrapper(true);
 
-        const username = wrapper.find('#sw-field--username');
-        await username.setValue('admin');
+        await usernameInput.setValue('admin');
+        await passwordInput.setValue('admin');
 
-        const password = wrapper.find('#sw-field--password');
-        await password.setValue('admin');
-
-        const rememberMeCheckbox = wrapper.find('.sw-field--checkbox input');
         await rememberMeCheckbox.setChecked(true);
 
         const button = wrapper.find('button');
@@ -146,5 +151,11 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         const rememberMeDuration = Number(localStorage.getItem('rememberMe'));
         expect(rememberMeDuration).toBeGreaterThan(1600000);
         expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
+    });
+
+    it('should redirect for SSO login', async () => {
+        await createWrapper(true, false, 'https://sso.test');
+
+        expect(window.location.href).toBe('https://sso.test');
     });
 });

@@ -13,61 +13,21 @@ class ProductSearchConfigFieldEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $searchConfigId;
+    protected string $searchConfigId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customFieldId;
+    protected ?string $customFieldId = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $field;
+    protected string $field;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tokenize;
+    protected bool $tokenize;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $searchable;
+    protected bool $searchable;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $ranking;
+    protected int $ranking;
 
-    /**
-     * @var ProductSearchConfigEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $searchConfig;
+    protected ?ProductSearchConfigEntity $searchConfig = null;
 
-    /**
-     * @var CustomFieldEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customField;
+    protected ?CustomFieldEntity $customField = null;
 
     public function getSearchConfigId(): string
     {

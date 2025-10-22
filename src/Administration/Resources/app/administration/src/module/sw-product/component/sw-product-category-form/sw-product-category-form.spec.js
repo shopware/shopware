@@ -60,8 +60,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-modal': true,
                     'sw-multi-tag-select': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-category-tree-field': true,
@@ -69,7 +68,6 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                     'sw-product-visibility-select': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
-                    'sw-icon': true,
                     'sw-product-visibility-detail': true,
                     'sw-ai-copilot-badge': true,
                 },

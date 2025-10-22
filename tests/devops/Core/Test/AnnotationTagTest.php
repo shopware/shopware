@@ -48,6 +48,8 @@ class AnnotationTagTest extends TestCase
         'Test/AnnotationTagTesterTest.php',
         // uses @experimental annotation check
         'Core/Framework/ApiRoutesHaveASchemaTest.php',
+        // copies DBAL code that don't use our deprecation policies
+        'Core/Framework/Adapter/Doctrine/Patch',
     ];
 
     private string $rootDir;
@@ -58,8 +60,6 @@ class AnnotationTagTest extends TestCase
 
     protected function setUp(): void
     {
-        static::markTestSkipped('remove before first RC');
-
         $this->rootDir = $this->getPathForClass(Kernel::class);
         $this->manifestRoot = $this->getPathForClass(Manifest::class);
     }

@@ -24,14 +24,12 @@ class PermittedIndividualCodePromotions extends MultiFilter
         array $codes,
         string $salesChannelId
     ) {
-        $activeDateRange = new ActiveDateRange();
-
         parent::__construct(
             MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('active', true),
                 new EqualsFilter('promotion.salesChannels.salesChannelId', $salesChannelId),
-                $activeDateRange,
+                new ActiveDateRange(),
                 new EqualsFilter('useCodes', true),
                 new EqualsFilter('useIndividualCodes', true),
                 new EqualsAnyFilter('promotion.individualCodes.code', $codes),

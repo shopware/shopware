@@ -27,6 +27,9 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
      */
     private EntityRepository $seoUrlRepository;
 
+    /**
+     * @var SalesChannelRepository<SeoUrlCollection>
+     */
     private SalesChannelRepository $salesChannelSeoUrlRepository;
 
     protected function setUp(): void
@@ -283,6 +286,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $languageRepo->upsert([[
             'id' => $id,
             'name' => $name,
+            'active' => true,
             'locale' => [
                 'id' => $id,
                 'code' => 'X-' . $name,

@@ -16,19 +16,18 @@
     }
 
     &__state-container > * {
-        margin-top: auto;
+        &:not(:first-child) {
+            margin-top: 1.5rem;
+            align-self: center;
+        }
     }
 
     &__state-history-text {
         color: $color-gray-500;
     }
 
-    &__state-history-text,
     &__state-history-button {
         margin-bottom: 6px;
-    }
-
-    &__state-history-button {
         text-align: right;
     }
 }

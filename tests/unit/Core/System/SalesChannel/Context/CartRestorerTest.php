@@ -53,8 +53,8 @@ class CartRestorerTest extends TestCase
     {
         $token = 'myToken';
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $this->persister->expects(static::once())->method('load')->with($token, $salesChannelContext->getSalesChannelId())->willReturn([]);
-        $this->persister->expects(static::once())->method('save');
+        $this->persister->expects($this->once())->method('load')->with($token, $salesChannelContext->getSalesChannelId())->willReturn([]);
+        $this->persister->expects($this->once())->method('save');
 
         $eventIsThrown = false;
         $this->eventDispatcher->addListener(
@@ -83,13 +83,13 @@ class CartRestorerTest extends TestCase
     {
         $token = 'myToken';
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $this->persister->expects(static::once())->method('load')->with($token, $salesChannelContext->getSalesChannelId())->willReturn([
+        $this->persister->expects($this->once())->method('load')->with($token, $salesChannelContext->getSalesChannelId())->willReturn([
             'token' => $token,
             'expired' => false,
         ]);
-        $this->persister->expects(static::never())->method('save');
+        $this->persister->expects($this->never())->method('save');
 
-        $this->salesChannelContextFactory->expects(static::once())->method('create')->willReturn(
+        $this->salesChannelContextFactory->expects($this->once())->method('create')->willReturn(
             Generator::generateSalesChannelContext(token: $token)
         );
 
@@ -120,13 +120,13 @@ class CartRestorerTest extends TestCase
     {
         $token = 'myToken';
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $this->persister->expects(static::once())->method('load')->with($token, $salesChannelContext->getSalesChannelId())->willReturn([
+        $this->persister->expects($this->once())->method('load')->with($token, $salesChannelContext->getSalesChannelId())->willReturn([
             'token' => $token,
             'expired' => true,
         ]);
-        $this->persister->expects(static::once())->method('save');
+        $this->persister->expects($this->once())->method('save');
 
-        $this->salesChannelContextFactory->expects(static::once())->method('create')->willReturn(
+        $this->salesChannelContextFactory->expects($this->once())->method('create')->willReturn(
             Generator::generateSalesChannelContext(token: $token)
         );
 

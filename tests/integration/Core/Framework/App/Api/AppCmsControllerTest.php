@@ -37,10 +37,7 @@ class AppCmsControllerTest extends TestCase
         $actual['blocks'][0]['template'] = $this->stripWhitespace($actual['blocks'][0]['template']);
         $actual['blocks'][1]['template'] = $this->stripWhitespace($actual['blocks'][1]['template']);
 
-        static::assertEquals(
-            $expected,
-            $actual
-        );
+        static::assertEquals($expected, $actual);
     }
 
     private function stripWhitespace(string $text): string

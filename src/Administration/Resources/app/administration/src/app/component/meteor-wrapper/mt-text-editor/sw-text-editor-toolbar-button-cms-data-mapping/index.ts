@@ -15,6 +15,7 @@ export default (getAvailableDataMappings: () => string[]): CustomButton => {
         position: 14000,
         // @ts-expect-error
         label: Shopware.Snippet.t('sw-text-editor-toolbar-button-cms-data-mapping.label') as string,
+        disabled: () => !dataMappings?.length,
         children: dataMappings.map((dataMapping) => ({
             name: dataMapping,
             label: dataMapping,

@@ -25,7 +25,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ShippingMethodPersister
 {
-    private FinfoMimeTypeDetector $mimeDetector;
+    private readonly FinfoMimeTypeDetector $mimeDetector;
 
     /**
      * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository

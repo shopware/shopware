@@ -19,9 +19,9 @@
         <template #content>
             {% block sw_settings_logging_entry_info_content %}
             {% block sw_settings_logging_entry_info_raw_content %}
-            <sw-textarea-field
+            <mt-textarea
                 v-if="activeTab === 'raw'"
-                :value="displayString"
+                :model-value="displayString"
             />
             {% endblock %}
             {% endblock %}
@@ -33,9 +33,9 @@
     {% block sw_settings_logging_entry_info_footer %}
     <template #modal-footer>
         {% block sw_settings_logging_entry_info_close_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('sw-settings-logging.entryInfo.actionClose') }}

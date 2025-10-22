@@ -42,11 +42,11 @@
         {% block sw_product_layout_assignment_buttons %}
         <div class="sw-product-layout-assignment__buttons">
             {% block sw_product_layout_assignment_button_add %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-product-layout-assignment__button"
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="openLayoutModal"
             >
                 {{ cmsPage ? $tc('sw-product.layoutAssignment.textChangeLayout') : $tc('sw-product.layoutAssignment.textAssignLayout') }}
@@ -54,11 +54,11 @@
             {% endblock %}
 
             {% block sw_product_layout_assignment_button_edit %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-product-layout-assignment__button"
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="openInPageBuilder"
             >
                 {{ cmsPage ? $tc('sw-product.layoutAssignment.textEditInDesigner') : $tc('sw-product.layoutAssignment.textCreateNewLayout') }}
@@ -66,18 +66,18 @@
             {% endblock %}
 
             {% block sw_product_layout_assignment_button_delete %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="cmsPage"
                 class="sw-product-layout-assignment__button"
                 square
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="onLayoutReset"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
             </mt-button>
             {% endblock %}

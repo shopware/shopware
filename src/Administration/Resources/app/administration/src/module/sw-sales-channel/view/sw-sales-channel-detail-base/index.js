@@ -13,6 +13,8 @@ const utils = Shopware.Utils;
 
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+const FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE = '1451';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -104,6 +106,9 @@ export default {
             mainCategoriesCollection: null,
             footerCategoriesCollection: null,
             serviceCategoriesCollection: null,
+            defaultMeasurementSystemId: null,
+            defaultLengthUnitId: null,
+            defaultWeightUnitId: null,
         };
     },
 
@@ -167,12 +172,22 @@ export default {
             return criteria;
         },
 
+        languageCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.equals('active', true));
+
+            return criteria;
+        },
+
         disabledCountries() {
             return this.salesChannel?.countries?.filter((country) => country.active === false) ?? [];
         },
 
         disabledCountryVariant() {
-            return this.disabledCountries.find((country) => country.id === this.salesChannel.countryId) ? 'warning' : 'info';
+            return this.disabledCountries.find((country) => country.id === this.salesChannel.countryId)
+                ? 'attention'
+                : 'info';
         },
 
         disabledPaymentMethods() {
@@ -183,7 +198,7 @@ export default {
             return this.disabledPaymentMethods.find(
                 (paymentMethod) => paymentMethod.id === this.salesChannel.paymentMethodId,
             )
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -195,7 +210,7 @@ export default {
             return this.disabledShippingMethods.find(
                 (shippingMethod) => shippingMethod.id === this.salesChannel.shippingMethodId,
             )
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -211,7 +226,7 @@ export default {
 
         unservedLanguageVariant() {
             return this.unservedLanguages.find((language) => language.id === this.salesChannel.languageId)
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -245,75 +260,75 @@ export default {
             return [
                 {
                     id: 0,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.0'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.0'),
                 },
                 {
                     id: 120,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.120'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.120'),
                 },
                 {
                     id: 300,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.300'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.300'),
                 },
                 {
                     id: 600,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.600'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.600'),
                 },
                 {
                     id: 900,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.900'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.900'),
                 },
                 {
                     id: 1800,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.1800'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.1800'),
                 },
                 {
                     id: 3600,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.3600'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.3600'),
                 },
                 {
                     id: 7200,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.7200'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.7200'),
                 },
                 {
                     id: 14400,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.14400'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.14400'),
                 },
                 {
                     id: 28800,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.28800'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.28800'),
                 },
                 {
                     id: 43200,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.43200'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.43200'),
                 },
                 {
                     id: 86400,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.86400'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.86400'),
                 },
                 {
                     id: 172800,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.172800'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.172800'),
                 },
                 {
                     id: 259200,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.259200'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.259200'),
                 },
                 {
                     id: 345600,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.345600'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.345600'),
                 },
                 {
                     id: 432000,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.432000'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.432000'),
                 },
                 {
                     id: 518400,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.518400'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.518400'),
                 },
                 {
                     id: 604800,
-                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.604800'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.604800'),
                 },
             ];
         },
@@ -322,11 +337,11 @@ export default {
             return [
                 {
                     id: 'csv',
-                    name: this.$tc('sw-sales-channel.detail.productComparison.fileFormatLabels.csv'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.fileFormatLabels.csv'),
                 },
                 {
                     id: 'xml',
-                    name: this.$tc('sw-sales-channel.detail.productComparison.fileFormatLabels.xml'),
+                    label: this.$tc('sw-sales-channel.detail.productComparison.fileFormatLabels.xml'),
                 },
             ];
         },
@@ -335,11 +350,11 @@ export default {
             return [
                 {
                     id: 'ISO-8859-1',
-                    name: 'ISO-8859-1',
+                    label: 'ISO-8859-1',
                 },
                 {
                     id: 'UTF-8',
-                    name: 'UTF-8',
+                    label: 'UTF-8',
                 },
             ];
         },
@@ -484,6 +499,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -495,6 +513,16 @@ export default {
 
             // eslint-disable-next-line max-len
             return `php bin/console product-export:generate ${this.salesChannel.productExports[0].storefrontSalesChannelId} ${this.salesChannel.productExports[0].id}`;
+        },
+
+        templateSelectOptions() {
+            return this.templateOptions.map((templateOption) => {
+                return {
+                    value: templateOption.name,
+                    id: templateOption.name,
+                    label: this.$tc(templateOption.translationKey),
+                };
+            });
         },
     },
 
@@ -513,6 +541,9 @@ export default {
         });
 
         this.createCategoryCollections();
+        this.defaultMeasurementSystemId = this.salesChannel?.measurementSystemId;
+        this.defaultLengthUnitId = this.salesChannel?.lengthUnitId;
+        this.defaultWeightUnitId = this.salesChannel?.weightUnitId;
     },
 
     methods: {
@@ -557,7 +588,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('themes');
 
-            this.salesChannelRepository.get(this.$route.params.id, Context.api, criteria).then((entity) => {
+            this.salesChannelRepository.get(this.$route.params.id.toLowerCase(), Context.api, criteria).then((entity) => {
                 if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
                     return;
                 }
@@ -582,17 +613,57 @@ export default {
         onConfirmDelete() {
             this.showDeleteModal = false;
 
-            this.$nextTick(() => {
-                this.deleteSalesChannel(this.salesChannel.id);
+            this.$nextTick(async () => {
+                const success = await this.deleteSalesChannel(this.salesChannel.id);
+
+                if (!success) {
+                    return;
+                }
+
                 this.$router.push({ name: 'sw.dashboard.index' });
             });
         },
 
         deleteSalesChannel(salesChannelId) {
-            this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
-                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
-                this.salesChannelFavoritesService.refresh();
-            });
+            return this.salesChannelRepository
+                .delete(salesChannelId, Context.api)
+                .then(() => {
+                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
+                    this.salesChannelFavoritesService.refresh();
+
+                    return true;
+                })
+                .catch((error) => {
+                    const current = error?.response?.data?.errors?.[0];
+                    const assignment = this.extractFkInfo(current?.detail);
+
+                    if (current?.code === FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE && assignment) {
+                        Shopware.Store.get('error').resetApiErrors();
+                        const translated = this.$t(`global.entities.${assignment}`, 0).toLowerCase();
+
+                        this.createNotificationError({
+                            message: this.$t('sw-sales-channel.detail.foreignKeyDelete', {
+                                assignment: translated,
+                            }),
+                        });
+
+                        return false;
+                    }
+
+                    throw error;
+                });
+        },
+
+        extractFkInfo(detail = '') {
+            if (!detail.includes('Integrity constraint violation: 1451')) return null;
+
+            // matches e.g. "CONSTRAINT `fk.customer."
+            const match = detail.match(/CONSTRAINT `fk\.([^.]+)\./);
+
+            if (!match) return null;
+
+            // returns e.g. "customer"
+            return match[1];
         },
 
         async copyToClipboard() {
@@ -734,7 +805,7 @@ export default {
                 paymentSettingsLink: routeData.href,
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         buildDisabledShippingAlert(snippet, collection, property = 'name') {
@@ -742,11 +813,11 @@ export default {
                 name: collection.first().translated[property].replaceAll('|', '&vert;'),
                 addition:
                     collection.length > 2
-                        ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', { amount: collection.length - 1 }, 1)
+                        ? this.$t('sw-sales-channel.detail.warningDisabledAddition', { amount: collection.length - 1 }, 1)
                         : collection.last().translated[property].replaceAll('|', '&vert;'),
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         buildUnservedLanguagesAlert(snippet, collection, property = 'name') {
@@ -754,7 +825,7 @@ export default {
                 list: collection.map((item) => item[property]).join(', '),
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         isFavorite() {

@@ -16,7 +16,6 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-loader': true,
-                    'sw-icon': true,
                     'router-link': true,
                 },
                 provide: {

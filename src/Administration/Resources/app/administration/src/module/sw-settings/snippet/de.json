@@ -1,0 +1,33 @@
+{
+  "sw-settings": {
+    "general": {
+      "mainMenuItemGeneral": "Einstellungen"
+    },
+    "index": {
+      "title": "Einstellungen",
+      "tabShop": "Shop",
+      "tabSystem": "System",
+      "tabGeneral": "Allgemein",
+      "tabLocalization": "Regional",
+      "tabCustomer": "Kunde",
+      "tabCommerce": "Handel",
+      "tabContent": "Inhalte",
+      "tabAutomation": "Automatisierung",
+      "tabPlugins": "Erweiterungen",
+      "textSettingRenameBanner": "Die Einstellung <b>Maßeinheiten</b> wurde in <b>Produkteinheiten</b> umbenannt."
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Verkaufskanal",
+      "inherited": "Vererbt",
+      "compileNotice": "Diese Konfiguration enthält Felder, die für das Theme verwendet werden. Damit die Änderungen sichtbar werden, muss das Theme neu kompiliert werden.",
+      "scssHelpText": "SCSS-Variablenname: "
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "system_config": "Grundlegende Einstellungen"
+      }
+    }
+  }
+}

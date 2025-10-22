@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 
-import DomAccess from 'src/helper/dom-access.helper';
 import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';
 import deepmerge from 'deepmerge';
 
@@ -20,8 +19,8 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
     });
 
     init() {
-        this.checkbox = DomAccess.querySelector(this.el, this.options.checkboxSelector);
-        this._altText = DomAccess.querySelector(this.el, this.options.altTextSelector, false);
+        this.checkbox = this.el.querySelector(this.options.checkboxSelector);
+        this._altText = this.el.querySelector(this.options.altTextSelector);
 
         this._registerEvents();
     }

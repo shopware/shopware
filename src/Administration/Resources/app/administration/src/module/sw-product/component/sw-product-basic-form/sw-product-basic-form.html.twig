@@ -9,14 +9,17 @@
         <template #content="props">
 
             <mt-text-field
-                :map-inheritance="props"
                 :model-value="props.currentValue"
+                :is-inheritance-field="props.isInheritField"
+                :is-inherited="props.isInherited"
                 :disabled="props.isInherited || !allowEdit"
                 :label="$tc('sw-product.basicForm.labelTitle')"
                 :required="isTitleRequired"
                 name="sw-field--product-name"
                 :error="productNameError"
                 :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))"
+                @inheritance-restore="props.restoreInheritance"
+                @inheritance-remove="props.removeInheritance"
                 @update:model-value="props.updateCurrentValue"
             />
 
@@ -77,7 +80,7 @@
         :label="$tc('sw-product.basicForm.labelDescription')"
     >
         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-            <mt-text-editor
+            <sw-text-editor
                 :key="isInherited"
                 :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
@@ -103,14 +106,18 @@
         >
             <template #content="props">
 
-                <sw-switch-field
+                <mt-switch
                     :error="productMarkAsTopsellerError"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    :inherited-value="parentProduct.markAsTopseller"
                     :help-text="highlightHelpText"
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>

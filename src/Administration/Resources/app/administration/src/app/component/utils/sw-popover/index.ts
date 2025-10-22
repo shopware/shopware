@@ -1,7 +1,5 @@
 import template from './sw-popover.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,7 +7,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-popover and mt-floating-ui. Autoswitches between the two components.
  */
-Component.register('sw-popover', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -23,7 +21,7 @@ Component.register('sw-popover', {
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
                 return true;
             }
 
@@ -31,7 +29,7 @@ Component.register('sw-popover', {
             Shopware.Utils.debug.warn(
                 'sw-popover',
                 // eslint-disable-next-line max-len
-                'The old usage of "sw-popover" is deprecated and will be removed in v6.7.0.0. Please use "mt-floating-ui" instead.',
+                'The old usage of "sw-popover" is deprecated and will be removed in v6.8.0.0. Please use "mt-floating-ui" instead.',
             );
 
             return false;

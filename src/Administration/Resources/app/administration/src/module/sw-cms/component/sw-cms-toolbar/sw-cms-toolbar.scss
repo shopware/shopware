@@ -2,10 +2,10 @@
 
 .sw-cms-toolbar {
     padding: 0 20px;
-    min-height: 70px;
+    min-height: 81px;
     border-bottom: 2px solid $color-gray-300;
     display: grid;
-    grid-template-columns: 1fr 1fr 158px auto;
+    grid-template-columns: 1fr 1fr auto auto auto;
     align-items: center;
     align-content: center;
     z-index: 251;
@@ -14,12 +14,12 @@
     .sw-cms-toolbar__back-btn {
         padding: 10px 20px;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-gray-300;
             transform: rotate(180deg);
         }
 
-        a:hover .sw-icon {
+        a:hover .mt-icon {
             color: $color-darkgray-200;
         }
     }

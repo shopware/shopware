@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -26,7 +25,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Package('checkout')]
 class ExtensionLifecycleServiceTest extends TestCase
 {
@@ -87,9 +85,22 @@ class ExtensionLifecycleServiceTest extends TestCase
         static::assertFalse($testApp->isActive());
     }
 
+    /**
+     * When trying to uninstall an extension (app not a plugin) that does not exist,
+     * no error should be thrown. It is caught and returned within uninstallExtension
+     */
     public function testUninstallWithInvalidNameWithout(): void
     {
-        $this->lifecycleService->uninstall('app', 'notExisting', false, $this->context);
+        $error = null;
+        $message = '';
+
+        try {
+            $this->lifecycleService->uninstall('app', 'notExisting', false, $this->context);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     public function testInstallAppNotExisting(): void

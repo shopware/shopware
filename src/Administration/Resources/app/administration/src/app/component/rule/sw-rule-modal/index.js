@@ -15,7 +15,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * <sw-rule-modal ruleId="0fd38734776f41e9a1ba431f1667e677" @save="onSave" @modal-close="onCloseModal">
  * </sw-rule-modal>
  */
-Component.register('sw-rule-modal', {
+export default {
     template,
 
     inject: [
@@ -113,7 +113,6 @@ Component.register('sw-rule-modal', {
                 languageId: Shopware.Store.get('session').languageId,
             };
             const criteria = new Criteria(1, 500);
-            criteria.addAssociation('appScriptCondition');
 
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
@@ -203,4 +202,4 @@ Component.register('sw-rule-modal', {
                 });
         },
     },
-});
+};

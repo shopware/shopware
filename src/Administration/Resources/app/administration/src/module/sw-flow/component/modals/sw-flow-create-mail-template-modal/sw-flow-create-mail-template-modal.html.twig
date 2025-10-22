@@ -52,8 +52,8 @@
     {% endblock %}
 
     {% block sw_flow_create_mail_template_modal_description %}
-    <sw-textarea-field
-        v-model:value="mailTemplate.description"
+    <mt-textarea
+        v-model="mailTemplate.description"
         name="sw-field--mailTemplate-description"
         class="sw-flow-create-mail-template-modal__description"
         :label="$tc('sw-flow.modals.mail.labelDescription')"
@@ -99,10 +99,10 @@
     {% block sw_flow_create_mail_template_modal_footer %}
     <template #modal-footer>
         {% block sw_flow_create_mail_template_modal_footer_cancel_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-flow-create-mail-template-modal__cancel-button"
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -110,7 +110,6 @@
         {% endblock %}
 
         {% block sw_flow_create_mail_template_modal_footer_save_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-flow-create-mail-template-modal__save-button"
             variant="primary"

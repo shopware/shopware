@@ -5,6 +5,8 @@ $sw-duplicated-media-v2-separator-color: $color-gray-300;
 $sw-duplicated-media-v2-font-size-preview: $font-size-xs;
 
 .sw-duplicated-media-v2 {
+    z-index: 1150;
+
     .sw-duplicated-media-v2__description {
         font-size: $font-size-xs;
         margin-bottom: 10px;

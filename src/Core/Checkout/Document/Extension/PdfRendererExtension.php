@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @description This event allows manipulation of the input and output when rendering PDF documents.
  *
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
- *
  * @codeCoverageIgnore
  *
  * @extends Extension<string>

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class Protection
+final class Protection
 {
     final public const SYSTEM_SCOPE = Context::SYSTEM_SCOPE;
     final public const USER_SCOPE = Context::USER_SCOPE;

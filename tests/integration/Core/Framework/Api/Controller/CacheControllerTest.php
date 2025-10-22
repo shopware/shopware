@@ -17,7 +17,6 @@ use Symfony\Component\Messenger\TraceableMessageBus;
  * @internal
  */
 #[Package('framework')]
-#[Group('skip-paratest')]
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -49,7 +48,7 @@ class CacheControllerTest extends TestCase
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
 
-        $this->getBrowser()->request('DELETE', '/api/_action/cache');
+        $this->getBrowser()->jsonRequest('DELETE', '/api/_action/cache');
 
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
@@ -62,7 +61,7 @@ class CacheControllerTest extends TestCase
 
     public function testCacheInfoEndpoint(): void
     {
-        $this->getBrowser()->request('GET', '/api/_action/cache_info');
+        $this->getBrowser()->jsonRequest('GET', '/api/_action/cache_info');
 
         $response = $this->getBrowser()->getResponse();
         $content = $response->getContent();
@@ -71,6 +70,7 @@ class CacheControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
         $decodedContent = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($decodedContent);
         static::assertArrayHasKey('environment', $decodedContent);
         static::assertSame('test', $decodedContent['environment']);
         static::assertArrayHasKey('httpCache', $decodedContent);
@@ -81,7 +81,7 @@ class CacheControllerTest extends TestCase
 
     public function testCacheIndexEndpoint(): void
     {
-        $this->getBrowser()->request('POST', '/api/_action/index');
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/index');
 
         $response = $this->getBrowser()->getResponse();
 
@@ -94,15 +94,13 @@ class CacheControllerTest extends TestCase
         $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/index',
-            [],
-            [],
+            ['skip' => ['category.indexer']],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
-            ],
-            json_encode(['skip' => ['category.indexer']], \JSON_THROW_ON_ERROR)
+            ]
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -125,15 +123,13 @@ class CacheControllerTest extends TestCase
         $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/index',
-            [],
-            [],
+            ['only' => ['category.indexer']],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['only' => ['category.indexer']], \JSON_THROW_ON_ERROR)
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -158,9 +154,9 @@ class CacheControllerTest extends TestCase
 
             $response = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+            static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
             $decode = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $decode['errors'][0]['code'], (string) $response->getContent());
+            static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $decode['errors'][0]['code'], (string) $response->getContent());
         } finally {
             $this->resetBrowser();
         }

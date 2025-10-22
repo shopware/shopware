@@ -13,12 +13,14 @@
         {% endif %}
     {% endfor %}
 
-    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-        label: 'address.companyVatLabel'|trans|sw_sanitize,
-        id: 'vatIds',
-        name: 'vatIds[]',
-        value: vatIdValue,
-        violationPath: violationPath,
-        additionalClass: 'col-md-6',
-    } %}
+    {% block component_account_register_personal_vat_id_field_input %}
+        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+            label: 'address.companyVatLabel'|trans|sw_sanitize,
+            id: 'vatIds',
+            name: 'vatIds[]',
+            value: vatIdValue,
+            violationPath: violationPath,
+            additionalClass: 'col-md-6',
+        } %}
+    {% endblock %}
 {% endblock %}

@@ -96,7 +96,6 @@ async function createWrapper(sequence = {}) {
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-help-text': true,
-                'sw-icon': true,
                 'sw-field-error': {
                     props: ['error'],
                     template: '<div class="sw-field__error"></div>',

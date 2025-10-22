@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * Adds clear functionality to input fields
@@ -17,10 +16,7 @@ export default class ClearInputPlugin extends Plugin {
     };
 
     init() {
-        this.clearButtons = DomAccess.querySelectorAll(
-            document,
-            this.options.clearButtonSelector
-        );
+        this.clearButtons = document.querySelectorAll(this.options.clearButtonSelector);
 
         this.onInputChange();
         this._registerEventListener();

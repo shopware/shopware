@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -30,6 +31,8 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly EntityRepository $categoryRepository,

@@ -22,9 +22,9 @@ async function createWrapper() {
                     'sw-notification-center': true,
                     'sw-help-center-v2': true,
                     'sw-meteor-navigation': true,
-                    'sw-icon': true,
                     'sw-tabs': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                 },
                 mocks: {
                     $route: {

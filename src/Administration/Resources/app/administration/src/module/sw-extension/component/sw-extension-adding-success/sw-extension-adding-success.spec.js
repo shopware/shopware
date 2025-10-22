@@ -5,7 +5,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
-                'sw-icon': true,
                 'sw-label': true,
                 'router-link': true,
                 'sw-loader': true,

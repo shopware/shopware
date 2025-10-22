@@ -2,7 +2,7 @@
 {# New mt-text-field component #}
 {% block sw_text_field %}
 <mt-text-field
-    v-if="useMeteorComponent"
+    v-if="!deprecated"
     v-bind="$attrs"
     :model-value="compatValue"
     @update:model-value="handleUpdateModelValue"
@@ -21,16 +21,14 @@
 </mt-text-field>
 {% endblock %}
 
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-{% block sw_text_field_deprecated %}
 <sw-text-field-deprecated
     v-else
     v-bind="$attrs"
     :value="value"
 >
     <template
-        v-for="(index, name) in getSlots()"
+        v-for="(_index, name) in getSlots()"
         #[name]="data"
     >
         <slot
@@ -40,4 +38,3 @@
         </slot>
     </template>
 </sw-text-field-deprecated>
-{% endblock %}

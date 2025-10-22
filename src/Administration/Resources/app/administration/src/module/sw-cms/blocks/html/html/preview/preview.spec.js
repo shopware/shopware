@@ -12,7 +12,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-code-editor': await wrapTestComponent('sw-code-editor'),
-                    'sw-icon': true,
                 },
             },
         },

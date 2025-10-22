@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Shop customer should be able to see the product image in the Storefront.', { tag: '@Product' }, async ({
+test('Shop customer should be able to see the product image in the Storefront.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
@@ -22,9 +22,9 @@ test('Shop customer should be able to see the product image in the Storefront.',
     OpenSearchSuggestPage,
     Login,
     Logout,
+    HomeProduct,
 }) => {
-
-    const product = await TestDataService.createBasicProduct();
+    const product = HomeProduct;
     const media = await TestDataService.createMediaPNG();
 
     await TestDataService.assignProductMedia(product.id, media.id);

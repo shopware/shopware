@@ -12,14 +12,10 @@ async function createWrapper(additionalSlots = null) {
                 shortcutService: {
                     startEventListener: () => {},
                     stopEventListener: () => {},
-                    stubs: {
-                        'sw-icon': true,
-                    },
                 },
             },
             stubs: {
                 'sw-loader': true,
-                'sw-icon': true,
             },
         },
         slots: {
@@ -47,10 +43,6 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
     afterEach(async () => {
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render modal with body', async () => {

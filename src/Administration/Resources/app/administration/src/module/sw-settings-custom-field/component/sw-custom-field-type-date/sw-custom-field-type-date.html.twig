@@ -7,17 +7,17 @@
     gap="20px"
 >
     {% block sw_custom_field_type_date_container_type %}
-    <sw-select-field
-        v-model:value="currentCustomField.config.dateType"
+    <mt-select
+        v-model="currentCustomField.config.dateType"
         :label="$tc('sw-settings-custom-field.customField.detail.labelDateType')"
         :options="types"
     />
     {% endblock %}
 
     {% block sw_custom_field_type_date_container_time_format %}
-    <sw-select-field
+    <mt-select
         v-if="['time', 'datetime'].includes(currentCustomField.config.dateType)"
-        v-model:value="currentCustomField.config.config.time_24hr"
+        v-model="currentCustomField.config.config.time_24hr"
         :label="$tc('sw-settings-custom-field.customField.detail.labelTimeForm')"
         :options="timeForms"
     />

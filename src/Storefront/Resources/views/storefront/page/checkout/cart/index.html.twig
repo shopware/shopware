@@ -31,17 +31,30 @@
         {% endblock %}
 
         {% block page_checkout_cart_product_table %}
+            {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+            {# @deprecated tag:v6.8.0 - Will listening to core.cart.columnTaxInsteadUnitPrice instead #}
+            {% if not feature('v6.8.0.0') %}
+                {% set showTaxPrice = false %}
+            {% endif %}
+            {% set showSubtotal = config('core.cart.showSubtotal') %}
+
             <div class="card checkout-product-table">
                 <ul class="card-body list-unstyled">
                     {% block page_checkout_cart_table_header %}
-                        {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' %}
+                        {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
+                            showSubtotal: showSubtotal,
+                            showTaxPrice: showTaxPrice
+                        } %}
                     {% endblock %}
 
                     {% block page_checkout_cart_table_items %}
                         {% for lineItem in page.cart.lineItems %}
                             {% block page_checkout_cart_table_item %}
                                 {% block page_checkout_item %}
-                                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' %}
+                                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                                        showSubtotal: showSubtotal,
+                                        showTaxPrice: showTaxPrice
+                                    } %}
                                 {% endblock %}
                             {% endblock %}
                         {% endfor %}
@@ -60,10 +73,8 @@
         {% block page_checkout_cart_add_product_and_shipping %}
             <div class="row">
                 {% block page_checkout_cart_add_product %}
-                    <div class="col-md-4 cart-add-product-container">
-                        <form action="{{ path('frontend.checkout.product.add-by-number') }}"
-                              class="cart-add-product"
-                              method="post">
+                    <div class="col-md-5 cart-add-product-container">
+                        <form action="{{ path('frontend.checkout.product.add-by-number') }}" method="post">
                             {% block page_checkout_cart_add_product_redirect %}
                                 <input type="hidden"
                                        name="redirectTo"
@@ -104,7 +115,7 @@
                 {% endblock %}
 
                 {% block page_checkout_cart_shipping_costs %}
-                    <div class="col-md-8 cart-shipping-costs-container">
+                    <div class="col-md-7 cart-shipping-costs-container">
                         <form name="precalc"
                               method="post"
                               action="{{ path('frontend.checkout.configure') }}"

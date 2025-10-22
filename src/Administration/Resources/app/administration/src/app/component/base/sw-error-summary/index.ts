@@ -5,7 +5,6 @@
 import template from './sw-error-summary.html.twig';
 import './sw-error-summary.scss';
 
-const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 type error = {
@@ -17,7 +16,7 @@ type error = {
 /**
  * @private
  */
-Component.register('sw-error-summary', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     computed: {

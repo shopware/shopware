@@ -1,7 +1,9 @@
+import { computed } from 'vue';
+
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -14,7 +16,7 @@ const { Criteria } = Shopware.Data;
  * @example-type code-only
  * @component-example
  */
-Component.register('sw-custom-field-set-renderer', {
+export default {
     template,
 
     inject: [
@@ -25,10 +27,10 @@ Component.register('sw-custom-field-set-renderer', {
     // Grant access to some variables to the child form render components
     provide() {
         return {
-            getEntity: this.entity,
-            getParentEntity: this.parentEntity,
-            getCustomFieldSet: this.set,
-            getCustomFieldSetVariant: this.variant,
+            getEntity: computed(() => this.entity),
+            getParentEntity: computed(() => this.parentEntity),
+            getCustomFieldSet: computed(() => this.set),
+            getCustomFieldSetVariant: computed(() => this.variant),
         };
     },
 
@@ -141,13 +143,16 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-select-field',
                 'sw-checkbox-field',
                 'sw-switch-field',
+                'mt-switch',
                 'sw-number-field',
                 'sw-datepicker',
                 'sw-email-field',
+                'mt-email-field',
                 'sw-url-field',
                 'sw-password-field',
                 'sw-radio-field',
                 'sw-colorpicker',
+                'mt-colorpicker',
                 'sw-compact-colorpicker',
                 'sw-price-field',
                 'sw-tagged-field',
@@ -294,12 +299,28 @@ Component.register('sw-custom-field-set-renderer', {
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
+            const isMeteorComponent = [
+                // Disabled for now, enable once Inheritance is aligned on all meteor components
+                // 'bool',
+                // 'switch',
+                // 'text',
+            ].includes(customField.type);
+
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
             }
 
             if (this.supportsMapInheritance(customFieldClone)) {
                 customFieldClone.mapInheritance = props;
+
+                // Special case for meteor components
+                if (isMeteorComponent) {
+                    customFieldClone.isInheritanceField = props.isInheritField;
+                    customFieldClone.isInherited = props.isInherited;
+                    customFieldClone.inheritanceRemove = props.removeInheritance;
+                    customFieldClone.inheritanceRestore = props.restoreInheritance;
+                    customFieldClone.inheritedValue = props.currentValue;
+                }
 
                 return customFieldClone;
             }
@@ -443,4 +464,4 @@ Component.register('sw-custom-field-set-renderer', {
             this.$emit('change-active-selection', value);
         },
     },
-});
+};

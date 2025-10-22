@@ -95,7 +95,7 @@ class AttributeEntityCompiler
         OneToOne::class,
     ];
 
-    private CamelCaseToSnakeCaseNameConverter $converter;
+    private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
     public function __construct()
     {
@@ -120,6 +120,8 @@ class AttributeEntityCompiler
         $instance = $collection[0]->newInstance();
 
         $properties = $reflection->getProperties();
+
+        $definitions = [];
 
         $fields = [];
         foreach ($properties as $property) {
@@ -261,6 +263,10 @@ class AttributeEntityCompiler
 
     private static function mappingName(string $entity, ManyToMany $field): string
     {
+        if ($field->mapping !== null) {
+            return $field->mapping;
+        }
+
         $items = [$entity, $field->entity];
         sort($items);
 

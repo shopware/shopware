@@ -45,7 +45,7 @@ class SwBlockReferenceExpressionTest extends TestCase
     {
         $templateName = Uuid::randomHex() . '.html.twig';
         $templateFinder = $this->createMock(TemplateFinder::class);
-        $templateFinder->expects(static::once())
+        $templateFinder->expects($this->once())
             ->method('find')
             ->with('foo.html.twig', false, null)
             ->willReturn('bar.html.twig');

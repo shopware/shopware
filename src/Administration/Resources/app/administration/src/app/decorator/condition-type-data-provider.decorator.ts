@@ -504,9 +504,9 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     });
 
     ruleConditionService.addCondition('promotionLineItem', {
-        component: 'sw-condition-generic',
+        component: 'sw-condition-generic-line-item',
         label: 'global.sw-condition.condition.promotionLineItemRule',
-        scopes: ['cart'],
+        scopes: ['lineItem'],
         group: 'promotion',
     });
 
@@ -659,6 +659,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         notEquals: [
             'cartCartAmount',
             'cartShippingCost',
+            ...ruleConditionService.getRestrictionsByGroup('order'),
         ],
         snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
     });
@@ -667,6 +668,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         notEquals: [
             'cartCartAmount',
             'cartShippingCost',
+            ...ruleConditionService.getRestrictionsByGroup('order'),
         ],
         snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
     });

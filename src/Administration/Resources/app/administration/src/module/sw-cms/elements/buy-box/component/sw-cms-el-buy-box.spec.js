@@ -37,7 +37,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-block-field': true,
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: {

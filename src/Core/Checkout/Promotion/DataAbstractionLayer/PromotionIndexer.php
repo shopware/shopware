@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Event\PromotionIndexerEvent;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -23,6 +24,8 @@ class PromotionIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

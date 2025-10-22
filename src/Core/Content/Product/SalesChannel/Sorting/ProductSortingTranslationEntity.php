@@ -11,26 +11,11 @@ class ProductSortingTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productSortingId;
+    protected string $productSortingId;
 
-    /**
-     * @var ProductSortingEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productSorting;
+    protected ?ProductSortingEntity $productSorting = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
+    protected ?string $label = null;
 
     public function getProductSortingId(): string
     {

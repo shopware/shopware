@@ -32,40 +32,12 @@ function registerProperties(state: FullState, store: Store<VuexRootState>) {
     /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, max-len */
     state._registerPrivateProperty('_store', store);
     state._registerProperty('list', () => Object.keys(store.state));
-    state._registerProperty('get', <N extends keyof VuexRootState | 'cmsPageState' | 'cmsPage'>(name: N) => {
-        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
-        if (name === 'cmsPageState' || name === 'cmsPage') {
-            Shopware.Utils.debug.warn(
-                'Core',
-                'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get("cmsPage") instead.',
-            );
-
-            return Shopware.Store.get('cmsPage');
-        }
-
+    state._registerProperty('get', <N extends keyof VuexRootState | 'cmsPage'>(name: N) => {
         // @ts-expect-error
         return store.state[name];
     });
     state._registerGetterMethod('getters', () => store.getters);
     state._registerProperty('commit', (...args: Parameters<typeof store.commit>) => {
-        const type = args[0] as unknown as string;
-        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
-        if (type.startsWith('cmsPageState/')) {
-            Shopware.Utils.debug.warn(
-                'Core',
-                'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get("cmsPage") instead.',
-            );
-
-            const cmsPageStore = Shopware.Store.get('cmsPage');
-            const property = type.substring('cmsPageState/'.length);
-
-            // @ts-expect-error - This is unsafe but should work
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            cmsPageStore[property](args[1]);
-
-            return;
-        }
-
         store.commit(...args);
     });
     state._registerProperty('dispatch', (...args: Parameters<typeof store.dispatch>) => store.dispatch(...args));

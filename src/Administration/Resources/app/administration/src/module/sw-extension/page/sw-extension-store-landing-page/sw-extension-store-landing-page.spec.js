@@ -22,7 +22,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-label': true,
                 },
             },

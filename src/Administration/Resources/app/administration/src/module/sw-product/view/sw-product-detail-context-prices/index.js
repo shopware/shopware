@@ -433,7 +433,7 @@ export default {
             }
 
             // add price to rule.price
-            this.$set(rule.price, rule.price.length, newPrice);
+            rule.price[rule.price.length] = newPrice;
         },
 
         isPriceFieldInherited(rule, currency) {
@@ -463,6 +463,10 @@ export default {
         },
 
         onQuantityEndChange(price, priceGroup) {
+            if (price.quantityEnd !== null && price.quantityEnd < price.quantityStart) {
+                price.quantityEnd = null;
+                return;
+            }
             // when not last price
             if (priceGroup.prices.indexOf(price) + 1 !== priceGroup.prices.length) {
                 return;
@@ -522,7 +526,7 @@ export default {
             newPriceRule.price = [];
 
             referencePrice.price.forEach((price, index) => {
-                this.$set(newPriceRule.price, index, { ...price });
+                newPriceRule.price[index] = { ...price };
             });
 
             this.product.prices.add(newPriceRule);
@@ -543,7 +547,7 @@ export default {
         },
 
         onChangeShowListPrices(value, ruleId) {
-            this.$set(this.showListPrices, ruleId, value);
+            this.showListPrices[ruleId] = value;
         },
 
         getStartQuantityTooltip(itemIndex, quantity) {

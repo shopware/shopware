@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 
@@ -23,7 +22,7 @@ export default class OffCanvasAccountMenu extends Plugin {
     };
 
     init() {
-        this._dropdown = DomAccess.querySelector(this.el.parentNode, `.${this.options.dropdownMenuSelector}`);
+        this._dropdown = this.el.parentNode.querySelector(`.${this.options.dropdownMenuSelector}`);
         this._dropdownWrapper = this.el.parentNode;
 
         this._registerEventListeners();

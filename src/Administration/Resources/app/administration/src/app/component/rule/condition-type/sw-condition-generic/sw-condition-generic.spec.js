@@ -46,10 +46,17 @@ responses.addResponse({
 async function createWrapper(condition = {}) {
     condition.getEntityName = () => 'rule_condition';
 
+    const conditionDataProviderService = new ConditionDataProviderService();
+    conditionDataProviderService.addCondition(condition.type, {
+        ...condition,
+        component: 'sw-condition-generic',
+    });
+
     return mount(await wrapTestComponent('sw-condition-generic', { sync: true }), {
         attachTo: document.body,
         props: {
             condition,
+            isDisabled: false,
         },
         global: {
             renderStubDefaultSlot: true,
@@ -70,13 +77,11 @@ async function createWrapper(condition = {}) {
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                 'sw-condition-unit-menu': await wrapTestComponent('sw-condition-unit-menu', { sync: true }),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-field-error': true,
                 'sw-condition-type-select': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-label': true,
                 'sw-highlight-text': true,
@@ -94,7 +99,7 @@ async function createWrapper(condition = {}) {
                 'sw-field-copyable': true,
             },
             provide: {
-                conditionDataProviderService: new ConditionDataProviderService(),
+                conditionDataProviderService,
                 ruleConditionsConfigApiService: {
                     load: () => Promise.resolve(),
                 },

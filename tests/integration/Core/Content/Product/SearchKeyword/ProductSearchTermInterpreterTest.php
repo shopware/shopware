@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Defaults;
@@ -31,6 +32,9 @@ class ProductSearchTermInterpreterTest extends TestCase
 
     private ProductSearchTermInterpreterInterface $interpreter;
 
+    /**
+     * @var EntityRepository<ProductSearchConfigCollection>
+     */
     private EntityRepository $productSearchConfigRepository;
 
     private string $productSearchConfigId;
@@ -97,7 +101,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $tokenTerms = $this->interpreter->interpret($term, $context)->getTokenTerms();
 
-        static::assertEquals(\count($expected), \count($tokenTerms));
+        static::assertCount(\count($expected), $tokenTerms);
         foreach ($tokenTerms as $index => $tokenTerm) {
             static::assertEqualsCanonicalizing($expected[$index], $tokenTerm);
         }
@@ -116,7 +120,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $booleanClause = $matches->getBooleanClause();
 
-        static::assertEquals($expected, $booleanClause);
+        static::assertSame($expected, $booleanClause);
     }
 
     #[DataProvider('caseWithMatchingSearchPatternTermLength')]
@@ -154,7 +158,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         $matches = $this->interpreter->interpret($term, $context);
         $terms = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
-        static::assertEquals($expected, \array_slice($terms, 0, \count($expected)));
+        static::assertSame($expected, \array_slice($terms, 0, \count($expected)));
     }
 
     /**

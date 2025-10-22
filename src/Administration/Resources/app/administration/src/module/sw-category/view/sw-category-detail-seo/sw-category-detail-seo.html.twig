@@ -2,13 +2,13 @@
 <div class="sw-category-detail-seo">
 
     {% block sw_category_detail_seo_config %}
-    <sw-card
+    <mt-card
         position-identifier="sw-category-detail-seo"
         :title="$tc('sw-category.base.seo.title')"
         :is-loading="isLoading"
     >
         <sw-category-seo-form :category="category" />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_category_detail_seo_list %}

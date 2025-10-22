@@ -43,7 +43,7 @@ class ThemeFilesystemResolver
 
         try {
             $bundle = $this->kernel->getBundle($configuration->getTechnicalName());
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             $bundles = $this->kernel->getPluginLoader()
                 ->getPluginInstances()
                 ->filter(fn (Plugin $plugin) => $plugin->getName() === $configuration->getTechnicalName())

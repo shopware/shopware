@@ -56,7 +56,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         new ViewItemListEvent().execute();
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', {
-            'items': undefined,
+            'items': [],
         });
     });
 });

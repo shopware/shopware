@@ -31,6 +31,7 @@ class MailAttachmentsBuilderTest extends TestCase
 {
     private MockObject&MediaService $mediaService;
 
+    /** @var MockObject&EntityRepository<MediaCollection> */
     private MockObject&EntityRepository $mediaRepository;
 
     private MockObject&DocumentGenerator $documentGenerator;
@@ -74,7 +75,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $mailTemplate->setMedia(new MailTemplateMediaCollection([$mediaA, $mediaB, $mediaC]));
 
         $this->mediaService
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getAttachment')
             ->willReturnOnConsecutiveCalls(
                 [
@@ -91,7 +92,7 @@ class MailAttachmentsBuilderTest extends TestCase
 
         $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], Uuid::randomHex());
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     'content' => 'foo',
@@ -123,7 +124,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $orderId = Uuid::randomHex();
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->with(
                 static::anything(),
@@ -141,7 +142,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $document = new RenderedDocument();
         $document->setContent('');
         $this->documentGenerator
-            ->expects(static::exactly(4))
+            ->expects($this->exactly(4))
             ->method('readDocument')
             ->willReturn($document);
 
@@ -155,13 +156,13 @@ class MailAttachmentsBuilderTest extends TestCase
         }, $extension->getMediaIds());
 
         $this->mediaRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with($criteria, $context)
             ->willReturn(new EntitySearchResult('media', 2, new MediaCollection($entities), null, $criteria, $context));
 
         $this->mediaService
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getAttachment')
             ->willReturnOnConsecutiveCalls(
                 [

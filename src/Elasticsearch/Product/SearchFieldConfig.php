@@ -11,7 +11,8 @@ class SearchFieldConfig
         private readonly string $field,
         private float $ranking,
         private readonly bool $tokenize,
-        private readonly bool $andLogic = false
+        private readonly bool $andLogic = false,
+        private readonly bool $prefixMatch = true
     ) {
     }
 
@@ -43,5 +44,21 @@ class SearchFieldConfig
     public function setRanking(float $ranking): void
     {
         $this->ranking = $ranking;
+    }
+
+    public function usePrefixMatch(): bool
+    {
+        return $this->prefixMatch;
+    }
+
+    public function getFuzziness(string $token): string|int
+    {
+        $fuzziness = $this->tokenize ? 'auto' : 1;
+
+        if (is_numeric($token) || preg_match('/\d{3,}/', $token)) {
+            $fuzziness = 0; // Disable fuzziness for numeric tokens or a serial of at least 3 digits
+        }
+
+        return $fuzziness;
     }
 }

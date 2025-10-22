@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -36,6 +37,9 @@ class ProductStreamUpdaterTest extends TestCase
      */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<ProductStreamCollection>
+     */
     private EntityRepository $productStreamRepository;
 
     private SalesChannelContext $salesChannel;
@@ -83,10 +87,10 @@ class ProductStreamUpdaterTest extends TestCase
 
         $streams = $product->getStreams();
         static::assertNotNull($streams);
-        static::assertEquals(1, $streams->count());
+        static::assertCount(1, $streams);
         $firstStream = $streams->first();
         static::assertInstanceOf(ProductStreamEntity::class, $firstStream);
-        static::assertEquals($streamId, $firstStream->getId());
+        static::assertSame($streamId, $firstStream->getId());
         static::assertIsArray($product->getStreamIds());
         static::assertContains($streamId, $product->getStreamIds());
     }
@@ -247,8 +251,8 @@ class ProductStreamUpdaterTest extends TestCase
             $this->salesChannel->getContext()
         )->getEntities();
         // Check product & stream count is correct
-        static::assertEquals(3, $activeProducts->count());
-        static::assertEquals(
+        static::assertCount(3, $activeProducts);
+        static::assertCount(
             3,
             $activeProducts->filter(function (ProductEntity $product) use ($activeStreamId) {
                 $streams = $product->getStreams();
@@ -258,10 +262,10 @@ class ProductStreamUpdaterTest extends TestCase
                 }
 
                 return null;
-            })->count()
+            })
         );
         // Check and ensure the opposite product_stream (inactive) weren't added
-        static::assertEquals(
+        static::assertCount(
             0,
             $activeProducts->filter(function (ProductEntity $product) use ($inActiveStreamId) {
                 $streams = $product->getStreams();
@@ -271,7 +275,7 @@ class ProductStreamUpdaterTest extends TestCase
                 }
 
                 return null;
-            })->count()
+            })
         );
 
         // Valid product_stream for inactive products.
@@ -282,8 +286,8 @@ class ProductStreamUpdaterTest extends TestCase
             $this->salesChannel->getContext()
         )->getEntities();
         // Check product & stream count is correct
-        static::assertEquals(1, $inActiveProducts->count());
-        static::assertEquals(
+        static::assertCount(1, $inActiveProducts);
+        static::assertCount(
             1,
             $inActiveProducts->filter(function (ProductEntity $product) use ($inActiveStreamId) {
                 $streams = $product->getStreams();
@@ -293,10 +297,10 @@ class ProductStreamUpdaterTest extends TestCase
                 }
 
                 return null;
-            })->count()
+            })
         );
         // Check and ensure the opposite product_stream (active) weren't added
-        static::assertEquals(
+        static::assertCount(
             0,
             $inActiveProducts->filter(function (ProductEntity $product) use ($activeStreamId) {
                 $streams = $product->getStreams();
@@ -306,7 +310,7 @@ class ProductStreamUpdaterTest extends TestCase
                 }
 
                 return null;
-            })->count()
+            })
         );
     }
 

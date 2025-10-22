@@ -52,7 +52,7 @@
             {% block sw_product_image_context %}
             {% block sw_product_image_context_cover_action %}
             <sw-context-menu-item
-                v-if="showCoverLabel && !isCover && !isSpatial"
+                v-if="showCoverLabel && !isCover"
                 class="sw-product-image__button-cover"
                 @click="$emit('sw-product-image-cover')"
             >
@@ -77,10 +77,10 @@
         class="is--invalid-drag"
     >
         {% block sw_product_image_placeholder %}
-        <sw-icon
+        <mt-icon
             class="sw-product-image__placeholder-icon"
             :name="'regular-image'"
-            :small="true"
+            size="16px"
         />
         {% endblock %}
     </div>

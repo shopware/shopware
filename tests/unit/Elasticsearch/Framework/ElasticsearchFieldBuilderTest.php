@@ -134,7 +134,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
         ]]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'cf_bool' => 'bool',
         ]);
 
@@ -202,6 +202,37 @@ class ElasticsearchFieldBuilderTest extends TestCase
         ], $result);
     }
 
+    public function testCustomFieldsPropertiesAreOmittedWhenNoMappingsExist(): void
+    {
+        $languageId = Uuid::randomHex();
+
+        $languageLoader = new StaticLanguageLoader([
+            $languageId => [
+                'id' => $languageId,
+                'parentId' => null,
+                'code' => 'en-GB',
+            ],
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
+
+        $result = $builder->customFields('product', Context::createDefaultContext());
+
+        static::assertSame(['properties' => [$languageId => ['type' => 'object', 'dynamic' => true]]], $result);
+    }
+
     public function testBuildDatetimeField(): void
     {
         $dateTimeField = ElasticsearchFieldBuilder::datetime(['properties' => [
@@ -210,9 +241,9 @@ class ElasticsearchFieldBuilderTest extends TestCase
             ],
         ]]);
 
-        static::assertEquals([
+        static::assertSame([
             'type' => 'date',
-            'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+            'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
             'ignore_malformed' => true,
             'properties' => [
                 'foo' => [
@@ -226,7 +257,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
     {
         $nestedFields = ElasticsearchFieldBuilder::nested(['name' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD]);
 
-        static::assertEquals([
+        static::assertSame([
             'type' => 'nested',
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,

@@ -23,14 +23,11 @@ async function createWrapper() {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
                     'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section'),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                     'sw-empty-state': true,
                     'sw-address': await wrapTestComponent('sw-address'),
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
@@ -75,10 +72,6 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should dispatch error with invalid company field', async () => {

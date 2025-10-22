@@ -56,10 +56,6 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be return data when config value is exists', async () => {
         const formField = {
             name: 'markAsTopseller',

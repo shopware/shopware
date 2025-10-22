@@ -1,0 +1,319 @@
+{
+  "global": {
+    "error-codes": {
+      "DUPLICATED_PRODUCT_EXPORT_FILE_NAME": "Dieser Dateiname wird bereits verwendet. Bitte wähle einen anderen aus."
+    }
+  },
+  "sw-sales-channel": {
+    "general": {
+      "titleMenuItems": "Verkaufskanäle",
+      "tooltipOpenStorefront": "Öffne Storefront",
+      "titleMenuMoreItems": "Mehr",
+      "manageSalesChannels": "Verkaufskanäle verwalten",
+      "addSalesChannel": "Verkaufskanal hinzufügen"
+    },
+    "list": {
+      "title": "Verkaufskanäle",
+      "subTitle": "Über Verkaufskanäle können Sie Ihren Kunden Produkte über Social Media, der Storefront, Marktplätze oder persönlich verkaufen.",
+      "placeholderSearchBar": "Durchsuche alle Verkaufskanäle ...",
+      "buttonAddSalesChannel": "Verkaufskanal anlegen",
+      "columnName": "Verkaufskanal",
+      "columnType": "Typ",
+      "columnStatus": "Status",
+      "columnCreatedAt": "Erstellt am",
+      "columnFavourite": "Meine Favoriten",
+      "status": {
+        "maintenance": "Wartung",
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "contextMenuEdit": "Bearbeiten",
+      "productsLabel": "Produkte",
+      "productsCount": "Produkte | Produkt | Produkte"
+    },
+    "modal": {
+      "title": "Verkaufskanal anlegen",
+      "buttonAddChannel": "Verkaufskanal anlegen",
+      "titleDetailPrefix": "{name} - Details",
+      "buttonShowDetails": "Details",
+      "buttonBack": "Zurück",
+      "titleDescription": "Informationen",
+      "messageNoProductStreams": "Um Produktvergleiche anzulegen, musst Du zunächst eine dynamische Produktgruppe erstellen."
+    },
+    "detail": {
+      "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Der Verkaufskanal \"{name}\" konnte nicht gespeichert werden. Bitte überprüfe Deine Eingaben.",
+      "messageActivateWithoutThemeError": "Der Verkaufskanal \"{name}\" kann noch nicht aktiviert werden. Aktive Verkaufskanäle müssen ein Theme zugeordnet haben.",
+      "messageMeasurementUnitsSetError": "Die Systemkonfiguration für Produktmaße konnte nicht geladen werden.",
+      "activateDisable": "Der Verkaufskanal muss gespeichert und anschließend muss ein Theme zugeordnet werden, bevor er aktiviert werden kann.",
+      "buttonSave": "Speichern",
+      "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
+      "tabBase": "Allgemein",
+      "tabTheme": "Theme",
+      "tabAnalytics": "Analyse",
+      "tabProductComparison": "Template",
+      "tabProducts": "Produkte",
+      "titleProductComparisonTemplate": "Template",
+      "titleProductComparisonPreview": "Vorschau",
+      "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
+      "labelAccessKeyField": "API-Zugangsschlüssel",
+      "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",
+      "titleGeneralSettings": "Grundeinstellungen",
+      "labelInputName": "Name",
+      "labelInputActive": "Aktiv",
+      "labelInputShippingMethods": "Versandarten",
+      "labelInputPaymentMethods": "Zahlungsarten",
+      "labelInputCountries": "Länder",
+      "countryMultiSelectHelpText": "Falls nicht alle verfügbaren Länder angezeigt werden, gib einen konkreten Namen ein, um dieses Land auswählen zu können. Länder können über Einstellungen/Länder bearbeitet und neu angelegt werden.",
+      "helpTextTaxCalculation": {
+        "label": "Wenn ein Steuerservice-Anbieter (Tax Provider) aktiviert wird, werden diese Einstellungen möglicherweise überschrieben. Du kannst dies in den {link} überprüfen. ",
+        "linkText": "Einstellungen"
+      },
+      "labelInputTaxCalculation": "Steuerberechnung",
+      "labelOptionTaxVertical": "Vertikal",
+      "labelOptionTaxHorizontal": "Horizontal",
+      "labelInputCurrencies": "Währungen",
+      "labelInputLanguages": "Sprachen",
+      "labelInputUrl": "URL",
+      "labelInputCategories": "Kategorien",
+      "titleOptionsCard": "Optionen",
+      "labelInputDefaultShippingMethod": "Standard-Versandart",
+      "labelInputDefaultPaymentMethod": "Standard-Zahlungsart",
+      "labelInputDefaultCountry": "Standard-Land",
+      "labelInputDefaultCurrency": "Standard-Währung",
+      "labelInputDefaultLanguage": "Standard-Sprache",
+      "tooltipDisabledShippingMethod": "Diese Versandart muss aktiviert werden, damit sie als Standard-Versandart wählbar ist.",
+      "tooltipDisabledPaymentMethod": "Diese Zahlungsart muss aktiviert werden, damit sie als Standard-Zahlungsart wählbar ist.",
+      "tooltipDisabledCountry": "Dieses Land muss aktiviert werden, damit es als Standard-Land wählbar ist.",
+      "warningDisabledCountries": "Das Land <b>{name}</b> ist nicht aktiv. | Die Länder <b>{name}</b> und <b>{addition}</b> sind nicht aktiv.",
+      "warningDisabledPaymentMethod": "Einige der Zahlungsarten, die diesem Verkaufskanal zugeordnet sind, sind derzeit nicht verfügbar. Bitte überprüfen Sie Ihre <a href=\"{paymentSettingsLink}\">Einstellungen</a> für diese Zahlungsarten:<br /><b>{separatedList}</b>",
+      "warningDisabledShippingMethod": "Die Versandart <b>{name}</b> ist nicht aktiv. | Die Versandarten <b>{name}</b> und <b>{addition}</b> sind nicht aktiv.",
+      "warningDisabledAddition": "{amount} weitere",
+      "warningUnservedLanguage": "Die Sprache <b>{list}</b> ist keiner Domain zugewiesen. Um die Sprache in Deinem Verkaufskanal nutzen zu können, musst Du zunächst eine entsprechende Domain anlegen. | Die Sprachen <b>{list}</b> sind keiner Domain zugewiesen. Um diese Sprachen in Deinem Verkaufskanal nutzen zu können, musst Du zunächst die entsprechenden Domains anlegen.",
+      "textDeleteInfo": "Achtung: Hiermit löschst Du diesen Verkaufskanal vollständig! Der Verkaufskanal wird danach nicht mehr in der Shopware Administration verfügbar sein und kann auch nicht wiederhergestellt werden. Alle vorhandenen Bestellungen bleiben jedoch erhalten. Auch ausgespielte Kataloge werden durch diese Aktion nicht verändert.",
+      "buttonDelete": "Verkaufskanal löschen",
+      "deleteModalTitle": "Verkaufskanal löschen",
+      "textConfirmDelete": "Möchtest Du diesen Verkaufskanal wirklich löschen?",
+      "buttonConfirmDelete": "Löschen",
+      "textHeadline": "Neuer Verkaufskanal",
+      "placeholderName": "Gib einen Namen für den Verkaufskanal ein ...",
+      "placeholderInputCategories": "Kategorien hinzufügen ...",
+      "titleDomains": "Domains",
+      "titleDomainItem": "URL {index}",
+      "labelInputCurrency": "Währung",
+      "labelInputLanguage": "Sprache",
+      "labelInputSnippet": "Textbaustein-Set",
+      "buttonDeleteDomain": "Domain löschen",
+      "messageDeleteDomainError": "Die Domain \"{url}\" konnte nicht gelöscht werden, da sie mit bestehenden Produktexporten verknüpft ist.",
+      "foreignKeyDelete": "Dieser Verkaufskanal kann nicht gelöscht werden, da er noch von {assignment} verwendet wird.",
+      "buttonAddDomain": "Domain hinzufügen",
+      "deleteDomainModalTitle": "Domain löschen",
+      "textConfirmDeleteDomain": "Möchtest Du diese Domain wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich",
+      "buttonConfirmDeleteDomain": "Löschen",
+      "customerGroup": "Kundengruppe",
+      "favouriteLabel": "Verkaufskanal als Favorit markieren",
+      "navigation": "Navigation",
+      "navigationCategoryId": "Einstiegspunkt für die Haupt-Navigation",
+      "navigationCategoryDepth": "Hauptnavigations-Ebenen",
+      "navigationCategoryHelpText": "Für diesen Einstiegspunkt können keine Kategorien des Typs \"benutzerdefinierter Link\" oder \"Strukturkategorie\" ausgewählt werden.",
+      "footerCategory": "Einstiegspunkt für die Footer-Navigation",
+      "serviceCategory": "Einstiegspunkt für die Footer-Service-Navigation",
+      "titleOptionsApiKey": "API-Zugang",
+      "textDeleteSalesChannelWarning": "Das Entfernen dieses Verkaufskanals kann nicht wieder rückgängig gemacht werden.",
+      "buttonCopyApiKeyButton": "API-Schlüssel kopieren",
+      "titleStatus": "Status",
+      "titleGeneralInformation": "Allgemeine Informationen",
+      "titleAccount": "Konto",
+      "titleDeleteSalesChannel": "Verkaufskanal löschen",
+      "titleProductSync": "Produkt-Synchronisierung",
+      "titleSyncedProducts": "Synchronisierte Produkte",
+      "titleCategoryMapping": "Kategoriezuordnung",
+      "titleTemplate": "Template",
+      "titleDomainHeadline": "Erstelle Domain-URLs",
+      "buttonEditDomain": "Domain bearbeiten",
+      "titleCreateDomain": "Neue Domain erstellen",
+      "titleEditDomain": "Domain \"{name}\" bearbeiten",
+      "textDomainDescription": "Jede ausgewählte Sprache benötigt eine eigene Domain im jeweiligen Verkaufskanal. Du kannst darüberhinaus auch noch weitere eigene Domains für den Verkaufskanal hinzufügen.",
+      "textApiAccessDescription": "Um API-Zugriff zu erhalten benötigst Du die unten angezeigte API-Zugangs-ID. Eine Neugenerierung überschreibt die alte API-Zugangs-ID und terminiert alle existierenden Zugriffsrouten. <strong>Diese Aktion kann nicht rückgängig gemacht werden.</strong>",
+      "textActiveDescription": "Das Deaktivieren des Verkaufskanals macht ihn für Besucher und API-Verbindungen unzugänglich.",
+      "columnDomainUrl": "URL",
+      "columnDomainLanguage": "Sprache",
+      "columnDomainSnippetSet": "Textbaustein-Set",
+      "maintenanceModeTitle": "Wartungsmodus",
+      "maintenanceModeDescription": "Im Wartungsmodus ist der Verkaufskanal für Besucher unsichtbar. IPs die auf der Whitelist stehen, können jedoch weiterhin auf den Verkaufskanal zugreifen. Auf diese Weise kann sicher mit den Daten des Verkaufskanals gearbeitet werden, während Kunden und Besucher einen Wartungsmodus-Bildschirm angezeigt bekommen.",
+      "labelMaintenanceActive": "Wartungsmodus",
+      "ipAddressAllowlistHelpText": "Füge der Allowlist IP-Adressen hinzu, um einen selektiven Zugriff auf den Shop zu ermöglichen. Du kannst bei Bedarf IPv4- und IPv6-Adressen hinzufügen.",
+      "basicinformationLink": "Standard-Wartungsseiten-Layout ändern",
+      "ipAddressAllowlist": "Allowlist für IP-Adressen",
+      "columnDomainCurrency": "Währung",
+      "columnDomainUnitSystem": "Einheitensystem",
+      "products": {
+        "titleEmptyState": "Keine weiteren Produkte gefunden",
+        "titleEmptyStateTable": "Keine passenden Produkte gefunden",
+        "buttonAddProducts": "{productCount} Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
+        "columnProductName": "Produktname",
+        "columnActive": "Aktiv",
+        "columnProductNumber": "Produktnummer",
+        "inheritVariantNotRemovableTooltip": "Diese Variante erbt die Verkaufskanal-Zuweisung von ihrem Hauptprodukt."
+      },
+      "productComparison": {
+        "inputHeaderLabel": "Kopfzeile",
+        "inputBodyLabel": "Produktzeile",
+        "inputFooterLabel": "Fußzeile",
+        "buttonTestLabel": "Template testen",
+        "buttonPreviewLabel": "Vorschau generieren",
+        "settings": "Produktexport",
+        "fileName": "Dateiname",
+        "placeholderFileName": "shopware.csv",
+        "lastGenerationLabel": "Zeitpunkt der letzten Generierung: ",
+        "notYetGenerated": "Dieser Export wurde bisher noch nicht generiert.",
+        "encoding": "Zeichenkodierung",
+        "placeholderSelectEncoding": "Wähle eine Zeichenkodierung aus ...",
+        "fileFormat": "Dateiformat",
+        "placeholderSelectFileFormat": "Wähle ein Dateiformat aus ...",
+        "accessKey": "Zugangsschlüssel",
+        "accessUrl": "Export-URL",
+        "buttonCreateNewAccessKey": "Zugangsschlüssel neu generieren",
+        "productStream": "Dynamische Produktgruppe",
+        "fileFormatLabels": {
+          "csv": "CSV",
+          "xml": "XML"
+        },
+        "includeVariants": "Varianten als eigene Produkte exportieren",
+        "interval": "Generierungsintervall",
+        "generateByCronjob": "Per Scheduler generieren",
+        "notificationMessageValidateSuccessful": "Keine Fehler gefunden.",
+        "intervalLabels": {
+          "0": "Live",
+          "120": "2 Minuten",
+          "300": "5 Minuten",
+          "600": "10 Minuten",
+          "900": "15 Minuten",
+          "1800": "30 Minuten",
+          "3600": "1 Stunde",
+          "7200": "2 Stunden",
+          "14400": "4 Stunden",
+          "28800": "8 Stunden",
+          "43200": "12 Stunden",
+          "86400": "1 Tag",
+          "172800": "2 Tage",
+          "259200": "3 Tage",
+          "345600": "4 Tage",
+          "432000": "5 Tage",
+          "518400": "6 Tage",
+          "604800": "1 Woche"
+        },
+        "storefront": "Storefront-Verkaufskanal",
+        "storefrontDomain": "Storefront-Domain",
+        "storefrontDomainLanguage": {
+          "label": "Sprache",
+          "help": "Auf Basis der Storefront-Domain automatisch gewählt"
+        },
+        "storefrontDomainCurrency": {
+          "label": "Währung"
+        },
+        "storefrontSalesChannelCustomerGroup": {
+          "label": "Kundengruppe",
+          "help": "Auf Basis des Storefront-Verkaufskanals automatisch gewählt"
+        },
+        "messageAccessKeyChanged": "Der Zugangsschlüssel und die geänderte Export-URL werden erst nach dem Speichern aktiv.",
+        "templates": {
+          "label": "Template",
+          "placeholderSelectTemplate": "Wähle ein Template aus ...",
+          "template-label": {
+            "billiger-de": "billiger.de (CSV)",
+            "idealo": "idealo.de (CSV)",
+            "google-product-search-de": "Google Shopping (XML)"
+          },
+          "modal-title": "Template anwenden",
+          "modal-message": "Bei Übernahme der Daten aus dem Template werden vorhandene Daten in diesem Verkaufskanal überschrieben. Es werden sowohl Einstellungen, als auch das Template angepasst.",
+          "modal-confirm": "Template übernehmen",
+          "message": {
+            "template-applied-message": "Die Daten aus dem Template wurden übernommen. Bitte speichere den Verkaufskanal, um die Änderungen dauerhaft zu übernehmen."
+          }
+        },
+        "cliCommand": "CLI-Befehl zur Erstellung des Produktexports"
+      },
+      "hreflang": {
+        "title": "Hreflang",
+        "titleCard": "Hreflang-Integration",
+        "titleDescription": "Das hreflang-Metatag dient der eindeutigen Zuordnung eines Inhalts zu einer Sprache. Google zeigt die jeweiligen Sprachen explizit in den Suchergebnissen an.",
+        "enableCheckbox": "Hreflang aktivieren",
+        "defaultDomain": "Standard-Domain für Hreflang",
+        "domainSettings": {
+          "label": "Hreflang-Lokalisierung",
+          "byIso": "Lokalisierung nach ISO-Norm",
+          "byIsoHelpText": "Die Lokalisierung wird über die genaue ISO vorgenommen. Zusätzlich zur Sprache wird auch das Bestimmungsland mit ausgeliefert.",
+          "byAbbreviation": "Lokalisierung nach Sprache",
+          "byAbbreviationHelpText": "Die Lokalisierung wird nur über die Sprache vorgenommen. Hier werden über die ausgegebene Sprache mehrere Bestimmungsländer angesprochen"
+        }
+      },
+      "analytics": {
+        "cardTitle": "Google Analytics",
+        "headline": "Google-Analytics-Integration",
+        "description": "Mit Google Analytics kannst Du Daten aus Deinem Shop sammeln und analysieren. Um diese Funktion nutzen zu können, benötigst Du ein Konto bei Google Analytics. Wenn Du noch kein Konto hast, kannst Du Dich hier registrieren: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. Nach der Registrierung erhältst Du eine Tracking-ID, die Du hier eingeben musst, um die Integration zu aktivieren.",
+        "fields": {
+          "trackingId": {
+            "label": "Tracking-ID",
+            "placeHolder": "Tracking-ID eingeben ...",
+            "helpText": "Nach der Anmeldung in Deinem Google-Analytics-Konto erhältst Du eine Tracking-ID. Tracking-IDs können wie folgt aussehen `G-XXXXXXXXXX`. Beginnt die ID mit `GTM-`, wird in der Storefront automatisch das Google Tag Manager-Skript eingebunden: `https://www.googletagmanager.com/gtm.js?id=...`. Andernfalls wird `https://www.googletagmanager.com/gtag/js?id=...` verwendet."
+          },
+          "active": {
+            "label": "Google Analytics aktivieren"
+          },
+          "trackOrders": {
+            "label": "Bestellungen verfolgen"
+          },
+          "anonymizeIp": {
+            "label": "IP-Anonymisierung"
+          }
+        }
+      },
+      "titleShippingPayment": "Zahlung und Versand",
+      "labelTaxCalculation": "Steuerberechnung",
+      "descriptionTaxCalculation": "Eine Änderung dieser Einstellung könnte zu Abrechnungsproblemen mit externen Zahlungsanbietern führen. \nInformiere Dich, wie die Mehrwertsteuer von Deinem Zahlungsanbieter berechnet wird, bevor Du Änderungen vornimmst.",
+      "taxCalculation": {
+        "verticalName": "Spaltenweise (vertikale) Berechnung",
+        "verticalDescription": "Die Mehrwertsteuersumme wird anhand des Bestellungs-Gesamtbetrags errechnet. Die Mehrwertsteueranteile der einzelnen Positionen werden im Bestellabschluss nicht angezeigt. ",
+        "horizontalName": "Zeilenweise (horizontale) Berechnung",
+        "horizontalDescription": "Die Mehrwertsteuer wird pro Warenkorb-Position berechnet. Die Mehrwertsteueranteile jeder einzelnen Warenkorb-Position werden während des Bestellabschlusses angezeigt. Die Mehrwertsteuersumme berechnet sich aus den Mehrwertsteueranteilen der einzelnen Positionen."
+      },
+      "productAssignmentModal": {
+        "title": "Produkte hinzufügen",
+        "singleProducts": "Produkt-Auswahl",
+        "categories": {
+          "title": "Kategorie-Auswahl",
+          "textInfo": "Die hier gemachten Zuweisungen sind nicht dynamisch und bilden nur den Produktstatus zum jetzigen Zeitpunkt ab. Nachfolgende Änderungen der Produktzusammensetzung in Kategorien beeinflussen die Zuweisung nicht.",
+          "textSearch": "Kategorien durchsuchen ...",
+          "emptySearchResults": "Keine Kategorien gefunden."
+        },
+        "dynamicProductGroups": {
+          "title": "Produktgruppen-Auswahl",
+          "infoText": "Die hier gemachten Zuweisungen sind nicht dynamisch und bilden nur den Produktstatus zum jetzigen Zeitpunkt ab. Nachfolgende Änderungen der Produktzusammensetzung von Dynamischen Produktgruppen beeinflussen diese Zuweisung nicht.",
+          "columnName": "Name",
+          "searchFieldPlaceholder": "Durchsuche alle dynamischen Produktgruppen ...",
+          "titleNoProductStreamsMatching": "Keine passenden dynamischen Produktgruppen gefunden.",
+          "titleNoProductStreamsAvailable": "Keine dynamische Produktgruppen verfügbar."
+        }
+      },
+      "measurementSystem": {
+        "labelDefaultUnitSystem": "Standard-Einheitensystem",
+        "labelDefaultLengthUnit": "Standard-Längeneinheit",
+        "labelDefaultWeightUnit": "Standard-Gewichtseinheit",
+        "labelUnitSystem": "Einheitensystem",
+        "labelLengthUnit": "Längeneinheit",
+        "labelWeightUnit": "Gewichtseinheit"
+      }
+    },
+    "sw-sales-channel-defaults-select": {
+      "messageError": "Der Wert wird von der Domain \"{url}\" verwendet."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "sales_channel": {
+        "label": "Verkaufskanäle"
+      }
+    }
+  }
+}

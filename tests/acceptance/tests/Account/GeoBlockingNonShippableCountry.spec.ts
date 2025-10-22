@@ -3,7 +3,7 @@ import { satisfies } from 'compare-versions';
 
 test(
     'Customers is able to to register an account and selects a non-shippable country for their billing address.',
-    { tag: '@Account @Address' },
+    { tag: ['@Account', '@Address', '@Storefront'] },
     async ({
         StorefrontAccountLogin,
         StorefrontAccount,
@@ -16,7 +16,6 @@ test(
         const nonShippableCountry = await TestDataService.createCountry({ shippingAvailable: false });
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, nonShippableCountry.id);
         const shippableCountry = await TestDataService.getCountry('de');
-        await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, shippableCountry.id);
         const registrationData = {
             salutation: 'Mr.',
             firstName: 'Jeff',
@@ -69,7 +68,7 @@ test(
 
 test(
     'Customers is not able to set new shipping address with a non-shippable country.',
-    { tag: '@Account @Address' },
+    { tag: ['@Account', '@Address', '@Storefront'] },
     async ({
         IdProvider,
         ShopCustomer,
@@ -86,8 +85,6 @@ test(
     }) => {
         const nonShippableCountry = await TestDataService.createCountry({ shippingAvailable: false});
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, nonShippableCountry.id);
-        const shippableCountry = await TestDataService.getCountry('de');
-        await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, shippableCountry.id);
 
         const address = {
             firstName: 'New First Name',
@@ -134,7 +131,7 @@ test(
                 await ShopCustomer.expects(StorefrontAccountAddresses.useDefaultShippingAddressButton).toBeDisabled();
                 await ShopCustomer.expects(StorefrontAccountAddresses.deliveryNotPossibleAlert).toBeVisible();
             } else {
-                await StorefrontAccountAddresses.addressDropdownButton.click();
+                await StorefrontAccountAddresses.addressDropdownButtons.last().click();
                 await ShopCustomer.expects(StorefrontAccountAddresses.availableAddressesUseAsBillingAddress).toBeEnabled();
                 await ShopCustomer.expects(StorefrontAccountAddresses.availableAddressesUseAsShippingAddress).toBeDisabled();
             }

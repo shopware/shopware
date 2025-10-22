@@ -5,7 +5,8 @@
                 {% block page_account_order_item_detail_line_item %}
                     {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
                         displayMode: 'order',
-                        showRemoveButton: false
+                        showRemoveButton: false,
+                        showSubtotal: showSubtotal
                     } %}
                 {% endblock %}
             {% endfor %}

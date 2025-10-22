@@ -1,14 +1,12 @@
 import template from './sw-data-grid-settings.html.twig';
 import './sw-data-grid-settings.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-data-grid-settings', {
+export default {
     template,
 
     emits: [
@@ -80,10 +78,12 @@ Component.register('sw-data-grid-settings', {
 
     methods: {
         onChangeCompactMode(value) {
+            this.currentCompact = value;
             this.$emit('change-compact-mode', value);
         },
 
         onChangePreviews(value) {
+            this.currentPreviews = value;
             this.$emit('change-preview-images', value);
         },
 
@@ -103,4 +103,4 @@ Component.register('sw-data-grid-settings', {
             this.$emit('change-column-order', columnIndex, columnIndex + 1);
         },
     },
-});
+};

@@ -22,9 +22,6 @@ async function createWrapper({ privilegesMappings = [], rolePrivileges = [], det
         {
             global: {
                 renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-card': true,
-                },
                 provide: {
                     privileges: privilegesService,
                 },
@@ -54,11 +51,6 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                 entityDefinitionFactory.add(name, value);
             },
         );
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the header titles', async () => {

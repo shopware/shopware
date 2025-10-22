@@ -51,7 +51,7 @@ class SalesChannelRepositoryIterator
     {
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $ids = $this->repository->searchIds($this->criteria, $this->context);
-        $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+        $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();
@@ -69,7 +69,7 @@ class SalesChannelRepositoryIterator
         $result = $this->repository->search($this->criteria, $this->context);
 
         // increase offset for next iteration
-        $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+        $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
         if (empty($result->getIds())) {
             return null;

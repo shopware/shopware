@@ -58,9 +58,6 @@ async function createWrapper(propsData = {}) {
         global: {
             plugins: [pinia],
             stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
-                },
                 'sw-context-button': {
                     template: `
                         <div class="sw-context-button">
@@ -194,10 +191,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const falseAction = wrapper.find('.sw-flow-sequence-condition__false-action');
         expect(falseAction.exists()).toBeTruthy();
 
-        const falseArrowIcon = wrapper.find('.sw-icon[name="regular-chevron-down-s"]');
+        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-s');
         expect(falseArrowIcon.exists()).toBeFalsy();
 
-        const trueArrowIcon = wrapper.find('.sw-icon[name="regular-chevron-right-s"]');
+        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-s');
         expect(trueArrowIcon.exists()).toBeFalsy();
     });
 
@@ -230,10 +227,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const falseAction = wrapper.find('.sw-flow-sequence-condition__false-action');
         expect(falseAction.exists()).toBeFalsy();
 
-        const falseArrowIcon = wrapper.find('.sw-icon[name="regular-chevron-down-s"]');
+        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-s');
         expect(falseArrowIcon.exists()).toBeTruthy();
 
-        const trueArrowIcon = wrapper.find('.sw-icon[name="regular-chevron-right-s"]');
+        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-s');
         expect(trueArrowIcon.exists()).toBeTruthy();
     });
 

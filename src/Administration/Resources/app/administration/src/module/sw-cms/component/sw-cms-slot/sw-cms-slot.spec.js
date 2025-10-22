@@ -41,7 +41,6 @@ async function createWrapper(props = {}) {
                     },
                     'sw-sidebar-collapse': true,
                     'sw-skeleton-bar': true,
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
@@ -137,12 +136,6 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         cmsElementFavorites.getFavoriteElementNames().forEach((favorite) => {
             cmsElementFavorites.update(false, favorite);
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the slot name as class', async () => {

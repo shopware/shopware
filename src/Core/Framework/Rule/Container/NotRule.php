@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
@@ -34,7 +34,7 @@ class NotRule extends Container
         $rule = array_shift($rules);
 
         if (!$rule instanceof Rule) {
-            throw new UnsupportedValueException(\gettype($rule), self::class);
+            throw RuleException::unsupportedValue(\gettype($rule), self::class);
         }
 
         return !$rule->match($scope);
@@ -48,7 +48,7 @@ class NotRule extends Container
     protected function checkRules(): void
     {
         if (\count($this->rules) > 1) {
-            throw new \RuntimeException('NOT rule can only hold one rule');
+            throw RuleException::onlyOneNotRule();
         }
     }
 }

@@ -5,7 +5,7 @@
 
 $sw-button-transition: all 0.15s ease-out;
 
-.mt-button {
+.sw-button {
     border: 1px solid $color-gray-400;
     background: $color-gray-50;
     color: $color-darkgray-200;
@@ -41,28 +41,28 @@ $sw-button-transition: all 0.15s ease-out;
         visibility: hidden;
     }
 
-    &:hover:not(.mt-button--disabled),
+    &:hover:not(.sw-button--disabled),
     &:hover:not([disabled]) {
         background: $color-gray-100;
     }
 
-    &:active:not(.mt-button--disabled) {
+    &:active:not(.sw-button--disabled) {
         background: $color-gray-200;
         border-color: $color-gray-400;
     }
 
     &:disabled,
-    &.mt-button--disabled {
+    &.sw-button--disabled {
         color: $color-gray-500;
         border-color: $color-gray-200;
         cursor: not-allowed;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-gray-400;
         }
     }
 
-    .sw-icon {
+    .mt-icon {
         color: $color-gray-800;
     }
 
@@ -70,13 +70,13 @@ $sw-button-transition: all 0.15s ease-out;
         border-color: $color-gray-800 transparent transparent transparent;
     }
 
-    &.mt-button--primary {
+    &.sw-button--primary {
         background: $color-shopware-brand-500;
         color: $color-white;
         line-height: 36px;
         border: 0 none;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-white;
         }
 
@@ -105,7 +105,7 @@ $sw-button-transition: all 0.15s ease-out;
             background: $color-shopware-brand-200;
         }
 
-        &.mt-button--square .sw-icon {
+        &.sw-button--square .mt-icon {
             color: $color-white;
         }
     }
@@ -116,7 +116,7 @@ $sw-button-transition: all 0.15s ease-out;
         line-height: 36px;
         border: 0 none;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-darkgray-200;
         }
 
@@ -141,11 +141,11 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:disabled,
-        &.mt-button--disabled {
+        &.sw-button--disabled {
             background: $color-module-yellow-200;
             color: $color-gray-800;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-gray-400;
             }
         }
@@ -157,7 +157,7 @@ $sw-button-transition: all 0.15s ease-out;
         line-height: 36px;
         border: 0 none;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-white;
         }
 
@@ -182,10 +182,10 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:disabled,
-        &.mt-button--disabled {
+        &.sw-button--disabled {
             background: $color-crimson-200;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-white;
             }
         }
@@ -196,7 +196,7 @@ $sw-button-transition: all 0.15s ease-out;
         border-color: $color-shopware-brand-500;
         color: $color-shopware-brand-500;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-shopware-brand-500;
         }
 
@@ -213,12 +213,12 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:disabled,
-        &.mt-button--disabled {
+        &.sw-button--disabled {
             background-color: transparent;
             border-color: $color-shopware-brand-200;
             color: $color-shopware-brand-200;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-shopware-brand-200;
             }
         }
@@ -238,12 +238,12 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:disabled,
-        &.mt-button--disabled {
+        &.sw-button--disabled {
             background-color: transparent;
             border-color: $color-crimson-200;
             color: $color-crimson-200;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-crimson-200;
             }
         }
@@ -254,7 +254,7 @@ $sw-button-transition: all 0.15s ease-out;
         background-color: transparent;
         color: $color-darkgray-800;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-darkgray-800;
         }
 
@@ -278,7 +278,7 @@ $sw-button-transition: all 0.15s ease-out;
         font-size: $font-size-xxs;
         line-height: $line-height-xs;
 
-        &.mt-button--square {
+        &.sw-button--square {
             width: 24px;
         }
     }
@@ -289,12 +289,12 @@ $sw-button-transition: all 0.15s ease-out;
         font-size: $font-size-xxs;
         line-height: 26px;
 
-        &.mt-button--square {
+        &.sw-button--square {
             width: 32px;
         }
     }
 
-    &.mt-button--square {
+    &.sw-button--square {
         width: 40px;
         padding-left: 0;
         padding-right: 0;

@@ -109,7 +109,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.$route.params.id) {
-                this.setId = this.$route.params.id;
+                this.setId = this.$route.params.id.toLowerCase();
                 this.loadEntityData();
             }
         },

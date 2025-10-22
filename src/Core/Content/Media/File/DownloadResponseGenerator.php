@@ -35,7 +35,8 @@ class DownloadResponseGenerator
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly MediaService $mediaService,
         private readonly string $localPrivateDownloadStrategy,
-        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator
+        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator,
+        private readonly string $privateLocalPathPrefix = ''
     ) {
     }
 
@@ -75,14 +76,19 @@ class DownloadResponseGenerator
                     $location = stream_get_meta_data($stream)['uri'] ?? $location;
                 }
 
-                $response = new Response(null, 200, $this->getStreamHeaders($media));
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
 
                 return $response;
             case self::X_ACCEL_DOWNLOAD_STRATEGY:
                 $location = $media->getPath();
 
-                $response = new Response(null, 200, $this->getStreamHeaders($media));
+                // Apply the path prefix if configured
+                if (!empty($this->privateLocalPathPrefix)) {
+                    $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
+                }
+
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_ACCEL_REDIRECT, $location);
 
                 return $response;

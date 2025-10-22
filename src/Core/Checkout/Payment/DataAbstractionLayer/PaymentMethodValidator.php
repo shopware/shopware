@@ -14,12 +14,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 #[Package('checkout')]
-final class PaymentMethodValidator implements EventSubscriberInterface
+final readonly class PaymentMethodValidator implements EventSubscriberInterface
 {
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private Connection $connection)
     {
     }
 

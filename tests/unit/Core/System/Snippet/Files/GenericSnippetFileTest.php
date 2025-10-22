@@ -29,11 +29,11 @@ class GenericSnippetFileTest extends TestCase
             $ids->get('technicalName'),
         );
 
-        static::assertEquals($ids->get('name'), $exception->getName());
-        static::assertEquals($ids->get('author'), $exception->getAuthor());
-        static::assertEquals($ids->get('iso'), $exception->getIso());
-        static::assertEquals($isBase, $exception->isBase());
-        static::assertEquals($ids->get('path'), $exception->getPath());
-        static::assertEquals($ids->get('technicalName'), $exception->getTechnicalName());
+        static::assertSame($ids->get('name'), $exception->getName());
+        static::assertSame($ids->get('author'), $exception->getAuthor());
+        static::assertSame($ids->get('iso'), $exception->getIso());
+        static::assertSame($isBase, $exception->isBase());
+        static::assertSame($ids->get('path'), $exception->getPath());
+        static::assertSame($ids->get('technicalName'), $exception->getTechnicalName());
     }
 }

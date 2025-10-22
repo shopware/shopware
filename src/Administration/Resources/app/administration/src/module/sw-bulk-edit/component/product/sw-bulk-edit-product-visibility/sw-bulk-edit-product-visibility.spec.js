@@ -16,7 +16,6 @@ async function createWrapper() {
                     },
                     'sw-product-visibility-select': true,
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-icon': true,
                     'sw-product-visibility-detail': true,
                 },
                 provide: {
@@ -58,10 +57,6 @@ describe('sw-bulk-edit-product-visibility', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be disabled correctly', async () => {

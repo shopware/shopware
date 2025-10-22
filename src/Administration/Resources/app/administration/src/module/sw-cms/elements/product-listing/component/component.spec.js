@@ -47,7 +47,6 @@ async function createWrapper() {
                         template: '<div>Product-Box</div>',
                         props: ['element'],
                     },
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: {
@@ -72,12 +71,6 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
 
     beforeEach(async () => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should use demo products', async () => {

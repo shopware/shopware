@@ -42,7 +42,7 @@ class StatementHelperTest extends TestCase
         ];
 
         $this->expectBinds($parameters);
-        $this->stmt->expects(static::once())
+        $this->stmt->expects($this->once())
             ->method('executeStatement')
             ->willReturn(42);
         $result = StatementHelper::executeStatement($this->stmt, $parameters);
@@ -51,10 +51,10 @@ class StatementHelperTest extends TestCase
 
     public function testExecuteStatementWithoutParameters(): void
     {
-        $this->stmt->expects(static::once())
+        $this->stmt->expects($this->once())
             ->method('executeStatement')
             ->willReturn(0);
-        $this->stmt->expects(static::never())
+        $this->stmt->expects($this->never())
             ->method('bindValue');
 
         $result = StatementHelper::executeStatement($this->stmt);
@@ -70,7 +70,7 @@ class StatementHelperTest extends TestCase
 
         $expectedResult = $this->createMock(Result::class);
         $this->expectBinds($parameters);
-        $this->stmt->expects(static::once())
+        $this->stmt->expects($this->once())
             ->method('executeQuery')
             ->willReturn($expectedResult);
         $result = StatementHelper::executeQuery($this->stmt, $parameters);
@@ -82,7 +82,7 @@ class StatementHelperTest extends TestCase
      */
     private function expectBinds(array $parameters): void
     {
-        $matcher = static::exactly(\count($parameters));
+        $matcher = $this->exactly(\count($parameters));
         $keys = array_keys($parameters);
         $this->stmt->expects($matcher)
             ->method('bindValue')

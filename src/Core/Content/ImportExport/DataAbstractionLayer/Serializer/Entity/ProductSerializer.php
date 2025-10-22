@@ -4,7 +4,10 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -19,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 #[Package('fundamentals@after-sales')]
 class ProductSerializer extends EntitySerializer
@@ -31,6 +35,11 @@ class ProductSerializer extends EntitySerializer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductVisibilityCollection> $visibilityRepository
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     * @param EntityRepository<ProductMediaCollection> $productMediaRepository
+     * @param EntityRepository<ProductConfiguratorSettingCollection> $productConfiguratorSettingRepository
      */
     public function __construct(
         private readonly EntityRepository $visibilityRepository,

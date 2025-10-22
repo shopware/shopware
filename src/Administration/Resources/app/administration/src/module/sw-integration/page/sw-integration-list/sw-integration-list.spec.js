@@ -77,22 +77,20 @@ async function createWrapper(privileges = []) {
                         </div>
                         `,
                 },
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                         </div>
                         `,
                 },
                 'sw-language-switch': true,
                 'sw-search-bar': true,
-                'sw-icon': true,
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -100,11 +98,8 @@ async function createWrapper(privileges = []) {
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-field-error': true,
                 'sw-field-copyable': true,
-                'sw-switch-field': true,
+
                 'sw-entity-multi-select': true,
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
                 'sw-entity-listing': {
                     props: [
                         'items',
@@ -130,6 +125,15 @@ async function createWrapper(privileges = []) {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
             },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
+            },
         },
     });
 
@@ -138,11 +142,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-integration/page/sw-integration-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create / edit without permissions', async () => {
         const wrapper = await createWrapper();
 
@@ -251,8 +250,8 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await editMenuItem.trigger('click');
         await flushPromises();
 
-        const adminRoleSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
-        expect(adminRoleSwitch.attributes().disabled).toBeDefined();
+        const adminRoleSwitch = wrapper.findComponent('.sw-settings-user-detail__grid-is-admin');
+        expect(adminRoleSwitch.props().disabled).toBe(true);
     });
 
     it('should have integration criteria with filters', async () => {

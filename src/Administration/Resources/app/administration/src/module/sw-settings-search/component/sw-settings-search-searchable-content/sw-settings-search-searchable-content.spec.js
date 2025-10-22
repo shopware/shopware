@@ -32,13 +32,12 @@ async function createWrapper(privileges = []) {
                 },
 
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
-                    'sw-icon': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'sw-settings-search-example-modal': await wrapTestComponent('sw-settings-search-example-modal'),
@@ -55,13 +54,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('Should be show example modal when the link was clicked', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer',

@@ -1,6 +1,5 @@
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
-import './sw-settings-shipping-detail.scss';
 import './store';
 
 const { Mixin, Context } = Shopware;
@@ -67,12 +66,7 @@ export default {
         },
 
         restrictedRuleIds() {
-            /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
             return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
-        },
-
-        usedRules() {
-            return Shopware.Store.get('swShippingDetail').usedRules;
         },
 
         ...mapPropertyErrors('shippingMethod', [
@@ -186,7 +180,7 @@ export default {
                 const shippingMethod = this.shippingMethodRepository.create();
                 const shippingMethodPrice = this.shippingMethodPricesRepository.create();
                 shippingMethodPrice.calculation = 1;
-                shippingMethodPrice.quantityStart = 1;
+                shippingMethodPrice.quantityStart = 0;
                 shippingMethodPrice.shippingMethodId = shippingMethod.id;
                 shippingMethodPrice.ruleId = null;
                 shippingMethod.prices.add(shippingMethodPrice);
@@ -203,7 +197,9 @@ export default {
 
         loadCurrencies() {
             this.currenciesLoading = true;
-            this.currencyRepository.search(new Criteria(1, 500), Context.api).then((currencyResponse) => {
+            const criteria = new Criteria(1, 500);
+            criteria.addAssociation('salesChannels');
+            this.currencyRepository.search(criteria, Context.api).then((currencyResponse) => {
                 Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;
             });
@@ -222,7 +218,7 @@ export default {
                     Shopware.Store.get('swShippingDetail').shippingMethod = res;
 
                     this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices').then((result) => {
-                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.usedRules.concat(result);
+                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.restrictedRuleIds.concat(result);
                     });
 
                     this.loadCustomFieldSets().then(() => {

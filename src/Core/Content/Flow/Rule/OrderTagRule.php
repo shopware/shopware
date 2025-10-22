@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class OrderTagRule extends FlowRule
@@ -21,6 +21,8 @@ class OrderTagRule extends FlowRule
 
     /**
      * @param list<string>|null $identifiers
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

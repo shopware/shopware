@@ -49,6 +49,7 @@ export default {
             documentConfig: {
                 config: {
                     displayAdditionalNoteDelivery: false,
+                    fileTypes: [],
                 },
             },
             documentConfigSalesChannelOptionsCollection: [],
@@ -93,9 +94,9 @@ export default {
                 },
                 {
                     name: 'itemsPerPage',
-                    type: 'text',
+                    type: 'number',
                     config: {
-                        type: 'text',
+                        type: 'number',
                         label: this.$tc('sw-settings-document.detail.labelItemsPerPage'),
                     },
                 },
@@ -179,12 +180,23 @@ export default {
             ],
             companyFormFields: [
                 {
+                    name: 'displayReturnAddress',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: this.$tc('sw-settings-document.detail.labelDisplayReturnAddress'),
+                        class: 'sw-settings-document-detail__return-address-checkbox',
+                        helpText: this.$tc('sw-settings-document.detail.helpTextDisplayReturnAddress'),
+                    },
+                },
+                {
                     name: 'displayCompanyAddress',
                     type: 'bool',
                     config: {
                         type: 'checkbox',
                         label: this.$tc('sw-settings-document.detail.labelDisplayCompanyAddress'),
                         class: 'sw-settings-document-detail__company-address-checkbox',
+                        helpText: this.$tc('sw-settings-document.detail.helpTextDisplayCompanyAddress'),
                     },
                 },
                 {
@@ -630,6 +642,10 @@ export default {
         },
 
         onAddDocumentType(type) {
+            if (!this.documentConfig.config.fileTypes) {
+                this.documentConfig.config.fileTypes = [];
+            }
+
             this.documentConfig.config.fileTypes.push(type.id);
         },
     },

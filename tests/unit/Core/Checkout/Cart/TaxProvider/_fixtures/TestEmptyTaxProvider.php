@@ -6,12 +6,14 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\AbstractTaxProvider;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class TestEmptyTaxProvider extends AbstractTaxProvider
 {
     public function provide(Cart $cart, SalesChannelContext $context): TaxProviderResult

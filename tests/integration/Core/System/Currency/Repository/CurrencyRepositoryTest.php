@@ -70,7 +70,7 @@ class CurrencyRepositoryTest extends TestCase
         $criteria = new Criteria();
 
         $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match');
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext());
         $context = Context::createDefaultContext();
         $queries = $builder->buildScoreQueries(
             $pattern,
@@ -84,7 +84,7 @@ class CurrencyRepositoryTest extends TestCase
 
         static::assertCount(2, $result->getIds());
 
-        static::assertEquals(
+        static::assertSame(
             [$recordA, $recordB],
             $result->getIds()
         );
@@ -119,7 +119,7 @@ class CurrencyRepositoryTest extends TestCase
         $deleteEventElement = $this->currencyRepository->delete([['id' => $recordA]], $context)->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
 
         static::assertNotNull($deleteEventElement);
-        static::assertEquals($recordA, $deleteEventElement->getWriteResults()[0]->getPrimaryKey());
+        static::assertSame($recordA, $deleteEventElement->getWriteResults()[0]->getPrimaryKey());
     }
 
     public function testDeleteDefaultCurrency(): void

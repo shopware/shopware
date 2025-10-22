@@ -41,4 +41,15 @@ class CustomEntityExceptionTest extends TestCase
         static::assertSame(CustomEntityException::CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE, $exception->getErrorCode());
         static::assertSame('Entity label_property "some_label" must be a string field', $exception->getMessage());
     }
+
+    public function testUnsupportedOnDeletePropertyOnField(): void
+    {
+        $onDelete = 'some_on_delete';
+        $name = 'some_name';
+        $exception = CustomEntityException::unsupportedOnDeletePropertyOnField($onDelete, $name);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(CustomEntityException::CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('onDelete property some_on_delete are not supported on field some_name', $exception->getMessage());
+    }
 }

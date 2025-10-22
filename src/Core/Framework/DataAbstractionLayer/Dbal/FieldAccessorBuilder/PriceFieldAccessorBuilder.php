@@ -63,7 +63,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $currencyId = $lastPart;
             $currencyFactor = \sprintf(
                 '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
-                (string) $this->connection->quote($currencyId)
+                $this->connection->quote($currencyId)
             );
         }
 
@@ -104,7 +104,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         $variables = [
             '#template#' => $template,
-            '#decimals#' => $context->getRounding()->getDecimals(),
+            '#decimals#' => (string) $context->getRounding()->getDecimals(),
         ];
 
         $template = str_replace(
@@ -118,7 +118,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
             $variables = [
                 '#accessor#' => $template,
-                '#multiplier#' => $multiplier,
+                '#multiplier#' => (string) $multiplier,
             ];
 
             $template = str_replace(array_keys($variables), array_values($variables), '(ROUND(#accessor# * #multiplier#, 0) / #multiplier#)');

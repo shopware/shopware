@@ -39,7 +39,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class MediaRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -118,6 +117,10 @@ class MediaRepositoryTest extends TestCase
                             'width' => 100,
                             'height' => 200,
                             'highDpi' => false,
+                            'mediaThumbnailSize' => [
+                                'width' => 100,
+                                'height' => 200,
+                            ],
                         ],
                     ],
                 ],
@@ -179,6 +182,10 @@ class MediaRepositoryTest extends TestCase
                                 'width' => 100,
                                 'height' => 200,
                                 'highDpi' => true,
+                                'mediaThumbnailSize' => [
+                                    'width' => 100,
+                                    'height' => 200,
+                                ],
                             ],
                         ],
                         'mediaFolder' => [
@@ -303,6 +310,10 @@ class MediaRepositoryTest extends TestCase
                             'width' => 100,
                             'height' => 200,
                             'highDpi' => true,
+                            'mediaThumbnailSize' => [
+                                'width' => 100,
+                                'height' => 200,
+                            ],
                         ],
                     ],
                 ],
@@ -565,6 +576,27 @@ class MediaRepositoryTest extends TestCase
 
         static::assertSame(OrderEvents::ORDER_LINE_ITEM_WRITTEN_EVENT, $event->getName());
         static::assertNull($payload['coverId']);
+    }
+
+    public function testPublicMediaUrlsAreReadableWithPartialDataLoading(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'private' => false,
+                    'path' => 'http://some.domain/media.png',
+                ],
+            ],
+            $this->context
+        );
+        $criteria = new Criteria([$mediaId]);
+        $criteria->addFields(['id', 'url']);
+        $media = $this->mediaRepository->search($criteria, $this->context)->get($mediaId);
+
+        static::assertSame('http://some.domain/media.png', $media?->get('url'));
     }
 
     /**

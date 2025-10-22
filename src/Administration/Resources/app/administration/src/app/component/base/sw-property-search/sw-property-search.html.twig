@@ -22,7 +22,7 @@
                         v-model="searchTerm"
                         name="sw-field--searchTerm"
                         class="sw-property-search__search-field"
-                        :disabled="disabled"
+                        :disabled="isAddOnly"
                         :placeholder="$tc('sw-property-search.placeholderSearch')"
                         autocomplete="off"
                         @focus="onFocusSearch"
@@ -76,7 +76,7 @@
                         data-index="name"
                         @click="selectGroup(item)"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-folder"
                             size="16px"
                         />
@@ -92,7 +92,7 @@
                         class="sw-property-search__tree-selection__column-items-selected"
                         data-index="assignedOptions"
                     >
-                        <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', item.optionCount, { count: item.optionCount }) }}</span>
+                        <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', { count: item.optionCount }, item.optionCount) }}</span>
                     </sw-grid-column>
                     {% endblock %}
                 </template>
@@ -224,7 +224,7 @@
             <template #icon>
                 {% block sw_property_search_empty_image %}
                 <img
-                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                     :alt="$tc('sw-property-search.noPropertiesFound')"
                 >
                 {% endblock %}

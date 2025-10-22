@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -35,6 +36,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[CoversClass(PriceFacade::class)]
+#[Package('checkout')]
 class PriceFacadeTest extends TestCase
 {
     public function testLineItemsGetUpdatePriceDefinition(): void
@@ -48,8 +50,9 @@ class PriceFacadeTest extends TestCase
             new Price(Defaults::CURRENCY, 2, 2, false),
         ]));
 
-        static::assertInstanceOf(QuantityPriceDefinition::class, $item->getPriceDefinition());
-        static::assertEquals(2, $item->getPriceDefinition()->getPrice());
+        $prideDefinition = $item->getPriceDefinition();
+        static::assertInstanceOf(QuantityPriceDefinition::class, $prideDefinition);
+        static::assertSame(2.0, $prideDefinition->getPrice());
         static::assertNull($item->getPrice());
     }
 
@@ -66,7 +69,7 @@ class PriceFacadeTest extends TestCase
             new Price(Defaults::CURRENCY, 2, 2, false),
         ]));
 
-        static::assertEquals(2, $original->getUnitPrice());
+        static::assertSame(2.0, $original->getUnitPrice());
     }
 
     #[DataProvider('providerChange')]
@@ -86,8 +89,8 @@ class PriceFacadeTest extends TestCase
 
         $price->change($update);
 
-        static::assertEquals($unit, $price->getUnit());
-        static::assertEquals($tax, $price->getTaxes()->getAmount());
+        static::assertSame($unit, $price->getUnit());
+        static::assertSame($tax, $price->getTaxes()->getAmount());
     }
 
     #[DataProvider('providerDiscount')]
@@ -99,8 +102,8 @@ class PriceFacadeTest extends TestCase
 
         $price->discount(20);
 
-        static::assertEquals($unit, $price->getUnit());
-        static::assertEquals($tax, $price->getTaxes()->getAmount());
+        static::assertSame($unit, $price->getUnit());
+        static::assertSame($tax, $price->getTaxes()->getAmount());
     }
 
     #[DataProvider('providerSurcharge')]
@@ -112,8 +115,8 @@ class PriceFacadeTest extends TestCase
 
         $price->surcharge(20);
 
-        static::assertEquals($unit, $price->getUnit());
-        static::assertEquals($tax, $price->getTaxes()->getAmount());
+        static::assertSame($unit, $price->getUnit());
+        static::assertSame($tax, $price->getTaxes()->getAmount());
     }
 
     #[DataProvider('providerPlus')]
@@ -133,8 +136,8 @@ class PriceFacadeTest extends TestCase
 
         $price->plus($update);
 
-        static::assertEquals($unit, $price->getUnit());
-        static::assertEquals($tax, $price->getTaxes()->getAmount());
+        static::assertSame($unit, $price->getUnit());
+        static::assertSame($tax, $price->getTaxes()->getAmount());
     }
 
     #[DataProvider('providerMinus')]
@@ -154,8 +157,8 @@ class PriceFacadeTest extends TestCase
 
         $price->minus($update);
 
-        static::assertEquals($unit, $price->getUnit());
-        static::assertEquals($tax, $price->getTaxes()->getAmount());
+        static::assertSame($unit, $price->getUnit());
+        static::assertSame($tax, $price->getTaxes()->getAmount());
     }
 
     public static function providerSurcharge(): \Generator
@@ -219,11 +222,11 @@ class PriceFacadeTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         // currency key will be provided, we want to test different currencies are taking into account
-        $context->expects(static::any())->method('getCurrencyId')->willReturn($ids->get($currencyKey));
+        $context->method('getCurrencyId')->willReturn($ids->get($currencyKey));
 
         // we also want to test different tax states (gross/net)
-        $context->expects(static::any())->method('getTaxState')->willReturn($taxState);
-        $context->expects(static::any())->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTaxState')->willReturn($taxState);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         return new PriceFacade($entity, $original, $stubs, $context);
     }

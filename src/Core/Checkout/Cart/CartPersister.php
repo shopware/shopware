@@ -7,9 +7,11 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -49,7 +51,7 @@ class CartPersister extends AbstractCartPersister
 
         try {
             $cart = $this->compressor->unserialize($content['payload'], (int) $content['compressed']);
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // When we can't decode it, we have to delete it
             throw CartException::tokenNotFound($token);
         }
@@ -60,6 +62,7 @@ class CartPersister extends AbstractCartPersister
 
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
+        $cart->setErrorHash($cart->getErrors()->getUniqueHash());
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -71,7 +74,8 @@ class CartPersister extends AbstractCartPersister
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
-        if ($cart->getBehavior()?->isRecalculation()) {
+        /** @deprecated tag:v6.8.0 - Condition will be removed */
+        if (!Feature::isActive('v6.8.0.0') && $cart->getBehavior()?->isRecalculation()) {
             return;
         }
 
@@ -149,9 +153,11 @@ class CartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart): array
     {
         $errors = $cart->getErrors();
-        $data = $cart->getData();
+        if (!$cart->getBehavior()?->hasPermission(CheckoutPermissions::PERSIST_CART_ERRORS)) {
+            $cart->setErrors(new ErrorCollection());
+        }
 
-        $cart->setErrors(new ErrorCollection());
+        $data = $cart->getData();
         $cart->setData(null);
 
         $this->cartSerializationCleaner->cleanupCart($cart);

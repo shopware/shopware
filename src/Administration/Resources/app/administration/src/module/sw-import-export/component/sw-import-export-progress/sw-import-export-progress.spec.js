@@ -10,16 +10,12 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
         wrapper = mount(
             await wrapTestComponent('sw-import-export-progress', {
                 sync: true,
-            })
+            }),
         );
     });
 
     afterEach(() => {
         wrapper.unmount();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('button should not be disabled when disableButton is false', async () => {

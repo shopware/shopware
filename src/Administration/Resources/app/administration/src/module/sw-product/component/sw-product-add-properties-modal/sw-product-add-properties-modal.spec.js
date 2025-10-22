@@ -32,7 +32,6 @@ async function createWrapper() {
                     'sw-property-search': await wrapTestComponent('sw-property-search'),
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
-                    'sw-icon': await wrapTestComponent('sw-icon'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -72,10 +71,6 @@ describe('src/module/sw-product/component/sw-product-add-properties-modal', () =
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should emit an event when pressing on cancel button', async () => {

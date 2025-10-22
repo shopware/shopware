@@ -7,7 +7,7 @@
     {% block sw_alert_inner %}
     {% block sw_alert_icon %}
     <slot name="customIcon">
-        <sw-icon
+        <mt-icon
             v-if="showIcon"
             size="20px"
             class="sw-alert__icon"
@@ -58,7 +58,7 @@
         :title="$tc('global.default.close')"
         @click.prevent="$emit('close', notificationIndex)"
     >
-        <sw-icon name="regular-times-s" />
+        <mt-icon name="regular-times-s" />
     </button>
     {% endblock %}
     {% endblock %}

@@ -20,7 +20,6 @@ class TwigEnvironmentTest extends TestCase
 
         $code = $twig->compileSource(new Source('{{ test.bla }}', 'bla'));
 
-        static::assertStringContainsString('use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;', $code);
-        static::assertStringContainsString('SwTwigFunction::getAttribute', $code);
+        static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute', $code);
     }
 }

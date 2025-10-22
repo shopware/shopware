@@ -17,6 +17,11 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -38,7 +43,11 @@ async function createWrapper(privileges = []) {
                     acl: {
                         can: (key) => (key ? privileges.includes(key) : true),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -51,8 +60,6 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-card-view': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-entity-listing': {
                         props: ['items'],
@@ -66,9 +73,7 @@ async function createWrapper(privileges = []) {
                     'sw-language-switch': true,
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-loader': true,
-                    'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'sw-label': true,
                     'sw-ai-copilot-badge': true,
@@ -84,10 +89,6 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('Should not allow create without permission', async () => {

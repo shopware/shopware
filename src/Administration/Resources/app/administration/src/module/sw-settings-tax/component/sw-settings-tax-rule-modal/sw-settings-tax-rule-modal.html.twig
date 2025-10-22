@@ -51,8 +51,8 @@
         {% endblock %}
 
         {% block sw_settings_tax_rule_modal_tax_rate %}
-        <sw-number-field
-            v-model:value="taxRule.taxRate"
+        <mt-number-field
+            v-model="taxRule.taxRate"
             required
             :digits="3"
             :error="taxRuleTaxRateError"
@@ -63,12 +63,12 @@
                     <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
                 </span>
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
 
         {% block sw_settings_tax_rule_modal_tax_active_from %}
-        <sw-datepicker
-            v-model:value="taxRule.activeFrom"
+        <mt-datepicker
+            v-model="taxRule.activeFrom"
             date-type="datetime"
             :error="taxRuleActiveFromError"
             :label="$tc('sw-settings-tax.taxRuleCard.labelActiveFrom')"
@@ -81,9 +81,9 @@
     {% block sw_settings_tax_rule_modal_form_footer %}
     <template #modal-footer>
         {% block sw_settings_tax_rule_modal_form_footer_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
+            variant="secondary"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.default.cancel') }}
@@ -91,7 +91,6 @@
         {% endblock %}
 
         {% block sw_settings_tax_rule_modal_form_footer_button_create %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             size="small"

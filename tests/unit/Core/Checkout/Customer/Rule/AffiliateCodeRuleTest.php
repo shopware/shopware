@@ -8,7 +8,9 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -31,7 +33,7 @@ class AffiliateCodeRuleTest extends TestCase
         static::assertArrayHasKey('affiliateCode', $constraints, 'Constraint affiliateCode not found in Rule');
         static::assertEquals($constraints['affiliateCode'], [
             new NotBlank(),
-            new Type(['type' => 'string']),
+            new Type(type: 'string'),
         ]);
     }
 
@@ -70,12 +72,16 @@ class AffiliateCodeRuleTest extends TestCase
 
     public function testInvalidCombinationOfValueAndOperator(): void
     {
-        $this->expectException(UnsupportedValueException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CustomerException::class);
+        }
         $rule = new AffiliateCodeRule(Rule::OPERATOR_EQ, null);
         $customer = new CustomerEntity();
         $customer->setAffiliateCode('testing');
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 
@@ -90,13 +96,13 @@ class AffiliateCodeRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setAffiliateCode($customerCode);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($hasCustomer ? $customer : null);
 
         $scope = new CheckoutRuleScope($salesChannelContext);
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     /**

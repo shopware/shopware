@@ -23,7 +23,6 @@ async function createWrapper(options = {}) {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-wizard-dot-navigation': await wrapTestComponent('sw-wizard-dot-navigation'),
-                'sw-icon': true,
                 'sw-loader': true,
                 'router-link': true,
             },
@@ -48,12 +47,6 @@ async function createWrapper(options = {}) {
     });
 }
 describe('src/app/component/wizard/sw-wizard', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have a pages count of 5', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -1,5 +1,5 @@
 {% block sw_order_customer_grid %}
-<sw-card
+<mt-card
     class="sw-order-customer-grid"
     position-identifier="sw-order-customer-grid"
     :is-loading="isSwitchingCustomer"
@@ -11,19 +11,22 @@
             <sw-card-filter
                 ref="customerFilter"
                 @sw-card-filter-term-change="onSearch"
-            />
-            {% endblock %}
-
-            {% block sw_order_customer_grid_add_new_customer %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
-            <mt-button
-                class="sw-order-customer-grid__add-customer"
-                ghost
-                size="small"
-                @click="onShowNewCustomerModal"
             >
-                {{ $tc('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
-            </mt-button>
+                <template #filter>
+                    {% block sw_order_customer_grid_add_new_customer %}
+                    <mt-button
+                        class="sw-order-customer-grid__add-customer"
+                        ghost
+                        size="small"
+                        variant="secondary"
+                        data-analytics-id="sw-order-customer-grid.show-new-customer-modal"
+                        @click="onShowNewCustomerModal"
+                    >
+                        {{ $t('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
+                    </mt-button>
+                    {% endblock %}
+                </template>
+            </sw-card-filter>
             {% endblock %}
         </div>
         {% endblock %}
@@ -108,7 +111,7 @@
                 {% block sw_order_customer_grid_empty_state_icon %}
                 <template #icon>
                     <img
-                        :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
+                        :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
                         :alt="$tc('sw-customer.list.messageEmpty')"
                     >
                 </template>
@@ -164,9 +167,10 @@
 
             <template #modal-footer>
                 {% block sw_order_customer_grid_sales_channel_action_close %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
+                    variant="secondary"
+                    data-analytics-id="sw-order-customer-grid.close-sales-channel-select-modal"
                     @click="onCloseSalesChannelSelectModal"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -174,12 +178,12 @@
                 {% endblock %}
 
                 {% block sw_order_customer_grid_sales_channel_action_select %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
                     :disabled="isSelectSalesChannelDisabled"
+                    data-analytics-id="sw-order-customer-grid.select-sales-channel"
                     @click="onSelectSalesChannel"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonSelectSalesChannel') }}
@@ -206,9 +210,10 @@
 
             <template #modal-footer>
                 {% block sw_order_customer_grid_customer_changes_modal_action_close %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
+                    variant="secondary"
+                    data-analytics-id="sw-order-customer-grid.close-customer-changes-modal"
                     @click="onCloseCustomerChangesModal"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -216,11 +221,11 @@
                 {% endblock %}
 
                 {% block sw_order_customer_grid_customer_changes_modal_action_changes %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
+                    data-analytics-id="sw-order-customer-grid.change-customer"
                     @click="onChangeCustomer"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonChangeCustomer') }}
@@ -230,5 +235,5 @@
         </sw-modal>
         {% endblock %}
     </template>
-</sw-card>
+</mt-card>
 {% endblock %}

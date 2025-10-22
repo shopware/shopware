@@ -61,7 +61,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $encoder->encode(
             new Criteria(),
             static::getContainer()->get(ProductDefinition::class),
-            /** @phpstan-ignore-next-line intentionally wrong parameter provided **/
+            /** @phpstan-ignore argument.type (for test purpose) */
             $input,
             SerializationFixture::SALES_CHANNEL_API_BASE_URL
         );

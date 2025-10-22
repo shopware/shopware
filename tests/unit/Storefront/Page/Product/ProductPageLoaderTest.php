@@ -55,7 +55,7 @@ class ProductPageLoaderTest extends TestCase
         $slot = $page->getCmsPage()?->getSections()?->first()?->getBlocks()?->first()?->getSlots()?->first()?->getSlot();
         static::assertIsString($slot);
 
-        static::assertEquals($reviews, json_decode($slot, true, 512, \JSON_THROW_ON_ERROR));
+        static::assertSame($reviews, json_decode($slot, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**

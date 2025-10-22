@@ -10,7 +10,6 @@ https://getbootstrap.com/docs/5.2/components/buttons
     --#{$prefix}btn-disabled-color: #{$btn-link-disabled-color};
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 // custom add to cart button, used e.g. in product-box and product detail buybox
@@ -47,6 +46,8 @@ https://getbootstrap.com/docs/5.2/components/buttons
     --#{$prefix}btn-border-width: 0;
     text-decoration: underline;
     vertical-align: baseline;
+    text-align: left;
+    white-space: normal;
 
     &:hover {
         text-decoration: underline;

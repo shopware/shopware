@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 
@@ -72,10 +71,20 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        cmsPageState: {
-            deep: true,
+        'cmsPageState.currentMappingTypes': {
             handler() {
                 this.updateMappingTypes();
+            },
+        },
+
+        'cmsPageState.currentMappingEntity': {
+            handler() {
+                this.updateMappingTypes();
+            },
+        },
+
+        'cmsPageState.currentDemoEntity': {
+            handler() {
                 this.updateDemoValue();
             },
         },

@@ -80,9 +80,6 @@ class AclWriteValidator implements EventSubscriberInterface
 
             $event = new CommandAclValidationEvent($missingPrivileges, $source, $command);
             $this->eventDispatcher->dispatch($event);
-            /**
-             * @var list<string> $missingPrivileges
-             */
             $missingPrivileges = $event->getMissingPrivileges();
         }
 

@@ -46,8 +46,6 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-modal': true,
                     'sw-entity-single-select': true,
                     'sw-product-variant-info': true,
-
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),

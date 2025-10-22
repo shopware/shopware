@@ -1,0 +1,65 @@
+{
+  "sw-settings-customer-group": {
+    "general": {
+      "mainMenuItemGeneral": "Kundengruppen",
+      "buttonCreate": "Kundengruppe anlegen",
+      "buttonSave": "Speichern",
+      "placeholderSearchBar": "Durchsuche alle Kundengruppen ..."
+    },
+    "list": {
+      "columnName": "Name",
+      "columnDisplayGross": "Steuerdarstellung"
+    },
+    "detail": {
+      "cardTitle": "Kundengruppe",
+      "fieldNameLabel": "Name",
+      "fieldDisplayGrossLabel": "Steuerdarstellung",
+      "fieldDisplayGrossValues": "Brutto | Netto",
+      "placeholderName": "Einen Namen eingeben ...",
+      "placeholderNewCustomerGroup": "Neue Kundengruppe",
+      "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe.",
+      "registrationForm": "Benutzerdefiniertes Registrierungsformular"
+    },
+    "registration": {
+      "formTitle": "Registrierungsformular",
+      "placeholderTitle": "Einen Titel eingeben ...",
+      "placeholderIntroduction": "Eine Einführung eingeben ...",
+      "placeholderSeoMetaDescription": "Eine SEO-Meta-Beschreibung eingeben ...",
+      "title": "Titel",
+      "introduction": "Einführung",
+      "onlyCompaniesCanRegister": "Registrierungsformular für Unternehmen",
+      "onlyCompaniesCanRegisterHelpText": "Fügt Felder für den Unternehmensnamen, die Umsatzsteuernummer und die Abteilung hinzu.",
+      "seoMetaDescription": "SEO-Meta-Beschreibung",
+      "linkUrlsTitle": "URLs",
+      "linkUrlDescription": "Klicken Sie auf die Schaltfläche auf der rechten Seite, um URLs zu generieren, die die Anfrageformulare mit jedem Vertriebskanal verbinden..",
+      "linkUrlButton": "URLs generieren",
+      "technicalUrl": "Technische URL",
+      "technicalUrlHelpText": "Technische URLs können als \"benutzerdefinierte Links\" im Kategorienmodul verwendet werden. Die Sprachauswahl erfolgt dabei automatisch.",
+      "availabilitySalesChannel": "Verfügbare Verkaufskanäle",
+      "infoText": "Shop-Benutzer können sich über dieses Formular registrieren. Die Benutzer werden der Kundengruppe erst zugewiesen, wenn Du die Anfrage im Kundenmodul angenommen hast. Das Formular kann mit den untenstehenden Feldern angepasst werden.",
+      "seoUrlLabel": "{salesChannelName} URL ({languageName})",
+      "domainBanner": "SEO-URLs werden für jede Domain aufgelistet, die pro Verkaufskanal konfiguriert ist."
+    },
+    "modal": {
+      "seoUrl": {
+        "title": "URL-Einstellungen",
+        "salesChannel": "Verkaufskanal",
+        "urlSuffix": "URL-Suffix",
+        "exampleUrl": "Beispiel-URL",
+        "generate": "Generieren"
+      }
+    },
+    "notification": {
+      "errorMessageCannotDeleteCustomerGroup": "Dieser Kundengruppe sind noch Verkaufskanäle und/oder Kunden zugewiesen, daher kann sie nicht gelöscht werden.",
+      "errorUnableToCreateSeoUrls": "Die URLs konnten nicht generiert werden",
+      "successfulGeneratedSeoUrls": "Die URLs wurden generiert"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "customer_groups": {
+        "label": "Kundengruppen"
+      }
+    }
+  }
+}

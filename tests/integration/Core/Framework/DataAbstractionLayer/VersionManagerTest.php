@@ -104,7 +104,7 @@ class VersionManagerTest extends TestCase
         $extension = $product->getExtension('manyToOne');
 
         static::assertInstanceOf(ArrayEntity::class, $extension);
-        static::assertEquals($extendableId, $extension->get('id'));
+        static::assertSame($extendableId, $extension->get('id'));
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('manyToOne.id', $extendableId));
 

@@ -69,9 +69,9 @@ class ProductStreamSyncTest extends TestCase
 
         $firstResult = $result->fetchAssociative();
         static::assertIsArray($firstResult);
-        static::assertEquals('Test stream', $firstResult['name']);
+        static::assertSame('Test stream', $firstResult['name']);
         $secondResult = $result->fetchAssociative();
         static::assertIsArray($secondResult);
-        static::assertEquals('Test stream - 2', $secondResult['name']);
+        static::assertSame('Test stream - 2', $secondResult['name']);
     }
 }

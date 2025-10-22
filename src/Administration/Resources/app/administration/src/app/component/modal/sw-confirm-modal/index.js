@@ -1,7 +1,5 @@
 import template from './sw-confirm-modal.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -20,7 +18,7 @@ const { Component } = Shopware;
  * </sw-confirm-modal>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-confirm-modal', {
+export default {
     template,
 
     emits: [
@@ -137,4 +135,4 @@ Component.register('sw-confirm-modal', {
             }
         },
     },
-});
+};

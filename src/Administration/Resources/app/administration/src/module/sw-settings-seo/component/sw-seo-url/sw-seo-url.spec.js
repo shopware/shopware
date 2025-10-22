@@ -17,7 +17,7 @@ async function createWrapper() {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="toolbar"></slot></div>',
                     },
                     'sw-sales-channel-switch': true,
@@ -69,10 +69,6 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         Shopware.Store.get('swSeoUrl').currentSeoUrl = '';
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('sales channel switch should not be disabled', async () => {

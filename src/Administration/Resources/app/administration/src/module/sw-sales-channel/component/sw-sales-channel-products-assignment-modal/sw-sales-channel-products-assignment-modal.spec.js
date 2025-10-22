@@ -33,7 +33,6 @@ async function createWrapper(activeTab = 'singleProducts') {
                         template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
                     },
                     'sw-tabs-item': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'router-link': true,
                 },

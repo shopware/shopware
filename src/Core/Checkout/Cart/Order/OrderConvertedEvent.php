@@ -14,9 +14,9 @@ class OrderConvertedEvent extends NestedEvent
     private Cart $convertedCart;
 
     public function __construct(
-        private OrderEntity $order,
-        private Cart $cart,
-        private Context $context
+        private readonly OrderEntity $order,
+        private readonly Cart $cart,
+        private readonly Context $context,
     ) {
         $this->convertedCart = clone $cart;
     }

@@ -34,7 +34,11 @@ async function createWrapper() {
                             },
                         }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
 
                 stubs: {
@@ -46,11 +50,10 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'sw-single-select': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-checkbox-field': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-bulk-edit-modal': true,
-                    'sw-icon': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,
@@ -71,13 +74,6 @@ async function createWrapper() {
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-general', () => {
     beforeEach(async () => {
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render empty state when isEmpty variable is true', async () => {

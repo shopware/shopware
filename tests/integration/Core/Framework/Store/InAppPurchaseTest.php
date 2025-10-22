@@ -56,8 +56,9 @@ class InAppPurchaseTest extends TestCase
                     static::getContainer()->get(StoreRequestOptionsProvider::class),
                     new StaticSystemConfigService(),
                     static::getContainer()->get('logger')
-                )
-            )
+                ),
+                static::getContainer()->get('logger')
+            ),
         );
 
         static::assertFalse($iap->isActive('ExtensionName', 'inactivePurchase'));
@@ -103,8 +104,9 @@ class InAppPurchaseTest extends TestCase
                     static::getContainer()->get(StoreRequestOptionsProvider::class),
                     $this->staticSystemConfigService,
                     static::getContainer()->get('logger')
-                )
-            )
+                ),
+                static::getContainer()->get('logger')
+            ),
         );
     }
 }

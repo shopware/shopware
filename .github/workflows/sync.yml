@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - trunk
-      - 6.5.x
-      - 6.6.x
+      - 6.[0-9]*.x
+      - 6.[0-9]*.[0-9]*.x
   workflow_call:
 
 jobs:
@@ -16,11 +16,11 @@ jobs:
       id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
         with:
           fetch-depth: 0
 
-      - uses: octo-sts/action@v1.0.0
+      - uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
         id: sts-shopware-private
         with:
           scope: shopware

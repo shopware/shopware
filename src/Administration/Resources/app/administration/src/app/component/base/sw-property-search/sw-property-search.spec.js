@@ -37,9 +37,6 @@ async function createWrapper() {
                 'sw-pagination': await wrapTestComponent('sw-pagination'),
                 'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-checkbox-field': {
                     template: '<div class="checkbox"></div>',
                 },
@@ -159,12 +156,6 @@ async function createWrapper() {
 describe('components/base/sw-property-search', () => {
     afterEach(async () => {
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a pagination element inside group grid', async () => {

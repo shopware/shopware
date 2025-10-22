@@ -1,6 +1,5 @@
 import template from './sw-admin-menu-item.html.twig';
 
-const { Component } = Shopware;
 const { createId, types } = Shopware.Utils;
 
 /**
@@ -8,7 +7,7 @@ const { createId, types } = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-admin-menu-item', {
+export default {
     template,
 
     inject: [
@@ -226,4 +225,4 @@ Component.register('sw-admin-menu-item', {
             return `${path}-${createId()}`;
         },
     },
-});
+};

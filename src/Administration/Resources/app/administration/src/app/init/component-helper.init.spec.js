@@ -17,5 +17,6 @@ describe('src/app/init/component-helper.init.ts', () => {
         expect(componentHelper.hasOwnProperty('mapPageErrors')).toBe(true);
         expect(componentHelper.hasOwnProperty('mapPropertyErrors')).toBe(true);
         expect(componentHelper.hasOwnProperty('mapSystemConfigErrors')).toBe(true);
+        expect(componentHelper.hasOwnProperty('createTextEditorDataMappingButton')).toBe(true);
     });
 });

@@ -7,7 +7,7 @@
         {% endblock %}
 
         {% block address_manager_modal_close_button %}
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'global.default.close'|trans|striptags }}"></button>
         {% endblock %}
     </div>
     <div class="modal-body">
@@ -110,6 +110,7 @@
             </div>
         {% endblock %}
     </div>
+
     {% block address_manager_modal_footer %}
         <div class="modal-footer">
             {% block address_manager_modal_footer_close_button %}
@@ -117,9 +118,10 @@
                     {{ 'account.addressModalFooterClose'|trans|sw_sanitize }}
                 </button>
             {% endblock %}
+
             {% block address_manager_modal_footer_form %}
                 <form
-                    action="{{ path('frontend.account.addressmanager.switch')}}"
+                    action="{% block address_manager_modal_footer_form_action %}{{ path('frontend.account.addressmanager.switch') }}{% endblock %}"
                     method="post"
                     data-form-handler="true"
                 >
@@ -135,6 +137,18 @@
                         class="address-manager-modal-currentBillingId"
                         name="billingAddressId"
                         value=""
+                    >
+
+                    <input
+                        type="hidden"
+                        name="redirectTo"
+                        value="{{ redirectTo }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="redirectParameters"
+                        value="{{ redirectParameters }}"
                     >
 
                     {% block address_manager_modal_footer_form_submit_button %}

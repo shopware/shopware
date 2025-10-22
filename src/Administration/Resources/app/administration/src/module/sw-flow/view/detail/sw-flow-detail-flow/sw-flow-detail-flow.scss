@@ -112,7 +112,7 @@
             border: 1px solid $color-gray-500;
             z-index: 2;
 
-            .sw-icon {
+            .mt-icon {
                 @include size(12px);
             }
 
@@ -154,6 +154,10 @@
 
     &__sequences {
         margin-left: 32px;
+    }
+
+    .sw-block-field__block {
+        height: auto;
     }
 }
 

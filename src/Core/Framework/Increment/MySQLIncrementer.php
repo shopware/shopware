@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Increment;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Defaults;
@@ -69,6 +70,25 @@ class MySQLIncrementer extends AbstractIncrementer
         if ($key !== null) {
             $query->andWhere('`key` = :key')
                 ->setParameter('key', $key);
+        }
+
+        RetryableQuery::retryable($this->connection, function () use ($query): void {
+            $query->executeStatement();
+        });
+    }
+
+    public function delete(string $cluster, array $keys = []): void
+    {
+        $query = $this->connection->createQueryBuilder()
+            ->delete('increment')
+            ->where('pool = :pool')
+            ->andWhere('cluster = :cluster')
+            ->setParameter('pool', $this->poolName)
+            ->setParameter('cluster', $cluster);
+
+        if (!empty($keys)) {
+            $query->andWhere('`key` IN (:keys)')
+                ->setParameter('keys', $keys, ArrayParameterType::STRING);
         }
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {

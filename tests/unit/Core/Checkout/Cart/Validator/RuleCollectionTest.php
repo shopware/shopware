@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Validator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\RuleCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
  * @internal
  */
 #[CoversClass(RuleCollection::class)]
+#[Package('checkout')]
 class RuleCollectionTest extends TestCase
 {
     public function testMetaCollecting(): void

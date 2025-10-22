@@ -5,12 +5,10 @@
 import template from './sw-sorting-select.html.twig';
 import './sw-sorting-select.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-sorting-select', {
+export default {
     template,
 
     emits: ['sorting-changed'],
@@ -69,6 +67,16 @@ Component.register('sw-sorting-select', {
         sortingConditionConcatenation() {
             return `${this.sortBy}:${this.sortDirection}`;
         },
+
+        sortingConditionOptions() {
+            return this.sortOptions.map((option) => {
+                return {
+                    id: option.value,
+                    value: option.value,
+                    label: option.name,
+                };
+            });
+        },
     },
 
     methods: {
@@ -80,4 +88,4 @@ Component.register('sw-sorting-select', {
             this.$emit('sorting-changed', { sortBy, sortDirection });
         },
     },
-});
+};

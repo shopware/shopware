@@ -70,7 +70,6 @@ async function createWrapper(privileges = []) {
                             </div>
                         `,
                     },
-                    'sw-icon': true,
                     'sw-language-switch': true,
                     'sw-card-view': {
                         template: `
@@ -79,8 +78,6 @@ async function createWrapper(privileges = []) {
                             </div>
                         `,
                     },
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
@@ -104,13 +101,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-state-machine/page/sw-settings-state-machine-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have correct metaInfo', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

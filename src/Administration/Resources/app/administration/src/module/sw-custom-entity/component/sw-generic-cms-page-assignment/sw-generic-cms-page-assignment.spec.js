@@ -43,8 +43,8 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-cms-list-item': {
                         template: '<div class="sw-cms-list-item"></div>',
@@ -57,7 +57,6 @@ async function createWrapper() {
                         template: '<div class="sw-cms-page-form"></div>',
                         props: ['page'],
                     },
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsPageTypeService: {

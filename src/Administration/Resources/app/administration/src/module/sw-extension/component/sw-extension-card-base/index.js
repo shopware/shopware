@@ -45,12 +45,15 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
 
         defaultThemeAsset() {
-            return this.assetFilter('administration/static/img/theme/default_theme_preview.jpg');
+            return this.assetFilter('administration/administration/static/img/theme/default_theme_preview.jpg');
         },
 
         extensionCardClasses() {
@@ -135,7 +138,7 @@ export default {
         },
 
         isUpdateable() {
-            if (!this.extension || this.extension.latestVersion === null || this.extension.managedByComposer) {
+            if (!this.extension || this.extension.latestVersion === null || !this.extension.allowUpdate) {
                 return false;
             }
 
@@ -198,7 +201,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
 
         showContextMenu() {

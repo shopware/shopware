@@ -95,7 +95,7 @@ class WishlistControllerTest extends TestCase
 
         $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
     }
 
     public function testWishlistGuestPagelet(): void
@@ -108,7 +108,7 @@ class WishlistControllerTest extends TestCase
             static::assertInstanceOf(EntitySearchResult::class, $result = $event->getParameters()['searchResult']);
             static::assertCount(1, $result);
             static::assertInstanceOf(Entity::class, $result->first());
-            static::assertEquals($productId, $result->first()->get('id'));
+            static::assertSame($productId, $result->first()->get('id'));
         });
 
         $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
@@ -218,19 +218,19 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(302, $response->getStatusCode());
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/', $response->getTargetUrl());
+        static::assertSame('/wishlist', $response->getTargetUrl());
 
         $session = $this->getSession();
         static::assertInstanceOf(Session::class, $session);
         $flashBag = $session->getFlashBag();
 
         static::assertNotEmpty($successFlash = $flashBag->get('success'));
-        static::assertEquals('You have successfully added the product to your wishlist.', $successFlash[0]);
+        static::assertSame('You have successfully added the product to your wishlist.', $successFlash[0]);
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
 
         static::assertNotEmpty($warningFlash = $flashBag->get('warning'));
-        static::assertEquals('Product has already been added to your wishlist.', $warningFlash[0]);
+        static::assertSame('Product has already been added to your wishlist.', $warningFlash[0]);
     }
 
     public function testWishlistPageLoadedHookScriptsAreExecuted(): void
@@ -239,7 +239,7 @@ class WishlistControllerTest extends TestCase
 
         $browser->request('GET', '/wishlist');
         $response = $browser->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -249,7 +249,7 @@ class WishlistControllerTest extends TestCase
     public function testGuestWishlistPageLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/wishlist', []);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -266,7 +266,7 @@ class WishlistControllerTest extends TestCase
         );
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -279,7 +279,7 @@ class WishlistControllerTest extends TestCase
 
         $browser->request('GET', '/widgets/wishlist');
         $response = $browser->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -292,7 +292,7 @@ class WishlistControllerTest extends TestCase
 
         $browser->request('GET', '/wishlist/merge/pagelet');
         $response = $browser->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 

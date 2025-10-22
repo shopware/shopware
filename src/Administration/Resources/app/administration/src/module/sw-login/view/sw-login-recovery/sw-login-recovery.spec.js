@@ -14,14 +14,43 @@ async function createWrapper() {
     delete config.global.mocks.$router;
     delete config.global.$route;
 
-    return mount(await Shopware.Component.build('sw-login-recovery'), {
+    return mount(await wrapTestComponent('sw-login-recovery', { sync: true }), {
         global: {
             mocks: {
                 $tc: (...args) => JSON.stringify([...args]),
                 $router: { push: jest.fn() },
             },
             provide: {
-                userRecoveryService: {
+                userService: {},
+                licenseViolationService: {},
+            },
+            stubs: {
+                'router-view': true,
+                'sw-loader': true,
+                'sw-text-field': {
+                    props: {
+                        value: {
+                            required: true,
+                            type: String,
+                        },
+                    },
+                    template:
+                        '<div><input id="email" :value="value" @input="ev => $emit(`input`, ev.target.value)"></input></div>',
+                },
+                'sw-contextual-field': true,
+                'router-link': true,
+            },
+        },
+    });
+}
+
+describe('module/sw-login/recovery.spec.js', () => {
+    let wrapper;
+
+    beforeEach(async () => {
+        if (!Shopware.Service('userRecoveryService')) {
+            Shopware.Service().register('userRecoveryService', () => {
+                return {
                     createRecovery: () => {
                         return new Promise((resolve, reject) => {
                             const response = {
@@ -45,40 +74,10 @@ async function createWrapper() {
                             reject(response);
                         });
                     },
-                },
-                userService: {},
-                licenseViolationService: {},
-            },
-            stubs: {
-                'router-view': true,
-                'sw-loader': true,
-                'sw-text-field': {
-                    props: {
-                        value: {
-                            required: true,
-                            type: String,
-                        },
-                    },
-                    template:
-                        '<div><input id="email" :value="value" @input="ev => $emit(`input`, ev.target.value)"></input></div>',
-                },
-                'sw-contextual-field': true,
-                'router-link': true,
-                'sw-icon': true,
-            },
-        },
-    });
-}
-
-describe('module/sw-login/recovery.spec.js', () => {
-    let wrapper;
-
-    beforeEach(async () => {
+                };
+            });
+        }
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should redirect on submit', async () => {

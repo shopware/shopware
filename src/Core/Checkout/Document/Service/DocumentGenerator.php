@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -53,20 +52,19 @@ class DocumentGenerator
         string $deepLinkCode = '',
         string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
-        $criteria = new Criteria([$documentId]);
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations([
+                'documentMediaFile',
+                'documentType',
+                'documentA11yMediaFile',
+            ]);
 
         if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
 
-        $criteria->addAssociations([
-            'documentMediaFile',
-            'documentType',
-            'documentA11yMediaFile',
-        ]);
-
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
-        if (!$document instanceof DocumentEntity) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
@@ -144,7 +142,7 @@ class DocumentGenerator
                 $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                $mediaId = $this->resolveMediaId($operation, $context, $document, $documentType, $rendered);
+                $mediaId = $this->resolveMediaId($operation, $context, $document);
                 $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
 
                 $records[] = [
@@ -174,11 +172,11 @@ class DocumentGenerator
 
     public function upload(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
     {
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('documentMediaFile');
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociation('documentMediaFile');
 
-        $document = $this->documentRepository->search($criteria, $context)->first();
-        if (!($document instanceof DocumentEntity)) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
@@ -304,19 +302,15 @@ class DocumentGenerator
         }
 
         // Fetch the document again because new mediaFile is generated
-        $criteria = new Criteria([$documentId]);
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations(['documentMediaFile', 'documentA11yMediaFile', 'documentType']);
 
-        $criteria->addAssociation('documentMediaFile')
-            ->addAssociation('documentA11yMediaFile')
-            ->addAssociation('documentType');
-
-        /** @var ?DocumentEntity $document */
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 
         return $document;
     }
 
-    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document, ?string $documentType = null, ?RendererResult $result = null): ?string
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
     {
         if ($operation->isStatic()) {
             return null;
@@ -371,11 +365,23 @@ class DocumentGenerator
 
     private function loadMediaByFileType(?DocumentEntity $document, string $fileType): ?MediaEntity
     {
-        $medias = array_filter([
-            $document?->getDocumentMediaFile(),
-            $document?->getDocumentA11yMediaFile(),
-        ], fn (?MediaEntity $media) => $media?->getFileExtension() === strtolower($fileType));
+        if ($document === null) {
+            return null;
+        }
 
-        return array_shift($medias) ?? null;
+        foreach ([
+            $document->getDocumentMediaFile(),
+            $document->getDocumentA11yMediaFile(),
+        ] as $media) {
+            if (
+                $media !== null
+                && $media->getFileExtension() !== null
+                && strcasecmp($media->getFileExtension(), $fileType) === 0
+            ) {
+                return $media;
+            }
+        }
+
+        return null;
     }
 }

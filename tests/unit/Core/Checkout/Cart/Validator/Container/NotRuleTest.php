@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Validator\Container;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
  * @internal
  */
 #[CoversClass(NotRule::class)]
+#[Package('checkout')]
 class NotRuleTest extends TestCase
 {
     public function testTrue(): void

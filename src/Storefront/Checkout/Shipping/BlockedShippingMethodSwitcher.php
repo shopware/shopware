@@ -2,15 +2,14 @@
 
 namespace Shopware\Storefront\Checkout\Shipping;
 
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
@@ -56,26 +55,45 @@ class BlockedShippingMethodSwitcher
 
     private function getShippingMethodToChangeTo(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ?ShippingMethodEntity
     {
-        $blockedShippingMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getName() : null);
-
         $request = new Request(['onlyAvailable' => true]);
-        $defaultShippingMethod = $this->shippingMethodRoute->load(
-            $request,
-            $salesChannelContext,
-            new Criteria([$salesChannelContext->getSalesChannel()->getShippingMethodId()])
-        )->getShippingMethods()->first();
+        $criteria = (new Criteria([$salesChannelContext->getSalesChannel()->getShippingMethodId()]))
+            ->setLimit(1);
 
-        if ($defaultShippingMethod !== null && !\in_array($defaultShippingMethod->getName(), $blockedShippingMethodNames, true)) {
-            return $defaultShippingMethod;
+        if (Feature::isActive('v6.8.0.0')) {
+            $blockedShippingMethodIds = $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getShippingMethodId() : null);
+
+            $defaultShippingMethod = $this->shippingMethodRoute->load(
+                $request,
+                $salesChannelContext,
+                $criteria,
+            )->getShippingMethods()->first();
+
+            if ($defaultShippingMethod !== null && !\in_array($defaultShippingMethod->getId(), $blockedShippingMethodIds, true)) {
+                return $defaultShippingMethod;
+            }
+
+            // Default excluded take next shipping method
+            $criteria = (new Criteria())
+                ->addFilter(new NotEqualsAnyFilter('id', $blockedShippingMethodIds))
+                ->setLimit(1);
+        } else {
+            $blockedShippingMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getName() : null);
+
+            $defaultShippingMethod = $this->shippingMethodRoute->load(
+                $request,
+                $salesChannelContext,
+                $criteria,
+            )->getShippingMethods()->first();
+
+            if ($defaultShippingMethod !== null && !\in_array($defaultShippingMethod->getName(), $blockedShippingMethodNames, true)) {
+                return $defaultShippingMethod;
+            }
+
+            // Default excluded take next shipping method
+            $criteria = (new Criteria())
+                ->addFilter(new NotEqualsAnyFilter('name', $blockedShippingMethodNames))
+                ->setLimit(1);
         }
-
-        // Default excluded take next shipping method
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new NandFilter([
-                new EqualsAnyFilter('name', $blockedShippingMethodNames),
-            ]),
-        );
 
         return $this->shippingMethodRoute->load(
             $request,
@@ -99,8 +117,11 @@ class BlockedShippingMethodSwitcher
             // Exchange cart blocked warning with notice
             $cartErrors->remove($error->getId());
             $cartErrors->add(new ShippingMethodChangedError(
-                $error->getName(),
-                $newShippingMethodName
+                oldShippingMethodId: $error->getShippingMethodId(),
+                oldShippingMethodName: $error->getName(),
+                newShippingMethodId: $shippingMethod->getId(),
+                newShippingMethodName: $newShippingMethodName,
+                reason: $error->getReason(),
             ));
         }
     }

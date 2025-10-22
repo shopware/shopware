@@ -17,7 +17,7 @@ class UnusedMediaSubscriberTest extends TestCase
 {
     public function testSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 UnusedMediaSearchEvent::class => 'removeUsedMedia',
             ],

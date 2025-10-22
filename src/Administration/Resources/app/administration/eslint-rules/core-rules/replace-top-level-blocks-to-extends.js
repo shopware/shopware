@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * Overview
  * This custom ESLint rule enforces that the top-level <sw-block> element should be using the `extends` prop instead of

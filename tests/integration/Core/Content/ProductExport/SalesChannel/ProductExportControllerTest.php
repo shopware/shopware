@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -30,6 +32,9 @@ class ProductExportControllerTest extends TestCase
     use AppSystemTestBehaviour;
     use SalesChannelFunctionalTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductExportCollection>
+     */
     private EntityRepository $repository;
 
     private Context $context;
@@ -45,7 +50,7 @@ class ProductExportControllerTest extends TestCase
         $client = $this->createSalesChannelBrowser(null, true);
         $client->request('GET', getenv('APP_URL') . '/store-api/product-export/foo/bar');
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
     }
 
     public function testUtf8CsvExport(): void
@@ -76,7 +81,7 @@ class ProductExportControllerTest extends TestCase
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
-        static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
+        static::assertSame(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
     }
 
     public function testUtf8CsvExportWithTheme(): void
@@ -130,8 +135,8 @@ class ProductExportControllerTest extends TestCase
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
-        static::assertEquals('SwagTheme EN Test', $csvRows[1]);
-        static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
+        static::assertSame('SwagTheme EN Test', $csvRows[1]);
+        static::assertSame(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
 
         // Switch to DE
         $deSalesChannelId = Uuid::randomHex();
@@ -170,7 +175,7 @@ class ProductExportControllerTest extends TestCase
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
         static::assertNotNull($client->getResponse()->headers->get('Last-Modified'));
         static::assertCount(4, $csvRows);
-        static::assertEquals('SwagTheme DE Test', $csvRows[1]);
+        static::assertSame('SwagTheme DE Test', $csvRows[1]);
     }
 
     public function testIsoCsvExport(): void
@@ -202,7 +207,7 @@ class ProductExportControllerTest extends TestCase
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
-        static::assertEquals(ProductExportEntity::ENCODING_ISO88591, $client->getResponse()->getCharset());
+        static::assertSame(ProductExportEntity::ENCODING_ISO88591, $client->getResponse()->getCharset());
     }
 
     public function testUtf8XmlExport(): void
@@ -230,11 +235,11 @@ class ProductExportControllerTest extends TestCase
 
         $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        static::assertEquals(200, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
 
         $xml = simplexml_load_string((string) $client->getResponse()->getContent());
 
-        static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
+        static::assertSame(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
         static::assertInstanceOf(\SimpleXMLElement::class, $xml);
         static::assertCount(2, $xml);
     }
@@ -269,14 +274,14 @@ class ProductExportControllerTest extends TestCase
 
         $xml = simplexml_load_string((string) $response->getContent());
 
-        static::assertEquals(ProductExportEntity::ENCODING_ISO88591, $response->getCharset());
+        static::assertSame(ProductExportEntity::ENCODING_ISO88591, $response->getCharset());
         static::assertInstanceOf(\SimpleXMLElement::class, $xml);
         static::assertCount(2, $xml);
     }
 
     protected function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         /** @var SalesChannelDomainEntity $salesChannelDomain */

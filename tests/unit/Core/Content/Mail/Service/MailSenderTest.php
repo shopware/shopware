@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Content\Mail\Service\MailSender;
@@ -28,12 +29,20 @@ class MailSenderTest extends TestCase
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
+        $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            $this->createMock(LoggerInterface::class),
+            0,
+            $messageBus
+        );
         $mail = new Email();
 
         $mailer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('send')
             ->with($mail);
 
@@ -45,12 +54,20 @@ class MailSenderTest extends TestCase
         $mailer = $this->createMock(MailerInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, null);
+        $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            $this->createMock(LoggerInterface::class),
+            0,
+            null
+        );
         $mail = new Email();
 
         $mailer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('send')
             ->with($mail);
 
@@ -63,15 +80,25 @@ class MailSenderTest extends TestCase
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
-        $text = str_repeat('a', MailSender::MAIL_MESSAGE_SIZE_LIMIT);
+        $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $maxMessageSizeKiB = 1024;
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            $this->createMock(LoggerInterface::class),
+            $maxMessageSizeKiB,
+            $messageBus
+        );
+        static::assertIsInt($maxMessageSizeKiB);
+        $text = str_repeat('a', $maxMessageSizeKiB * 1024);
         $mail = new Email(null, new TextPart($text));
 
         $testStruct = new ArrayStruct();
 
         $fileSystem
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('write')
             ->willReturnCallback(function ($path, $content) use ($mail, $testStruct): void {
                 static::assertStringStartsWith('mail-data/', $path);
@@ -80,7 +107,7 @@ class MailSenderTest extends TestCase
             });
 
         $messageBus
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnCallback(function ($message) use ($testStruct): Envelope {
                 static::assertInstanceOf(SendMailMessage::class, $message);
@@ -98,16 +125,20 @@ class MailSenderTest extends TestCase
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
+        $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
+        $logger = $this->createMock(LoggerInterface::class);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus);
         $mail = new Email();
 
+        $logger->expects($this->once())
+            ->method('info');
+
         $fileSystem
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('write');
 
         $messageBus
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch');
 
         $mailSender->send($mail);
@@ -119,8 +150,16 @@ class MailSenderTest extends TestCase
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 5, $messageBus);
+        $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            5,
+            $this->createMock(LoggerInterface::class),
+            0,
+            $messageBus
+        );
 
         $mail = new Email();
         $mail->text('foobar');

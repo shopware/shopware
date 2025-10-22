@@ -39,6 +39,8 @@ export interface ContextState {
             version: null | string;
             versionRevision: null | string;
             inAppPurchases: Record<string, string[]>;
+            shopId: null | string;
+            appUrl: null | string;
         };
         environment: null | 'development' | 'production' | 'testing';
         fallbackLocale: null | string;
@@ -48,7 +50,7 @@ export interface ContextState {
         firstRunWizard: null | boolean;
         systemCurrencyISOCode: null | string;
         systemCurrencyId: null | string;
-        disableExtensions: boolean;
+        windowId: null | string;
     };
     api: {
         apiPath: null | string;
@@ -70,6 +72,9 @@ export interface ContextState {
         currencyId: null | string;
         versionId: null | string;
         refreshTokenTtl: null | string;
+        serviceRegistryUrl: null | string;
+        measurementLengthUnit: null | string;
+        measurementWeightUnit: null | string;
     };
 }
 
@@ -81,6 +86,8 @@ const state: ContextState = reactive({
             version: null,
             versionRevision: null,
             inAppPurchases: {},
+            shopId: null,
+            appUrl: null,
         },
         environment: null,
         fallbackLocale: null,
@@ -88,8 +95,7 @@ const state: ContextState = reactive({
         firstRunWizard: null,
         systemCurrencyId: null,
         systemCurrencyISOCode: null,
-        // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
-        disableExtensions: false,
+        windowId: null,
     },
     api: {
         apiPath: null,
@@ -108,6 +114,9 @@ const state: ContextState = reactive({
         currencyId: null,
         versionId: null,
         refreshTokenTtl: null,
+        serviceRegistryUrl: null,
+        measurementLengthUnit: null,
+        measurementWeightUnit: null,
     },
 });
 

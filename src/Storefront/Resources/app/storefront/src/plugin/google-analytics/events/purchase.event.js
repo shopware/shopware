@@ -1,11 +1,16 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class PurchaseEvent extends AnalyticsEvent
 {
-    supports(controllerName, actionName) {
-        return controllerName === 'checkout' && actionName === 'finishpage' && window.trackOrders;
+    /**
+     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
+     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
+     * @param {string} activeRoute
+     * @returns {boolean}
+     */
+    supports(controllerName, actionName, activeRoute) {
+        return activeRoute === 'frontend.checkout.finish.page' && window.trackOrders;
     }
 
     execute() {
@@ -20,7 +25,7 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        const orderNumber = DomAccessHelper.getDataAttribute(orderNumberElement, 'order-number');
+        const orderNumber = orderNumberElement.getAttribute('data-order-number');
         if (!orderNumber) {
             console.warn('Cannot determine order number - Skip order tracking');
 

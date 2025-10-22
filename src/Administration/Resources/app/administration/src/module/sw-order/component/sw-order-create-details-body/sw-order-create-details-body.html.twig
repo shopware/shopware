@@ -24,9 +24,10 @@
         >
             <p class="sw-order-create-details-body__item-label">
                 {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-order-create-details-body__item-label-button"
+                    variant="secondary"
+                    data-analytics-id="sw-order-create-details-body.edit-billing-address"
                     @click="onEditBillingAddress"
                 >
                     {{ $tc('sw-order.detailBase.buttonEditAddress') }}
@@ -34,7 +35,7 @@
             </p>
             <sw-address :address="billingAddress" />
         </div>
-        <sw-textarea-field
+        <mt-textarea
             v-else
             disabled
             class="sw-order-create-details-body__item"
@@ -66,9 +67,10 @@
                 {% block sw_order_create_details_body_shipping_address_identical %}
                 <p class="sw-order-create-details-body__item-label">
                     {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-order-create-details-body__item-label-button"
+                        variant="secondary"
+                        data-analytics-id="sw-order-create-details-body.edit-identical-shipping-address"
                         @click="onEditShippingAddress"
                     >
                         {{ $tc('sw-order.detailBase.buttonEditAddress') }}
@@ -85,9 +87,10 @@
                 {% block sw_order_create_details_body_shipping_address_content %}
                 <p class="sw-order-create-details-body__item-label">
                     {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-order-create-details-body__item-label-button"
+                        variant="secondary"
+                        data-analytics-id="sw-order-create-details-body.edit-shipping-address"
                         @click="onEditShippingAddress"
                     >
                         {{ $tc('sw-order.detailBase.buttonEditAddress') }}
@@ -97,7 +100,7 @@
                 {% endblock %}
             </template>
         </div>
-        <sw-textarea-field
+        <mt-textarea
             v-else
             disabled
             class="sw-order-create-details-body__item"

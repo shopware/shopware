@@ -21,12 +21,6 @@ async function createWrapper(propsData = {}) {
 }
 
 describe('src/app/component/form/select/base/sw-select-selection-list', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render dismissable labels', async () => {
         const wrapper = await createWrapper({
             selections: [{ label: 'Selection1' }],

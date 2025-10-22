@@ -1,8 +1,6 @@
 import template from './sw-help-text.html.twig';
 import './sw-help-text.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,7 +11,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-help-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr"></sw-help-text>
  */
-Component.register('sw-help-text', {
+export default {
     template,
 
     props: {
@@ -57,4 +55,4 @@ Component.register('sw-help-text', {
             default: 100,
         },
     },
-});
+};

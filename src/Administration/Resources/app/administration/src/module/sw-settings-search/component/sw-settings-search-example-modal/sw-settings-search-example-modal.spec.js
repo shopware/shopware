@@ -23,7 +23,6 @@ async function createWrapper() {
 
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-icon': true,
                     'sw-loader': true,
                 },
             },
@@ -32,13 +31,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-example-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should emit modal close event', async () => {
         const wrapper = await createWrapper();
 

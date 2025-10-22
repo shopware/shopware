@@ -17,10 +17,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, ItemFacade>
+ * @implements \IteratorAggregate<array-key, ItemFacade|ContainerFacade>
  */
 #[Package('checkout')]
-class ProductsFacade implements \IteratorAggregate
+class ProductsFacade implements \IteratorAggregate, \Countable
 {
     use ItemsCountTrait;
 
@@ -82,29 +82,19 @@ class ProductsFacade implements \IteratorAggregate
         if ($product instanceof ItemFacade) {
             $this->items->add($product->getItem());
 
-            /** @var ItemFacade $product */
-            $product = $this->get($product->getId());
-
             return $product;
         }
 
-        if ($product instanceof LineItem) {
-            $this->items->add($product);
-
-            /** @var ItemFacade $product */
-            $product = $this->get($product->getId());
-
-            return $product;
+        if (\is_string($product)) {
+            $product = $this->helper->product($product, $quantity, $this->context);
         }
-
-        $product = $this->helper->product($product, $quantity, $this->context);
 
         $this->items->add($product);
 
-        /** @var ItemFacade $product */
-        $product = $this->get($product->getId());
+        $addedProduct = $this->get($product->getId());
+        \assert($addedProduct instanceof ItemFacade, 'Item was just added, so it should be available');
 
-        return $product;
+        return $addedProduct;
     }
 
     /**

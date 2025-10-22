@@ -37,9 +37,6 @@ async function createWrapper(privileges = []) {
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-popover': true,
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'mt-checkbox': {
                         template: '<div class="checkbox"></div>',
                     },
@@ -52,12 +49,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should able to show hamburger menu', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

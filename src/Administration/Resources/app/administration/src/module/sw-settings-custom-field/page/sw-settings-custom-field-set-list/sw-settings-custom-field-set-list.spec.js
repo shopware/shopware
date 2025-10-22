@@ -76,7 +76,11 @@ async function createWrapper(privileges = []) {
                         Mixin.getByName('sw-inline-snippet'),
                         Mixin.getByName('discard-detail-page-changes')('set'),
                     ],
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -87,7 +91,6 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-grid': await wrapTestComponent('sw-grid'),
                     'sw-context-button': {
@@ -108,8 +111,6 @@ async function createWrapper(privileges = []) {
                     'sw-pagination': true,
                     'sw-empty-state': true,
                     'router-link': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-card-view': true,
                     'sw-ignore-class': true,
                     'sw-extension-component-section': true,
@@ -124,13 +125,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new custom-field set', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -42,9 +42,6 @@ async function createWrapper(propsData) {
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-icon': await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
                 'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
@@ -60,7 +57,6 @@ async function createWrapper(propsData) {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
-                'sw-icon-deprecated': true,
                 'router-link': true,
                 'sw-product-variant-info': true,
                 'sw-field-copyable': true,
@@ -91,6 +87,26 @@ async function createWrapper(propsData) {
                                                 name: 'Buzbach',
                                             },
                                         },
+                                        hash: 'isUnique',
+                                    },
+                                    {
+                                        street: 'Denesik Bridge',
+                                        zipcode: '05132',
+                                        city: 'Bernierstad',
+                                        company: 'Muster SE',
+                                        department: 'People & Culture',
+                                        id: '652e9e571cc94bd898077f256dcf6233',
+                                        country: {
+                                            translated: {
+                                                name: 'Buzbach',
+                                            },
+                                        },
+                                        countryState: {
+                                            translated: {
+                                                name: 'NRW',
+                                            },
+                                        },
+                                        hash: 'isDuplicate',
                                     },
                                 ]),
                             }),
@@ -123,6 +139,7 @@ async function createWrapper(propsData) {
                         name: 'NRW',
                     },
                 },
+                hash: 'isDuplicate',
             },
             addressId: '38e8895864a649a1b2ec806dad02ab87',
             type: 'billing',
@@ -169,10 +186,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to edit address', async () => {
         expect(wrapper.vm.currentAddress).toBeNull();
 
@@ -204,6 +217,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                 },
             },
             department: 'People & Culture',
+            hash: 'isDuplicate',
         });
     });
 
@@ -290,7 +304,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         const information = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
 
-        expect(list.findAll('.sw-select-result')).toHaveLength(1);
+        expect(list.findAll('.sw-select-result')).toHaveLength(2);
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
         expect(information.findAll('p').at(3).text()).toBe('Buzbach');

@@ -107,8 +107,8 @@ class LineItemGroupBuilderResultTest extends TestCase
         $itemQuantity = $result->getGroupTotalResult($groupDefinition)['ID1'];
 
         static::assertCount(1, $data);
-        static::assertEquals('ID1', $itemQuantity->getLineItemId());
-        static::assertEquals(2, $itemQuantity->getQuantity());
+        static::assertSame('ID1', $itemQuantity->getLineItemId());
+        static::assertSame(2, $itemQuantity->getQuantity());
     }
 
     /**
@@ -132,11 +132,11 @@ class LineItemGroupBuilderResultTest extends TestCase
 
         static::assertCount(2, $data);
 
-        static::assertEquals('ID1', $result->getGroupTotalResult($groupDefinition)['ID1']->getLineItemId());
-        static::assertEquals(2, $result->getGroupTotalResult($groupDefinition)['ID1']->getQuantity());
+        static::assertSame('ID1', $result->getGroupTotalResult($groupDefinition)['ID1']->getLineItemId());
+        static::assertSame(2, $result->getGroupTotalResult($groupDefinition)['ID1']->getQuantity());
 
-        static::assertEquals('ID2', $result->getGroupTotalResult($groupDefinition)['ID2']->getLineItemId());
-        static::assertEquals(1, $result->getGroupTotalResult($groupDefinition)['ID2']->getQuantity());
+        static::assertSame('ID2', $result->getGroupTotalResult($groupDefinition)['ID2']->getLineItemId());
+        static::assertSame(1, $result->getGroupTotalResult($groupDefinition)['ID2']->getQuantity());
     }
 
     /**
@@ -160,7 +160,7 @@ class LineItemGroupBuilderResultTest extends TestCase
         $result->addGroup($groupDefinition, $group1);
         $result->addGroup($groupDefinition, $group2);
 
-        static::assertEquals(5, $result->getGroupTotalResult($groupDefinition)['ID1']->getQuantity());
+        static::assertSame(5, $result->getGroupTotalResult($groupDefinition)['ID1']->getQuantity());
     }
 
     /**
@@ -205,8 +205,8 @@ class LineItemGroupBuilderResultTest extends TestCase
         $result->addGroup($groupDefinition1, $group2);
         $result->addGroup($groupDefinition2, $group3);
 
-        static::assertEquals(2, $result->getGroupCount($groupDefinition1));
-        static::assertEquals(1, $result->getGroupCount($groupDefinition2));
+        static::assertSame(2, $result->getGroupCount($groupDefinition1));
+        static::assertSame(1, $result->getGroupCount($groupDefinition2));
     }
 
     /**
@@ -221,7 +221,7 @@ class LineItemGroupBuilderResultTest extends TestCase
 
         $result = new LineItemGroupBuilderResult();
 
-        static::assertEquals(0, $result->getGroupCount($groupDefinition));
+        static::assertSame(0, $result->getGroupCount($groupDefinition));
     }
 
     /**
@@ -268,15 +268,15 @@ class LineItemGroupBuilderResultTest extends TestCase
 
         static::assertCount(2, $data);
 
-        static::assertEquals('ID1', $data[0]->getItems()[0]->getLineItemId());
-        static::assertEquals(2, $data[0]->getItems()[0]->getQuantity());
-        static::assertEquals('ID2', $data[0]->getItems()[1]->getLineItemId());
-        static::assertEquals(1, $data[0]->getItems()[1]->getQuantity());
+        static::assertSame('ID1', $data[0]->getItems()[0]->getLineItemId());
+        static::assertSame(2, $data[0]->getItems()[0]->getQuantity());
+        static::assertSame('ID2', $data[0]->getItems()[1]->getLineItemId());
+        static::assertSame(1, $data[0]->getItems()[1]->getQuantity());
 
-        static::assertEquals('ID1', $data[1]->getItems()[0]->getLineItemId());
-        static::assertEquals(3, $data[1]->getItems()[0]->getQuantity());
-        static::assertEquals('ID3', $data[1]->getItems()[1]->getLineItemId());
-        static::assertEquals(2, $data[1]->getItems()[1]->getQuantity());
+        static::assertSame('ID1', $data[1]->getItems()[0]->getLineItemId());
+        static::assertSame(3, $data[1]->getItems()[0]->getQuantity());
+        static::assertSame('ID3', $data[1]->getItems()[1]->getLineItemId());
+        static::assertSame(2, $data[1]->getItems()[1]->getQuantity());
     }
 
     /**
@@ -313,18 +313,18 @@ class LineItemGroupBuilderResultTest extends TestCase
         static::assertCount(1, $resultGroup1->getGroupResult($groupDefinition1));
         static::assertInstanceOf(LineItemGroup::class, $resultGroup1->getGroupResult($groupDefinition1)[0]);
         static::assertCount(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems());
-        static::assertEquals('ID1', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getLineItemId());
-        static::assertEquals(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getQuantity());
-        static::assertEquals('ID2', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getLineItemId());
-        static::assertEquals(1, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getQuantity());
+        static::assertSame('ID1', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getLineItemId());
+        static::assertSame(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getQuantity());
+        static::assertSame('ID2', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getLineItemId());
+        static::assertSame(1, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getQuantity());
 
         static::assertCount(1, $resultGroup2->getGroupResult($groupDefinition2));
         static::assertInstanceOf(LineItemGroup::class, $resultGroup2->getGroupResult($groupDefinition2)[0]);
         static::assertCount(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems());
-        static::assertEquals('ID1', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getLineItemId());
-        static::assertEquals(3, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getQuantity());
-        static::assertEquals('ID3', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getLineItemId());
-        static::assertEquals(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getQuantity());
+        static::assertSame('ID1', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getLineItemId());
+        static::assertSame(3, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getQuantity());
+        static::assertSame('ID3', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getLineItemId());
+        static::assertSame(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getQuantity());
     }
 
     public function testAddGroupResult(): void
@@ -358,17 +358,17 @@ class LineItemGroupBuilderResultTest extends TestCase
         static::assertCount(1, $resultGroup1->getGroupResult($groupDefinition1));
         static::assertInstanceOf(LineItemGroup::class, $resultGroup1->getGroupResult($groupDefinition1)[0]);
         static::assertCount(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems());
-        static::assertEquals('ID1', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getLineItemId());
-        static::assertEquals(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getQuantity());
-        static::assertEquals('ID2', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getLineItemId());
-        static::assertEquals(1, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getQuantity());
+        static::assertSame('ID1', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getLineItemId());
+        static::assertSame(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getQuantity());
+        static::assertSame('ID2', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getLineItemId());
+        static::assertSame(1, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getQuantity());
 
         static::assertCount(1, $resultGroup2->getGroupResult($groupDefinition2));
         static::assertInstanceOf(LineItemGroup::class, $resultGroup2->getGroupResult($groupDefinition2)[0]);
         static::assertCount(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems());
-        static::assertEquals('ID1', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getLineItemId());
-        static::assertEquals(3, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getQuantity());
-        static::assertEquals('ID3', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getLineItemId());
-        static::assertEquals(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getQuantity());
+        static::assertSame('ID1', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getLineItemId());
+        static::assertSame(3, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getQuantity());
+        static::assertSame('ID3', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getLineItemId());
+        static::assertSame(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getQuantity());
     }
 }

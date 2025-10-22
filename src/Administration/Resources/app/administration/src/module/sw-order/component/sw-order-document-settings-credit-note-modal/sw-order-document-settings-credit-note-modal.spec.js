@@ -1,7 +1,6 @@
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
-
 import { mount } from '@vue/test-utils';
 
 const orderFixture = {
@@ -106,7 +105,6 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-datepicker': true,
                 'sw-checkbox-field': true,
-                'sw-switch-field': true,
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
@@ -114,7 +112,6 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-upload-listener': true,
                 'sw-textarea-field': true,
-                'sw-icon': true,
                 'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -152,10 +149,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should compute highlightedItems correctly', async () => {
@@ -380,40 +373,59 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     });
 
     it('should show only invoice numbers in invoice number select field', async () => {
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select');
+        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper
-            .find('.sw-order-document-settings-credit-note-modal__invoice-select')
-            .findAll('option');
+        const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
 
-        expect(invoiceOptions.at(1).text()).toBe('1000');
-        expect(invoiceOptions.at(2).text()).toBe('1001');
+        expect(invoiceOptions).toHaveLength(2);
+        expect(invoiceOptions.at(0).text()).toBe('1000');
+        expect(invoiceOptions.at(1).text()).toBe('1001');
     });
 
-    it('should disable create button if there is no selected invoice', async () => {
-        const createButton = wrapper.findComponent('.sw-order-document-settings-modal__create');
-        expect(createButton.attributes('disabled')).toBeDefined();
+    it('should allow any text input in the document number field', async () => {
+        const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
+        expect(documentNumberFieldInput.exists()).toBeTruthy();
 
-        const createContextMenu = wrapper.findAllComponents('.sw-context-button').at(1);
-        expect(createContextMenu.attributes('disabled')).toBe('true');
+        await documentNumberFieldInput.setValue('Prefix-1000-Suffix');
+        expect(documentNumberFieldInput.element.value).toBe('Prefix-1000-Suffix');
     });
 
-    it('should enable create button if there is at least one selected invoice', async () => {
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select');
-        await invoiceSelect.trigger('click');
+    it('should disable/enable create & preview buttons by selected invoice value', async () => {
+        const documentConfig = {
+            documentNumber: 'PREVIEW_NUM_001',
+            documentDate: '2024/01/01',
+        };
 
-        const invoiceOptions = wrapper
-            .find('.sw-order-document-settings-credit-note-modal__invoice-select')
-            .findAll('option');
+        await wrapper.setData({
+            documentConfig,
+        });
+        await flushPromises();
 
-        await invoiceOptions.at(1).setSelected();
-        await wrapper.vm.$nextTick();
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__document-number input').element.value).toBe(
+            documentConfig.documentNumber,
+        );
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__document-date input').element.value).toBe(
+            documentConfig.documentDate,
+        );
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input').element.value).toBe('');
 
-        const createButton = wrapper.find('.sw-order-document-settings-modal__create');
-        expect(createButton.attributes().disabled).toBeUndefined();
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('true');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('true');
 
-        const createContextMenu = wrapper.find('.sw-context-button');
-        expect(createContextMenu.attributes().disabled).toBeUndefined();
+        await wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input').trigger('click');
+
+        const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
+        await invoiceOptions.at(0).trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).not.toHaveProperty(
+            'disabled',
+        );
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('false');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).not.toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('false');
     });
 });

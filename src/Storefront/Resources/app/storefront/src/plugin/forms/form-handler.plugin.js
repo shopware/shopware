@@ -81,7 +81,7 @@ export default class FormHandler extends Plugin {
         /**
          * @type {'before' | 'after' | 'inner'} loadingIndicatorPosition
          */
-        loadingIndicatorPosition: 'before',
+        loadingIndicatorPosition: 'inner',
     };
 
     init() {
@@ -218,7 +218,9 @@ export default class FormHandler extends Plugin {
      * Can be called directly on this plugin instance or via event `removeLoader`.
      */
     removeLoadingIndicator() {
-        this.submittButtonLoaders.forEach(loader => loader.remove());
+        this.submittButtonLoaders.forEach(loader => {
+            loader.remove();
+        });
     }
 
     /**

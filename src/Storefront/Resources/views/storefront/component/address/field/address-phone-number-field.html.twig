@@ -1,0 +1,26 @@
+{% block component_address_field_phone_number %}
+    {% if formViolations.getViolations('/phoneNumber') is not empty %}
+        {% set violationPath = '/phoneNumber' %}
+    {% elseif formViolations.getViolations("/#{prefix}/phoneNumber") is not empty %}
+        {% set violationPath = "/#{prefix}/phoneNumber" %}
+    {% endif %}
+
+    {% set phoneAutocomplete = 'tel' %}
+
+    {% if prefix == 'shippingAddress' %}
+        {% set phoneAutocomplete = 'shipping tel' %}
+    {% elseif prefix == 'billingAddress' %}
+        {% set phoneAutocomplete = 'billing tel' %}
+    {% endif %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        label: 'address.phoneNumberLabel'|trans|sw_sanitize,
+        id: idPrefix ~ prefix ~ 'AddressPhoneNumber',
+        name: prefix ~ '[phoneNumber]',
+        value: data.get('phoneNumber'),
+        autocomplete: phoneAutocomplete,
+        violationPath: violationPath,
+        validationRules: config('core.loginRegistration.phoneNumberFieldRequired') ? 'required',
+        additionalClass: additionalClass ?? 'col-md-6',
+    } %}
+{% endblock %}

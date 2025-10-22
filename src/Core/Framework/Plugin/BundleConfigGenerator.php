@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -118,7 +119,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     private function isTheme(string $path): bool
     {
-        return file_exists($path . '/Resources/theme.json');
+        return \is_file($path . '/Resources/theme.json');
     }
 
     private function getEntryFile(string $rootPath, string $componentPath): ?string
@@ -126,8 +127,13 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $path = trim($componentPath, '/');
         $absolutePath = $rootPath . '/' . $path;
 
-        return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
-            : (file_exists($absolutePath . '/main.js') ? $path . '/main.js' : null);
+        foreach (['js', 'ts'] as $type) {
+            if (\is_file($absolutePath . '/main.' . $type)) {
+                return $path . '/main.' . $type;
+            }
+        }
+
+        return null;
     }
 
     private function getWebpackConfig(string $rootPath, string $componentPath): ?string
@@ -136,10 +142,10 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $absolutePath = $rootPath . '/' . $path;
 
         $configFileName = match (true) {
-            file_exists($absolutePath . '/build/webpack.config.ts') => 'webpack.config.ts',
-            file_exists($absolutePath . '/build/webpack.config.cts') => 'webpack.config.cts',
-            file_exists($absolutePath . '/build/webpack.config.js') => 'webpack.config.js',
-            file_exists($absolutePath . '/build/webpack.config.cjs') => 'webpack.config.cjs',
+            \is_file($absolutePath . '/build/webpack.config.ts') => 'webpack.config.ts',
+            \is_file($absolutePath . '/build/webpack.config.cts') => 'webpack.config.cts',
+            \is_file($absolutePath . '/build/webpack.config.js') => 'webpack.config.js',
+            \is_file($absolutePath . '/build/webpack.config.cjs') => 'webpack.config.cjs',
             default => null,
         };
 
@@ -160,11 +166,12 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
      */
     private function getStyleFiles(string $technicalName, string $basePath): array
     {
-        if (!$this->kernel->getContainer()->has(StorefrontPluginRegistry::class)) {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
+        $registry = $this->kernel->getContainer()->get(StorefrontPluginRegistry::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        if ($registry === null) {
             return [];
         }
 
-        $registry = $this->kernel->getContainer()->get(StorefrontPluginRegistry::class);
         $config = $registry->getConfigurations()->getByTechnicalName($technicalName);
 
         if (!$config) {
@@ -172,7 +179,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         }
 
         return array_map(
-            fn (string $path) => Path::join($basePath, 'Resources', $path),
+            static fn (string $path) => Path::join($basePath, 'Resources', $path),
             $config->getStyleFiles()->getFilepaths()
         );
     }

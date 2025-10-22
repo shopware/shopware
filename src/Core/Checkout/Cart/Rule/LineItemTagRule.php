@@ -13,7 +13,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class LineItemTagRule extends Rule
@@ -22,6 +22,8 @@ class LineItemTagRule extends Rule
 
     /**
      * @param list<string>|null $identifiers
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

@@ -29,9 +29,7 @@ use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 /**
  * @internal
@@ -78,7 +76,7 @@ class AdminSearchRegistryTest extends TestCase
         $client = $this->createMock(Client::class);
 
         $indices = $this->createMock(IndicesNamespace::class);
-        $indices->expects(static::once())
+        $indices->expects($this->once())
             ->method('putMapping')
             ->with([
                 'index' => 'sw-admin-',
@@ -99,6 +97,20 @@ class AdminSearchRegistryTest extends TestCase
             []
         );
 
+        $this->indexer->expects($this->once())
+            ->method('mapping')
+            ->with([
+                'properties' => [
+                    'id' => ['type' => 'keyword'],
+                    'textBoosted' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                    'text' => ['type' => 'text'],
+                    'entityName' => ['type' => 'keyword'],
+                    'parameters' => ['type' => 'keyword'],
+                ],
+            ]);
         $registry->updateMappings();
     }
 
@@ -156,7 +168,7 @@ class AdminSearchRegistryTest extends TestCase
                 ],
             ]);
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('delete')
             ->with(['index' => 'sw-admin-promotion-listing_12345']);
 
@@ -189,7 +201,7 @@ class AdminSearchRegistryTest extends TestCase
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('existsAlias')
             ->with(['name' => 'sw-admin-promotion-listing']);
 
@@ -222,7 +234,7 @@ class AdminSearchRegistryTest extends TestCase
         $query = $this->createMock(IterableQuery::class);
         $firstRun = true;
 
-        $query->expects(static::exactly(2))->method('fetch')->willReturnCallback(function () use (&$firstRun) {
+        $query->expects($this->exactly(2))->method('fetch')->willReturnCallback(function () use (&$firstRun) {
             if ($firstRun) {
                 $firstRun = false;
 
@@ -238,7 +250,7 @@ class AdminSearchRegistryTest extends TestCase
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('existsAlias')
             ->with(['name' => 'sw-admin-promotion-listing']);
 
@@ -310,13 +322,14 @@ class AdminSearchRegistryTest extends TestCase
                 'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
             ],
         ]);
+        $this->indexer->method('getUpdatedIds')->willReturn(['c1a28776116d4431a2208eb2960ec340']);
 
         $client = $this->createMock(Client::class);
 
         if ($refreshIndices) {
             $indices = $this->createMock(IndicesNamespace::class);
             $indices
-                ->expects(static::exactly(2))
+                ->expects($this->exactly(2))
                 ->method('existsAlias')
                 ->with(['name' => 'sw-admin-promotion-listing']);
 
@@ -328,7 +341,23 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, $refreshIndices, 'sw-admin');
         $queue = $this->createMock(MessageBusInterface::class);
-        $queue->expects(static::once())->method('dispatch')->willReturn(new Envelope(new ReceivedStamp('test')));
+
+        $client
+            ->expects($this->once())
+            ->method('bulk')
+            ->with([
+                'index' => 'sw-admin-promotion-listing_12345',
+                'body' => [
+                    ['index' => ['_id' => 'c1a28776116d4431a2208eb2960ec340']],
+                    [
+                        'entityName' => 'promotion',
+                        'parameters' => [],
+                        'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
+                        'textBoosted' => '',
+                        'id' => 'c1a28776116d4431a2208eb2960ec340',
+                    ],
+                ],
+            ]);
 
         $index = new AdminSearchRegistry(
             ['promotion' => $this->indexer],
@@ -354,14 +383,55 @@ class AdminSearchRegistryTest extends TestCase
         ]), []));
     }
 
+    public function testInvokeDeletesWhenToRemoveIdsProvided(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('fetch')->willReturn([]); // simulate not found -> should delete
+
+        $client = $this->createMock(Client::class);
+        $client
+            ->expects($this->once())
+            ->method('bulk')
+            ->with([
+                'index' => 'sw-admin-promotion-listing_12345',
+                'body' => [
+                    ['delete' => ['_id' => 'deadbeefdeadbeefdeadbeefdeadbeef']],
+                ],
+            ]);
+
+        $indices = ['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345'];
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
+        $index = new AdminSearchRegistry(
+            ['promotion' => $this->indexer],
+            $this->createMock(Connection::class),
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $client,
+            $searchHelper,
+            $this->createMock(LoggerInterface::class),
+            [],
+            []
+        );
+
+        $index->__invoke(new AdminSearchIndexingMessage(
+            'promotion',
+            'promotion',
+            $indices,
+            [],
+            ['deadbeefdeadbeefdeadbeefdeadbeef']
+        ));
+    }
+
     public function testRefreshLogsAndDoesNotIndexIfExceptionIsThrownDuringRefreshIndices(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
         $this->indexer->method('getEntity')->willReturn('promotion');
-        $this->indexer->expects(static::never())->method('fetch');
+        $this->indexer->expects($this->never())->method('fetch');
 
         $client = $this->createMock(Client::class);
-        $client->expects(static::never())->method('bulk');
+        $client->expects($this->never())->method('bulk');
 
         $client->method('indices')->willThrowException(new NoNodesAvailableException('no nodes'));
 
@@ -369,7 +439,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin');
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())
+        $logger->expects($this->once())
             ->method('error')
             ->with('Could not refresh indices. Run "bin/console es:admin:mapping:update" & "bin/console es:admin:index" to update indices and reindex. Error: no nodes');
 
@@ -410,7 +480,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $client = $this->createMock(Client::class);
         $client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index' => 'sw-admin-promotion-listing_12345',

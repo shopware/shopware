@@ -51,8 +51,8 @@ Mixin.register('theme', {
         },
 
         deleteTheme(theme) {
-            const titleDeleteError = this.$tc('sw-theme-manager.components.themeListItem.notificationDeleteErrorTitle');
-            const messageDeleteError = this.$tc('sw-theme-manager.components.themeListItem.notificationDeleteErrorMessage');
+            const titleDeleteError = this.$t('sw-theme-manager.components.themeListItem.notificationDeleteErrorTitle');
+            const messageDeleteError = this.$t('sw-theme-manager.components.themeListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
             this.themeRepository.delete(theme.id, Shopware.Context.api).then(() => {

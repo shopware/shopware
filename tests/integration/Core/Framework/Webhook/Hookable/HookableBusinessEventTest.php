@@ -39,9 +39,9 @@ class HookableBusinessEventTest extends TestCase
             static::getContainer()->get(BusinessEventEncoder::class)
         );
 
-        static::assertEquals($scalarEvent->getName(), $event->getName());
+        static::assertSame($scalarEvent->getName(), $event->getName());
         $shopwareVersion = static::getContainer()->getParameter('kernel.shopware_version');
-        static::assertEquals($scalarEvent->getEncodeValues($shopwareVersion), $event->getWebhookPayload());
+        static::assertSame($scalarEvent->getEncodeValues($shopwareVersion), $event->getWebhookPayload());
     }
 
     #[DataProvider('getEventsWithoutPermissions')]

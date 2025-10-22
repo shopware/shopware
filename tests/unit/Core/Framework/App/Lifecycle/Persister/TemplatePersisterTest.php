@@ -48,15 +48,15 @@ class TemplatePersisterTest extends TestCase
 
     public function testCacheIsNotClearedIfInstallContext(): void
     {
-        $this->cacheClearer->expects(static::never())
+        $this->cacheClearer->expects($this->never())
             ->method('clearHttpCache');
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplatePathsForApp')
             ->with($this->manifest)
             ->willReturn(['/path/1']);
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplateContent')
             ->with('/path/1')
             ->willReturn('content1');
@@ -67,10 +67,10 @@ class TemplatePersisterTest extends TestCase
 
     public function testCacheIsNotClearedIfNoTemplates(): void
     {
-        $this->cacheClearer->expects(static::never())
+        $this->cacheClearer->expects($this->never())
             ->method('clearHttpCache');
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplatePathsForApp')
             ->with($this->manifest)
             ->willReturn([]);
@@ -81,15 +81,15 @@ class TemplatePersisterTest extends TestCase
 
     public function testCacheIsNotClearedIfTemplatesAreNotChanged(): void
     {
-        $this->cacheClearer->expects(static::never())
+        $this->cacheClearer->expects($this->never())
             ->method('clearHttpCache');
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplatePathsForApp')
             ->with($this->manifest)
             ->willReturn(['/path/1']);
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplateContent')
             ->with('/path/1')
             ->willReturn('content1');
@@ -100,15 +100,15 @@ class TemplatePersisterTest extends TestCase
 
     public function testCacheIsClearedIfTemplatesChanged(): void
     {
-        $this->cacheClearer->expects(static::once())
+        $this->cacheClearer->expects($this->once())
             ->method('clearHttpCache');
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplatePathsForApp')
             ->with($this->manifest)
             ->willReturn(['/path/1']);
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplateContent')
             ->with('/path/1')
             ->willReturn('content2');
@@ -119,15 +119,15 @@ class TemplatePersisterTest extends TestCase
 
     public function testCacheIsClearedIfTemplateRemoved(): void
     {
-        $this->cacheClearer->expects(static::once())
+        $this->cacheClearer->expects($this->once())
             ->method('clearHttpCache');
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplatePathsForApp')
             ->with($this->manifest)
             ->willReturn(['/path/1']);
 
-        $this->templateLoader->expects(static::once())
+        $this->templateLoader->expects($this->once())
             ->method('getTemplateContent')
             ->with('/path/1')
             ->willReturn('content1');

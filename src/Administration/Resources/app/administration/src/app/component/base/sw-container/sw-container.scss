@@ -34,6 +34,6 @@
     p {
         font-size: $font-size-xs;
         line-height: $line-height-sm;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 }

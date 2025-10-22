@@ -99,11 +99,11 @@ class BuyBoxTypeDataResolverTest extends TestCase
         static::assertCount(2, $queries = $orFilter->getQueries());
 
         static::assertInstanceOf(EqualsFilter::class, $firstQuery = $queries[0]);
-        static::assertEquals('product.parentId', $firstQuery->getField());
-        static::assertEquals('product123', $firstQuery->getValue());
+        static::assertSame('product.parentId', $firstQuery->getField());
+        static::assertSame('product123', $firstQuery->getValue());
         static::assertInstanceOf(EqualsFilter::class, $secondQuery = $queries[1]);
-        static::assertEquals('id', $secondQuery->getField());
-        static::assertEquals('product123', $secondQuery->getValue());
+        static::assertSame('id', $secondQuery->getField());
+        static::assertSame('product123', $secondQuery->getValue());
     }
 
     public function testEnrichWithEmptyConfig(): void

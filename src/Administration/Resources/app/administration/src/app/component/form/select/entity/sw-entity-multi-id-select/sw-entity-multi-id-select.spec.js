@@ -49,7 +49,6 @@ async function createWrapper() {
             stubs: {
                 'sw-block-field': true,
                 'sw-select-selection-list': true,
-                'sw-icon': true,
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
                 'sw-product-variant-info': true,
@@ -63,11 +62,6 @@ async function createWrapper() {
 }
 
 describe('components/sw-entity-multi-id-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should able to update value', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.updateIds(getCollection());

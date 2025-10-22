@@ -1,7 +1,6 @@
 import template from './sw-desktop.html.twig';
 import './sw-desktop.scss';
 
-const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
@@ -9,19 +8,19 @@ const { hasOwnProperty } = Shopware.Utils.object;
  *
  * @private
  */
-Component.register('sw-desktop', {
+export default {
     template,
 
     inject: [
         'feature',
-        'appUrlChangeService',
+        'shopIdChangeService',
         'userActivityApiService',
     ],
 
     data() {
         return {
             noNavigation: false,
-            urlDiff: null,
+            shopIdCheck: null,
         };
     },
 
@@ -38,7 +37,7 @@ Component.register('sw-desktop', {
         },
 
         isStaging() {
-            return Shopware.Store.get('context').app.config.settings.enableStagingMode === true;
+            return Shopware.Store.get('context').app.config.settings?.enableStagingMode === true;
         },
     },
 
@@ -66,7 +65,7 @@ Component.register('sw-desktop', {
     methods: {
         createdComponent() {
             this.checkRouteSettings();
-            this.updateShowUrlChangedModal();
+            this.updateShopIdChangeModal();
         },
 
         checkRouteSettings() {
@@ -77,19 +76,17 @@ Component.register('sw-desktop', {
             }
         },
 
-        updateShowUrlChangedModal() {
-            if (!Shopware.Store.get('context').app.config.settings.appsRequireAppUrl) {
-                this.urlDiff = null;
+        async updateShopIdChangeModal() {
+            if (!Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl) {
+                this.shopIdCheck = null;
                 return;
             }
 
-            this.appUrlChangeService.getUrlDiff().then((diff) => {
-                this.urlDiff = diff;
-            });
+            this.shopIdCheck = await this.shopIdChangeService.checkShopId();
         },
 
         closeModal() {
-            this.urlDiff = null;
+            this.shopIdCheck = null;
         },
 
         onUpdateSearchFrequently() {
@@ -179,4 +176,4 @@ Component.register('sw-desktop', {
             );
         },
     },
-});
+};

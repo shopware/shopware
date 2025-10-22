@@ -41,7 +41,7 @@ class AddressHashSubscriberTest extends TestCase
 
         $this->subscriber->generateAddressHash($event);
 
-        static::assertEquals($expectedHash, $address->getHash());
+        static::assertSame($expectedHash, $address->getHash());
     }
 
     public static function generateProvider(): \Generator

@@ -85,9 +85,5 @@ export default {
         onLoadingChanged(loading) {
             this.isLoading = loading;
         },
-
-        onSliderChange(value) {
-            this.sliderValue = value;
-        },
     },
 };

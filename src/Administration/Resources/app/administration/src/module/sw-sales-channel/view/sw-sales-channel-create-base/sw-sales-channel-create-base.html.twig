@@ -1,8 +1,9 @@
 {% block sw_sales_channel_detail_base_options_delete %}{% endblock %}
 
 {% block sw_sales_channel_detail_base_general_input_active %}
-<sw-switch-field
-    v-model:value="salesChannel.active"
+
+<mt-switch
+    v-model="salesChannel.active"
     v-tooltip="{ message: $tc('sw-sales-channel.detail.activateDisable') }"
     bordered
     disabled

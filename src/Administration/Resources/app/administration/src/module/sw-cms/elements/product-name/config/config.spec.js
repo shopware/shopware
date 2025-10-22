@@ -29,7 +29,7 @@ async function createWrapper(propsOverride) {
             },
             global: {
                 provide: {
-                    cmsService: {},
+                    cmsService: Shopware.Service('cmsService'),
                 },
                 stubs: {
                     'sw-tabs': {

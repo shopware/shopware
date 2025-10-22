@@ -138,3 +138,8 @@ Shopware.Component.register('sw-cms-inherit-wrapper', () => import('./sw-cms-inh
  */
 /* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-cms-reset-inheritance', () => import('./sw-cms-reset-inheritance'));
+/*
+ * @sw-package discovery
+ */
+/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-cms-form-sync', () => import('./sw-cms-form-sync'));

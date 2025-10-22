@@ -4,6 +4,7 @@
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
+import 'src/module/sw-cms/service/cms.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const productSortingRepositoryMock = {
@@ -97,11 +98,7 @@ async function createWrapper(activeTab = 'sorting') {
                     },
                 },
                 provide: {
-                    cmsService: {
-                        getCmsElementRegistry: () => {
-                            return [];
-                        },
-                    },
+                    cmsService: Shopware.Service('cmsService'),
                     repositoryFactory: {
                         create: (entity) => repositoryMockFactory(entity),
                     },
@@ -119,6 +116,7 @@ async function createWrapper(activeTab = 'sorting') {
             props: reactive({
                 defaultConfig: {},
                 element: {
+                    type: 'product-listing',
                     config: {
                         boxLayout: {
                             value: {},
@@ -215,7 +213,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should update the config when product sortings changes', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual([]);
+        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({});
 
         await wrapper.setData({
             productSortings: [
@@ -231,6 +229,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
                 },
             ],
         });
+
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({
             foo_id: 2,

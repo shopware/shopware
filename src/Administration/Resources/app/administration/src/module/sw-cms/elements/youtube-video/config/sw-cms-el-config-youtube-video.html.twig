@@ -4,7 +4,6 @@
     {% block sw_cms_element_youtube_video_config_video_id %}
     <sw-cms-inherit-wrapper
         field="videoID"
-        :content-entity="contentEntity"
         :label="$t('sw-cms.elements.vimeoVideo.config.label.videoId')"
         :element="element"
     >
@@ -23,7 +22,6 @@
     <sw-cms-inherit-wrapper
         field="iframeTitle"
         :element="element"
-        :content-entity="contentEntity"
         :label="$t('sw-cms.elements.vimeoVideo.config.label.videoTitle')"
     >
         <template #default="{ isInherited }">
@@ -41,7 +39,6 @@
         <sw-cms-inherit-wrapper
             field="autoPlay"
             :element="element"
-            :content-entity="contentEntity"
         >
             <template #default="{ isInherited }">
                 <mt-switch
@@ -58,7 +55,6 @@
         <sw-cms-inherit-wrapper
             field="loop"
             :element="element"
-            :content-entity="contentEntity"
         >
             <template #default="{ isInherited }">
                 <mt-switch
@@ -74,7 +70,6 @@
         <sw-cms-inherit-wrapper
             field="showControls"
             :element="element"
-            :content-entity="contentEntity"
         >
             <template #default="{ isInherited }">
                 <mt-switch
@@ -90,7 +85,6 @@
         <sw-cms-inherit-wrapper
             field="advancedPrivacyMode"
             :element="element"
-            :content-entity="contentEntity"
         >
             <template #default="{ isInherited }">
                 <mt-switch
@@ -109,7 +103,6 @@
         <sw-cms-inherit-wrapper
             field="start"
             :element="element"
-            :content-entity="contentEntity"
             :label="$t('sw-cms.elements.vimeoVideo.config.label.start')"
         >
             <template #default="{ isInherited }">
@@ -127,7 +120,6 @@
         <sw-cms-inherit-wrapper
             field="end"
             :element="element"
-            :content-entity="contentEntity"
             :label="$t('sw-cms.elements.vimeoVideo.config.label.end')"
         >
             <template #default="{ isInherited }">
@@ -146,7 +138,6 @@
     <sw-cms-inherit-wrapper
         field="displayMode"
         :element="element"
-        :content-entity="contentEntity"
         :label="$t('sw-cms.elements.general.config.label.displayMode')"
     >
         <template #default="{ isInherited }">
@@ -165,7 +156,6 @@
         <sw-cms-inherit-wrapper
             field="needsConfirmation"
             :element="element"
-            :content-entity="contentEntity"
         >
             <template #default="{ isInherited }">
                 <mt-switch
@@ -183,7 +173,6 @@
         v-if="element.config.needsConfirmation.value"
         field="previewMedia"
         :element="element"
-        :content-entity="contentEntity"
         :label="$t('sw-cms.elements.vimeoVideo.config.label.previewImage')"
     >
         <template #default="{ isInherited }">

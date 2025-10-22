@@ -1,7 +1,7 @@
 import template from './sw-cms-reset-inheritance.html.twig';
 import './sw-cms-reset-inheritance.scss';
 
-const { unset, cloneDeep } = Shopware.Utils.object;
+const { set, merge } = Shopware.Utils.object;
 
 /**
  * @private
@@ -9,12 +9,9 @@ const { unset, cloneDeep } = Shopware.Utils.object;
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-    props: {
-        contentEntity: {
-            type: Object,
-            required: true,
-        },
-    },
+    mixins: [
+        Shopware.Mixin.getByName('cms-state'),
+    ],
     data() {
         return {
             showModal: false,
@@ -25,27 +22,33 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('cmsPage');
         },
         hasOverrides() {
-            return !Shopware.Utils.types.isEmpty(this.contentEntity.slotConfig);
+            return !Shopware.Utils.types.isEmpty(this.contentEntity?.slotConfig);
         },
     },
     methods: {
-        onConfirm() {
+        async onConfirm() {
             this.showModal = false;
 
-            unset(this.contentEntity, 'slotConfig');
             this.resetSlotOverrides();
+
+            /**
+             * Run watchers before removing the slotConfig to ensure sw-cms-form-sync won't
+             * override the reset.
+             */
+            await this.$nextTick();
+
+            set(this.contentEntity!, 'slotConfig', null);
         },
-        /**
-         * Runtime slots are the result of merging a base layout (cms_slot_translation.config)
-         * with a content page (e.g. category_translation.slot_config).
-         *
-         * Resetting a slot means to discard content page overrides for this layout.
-         */
         resetSlotOverrides() {
             this.cmsPageStore.currentPage?.sections?.forEach((section) => {
                 section.blocks?.forEach((block) => {
                     block.slots?.forEach((slot) => {
-                        slot.config = cloneDeep(slot.translated!.config);
+                        if (!slot.config) {
+                            return;
+                        }
+
+                        const origin = slot.getOrigin();
+                        slot.config = merge(slot.config, origin.translated?.config ?? origin.config ?? {});
                     });
                 });
             });

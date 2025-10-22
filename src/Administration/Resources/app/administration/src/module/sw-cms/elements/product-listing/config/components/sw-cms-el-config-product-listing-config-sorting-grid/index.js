@@ -12,6 +12,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['sorting-delete'],
+
     mixins: [
         'sw-inline-snippet',
     ],
@@ -147,6 +149,8 @@ export default {
 
         onDelete(productSorting) {
             this.productSortings.remove(productSorting.id);
+
+            this.$emit('sorting-delete', productSorting.id);
         },
 
         isDefaultSorting(productSorting) {

@@ -14,7 +14,7 @@
     },
     "inherit": {
       "tooltip": "Dieses Feld existiert nicht im Basis-Layout und kann nicht vererbt werden.",
-      "formBanner": "Diese Kategorie erbt Felder. Das bedeutet, dass Inhalt geerbt wird, solange der Status aktiv ist. Die Vererbung dieser Felder kann durch Klicken auf das Verknüpfungssymbol aufgehoben, bzw. wiederhergestellt werden.",
+      "formBanner": "Dieses Layout erbt Felder. Das bedeutet, dass Inhalt geerbt wird, solange der Status aktiv ist. Die Vererbung dieser Felder kann durch Klicken auf das Verknüpfungssymbol aufgehoben, bzw. wiederhergestellt werden.",
       "unlinkNotice": "Die Vererbung mancher Felder wurde aufgehoben.",
       "unlinkAllButton": "Alle Felder zurücksetzen.",
       "unlinkAllConfirmText": "Möchtest Du wirklich alle Felder zurücksetzen? Dadurch werden alle überschriebenen Inhalte dauerhaft gelöscht.",

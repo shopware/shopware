@@ -37,7 +37,6 @@
                 <sw-cms-inherit-wrapper
                     field="sliderItems"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$tc('sw-cms.elements.imageGallery.label')"
                     @inheritance:restore="initGalleryItems"
                 >
@@ -132,7 +131,6 @@
                         <sw-cms-inherit-wrapper
                             field="displayMode"
                             :element="element"
-                            :content-entity="contentEntity"
                             :label="$t('sw-cms.elements.general.config.label.displayMode')"
                         >
                             <template #default="{ isInherited}">
@@ -152,7 +150,6 @@
                         <sw-cms-inherit-wrapper
                             field="minHeight"
                             :element="element"
-                            :content-entity="contentEntity"
                             :label="$t('sw-cms.elements.image.config.label.minHeight')"
                         >
                             <template #default="{ isInherited }">
@@ -188,7 +185,6 @@
                             <sw-cms-inherit-wrapper
                                 field="navigationArrows"
                                 :element="element"
-                                :content-entity="contentEntity"
                                 :label="$t('sw-cms.elements.imageSlider.config.label.navigationArrows')"
                             >
                                 <template #default="{ isInherited }">
@@ -208,7 +204,6 @@
                             <sw-cms-inherit-wrapper
                                 field="navigationDots"
                                 :element="element"
-                                :content-entity="contentEntity"
                                 :label="$t('sw-cms.elements.imageSlider.config.label.navigationDots')"
                             >
                                 <template #default="{ isInherited }">
@@ -228,7 +223,6 @@
                             <sw-cms-inherit-wrapper
                                 field="galleryPosition"
                                 :element="element"
-                                :content-entity="contentEntity"
                                 :label="$t('sw-cms.elements.imageGallery.config.label.navigationPreview')"
                             >
                                 <template #default="{ isInherited }">
@@ -251,7 +245,6 @@
                         <sw-cms-inherit-wrapper
                             field="zoom"
                             :element="element"
-                            :content-entity="contentEntity"
                         >
                             <template #default="{ isInherited }">
                                 <mt-switch
@@ -267,7 +260,6 @@
                         <sw-cms-inherit-wrapper
                             field="fullScreen"
                             :element="element"
-                            :content-entity="contentEntity"
                         >
                             <template #default="{ isInherited }">
                                 <mt-switch
@@ -285,7 +277,6 @@
                         <sw-cms-inherit-wrapper
                             field="keepAspectRatioOnZoom"
                             :element="element"
-                            :content-entity="contentEntity"
                         >
                             <template #default="{ isInherited }">
                                 <mt-switch
@@ -301,7 +292,6 @@
                         <sw-cms-inherit-wrapper
                             field="magnifierOverGallery"
                             :element="element"
-                            :content-entity="contentEntity"
                         >
                             <template #default="{ isInherited }">
                                 <mt-switch
@@ -318,7 +308,6 @@
                         <sw-cms-inherit-wrapper
                             field="useFetchPriorityOnFirstItem"
                             :element="element"
-                            :content-entity="contentEntity"
                         >
                             <template #default="{ isInherited }">
                                 <mt-switch

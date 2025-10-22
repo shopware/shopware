@@ -186,8 +186,6 @@ export default {
     methods: {
         async createdComponent() {
             this.initElementConfig('image-gallery');
-
-
             this.initGalleryItems();
             this.initConfig();
         },

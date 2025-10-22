@@ -6,9 +6,13 @@ const { get, set, unset, has } = Shopware.Utils.object;
 const { isEmpty, isUndefined } = Shopware.Utils.types;
 
 const EVENTS = {
-    UPDATE: 'update:value',
     RESTORE: 'inheritance:restore',
     REMOVE: 'inheritance:remove',
+};
+
+const BASE_FIELD_FALLBACK = {
+    value: null,
+    source: 'static',
 };
 
 /**
@@ -22,7 +26,6 @@ const EVENTS = {
  * @component-example
  * <sw-cms-inherit-wrapper
  *     :element="element"
- *     :content-entity="category"
  *     field="backgroundColor"
  *     :label="$tc('sw-cms.elements.image.labelBackgroundColor')"
  * >
@@ -35,16 +38,17 @@ const EVENTS = {
  * </sw-cms-inherit-wrapper>
  *
  * @prop {Object} element - The CMS element object containing configuration and translation data.
- * @prop {Object} [contentEntity=null] - The content entity object that may contain slot configuration overrides,
- *                                       usually a product, category or landing page.
  * @prop {String} field - The specific configuration field within the element to manage inheritance for.
  * @prop {String} [fieldPath='value'] - The path within the configuration field to bind to, defaults to 'value'.
  * @prop {String} [label] - An optional label for the input field. Prefer this over the child component's label.
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+    inject: ['cmsService'],
+    mixins: [
+        Shopware.Mixin.getByName('cms-state'),
+    ],
     emits: [
-        EVENTS.UPDATE,
         EVENTS.RESTORE,
         EVENTS.REMOVE,
     ],
@@ -58,15 +62,6 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             >,
             required: true,
-        },
-        contentEntity: {
-            type: Object as PropType<{
-                slotConfig?: {
-                    [slotId: string]: CmsSlotConfig;
-                };
-            }>,
-            required: false,
-            default: null,
         },
         field: {
             type: String,
@@ -89,18 +84,11 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
     computed: {
-        currentValue: {
-            get() {
-                return get(this.runtimeConfig, this.fullPath);
-            },
-            set(value: string) {
-                set(this.runtimeConfig, this.fullPath, value);
-
-                this.$emit(EVENTS.UPDATE, value);
-            },
+        cmsElements() {
+            return this.cmsService.getCmsElementRegistry();
         },
         baseConfig() {
-            return this.element.translated?.config;
+            return this.element.getOrigin().translated?.config;
         },
         childConfig() {
             return this.contentEntity?.slotConfig?.[this.element.id];
@@ -109,17 +97,14 @@ export default Shopware.Component.wrapComponentConfig({
             return this.element.config;
         },
         supportsInheritance() {
-            return !!this.contentEntity && has(this.baseConfig, this.fullPath)
-        },
-        canInheritField() {
-            return this.supportsInheritance && has(this.baseConfig, this.fullPath);
+            return !!this.contentEntity;
         },
         /**
          * Fields are inherited if the layout is used on a content page (product, category, landing page)
          * and the field is not overridden in the <entity>.slot_config
          */
         isInherited() {
-            return this.supportsInheritance && isUndefined(get(this.childConfig, this.fullPath));
+            return this.supportsInheritance && isUndefined(get(this.childConfig, this.field));
         },
         fullPath() {
             return this.field.concat('.', this.fieldPath);
@@ -127,18 +112,30 @@ export default Shopware.Component.wrapComponentConfig({
         sourcePath() {
             return this.field.concat('.', 'source');
         },
+        fieldDefaultValue() {
+            return get(
+                this.cmsElements[this.element.type]?.defaultConfig,
+                this.fullPath,
+                BASE_FIELD_FALLBACK.value,
+            );
+        },
     },
     methods: {
-        onInheritanceRestore() {
+        async onInheritanceRestore() {
             this.showModal = false;
 
-            set(this.runtimeConfig, this.fullPath, get(this.baseConfig, this.fullPath, null));
-            set(this.runtimeConfig, this.sourcePath, get(this.baseConfig, this.sourcePath, null));
+            set(this.runtimeConfig, this.field, get(this.baseConfig, this.field, this.fieldDefaultValue));
+
+            /**
+             * Run watchers before removing the slotConfig to ensure sw-cms-form-sync won't
+             * override the reset.
+             */
+            await this.$nextTick();
 
             unset(this.childConfig, this.field);
 
             if (isEmpty(this.childConfig)) {
-                unset(this.contentEntity, 'slotConfig');
+                set(this.contentEntity!, 'slotConfig', null);
             }
 
             this.$emit(EVENTS.RESTORE);
@@ -156,13 +153,19 @@ export default Shopware.Component.wrapComponentConfig({
                 this.contentEntity.slotConfig[this.element.id] = {};
             }
 
+            if (!has(this.childConfig, this.field)) {
+                set(this.childConfig!, this.field, get(this.baseConfig, this.field, BASE_FIELD_FALLBACK));
+            }
+
+            const value = get(this.baseConfig, this.fullPath, get(BASE_FIELD_FALLBACK, this.fieldPath, '')) ??
+                this.fieldDefaultValue;
+
             set(
                 this.childConfig!,
                 this.fullPath,
-                get(this.baseConfig, this.fullPath, {
-                    value: null,
-                }),
+                value,
             );
+            set(this.runtimeConfig, this.fullPath, value);
 
             this.$emit(EVENTS.REMOVE);
         },

@@ -39,7 +39,6 @@
                 <sw-cms-inherit-wrapper
                     field="boxLayout"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.productBox.config.label.layoutType')"
                 >
 
@@ -56,7 +55,6 @@
                 <sw-cms-inherit-wrapper
                     field="boxHeadlineLevel"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.productBox.config.label.headlineLevel')"
                 >
                     <template #default="{ isInherited }">
@@ -85,7 +83,6 @@
                 <sw-cms-inherit-wrapper
                     field="showSorting"
                     :element="element"
-                    :content-entity="contentEntity"
                 >
                     <template #default="{ isInherited }">
                         <mt-switch
@@ -101,7 +98,6 @@
                 <sw-cms-inherit-wrapper
                     field="useCustomSorting"
                     :element="element"
-                    :content-entity="contentEntity"
                 >
                     <template #default="{ isInherited }">
                         <mt-switch
@@ -120,7 +116,6 @@
                     v-if="showSortingGrid"
                     field="defaultSorting"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
                 >
                     <template #default="{ isInherited }">
@@ -144,7 +139,6 @@
                     v-if="showSortingGrid"
                     field="availableSortings"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.productListing.config.sorting.labelProductSortings')"
                     @inheritance:restore="initProductSorting"
                 >
@@ -211,7 +205,6 @@
                 <sw-cms-inherit-wrapper
                     field="filters"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.productListing.config.tab.filter')"
                     class="sw-cms-el-config-product-listing__config-filter"
                 >

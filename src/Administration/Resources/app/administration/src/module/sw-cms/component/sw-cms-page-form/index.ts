@@ -1,13 +1,6 @@
 import type { PropType } from 'vue';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
-import { type CmsSlotConfig } from '../../service/cms.service';
-
-type CmsContentEntity = {
-    slotConfig?: {
-        [slotId: string]: CmsSlotConfig;
-    };
-}
 
 /**
  * @private
@@ -18,6 +11,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['cmsService'],
 
+    mixins: [
+        Shopware.Mixin.getByName('cms-state'),
+    ],
+
     props: {
         page: {
             type: Object as PropType<Entity<'cms_page'>>,
@@ -27,10 +24,6 @@ export default Shopware.Component.wrapComponentConfig({
             type: Function,
             required: false,
             default: () => {},
-        },
-        contentEntity: {
-            type: Object as PropType<CmsContentEntity>,
-            required: false,
         },
     },
 
@@ -56,30 +49,33 @@ export default Shopware.Component.wrapComponentConfig({
         createdComponent() {
             this.page.sections!.forEach((section) => {
                 section.blocks!.forEach((block) => {
-                    block.slots!.sort((a, b) => {
-                        const positionA = this.slotPositions[a.slot] ?? this.slotPositions.default;
-                        const positionB = this.slotPositions[b.slot] ?? this.slotPositions.default;
-
-                        return positionA - positionB;
-                    });
-
-                    if (!block.visibility) {
-                        block.visibility = {
-                            mobile: true,
-                            tablet: true,
-                            desktop: true,
-                        };
-                    }
+                    this.sortSlots(block);
+                    this.initVisibility(block);
                 });
 
-                if (!section.visibility) {
-                    section.visibility = {
-                        mobile: true,
-                        tablet: true,
-                        desktop: true,
-                    };
-                }
+                this.initVisibility(section);
             });
+        },
+
+        sortSlots(block: Entity<'cms_block'>) {
+            block.slots?.sort((a, b) => {
+                const positionA = this.slotPositions[a.slot] ?? this.slotPositions.default;
+                const positionB = this.slotPositions[b.slot] ?? this.slotPositions.default;
+
+                return positionA - positionB;
+            });
+        },
+
+        initVisibility(entity: Entity<'cms_section'> | Entity<'cms_block'>) {
+            if (entity.visibility) {
+                return;
+            }
+
+            entity.visibility = {
+                mobile: true,
+                tablet: true,
+                desktop: true,
+            };
         },
 
         getBlockTitle(block: Entity<'cms_block'>): string {

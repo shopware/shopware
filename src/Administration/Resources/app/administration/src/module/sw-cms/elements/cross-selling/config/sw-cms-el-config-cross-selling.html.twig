@@ -49,7 +49,6 @@
                     v-if="!isProductPageType"
                     field="product"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.crossSelling.config.label.selection')"
                 >
                     <template #default="{ isInherited }">
@@ -106,7 +105,6 @@
                 <sw-cms-inherit-wrapper
                     field="boxLayout"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.productBox.config.label.layoutType')"
                 >
                     <template #default="{ isInherited }">
@@ -123,7 +121,6 @@
                 <sw-cms-inherit-wrapper
                     field="displayMode"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.general.config.label.displayMode')"
                 >
                     <template #default="{ isInherited }">
@@ -140,7 +137,6 @@
                 <sw-cms-inherit-wrapper
                     field="elMinWidth"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.crossSelling.config.label.minWidth')"
                 >
                     <template #default="{ isInherited }">

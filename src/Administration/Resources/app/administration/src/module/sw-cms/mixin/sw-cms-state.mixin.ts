@@ -1,7 +1,17 @@
 import { defineComponent } from 'vue';
 import '../store/cms-page.store';
+import type { CmsSlotConfig } from '../service/cms.service';
+import Entities = EntitySchema.Entities;
 
-/**
+type WithSlotConfig = {
+    slotConfig?: {
+        [slotId: string]: CmsSlotConfig;
+    };
+};
+
+type ContentEntity<T extends keyof Entities> = Entity<T> & WithSlotConfig;
+
+    /**
  * @private
  * @sw-package discovery
  */
@@ -39,6 +49,48 @@ export default Shopware.Mixin.register(
 
             isSystemDefaultLanguage() {
                 return this.cmsPageState.isSystemDefaultLanguage;
+            },
+
+            category() {
+                try {
+                    return Shopware.Store.get('swCategoryDetail')?.category as ContentEntity<'category'>;
+                } catch {
+                    return null;
+                }
+            },
+
+            product() {
+                try {
+                    return Shopware.Store.get('swProductDetail')?.product as ContentEntity<'product'>;
+                } catch {
+                    return null;
+                }
+            },
+
+            landingPage() {
+                try {
+                    return Shopware.Store.get('swCategoryDetail')?.landingPage as ContentEntity<'landing_page'>;
+                } catch {
+                    return null;
+                }
+            },
+
+            contentEntity() {
+                const name = this.$route.name?.toString() || '';
+
+                if (name.startsWith('sw.category.landingPageDetail')) {
+                    return this.landingPage;
+                }
+
+                if (name.startsWith('sw.category.')) {
+                    return this.category;
+                }
+
+                if (name.startsWith('sw.product.')) {
+                    return this.product;
+                }
+
+                return null;
             },
         },
     }),

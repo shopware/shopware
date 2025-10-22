@@ -50,7 +50,6 @@
                     v-if="!isProductPage"
                     field="product"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.productBox.config.label.selection')"
                 >
                     <template #default="{ isInherited }">
@@ -102,7 +101,6 @@
                 <sw-cms-inherit-wrapper
                     field="alignment"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.general.config.label.alignment')"
                 >
                     <template #default="{ isInherited }">

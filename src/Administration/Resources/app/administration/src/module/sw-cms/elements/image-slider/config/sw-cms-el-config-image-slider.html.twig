@@ -39,7 +39,6 @@
                 <sw-cms-inherit-wrapper
                     field="sliderItems"
                     :element="element"
-                    :content-entity="contentEntity"
                     :label="$t('sw-cms.elements.imageSlider.config.label.sliderItems')"
                     @inheritance:restore="initSliderItems"
                 >
@@ -90,7 +89,6 @@
                         <sw-cms-inherit-wrapper
                             field="displayMode"
                             :element="element"
-                            :content-entity="contentEntity"
                             :label="$t('sw-cms.elements.general.config.label.displayMode')"
                         >
                             <template #default="{ isInherited }">
@@ -113,7 +111,6 @@
                         <sw-cms-inherit-wrapper
                             field="minHeight"
                             :element="element"
-                            :content-entity="contentEntity"
                             :label="$t('sw-cms.elements.image.config.label.minHeight')"
                         >
                             <template #default="{ isInherited }">
@@ -135,7 +132,6 @@
                         <sw-cms-inherit-wrapper
                             field="verticalAlign"
                             :element="element"
-                            :content-entity="contentEntity"
                             :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
                         >
                             <template #default="{ isInherited }">
@@ -160,7 +156,6 @@
                             <sw-cms-inherit-wrapper
                                 field="navigationArrows"
                                 :element="element"
-                                :content-entity="contentEntity"
                                 :label="$t('sw-cms.elements.imageSlider.config.label.navigationArrows')"
                             >
                                 <template #default="{ isInherited }">
@@ -180,7 +175,6 @@
                             <sw-cms-inherit-wrapper
                                 field="navigationDots"
                                 :element="element"
-                                :content-entity="contentEntity"
                                 :label="$t('sw-cms.elements.imageSlider.config.label.navigationDots')"
                             >
                                 <template #default="{ isInherited }">
@@ -202,7 +196,6 @@
                         <sw-cms-inherit-wrapper
                             field="speed"
                             :element="element"
-                            :content-entity="contentEntity"
                             :label="$t('sw-cms.elements.general.config.label.speed')"
                         >
                             <template #default="{ isInherited }">
@@ -236,7 +229,6 @@
                                 <sw-cms-inherit-wrapper
                                     field="autoSlide"
                                     :element="element"
-                                    :content-entity="contentEntity"
                                 >
                                     <template #default="{ isInherited }">
                                         <mt-switch
@@ -256,7 +248,6 @@
                                 <sw-cms-inherit-wrapper
                                     field="autoplayTimeout"
                                     :element="element"
-                                    :content-entity="contentEntity"
                                     :label="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
                                 >
                                     <template #default="{ isInherited }">
@@ -280,7 +271,6 @@
                     <sw-cms-inherit-wrapper
                         field="isDecorative"
                         :element="element"
-                        :content-entity="contentEntity"
                     >
                         <template #default="{ isInherited }">
                             <mt-switch
@@ -298,7 +288,6 @@
                     <sw-cms-inherit-wrapper
                         field="useFetchPriorityOnFirstItem"
                         :element="element"
-                        :content-entity="contentEntity"
                     >
                         <template #default="{ isInherited }">
                             <mt-switch

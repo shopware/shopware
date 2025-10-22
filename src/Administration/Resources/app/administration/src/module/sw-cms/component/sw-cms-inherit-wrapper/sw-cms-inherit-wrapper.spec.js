@@ -2,26 +2,33 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import '../../mixin/sw-cms-state.mixin';
 
-const { get } = Shopware.Utils.object;
+const { Entity } = Shopware.Data;
 
-async function createWrapper(props = {}, options = {}) {
-    const defaultProps = {
-        element: {
-            id: 'test-slot-id',
-            config: {
-                testField: {
-                    value: 'runtime-value',
-                },
-            },
-            translated: {
-                config: {
-                    testField: {
-                        value: 'base-value',
-                    },
-                },
+const defaultElement = new Entity('test-slot-id', 'cms_slot', {
+    type: 'text',
+    config: {
+        testField: {
+            value: 'runtime-value',
+        },
+    },
+    translated: {
+        config: {
+            testField: {
+                value: 'base-value',
             },
         },
+    },
+});
+
+const categoryDetailCmsRoute = {
+    name: 'sw.category.detail.cms',
+};
+
+async function createWrapper(props = {}, options = {}, route = categoryDetailCmsRoute) {
+    const defaultProps = {
+        element: defaultElement,
         field: 'testField',
         ...props,
     };
@@ -32,6 +39,22 @@ async function createWrapper(props = {}, options = {}) {
         }),
         {
             global: {
+                provide: {
+                    cmsService: {
+                        getCmsElementRegistry: () => ({
+                            text: {
+                                defaultConfig: {
+                                    testField: {
+                                        value: 'default-value',
+                                    },
+                                },
+                            },
+                        }),
+                    },
+                },
+                mocks: {
+                    $route: route,
+                },
                 stubs: {
                     'sw-inheritance-switch': {
                         template: `
@@ -70,6 +93,10 @@ async function createWrapper(props = {}, options = {}) {
 }
 
 describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
+    beforeEach(() => {
+        Shopware.Store.get('swCategoryDetail').$reset();
+    });
+
     describe('computed properties', () => {
         it('should compute fullPath correctly with default fieldPath', async () => {
             const wrapper = await createWrapper({
@@ -93,13 +120,12 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                 testField: { value: 'base-value' },
             };
             const wrapper = await createWrapper({
-                element: {
-                    id: 'test-id',
+                element: new Entity('test-id', 'cms_slot', {
                     config: {},
                     translated: {
                         config: translatedConfig,
                     },
-                },
+                }),
             });
 
             expect(wrapper.vm.baseConfig).toStrictEqual(translatedConfig);
@@ -111,21 +137,13 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                     testField: { value: 'child-value' },
                 },
             };
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig,
-                },
-            });
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig,
+            };
+
+            const wrapper = await createWrapper();
 
             expect(wrapper.vm.childConfig).toStrictEqual(slotConfig['test-slot-id']);
-        });
-
-        it('should return undefined childConfig when contentEntity has no slotConfig', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {},
-            });
-
-            expect(wrapper.vm.childConfig).toBeUndefined();
         });
 
         it('should compute runtimeConfig from element.config', async () => {
@@ -144,173 +162,71 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
         });
 
         it('should support inheritance when contentEntity is provided', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {},
-            });
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'child-value' },
+                    },
+                },
+            };
+
+            const wrapper = await createWrapper();
 
             expect(wrapper.vm.supportsInheritance).toBe(true);
         });
 
         it('should not support inheritance when contentEntity is null', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: null,
-            });
+            const wrapper = await createWrapper();
 
             expect(wrapper.vm.supportsInheritance).toBe(false);
-        });
-
-        it('should allow field inheritance when field exists in baseConfig', async () => {
-            const wrapper = await createWrapper({
-                element: {
-                    id: 'test-id',
-                    config: { testField: { value: 'runtime' } },
-                    translated: {
-                        config: {
-                            testField: { value: 'base' },
-                        },
-                    },
-                },
-            });
-
-            expect(wrapper.vm.canInheritField).toBe(true);
-        });
-
-        it('should not allow field inheritance when field does not exist in baseConfig', async () => {
-            const wrapper = await createWrapper({
-                element: {
-                    id: 'test-id',
-                    config: { testField: { value: 'runtime' } },
-                    translated: {
-                        config: {},
-                    },
-                },
-            });
-
-            expect(wrapper.vm.canInheritField).toBe(false);
+            expect(wrapper.vm.isInherited).toBeFalsy();
         });
 
         it('should compute isInherited as true when contentEntity exists but field not in childConfig', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {},
-                    },
+            Shopware.Store.get('swCategoryDetail').category = {
+                'test-slot-id': {
+                    testField: { value: 'child-value' },
                 },
-            });
+            };
+
+            const wrapper = await createWrapper();
 
             expect(wrapper.vm.isInherited).toBe(true);
         });
 
         it('should compute isInherited as false when field is overridden in childConfig', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {
-                            testField: {
-                                value: 'overridden',
-                            },
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: {
+                            value: 'overridden',
                         },
                     },
                 },
-            });
+            };
+
+            const wrapper = await createWrapper();
 
             expect(wrapper.vm.isInherited).toBe(false);
-        });
-
-        it('should compute isInherited as falsy when contentEntity is null', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: null,
-            });
-
-            expect(wrapper.vm.isInherited).toBeFalsy();
-        });
-
-        it('should get current value from runtimeConfig', async () => {
-            const wrapper = await createWrapper({
-                element: {
-                    id: 'test-id',
-                    config: {
-                        testField: {
-                            value: 'runtime-value',
-                        },
-                    },
-                    translated: { config: {} },
-                },
-            });
-
-            expect(wrapper.vm.currentValue).toBe('runtime-value');
-        });
-
-        it('should set current value in runtimeConfig', async () => {
-            const wrapper = await createWrapper();
-
-            wrapper.vm.currentValue = 'new-value';
-
-            expect(get(wrapper.vm.runtimeConfig, wrapper.vm.fullPath)).toBe('new-value');
-        });
-
-        it('should emit update:value event when currentValue is set', async () => {
-            const wrapper = await createWrapper();
-
-            wrapper.vm.currentValue = 'new-value';
-
-            expect(wrapper.emitted('update:value')).toBeTruthy();
-            expect(wrapper.emitted('update:value')[0]).toEqual(['new-value']);
-        });
-
-        it('should work with nested fieldPath', async () => {
-            const wrapper = await createWrapper({
-                element: {
-                    id: 'test-id',
-                    config: {
-                        testField: {
-                            nested: {
-                                value: 'nested-value',
-                            },
-                        },
-                    },
-                    translated: { config: {} },
-                },
-                fieldPath: 'nested.value',
-            });
-
-            expect(wrapper.vm.currentValue).toBe('nested-value');
-
-            wrapper.vm.currentValue = 'new-nested-value';
-            expect(get(wrapper.vm.runtimeConfig, wrapper.vm.fullPath)).toBe('new-nested-value');
         });
     });
 
     describe('conditional rendering', () => {
-        it('should render sw-inheritance-switch when inheritance is supported and field can be inherited', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {},
-            });
+        it('should render sw-inheritance-switch when inheritance is supported', async () => {
+            Shopware.Store.get('swCategoryDetail').category = {
+                'test-slot-id': {
+                    testField: { value: 'child-value' },
+                },
+            };
+
+            const wrapper = await createWrapper();
 
             expect(wrapper.find('.sw-inheritance-switch').exists()).toBe(true);
         });
 
         it('should not render sw-inheritance-switch when inheritance is not supported', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: null,
-            });
+            const wrapper = await createWrapper();
 
-            expect(wrapper.find('.sw-inheritance-switch').exists()).toBe(false);
-        });
-
-        it('should render disabled icon when field cannot be inherited', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {},
-                element: {
-                    id: 'test-id',
-                    config: { testField: { value: 'runtime' } },
-                    translated: {
-                        config: {},
-                    },
-                },
-            });
-
-            expect(wrapper.find('.mt-icon').exists()).toBe(true);
             expect(wrapper.find('.sw-inheritance-switch').exists()).toBe(false);
         });
 
@@ -343,27 +259,26 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
         });
 
         it('should apply is--inherited class when field is inherited', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {},
-                    },
+            Shopware.Store.get('swCategoryDetail').category = {
+                'test-slot-id': {
+                    testField: {},
                 },
-            });
+            };
+
+            const wrapper = await createWrapper();
 
             expect(wrapper.find('.sw-cms-inherit-wrapper').classes()).toContain('is--inherited');
         });
 
         it('should not apply is--inherited class when field is not inherited', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {
-                            testField: { value: 'overridden' },
-                        },
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'overridden' },
                     },
                 },
-            });
+            };
+            const wrapper = await createWrapper();
 
             expect(wrapper.find('.sw-cms-inherit-wrapper').classes()).not.toContain('is--inherited');
         });
@@ -371,11 +286,10 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
     describe('onInheritanceRemove method', () => {
         it('should create slotConfig structure if it does not exist', async () => {
-            const contentEntity = {};
-            const wrapper = await createWrapper({
-                contentEntity,
-            });
+            const contentEntity= {};
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
 
+            const wrapper = await createWrapper();
             wrapper.vm.onInheritanceRemove();
 
             expect(contentEntity.slotConfig).toBeDefined();
@@ -384,10 +298,9 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
         it('should copy base value to childConfig', async () => {
             const contentEntity = {};
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
             const wrapper = await createWrapper({
-                contentEntity,
-                element: {
-                    id: 'test-slot-id',
+                element: new Entity('test-slot-id', 'cms_slot', {
                     config: {
                         testField: { value: 'runtime' },
                     },
@@ -396,7 +309,7 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                             testField: { value: 'base-value' },
                         },
                     },
-                },
+                }),
             });
 
             wrapper.vm.onInheritanceRemove();
@@ -404,43 +317,64 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             expect(contentEntity.slotConfig['test-slot-id'].testField.value).toBe('base-value');
         });
 
-        it('should use default value object with null when base value does not exist', async () => {
+        it('should use default value when base value does not exist', async () => {
             const contentEntity = {};
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
             const wrapper = await createWrapper({
-                contentEntity,
-                element: {
-                    id: 'test-slot-id',
+                element: new Entity('test-slot-id', 'cms_slot', {
+                    type: 'text',
                     config: {
                         testField: { value: 'runtime' },
                     },
                     translated: {
                         config: {},
                     },
-                },
+                }),
+            });
+
+            wrapper.vm.onInheritanceRemove();
+
+            expect(contentEntity.slotConfig['test-slot-id'].testField.value).toBe('default-value');
+            expect(wrapper.vm.runtimeConfig.testField.value).toBe('default-value');
+        });
+
+        it('should create field in childConfig if it does not exist', async () => {
+            const contentEntity = {};
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+            const wrapper = await createWrapper({
+                element: new Entity('test-slot-id', 'cms_slot', {
+                    type: 'text',
+                    config: {
+                        testField: { value: 'runtime' },
+                    },
+                    translated: {
+                        config: {
+                            testField: { value: 'base-value', source: 'static' },
+                        },
+                    },
+                }),
             });
 
             wrapper.vm.onInheritanceRemove();
 
             expect(contentEntity.slotConfig['test-slot-id'].testField).toStrictEqual({
-                value: { value: null },
+                value: 'base-value',
+                source: 'static',
             });
         });
 
         it('should emit inheritance:remove event', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {},
-            });
+            Shopware.Store.get('swCategoryDetail').category = {};
+            const wrapper = await createWrapper();
 
             wrapper.vm.onInheritanceRemove();
 
             expect(wrapper.emitted('inheritance:remove')).toBeTruthy();
-            expect(wrapper.emitted('inheritance:remove').length).toBe(1);
+            expect(wrapper.emitted('inheritance:remove')).toHaveLength(1);
         });
 
         it('should do nothing if contentEntity is null', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: null,
-            });
+            const wrapper = await createWrapper();
 
             wrapper.vm.onInheritanceRemove();
 
@@ -455,9 +389,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                     },
                 },
             };
-            const wrapper = await createWrapper({
-                contentEntity,
-            });
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+            const wrapper = await createWrapper();
 
             wrapper.vm.onInheritanceRemove();
 
@@ -474,10 +407,10 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                     },
                 },
             };
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+
             const wrapper = await createWrapper({
-                contentEntity,
-                element: {
-                    id: 'test-slot-id',
+                element: new Entity('test-slot-id', 'cms_slot', {
                     config: {
                         testField: { value: 'runtime' },
                     },
@@ -486,7 +419,7 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                             testField: { value: 'base-value' },
                         },
                     },
-                },
+                }),
             });
 
             wrapper.vm.onInheritanceRemove();
@@ -499,49 +432,77 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
     describe('onInheritanceRestore method', () => {
         it('should close the modal', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {
-                            testField: { value: 'overridden' },
-                        },
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'overridden' },
                     },
                 },
-            });
+            };
+            const wrapper = await createWrapper();
 
             await wrapper.setData({ showModal: true });
             expect(wrapper.vm.showModal).toBe(true);
 
-            wrapper.vm.onInheritanceRestore();
+            await wrapper.vm.onInheritanceRestore();
 
             expect(wrapper.vm.showModal).toBe(false);
         });
 
-        it('should restore base value to runtime config', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {
-                            testField: { value: 'overridden' },
-                        },
+        it('should restore base field object to runtime config', async () => {
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'overridden' },
                     },
                 },
-                element: {
-                    id: 'test-slot-id',
+            };
+            const wrapper = await createWrapper({
+                element: new Entity('test-slot-id', 'cms_slot', {
+                    type: 'text',
                     config: {
                         testField: { value: 'runtime' },
                     },
                     translated: {
                         config: {
-                            testField: { value: 'base-value' },
+                            testField: { value: 'base-value', source: 'static' },
                         },
                     },
-                },
+                }),
             });
 
-            wrapper.vm.onInheritanceRestore();
+            await wrapper.vm.onInheritanceRestore();
 
-            expect(wrapper.vm.runtimeConfig.testField.value).toBe('base-value');
+            expect(wrapper.vm.runtimeConfig.testField).toStrictEqual({
+                value: 'base-value',
+                source: 'static',
+            });
+        });
+
+        it('should use fieldDefaultValue when base value does not exist', async () => {
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'overridden' },
+                    },
+                },
+            };
+            const wrapper = await createWrapper({
+                element: new Entity('test-slot-id', 'cms_slot', {
+                    id: 'test-slot-id',
+                    type: 'text',
+                    config: {
+                        testField: { value: 'runtime' },
+                    },
+                    translated: {
+                        config: {},
+                    },
+                }),
+            });
+
+            await wrapper.vm.onInheritanceRestore();
+
+            expect(wrapper.vm.runtimeConfig.testField).toBe('default-value');
         });
 
         it('should remove field from childConfig', async () => {
@@ -553,17 +514,16 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                     },
                 },
             };
-            const wrapper = await createWrapper({
-                contentEntity,
-            });
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+            const wrapper = await createWrapper();
 
-            wrapper.vm.onInheritanceRestore();
+            await wrapper.vm.onInheritanceRestore();
 
             expect(contentEntity.slotConfig['test-slot-id'].testField).toBeUndefined();
             expect(contentEntity.slotConfig['test-slot-id'].otherField).toBeDefined();
         });
 
-        it('should remove slotConfig from contentEntity when childConfig becomes empty', async () => {
+        it('should set slotConfig to null when childConfig becomes empty', async () => {
             const contentEntity = {
                 slotConfig: {
                     'test-slot-id': {
@@ -571,17 +531,16 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                     },
                 },
             };
-            const wrapper = await createWrapper({
-                contentEntity,
-            });
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+            const wrapper = await createWrapper();
 
-            wrapper.vm.onInheritanceRestore();
+            await wrapper.vm.onInheritanceRestore();
 
-            expect(contentEntity.slotConfig).toBeUndefined();
+            expect(contentEntity.slotConfig).toBeNull();
         });
 
         it('should emit inheritance:restore event', async () => {
-            const wrapper = await createWrapper({
+            Shopware.Store.get('swCategoryDetail').category = {
                 contentEntity: {
                     slotConfig: {
                         'test-slot-id': {
@@ -589,26 +548,26 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                         },
                     },
                 },
-            });
+            };
+            const wrapper = await createWrapper();
 
-            wrapper.vm.onInheritanceRestore();
+            await wrapper.vm.onInheritanceRestore();
 
             expect(wrapper.emitted('inheritance:restore')).toBeTruthy();
-            expect(wrapper.emitted('inheritance:restore').length).toBe(1);
+            expect(wrapper.emitted('inheritance:restore')).toHaveLength(1);
         });
     });
 
     describe('event handling', () => {
         it('should show modal when inheritance-restore is triggered on switch', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {
-                            testField: { value: 'overridden' },
-                        },
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'overridden' },
                     },
                 },
-            });
+            };
+            const wrapper = await createWrapper();
 
             expect(wrapper.vm.showModal).toBe(false);
 
@@ -619,9 +578,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
         it('should call onInheritanceRemove when inheritance-remove is triggered on switch', async () => {
             const contentEntity = {};
-            const wrapper = await createWrapper({
-                contentEntity,
-            });
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+            const wrapper = await createWrapper();
 
             await wrapper.find('.sw-inheritance-switch').trigger('click');
 
@@ -637,23 +595,21 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                     },
                 },
             };
-            const wrapper = await createWrapper({
-                contentEntity,
-            });
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+            const wrapper = await createWrapper();
 
             await wrapper.setData({ showModal: true });
 
             await wrapper.find('.confirm-btn').trigger('click');
 
             expect(wrapper.vm.showModal).toBe(false);
-            expect(contentEntity.slotConfig).toBeUndefined();
+            expect(contentEntity.slotConfig).toBeNull();
             expect(wrapper.emitted('inheritance:restore')).toBeTruthy();
         });
 
         it('should hide modal when cancel is clicked', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {},
-            });
+            Shopware.Store.get('swCategoryDetail').category = {};
+            const wrapper = await createWrapper();
 
             await wrapper.setData({ showModal: true });
             expect(wrapper.vm.showModal).toBe(true);
@@ -664,9 +620,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
         });
 
         it('should hide modal when close is clicked', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {},
-            });
+            Shopware.Store.get('swCategoryDetail').category = {};
+            const wrapper = await createWrapper();
 
             await wrapper.setData({ showModal: true });
             expect(wrapper.vm.showModal).toBe(true);
@@ -679,13 +634,12 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
     describe('slot bindings', () => {
         it('should pass isInherited to default slot', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {},
-                    },
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {},
                 },
-            }, {
+            };
+            const wrapper = await createWrapper({}, {
                 slots: {
                     default: `
                         <template #default="{ isInherited }">
@@ -701,15 +655,14 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
         });
 
         it('should pass isInherited=false when field is not inherited', async () => {
-            const wrapper = await createWrapper({
-                contentEntity: {
-                    slotConfig: {
-                        'test-slot-id': {
-                            testField: { value: 'overridden' },
-                        },
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'overridden' },
                     },
                 },
-            }, {
+            };
+            const wrapper = await createWrapper({}, {
                 slots: {
                     default: `
                         <template #default="{ isInherited }">

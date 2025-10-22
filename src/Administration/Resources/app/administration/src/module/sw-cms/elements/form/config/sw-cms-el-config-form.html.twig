@@ -41,7 +41,6 @@
             <sw-cms-inherit-wrapper
                 field="type"
                 :element="element"
-                :content-entity="contentEntity"
                 :label="$t('sw-cms.elements.form.config.label.type')"
             >
                 <template #default="{ isInherited }">
@@ -58,7 +57,6 @@
             <sw-cms-inherit-wrapper
                 field="title"
                 :element="element"
-                :content-entity="contentEntity"
                 :label="$t('sw-cms.elements.form.config.label.title')"
             >
                 <template #default="{ isInherited }">
@@ -75,7 +73,6 @@
                 v-if="element.config.type.value === 'contact'"
                 field="confirmationText"
                 :element="element"
-                :content-entity="contentEntity"
                 :label="$t('sw-cms.elements.form.config.label.confirmationText')"
             >
                 <template #default="{ isInherited }">
@@ -97,7 +94,6 @@
             <sw-cms-inherit-wrapper
                 field="mailReceiver"
                 :element="element"
-                :content-entity="contentEntity"
                 :label="$t('sw-cms.elements.form.config.label.receiverEmail')"
             >
                 <template #default="{ isInherited }">

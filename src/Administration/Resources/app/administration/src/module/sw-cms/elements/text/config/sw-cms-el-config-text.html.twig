@@ -6,7 +6,7 @@
 >
 
     <template #default="{ active }">
-            {% block sw_cms_el_config_text_tab_content %}
+        {% block sw_cms_el_config_text_tab_content %}
         <sw-tabs-item
             :title="$tc('sw-cms.elements.general.config.tab.content')"
             name="content"
@@ -14,8 +14,8 @@
         >
             {{ $tc('sw-cms.elements.general.config.tab.content') }}
         </sw-tabs-item>
-            {% endblock %}
-            {% block sw_cms_el_text_config_tab_options %}
+        {% endblock %}
+        {% block sw_cms_el_text_config_tab_options %}
         <sw-tabs-item
             :title="$tc('sw-cms.elements.general.config.tab.settings')"
             name="settings"
@@ -23,11 +23,11 @@
         >
             {{ $tc('sw-cms.elements.general.config.tab.settings') }}
         </sw-tabs-item>
-            {% endblock %}
+        {% endblock %}
     </template>
 
     <template #content="{ active }">
-            {% block sw_cms_el_text_config_content %}
+        {% block sw_cms_el_text_config_content %}
         <sw-container
             v-if="active === 'content'"
             class="sw-cms-el-config-text__tab-content"
@@ -35,7 +35,6 @@
             <sw-cms-inherit-wrapper
                 field="content"
                 :element="element"
-                :content-entity="contentEntity"
                 :label="$tc('sw-cms.elements.text.config.label.content')"
             >
                 <template #default="{ isInherited }">
@@ -63,18 +62,17 @@
                 </template>
             </sw-cms-inherit-wrapper>
         </sw-container>
-            {% endblock %}
+        {% endblock %}
 
-            {% block sw_cms_el_text_config_settings %}
+        {% block sw_cms_el_text_config_settings %}
         <sw-container
             v-if="active === 'settings'"
             class="sw-cms-el-config-text__tab-settings"
         >
-                    {% block sw_cms_el_text_config_settings_vertical_align %}
+            {% block sw_cms_el_text_config_settings_vertical_align %}
             <sw-cms-inherit-wrapper
                 field="verticalAlign"
                 :element="element"
-                :content-entity="contentEntity"
                 :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
             >
                 <template #default="{ isInherited }">
@@ -86,9 +84,9 @@
                     />
                 </template>
             </sw-cms-inherit-wrapper>
-                    {% endblock %}
-        </sw-container>
             {% endblock %}
+        </sw-container>
+        {% endblock %}
     </template>
 </sw-tabs>
 {% endblock %}

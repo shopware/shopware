@@ -3,7 +3,6 @@
     <sw-cms-inherit-wrapper
         field="media"
         :element="element"
-        :content-entity="contentEntity"
         :label="$t('sw-cms.elements.image.label')"
     >
         <template #default="{ isInherited }">
@@ -71,7 +70,6 @@
     <sw-cms-inherit-wrapper
         field="displayMode"
         :element="element"
-        :content-entity="contentEntity"
         :label="$t('sw-cms.elements.general.config.label.displayMode')"
     >
         <template #default="{ isInherited }">
@@ -92,7 +90,6 @@
         <sw-cms-inherit-wrapper
             field="minHeight"
             :element="element"
-            :content-entity="contentEntity"
             :label="$t('sw-cms.elements.image.config.label.minHeight')"
             @update:value="onChangeMinHeight"
         >
@@ -111,7 +108,6 @@
     <sw-cms-inherit-wrapper
         field="verticalAlign"
         :element="element"
-        :content-entity="contentEntity"
         :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
     >
         <template #default="{ isInherited }">
@@ -129,7 +125,6 @@
     <sw-cms-inherit-wrapper
         field="horizontalAlign"
         :element="element"
-        :content-entity="contentEntity"
         :label="$t('sw-cms.elements.general.config.label.horizontalAlign')"
     >
         <template #default="{ isInherited }">
@@ -150,7 +145,6 @@
         <sw-cms-inherit-wrapper
             field="isDecorative"
             :element="element"
-            :content-entity="contentEntity"
             :label="$t('sw-cms.elements.image.config.label.isDecorative')"
         >
             <template #default="{ isInherited }">
@@ -166,7 +160,6 @@
         <sw-cms-inherit-wrapper
             field="fetchPriorityHigh"
             :element="element"
-            :content-entity="contentEntity"
             :label="$t('sw-cms.elements.image.config.label.fetchPriorityHigh')"
         >
             <template #default="{ isInherited }">
@@ -184,7 +177,6 @@
         <sw-cms-inherit-wrapper
             field="url"
             :element="element"
-            :content-entity="contentEntity"
         >
             <template #default="{ isInherited }">
                 <sw-dynamic-url-field
@@ -197,7 +189,6 @@
         <sw-cms-inherit-wrapper
             field="ariaLabel"
             :element="element"
-            :content-entity="contentEntity"
             :label="$t('sw-cms.elements.image.config.label.ariaLabel')"
         >
             <template #default="{ isInherited }">
@@ -213,7 +204,6 @@
         <sw-cms-inherit-wrapper
             field="newTab"
             :element="element"
-            :content-entity="contentEntity"
             :label="$t('sw-cms.elements.image.config.label.linkNewTab')"
         >
             <template #default="{ isInherited }">

@@ -5,6 +5,8 @@ area: Core
 tags: [flow, flow-action, experimental]
 ---
 
+## Superseded because we found a different better suited solution, see [2025-10-01-change-flow-execution-to-be-asynchronous.md](https://github.com/shopware/shopware/blob/trunk/adr/2025-10-01-change-flow-execution-to-be-asynchronous.md)
+
 ## Context
 
 Currently, flows are executed during the business process. A business

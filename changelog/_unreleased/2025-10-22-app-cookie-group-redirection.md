@@ -1,21 +1,19 @@
 ---
-title: Allow apps to assign cookies to standard cookie groups
+title: Allow apps to assign cookies to standard cookie groups via manifest
 issue: NEXT-5725
+author: Björn Meyer
+author_email: b.meyer@shopware.com
+author_github: @BrocksiNet
 ---
 # Core
-* Added optional `default-target-group` attribute to `<cookies>` element in `manifest-3.0.xsd` to set a default target cookie group for all cookies in an app
-* Added optional `target-group` attribute to `<group>` element in `manifest-3.0.xsd` to override the target cookie group for individual cookie groups
-* Changed `Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies::parse` to extract the `default-target-group` attribute from the manifest
-* Changed `Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies::parseChild` to extract the `target-group` attribute from cookie groups
-* Changed `Shopware\Core\Framework\App\Lifecycle\AppLifecycle::getAppMetadata` to propagate the `default_target_group` from the `<cookies>` element to individual cookie entries
-* Changed `Shopware\Core\Framework\App\Cookie\AppCookieCollectListener::addCookies` to support redirecting app cookie groups to Shopware's standard cookie groups based on manifest configuration
-* Changed `Shopware\Core\Framework\App\Cookie\AppCookieCollectListener::addCookies` to use entries collection when cookies are redirected to support merging multiple apps into the same standard group
-* Added `Shopware\Core\Framework\App\Cookie\AppCookieCollectListener::determineTargetGroup` to implement priority cascade for determining the target cookie group:
-  1. `target-group` attribute on individual `<group>` element (highest priority)
-  2. `default-target-group` attribute on `<cookies>` element
-  3. Original `snippet_name` (backward compatible, lowest priority)
+* Added `default-target-group` attribute to `<cookies>` element in manifest XSD for app-level cookie group assignment
+* Added `target-group` attribute to `<group>` element in manifest XSD for per-group cookie group override
+* Changed `Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies` to parse new target group attributes from manifest
+* Changed `Shopware\Core\Framework\App\Lifecycle\AppLifecycle` to propagate default target group to cookie metadata
+* Changed `Shopware\Core\Framework\App\Cookie\AppCookieCollectListener` to redirect app cookies to standard groups based on manifest configuration
 ___
 # Upgrade Information
+
 ## App Cookie Group Redirection
 
 Apps can now assign their cookies to Shopware's standard cookie groups (`cookie.groupRequired`, `cookie.groupStatistical`, `cookie.groupComfortFeatures`, `cookie.groupMarketing`) instead of creating app-specific cookie groups.
@@ -66,22 +64,3 @@ Result: Both cookie groups are assigned to the "Statistical" group.
 Result: 
 - `myapp.analytics` → Statistical group (per-group override)
 - `myapp.tracking` → Marketing group (app-level default)
-
-### Available Standard Groups
-- `cookie.groupRequired` - Technically Required
-- `cookie.groupStatistical` - Statistical  
-- `cookie.groupComfortFeatures` - Comfort Features
-- `cookie.groupMarketing` - Marketing
-
-### Benefits
-- **Consolidation**: Multiple apps can contribute to the same standard cookie group
-- **Clarity**: Store operators see cookies organized by purpose, not by app
-- **Compliance**: Easier to manage cookie consent categories for legal compliance
-- **Backward Compatible**: Existing apps without these attributes continue to work unchanged
-
-### Priority Cascade
-The target cookie group is determined by this priority order:
-1. `target-group` attribute on `<group>` element (highest priority)
-2. `default-target-group` attribute on `<cookies>` element
-3. Original `snippet_name` value (backward compatible, lowest priority)
-

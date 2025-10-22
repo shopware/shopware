@@ -255,7 +255,10 @@ class AppCookieCollectListenerTest extends TestCase
         $appEntity = $this->createAppEntity(Uuid::randomHex(), [
             [
                 'snippet_name' => 'myapp.tracking',
+                'snippet_description' => 'Tracking cookie for marketing',
                 'cookie' => 'myapp-tracking',
+                'value' => 'tracker-value',
+                'expiration' => '90',
                 'target_group' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING,
             ],
         ]);
@@ -272,7 +275,15 @@ class AppCookieCollectListenerTest extends TestCase
         $entries = $marketingGroup->getEntries();
         static::assertNotNull($entries);
         static::assertCount(1, $entries);
-        static::assertSame('myapp-tracking', $entries->first()?->cookie);
+
+        $trackingCookie = $entries->first();
+        static::assertNotNull($trackingCookie);
+        static::assertSame('myapp-tracking', $trackingCookie->cookie);
+        static::assertSame('myapp.tracking', $trackingCookie->name);
+        // Verify all optional properties are preserved when redirecting
+        static::assertSame('Tracking cookie for marketing', $trackingCookie->description);
+        static::assertSame('tracker-value', $trackingCookie->value);
+        static::assertSame(90, $trackingCookie->expiration);
     }
 
     public function testCookieGroupRedirectsViaManifestDefaultTargetGroup(): void
@@ -336,6 +347,63 @@ class AppCookieCollectListenerTest extends TestCase
         static::assertNotNull($entries);
         static::assertCount(1, $entries);
         static::assertSame('myapp-priority', $entries->first()?->cookie);
+    }
+
+    public function testRedirectsCookieGroupWithMultipleEntries(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'entries' => [
+                    [
+                        'cookie' => 'myapp-analytics-pageview',
+                        'snippet_name' => 'myapp.analytics.pageview',
+                        'value' => '',
+                        'expiration' => '30',
+                    ],
+                    [
+                        'cookie' => 'myapp-analytics-session',
+                        'snippet_name' => 'myapp.analytics.session',
+                        'expiration' => '0',
+                    ],
+                ],
+                'snippet_name' => 'myapp.analytics.group',
+                'snippet_description' => 'Analytics cookies from my app',
+                'target_group' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL,
+            ],
+        ]);
+
+        $this->createListener($appEntity)->__invoke($event);
+
+        $groups = $event->cookieGroupCollection;
+        static::assertCount(1, $groups);
+
+        // Cookie group should be redirected to statistical group
+        $statisticalGroup = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        static::assertNotNull($statisticalGroup);
+
+        // All entries from the app cookie group should be added to the statistical group
+        $entries = $statisticalGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(2, $entries);
+
+        $pageviewCookie = $entries->get('myapp-analytics-pageview');
+        static::assertNotNull($pageviewCookie);
+        static::assertSame('myapp-analytics-pageview', $pageviewCookie->cookie);
+        static::assertSame('myapp.analytics.pageview', $pageviewCookie->name);
+        static::assertSame('', $pageviewCookie->value);
+        static::assertSame(30, $pageviewCookie->expiration);
+
+        $sessionCookie = $entries->get('myapp-analytics-session');
+        static::assertNotNull($sessionCookie);
+        static::assertSame('myapp-analytics-session', $sessionCookie->cookie);
+        static::assertSame('myapp.analytics.session', $sessionCookie->name);
+        static::assertSame(0, $sessionCookie->expiration);
     }
 
     /**

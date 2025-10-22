@@ -949,6 +949,7 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
+                ->integerNode('message_max_kib_size')->defaultValue(1024)->end()
                 ->arrayNode('scheduled_task')
                     ->children()
                         ->integerNode('requeue_timeout')->defaultValue(12)->end()

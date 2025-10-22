@@ -570,6 +570,7 @@ shopware:
         default: []
 
     messenger:
+        message_max_kib_size: 1024 # in KiB
         scheduled_task:
             requeue_timeout: 12 # requeue stuck messages after 12 hours
         routing_overwrite:

@@ -12,15 +12,21 @@ window.DIVEQuickViewPlugin = {
     QuickView: jest.fn().mockResolvedValue(mockDive)
 };
 
+const options = {
+    sliderPosition: "1",
+    lightIntensity: "100",
+    modelUrl: "http://test/file.glb",
+};
+
 /**
  * @package innovation
  */
 describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
     let spatialZoomGallerySliderViewerPlugin;
-    let targetElement;
+    let mockElement;
 
     beforeEach(() => {
-        targetElement = document.createElement('div');
+        mockElement = document.createElement('div');
         jest.useFakeTimers();
 
         document.body.innerHTML = `
@@ -40,11 +46,7 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
             modal.dispatchEvent(new Event('hidden.bs.modal', { bubbles: true }));
         });
 
-        spatialZoomGallerySliderViewerPlugin = new SpatialZoomGallerySliderViewerPlugin(targetElement, {
-            sliderPosition: 1,
-            lightIntensity: "100",
-            modelUrl: "http://test/file.glb",
-        });
+        spatialZoomGallerySliderViewerPlugin = new SpatialZoomGallerySliderViewerPlugin(mockElement, options);
 
         jest.clearAllMocks();
     });
@@ -71,9 +73,10 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
     test('initViewer with defined spatial model url will load model', async () => {
         spatialZoomGallerySliderViewerPlugin.initViewer();
 
-        process.nextTick(() =>
-            expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1)
-        );
+        process.nextTick(() => {
+            expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement, displayFloor: true, lightIntensity: Number(options.lightIntensity) / 100 });
+            expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1);
+        });
     });
 
     test('initViewer with incorrect uploaded model from url will disable slider canvas', async () => {
@@ -95,7 +98,7 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
         // Setup nested parent elements to match el.parentElement.parentElement
         const parent = document.createElement('div');
         const grandParent = document.createElement('div');
-        parent.appendChild(targetElement);
+        parent.appendChild(mockElement);
         grandParent.appendChild(parent);
         // Call initViewer
         await spatialZoomGallerySliderViewerPlugin.initViewer();

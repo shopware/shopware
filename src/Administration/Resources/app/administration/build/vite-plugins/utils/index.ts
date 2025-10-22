@@ -195,7 +195,12 @@ export function loadExtensions(): ExtensionDefinition[] {
                     isPlugin: true,
                     isApp: false,
                     technicalName: technicalName,
-                    technicalFolderName: name.replace(/(-)/g, '').toLowerCase(),
+                    // There is an edge case where symfony removes the "bundle" suffix from the bundle name
+                    // @see \Shopware\Core\Framework\Plugin\Util\AssetService::getTargetDirectory
+                    technicalFolderName: name
+                        .toLowerCase()
+                        .replace(/bundle$/, '')
+                        .replace(/(-)/g, ''),
                     basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
                     path: path.resolve(
                         process.env.PROJECT_ROOT as string,

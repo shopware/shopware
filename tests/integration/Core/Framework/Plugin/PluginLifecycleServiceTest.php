@@ -47,6 +47,7 @@ use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -307,6 +308,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
 
         $context = Context::createDefaultContext();
@@ -823,6 +825,7 @@ class PluginLifecycleServiceTest extends TestCase
             $pluginService,
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
     }
 

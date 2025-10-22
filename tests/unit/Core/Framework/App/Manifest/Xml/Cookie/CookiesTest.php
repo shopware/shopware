@@ -19,5 +19,54 @@ class CookiesTest extends TestCase
 
         static::assertNotNull($manifest->getCookies());
         static::assertCount(2, $manifest->getCookies()->getCookies());
+        static::assertNull($manifest->getCookies()->getDefaultTargetGroup());
+    }
+
+    public function testIgnoresEmptyDefaultTargetGroupAttribute(): void
+    {
+        $xml = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <cookies default-target-group="">
+        <group>
+            <snippet-name>test.group</snippet-name>
+        </group>
+    </cookies>
+</manifest>
+XML;
+
+        $document = new \DOMDocument();
+        $document->loadXML($xml);
+        $cookiesElement = $document->getElementsByTagName('cookies')->item(0);
+        static::assertInstanceOf(\DOMElement::class, $cookiesElement);
+
+        $cookies = Cookies::fromXml($cookiesElement);
+
+        static::assertNull($cookies->getDefaultTargetGroup());
+    }
+
+    public function testIgnoresEmptyTargetGroupAttribute(): void
+    {
+        $xml = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <cookies>
+        <group target-group="">
+            <snippet-name>test.group</snippet-name>
+        </group>
+    </cookies>
+</manifest>
+XML;
+
+        $document = new \DOMDocument();
+        $document->loadXML($xml);
+        $cookiesElement = $document->getElementsByTagName('cookies')->item(0);
+        static::assertInstanceOf(\DOMElement::class, $cookiesElement);
+
+        $cookies = Cookies::fromXml($cookiesElement);
+
+        $cookieGroups = $cookies->getCookies();
+        static::assertCount(1, $cookieGroups);
+        static::assertArrayNotHasKey('target_group', $cookieGroups[0]);
     }
 }

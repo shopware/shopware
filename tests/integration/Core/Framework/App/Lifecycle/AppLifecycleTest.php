@@ -1708,6 +1708,58 @@ class AppLifecycleTest extends TestCase
         $this->startTransactionBefore();
     }
 
+    public function testInstallPropagatesDefaultTargetGroupToCookieMetadata(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Cookie/_fixtures/redirectWithDefaultTargetGroup/manifest.xml');
+
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+
+        $cookies = $appEntity->getCookies();
+        static::assertNotEmpty($cookies);
+        static::assertCount(1, $cookies);
+
+        // Verify that default_target_group was propagated to cookie metadata
+        $cookieGroup = $cookies[0];
+        static::assertArrayHasKey('default_target_group', $cookieGroup);
+        static::assertSame('cookie.groupStatistical', $cookieGroup['default_target_group']);
+    }
+
+    public function testInstallPreservesTargetGroupOverrideInCookieMetadata(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Cookie/_fixtures/redirectWithTargetGroup/manifest.xml');
+
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+
+        $cookies = $appEntity->getCookies();
+        static::assertNotEmpty($cookies);
+        static::assertCount(2, $cookies);
+
+        // First group should have target_group override
+        $firstGroup = $cookies[0];
+        static::assertArrayHasKey('target_group', $firstGroup);
+        static::assertSame('cookie.groupStatistical', $firstGroup['target_group']);
+        static::assertArrayHasKey('default_target_group', $firstGroup);
+        static::assertSame('cookie.groupMarketing', $firstGroup['default_target_group']);
+
+        // Second group should have default_target_group but no target_group
+        $secondGroup = $cookies[1];
+        static::assertArrayNotHasKey('target_group', $secondGroup);
+        static::assertArrayHasKey('default_target_group', $secondGroup);
+        static::assertSame('cookie.groupMarketing', $secondGroup['default_target_group']);
+    }
+
     private function assertShippingMethodsExists(string $appId): void
     {
         $criteria = new Criteria([$appId]);

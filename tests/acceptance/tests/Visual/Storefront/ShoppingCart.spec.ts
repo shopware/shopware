@@ -9,7 +9,11 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
     StorefrontCheckoutCart,
     TestDataService,
 }) => {
-    const product = await TestDataService.createBasicProduct();
+    const product = await TestDataService.createBasicProduct({
+        name: 'TestProduct',
+        productNumber: '123',
+    });
+
     await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
 
     await test.step('Creates a screenshot of off-canvas shopping cart in storefront.', async () => {
@@ -18,10 +22,6 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
         await ShopCustomer.expects(StorefrontOffCanvasCart.goToCartButton).toBeVisible();
 
         await replaceElements(StorefrontProductDetail.page, [
-            StorefrontProductDetail.productName,
-            StorefrontProductDetail.productDescriptionTitle,
-            StorefrontProductDetail.offCanvasLineItemLabel,
-            StorefrontProductDetail.offCanvasLineItemProductNumber,
             StorefrontProductDetail.offCanvasLineItemDeliveryDate,
         ]);
 
@@ -35,8 +35,6 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
         await ShopCustomer.expects(StorefrontCheckoutCart.goToCheckoutButton).toBeVisible();
 
         await replaceElements(StorefrontCheckoutCart.page, [
-            StorefrontCheckoutCart.productNameLabel,
-            StorefrontCheckoutCart.productNumberLabel,
             StorefrontCheckoutCart.productDeliveryDateLabel,
         ]);
 

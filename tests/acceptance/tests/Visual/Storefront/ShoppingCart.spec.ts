@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { replaceElements } from '@shopware-ag/acceptance-test-suite';
+import { replaceElements, replaceElementsIndividually } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
     AddProductToCart,
@@ -21,8 +21,8 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.expects(StorefrontOffCanvasCart.goToCartButton).toBeVisible();
 
-        await replaceElements(StorefrontProductDetail.page, [
-            StorefrontProductDetail.offCanvasLineItemDeliveryDate,
+        await replaceElementsIndividually(StorefrontCheckoutCart.page, [
+            {selector: StorefrontProductDetail.offCanvasLineItemDeliveryDate, replaceWith: 'Delivery period: 01/01/1970 - 03/01/1970'},
         ]);
 
         await StorefrontProductDetail.page.setViewportSize({ width: 1440, height: 800 });
@@ -34,8 +34,8 @@ test('Visual: Storefront Shopping Cart.', { tag: '@Visual' }, async ({
         await StorefrontOffCanvasCart.goToCartButton.click();
         await ShopCustomer.expects(StorefrontCheckoutCart.goToCheckoutButton).toBeVisible();
 
-        await replaceElements(StorefrontCheckoutCart.page, [
-            StorefrontCheckoutCart.productDeliveryDateLabel,
+        await replaceElementsIndividually(StorefrontCheckoutCart.page, [
+            {selector: StorefrontCheckoutCart.productDeliveryDateLabel, replaceWith: 'Delivery period: 01/01/1970 - 03/01/1970'},
         ]);
 
         await expect(StorefrontCheckoutCart.page).toHaveScreenshot('CheckoutCart.png', {

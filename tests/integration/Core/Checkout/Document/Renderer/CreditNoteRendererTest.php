@@ -151,6 +151,7 @@ class CreditNoteRendererTest extends TestCase
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
             [
+                'documentComment' => '<script></script>This is a credit note.',
                 'itemsPerPage' => 10,
                 'displayHeader' => true,
                 'displayFooter' => true,

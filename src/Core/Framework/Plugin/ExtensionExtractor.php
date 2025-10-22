@@ -12,19 +12,22 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Package('framework')]
-class PluginExtractor
+readonly class ExtensionExtractor
 {
     /**
      * @param array<string, string> $extensionDirectories
      */
     public function __construct(
-        private readonly array $extensionDirectories,
-        private readonly Filesystem $filesystem
+        private array $extensionDirectories,
+        private Filesystem $filesystem
     ) {
     }
 
     /**
      * Extracts the provided zip file to the plugin directory
+     *
+     * @throws PluginExtractionException
+     * @throws \Throwable
      */
     public function extract(string $zipFilePath, bool $delete, string $type): void
     {
@@ -33,7 +36,9 @@ class PluginExtractor
         $destination = $this->extensionDirectories[$type];
 
         if (!is_writable($destination)) {
-            throw new PluginExtractionException(\sprintf('Destination directory "%s" is not writable', $destination));
+            throw PluginException::pluginExtractionError(
+                \sprintf('Destination directory "%s" is not writable', $destination)
+            );
         }
 
         $pluginName = $this->getPluginName($archive);
@@ -50,10 +55,12 @@ class PluginExtractor
             }
 
             if ($delete) {
-                unlink($archive->filename);
+                $this->filesystem->remove($archive->filename);
             }
-        } catch (\Exception $e) {
-            $this->filesystem->rename($backupFile, $oldFile);
+        } catch (\Throwable $e) {
+            if ($backupFile !== null && $oldFile !== null) {
+                $this->filesystem->rename($backupFile, $oldFile);
+            }
 
             throw $e;
         }
@@ -76,7 +83,7 @@ class PluginExtractor
             Manifest::validate($manifestAsString, $file);
         }
 
-        for ($i = 2; $i < $archive->numFiles; ++$i) {
+        for ($i = 0; $i < $archive->numFiles; ++$i) {
             $stat = $archive->statIndex($i);
             \assert($stat !== false);
 
@@ -110,8 +117,8 @@ class PluginExtractor
 
     private function assertPrefix(string $filename, string $prefix): void
     {
-        if (mb_strpos($filename, $prefix) !== 0) {
-            throw new PluginExtractionException(
+        if (!str_starts_with($filename, $prefix)) {
+            throw PluginException::pluginExtractionError(
                 \sprintf(
                     'Detected invalid file/directory %s in the plugin zip: %s',
                     $filename,
@@ -123,24 +130,24 @@ class PluginExtractor
 
     private function assertNoDirectoryTraversal(string $filename): void
     {
-        if (mb_strpos($filename, '..' . \DIRECTORY_SEPARATOR) !== false) {
-            throw new PluginExtractionException('Directory Traversal detected');
+        if (str_contains($filename, '..' . \DIRECTORY_SEPARATOR)) {
+            throw PluginException::pluginExtractionError('Directory Traversal detected');
         }
     }
 
-    private function findOldFile(string $destination, string $pluginName): string
+    private function findOldFile(string $destination, string $pluginName): ?string
     {
         $dir = $destination . \DIRECTORY_SEPARATOR . $pluginName;
         if ($this->filesystem->exists($dir)) {
             return $dir;
         }
 
-        return '';
+        return null;
     }
 
-    private function createBackupFile(string $oldFile): ?string
+    private function createBackupFile(?string $oldFile): ?string
     {
-        if ($oldFile === '') {
+        if ($oldFile === null) {
             return null;
         }
 

@@ -15,17 +15,15 @@
         display: inline-block;
     }
 
-    &__inheritance-disabled {
-        cursor: not-allowed;
-        opacity: 0.3;
-    }
-
     &__label {
         position: relative;
         z-index: 1;
         padding-bottom: 4px;
         float: left;
         clear: both;
+        display: flex;
+        align-items: center;
+        gap: 4px;
 
         & + * {
             .sw-block-field__block,
@@ -45,6 +43,10 @@
             .sw-field__label {
                 margin-bottom: 0;
                 padding-left: 8px;
+            }
+
+            &.sw-dynamic-url-field .mt-field:first-of-type .mt-field__label {
+                padding-left: 4px;
             }
         }
     }

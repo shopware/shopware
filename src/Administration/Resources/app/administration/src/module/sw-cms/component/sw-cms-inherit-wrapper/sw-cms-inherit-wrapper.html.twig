@@ -3,22 +3,12 @@
     :class="{ 'is--inherited': isInherited }"
 >
     <div class="sw-cms-inherit-wrapper__label">
-        <template v-if="supportsInheritance">
-            <sw-inheritance-switch
-                v-if="canInheritField"
-                :is-inherited="isInherited"
-                @inheritance-restore="showModal = true;"
-                @inheritance-remove="onInheritanceRemove"
-            />
-            <mt-icon
-                v-else
-                key="inheritance-disabled-icon"
-                v-tooltip="{ message: $t('sw-cms.inherit.tooltip') }"
-                name="regular-link-horizontal-slash"
-                size="16px"
-                class="sw-cms-inherit-wrapper__inheritance-disabled"
-            />
-        </template>
+        <sw-inheritance-switch
+            v-if="supportsInheritance"
+            :is-inherited="isInherited"
+            @inheritance-restore="showModal = true;"
+            @inheritance-remove="onInheritanceRemove"
+        />
 
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label v-if="label">{{ label }}</label>

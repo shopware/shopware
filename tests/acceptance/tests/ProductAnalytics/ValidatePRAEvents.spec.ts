@@ -41,10 +41,10 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     AdminOrderListing,
     AdminOrderDetail,
     TestDataService,
-    }) => {
+}) => {
 
     const captured: CapturedRequest[] = [];
-    const handler = async (route: Route) => {
+    const requestHandler = async (route: Route) => {
         const req: Request = route.request();
         captured.push({
             url: req.url(),
@@ -60,9 +60,9 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     const customer = await TestDataService.createCustomer();
     const order = await TestDataService.createOrder([{ product: product, quantity: 1 }], customer);
 
-    await test.step('Intercept the api call to product analytics', async () => {
+    await test.step('Intercept all the API calls to product analytics', async () => {
 
-        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, handler);
+        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
     });
 
     await test.step('Set consent for product analytics', async () => {
@@ -299,10 +299,10 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
     ShopAdmin,
     AdminDashboard,
     AdminOrderListing,
-    }) => {
+}) => {
 
     const captured: CapturedRequest[] = [];
-    const handler = async (route: Route) => {
+    const requestHandler = async (route: Route) => {
         const req: Request = route.request();
         captured.push({
             url: req.url(),
@@ -316,12 +316,12 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
         // TO-DO: implement via UI once available and Feature flag is disabled by default
     });
 
-   await test.step('Intercept the API call to product analytics', async () => {
+   await test.step('Intercept all the API calls to product analytics', async () => {
 
-        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, handler);
+        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
     });
 
-    await test.step('Navigate via link to order page from dashboard', async () => {
+    await test.step('Navigate via Link to order page from dashboard', async () => {
 
         const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, { timeout: 3000 });
         await AdminDashboard.adminMenuOrder.click();
@@ -362,7 +362,7 @@ function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
                 seen.set(key, ev); // first-seen wins
             }
         } else {
-            const fingerprint = `__noid__:${ev.time ?? JSON.stringify(ev)}`;
+            const fingerprint = `__noid__:${ev.insert_id ?? ev.time ?? JSON.stringify(ev)}`;
             if (!seen.has(fingerprint)) {
                 seen.set(fingerprint, ev);
             }

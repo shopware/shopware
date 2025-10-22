@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -746,7 +745,7 @@ class InvoiceRendererTest extends TestCase
 
         static::getContainer()->get('order_customer.repository')->upsert([
             [
-                'id' => $order->getOrderCustomer()->getId(),
+                'id' => $order->getOrderCustomer()?->getId(),
                 'vatIds' => [$vatNumber],
             ],
         ], Context::createDefaultContext());

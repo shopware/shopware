@@ -15,6 +15,7 @@ class ContentSystemException extends HttpException
     public const CONTENT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_NOT_FOUND';
     public const ENTITY_NOT_FOUND = 'CONTENT_SYSTEM__ENTITY_NOT_FOUND';
     public const LAYOUT_ASSIGNMENT_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_ASSIGNMENT_NOT_FOUND';
+    public const LAYOUT_ASSIGNMENT_NOT_FOUND_FOR_ROUTE = 'CONTENT_SYSTEM__LAYOUT_ASSIGNMENT_NOT_FOUND_FOR_ROUTE';
 
     public const LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_NOT_FOUND';
     public const RESOLUTION_FAILED = 'CONTENT_SYSTEM__RESOLUTION_FAILED';
@@ -143,6 +144,41 @@ class ContentSystemException extends HttpException
             self::LAYOUT_ASSIGNMENT_NOT_FOUND,
             'No layout assignment found for {{ entityType }} "{{ entityId }}" in sales channel "{{ salesChannelId }}"',
             ['entityType' => $entityType, 'entityId' => $entityId, 'salesChannelId' => $salesChannelId]
+        );
+    }
+
+    /**
+     * @param list<string> $resolvedPlaceholders
+     */
+    public static function layoutAssignmentNotFoundForRoute(
+        string $routeId,
+        string $routePattern,
+        array $resolvedPlaceholders,
+        string $salesChannelId
+    ): self {
+        if (\count($resolvedPlaceholders) === 0) {
+            return new self(
+                Response::HTTP_NOT_FOUND,
+                self::LAYOUT_ASSIGNMENT_NOT_FOUND_FOR_ROUTE,
+                'No layout assignment for route "{{ routePattern }}" ({{ routeId }}) in sales channel {{ salesChannelId }}',
+                [
+                    'routePattern' => $routePattern,
+                    'routeId' => $routeId,
+                    'salesChannelId' => $salesChannelId,
+                ]
+            );
+        }
+
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::LAYOUT_ASSIGNMENT_NOT_FOUND_FOR_ROUTE,
+            'No layout assignment for route "{{ routePattern }}" ({{ routeId }}) with placeholders [{{ placeholders }}] in sales channel {{ salesChannelId }}',
+            [
+                'routePattern' => $routePattern,
+                'routeId' => $routeId,
+                'placeholders' => implode(', ', $resolvedPlaceholders),
+                'salesChannelId' => $salesChannelId,
+            ]
         );
     }
 

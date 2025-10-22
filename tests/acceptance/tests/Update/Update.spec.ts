@@ -41,7 +41,7 @@ test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`
 
     const versionResponse = await AdminApiContext.get('./_info/config');
     expect(versionResponse.ok(), '/_info/config request failed').toBeTruthy();
-    const config = (await response.json()) as { version: string };
+    const config = (await versionResponse.json()) as { version: string };
 
     await expect(page.locator('css=.sw-version__info').first()).toContainText(`${config.version}`, {
         timeout: 60000,

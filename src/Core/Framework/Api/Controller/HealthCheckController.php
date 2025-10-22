@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\HealthCheck\Event\HealthCheckEvent;
+use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\PlatformRequest;
@@ -20,12 +22,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class HealthCheckController
 {
+    public const HEADER_AUTHORIZATION = 'Authorization';
+
     /**
      * @internal
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly SystemChecker $systemChecker
+        private readonly SystemChecker $systemChecker,
+        private readonly SymfonyBearerTokenValidator $tokenValidator,
+        private readonly ?string $staticToken,
     ) {
     }
 
@@ -45,22 +51,44 @@ class HealthCheckController
         return $response;
     }
 
-    #[Route(path: '/api/_info/system-health-check', name: 'api.info.system-health.check', defaults: ['auth_required' => true], methods: ['GET'])]
+    #[Route(path: '/api/_info/system-health-check', name: 'api.info.system-health.check', defaults: ['auth_required' => false], methods: ['GET'])]
     public function health(Request $request): Response
     {
-        $verbose = filter_var($request->get('verbose', false), \FILTER_VALIDATE_BOOL);
+        $this->validateStaticOrBearerAuthorization($request);
 
-        $result = $this->systemChecker->check(SystemCheckExecutionContext::WEB);
+        $executionContextRaw = (string) $request->get('context', SystemCheckExecutionContext::WEB->value);
+        $executionContext = SystemCheckExecutionContext::tryFrom($executionContextRaw);
+        if (!$executionContext instanceof SystemCheckExecutionContext) {
+            throw ApiException::badRequest('Invalid execution context: ' . $executionContextRaw);
+        }
 
-        return new JsonResponse(['checks' => array_map(
-            fn (Result $result) => [
-                'name' => $result->name,
-                'healthy' => $result->healthy,
-                'status' => $result->status->name,
-                'message' => $result->message,
-                'extra' => $verbose ? $result->extra : [],
-            ],
-            $result
-        )]);
+        $result = $this->systemChecker->check($executionContext);
+
+        return (new JsonResponse(['checks' => $result]))->setPrivate();
+    }
+
+    /**
+     * Validates Authorization header for either a 'Static' token or 'Bearer' token that is valid
+     * Otherwise throws exception.
+     *
+     * @throws OAuthServerException
+     */
+    private function validateStaticOrBearerAuthorization(Request $request): void
+    {
+        $authorizationHeader = $request->headers->get(self::HEADER_AUTHORIZATION);
+        if (
+            !empty($this->staticToken)
+            && $authorizationHeader !== null
+            && str_contains($authorizationHeader, 'Static')
+        ) {
+            $token = \trim((string) \preg_replace('/^\s*Static\s/', '', $authorizationHeader));
+
+            // compare header token against configured static token
+            if ($token !== $this->staticToken) {
+                throw OAuthServerException::accessDenied('Static token is invalid');
+            }
+        } else {
+            $this->tokenValidator->validateAuthorization($request);
+        }
     }
 }

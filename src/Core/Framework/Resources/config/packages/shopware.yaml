@@ -195,6 +195,8 @@ shopware:
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
+        static_token: # Optionally used for 'Authorization: Static ...' header in addition to normal bearer authorization for specific HTTP endpoints
+            health_check: ''
         rate_limiter:
             login:
                 enabled: true
@@ -568,6 +570,7 @@ shopware:
         default: []
 
     messenger:
+        message_max_kib_size: 1024 # in KiB
         scheduled_task:
             requeue_timeout: 12 # requeue stuck messages after 12 hours
         routing_overwrite:

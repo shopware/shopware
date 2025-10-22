@@ -3205,6 +3205,7 @@
  "sw_media_preview_v2_file_types",
  "sw_media_preview_v2_no_media",
  "sw_media_preview_v2_no_media_icon",
+ "sw_media_preview_v2_unsupported_format_warning",
  "sw_media_quickinfo",
  "sw_media_quickinfo_broken_file",
  "sw_media_quickinfo_custom_field_sets",

@@ -39,7 +39,11 @@ test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`
 
     await page.getByRole('button', { name: 'Open Administration' }).click();
 
-    await expect(page.locator('css=.sw-version__info').first()).toBeVisible({
+    const versionResponse = await AdminApiContext.get('./_info/config');
+    expect(versionResponse.ok(), '/_info/config request failed').toBeTruthy();
+    const config = (await response.json()) as { version: string };
+
+    await expect(page.locator('css=.sw-version__info').first()).toContainText(`${config.version}`, {
         timeout: 60000,
     });
 

@@ -246,7 +246,7 @@ The `config` service allows you to access the shop's and your app's configuratio
 * The `get()` method allows you to access all config values of the store.
 
     Notice that your app needs the `system_config:read` privilege to use this method.
-* **Returns** `array|bool|float|int|string|null`
+* **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
 
     
 * **Arguments:**
@@ -265,7 +265,7 @@ The `config` service allows you to access the shop's and your app's configuratio
 * The `app()` method allows you to access the config values your app's configuration.
 
     Notice that your app does not need any additional privileges to use this method, as you can only access your own app's configuration.
-* **Returns** `array|bool|float|int|string|null`
+* **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
 
     
 * **Arguments:**

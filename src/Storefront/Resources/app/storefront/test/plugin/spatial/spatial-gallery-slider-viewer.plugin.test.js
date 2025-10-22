@@ -11,6 +11,12 @@ window.DIVEQuickViewPlugin = {
     QuickView: jest.fn().mockResolvedValue(mockDive)
 };
 
+const options = {
+    sliderPosition: "1",
+    lightIntensity: "100",
+    modelUrl: "http://test/file.glb",
+};
+
 /**
  * @package innovation
  */
@@ -37,11 +43,7 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
             modal.dispatchEvent(new Event('hidden.bs.modal', { bubbles: true }));
         });
 
-        spatialGallerySliderViewerPlugin = new SpatialGallerySliderViewerPlugin(mockElement, {
-            sliderPosition: "1",
-            lightIntensity: "100",
-            modelUrl: "http://test/file.glb",
-        });
+        spatialGallerySliderViewerPlugin = new SpatialGallerySliderViewerPlugin(mockElement, options);
 
         jest.clearAllMocks();
 
@@ -67,6 +69,8 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
         const initRenderSpy = jest.spyOn(spatialGallerySliderViewerPlugin.spatialProductSliderRenderUtil, 'initRender');
 
         await spatialGallerySliderViewerPlugin.initViewer();
+
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement, displayFloor: true, lightIntensity: Number(options.lightIntensity) / 100 });
 
         expect(spatialGallerySliderViewerPlugin.ready).toBe(true);
 

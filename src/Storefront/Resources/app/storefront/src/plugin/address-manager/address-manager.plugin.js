@@ -159,10 +159,7 @@ export default class AddressManagerPlugin extends Plugin {
         fetch(event.currentTarget.action, {
             method: 'POST',
             body: new FormData(event.target),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest',
-            },
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => {
                 if (response.status === 204) {

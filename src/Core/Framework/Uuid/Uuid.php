@@ -67,12 +67,12 @@ class Uuid
     public static function fromBytesToHex(string $bytes): string
     {
         if (mb_strlen($bytes, '8bit') !== 16) {
-            throw new InvalidUuidLengthException(mb_strlen($bytes, '8bit'), bin2hex($bytes));
+            throw UuidException::invalidUuidLength(mb_strlen($bytes, '8bit'), bin2hex($bytes));
         }
         $uuid = bin2hex($bytes);
 
         if (!self::isValid($uuid)) {
-            throw new InvalidUuidException($uuid);
+            throw UuidException::invalidUuid($uuid);
         }
 
         \assert(!empty($uuid));
@@ -121,7 +121,7 @@ class Uuid
             return $bin;
         }
 
-        throw new InvalidUuidException($uuid);
+        throw UuidException::invalidUuid($uuid);
     }
 
     /**

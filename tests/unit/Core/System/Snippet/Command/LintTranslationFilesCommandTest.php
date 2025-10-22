@@ -321,7 +321,7 @@ class LintTranslationFilesCommandTest extends TestCase
 
     private function assertErrorCount(int $expectedErrorCount): void
     {
-        static::assertStringContainsString('Errors found: ' . $expectedErrorCount, $this->getDisplayOutput());
+        static::assertStringContainsString('Issues found: ' . $expectedErrorCount, $this->getDisplayOutput());
     }
 
     private function assertFixedFileCount(int $expectedFileCount): void
@@ -339,13 +339,13 @@ class LintTranslationFilesCommandTest extends TestCase
 
         foreach ($expected as $expectedLocale => $expectedLanguagePrefix) {
             $expectedString = \sprintf(
-                '%s%s.json │ %s │ %s%s.json │ %s',
+                '%s%s.json │ %s │ %s │ %s%s.json',
                 $domainPrefix,
                 $expectedLocale,
+                $filePath,
                 $expectedLocale,
                 $domainPrefix,
                 $expectedLanguagePrefix,
-                $filePath,
             );
             static::assertStringContainsString($expectedString, $this->getDisplayOutput());
         }
@@ -361,13 +361,13 @@ class LintTranslationFilesCommandTest extends TestCase
 
         foreach ($expected as $expectedLocale => $expectedLanguagePrefix) {
             $notExpectedString = \sprintf(
-                '%s%s.json │ %s │ %s%s.json │ %s',
+                '%s%s.json │ %s │ %s │ %s%s.json',
                 $domainPrefix,
                 $expectedLocale,
+                $filePath,
                 $expectedLocale,
                 $domainPrefix,
                 $expectedLanguagePrefix,
-                $filePath,
             );
             static::assertStringNotContainsString($notExpectedString, $this->getDisplayOutput());
         }

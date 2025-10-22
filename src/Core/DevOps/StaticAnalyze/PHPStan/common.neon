@@ -35,24 +35,28 @@ parameters:
         no_mixed_caller: true
         null_over_false: true
 
+    shopware:
+        allowedNonDomainExceptions:
+            - Shopware\Core\Framework\Plugin\Exception\DecorationPatternException
+            - Shopware\Core\Framework\Validation\Exception\ConstraintViolationException
+            - Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException
+            - Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException
+            - Twig\Error\LoaderError
+            - Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+            - Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException
+            - Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException
+            - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+            - Symfony\Component\HttpFoundation\Exception\BadRequestException
+
+        allowedStorefrontRouteNamespaces:
+            - Shopware\Storefront
+
 services:
-    - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
-        class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
+    -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
+    -   class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper
 
-rules:
-    # rules from https://github.com/symplify/phpstan-rules
-    # domain
-    - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
-    - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
-
-    # explicit naming
-    - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
-
-    - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
-
-    # naming rules
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
-    - Symplify\PHPStanRules\Rules\UppercaseConstantRule
-
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
-
+parametersSchema:
+    shopware: structure([
+        allowedNonDomainExceptions: list(string),
+        allowedStorefrontRouteNamespaces: list(string),
+])

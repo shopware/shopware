@@ -86,7 +86,6 @@ class CustomSnippetFormatControllerTest extends TestCase
         $originalCollection = $pluginCollection->filter(fn (Plugin $plugin) => $plugin->getName() !== 'BundleWithCustomSnippet');
 
         $pluginsProp = new \ReflectionProperty($pluginCollection, 'plugins');
-        $pluginsProp->setAccessible(true);
         $pluginsProp->setValue($pluginCollection, $originalCollection->all());
     }
 

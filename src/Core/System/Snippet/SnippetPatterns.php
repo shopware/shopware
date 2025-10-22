@@ -29,6 +29,8 @@ final class SnippetPatterns
 
     public const ADMIN_SNIPPET_FILE_PATTERN = '/^' . self::LOCALE_PATTERN . '\.json$/';
 
+    public const COMPLETE_LOCALE_PATTERN = '/^' . self::LOCALE_PATTERN . '$/';
+
     private function __construct()
     {
     }

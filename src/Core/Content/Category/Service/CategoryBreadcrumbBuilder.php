@@ -256,7 +256,7 @@ class CategoryBreadcrumbBuilder
     /**
      * @param array<string> $categoryIds
      *
-     * @return array<int, array<string, string|mixed>>
+     * @return list<array<string, string|mixed>>
      */
     private function loadSeoUrls(array $categoryIds, Context $context, SalesChannelEntity $salesChannel): array
     {
@@ -283,7 +283,7 @@ class CategoryBreadcrumbBuilder
     }
 
     /**
-     * @param array<int, array<string, string|mixed>> $seoUrls
+     * @param list<array<string, string|mixed>> $seoUrls
      */
     private function convertCategoriesToBreadcrumbUrls(CategoryCollection $categories, array $seoUrls): BreadcrumbCollection
     {

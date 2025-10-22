@@ -1,6 +1,19 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.3.1
+*  [GHSA-m895-2hj3-8cg9](https://github.com/shopware/shopware/security/advisories/GHSA-m895-2hj3-8cg9) - fix: Reading media entities by aggregating fields individually bypasses MediaVisibilityRestrictionSubscriber
+*  [GHSA-27c9-vp3w-6ww8](https://github.com/shopware/shopware/security/advisories/GHSA-27c9-vp3w-6ww8) - fix: Exposure of sensitive user information via CSV export mapping
+*  [GHSA-3cpp-fv95-mpr5](https://github.com/shopware/shopware/security/advisories/GHSA-3cpp-fv95-mpr5) - fix: Server-Side Request Forgery (SSRF) - order invoice
+*  [GHSA-6wh5-mw9h-5c3w](https://github.com/shopware/shopware/security/advisories/GHSA-6wh5-mw9h-5c3w) - fix: Path traversal via Plugin upload
+*  [GHSA-r2vg-hvjm-fg38](https://github.com/shopware/shopware/security/advisories/GHSA-r2vg-hvjm-fg38) - fix: Customer Orders can be canceled, even if refunds are disabled
+*  [shopware/shopware#12576 - getAllCodes returns only string array](https://github.com/shopware/shopware/pull/12576)
+*  [shopware/shopware#12075 - Admin es search for "document number" doesn't return any results](https://github.com/shopware/shopware/pull/12075)
+*  [shopware/shopware#12363 - missing product rule filter](https://github.com/shopware/shopware/pull/12363)
+*  [shopware/shopware#12472 - cast XML config values for Length constraint to int to prevent type errors](https://github.com/shopware/shopware/pull/12472)
+*  [shopware/shopware#12489 - deletion of active customer address](https://github.com/shopware/shopware/pull/12489)
+*  [shopware/shopware#12979 - compatibility with OpenSearch 3.x](./changelog/release-6-7-3-1/2025-10-13-compatibility-with-opensearch-3-x.md)
+
 ## 6.7.3.0
 *  [#10220 - Only consider product rule ids in HTTP cache key generation](./changelog/release-6-7-3-0/2025-06-03-only-consider-product-rule-ids-in-http-cache-key-generation.md) @aragon999
 *  [#10529 - Simplify personal company fields](./changelog/release-6-7-3-0/2025-06-14-simplify-personal-company-fields.md) @aragon999

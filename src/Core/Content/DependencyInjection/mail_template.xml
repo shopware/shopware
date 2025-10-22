@@ -57,6 +57,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%shopware.mail.max_body_length%</argument>
             <argument type="service" id="logger"/>
+            <argument>%shopware.messenger.message_max_kib_size%</argument>
             <argument type="abstract" id="message bus"/>
         </service>
 

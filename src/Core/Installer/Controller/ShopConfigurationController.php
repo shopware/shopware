@@ -167,7 +167,7 @@ class ShopConfigurationController extends InstallerController
     }
 
     /**
-     * @return array<int, array{iso3: string, default: bool}>
+     * @return list<array{iso3: string, default: bool}>
      */
     private function getCountryIsos(Connection $connection, string $currentLocale): array
     {

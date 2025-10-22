@@ -129,6 +129,7 @@ class InvoiceRendererTest extends TestCase
         ], $this->context);
 
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'documentComment' => '<script></script>This is a invoice.',
             'itemsPerPage' => 10,
             'displayHeader' => true,
             'displayFooter' => true,

@@ -7,24 +7,13 @@ interface CapturedRequest {
 }
 
 export interface AmplitudeEvent {
-    device_id: string;
-    session_id: number;
-    time: number;
-    app_version: string;
-    insert_id: string;
     event_type: string;
     event_properties: Record<string, string | number>;
     event_id: number;
-    library: string;
-    user_agent: string;
 }
 
 export interface AmplitudeRequestPayload {
-    api_key: string;
     events: AmplitudeEvent[];
-    options?: Record<string, unknown>;
-    client_upload_time?: string;
-    request_metadata?: Record<string, unknown>;
 }
 
 const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
@@ -98,7 +87,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
     });
 
-    await test.step('Navigate via Button to save order', async () => {
+    await test.step('Navigate via button to save order', async () => {
 
         const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         await ShopAdmin.expects(AdminOrderDetail.saveButton).toBeVisible();
@@ -339,7 +328,7 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
         await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
     });
 
-    await test.step('Navigate via Link to order page from dashboard', async () => {
+    await test.step('Navigate via link to order page from dashboard', async () => {
 
         const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, { timeout: 3000 });
         await AdminDashboard.adminMenuOrder.click();

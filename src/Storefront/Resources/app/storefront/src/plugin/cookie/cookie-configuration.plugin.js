@@ -113,27 +113,46 @@ export default class CookieConfiguration extends Plugin {
     /**
      * Registers the events for displaying the offCanvas
      * Applies the event to all elements using the "buttonOpenSelector" or "customLinkSelector"
+     * Uses event delegation to handle dynamically loaded content
      *
      * @private
      */
     _registerEvents() {
         const { submitEvent, buttonOpenSelector, customLinkSelector, buttonPermissionSelector, globalButtonAcceptAllSelector } = this.options;
 
-        Array.from(document.querySelectorAll(buttonOpenSelector)).forEach(button => {
-            button.addEventListener(submitEvent, this.openOffCanvas.bind(this));
-        });
+        // Use single event delegation handler to avoid multiple listeners
+        // Use capture phase to ensure this runs before other click handlers
+        document.addEventListener(submitEvent, (event) => {
+            const target = event.target;
 
-        Array.from(document.querySelectorAll(customLinkSelector)).forEach(customLink => {
-            customLink.addEventListener(submitEvent, this._handleCustomLink.bind(this));
-        });
+            // Check for custom link (e.g., cookie offcanvas link)
+            const customLink = target.closest(customLinkSelector);
+            if (customLink) {
+                this._handleCustomLink(event);
+                return;
+            }
 
-        Array.from(document.querySelectorAll(buttonPermissionSelector)).forEach(buttonPermission => {
-            buttonPermission.addEventListener(submitEvent, this._handlePermission.bind(this));
-        });
+            // Check for button open selector
+            const button = target.closest(buttonOpenSelector);
+            if (button) {
+                this.openOffCanvas();
+                return;
+            }
 
-        Array.from(document.querySelectorAll(globalButtonAcceptAllSelector)).forEach(customLink => {
-            customLink.addEventListener(submitEvent, this._acceptAllCookiesFromCookieBar.bind(this));
-        });
+            // Check for permission button
+            const buttonPermission = target.closest(buttonPermissionSelector);
+            if (buttonPermission) {
+                this._handlePermission(event);
+                return;
+            }
+
+            // Check for accept all button
+            const acceptAllButton = target.closest(globalButtonAcceptAllSelector);
+            if (acceptAllButton) {
+                this._acceptAllCookiesFromCookieBar(event);
+                return;
+            }
+        }, true); // Use capture phase
     }
 
     /**
@@ -224,7 +243,6 @@ export default class CookieConfiguration extends Plugin {
 
         CookieStorage.setItem(cookieConfigHash, currentHash, this._getDefaultCookieExpiration());
     }
-
 
     /**
      * Reset cookie configuration when hash has changed

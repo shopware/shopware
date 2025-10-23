@@ -1235,38 +1235,61 @@ describe('CookieConfiguration plugin tests', () => {
     });
 
     describe('Event Subscription and Registration', () => {
-        test('_registerEvents adds event listeners to DOM elements', () => {
-            // Create DOM elements that should have event listeners added
-            const configButton = document.createElement('button');
-            configButton.className = 'js-cookie-configuration-button';
-            configButton.innerHTML = '<button>Configure</button>';
-            document.body.appendChild(configButton);
-
-            const permissionButton = document.createElement('button');
-            permissionButton.className = 'js-cookie-permission-button';
-            document.body.appendChild(permissionButton);
-
-            const customLink = document.createElement('a');
-            customLink.href = window.router['frontend.cookie.offcanvas'];
-            document.body.appendChild(customLink);
-
-            const acceptAllButton = document.createElement('button');
-            acceptAllButton.className = 'js-cookie-accept-all-button';
-            document.body.appendChild(acceptAllButton);
-
-            const addEventListenerSpy = jest.spyOn(HTMLElement.prototype, 'addEventListener');
+        test('_registerEvents uses event delegation on document', () => {
+            const addEventListenerSpy = jest.spyOn(document, 'addEventListener');
 
             // Re-register events
             plugin._registerEvents();
 
-            expect(addEventListenerSpy).toHaveBeenCalled();
+            // Should add a single delegated event listener on document with capture phase
+            expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function), true);
+
+            addEventListenerSpy.mockRestore();
+        });
+
+        test.each([
+            {
+                description: 'button open selector',
+                className: 'js-cookie-configuration-button',
+                methodName: 'openOffCanvas',
+                needsInnerButton: true,
+            },
+            {
+                description: 'permission button',
+                className: 'js-cookie-permission-button',
+                methodName: '_handlePermission',
+                needsInnerButton: false,
+            },
+            {
+                description: 'accept all button',
+                className: 'js-cookie-accept-all-button',
+                methodName: '_acceptAllCookiesFromCookieBar',
+                needsInnerButton: false,
+            },
+        ])('event delegation handles $description', ({ className, methodName, needsInnerButton }) => {
+            const methodSpy = jest.spyOn(plugin, methodName);
+
+            const button = document.createElement('button');
+            button.className = className;
+
+            let clickTarget = button;
+            if (needsInnerButton) {
+                const innerButton = document.createElement('button');
+                innerButton.textContent = 'Inner';
+                button.appendChild(innerButton);
+                clickTarget = innerButton;
+            }
+
+            document.body.appendChild(button);
+
+            // Event delegation is already set up, just click the button
+            clickTarget.click();
+
+            expect(methodSpy).toHaveBeenCalled();
 
             // Cleanup
-            document.body.removeChild(configButton);
-            document.body.removeChild(permissionButton);
-            document.body.removeChild(customLink);
-            document.body.removeChild(acceptAllButton);
-            addEventListenerSpy.mockRestore();
+            document.body.removeChild(button);
+            methodSpy.mockRestore();
         });
 
         test('handles CustomEvent vs regular payload in subscription', () => {
@@ -1305,34 +1328,6 @@ describe('CookieConfiguration plugin tests', () => {
 
             subscribeSpy.mockRestore();
             openSpy.mockRestore();
-        });
-
-        test('_registerEvents processes custom links correctly', () => {
-            // Test line 98 coverage - custom link event registration
-            const customLink = document.createElement('a');
-            customLink.href = window.router['frontend.cookie.offcanvas'];
-            document.body.appendChild(customLink);
-
-            // Mock Array.from and document.querySelectorAll to ensure our link is found
-            const originalQuerySelectorAll = document.querySelectorAll;
-            document.querySelectorAll = jest.fn((selector) => {
-                if (selector === plugin.options.customLinkSelector) {
-                    return [customLink];
-                }
-                return originalQuerySelectorAll.call(document, selector);
-            });
-
-            const addEventListenerSpy = jest.spyOn(customLink, 'addEventListener');
-
-            // Re-register events to trigger the line
-            plugin._registerEvents();
-
-            expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
-
-            // Restore
-            document.querySelectorAll = originalQuerySelectorAll;
-            document.body.removeChild(customLink);
-            addEventListenerSpy.mockRestore();
         });
     });
 

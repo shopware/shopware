@@ -160,7 +160,9 @@ class OffCanvasSingleton {
 
         window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-        closeTriggers.forEach(trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+        closeTriggers.forEach(trigger => {
+            trigger.addEventListener(event, this.close.bind(this, delay));
+        });
     }
 
     _setAriaAttrs() {
@@ -181,7 +183,14 @@ class OffCanvasSingleton {
     _removeExistingOffCanvas() {
         OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
-        return offCanvasElements.forEach(offCanvas => offCanvas.remove());
+        offCanvasElements.forEach(offCanvas => {
+            // Properly dispose of Bootstrap Offcanvas instance to clean up backdrop
+            const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
+            if (offCanvasInstance) {
+                offCanvasInstance.dispose();
+            }
+            offCanvas.remove();
+        });
     }
 
     /**

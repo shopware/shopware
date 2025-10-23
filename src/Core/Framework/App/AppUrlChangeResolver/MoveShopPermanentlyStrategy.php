@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -31,10 +31,10 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
     public function __construct(
         SourceResolver $sourceResolver,
         EntityRepository $appRepository,
-        AppRegistrationService $registrationService,
+        AppSecretRotationService $secretRotationService,
         private readonly ShopIdProvider $shopIdProvider
     ) {
-        parent::__construct($sourceResolver, $appRepository, $registrationService);
+        parent::__construct($sourceResolver, $appRepository, $secretRotationService);
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy
@@ -56,12 +56,13 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
     public function resolve(Context $context): void
     {
         try {
+            $this->shopIdProvider->reset();
             $this->shopIdProvider->getShopId();
 
             // no resolution needed
             return;
-        } catch (AppUrlChangeDetectedException $e) {
-            $this->shopIdProvider->regenerateAndSetShopId($e->getShopId()->id);
+        } catch (ShopIdChangeSuggestedException $e) {
+            $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
         }
 
         $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {

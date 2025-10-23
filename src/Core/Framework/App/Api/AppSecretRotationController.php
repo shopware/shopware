@@ -46,23 +46,10 @@ class AppSecretRotationController extends AbstractController
             throw AppException::notFoundByField($integrationId, 'integrationId');
         }
 
-        try {
-            $this->rotationService->scheduleRotation($app, AppSecretRotationService::TRIGGER_API);
+        $this->rotationService->scheduleRotation($app, AppSecretRotationService::TRIGGER_API);
 
-            return new JsonResponse([
-                'appId' => $app->getId(),
-                'appName' => $app->getName(),
-                'status' => 'scheduled',
-                'message' => 'Secret rotation has been scheduled and will be processed asynchronously.',
-            ], Response::HTTP_ACCEPTED);
-        } catch (\Throwable $exception) {
-            return new JsonResponse([
-                'appId' => $app->getId(),
-                'appName' => $app->getName(),
-                'status' => 'failed',
-                'error' => $exception->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return new JsonResponse([], Response::HTTP_ACCEPTED);
+
     }
 
     private function loadAppByIntegrationId(string $integrationId, Context $context): ?AppEntity

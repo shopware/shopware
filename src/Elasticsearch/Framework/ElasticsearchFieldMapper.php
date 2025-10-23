@@ -82,7 +82,7 @@ class ElasticsearchFieldMapper
      * @param array<int, array{id: string, languageId?: string}> $items An array of items with language information.
      * @param list<string> $translatedFields An array of fields to be translated.
      *
-     * @return array<int, array<string, array<string, string>>> An array of items with nested arrays containing translated values.
+     * @return list<array<string, array<string, string>>> An array of items with nested arrays containing translated values.
      *
      * @example
      *

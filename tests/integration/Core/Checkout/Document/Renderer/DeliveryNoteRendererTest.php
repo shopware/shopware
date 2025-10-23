@@ -103,6 +103,7 @@ class DeliveryNoteRendererTest extends TestCase
         ], $this->context);
 
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'documentComment' => '<script></script>This is a delivery note.',
             'custom' => [
                 'deliveryDate' => '2023-11-24T12:00:00+00:00',
             ],

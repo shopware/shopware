@@ -44,7 +44,7 @@ class WebhookManagerSubscriber implements EventSubscriberInterface
      * @param list<T> $array
      * @param callable(T): int $callback
      *
-     * @return array<int, list<T>>
+     * @return list<list<T>>
      */
     private function partitionArray(array $array, callable $callback): array
     {

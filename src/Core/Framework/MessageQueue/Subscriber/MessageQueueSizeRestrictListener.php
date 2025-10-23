@@ -12,6 +12,7 @@ use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 readonly class MessageQueueSizeRestrictListener
 {
     /**
+     * @deprecated tag:v6.8.0 - Use the configuration option `shopware.messenger.message_max_kib_size` instead.
      * @see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html
      * Maximum message size is 262144 (1024 * 256) bytes
      */
@@ -22,13 +23,14 @@ readonly class MessageQueueSizeRestrictListener
      */
     public function __construct(
         private MessageSizeCalculator $calculator,
-        private bool $enforceMessageSize
+        private bool $enforceMessageSize,
+        private int $messageMaxKiBSize,
     ) {
     }
 
     public function __invoke(SendMessageToTransportsEvent $event): void
     {
-        if (!$this->enforceMessageSize) {
+        if (!$this->enforceMessageSize || $this->messageMaxKiBSize <= 0) {
             return;
         }
 
@@ -42,10 +44,10 @@ readonly class MessageQueueSizeRestrictListener
         }
 
         $messageLengthInBytes = $this->calculator->size($event->getEnvelope());
-        if ($messageLengthInBytes > self::MESSAGE_SIZE_LIMIT) {
+        if ($messageLengthInBytes > $this->messageMaxKiBSize * 1024) {
             $messageName = $event->getEnvelope()->getMessage()::class;
 
-            throw MessageQueueException::queueMessageSizeExceeded($messageName, $messageLengthInBytes / 1024);
+            throw MessageQueueException::maxQueueMessageSizeExceeded($messageName, $messageLengthInBytes / 1024, $this->messageMaxKiBSize);
         }
     }
 }

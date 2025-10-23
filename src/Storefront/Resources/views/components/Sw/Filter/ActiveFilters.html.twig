@@ -1,0 +1,10 @@
+{% set defaultAttributes = {
+    'class': 'sw-active-filters',
+    'data-component': 'ActiveFilters',
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <button class="sw-active-filters__btn-reset-all is--hidden" type="button">
+        {{ 'listing.filterPanelResetAll'|trans|sw_sanitize }}
+    </button>
+</div>

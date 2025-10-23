@@ -1,115 +1,63 @@
-class FilterPanel extends window.ShopwareComponent {
+({ Shopware, ShopwareComponent } = window);
+
+class FilterPanel extends ShopwareComponent {
 
     static selector = '[data-component="FilterPanel"]';
 
+    static options = {
+        /**
+         * Defines how much filters are visible by default.
+         */
+        visibleFilterCount: 3,
+    }
+
     init() {
-        /**
-         * @private
-         */
-        this._cardVariants = {
-            horizontal: 'is--layout-horizontal',
-            default: 'is--layout-default',
-        }
+        this.expandButton = this.el.querySelector('.sw-filter-panel__expand');
+        this.expandText = this.expandButton.querySelector('.sw-filter-panel__expand-text');
+        this.collapseText = this.expandButton.querySelector('.sw-filter-panel__collapse-text');
+        this.filterItems = this.el.querySelectorAll('.sw-filter-item');
 
-        this._listGridColumns = {
-            horizontal: ['columns-1'],
-            default: ['columns-sm-2', 'columns-lg-2', 'columns-xl-3', 'columns-4'],
-        }
+        this.filtersExpanded = false;
 
-        /**
-         * @type {NodeListOf<HTMLElementTagNameMap[string|*]>}
-         * @private
-         */
-        this._listingCards = document.querySelectorAll('.product-card');
-
-        /**
-         * @type {Element}
-         * @private
-         */
-        this._listGrid = document.querySelector('.product-listing__grid');
-
-        /**
-         * @type {NodeListOf<HTMLButtonElement>}
-         * @private
-         */
-        this._layoutButtons = this.el.querySelectorAll('[data-layout]');
-
-        this._hiddenFilterToggle = this.el.querySelector('.sw-filter-panel__expand');
-
-        this._filtersExpanded = false;
-
-        this._registerEvents();
+        this.registerEvents();
+        this.collapseFilters();
     }
 
-    _registerEvents() {
-        this._layoutButtons?.forEach((toggleEl) => {
-            toggleEl.addEventListener('click', this._onToggleLayout.bind(this));
-        });
-
-        this._hiddenFilterToggle.addEventListener('click', this._onToggleHiddenFilters.bind(this))
+    registerEvents() {
+        this.expandButton.addEventListener('click', this.onToggleHiddenFilters.bind(this))
     }
 
-    /**
-     * @param event
-     * @private
-     */
-    _onToggleLayout(event) {
-        const url = new URL(window.location);
-        const layout = event.currentTarget.getAttribute('data-layout');
+    onToggleHiddenFilters(event) {
+        if (this.filtersExpanded) {
+            this.collapseFilters();
+        } else {
+            this.expandFilters();
+        }
+    }
 
-        this._layoutButtons?.forEach((button) => {
-            button.classList.remove('is--active');
-        });
+    expandFilters() {
+        this.filtersExpanded = true;
 
-        event.currentTarget.classList.add('is--active');
-        this._listGrid.classList.add('is--layout-transition');
+        for (const filter of this.filterItems) {
+            filter.classList.remove('is--hidden');
+        }
 
-        setTimeout(() => {
-            this._listingCards?.forEach((card) => {
-                card.classList.remove(...Object.values(this._cardVariants));
-                card.classList.add(this._cardVariants[layout]);
-            });
+        this.expandText.style.display = 'none';
+        this.collapseText.style.display = 'inline-block';
+    }
 
-            const horizontalGridClasses = this._listGridColumns['horizontal'];
-            const defaultGridClasses = this._listGridColumns['default'];
+    collapseFilters() {
+        this.filtersExpanded = false;
 
-            if (layout === 'horizontal') {
-                this._listGrid.classList.remove(...defaultGridClasses);
-                this._listGrid.classList.add(...horizontalGridClasses);
-            } else if (layout === 'default') {
-                this._listGrid.classList.remove(...horizontalGridClasses);
-                this._listGrid.classList.add(...defaultGridClasses);
+        for (const [index, filter] of this.filterItems.entries()) {
+            if (index >= this.options.visibleFilterCount) {
+                filter.classList.add('is--hidden');
             }
-
-            this._listGrid.classList.remove('is--layout-transition');
-        }, 200);
-
-        url.searchParams.set('layout', layout);
-        history.pushState(null, '', url);
-    }
-
-    _onToggleHiddenFilters(event) {
-        const hiddenFilters = this.el.querySelectorAll('.sw-filter-multi-select.is--hidden');
-        const buttonText = event.currentTarget.querySelector('.sw-filter-panel__expand-text');
-
-        if (this._filtersExpanded) {
-            for (const filter of hiddenFilters) {
-                filter.style.display = 'none';
-            }
-
-            buttonText.innerText = 'More filters';
-            this._filtersExpanded = false;
-
-            return;
         }
 
-        buttonText.innerText = 'Less filters';
-        this._filtersExpanded = true;
-
-        for (const filter of hiddenFilters) {
-            filter.style.display = 'block';
-        }
+        this.expandText.style.display = 'inline-block';
+        this.collapseText.style.display = 'none';
     }
 }
 
-window.Shopware.registerComponent('FilterPanel', FilterPanel);
+Shopware.registerComponent('FilterPanel', FilterPanel);

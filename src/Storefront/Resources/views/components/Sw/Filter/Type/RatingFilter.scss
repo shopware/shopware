@@ -1,0 +1,32 @@
+.sw-rating-filter__list-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+    padding: 0.375rem 0;
+    border-bottom: 1px solid var(--bs-gray-300);
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.sw-rating-filter__list-item-label {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    cursor: pointer;
+
+    .sw-rating-stars {
+        margin: 0 0.75rem 0 0;
+        position: relative;
+        top: -2px;
+    }
+}
+
+.sw-rating-filter__list-item-radio {
+    margin: 0;
+    float: none;
+}

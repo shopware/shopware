@@ -4,6 +4,12 @@ declare global {
     }
 }
 
+interface EventOptions {
+    cancelable?: boolean;
+    bubbles?: boolean;
+    composed?: boolean;
+}
+
 /**
  * Abstract base class for all components.
  * 
@@ -159,6 +165,37 @@ class ShopwareComponent {
      * Should be used to clean up the component.
      */
     destroy() {}
+
+    /**
+     * Helper method to dispatch custom events on the main component element.
+     */
+    dispatchEvent(
+        eventName: string, 
+        detail: Record<string, unknown>, 
+        options: EventOptions = { cancelable: true, bubbles: true, composed: false }
+    ): void {
+        this.el.dispatchEvent(new CustomEvent(eventName, {
+            detail,
+            ...options,
+        }));
+    }
+
+    /**
+     * Helper method to debounce a function.
+     * Use it for heavy events like user input, resize, scroll, etc.
+     */
+    debounce(callback: () => void, delay = 400, immediate = false) {
+        let timeout: number;
+
+        return (...args: any[]) => {
+            if (immediate && !timeout) {
+                window.setTimeout(callback.bind(callback, ...args), 0);
+            }
+
+            window.clearTimeout(timeout);
+            timeout = window.setTimeout(callback.bind(callback, ...args), delay);
+        };
+    }
 
     /**
      * Reacts to content changes.

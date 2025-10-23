@@ -1,0 +1,23 @@
+{% props
+    label = 'general.sortingLabel'|trans|striptags,
+    name = 'sorting',
+    currentSorting = null,
+    sortings = []
+%}
+
+{% set attributeDefaults = {
+    'class': 'sw-filter-sorting form-select',
+    'name': name,
+    'aria-label': label,
+    'data-component': 'FilterSorting',
+} %}
+
+<select {{ attributes.defaults(attributeDefaults) }}>
+    {% for sortingOption in sortings %}
+        {% set key = sortingOption.key %}
+
+        <option value="{{ key }}"{% if key == currentSorting %} selected{% endif %}>
+            {{ sortingOption.translated.label }}
+        </option>
+    {% endfor %}
+</select>

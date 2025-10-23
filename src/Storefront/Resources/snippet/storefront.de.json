@@ -530,8 +530,12 @@
     "collapseTriggerLess": "Weniger zeigen"
   },
   "listing": {
+    "filterTitle": "Filter",
     "filterTitleText": "Produkte filtern",
     "showResults": "Ergebnisse anzeigen",
+    "resultCount": "{1} %count% Produkt|[0,Inf[ %count% Produkte",
+    "layoutSwitchList": "Listenansicht",
+    "layoutSwitchGrid": "Rasteransicht",
     "boxUnitLabel": "Inhalt:",
     "boxLabelTopseller": "Tipp",
     "boxLabelNew": "Neu",
@@ -571,6 +575,9 @@
     "filterByManufacturerAriaLabel": "Filtern nach Hersteller",
     "filterByPriceAriaLabel": "Filtern nach Preis",
     "filterByRatingAriaLabel": "Filtern nach Mindestbewertung",
+    "filterButtonMore": "Mehr Filter",
+    "filterButtonLess": "Weniger Filter",
+    "filterSearchPlaceholder": "Suchen nach %displayName%",
     "filterClose": "Filter schließen",
     "defaultProductSortingLabel": "Name A-Z",
     "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an.",

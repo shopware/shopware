@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
+use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\Maintenance\Staging\Handler\StagingExtensionHandler;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -29,7 +30,12 @@ class StagingExtensionHandlerTest extends TestCase
         $dataProvider->expects($this->never())->method('getInstalledExtensions');
         $lifecycle->expects($this->never())->method('deactivate');
 
-        $handler = new StagingExtensionHandler($dataProvider, $lifecycle, []);
+        $handler = new StagingExtensionHandler(
+            $this->createMock(Kernel::class),
+            $dataProvider,
+            $lifecycle,
+            [],
+        );
 
         $handler(new SetupStagingEvent(
             Context::createDefaultContext(),
@@ -77,7 +83,12 @@ class StagingExtensionHandlerTest extends TestCase
 
         $io = $this->createMock(SymfonyStyle::class);
 
-        $handler = new StagingExtensionHandler($dataProvider, $lifecycle, ['ActivePlugin', 'InactiveApp']);
+        $handler = new StagingExtensionHandler(
+            $this->createMock(Kernel::class),
+            $dataProvider,
+            $lifecycle,
+            ['ActivePlugin', 'InactiveApp'],
+        );
 
         $handler(new SetupStagingEvent(
             $context,
@@ -107,7 +118,12 @@ class StagingExtensionHandlerTest extends TestCase
                 return str_contains($message, 'not found') && str_contains($message, 'MissingExtension');
             }));
 
-        $handler = new StagingExtensionHandler($dataProvider, $lifecycle, ['MissingExtension']);
+        $handler = new StagingExtensionHandler(
+            $this->createMock(Kernel::class),
+            $dataProvider,
+            $lifecycle,
+            ['MissingExtension'],
+        );
 
         $handler(new SetupStagingEvent(
             $context,
@@ -144,7 +160,12 @@ class StagingExtensionHandlerTest extends TestCase
                 return str_contains($message, 'already inactive') && str_contains($message, 'AlreadyInactive');
             }));
 
-        $handler = new StagingExtensionHandler($dataProvider, $lifecycle, ['AlreadyInactive']);
+        $handler = new StagingExtensionHandler(
+            $this->createMock(Kernel::class),
+            $dataProvider,
+            $lifecycle,
+            ['AlreadyInactive'],
+        );
 
         $handler(new SetupStagingEvent(
             $context,

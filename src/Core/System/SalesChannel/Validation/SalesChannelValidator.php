@@ -88,13 +88,13 @@ class SalesChannelValidator implements EventSubscriberInterface
         $mapping = [];
         foreach ($event->getCommands() as $command) {
             if ($command->getEntityName() === SalesChannelDefinition::ENTITY_NAME) {
-                $mapping = $this->handleSalesChannelMapping($mapping, $command);
+                $this->handleSalesChannelMapping($mapping, $command);
 
                 continue;
             }
 
             if ($command->getEntityName() === SalesChannelLanguageDefinition::ENTITY_NAME) {
-                $mapping = $this->handleSalesChannelLanguageMapping($mapping, $command);
+                $this->handleSalesChannelLanguageMapping($mapping, $command);
             }
         }
 
@@ -103,32 +103,29 @@ class SalesChannelValidator implements EventSubscriberInterface
 
     /**
      * @param Mapping $mapping
-     *
-     * @return Mapping
      */
-    private function handleSalesChannelMapping(array $mapping, WriteCommand $command): array
+    private function handleSalesChannelMapping(array &$mapping, WriteCommand $command): void
     {
         if (!isset($command->getPayload()['language_id'])) {
-            return $mapping;
-        }
-
-        if ($command instanceof UpdateCommand) {
-            $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
-            $mapping[$id]['updateId'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
-
-            return $mapping;
-        }
-
-        if (!$command instanceof InsertCommand || !$this->isSupportedSalesChannelType($command)) {
-            return $mapping;
+            return;
         }
 
         $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
+        \assert(\array_key_exists($id, $mapping));
+
+        if ($command instanceof UpdateCommand) {
+            $mapping[$id]['updateId'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
+
+            return;
+        }
+
+        if (!$command instanceof InsertCommand || !$this->isSupportedSalesChannelType($command)) {
+            return;
+        }
+
         $mapping[$id]['new_default'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
         $mapping[$id]['inserts'] = [];
         $mapping[$id]['state'] = [];
-
-        return $mapping;
     }
 
     private function isSupportedSalesChannelType(WriteCommand $command): bool
@@ -141,26 +138,23 @@ class SalesChannelValidator implements EventSubscriberInterface
 
     /**
      * @param Mapping $mapping
-     *
-     * @return Mapping
      */
-    private function handleSalesChannelLanguageMapping(array $mapping, WriteCommand $command): array
+    private function handleSalesChannelLanguageMapping(array &$mapping, WriteCommand $command): void
     {
         $language = Uuid::fromBytesToHex($command->getPrimaryKey()['language_id']);
         $id = Uuid::fromBytesToHex($command->getPrimaryKey()['sales_channel_id']);
+        \assert(\array_key_exists($id, $mapping));
         $mapping[$id]['state'] = [];
 
         if ($command instanceof DeleteCommand) {
             $mapping[$id]['deletions'][] = $language;
 
-            return $mapping;
+            return;
         }
 
         if ($command instanceof InsertCommand) {
             $mapping[$id]['inserts'][] = $language;
         }
-
-        return $mapping;
     }
 
     /**

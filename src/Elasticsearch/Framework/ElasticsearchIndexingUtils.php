@@ -82,7 +82,7 @@ WHERE custom_field_set_relation.entity_name = :entity
     }
 
     /**
-     * @param array<string, string> $record
+     * @param array<string, string|null> $record
      *
      * @throws \JsonException
      *

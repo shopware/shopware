@@ -38,7 +38,7 @@ class AppRegistrationService
     ) {
     }
 
-    public function registerApp(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): void
+    public function registerApp(Manifest $manifest, AppEntity $app, #[\SensitiveParameter] string $secretAccessKey, Context $context): void
     {
         if (!$manifest->getSetup()) {
             return;
@@ -46,10 +46,6 @@ class AppRegistrationService
 
         try {
             $appName = $manifest->getMetadata()->getName();
-
-            // Fetch existing app to support secret rotation with dual signatures
-            $app = $this->getApp($id, $context);
-
             $appResponse = $this->registerWithApp($manifest, $app, $context);
 
             $secret = $appResponse['secret'];
@@ -57,10 +53,10 @@ class AppRegistrationService
 
             // Sign confirmation with dual signatures for re-registration
             // shopware-shop-signature (new secret) + shopware-shop-signature-previous (current secret)
-            $this->confirmRegistration($id, $context, $secret, $app->getAppSecret(), $secretAccessKey, $confirmationUrl);
+            $this->confirmRegistration($app, $context, $secret, $app->getAppSecret(), $secretAccessKey, $confirmationUrl);
 
             // After successful confirmation, save the new secret
-            $this->saveAppSecret($id, $context, $secret);
+            $this->saveAppSecret($app->getId(), $context, $secret);
         } catch (RequestException $e) {
             if ($e->hasResponse() && $e->getResponse() !== null) {
                 $response = $e->getResponse();
@@ -102,16 +98,17 @@ class AppRegistrationService
     }
 
     private function confirmRegistration(
-        string $id,
+        AppEntity $app,
         Context $context,
         #[\SensitiveParameter]
         string $secret,
+        #[\SensitiveParameter]
         ?string $currentSecret,
         #[\SensitiveParameter]
         string $secretAccessKey,
         string $confirmationUrl
     ): void {
-        $payload = $this->getConfirmationPayload($id, $secretAccessKey, $context);
+        $payload = $this->getConfirmationPayload($app, $secretAccessKey);
 
         $signature = $this->signPayload($payload, $secret);
 
@@ -121,7 +118,8 @@ class AppRegistrationService
         ];
 
         // For re-registration, also send signature with current/old secret
-        // shopware-shop-signature (new) + shopware-shop-signature-previous (current)
+        // shopware-shop-signature (new) + shopware-shop-signature-previous (current).
+        // This is to ensure that only the party who initiated the re-registration can confirm it.
         if ($currentSecret !== null) {
             $previousSignature = $this->signPayload($payload, $currentSecret);
             $headers['shopware-shop-signature-previous'] = $previousSignature;
@@ -168,10 +166,8 @@ class AppRegistrationService
     /**
      * @return array<string, string>
      */
-    private function getConfirmationPayload(string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): array
+    private function getConfirmationPayload(AppEntity $app, #[\SensitiveParameter] string $secretAccessKey): array
     {
-        $app = $this->getApp($id, $context);
-
         try {
             $shopId = $this->shopIdProvider->getShopId();
         } catch (ShopIdChangeSuggestedException $e) {
@@ -201,16 +197,5 @@ class AppRegistrationService
     private function signPayload(array $body, #[\SensitiveParameter] string $secret): string
     {
         return hash_hmac('sha256', json_encode($body, \JSON_THROW_ON_ERROR), $secret);
-    }
-
-    private function getApp(string $id, Context $context): AppEntity
-    {
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('integration');
-
-        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
-        \assert($app !== null);
-
-        return $app;
     }
 }

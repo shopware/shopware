@@ -248,10 +248,11 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service" id="integration.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="messenger.default_bus"/>
-            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
@@ -329,6 +330,12 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="integration.repository"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\MessageQueue\RotateAppSecretHandler">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -432,6 +439,15 @@
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Api\AppSecretRotationController" public="true">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Command\AppPrinter">
             <argument type="service" id="app.repository"/>
         </service>
@@ -510,6 +526,7 @@
         <service id="Shopware\Core\Framework\App\Command\RotateAppSecretCommand">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
 
             <tag name="console.command"/>
         </service>
@@ -531,7 +548,7 @@
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy">
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
             <tag name="shopware.app_url_changed_resolver"/>
@@ -540,7 +557,7 @@
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy">
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="event_dispatcher"/>
 

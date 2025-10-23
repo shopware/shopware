@@ -4,12 +4,13 @@ namespace Shopware\Core\Framework\App\Message;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
 
 /**
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class RotateAppSecretMessage implements AsyncMessageInterface
+class RotateAppSecretMessage implements AsyncMessageInterface, DeduplicatableMessageInterface
 {
     public function __construct(
         private readonly string $appId,
@@ -25,5 +26,10 @@ class RotateAppSecretMessage implements AsyncMessageInterface
     public function getTrigger(): string
     {
         return $this->trigger;
+    }
+
+    public function deduplicationId(): ?string
+    {
+        return $this->appId;
     }
 }

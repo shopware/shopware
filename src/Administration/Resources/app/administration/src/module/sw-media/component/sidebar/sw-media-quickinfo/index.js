@@ -103,7 +103,7 @@ export default {
         isPlayable() {
             const playableFormats = [
                 'video/mp4', 'video/ogg', 'video/webm',
-                'audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/wav'
+                'audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/wav',
             ];
 
             return playableFormats.includes(this.item.mimeType);

@@ -264,4 +264,28 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
 
         expect(wrapper.vm.sourceSet).toBe('');
     });
+
+    it('should show warning icon for unsupported video format (MOV)', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            imagePreviewFailed: true,
+            trueSource: { mimeType: 'video/quicktime', thumbnails: [] },
+        });
+        await flushPromises();
+
+        const warningIcon = wrapper.find('.sw-media-preview-v2__warning-icon');
+        expect(warningIcon.exists()).toBe(true);
+    });
+
+    it('should not show warning icon for supported video format (MP4)', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            imagePreviewFailed: true,
+            trueSource: { mimeType: 'video/mp4', thumbnails: [] },
+        });
+        await flushPromises();
+
+        const warningIcon = wrapper.find('.sw-media-preview-v2__warning-icon');
+        expect(warningIcon.exists()).toBe(false);
+    });
 });

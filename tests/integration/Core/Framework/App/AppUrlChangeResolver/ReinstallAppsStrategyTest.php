@@ -65,8 +65,8 @@ class ReinstallAppsStrategyTest extends TestCase
             ->method('registerApp')
             ->with(
                 static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
-                $app->getId(),
-                static::isType('string'),
+                static::callback(static fn (AppEntity $appEntity): bool => $appEntity->getId() === $app->getId()),
+                static::isString(),
                 static::isInstanceOf(Context::class)
             );
 
@@ -85,14 +85,14 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $reinstallAppsResolver->resolve($this->context);
 
-        static::assertNotEquals($shopId, $this->shopIdProvider->getShopId());
+        static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
 
         // assert secret access key changed
         $updatedApp = $this->getInstalledApp($this->context);
         static::assertNotNull($app->getIntegration());
         static::assertNotNull($updatedApp->getIntegration());
 
-        static::assertNotEquals(
+        static::assertNotSame(
             $app->getIntegration()->getSecretAccessKey(),
             $updatedApp->getIntegration()->getSecretAccessKey()
         );
@@ -123,7 +123,7 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $reinstallAppsResolver->resolve($this->context);
 
-        static::assertNotEquals($shopId, $this->shopIdProvider->getShopId());
+        static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
     }
 
     private function changeAppUrl(bool $expectToThrow = true): string

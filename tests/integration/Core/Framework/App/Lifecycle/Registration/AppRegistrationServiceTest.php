@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\TestAppServer;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -247,10 +248,14 @@ class AppRegistrationServiceTest extends TestCase
     // currently not implemented
     public function testRegisterStoreApp(): void
     {
-        $id = Uuid::randomHex();
-        $this->createApp($id);
-        $app = $this->fetchApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        // build a fake app entity to match old test behavior (since signature of method had changed)
+        $app = (new AppEntity());
+        $app->setId(Uuid::randomHex());
+        $integration = (new IntegrationEntity());
+        $integration->setAccessKey('test');
+        $app->setIntegration($integration);
 
         static::expectException(\RuntimeException::class);
         $this->registrator->registerApp($manifest, $app, '', Context::createDefaultContext());

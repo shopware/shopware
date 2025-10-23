@@ -165,6 +165,14 @@ jobs:
           path: ./api-types/storeApiSchema.json
           retention-days: 1
 
+      - name: Run OpenAPI Snapshot Action
+        uses: patzick/explore-openapi-snapshot@5cb94b58322d077f45dc4a6829e8bd5d76b9c7cc # v1.0.0
+        with:
+          schema-file: "./api-types/storeApiSchema.json"
+          project: "shopware-store-api"
+          auth-token: ${{ secrets.EXPLORE_OPENAPI_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Generate StoreAPI schema
         run: |
           api-gen generate --apiType=store

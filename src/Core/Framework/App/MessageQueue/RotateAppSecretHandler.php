@@ -15,11 +15,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('framework')]
-class RotateAppSecretHandler
+final class RotateAppSecretHandler
 {
-    /**
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
         private readonly AppSecretRotationService $rotationService
     ) {

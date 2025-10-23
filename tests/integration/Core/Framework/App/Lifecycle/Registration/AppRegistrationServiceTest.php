@@ -70,7 +70,8 @@ class AppRegistrationServiceTest extends TestCase
         $this->appendNewResponse(new Response(200, [], $appResponseBody));
         $this->appendNewResponse(new Response(200, []));
 
-        $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+        $app = $this->fetchApp($id);
+        $this->registrator->registerApp($manifest, $app, $secretAccessKey, Context::createDefaultContext());
 
         $registrationRequest = $this->getPastRequest(0);
 
@@ -133,42 +134,55 @@ class AppRegistrationServiceTest extends TestCase
         $this->appendNewResponse(new Response(200, [], $appResponseBody));
         $this->appendNewResponse(new Response(500, []));
 
+        $app = $this->fetchApp($id);
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, $secretAccessKey, Context::createDefaultContext());
     }
 
     public function testRegistrationFailsWithWrongProof(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $app = $this->fetchApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $this->appendNewResponse(new Response(200, [], '{"proof": "wrong proof"}'));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsWithWrongProofAsArray(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $app = $this->fetchApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $this->appendNewResponse(new Response(200, [], '{"proof": ["wrong proof"]}'));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsWithoutProof(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $app = $this->fetchApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $this->appendNewResponse(new Response(200, [], '{}'));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsIfRegistrationRequestIsNotHTTP200(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $app = $this->fetchApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $appSecret = 'dont_tell';
@@ -177,7 +191,7 @@ class AppRegistrationServiceTest extends TestCase
         $this->appendNewResponse(new Response(500, [], $appResponseBody));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsIfShopIdFingerprintsHaveChanged(): void
@@ -226,17 +240,21 @@ class AppRegistrationServiceTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
+        $app = $this->fetchApp($id);
         static::expectException(AppRegistrationException::class);
-        $registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+        $registrator->registerApp($manifest, $app, $secretAccessKey, Context::createDefaultContext());
     }
 
     // currently not implemented
     public function testRegisterStoreApp(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $app = $this->fetchApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         static::expectException(\RuntimeException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, '', Context::createDefaultContext());
 
         $registrationRequest = $this->getPastRequest(0);
         $confirmationRequest = $this->getPastRequest(1);
@@ -250,20 +268,26 @@ class AppRegistrationServiceTest extends TestCase
 
     public function testDoesNotRegisterIfNoSetupElementIsProvided(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $app = $this->fetchApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/no-setup/manifest.xml');
 
         // mockHandler would throw if it tries to make a registration request
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsWithError(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $app = $this->fetchApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $this->appendNewResponse(new Response(500, [], '{"error": "Shop url is not met"}'));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, '', Context::createDefaultContext());
     }
 
     public function testConfirmRegistrationFailsWithError(): void
@@ -279,8 +303,9 @@ class AppRegistrationServiceTest extends TestCase
         $this->appendNewResponse(new Response(200, [], $appResponseBody));
         $this->appendNewResponse(new Response(500, [], '{"error": "Shop url is not met"}'));
 
+        $app = $this->fetchApp($id);
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $app, $secretAccessKey, Context::createDefaultContext());
     }
 
     private function createApp(string $id): void

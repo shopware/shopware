@@ -109,6 +109,9 @@ class RotateAppSecretCommand extends Command
         return array_map(fn (array $app) => $app['name'], $activeApps);
     }
 
+    /**
+     * @param array<string> $appNames
+     */
     private function fetchApps(array $appNames, Context $context): AppCollection
     {
         $criteria = new Criteria();

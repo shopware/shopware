@@ -5,17 +5,19 @@ This document is a configuration guide for shop operators and layout designers. 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Content Elements](#content-elements)
-3. [Routing](#routing)
-4. [Data Loading](#data-loading)
-5. [Context System](#context-system)
-6. [Example: Product Detail Page](#example-product-detail-page)
+2. [Entity-Based Rendering](#entity-based-rendering)
+3. [Content Elements](#content-elements)
+4. [Routing](#routing)
+5. [Data Loading](#data-loading)
+6. [Context System](#context-system)
+7. [Example: Product Detail Page](#example-product-detail-page)
 
 ## Overview
 
 The Content System enables dynamic, data-driven layouts for your shop. Core capabilities include:
 
 - Dynamic routing with URL patterns that resolve to entities
+- Direct entity rendering for Products and Categories (no routing needed)
 - Reusable layout templates with nested content elements
 - Declarative data loading from the shop system
 - Context sharing between parent and child elements
@@ -60,6 +62,53 @@ graph LR
     classDef hydration fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
     class F,G,H hydration
 ```
+
+## Entity-Based Rendering
+
+Products and Categories can render directly using ContentSystem layouts without URL routing. Recommended for standard product/category pages.
+
+**Endpoints:**
+- `/store-api/content/product/{productId}` - Product detail pages
+- `/store-api/content/category/{categoryId}` - Category pages
+
+**Database tables:**
+- `product_content_layout` - Product → layout assignments
+- `category_content_layout` - Category → layout assignments
+
+### Assignment Structure
+
+```json
+{
+  "id": "<uuid>",
+  "productId": "<product-uuid>",         // or categoryId for categories
+  "productVersionId": "<version-uuid>",  // or categoryVersionId
+  "salesChannelId": "<sales-channel-uuid>|null",
+  "contentLayoutId": "<layout-uuid>"
+}
+```
+
+Fields:
+- Entity ID (`productId`/`categoryId`) - Entity to render
+- `salesChannelId` - Sales channel scope (`null` = global)
+- `contentLayoutId` - Layout to use
+
+### Sales Channel Resolution
+
+Resolution priority: **sales channel specific** → **global** (null `salesChannelId`).
+
+Example: Product with global layout and B2B-specific layout. B2B channel uses specific assignment, all other channels use global.
+
+### When to Use
+
+Use entity-based for standard product/category pages with sales channel-specific layouts. Use route-based for custom URLs, SEO paths, or complex routing logic.
+
+### Placeholders
+
+Available placeholders:
+- `{{productId}}` - Product UUID (product endpoint)
+- `{{categoryId}}` - Category UUID (category endpoint)
+
+Use these in element properties and data requirements like route-based placeholders. See [Example: Product Detail Page](#example-product-detail-page) for usage.
 
 ## Content Elements
 
@@ -603,13 +652,16 @@ Loads multiple entities by their IDs.
 {
   "id": "product-slider",
   "type": "Sw:Product:Slider",
+  "properties": {
+    "productIds": ["019456789abc", "019456789def", "019456789ghi"]
+  },
   "data_requirements": {
     "products": {
       "key": "products",
       "source": "entity_collection",
       "config": {
         "entity": "product",
-        "ids": ["019456789abc", "019456789def", "019456789ghi"],
+        "property": "productIds",
         "associations": ["cover"]
       }
     }
@@ -617,7 +669,17 @@ Loads multiple entities by their IDs.
 }
 ```
 
+Fields:
+- `key` - Identifies this data requirement (must match object key)
+- `source` - Loader identifier: "entity_collection"
+- `config` - Loader-specific configuration object
+- `config.entity` - Entity name to load
+- `config.property` - Property on this element containing an array of entity IDs. The loader reads the IDs from here. Defaults to `{entity}Ids` if not specified.
+- `config.associations` - List of associations to load with the entities
+
 After loading, access via element's `products` property → ProductCollection
+
+The `property` field points to the element's own property. The loader reads the array of IDs from there, loads the entities, and stores the result collection in the property specified by `key`.
 
 #### Product Listing Loader (`source: "product_listing"`)
 
@@ -653,6 +715,11 @@ Elements can declare multiple data requirements:
 {
   "id": "complex-page",
   "type": "Sw:Page:Complex",
+  "properties": {
+    "product": "{{product_id}}",
+    "manufacturer": "{{manufacturer_id}}",
+    "relatedProductIds": ["{{relatedId1}}", "{{relatedId2}}", "{{relatedId3}}"]
+  },
   "data_requirements": {
     "mainProduct": {
       "key": "mainProduct",
@@ -667,7 +734,7 @@ Elements can declare multiple data requirements:
       "source": "entity_collection",
       "config": {
         "entity": "product",
-        "ids": ["{{relatedId1}}", "{{relatedId2}}", "{{relatedId3}}"]
+        "property": "relatedProductIds"
       }
     },
     "manufacturer": {

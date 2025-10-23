@@ -24,7 +24,7 @@ class Migration1758018340ContentRoute extends MigrationStep
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NOT NULL,
                 `url_pattern` VARCHAR(255) NOT NULL,
-                `parameter_binding` JSON NOT NULL,
+                `parameter_bindings` JSON NOT NULL,
                 `priority` INT NOT NULL DEFAULT 0,
                 `overrides` JSON NULL,
                 `active` TINYINT(1) NOT NULL DEFAULT 1,

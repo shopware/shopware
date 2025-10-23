@@ -7,6 +7,9 @@
 - **Routing**: `Routing/Router/ContentRouter`
 - **Entity Resolution**: `Routing/IdResolution/EntityIdResolver`
 - **Layout Resolution**: `Routing/LayoutResolution/LayoutResolver`
+- **Context Factories**: `Routing/RouteBasedContextFactory`, `Adapter/ProductContextFactory`, `Adapter/CategoryContextFactory`
+- **Layout Search**: `Adapter/LayoutSearchHelper`
+- **Specification**: `RenderingSpecification`, `PlaceholderValues`
 - **Refinement**: `Layout/Refinery/RefinedLayoutBuilder`, `Layout/Refinery/LayoutRefinery`
 - **Hydration**: `Hydration/ContentElementHydrator`
 - **Store API**: `SalesChannel/ContentRoute`, `SalesChannel/ContentRouteLoader`

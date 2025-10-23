@@ -2,6 +2,8 @@
 
 Routes stored in `content_route` table, matched at runtime. Can't use Symfony's standard route registration because merchants create routes through admin UI.
 
+**Scope:** Route-based rendering only. Entity-based rendering (products, categories) uses separate factories in Adapter/ directory and bypasses routing infrastructure entirely.
+
 ContentRouter builds secondary Symfony RouteCollection from DB per request for pattern matching. When multiple routes match, priority determines selection. Cache compiled RouteCollection in production.
 
 ## Architecture

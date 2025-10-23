@@ -5,7 +5,7 @@ Post-hydration content transformation before response. Extracts sub-trees and pr
 ## Key Classes
 
 - `SubTreeExtractor` - Extracts specific element sub-tree for partial rendering
-- `RenderingContext` - Configuration for output processing (target element ID, options)
+- `RenderingSpecification` - Configuration for rendering (layout ID, placeholders, target element ID)
 
 ## Pipeline Position
 

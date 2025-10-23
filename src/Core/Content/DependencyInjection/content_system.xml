@@ -233,22 +233,40 @@
         <!-- Output Services (Post-Hydration Processing) -->
         <service id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
 
-        <!-- Store-API Route -->
-        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
+        <!-- Context Factories (Chain of Responsibility with Generator pattern) -->
+        <!-- Entity Adapters (in Adapter/) - Higher priority -->
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\ProductContextFactory">
+            <argument type="service" id="product_content_layout.repository"/>
+            <tag name="content_system.context_factory" priority="100"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\CategoryContextFactory">
+            <argument type="service" id="category_content_layout.repository"/>
+            <tag name="content_system.context_factory" priority="90"/>
+        </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader" public="true">
+        <!-- Route-based Context Factory (in Routing/) - Fallback with lowest priority -->
+        <service id="Shopware\Core\Content\ContentSystem\Routing\RouteBasedContextFactory">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver"/>
+            <tag name="content_system.context_factory" priority="0"/>
+        </service>
+
+        <!-- Store-API Route -->
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
         </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
+            <argument type="tagged_iterator" tag="content_system.context_factory"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
 
         <!-- Storefront Controller -->
         <service id="Shopware\Storefront\Controller\ContentController" public="true">

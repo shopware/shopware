@@ -5,7 +5,7 @@
 ## Source Code References
 
 - `SubTreeExtractor` - Extracts element sub-tree for partial rendering
-- `RenderingContext` - Configuration DTO for output processing
+- `RenderingSpecification` - Rendering configuration (layout ID, placeholders, target element)
 - `ContentPage` (Struct/) - Full content response structure
 - `DecomposedContentPage` (Struct/) - Partial rendering response
 

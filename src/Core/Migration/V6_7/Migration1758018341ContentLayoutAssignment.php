@@ -32,7 +32,7 @@ class Migration1758018341ContentLayoutAssignment extends MigrationStep
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                UNIQUE INDEX `uniq.content_layout_assignment.route_entity_channel` (`route_id`, `entity_type`, `entity_id`, `sales_channel_id`),
+                UNIQUE INDEX `uniq.content_layout_assignment.route_entity_channel` (`route_id`, `entity_type`, `entity_id`, `association_path`, `sales_channel_id`),
                 INDEX `idx.content_layout_assignment.route_priority` (`route_id`, `priority` DESC, `sales_channel_id`),
                 CONSTRAINT `fk.content_layout_assignment.route_id` FOREIGN KEY (`route_id`)
                     REFERENCES `content_route` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

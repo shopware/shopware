@@ -6,15 +6,11 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder;
-use Shopware\Core\Content\ContentSystem\Output\RenderingContext;
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver;
-use Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver;
-use Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter;
+use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -23,9 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 class ContentRouteLoader
 {
     public function __construct(
-        private readonly ContentRouter $contentRouter,
-        private readonly EntityIdResolver $entityIdResolver,
-        private readonly LayoutResolver $layoutResolver,
         private readonly RefinedLayoutBuilder $refinedLayoutBuilder,
         private readonly ContentElementHydrator $hydrationService,
         private readonly SubTreeExtractor $subTreeExtractor
@@ -33,88 +26,54 @@ class ContentRouteLoader
     }
 
     /**
-     * Orchestrates the content system pipeline to load and render content.
+     * Orchestrates the routing-independent content system pipeline to load and render content.
      *
-     * The pipeline consists of five phases that must run sequentially. After hydration,
-     * partial rendering may extract a subtree if ?elementId parameter is present.
+     * The rendering pipeline runs after context creation (which may come from routing or
+     * entity-based sources). Pipeline consists of refinement, hydration, and optional
+     * partial rendering.
      *
-     * @param string $path URL path to match (e.g., "/product/laptop-x1")
-     * @param Request $request HTTP request containing optional query parameters (?elementId)
-     * @param SalesChannelContext $context Sales channel context for route/layout filtering
+     * @param RenderingSpecification $specification Rendering specification (layout ID, placeholders, target element)
+     * @param SalesChannelContext $salesChannelContext Sales channel context for data loading
      *
-     * @throws ContentSystemException When route not found, entity resolution fails,
-     *                                layout assignment not found, refinement fails,
+     * @throws ContentSystemException When refinement fails, hydration fails,
      *                                or requested element ID not found in tree
      *
      * @return ContentPage Fully hydrated content page with element tree and metadata
      */
-    public function load(string $path, Request $request, SalesChannelContext $context): ContentPage
-    {
-        // Normalize path to match stored URL patterns. Routes are persisted with leading slash
-        // and no trailing slash. This normalization ensures consistent matching regardless of
-        // how the client formats the request path.
-        $pathInfo = '/' . ltrim($path, '/');
-
-        $match = $this->contentRouter->match($pathInfo, $context);
-
-        if ($match === null) {
-            throw ContentSystemException::contentNotFound($pathInfo);
-        }
-
-        $route = $match->route;
-
-        $resolvedData = $this->entityIdResolver->resolve($match, $context);
-
-        $layoutId = $this->layoutResolver->resolve($match->route, $resolvedData, $context);
-
-        if ($layoutId === null) {
-            // LayoutResolver returns null when no assignment matches the route context.
-            // This can occur when: entity resolution succeeded but no layout assignments
-            // match the resolved entity types/IDs, or route has no assignments for this
-            // sales channel. Provide resolved placeholders in error for debugging.
-            $resolvedPlaceholders = array_keys($resolvedData->entityIds->toArray());
-
-            throw ContentSystemException::layoutAssignmentNotFoundForRoute(
-                $route->getId(),
-                $route->getUrlPattern(),
-                $resolvedPlaceholders,
-                $context->getSalesChannel()->getId()
-            );
-        }
-
-        $renderingContext = RenderingContext::fromRequest($request);
-
+    public function load(
+        RenderingSpecification $specification,
+        SalesChannelContext $salesChannelContext
+    ): ContentPage {
         // Wrap refinement exceptions with context for debugging. The refinement phase can fail
         // due to: layout entity not found in DB, refiner execution errors, or placeholder
         // resolution issues. Wrapping preserves the original exception as cause while clearly
         // indicating which pipeline phase failed (refinement vs routing, hydration, etc.).
         try {
-            $refinedLayout = $this->refinedLayoutBuilder->build($layoutId, $resolvedData, $renderingContext, $context);
+            $refinedLayout = $this->refinedLayoutBuilder->build($specification->layoutId, $specification, $salesChannelContext);
         } catch (\Throwable $e) {
-            throw ContentSystemException::layoutRefineryFailed($layoutId, $e->getMessage(), $e);
+            throw ContentSystemException::layoutRefineryFailed($specification->layoutId, $e->getMessage(), $e);
         }
 
-        $this->hydrationService->hydrate($refinedLayout, $context);
+        $this->hydrationService->hydrate($refinedLayout, $salesChannelContext);
 
         $rootElement = $this->applyPartialRendering(
             $refinedLayout->rootElement,
-            $renderingContext
+            $specification
         );
 
         return new ContentPage(
-            layoutId: $layoutId,
+            layoutId: $specification->layoutId,
             layout: $rootElement,
             layoutName: $refinedLayout->layoutEntity->getName(),
-            layoutVersion: $refinedLayout->layoutEntity->getVersionId(),
-            route: $route
+            layoutVersion: $refinedLayout->layoutEntity->getVersionId()
         );
     }
 
     private function applyPartialRendering(
         ContentElement $rootElement,
-        RenderingContext $renderingContext
+        RenderingSpecification $specification
     ): ContentElement {
-        $targetElementId = $renderingContext->targetElementId;
+        $targetElementId = $specification->targetElementId;
         // Treat empty string as null - query parameters can be empty when ?elementId is
         // present without a value. Both cases mean "no partial rendering requested".
         if ($targetElementId === null || $targetElementId === '') {

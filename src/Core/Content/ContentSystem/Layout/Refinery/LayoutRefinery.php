@@ -3,8 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Refinery;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Content\ContentSystem\Output\RenderingContext;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
+use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -29,12 +28,11 @@ class LayoutRefinery
 
     public function refine(
         ContentElement $layout,
-        ResolvedData $resolvedData,
-        RenderingContext $renderingContext,
-        SalesChannelContext $context
+        RenderingSpecification $specification,
+        SalesChannelContext $salesChannelContext
     ): ContentElement {
         foreach ($this->refiners as $refiner) {
-            $layout = $refiner->refine($layout, $resolvedData, $renderingContext, $context);
+            $layout = $refiner->refine($layout, $specification, $salesChannelContext);
         }
 
         return $layout;

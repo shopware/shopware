@@ -21,9 +21,8 @@ Performance. Multiple passes would require repeated tree traversal. Layout trees
 
 LayoutRefinery iterates refiners (DI tagged services), calls `refine()` on each. Refiners receive:
 - `ContentElement $layout` - Element tree (may be modified)
-- `ResolvedData $resolvedData` - Entity IDs and URL parameters
-- `RenderingContext $renderingContext` - Output rendering configuration
-- `SalesChannelContext $context` - Sales channel context
+- `RenderingSpecification $specification` - Rendering specification (layout ID, placeholders, target element)
+- `SalesChannelContext $salesChannelContext` - Sales channel context
 
 Each refiner returns modified ContentElement. Output becomes input for next refiner. Order matters - refiners run in DI priority order.
 
@@ -31,7 +30,7 @@ Each refiner returns modified ContentElement. Output becomes input for next refi
 
 Two built-in refiners:
 
-**PlaceholderResolutionRefiner** (priority 0): Calls `ContentElement::replacePlaceholders(ResolvedData)` recursively.
+**PlaceholderResolutionRefiner** (priority 0): Calls `ContentElement::replacePlaceholders(RenderingSpecification)` recursively.
 
 **PartialRenderingRefiner** (priority 200): Pre-hydration tree pruning when `?elementId` parameter present. Keeps only path to target element and its descendants.
 
@@ -58,42 +57,34 @@ namespace App\Content\Refiner;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Refinery\LayoutRefinerInterface;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
+use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('content_system.layout_refiner', ['priority' => 100])]
-class RouteOverrideRefiner implements LayoutRefinerInterface
+class CustomRefiner implements LayoutRefinerInterface
 {
     public function refine(
         ContentElement $layout,
-        ResolvedData $resolvedData,
-        RenderingContext $renderingContext,
-        SalesChannelContext $context
+        RenderingSpecification $specification,
+        SalesChannelContext $salesChannelContext
     ): ContentElement {
-        $route = $resolvedData->getRoute();
-        $overrides = $route?->getOverrides() ?? [];
+        // Access placeholder values
+        $placeholders = $specification->placeholderValues->all();
 
-        if (empty($overrides)) {
-            return $layout;
+        // Example: Modify layout based on placeholders
+        if (isset($placeholders['productId'])) {
+            $this->applyProductCustomizations($layout, $placeholders['productId']);
         }
-
-        // Apply overrides to matching elements
-        $this->applyOverrides($layout, $overrides);
 
         return $layout;
     }
 
-    private function applyOverrides(ContentElement $element, array $overrides): void
+    private function applyProductCustomizations(ContentElement $element, string $productId): void
     {
-        if (isset($overrides[$element->getId()])) {
-            foreach ($overrides[$element->getId()] as $key => $value) {
-                $element->setProperty($key, $value);
-            }
-        }
-
+        // Custom logic here
         foreach ($element->getSlots()->allElements() as $child) {
-            $this->applyOverrides($child, $overrides);
+            $this->applyProductCustomizations($child, $productId);
         }
     }
 }

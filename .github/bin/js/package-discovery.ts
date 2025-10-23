@@ -157,7 +157,7 @@ function main(): void {
     case 'matrix':
       try {
         const matrix = generateAuditMatrix();
-        console.log(JSON.stringify(matrix, null, 2));
+        console.log(JSON.stringify(matrix));
       } catch (error) {
         console.error('Error:', error instanceof Error ? error.message : String(error));
         process.exit(1);

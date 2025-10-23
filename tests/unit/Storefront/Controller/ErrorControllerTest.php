@@ -174,8 +174,8 @@ class ErrorControllerTest extends TestCase
 
         $this->controller->onCaptchaFailure($violations, $request);
 
-        // Empty string is cast to string and used as-is
-        static::assertSame('', $this->controller->forwardToRoute);
+        // Empty string should fall back to the _route attribute
+        static::assertSame('frontend.account.login.page', $this->controller->forwardToRoute);
     }
 }
 

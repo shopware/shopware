@@ -169,6 +169,7 @@
         </service>
 
         <service id="Shopware\Core\Maintenance\Staging\Handler\StagingExtensionHandler">
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService"/>
             <argument>%shopware.staging.extensions.disable%</argument>

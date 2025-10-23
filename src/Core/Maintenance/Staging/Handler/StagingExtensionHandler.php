@@ -5,8 +5,10 @@ namespace Shopware\Core\Maintenance\Staging\Handler;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
+use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 
 /**
@@ -19,6 +21,7 @@ readonly class StagingExtensionHandler
      * @param list<string> $extensionsToDisable
      */
     public function __construct(
+        private Kernel $kernel,
         private AbstractExtensionDataProvider $extensionDataProvider,
         private AbstractExtensionLifecycle $extensionLifecycleService,
         private array $extensionsToDisable = [],
@@ -29,6 +32,14 @@ readonly class StagingExtensionHandler
     {
         $extensionsToDisable = array_values(array_unique(array_filter(array_map(static fn ($v) => trim($v), $this->extensionsToDisable))));
         if ($extensionsToDisable === []) {
+            return;
+        }
+
+        if ($this->kernel->getPluginLoader() instanceof ComposerPluginLoader) {
+            $event->io->warning(
+                \sprintf("Staging: Should disable %d extension(s): %s\nHowever the ComposerPluginLoader is used, which does not support disabling extensions, therefore they should be uninstalled using composer directly.", \count($extensionsToDisable), implode(', ', $extensionsToDisable))
+            );
+
             return;
         }
 

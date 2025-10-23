@@ -159,7 +159,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 });
 
-test('Customer should see unavailable filter options disabled when filtering by rating', { tag: ['@Product', '@Storefront'] }, async ({
+test.only('Customer should see unavailable filter options disabled when filtering by rating', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -188,7 +188,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
     const productWithRating2 = await TestDataService.createBasicProduct();
     await TestDataService.createProductReview(productWithRating1.id, { points: 3 });
     await TestDataService.createProductReview(productWithRating2.id, { points: 5 });
-    await CheckVisibilityInHome(productWithRating2.name)();
+    await ShopCustomer.attemptsTo(CheckVisibilityInHome(productWithRating2.name));
     const products = [productWithRating1, productWithRating2];
     await TestDataService.createBasicProduct({ name: 'Product without filters' });
 
@@ -203,9 +203,24 @@ test('Customer should see unavailable filter options disabled when filtering by 
 
     await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
         await ShopCustomer.presses(StorefrontHome.productRatingButton);
-        const ratingLocator = await StorefrontHome.getRatingItemLocatorByRating(3);
-        await ShopCustomer.presses(ratingLocator);
+
+        const rating5Locator = await StorefrontHome.getRatingItemLocatorByRating(5);
+        const rating4Locator = await StorefrontHome.getRatingItemLocatorByRating(4);
+        const rating3Locator = await StorefrontHome.getRatingItemLocatorByRating(3);
+        
+        /**
+         * Cannot use presses() as this is actually a list of radio buttons so you must first tab into the list. 
+         *     The inputs do not have a checked attribute so ShopCustomer.selectsRadioButton() cannot be used either.
+         */
+        await StorefrontHome.productRatingButton.press('Tab');
+        await ShopCustomer.expects(rating5Locator).toHaveVisibleFocus();
+        await StorefrontHome.productRatingList.press('ArrowDown');
+        await ShopCustomer.expects(rating4Locator).toHaveVisibleFocus();
         await StorefrontHome.loader.waitFor({ state: 'hidden' });
+        await StorefrontHome.productRatingList.press('ArrowDown');
+        await ShopCustomer.expects(rating3Locator).toHaveVisibleFocus();
+        await StorefrontHome.loader.waitFor({ state: 'hidden' });
+
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled();
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeDisabled();

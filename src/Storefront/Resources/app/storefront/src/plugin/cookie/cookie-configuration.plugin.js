@@ -423,7 +423,7 @@ export default class CookieConfiguration extends Plugin {
      *
      * @param {function|null} callback
      */
-    openOffCanvas(callback) {
+    openOffCanvas(callback = null) {
         const { offCanvasPosition } = this.options;
         const url = window.router['frontend.cookie.offcanvas'];
 

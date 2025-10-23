@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -31,6 +32,7 @@ class AppSecretRotationService
 
     /**
      * @param EntityRepository<AppCollection> $appRepository
+     * @param EntityRepository<IntegrationCollection> $integrationRepository
      */
     public function __construct(
         private readonly AppRegistrationService $registrationService,
@@ -81,7 +83,11 @@ class AppSecretRotationService
 
         // stage new integration with new credentials.
         $integration = new IntegrationEntity();
-        $integration->setLabel($app->getIntegration()->getLabel());
+        $appIntegration = $app->getIntegration();
+        if ($appIntegration === null) {
+            throw AppException::missingIntegration();
+        }
+        $integration->setLabel($appIntegration->getLabel());
         $integration->setAccessKey(AccessKeyHelper::generateAccessKey('integration'));
         $integration->setSecretAccessKey(AccessKeyHelper::generateSecretAccessKey());
         $app->setIntegration($integration);

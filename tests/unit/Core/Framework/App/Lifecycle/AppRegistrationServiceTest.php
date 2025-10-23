@@ -21,7 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Shopware\Core\Framework\App\AppEntity;
 
 /**
  * @internal
@@ -38,7 +40,7 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeFactory->expects($this->never())->method('create');
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory);
-        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+        $appRegistrationService->registerApp($manifest, $this->createAppEntity(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfStoreHandshakeFails(): void
@@ -73,7 +75,7 @@ class AppRegistrationServiceTest extends TestCase
         $this->expectException(AppRegistrationException::class);
         $this->expectExceptionMessage('App registration for "test" failed: Unknown app');
 
-        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+        $appRegistrationService->registerApp($manifest, $this->createAppEntity(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfPrivateHandshakeFails(): void
@@ -115,7 +117,7 @@ class AppRegistrationServiceTest extends TestCase
         $this->expectException(AppRegistrationException::class);
         $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
 
-        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+        $appRegistrationService->registerApp($manifest, $this->createAppEntity(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesError(): void
@@ -153,7 +155,7 @@ class AppRegistrationServiceTest extends TestCase
         $this->expectException(AppRegistrationException::class);
         $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
 
-        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+        $appRegistrationService->registerApp($manifest, $this->createAppEntity(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesInvalidJson(): void
@@ -186,7 +188,7 @@ class AppRegistrationServiceTest extends TestCase
         $this->expectException(AppRegistrationException::class);
         $this->expectExceptionMessage('App registration for "test" failed: JSON response could not be decoded');
 
-        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+        $appRegistrationService->registerApp($manifest, $this->createAppEntity(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesNoProof(): void
@@ -229,7 +231,7 @@ class AppRegistrationServiceTest extends TestCase
         $this->expectException(AppRegistrationException::class);
         $this->expectExceptionMessage('App registration for "test" failed: The app server provided no proof');
 
-        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+        $appRegistrationService->registerApp($manifest, $this->createAppEntity(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesInvalidProof(): void
@@ -272,7 +274,24 @@ class AppRegistrationServiceTest extends TestCase
         $this->expectException(AppRegistrationException::class);
         $this->expectExceptionMessage('App registration for "test" failed: The app server provided an invalid proof');
 
-        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+        $appRegistrationService->registerApp($manifest, $this->createAppEntity(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    private function createAppEntity(): AppEntity
+    {
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setName('test');
+        
+        $integration = new IntegrationEntity();
+        $integration->setId(Uuid::randomHex());
+        $integration->setLabel('test-integration');
+        $integration->setAccessKey('test-access-key');
+        $integration->setSecretAccessKey('test-secret-key');
+        
+        $app->setIntegration($integration);
+        
+        return $app;
     }
 
     /**

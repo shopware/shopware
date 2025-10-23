@@ -348,9 +348,21 @@ These settings can be applied per test or globally in **playwright.config.ts** f
 
 
 ### Best Practices for Visual Testing 
+- **Automatic viewport sizing** – Use `setViewport` to ensure that you capture all the content.
+  - Automatically adjusts the viewport size based on:
+    - Content height of a scrollable container (default: '.sw-card-view__content' )
+    - Content width of a scrollable container (default:  '.sw-data-grid__wrapper' )
+    - Header height (if not inside the scroll container)
+    - Optional extra spacing
+  - Also supports waiting for:
+    - A network request (requestURL)
+    - A specific selector to appear before measuring
+    - Be sure to always use one of the waiting options! If not, the method will wait for the message queue to appear, which causes an unnecessary delay of around 5 seconds.
+- **Selective viewports**
+  - Use `assertScreenshot` to capture only a specific element or a section of the page. (default: '.sw-desktop__content')
 - **Handling dynamic elements:**  
-  - Replace dynamic text content (e.g., usernames, prices) with `***` using `ReplaceElementsForScreenshot` to mask sensitive or frequently changing information.  
-  - Use `HideElementsForScreenshot` for elements where replacing text content is not feasible—such as those with dynamic color or style changes—to hide them while preserving layout integrity.
+  - Replace dynamic text content (e.g., usernames, prices) with `***` using `replaceElements` or use `replaceElementsIndividually` to mask sensitive or frequently changing information with individual text.  
+  - Use `hideElements` for elements where replacing text content is not feasible—such as those with dynamic color or style changes—to hide them while preserving layout integrity.
 - **Ensure environmental consistency** – Match OS versions, time zones, and rendering environments between your local machine and the test runner.
 - **Adjust sensitivity thresholds** – Modify `maxDiffPixels` and `threshold` based on your project’s requirements.
 - **Handle lazy-loaded elements** – Extend `toHaveScreenshot()` with an additional timeout if necessary.

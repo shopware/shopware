@@ -29,6 +29,7 @@ class CookieProvider
     final public const SNIPPET_NAME_COOKIE_GROUP_STATISTICAL = 'cookie.groupStatistical';
     final public const SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES = 'cookie.groupComfortFeatures';
     final public const SNIPPET_NAME_COOKIE_GROUP_MARKETING = 'cookie.groupMarketing';
+    final public const COOKIE_ENTRY_CONFIG_HASH_COOKIE = 'cookie-config-hash';
 
     private readonly string $sessionName;
 
@@ -77,6 +78,7 @@ class CookieProvider
             $this->getRequiredSessionEntry(),
             $this->getRequiredTimezoneEntry(),
             $this->getRequiredAcceptedEntry(),
+            $this->getRequiredCookieConfigHashEntry(),
         ]));
         $cookieGroupRequired->isRequired = true;
 
@@ -110,6 +112,15 @@ class CookieProvider
         return $entryRequiredAccepted;
     }
 
+    private function getRequiredCookieConfigHashEntry(): CookieEntry
+    {
+        $entryRequiredCookieHash = new CookieEntry(self::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        $entryRequiredCookieHash->name = 'cookie.groupRequiredCookieHash';
+        $entryRequiredCookieHash->hidden = true;
+
+        return $entryRequiredCookieHash;
+    }
+
     private function getCookieGroupStatistical(): CookieGroup
     {
         $cookieGroupStatistical = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
@@ -124,6 +135,7 @@ class CookieProvider
         $cookieGroupComfortFeatures = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         $cookieGroupComfortFeatures->setEntries(new CookieEntryCollection([
             $this->getYoutubeVideoEntry(),
+            $this->getVimeoVideoEntry(),
         ]));
 
         return $cookieGroupComfortFeatures;
@@ -137,6 +149,16 @@ class CookieProvider
         $entryYoutubeVideo->expiration = 30;
 
         return $entryYoutubeVideo;
+    }
+
+    private function getVimeoVideoEntry(): CookieEntry
+    {
+        $entryVimeoVideo = new CookieEntry('vimeo-video');
+        $entryVimeoVideo->name = 'cookie.groupComfortFeaturesVimeoVideo';
+        $entryVimeoVideo->value = '1';
+        $entryVimeoVideo->expiration = 30;
+
+        return $entryVimeoVideo;
     }
 
     private function getCookieGroupMarketing(): CookieGroup

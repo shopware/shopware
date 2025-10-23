@@ -299,15 +299,9 @@ class FileSaver
             $this->mediaRepository->update([$data], $context);
         });
 
-        $criteria = new Criteria([$media->getId()]);
-        $criteria->addAssociation('mediaFolder');
-
         $this->eventDispatcher->dispatch(new UpdateMediaPathEvent([$media->getId()]));
 
-        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->get($media->getId());
-        \assert($media !== null);
-
-        return $media;
+        return $this->findMediaById($media->getId(), $context);
     }
 
     /**
@@ -339,10 +333,14 @@ class FileSaver
     {
         $criteria = new Criteria([$mediaId]);
         $criteria->addAssociation('mediaFolder');
-        $currentMedia = $this->mediaRepository
-            ->search($criteria, $context)
-            ->getEntities()
-            ->get($mediaId);
+
+        $currentMedia = null;
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria, $mediaId, &$currentMedia): void {
+            $currentMedia = $this->mediaRepository
+                ->search($criteria, $context)
+                ->getEntities()
+                ->get($mediaId);
+        });
 
         if ($currentMedia === null) {
             throw MediaException::mediaNotFound($mediaId);

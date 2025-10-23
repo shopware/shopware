@@ -21,7 +21,7 @@ class PackageService
     /**
      * @return array<string, string|null>
      */
-    public function getPackageTrace(object $subject): array
+    public function getPackageTrace(mixed $subject = null): array
     {
         $packages = [];
 

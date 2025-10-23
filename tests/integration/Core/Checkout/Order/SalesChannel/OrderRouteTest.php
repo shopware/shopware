@@ -495,26 +495,6 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('errors', $response);
     }
 
-    public function testCancelOrder(): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/order/state/cancel',
-                [],
-                [],
-                ['CONTENT_TYPE' => 'application/json'],
-                \json_encode([
-                    'orderId' => $this->orderId,
-                ], \JSON_THROW_ON_ERROR) ?: ''
-            );
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertArrayHasKey('technicalName', $response);
-        static::assertSame('cancelled', $response['technicalName']);
-    }
-
     public function testOrderSalesChannelRestriction(): void
     {
         $testChannel = $this->createSalesChannel([

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -69,7 +68,6 @@ class AppSecretRotationService
         Context $context,
         string $trigger
     ): void {
-
         $app = $this->loadApp($appId, $context);
         $manifest = $this->resolveManifest($app);
 
@@ -132,7 +130,7 @@ class AppSecretRotationService
         $criteria->addAssociation('integration');
 
         $app = $this->appRepository->search($criteria, $context)->get($appId);
-        if (! $app instanceof AppEntity) {
+        if (!$app instanceof AppEntity) {
             throw AppException::notFoundByField('id', $appId);
         }
 

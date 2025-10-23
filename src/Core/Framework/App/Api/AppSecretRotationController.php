@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -49,7 +48,6 @@ class AppSecretRotationController extends AbstractController
         $this->rotationService->scheduleRotation($app, AppSecretRotationService::TRIGGER_API);
 
         return new JsonResponse([], Response::HTTP_ACCEPTED);
-
     }
 
     private function loadAppByIntegrationId(string $integrationId, Context $context): ?AppEntity

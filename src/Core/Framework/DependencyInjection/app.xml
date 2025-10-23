@@ -334,7 +334,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\MessageQueue\RotateAppSecretHandler">
-            <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <tag name="messenger.message_handler"/>
         </service>

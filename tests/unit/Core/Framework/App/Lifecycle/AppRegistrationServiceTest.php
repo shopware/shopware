@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
@@ -23,7 +24,6 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
-use Shopware\Core\Framework\App\AppEntity;
 
 /**
  * @internal
@@ -282,15 +282,15 @@ class AppRegistrationServiceTest extends TestCase
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setName('test');
-        
+
         $integration = new IntegrationEntity();
         $integration->setId(Uuid::randomHex());
         $integration->setLabel('test-integration');
         $integration->setAccessKey('test-access-key');
         $integration->setSecretAccessKey('test-secret-key');
-        
+
         $app->setIntegration($integration);
-        
+
         return $app;
     }
 

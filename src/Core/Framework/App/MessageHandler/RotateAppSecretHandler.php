@@ -1,12 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\MessageQueue;
+namespace Shopware\Core\Framework\App\MessageHandler;
 
-use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Message\RotateAppSecretMessage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

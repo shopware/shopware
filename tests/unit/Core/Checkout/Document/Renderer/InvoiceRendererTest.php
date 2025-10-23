@@ -455,6 +455,7 @@ class InvoiceRendererTest extends TestCase
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setOrder($order);
         $orderCustomer->setCustomer($customer);
+        $orderCustomer->setVatIds(['VAT123']);
         $order->setOrderCustomer($orderCustomer);
         $order->setPrimaryOrderDeliveryId($orderDeliverId);
 

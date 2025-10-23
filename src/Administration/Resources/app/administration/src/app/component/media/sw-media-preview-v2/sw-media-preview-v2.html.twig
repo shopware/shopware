@@ -143,8 +143,8 @@
             {% endblock %}
             {% block sw_media_preview_v2_unsupported_format_warning %}
             <mt-icon
-                v-if="isUnsupportedVideo || isUnsupportedAudio"
-                v-tooltip.bottom="{ message: unsupportedFormatWarning }"
+                v-if="!isPlayable"
+                v-tooltip.bottom="{ message: $t('global.sw-media-preview-v2.warningUnsupportedFormat', { format: mimeType }) }"
                 name="regular-exclamation-triangle"
                 size="16px"
                 color="var(--color-warning-500)"

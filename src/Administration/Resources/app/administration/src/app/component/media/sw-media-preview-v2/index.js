@@ -194,22 +194,6 @@ export default {
             return this.$options.playableAudioFormats.includes(this.mimeType);
         },
 
-        isUnsupportedVideo() {
-            return this.mimeTypeGroup === 'video' && !this.$options.playableVideoFormats.includes(this.mimeType);
-        },
-
-        isUnsupportedAudio() {
-            return this.mimeTypeGroup === 'audio' && !this.$options.playableAudioFormats.includes(this.mimeType);
-        },
-
-        unsupportedFormatWarning() {
-            if (this.isUnsupportedVideo || this.isUnsupportedAudio) {
-                return this.$tc('global.sw-media-preview-v2.warningUnsupportedFormat', 0, { format: this.mimeType });
-            }
-
-            return '';
-        },
-
         isIcon() {
             return /.*svg.*/.test(this.mimeType);
         },

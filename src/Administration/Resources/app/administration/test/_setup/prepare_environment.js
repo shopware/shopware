@@ -170,6 +170,10 @@ Shopware.Store.get('session').setAdminLocaleState({
     languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
 });
 
+// disable telemetry
+Shopware.Telemetry.initialize = () => Promise.resolve();
+Shopware.Telemetry.track = () => {};
+
 // Add global mocks
 config.global.mocks = {
     $tc: v => v,
@@ -364,8 +368,8 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('is deprecated and will be removed in v6.7.0.0. Please use') ||
-                msg1?.includes?.('is deprecated and will be removed in v6.7.0.0. Please use');
+            return msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
+                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use');
         },
     },
     /*
@@ -562,6 +566,7 @@ afterEach(() => {
     }
 });
 
+// eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

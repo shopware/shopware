@@ -33,6 +33,11 @@ class CookieProvider implements CookieProviderInterface
                 'expiration' => '30',
                 'hidden' => true,
             ],
+            [
+                'snippet_name' => 'cookie.groupRequiredCookieHash',
+                'cookie' => 'cookie-config-hash',
+                'hidden' => true,
+            ],
         ],
     ];
 
@@ -48,6 +53,12 @@ class CookieProvider implements CookieProviderInterface
             [
                 'snippet_name' => 'cookie.groupComfortFeaturesYoutubeVideo',
                 'cookie' => 'youtube-video',
+                'expiration' => '30',
+                'value' => '1',
+            ],
+            [
+                'snippet_name' => 'cookie.groupComfortFeaturesVimeoVideo',
+                'cookie' => 'vimeo-video',
                 'expiration' => '30',
                 'value' => '1',
             ],

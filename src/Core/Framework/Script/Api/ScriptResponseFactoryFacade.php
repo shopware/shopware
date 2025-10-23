@@ -23,8 +23,9 @@ class ScriptResponseFactoryFacade
      */
     public function __construct(
         private readonly RouterInterface $router,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         private readonly ?ScriptController $scriptController,
-        private readonly ?SalesChannelContext $salesChannelContext
+        private readonly ?SalesChannelContext $salesChannelContext,
     ) {
     }
 

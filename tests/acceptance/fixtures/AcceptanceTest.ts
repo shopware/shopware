@@ -1,6 +1,6 @@
-import { test as ShopwareTestSuite, mergeTests } from '@shopware-ag/acceptance-test-suite';
-import { test as shopCustomerTasks } from '@tasks/ShopCustomerTasks';
+import { mergeTests, test as ShopwareTestSuite } from '@shopware-ag/acceptance-test-suite';
 import { test as shopAdminTasks } from '@tasks/ShopAdminTasks';
+import { test as shopCustomerTasks } from '@tasks/ShopCustomerTasks';
 import { test as HomeProducts } from './HomeProducts';
 
 

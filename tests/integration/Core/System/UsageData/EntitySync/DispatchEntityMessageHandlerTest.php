@@ -286,7 +286,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $qb->update('product')
             ->set('updated_at', ':updatedAt')
             ->setParameter('updatedAt', $currentTime->add(new DateInterval('P1D'))->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->executeQuery();
+            ->executeStatement();
 
         $dispatchEntityMessage = new DispatchEntityMessage(
             'product',

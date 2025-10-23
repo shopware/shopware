@@ -85,10 +85,12 @@ class JsonEntityEncoder
             $decoded['translated']['customFields'] = new \stdClass();
         }
 
-        unset($decoded['extensions']['foreignKeys']);
+        if (isset($decoded['extensions'])) {
+            unset($decoded['extensions']['foreignKeys']);
 
-        if ($decoded['extensions'] === []) {
-            unset($decoded['extensions']);
+            if ($decoded['extensions'] === []) {
+                unset($decoded['extensions']);
+            }
         }
 
         return $this->removeNotAllowedFields($decoded, $definition, $baseUrl);

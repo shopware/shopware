@@ -19,6 +19,7 @@
                         ghost
                         size="small"
                         variant="secondary"
+                        data-analytics-id="sw-order-customer-grid.show-new-customer-modal"
                         @click="onShowNewCustomerModal"
                     >
                         {{ $t('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
@@ -169,6 +170,7 @@
                 <mt-button
                     size="small"
                     variant="secondary"
+                    data-analytics-id="sw-order-customer-grid.close-sales-channel-select-modal"
                     @click="onCloseSalesChannelSelectModal"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -181,6 +183,7 @@
                     variant="primary"
                     :is-loading="isLoading"
                     :disabled="isSelectSalesChannelDisabled"
+                    data-analytics-id="sw-order-customer-grid.select-sales-channel"
                     @click="onSelectSalesChannel"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonSelectSalesChannel') }}
@@ -210,6 +213,7 @@
                 <mt-button
                     size="small"
                     variant="secondary"
+                    data-analytics-id="sw-order-customer-grid.close-customer-changes-modal"
                     @click="onCloseCustomerChangesModal"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -221,6 +225,7 @@
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
+                    data-analytics-id="sw-order-customer-grid.change-customer"
                     @click="onChangeCustomer"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonChangeCustomer') }}

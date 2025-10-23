@@ -71,10 +71,20 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        cmsPageState: {
-            deep: true,
+        'cmsPageState.currentMappingTypes': {
             handler() {
                 this.updateMappingTypes();
+            },
+        },
+
+        'cmsPageState.currentMappingEntity': {
+            handler() {
+                this.updateMappingTypes();
+            },
+        },
+
+        'cmsPageState.currentDemoEntity': {
+            handler() {
                 this.updateDemoValue();
             },
         },

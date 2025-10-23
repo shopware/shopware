@@ -86,4 +86,28 @@ describe('sw-app-action-button', () => {
             baseAction,
         ]);
     });
+
+    it('should show meteor icon if set and view is not item', async () => {
+        wrapper = await createWrapper({
+            ...baseAction,
+            meteorIcon: 'regular-star',
+            view: 'list',
+        });
+
+        const meteorIcon = wrapper.find('.mt-icon');
+
+        expect(meteorIcon.exists()).toBe(true);
+        expect(meteorIcon.classes()).toContain('icon--regular-star');
+    });
+
+    it('should not show meteor icon if view is item', async () => {
+        wrapper = await createWrapper({
+            ...baseAction,
+            meteorIcon: 'regular-star',
+            view: 'item',
+        });
+
+        const meteorIcon = wrapper.find('.mt-icon');
+        expect(meteorIcon.exists()).toBe(false);
+    });
 });

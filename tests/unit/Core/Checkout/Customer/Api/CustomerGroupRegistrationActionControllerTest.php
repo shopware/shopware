@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionControlle
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,17 +44,19 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     private MockObject&SalesChannelContextRestorer $contextRestorerMock;
 
+    private MockObject&EventDispatcher $eventDispatcherMock;
+
     protected function setUp(): void
     {
         $this->customerRepositoryMock = $this->createMock(EntityRepository::class);
         $this->customerGroupRepositoryMock = $this->createMock(EntityRepository::class);
-        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
+        $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $this->contextRestorerMock = $this->createMock(SalesChannelContextRestorer::class);
 
         $this->controllerMock = new CustomerGroupRegistrationActionController(
             $this->customerRepositoryMock,
             $this->customerGroupRepositoryMock,
-            $eventDispatcherMock,
+            $this->eventDispatcherMock,
             $this->contextRestorerMock,
         );
     }
@@ -126,6 +130,81 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
             'accept/decline silent' => [204,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()], true), null],
             'in batch' => [204, [$customer, $customerB], self::createRequest([$customer->getId(), $customerB->getId()]), null],
         ];
+    }
+
+    public function testDeclineThrowsExceptionOnNoRequestedCustomerGroupId(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = self::createCustomer();
+        $request = self::createRequest([$customer->getId()]);
+
+        $this->setSearchReturn($context, new CustomerCollection([$customer]));
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->contextRestorerMock->method('restoreByCustomer')->willReturnCallback(function (string $customerId) use ($salesChannelContext) {
+            /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method getRequestedGroupId is called and returns null) */
+            $returnCustomer = $this->createMock(CustomerEntity::class);
+            $returnCustomer->method('getId')->willReturn($customerId);
+            $returnCustomer->expects($this->once())->method('getRequestedGroupId')->willReturn(null);
+
+            $salesChannelContext->expects(static::once())->method('getCustomer')->willReturn($returnCustomer);
+
+            return $salesChannelContext;
+        });
+
+        $this->expectExceptionObject(CustomerException::groupRequestNotFound($customer->getId()));
+
+        $this->controllerMock->decline($request, $context);
+    }
+
+    public function testDeclineCustomerRequestedGroupIsSetCorrectly(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $assignedCustomerGroup = new CustomerGroupEntity();
+        $assignedCustomerGroup->setId(Uuid::randomHex());
+
+        $requestedCustomerGroup = new CustomerGroupEntity();
+        $requestedCustomerGroup->setId(Uuid::randomHex());
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setRequestedGroupId($requestedCustomerGroup->getId());
+        $customer->setRequestedGroup($requestedCustomerGroup);
+        $customer->setGroupId($assignedCustomerGroup->getId());
+
+        $request = self::createRequest([$customer->getId()]);
+
+        $this->setSearchReturn($context, new CustomerCollection([$customer]));
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->contextRestorerMock->method('restoreByCustomer')->willReturnCallback(function (string $customerId, Context $context) use ($customer, $salesChannelContext) {
+            $salesChannelContext->method('getCustomer')->willReturn($customer);
+            $salesChannelContext->method('getContext')->willReturn($context);
+
+            return $salesChannelContext;
+        });
+
+        $this->customerGroupRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                CustomerGroupDefinition::ENTITY_NAME,
+                1,
+                new CustomerGroupCollection([$requestedCustomerGroup]),
+                null,
+                new Criteria(),
+                $context,
+            )
+        );
+
+        // test case to ensure the event contains the declined requested customer group
+        $this->eventDispatcherMock->method('dispatch')->willReturnCallback(function (CustomerGroupRegistrationDeclined $customerGroupRegistrationDeclined) use ($customer, $requestedCustomerGroup) {
+            static::assertSame($customer, $customerGroupRegistrationDeclined->getCustomer());
+            static::assertSame($requestedCustomerGroup, $customerGroupRegistrationDeclined->getCustomerGroup());
+
+            return $customerGroupRegistrationDeclined;
+        });
+
+        $this->controllerMock->decline($request, $context);
     }
 
     private static function createCustomer(bool $requestedGroup = true): CustomerEntity
@@ -203,6 +282,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
             $customer->setGroupId(Uuid::randomHex());
 
             $customer->setRequestedGroup(new CustomerGroupEntity());
+            $customer->setRequestedGroupId(Uuid::randomHex());
             $customer->setId($customerId);
 
             $salesChannelContext->method('getCustomer')->willReturn($customer);

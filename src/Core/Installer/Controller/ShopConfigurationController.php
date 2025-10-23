@@ -150,12 +150,14 @@ class ShopConfigurationController extends InstallerController
         $parameters = $request->request->all();
         $parameters['config_shop_currency'] ??= $preselection[$locale]['currency'] ?? 'EUR';
 
+        $systemDefaultLanguageOptions = $this->getSystemDefaultLanguageOptions();
+
         return $this->renderInstaller(
             '@Installer/installer/shop-configuration.html.twig',
             [
                 'error' => $error,
                 'countryIsos' => $this->getCountryIsos($connection, $locale),
-                'languageIsos' => $this->supportedLanguages,
+                'languageIsos' => $systemDefaultLanguageOptions,
                 'allAvailableLanguages' => $this->getAllAvailableLanguages(),
                 'currencyIsos' => $this->supportedCurrencies,
                 'parameters' => $parameters,
@@ -165,11 +167,11 @@ class ShopConfigurationController extends InstallerController
     }
 
     /**
-     * @return array<int, array{iso3: string, default: bool}>
+     * @return list<array{iso3: string, default: bool}>
      */
     private function getCountryIsos(Connection $connection, string $currentLocale): array
     {
-        /** @var array<int, array{iso3: string, iso: string}> $countries */
+        /** @var list<array{iso3: string, iso: string}> $countries */
         $countries = $connection->fetchAllAssociative('SELECT iso3, iso FROM country');
 
         // formatting string e.g. "en-GB" to "GB"
@@ -224,5 +226,25 @@ class ShopConfigurationController extends InstallerController
         }
 
         return $languages;
+    }
+
+    /**
+     * @return array<string, array{id: string, label: string}>
+     */
+    private function getSystemDefaultLanguageOptions(): array
+    {
+        $systemDefaultLanguageOptions = $this->supportedLanguages;
+        $systemDefaultLanguageOptions['de-CH'] = [
+            'id' => 'de-CH',
+            'label' => 'Deutsch (Schweiz)',
+        ];
+
+        $systemDefaultLanguageOptions['de-AT'] = [
+            'id' => 'de-AT',
+            'label' => 'Deutsch (Österreich)',
+        ];
+        ksort($systemDefaultLanguageOptions);
+
+        return $systemDefaultLanguageOptions;
     }
 }

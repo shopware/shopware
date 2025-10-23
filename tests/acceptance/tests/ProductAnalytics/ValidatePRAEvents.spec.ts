@@ -3,9 +3,7 @@ import { expect } from '@playwright/test';
 import type { Route, Request } from '@playwright/test';
 
 interface CapturedRequest {
-    url: string,
-    postData?: string | null;
-    headers: Record<string, string>;
+    postData: string;
 }
 
 export interface AmplitudeEvent {
@@ -47,11 +45,21 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     const requestHandler = async (route: Route) => {
         const req: Request = route.request();
         captured.push({
-            url: req.url(),
             postData: req.postData(),
-            headers: req.headers(),
         });
-        await route.abort();
+        await route.fulfill(
+            {
+                status: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'code': 200,
+                }),
+            }
+        )
     };
 
     test.skip(!(await FeatureService.isEnabled('PRODUCT_ANALYTICS')), 'Product Analytics feature flag is not enabled.');
@@ -305,11 +313,21 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
     const requestHandler = async (route: Route) => {
         const req: Request = route.request();
         captured.push({
-            url: req.url(),
             postData: req.postData(),
-            headers: req.headers(),
         });
-        await route.abort();
+        await route.fulfill(
+            {
+                status: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'code': 200,
+                }),
+            }
+        )
     };
 
     await test.step('Do not set consent for product analytics', async () => {
@@ -342,10 +360,8 @@ function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
     for (const c of captured) {
         if (!c.postData) continue;
         try {
-            const parsed: AmplitudeRequestPayload | AmplitudeEvent[] = JSON.parse(c.postData);
-            if (Array.isArray(parsed)) {
-                events.push(...parsed);
-            } else if (Array.isArray(parsed.events)) {
+            const parsed: AmplitudeRequestPayload = JSON.parse(c.postData);
+            if (Array.isArray(parsed.events)) {
                 events.push(...parsed.events);
             }
         } catch {
@@ -353,21 +369,5 @@ function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
         }
     }
 
-    const seen = new Map<string, AmplitudeEvent>();
-
-    for (const ev of events) {
-        if (ev.insert_id !== undefined && ev.insert_id !== null) {
-            const key = String(ev.insert_id);
-            if (!seen.has(key)) {
-                seen.set(key, ev); // first-seen wins
-            }
-        } else {
-            const fingerprint = `__noid__:${ev.insert_id ?? ev.time ?? JSON.stringify(ev)}`;
-            if (!seen.has(fingerprint)) {
-                seen.set(fingerprint, ev);
-            }
-        }
-    }
-
-    return Array.from(seen.values());
+    return events;
 }

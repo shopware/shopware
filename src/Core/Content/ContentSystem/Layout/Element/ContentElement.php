@@ -9,7 +9,8 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequi
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\ElementSlots;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PlaceholderCollectorVisitor;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ResolvedData;
+use Shopware\Core\Content\ContentSystem\PlaceholderValues;
+use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -142,16 +143,16 @@ class ContentElement extends Struct
         return $consumers;
     }
 
-    public function replacePlaceholders(ResolvedData $data): void
+    public function replacePlaceholders(RenderingSpecification $specification): void
     {
         foreach ($this->properties as $key => $value) {
             if (\is_string($value)) {
-                $this->properties[$key] = $this->resolvePlaceholder($value, $data);
+                $this->properties[$key] = $this->resolvePlaceholder($value, $specification->placeholderValues);
             }
         }
 
         foreach ($this->slots->allElements() as $child) {
-            $child->replacePlaceholders($data);
+            $child->replacePlaceholders($specification);
         }
     }
 
@@ -171,15 +172,11 @@ class ContentElement extends Struct
         return 'content_element';
     }
 
-    private function resolvePlaceholder(string $input, ResolvedData $data): string
+    private function resolvePlaceholder(string $input, PlaceholderValues $values): string
     {
-        $values = $data->getValues();
-
-        foreach ($values as $key => $value) {
-            if (\is_scalar($value)) {
-                $placeholder = '{{' . $key . '}}';
-                $input = \str_replace($placeholder, (string) $value, $input);
-            }
+        foreach ($values->all() as $key => $value) {
+            $placeholder = '{{' . $key . '}}';
+            $input = \str_replace($placeholder, (string) $value, $input);
         }
 
         return $input;

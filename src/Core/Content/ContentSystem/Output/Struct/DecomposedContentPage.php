@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ContentSystem\Output\Struct;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -26,7 +25,6 @@ class DecomposedContentPage extends Struct
         protected string $layoutId,
         protected string $layoutName,
         protected ?string $layoutVersion,
-        protected ContentRouteEntity $route
     ) {
     }
 
@@ -64,11 +62,6 @@ class DecomposedContentPage extends Struct
     public function getLayoutVersion(): ?string
     {
         return $this->layoutVersion;
-    }
-
-    public function getRoute(): ContentRouteEntity
-    {
-        return $this->route;
     }
 
     public function getApiAlias(): string

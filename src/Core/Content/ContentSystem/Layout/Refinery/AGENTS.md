@@ -28,13 +28,12 @@ Chain characteristics:
 
 ```php
 #[AutoconfigureTag('content_system.layout_refiner', ['priority' => 100])]
-class RouteOverrideRefiner implements LayoutRefinerInterface
+class CustomRefiner implements LayoutRefinerInterface
 {
     public function refine(
         ContentElement $layout,
-        ResolvedData $resolvedData,
-        RenderingContext $renderingContext,
-        SalesChannelContext $context
+        RenderingSpecification $specification,
+        SalesChannelContext $salesChannelContext
     ): ContentElement { /* ... */ }
 }
 ```

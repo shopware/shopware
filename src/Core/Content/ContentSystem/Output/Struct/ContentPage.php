@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\ContentSystem\Output\Struct;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
-use Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -20,18 +19,12 @@ class ContentPage extends Struct
         protected ContentElement $layout,
         protected string $layoutName,
         protected ?string $layoutVersion,
-        protected ContentRouteEntity $route
     ) {
     }
 
     public function getLayoutId(): string
     {
         return $this->layoutId;
-    }
-
-    public function getRoute(): ContentRouteEntity
-    {
-        return $this->route;
     }
 
     public function getLayout(): ContentElement
@@ -71,8 +64,7 @@ class ContentPage extends Struct
             assignments: $visitor->getAssignments(),
             layoutId: $this->layoutId,
             layoutName: $this->layoutName,
-            layoutVersion: $this->layoutVersion,
-            route: $this->route
+            layoutVersion: $this->layoutVersion
         );
     }
 }

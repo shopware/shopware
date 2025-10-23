@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
@@ -170,6 +171,7 @@ class CategoryDefinition extends EntityDefinition
             new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id'),
             new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id'),
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('contentLayouts', CategoryContentLayoutDefinition::class, 'category_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware())->setDescription('SEO-friendly URLs for the category across different sales channels'),
         ]);
     }

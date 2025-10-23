@@ -11,17 +11,15 @@
 
 ## Constraints
 
-### Five-Phase Pipeline Orchestration
+### Three-Phase Pipeline Orchestration
 
-ContentRouteLoader orchestrates these phases sequentially:
+ContentRoute uses Chain of Responsibility for factory selection. ContentRouteLoader then orchestrates these phases sequentially:
 
-1. **Route Matching**: ContentRouter matches URL to content route
-2. **Entity Resolution**: EntityIdResolver extracts parameters, queries entities
-3. **Layout Resolution**: LayoutResolver determines layout (static or cascade)
-4. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
-5. **Hydration**: ContentElementHydrator loads data + resolves context
+1. **Factory Selection**: Iterate context factories (ProductContextFactory, CategoryContextFactory, RouteBasedContextFactory, etc.) in DI priority order until one returns RenderingSpecification
+2. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
+3. **Hydration**: ContentElementHydrator loads data + resolves context
 
-See `ContentRouteLoader::load()` for implementation.
+See `ContentRoute::load()` for factory iteration and `ContentRouteLoader::load()` for pipeline implementation.
 
 ### Endpoint Details
 
@@ -37,8 +35,9 @@ See `ContentRouteLoader::load()` for implementation.
 ## Quick Reference
 
 - **Endpoint**: `/store-api/content/{path}` (GET, POST)
-- **Pipeline**: Routing → Resolution → Layout → Refinement → Hydration (MUST be sequential)
+- **Pipeline**: Factory Selection → Refinement → Hydration (MUST be sequential)
+- **Chain of Responsibility**: Factories tried in DI priority order, first non-null wins
 - **404s**: Throw `ContentSystemException` with specific codes
 - **HTTP cache**: Enabled, cached by sales channel + URL + customer group
-- **Extension**: Decorate `AbstractContentRoute`
-- **Response**: `ContentPage` with rootElement, resolvedData, route, layout
+- **Extension**: Decorate `AbstractContentRoute` or add new context factory
+- **Response**: `ContentPage` with layout, layoutId, layoutName, layoutVersion

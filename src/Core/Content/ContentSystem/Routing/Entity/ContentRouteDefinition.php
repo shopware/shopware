@@ -48,7 +48,7 @@ class ContentRouteDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
             (new UrlPatternField('url_pattern', 'urlPattern'))->addFlags(new ApiAware(), new Required()),
-            (new ParameterBindingsField('parameter_bindings', 'parameterBindings'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new ParameterBindingsField('parameter_bindings', 'parameterBindings'))->addFlags(new ApiAware(AdminApiSource::class)),
             (new IntField('priority', 'priority'))->addFlags(new ApiAware(AdminApiSource::class)),
             (new JsonField('overrides', 'overrides'))->addFlags(new ApiAware(AdminApiSource::class)),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(AdminApiSource::class)),

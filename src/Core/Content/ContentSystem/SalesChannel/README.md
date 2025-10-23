@@ -20,24 +20,21 @@ The endpoint accepts optional query parameters:
 
 ## Pipeline Orchestration
 
-ContentRouteLoader orchestrates five phases:
+ContentRoute delegates to context factories via Chain of Responsibility pattern to create RenderingSpecification. ContentRouteLoader then orchestrates three phases:
 
-1. **Route Matching**: ContentRouter matches URL to content route
-2. **Entity Resolution**: EntityIdResolver extracts parameters, queries entities
-3. **Layout Resolution**: LayoutResolver determines layout (static or cascade)
-4. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
-5. **Hydration**: ContentElementHydrator loads data + resolves context
+1. **Factory Selection**: Iterate context factories in DI priority order, first non-null RenderingSpecification wins
+2. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
+3. **Hydration**: ContentElementHydrator loads data + resolves context
 
 If `elementId` query parameter is present, SubTreeExtractor performs partial rendering after hydration.
 
-ContentRoute delegates to loader, transforms result to DecomposedContentPage for API response.
+ContentRoute transforms result to DecomposedContentPage for API response.
 
 Returns ContentPage containing:
 - `layoutId`: Layout UUID
 - `layout`: Hydrated ContentElement tree (root element)
 - `layoutName`: Layout name
 - `layoutVersion`: Layout version ID
-- `route`: Matched ContentRouteEntity
 
 ## HTTP Cache
 

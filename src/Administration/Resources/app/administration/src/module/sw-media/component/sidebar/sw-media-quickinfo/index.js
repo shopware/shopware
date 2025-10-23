@@ -100,6 +100,14 @@ export default {
             });
         },
 
+        mimeTypeGroup() {
+            if (!this.item.mimeType) {
+                return '';
+            }
+
+            return this.item.mimeType.split('/')[0];
+        },
+
         isPlayable() {
             const playableFormats = [
                 'video/mp4',
@@ -112,6 +120,10 @@ export default {
             ];
 
             return playableFormats.includes(this.item.mimeType);
+        },
+
+        showUnsupportedFormatWarning() {
+            return (this.mimeTypeGroup === 'video' || this.mimeTypeGroup === 'audio') && !this.isPlayable;
         },
     },
 

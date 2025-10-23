@@ -143,7 +143,7 @@
             {% endblock %}
             {% block sw_media_preview_v2_unsupported_format_warning %}
             <mt-icon
-                v-if="!isPlayable"
+                v-if="showUnsupportedFormatWarning"
                 v-tooltip.bottom="{ message: $t('global.sw-media-preview-v2.warningUnsupportedFormat', { format: mimeType }) }"
                 name="regular-exclamation-triangle"
                 size="16px"

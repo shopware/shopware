@@ -194,6 +194,10 @@ export default {
             return this.$options.playableAudioFormats.includes(this.mimeType);
         },
 
+        showUnsupportedFormatWarning() {
+            return (this.mimeTypeGroup === 'video' || this.mimeTypeGroup === 'audio') && !this.isPlayable;
+        },
+
         isIcon() {
             return /.*svg.*/.test(this.mimeType);
         },

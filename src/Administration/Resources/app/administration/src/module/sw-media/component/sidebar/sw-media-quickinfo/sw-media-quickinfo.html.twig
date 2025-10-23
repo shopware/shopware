@@ -228,7 +228,7 @@
             <div>
                 {% block sw_media_quickinfo_unsupported_format_banner %}
                 <mt-banner
-                    v-if="!isPlayable"
+                    v-if="showUnsupportedFormatWarning"
                     variant="attention"
                     class="sw-media-quickinfo__unsupported-format-banner"
                 >

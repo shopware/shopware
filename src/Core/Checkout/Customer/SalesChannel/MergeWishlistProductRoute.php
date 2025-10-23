@@ -103,7 +103,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
             return [];
         }
 
-        /** @var array<string> $ids */
+        /** @var list<string> $ids */
         $ids = $this->productRepository->searchIds(new Criteria($ids), $context)->getIds();
 
         $customerProducts = $this->loadCustomerProducts($wishlistId, $ids);

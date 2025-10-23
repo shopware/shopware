@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test(
-    'As a customer, I want to see a reduced header and footer during checkout.', { tag: ['@Checkout'] },
+    'As a customer, I want to see a reduced header and footer during checkout.', { tag: ['@Checkout', '@Storefront'] },
     async ({
         ShopCustomer,
         TestDataService,

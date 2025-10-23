@@ -91,6 +91,7 @@
                 <sw-context-menu-item
                     class="sw-context-menu-item--danger sw-flow-list__item-delete"
                     :disabled="!acl.can('flow.deleter')"
+                    variant="danger"
                     @click="onDeleteFlow(item)"
                 >
                     {{ $tc('global.default.delete') }}

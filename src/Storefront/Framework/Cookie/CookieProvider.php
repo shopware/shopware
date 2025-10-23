@@ -33,6 +33,11 @@ class CookieProvider implements CookieProviderInterface
                 'expiration' => '30',
                 'hidden' => true,
             ],
+            [
+                'snippet_name' => 'cookie.groupRequiredCookieHash',
+                'cookie' => 'cookie-config-hash',
+                'hidden' => true,
+            ],
         ],
     ];
 

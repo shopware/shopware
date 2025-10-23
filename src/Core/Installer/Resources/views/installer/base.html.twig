@@ -41,7 +41,8 @@
                                  src="{{ asset('bundles/installer/assets/images/flags/' ~ app.request.locale ~ '.svg', 'asset') }}"
                                  alt="{{ app.request.locale }}">
                             <select id="language" name="language" class="language-selection"
-                                    onchange="changeLanguage(this.value);">
+                                    onchange="changeLanguage(this.value);"
+                                    onmousedown="if (this.disabled) { event.preventDefault(); }">
                                 {% for baseTag, language in supportedLanguages %}
                                     <option value="{{ baseTag }}" data-flag="{{ baseTag }}"
                                             {% if app.request.locale == baseTag %}selected{% endif %}>

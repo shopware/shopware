@@ -494,7 +494,8 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectExceptionObject(DataAbstractionLayerException::entityNotVersionable(''));
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->createVersion('test', Context::createDefaultContext());
     }
@@ -531,7 +532,8 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectExceptionObject(DataAbstractionLayerException::entityNotVersionable(''));
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->merge('test', Context::createDefaultContext());
     }
@@ -568,7 +570,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidUuid('test'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidEntityUuidException('test'));
 
         $repo->clone('test', Context::createDefaultContext(), 'test');
     }

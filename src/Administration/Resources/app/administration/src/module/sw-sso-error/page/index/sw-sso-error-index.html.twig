@@ -5,7 +5,7 @@
             <img
                 width="200"
                 :src="assetFilter('administration/administration/static/img/shopware_logo_blue.svg')"
-                :alt="$tc('sw-sso-error.error-card.logoAltText')"
+                :alt="$t('global.sw-sso-error.error-card.logoAltText')"
             >
         </div>
 
@@ -22,10 +22,10 @@
             </div>
 
             <h1 class="sw-sso-error__title">
-                {{ $tc('sw-sso-error.error-card.title') }}
+                {{ $t('global.sw-sso-error.error-card.title') }}
             </h1>
             <p class="sw-sso-error__description">
-                {{ $tc('sw-sso-error.error-card.text') }}
+                {{ $t('global.sw-sso-error.error-card.text') }}
             </p>
 
             <div class="sw-sso-error-card__button-container">
@@ -41,11 +41,11 @@
                     :href="url"
                     class="sw-button sw-button--primary"
                 >
-                    {{ $tc('sw-sso-error.error-card.button') }}
+                    {{ $t('global.sw-sso-error.error-card.button') }}
                 </a>
             </div>
 
-            <span class="sw-sso-error-card__small-text">{{ $tc('sw-sso-error.error-card.loggedInAsPrefix') }}</span>
+            <span class="sw-sso-error-card__small-text">{{ $t('global.sw-sso-error.error-card.loggedInAsPrefix') }}</span>
             <span
                 v-if="email"
                 class="sw-sso-error-card__small-text-email"

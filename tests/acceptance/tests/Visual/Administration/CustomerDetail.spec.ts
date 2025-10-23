@@ -1,4 +1,4 @@
-import { test, setViewport, assertScreenshot, hideElements, replaceElementsIndividually } from '@fixtures/AcceptanceTest';
+import { test, setViewport, assertScreenshot, hideElements } from '@fixtures/AcceptanceTest';
 
 test('Visual: Customer Detail Page', { tag: '@Visual' }, async ({ 
     ShopAdmin,
@@ -38,25 +38,19 @@ test('Visual: Customer Detail Page', { tag: '@Visual' }, async ({
 
     await test.step('Creates a screenshot of the customer listing page.', async () => {
         await ShopAdmin.goesTo(AdminCustomerListing.url());
+
+        //hide the first dynamic customer for test stability
+        const defaultCustomerRow = AdminCustomerListing.page.getByRole('row').filter({ hasText: DefaultSalesChannel.customer.email });
+        await ShopAdmin.expects(defaultCustomerRow).toBeVisible();
+        await hideElements(AdminCustomerListing.page, [
+            defaultCustomerRow,
+        ]);
+
         await setViewport(AdminCustomerListing.page, {
             waitForSelector: AdminCustomerListing.addCustomerButton,
             scrollableElementVertical: AdminCustomerListing.page.locator('.sw-page__main-content'),
             width: 2400,
         });
-
-        //hide the first dynamic customer
-        const customer1 = await AdminCustomerListing.getCustomerByEmail(DefaultSalesChannel.customer.email);
-        hideElements(AdminCustomerListing.page, [
-            customer1.customerName,
-            customer1.customerStreet,
-            customer1.customerPostalCode,
-            customer1.customerCity,
-            customer1.customerNumber,
-            customer1.customerGroup, 
-            customer1.customerEmailAddress,
-            customer1.customerCreatedTime,
-            customer1.customerAvatar,
-        ]);
 
         await assertScreenshot(AdminCustomerListing.page, 'Listing-With-Customer.png');
     });

@@ -30,7 +30,7 @@ abstract class AbstractDocumentRenderer
     /**
      * @param array<int, string> $ids
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     protected function getOrdersLanguageId(array $ids, string $versionId, Connection $connection): array
     {
@@ -110,12 +110,12 @@ abstract class AbstractDocumentRenderer
             return true;
         }
 
-        $vatId = $shippingAddress->getVatId();
-        if ($vatId === null) {
+        $vatIds = $order->getOrderCustomer()?->getVatIds();
+        if (!\is_array($vatIds)) {
             return false;
         }
 
-        $violations = $validator->validate([$vatId], [
+        $violations = $validator->validate($vatIds, [
             new NotBlank(),
             new CustomerVatIdentification(countryId: $country->getId()),
         ]);

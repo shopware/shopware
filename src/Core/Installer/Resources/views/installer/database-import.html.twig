@@ -78,6 +78,8 @@
             document.getElementById('import-container').classList.add('is--hidden');
             document.getElementById('import-finished').classList.remove('is--hidden');
 
+            document.getElementById('language').disabled = false;
+
             const progress = document.getElementById('progress');
             progress.classList.remove('active');
 
@@ -91,6 +93,7 @@
         }
 
         async function doRequest(offset) {
+            document.getElementById('language').disabled = true;
             const response = await fetch('{{ url('installer.database-migrate') }}', {
                 method: 'POST',
                 headers: {
@@ -107,6 +110,7 @@
                 document.getElementById('error-content').innerText = await response.text();
 
                 document.getElementById('back').classList.remove('disabled');
+                document.getElementById('language').disabled = false;
 
                 return;
             }

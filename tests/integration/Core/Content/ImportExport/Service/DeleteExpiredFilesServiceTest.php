@@ -72,17 +72,17 @@ class DeleteExpiredFilesServiceTest extends TestCase
         static::assertSame(3, $count);
     }
 
-    public function testCountFilesWithExactlyThirtyDaysOldFiles(): void
+    public function testCountFilesWithNearlyThirtyDaysOldFiles(): void
     {
-        // Create files exactly 30 days old - should not be expired
+        // Create files nearly 30 days old
         $this->createTestFiles([
-            ['expireDate' => new \DateTimeImmutable('-30 days')],
+            ['expireDate' => new \DateTimeImmutable('-29 days -23 hours -59 minutes -55 seconds')], // Should not expire (buffer of 5 seconds for test execution time)
+            ['expireDate' => new \DateTimeImmutable('-30 days -1 second')], // Should expire
         ]);
 
         $count = $this->deleteExpiredFilesService->countFiles($this->context);
 
-        // Should not count files that are exactly 30 days old (LT filter)
-        static::assertSame(0, $count);
+        static::assertSame(1, $count);
     }
 
     public function testDeleteFilesWithNoExpiredFiles(): void
@@ -141,7 +141,6 @@ class DeleteExpiredFilesServiceTest extends TestCase
             ['expireDate' => new \DateTimeImmutable('+1 day')],
             ['expireDate' => new \DateTimeImmutable('-1 day')],
             ['expireDate' => new \DateTimeImmutable('-29 days')],
-            ['expireDate' => new \DateTimeImmutable('-30 days')], // Exactly 30 days - not expired
         ]);
 
         // Verify count before deletion

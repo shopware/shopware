@@ -7,6 +7,8 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal only for use by the app-system
  */
 #[Package('framework')]

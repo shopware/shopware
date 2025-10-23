@@ -333,7 +333,7 @@
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\MessageQueue\RotateAppSecretHandler">
+        <service id="Shopware\Core\Framework\App\MessageHandler\RotateAppSecretHandler">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <tag name="messenger.message_handler"/>
         </service>

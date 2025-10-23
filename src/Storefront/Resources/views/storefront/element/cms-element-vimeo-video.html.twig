@@ -63,6 +63,7 @@
                 </div>
             {% else %}
                 {% set pluginConfiguration = {
+                    cookieName: 'vimeo-video',
                     videoUrl: videoUrl,
                     iframeClasses: [ iframeClass ],
                     iframeTitle: config.iframeTitle.value,

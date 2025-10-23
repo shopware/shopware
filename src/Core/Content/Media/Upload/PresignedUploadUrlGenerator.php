@@ -46,7 +46,7 @@ class PresignedUploadUrlGenerator
         $this->validateS3Config($s3Config);
 
         $this->bucket = $s3Config['bucket'];
-        $this->region = $s3Config['region'] ?? 'us-east-1';
+        $this->region = $s3Config['region'];
 
         $credentials = $s3Config['credentials'] ?? [];
 

@@ -323,6 +323,8 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
         url_upload_max_size: 0
+        enable_presigned_upload: true
+        presigned_upload_expiration_minutes: 5
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'

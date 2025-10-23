@@ -121,7 +121,6 @@ test('As a customer, I must be able to change my password via account.', { tag: 
     });
 
     await test.step('Verify login with new password', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
         await ShopCustomer.fillsIn(StorefrontAccountLogin.emailInput, customer.email);
         await ShopCustomer.fillsIn(StorefrontAccountLogin.passwordInput, newPassword);
         await ShopCustomer.presses(StorefrontAccountLogin.loginButton);

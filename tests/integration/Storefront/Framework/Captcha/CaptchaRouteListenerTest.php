@@ -123,7 +123,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         $data = [
             'shopware_basic_captcha_confirm' => 'invalid',
-            'errorRoute' => 'frontend.checkout.register.page',
+            'errorRoute' => 'frontend.account.register.page',
         ];
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -136,12 +136,13 @@ class CaptchaRouteListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
-        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
 
-        // Verify that the response redirects to the checkout register page
-        // The errorRoute parameter should be respected
+        // Verify that the response forwards to the account register page
+        // The errorRoute parameter should be respected (internal forward, not redirect)
         $content = $response->getContent();
         static::assertIsString($content);
-        static::assertStringContainsString('/checkout/', $content);
+        // Check that we're on the register page by looking for the register form
+        static::assertStringContainsString('action="/account/register"', $content);
     }
 }

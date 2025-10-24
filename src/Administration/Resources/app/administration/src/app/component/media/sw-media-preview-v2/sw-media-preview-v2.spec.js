@@ -268,15 +268,18 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
     it.each([
         { mimeType: 'video/quicktime', shouldShowWarning: true },
         { mimeType: 'video/mp4', shouldShowWarning: false },
-    ])('should show warning icon if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)', async ({ mimeType, shouldShowWarning }) => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            imagePreviewFailed: true,
-            trueSource: { mimeType, thumbnails: [] },
-        });
-        await flushPromises();
+    ])(
+        'should show warning icon if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)',
+        async ({ mimeType, shouldShowWarning }) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                imagePreviewFailed: true,
+                trueSource: { mimeType, thumbnails: [] },
+            });
+            await flushPromises();
 
-        const warningIcon = wrapper.find('.sw-media-preview-v2__warning-icon');
-        expect(warningIcon.exists()).toBe(shouldShowWarning);
-    });
+            const warningIcon = wrapper.find('.sw-media-preview-v2__warning-icon');
+            expect(warningIcon.exists()).toBe(shouldShowWarning);
+        },
+    );
 });

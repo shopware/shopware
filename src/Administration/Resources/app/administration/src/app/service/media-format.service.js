@@ -59,4 +59,3 @@ export function shouldShowUnsupportedFormatWarning(mimeType) {
     const mimeTypeGroup = mimeType.split('/')[0];
     return (mimeTypeGroup === 'video' || mimeTypeGroup === 'audio') && !isPlayableMediaFormat(mimeType);
 }
-

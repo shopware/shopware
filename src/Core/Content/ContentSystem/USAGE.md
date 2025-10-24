@@ -67,9 +67,15 @@ graph LR
 
 Products and Categories can render directly using ContentSystem layouts without URL routing. Recommended for standard product/category pages.
 
-**Endpoints:**
-- `/store-api/content/product/{productId}` - Product detail pages
-- `/store-api/content/category/{categoryId}` - Category pages
+**Endpoint:** `/store-api/content/{path}`
+
+**Supported path patterns:**
+- `product/{productId}` - Product detail pages
+- `category/{categoryId}` - Category pages
+
+**Example requests:**
+- `/store-api/content/product/abc123def456` - Renders product with ID abc123def456
+- `/store-api/content/category/xyz789abc012` - Renders category with ID xyz789abc012
 
 **Database tables:**
 - `product_content_layout` - Product → layout assignments

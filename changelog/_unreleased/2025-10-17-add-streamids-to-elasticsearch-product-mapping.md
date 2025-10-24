@@ -11,8 +11,12 @@ author_github: timeo-schmidt
 * Added missing `streamIds` field to Elasticsearch product mapping in `ElasticsearchProductDefinition`
 * Added `KEYWORD_FIELD` indexing for `streamIds` consistent with other ID array fields (`categoryIds`, `propertyIds`, `optionIds`, `tagIds`)
 
+---
+
 # API
 * Added support for filtering product listings by `streamIds` when using Elasticsearch
+
+---
 
 # Upgrade Information
 

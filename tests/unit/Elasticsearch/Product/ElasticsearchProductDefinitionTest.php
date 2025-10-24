@@ -304,12 +304,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'lang_en' => [
                             'type' => 'object',
                             'dynamic' => true,
-                            'properties' => [],
                         ],
                         'lang_de' => [
                             'type' => 'object',
                             'dynamic' => true,
-                            'properties' => [],
                         ],
                     ],
                 ],

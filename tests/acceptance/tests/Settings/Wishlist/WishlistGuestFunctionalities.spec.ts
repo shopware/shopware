@@ -26,10 +26,7 @@ test.describe('Wishlist Guest Functionalities', () => {
             throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
         }
 
-        const cacheResponse = await TestDataService.AdminApiClient.delete('_action/cache');
-        if (!cacheResponse.ok()) {
-            throw new Error(`Failed to clear cache: ${cacheResponse.status()} ${cacheResponse.statusText()}`);
-        }
+        await TestDataService.clearCaches();
     });
 
     test.afterEach(async ({ TestDataService }) => {
@@ -38,7 +35,7 @@ test.describe('Wishlist Guest Functionalities', () => {
                 data: { null: originalConfig }
             });
 
-            await TestDataService.AdminApiClient.delete('_action/cache');
+            await TestDataService.clearCaches();
         }
     });
 

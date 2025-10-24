@@ -94,7 +94,8 @@ export default class CookieConfiguration extends Plugin {
             this.openRequestConsentOffCanvas(payload.route, payload.cookieName);
         });
 
-        OffCanvasInstance.$emitter.subscribe('onCloseOffcanvas', this._onOffCanvasClose.bind(this));
+        this._onOffCanvasCloseHandler = this._onOffCanvasClose.bind(this);
+        OffCanvasInstance.$emitter.subscribe('onCloseOffcanvas', this._onOffCanvasCloseHandler);
     }
 
     /**
@@ -107,9 +108,20 @@ export default class CookieConfiguration extends Plugin {
             this._delegatedEventHandler = null;
         }
 
+        // Clean up offcanvas event listeners
+        const offCanvas = this._getOffCanvas();
+        if (offCanvas && this._offCanvasDelegatedHandler && offCanvas.hasAttribute('data-offcanvas-events-registered')) {
+            offCanvas.removeEventListener('click', this._offCanvasDelegatedHandler, true);
+            offCanvas.removeAttribute('data-offcanvas-events-registered');
+            this._offCanvasDelegatedHandler = null;
+        }
+
         // Clean up other event listeners
         document.$emitter.unsubscribe('CookieConfiguration/requestConsent');
-        OffCanvasInstance.$emitter.unsubscribe('onCloseOffcanvas', this._onOffCanvasClose.bind(this));
+        if (this._onOffCanvasCloseHandler) {
+            OffCanvasInstance.$emitter.unsubscribe('onCloseOffcanvas', this._onOffCanvasCloseHandler);
+            this._onOffCanvasCloseHandler = null;
+        }
     }
 
     /**
@@ -124,6 +136,7 @@ export default class CookieConfiguration extends Plugin {
 
         return (Number.isInteger(parsed) && parsed > 0) ? parsed : 30;
     }
+
 
     /**
      * Registers the events for displaying the offCanvas
@@ -179,30 +192,59 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Registers events required by the offCanvas template
+     * Registers events required by the offCanvas template using event delegation
+     * This prevents duplicate event listeners and memory leaks
      *
      * @private
      */
     _registerOffCanvasEvents() {
-        const { submitEvent, buttonSubmitSelector, buttonAcceptAllSelector } = this.options;
         const offCanvas = this._getOffCanvas();
 
-        if (offCanvas) {
-            const button = offCanvas.querySelector(buttonSubmitSelector);
-            const buttonAcceptAll = offCanvas.querySelector(buttonAcceptAllSelector);
-            const checkboxes = Array.from(offCanvas.querySelectorAll('input[type="checkbox"]'));
-
-            if (button) {
-                button.addEventListener(submitEvent, this._handleSubmit.bind(this));
+        if (offCanvas && !offCanvas.hasAttribute('data-offcanvas-events-registered')) {
+            // Create and store a stable handler reference for later removal
+            if (!this._offCanvasDelegatedHandler) {
+                this._offCanvasDelegatedHandler = this._handleOffCanvasClick.bind(this);
             }
 
-            if (buttonAcceptAll) {
-                buttonAcceptAll.addEventListener(submitEvent, this._acceptAllCookiesFromOffCanvas.bind(this));
-            }
+            // Mark as registered to prevent duplicate registration
+            offCanvas.setAttribute('data-offcanvas-events-registered', 'true');
 
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener(submitEvent, this._handleCheckbox.bind(this));
-            });
+            // Attach the delegated event listener
+            offCanvas.addEventListener('click', this._offCanvasDelegatedHandler, true);
+        }
+    }
+
+    /**
+     * Handles all click events within the offcanvas using event delegation
+     * This prevents memory leaks and duplicate event listeners
+     *
+     * @param {Event} event
+     * @private
+     */
+    _handleOffCanvasClick(event) {
+        const { buttonSubmitSelector, buttonAcceptAllSelector } = this.options;
+        const target = event.target;
+
+        // Handle submit button
+        const submitButton = target.closest(buttonSubmitSelector);
+        if (submitButton) {
+            event.preventDefault();
+            this._handleSubmit(event);
+            return;
+        }
+
+        // Handle accept all button
+        const acceptAllButton = target.closest(buttonAcceptAllSelector);
+        if (acceptAllButton) {
+            event.preventDefault();
+            this._acceptAllCookiesFromOffCanvas(event);
+            return;
+        }
+
+        // Handle checkboxes
+        if (target.type === 'checkbox') {
+            this._handleCheckbox(event);
+            return;
         }
     }
 

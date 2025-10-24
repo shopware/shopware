@@ -129,7 +129,6 @@ export default class CookieConfiguration extends Plugin {
         return (Number.isInteger(parsed) && parsed > 0) ? parsed : 30;
     }
 
-
     /**
      * Registers the events for displaying the offCanvas
      * Applies the event to all elements using the "buttonOpenSelector" or "customLinkSelector"

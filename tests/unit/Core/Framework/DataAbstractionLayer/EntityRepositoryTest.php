@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidEntityUuidException;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -31,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -495,7 +495,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->createVersion('test', Context::createDefaultContext());
     }
@@ -533,7 +533,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->merge('test', Context::createDefaultContext());
     }
@@ -570,7 +570,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectException(InvalidUuidException::class);
+        static::expectException(InvalidEntityUuidException::class);
 
         $repo->clone('test', Context::createDefaultContext(), 'test');
     }

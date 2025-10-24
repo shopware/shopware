@@ -177,7 +177,7 @@ class PluginManagementServiceTest extends TestCase
         $pluginManagementService = new PluginManagementService(
             '',
             $this->createMock(PluginZipDetector::class),
-            $this->createMock(PluginExtractor::class),
+            $this->createMock(ExtensionExtractor::class),
             $this->createMock(PluginService::class),
             $fs,
             $this->createMock(CacheClearer::class),
@@ -201,7 +201,7 @@ class PluginManagementServiceTest extends TestCase
         $pluginManagementService = new PluginManagementService(
             '',
             $this->createMock(PluginZipDetector::class),
-            $this->createMock(PluginExtractor::class),
+            $this->createMock(ExtensionExtractor::class),
             $this->createMock(PluginService::class),
             $fs,
             $this->createMock(CacheClearer::class),

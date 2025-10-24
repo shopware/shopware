@@ -4,22 +4,22 @@ Demo data and Postman scripts for testing the ContentSystem.
 
 ## Files
 
-- `admin-api-demo-payload.json` - Demo data with products, categories, layouts, and routes
-- `admin-api-demo-post-pre-script.js` - Postman pre-request script for authentication and ID resolution
+- `sync-api-demo-payload.json` - Demo data with products, categories, landing pages, layouts, and routes
+- `sync-api-demo-post-pre-script.js` - Postman pre-request script for authentication and ID resolution
 
 ## Usage in Postman
 
 ### 1. Setup Pre-Request Script
 
 1. Create new Postman request: `POST http://localhost:8000/api/_action/sync`
-2. Copy content from `admin-api-demo-post-pre-script.js` to request's "Pre-request Script" tab
+2. Copy content from `sync-api-demo-post-pre-script.js` to request's "Pre-request Script" tab
 3. Set authorization: "Bearer Token" with `{{adminToken}}`
 
 ### 2. Import Demo Payload
 
 1. Go to request "Body" tab
 2. Select "raw" and "JSON"
-3. Copy content from `admin-api-demo-payload.json`
+3. Copy content from `sync-api-demo-payload.json`
 
 ### 3. Execute
 

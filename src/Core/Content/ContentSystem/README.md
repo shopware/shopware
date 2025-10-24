@@ -1,6 +1,6 @@
 # ContentSystem
 
-Runtime content rendering with two access patterns: route-based (via URL routing) and entity-based (adapting CMS-capable entities). Supports direct layout rendering for Products and Categories.
+Runtime content rendering with two access patterns: route-based (via URL routing) and entity-based (adapting CMS-capable entities). Supports direct layout rendering for Products, Categories, and Landing Pages.
 
 ## Two Rendering Modes
 
@@ -19,13 +19,14 @@ Five-phase pipeline:
 
 ### Entity-Based Rendering (NEW)
 
-Adapts CMS-capable entities to ContentSystem rendering. Products and Categories can have content layouts assigned directly in database with sales channel specificity, bypassing URL routing infrastructure.
+Adapts CMS-capable entities to ContentSystem rendering. Products, Categories, and Landing Pages can have content layouts assigned directly in database with sales channel specificity, bypassing URL routing infrastructure.
 
 **Endpoint:** `/store-api/content/{path}`
 
 **Supported path patterns:**
 - `product/{productId}` - Direct product rendering (handled by ProductContextFactory)
 - `category/{categoryId}` - Direct category rendering (handled by CategoryContextFactory)
+- `landing-page/{landingPageId}` - Direct landing page rendering (handled by LandingPageContextFactory)
 
 Three-phase pipeline:
 1. **Layout Resolution**: Entity ID + sales channel → content layout (via `LayoutSearchHelper` with entity-specific factories)
@@ -52,11 +53,11 @@ Routes contain URL patterns (`/product/{seoUrl}`) with parameter bindings that m
 ### Entity-Based Flow
 
 ```
-Entity ID → ProductContextFactory/CategoryContextFactory → LayoutSearchHelper
+Entity ID → ProductContextFactory/CategoryContextFactory/LandingPageContextFactory → LayoutSearchHelper
   → RenderingSpecification → RefinedLayoutBuilder → ContentElementHydrator → Response
 ```
 
-Direct entity-to-layout lookup. ProductContextFactory/CategoryContextFactory use LayoutSearchHelper to query `product_content_layout` or `category_content_layout` table with sales channel fallback (specific → global). Factory creates RenderingSpecification with entity ID as placeholder. Same rendering pipeline as route-based, but no routing infrastructure involved.
+Direct entity-to-layout lookup. ProductContextFactory/CategoryContextFactory/LandingPageContextFactory use LayoutSearchHelper to query `product_content_layout`, `category_content_layout`, or `landing_page_content_layout` table with sales channel fallback (specific → global). Factory creates RenderingSpecification with entity ID as placeholder. Same rendering pipeline as route-based, but no routing infrastructure involved.
 
 ## Key Classes
 
@@ -69,6 +70,7 @@ Direct entity-to-layout lookup. ProductContextFactory/CategoryContextFactory use
 ### Entity-Based (NEW)
 - `ProductContextFactory` - Product ID + sales channel → specification (Adapter/)
 - `CategoryContextFactory` - Category ID + sales channel → specification (Adapter/)
+- `LandingPageContextFactory` - Landing page ID + sales channel → specification (Adapter/)
 - `LayoutSearchHelper` - Shared query logic with sales channel fallback (Adapter/)
 
 ### Shared Rendering Pipeline
@@ -96,4 +98,4 @@ The rendering pipeline (refinement → hydration → output) is completely indep
 - Layout/: Element tree structure, type system, refinement
 - Hydration/: Data loading, context distribution
 - SalesChannel/: Store API endpoints
-- Adapter/: Entity adaptation for CMS-capable entities (Product, Category)
+- Adapter/: Entity adaptation for CMS-capable entities (Product, Category, Landing Page)

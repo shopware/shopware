@@ -7,6 +7,7 @@
 - `RenderingSpecificationFactoryInterface` - Factory contract (root ContentSystem/)
 - `ProductContextFactory` - Product entity factory
 - `CategoryContextFactory` - Category entity factory
+- `LandingPageContextFactory` - Landing page entity factory
 - `LayoutSearchHelper` - Shared query logic
 - `RouteBasedContextFactory` - Route-based factory (Routing/)
 

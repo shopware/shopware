@@ -245,6 +245,11 @@
             <tag name="content_system.context_factory" priority="90"/>
         </service>
 
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\LandingPageContextFactory">
+            <argument type="service" id="landing_page_content_layout.repository"/>
+            <tag name="content_system.context_factory" priority="80"/>
+        </service>
+
         <!-- Route-based Context Factory (in Routing/) - Fallback with lowest priority -->
         <service id="Shopware\Core\Content\ContentSystem\Routing\RouteBasedContextFactory">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter"/>

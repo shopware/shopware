@@ -1,7 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
@@ -42,7 +41,8 @@ return static function (array &$context) {
     }
 
     if (!isset($context['INSTALL'])) {
-        if (EnvironmentHelper::getVariable('COMPOSER_PLUGIN_LOADER', false)) {
+        $useComposerPluginLoader = (bool) ($context['COMPOSER_PLUGIN_LOADER'] ?? false);
+        if ($useComposerPluginLoader) {
             $pluginLoader = new ComposerPluginLoader($classLoader, null);
         } elseif (trim($context['DATABASE_URL'] ?? '') !== '') {
             $pluginLoader = new DbalKernelPluginLoader($classLoader, null, Kernel::getConnection());

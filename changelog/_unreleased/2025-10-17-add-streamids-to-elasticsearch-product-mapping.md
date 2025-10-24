@@ -9,24 +9,11 @@ author_github: timeo-schmidt
 
 # Core
 * Added missing `streamIds` field to Elasticsearch product mapping in `ElasticsearchProductDefinition`
-* Added `KEYWORD_FIELD` indexing for `streamIds` consistent with other ID array fields (`categoryIds`, `propertyIds`, `optionIds`, `tagIds`)
 
----
-
-# API
-* Added support for filtering product listings by `streamIds` when using Elasticsearch
-
----
+___
 
 # Upgrade Information
 
-## Elasticsearch Reindexing Required
+## ProductStream IDs added to ElasticsearchProductDefinition
 
-After upgrading, shops using Elasticsearch need to reindex products to add the new `streamIds` field:
-
-```bash
-php bin/console es:mapping:update
-php bin/console es:index
-```
-
-This fix resolves an issue where product stream (dynamic product group) filters would return 0 results when Elasticsearch was enabled, even though products were correctly associated with streams in the database.
+Product streams are now supported while using Elasticsearch. To make this work, a re-index is necessary. 

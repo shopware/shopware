@@ -15,7 +15,7 @@ jobs:
     name: "PHP lint"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -96,7 +96,7 @@ jobs:
     name: "BC check"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: "0"
           fetch-tags: "1"
@@ -233,7 +233,7 @@ jobs:
     name: "composer audit"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

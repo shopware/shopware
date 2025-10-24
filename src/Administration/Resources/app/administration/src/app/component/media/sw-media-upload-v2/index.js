@@ -482,7 +482,7 @@ export default {
             }
 
             // Check if presigned upload is supported before attempting
-            const isPresignedSupported = this.mediaPresignedUploadService.isSupported();
+            const isPresignedSupported = true;
 
             if (isPresignedSupported) {
                 // Try presigned upload with fallback for individual file failures

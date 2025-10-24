@@ -50,13 +50,20 @@ class PresignedUploadUrlGenerator
 
         $credentials = $s3Config['credentials'] ?? [];
 
-        $this->s3Client = new S3Client([
+        // Build S3 client config
+        $s3ClientConfig = [
             'region' => $this->region,
             'endpoint' => $s3Config['endpoint'] ?? null,
             'pathStyleEndpoint' => $s3Config['use_path_style_endpoint'] ?? false,
-            'accessKeyId' => $credentials['key'] ?? null,
-            'accessKeySecret' => $credentials['secret'] ?? null,
-        ]);
+        ];
+
+        // Only add explicit credentials if provided (otherwise AWS SDK uses IAM roles)
+        if (!empty($credentials['key']) && !empty($credentials['secret'])) {
+            $s3ClientConfig['accessKeyId'] = $credentials['key'];
+            $s3ClientConfig['accessKeySecret'] = $credentials['secret'];
+        }
+
+        $this->s3Client = new S3Client($s3ClientConfig);
     }
 
     /**
@@ -163,21 +170,10 @@ class PresignedUploadUrlGenerator
     private function validateS3Config(array $s3Config): void
     {
         if (empty($s3Config['bucket'])) {
-            throw MediaException::invalidRequest('S3 configuration missing: bucket');
+            throw new \RuntimeException('S3 configuration missing: bucket');
         }
 
-        $credentials = $s3Config['credentials'] ?? [];
-        $missingKeys = [];
-
-        foreach (['key', 'secret'] as $expectedKey) {
-            if (!\array_key_exists($expectedKey, $credentials) || empty($credentials[$expectedKey])) {
-                $missingKeys[] = "credentials.{$expectedKey}";
-            }
-        }
-
-        if (!empty($missingKeys)) {
-            throw MediaException::invalidRequest('S3 configuration missing: ' . implode(', ', $missingKeys));
-        }
+        // Credentials are optional - AWS SDK will use IAM roles if not provided
     }
 
     /**

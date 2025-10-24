@@ -43,9 +43,6 @@
     <span class="sw-settings-search__search-index-latest-build">
         <template v-if="latestIndex">
             {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} <sw-time-ago
-                :date="latestIndex.firstDate"
-                :date-time-format="{ month: '2-digit', day: '2-digit' }"
-            /> &dash; <sw-time-ago
                 :date="latestIndex.lastDate"
                 :date-time-format="{ month: '2-digit', day: '2-digit' }"
             />

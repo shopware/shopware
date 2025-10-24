@@ -265,27 +265,18 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         expect(wrapper.vm.sourceSet).toBe('');
     });
 
-    it('should show warning icon for unsupported video format (MOV)', async () => {
+    it.each([
+        { mimeType: 'video/quicktime', shouldShowWarning: true },
+        { mimeType: 'video/mp4', shouldShowWarning: false },
+    ])('should show warning icon if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)', async ({ mimeType, shouldShowWarning }) => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             imagePreviewFailed: true,
-            trueSource: { mimeType: 'video/quicktime', thumbnails: [] },
+            trueSource: { mimeType, thumbnails: [] },
         });
         await flushPromises();
 
         const warningIcon = wrapper.find('.sw-media-preview-v2__warning-icon');
-        expect(warningIcon.exists()).toBe(true);
-    });
-
-    it('should not show warning icon for supported video format (MP4)', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            imagePreviewFailed: true,
-            trueSource: { mimeType: 'video/mp4', thumbnails: [] },
-        });
-        await flushPromises();
-
-        const warningIcon = wrapper.find('.sw-media-preview-v2__warning-icon');
-        expect(warningIcon.exists()).toBe(false);
+        expect(warningIcon.exists()).toBe(shouldShowWarning);
     });
 });

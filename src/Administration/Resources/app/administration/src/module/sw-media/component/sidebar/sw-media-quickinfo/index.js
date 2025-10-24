@@ -1,5 +1,6 @@
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 
 const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
@@ -109,21 +110,11 @@ export default {
         },
 
         isPlayable() {
-            const playableFormats = [
-                'video/mp4',
-                'video/ogg',
-                'video/webm',
-                'audio/mp3',
-                'audio/mpeg',
-                'audio/ogg',
-                'audio/wav',
-            ];
-
-            return playableFormats.includes(this.item.mimeType);
+            return isPlayableMediaFormat(this.item.mimeType);
         },
 
         showUnsupportedFormatWarning() {
-            return (this.mimeTypeGroup === 'video' || this.mimeTypeGroup === 'audio') && !this.isPlayable;
+            return shouldShowUnsupportedFormatWarning(this.item.mimeType);
         },
     },
 

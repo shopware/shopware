@@ -1,5 +1,6 @@
 import template from './sw-media-preview-v2.html.twig';
 import './sw-media-preview-v2.scss';
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 
 const { Context, Filter } = Shopware;
 const { fileReader } = Shopware.Utils;
@@ -29,19 +30,6 @@ export default {
     emits: [
         'click',
         'media-preview-play',
-    ],
-
-    playableVideoFormats: [
-        'video/mp4',
-        'video/ogg',
-        'video/webm',
-    ],
-
-    playableAudioFormats: [
-        'audio/mp3',
-        'audio/mpeg',
-        'audio/ogg',
-        'audio/wav',
     ],
 
     placeholderThumbnailsBasePath: '/administration/administration/static/img/media-preview/',
@@ -187,15 +175,11 @@ export default {
         },
 
         isPlayable() {
-            if (this.$options.playableVideoFormats.includes(this.mimeType)) {
-                return true;
-            }
-
-            return this.$options.playableAudioFormats.includes(this.mimeType);
+            return isPlayableMediaFormat(this.mimeType);
         },
 
         showUnsupportedFormatWarning() {
-            return (this.mimeTypeGroup === 'video' || this.mimeTypeGroup === 'audio') && !this.isPlayable;
+            return shouldShowUnsupportedFormatWarning(this.mimeType);
         },
 
         isIcon() {

@@ -7,8 +7,8 @@ Connects CMS-capable entities (Product, Category) to ContentSystem rendering. En
 Products and Categories can have ContentSystem layouts assigned directly in database. Layouts specific to sales channel or global across all channels.
 
 **Supported entities:**
-- **Product** - Direct product detail page rendering via `/store-api/content/product/{productId}`
-- **Category** - Direct category page rendering via `/store-api/content/category/{categoryId}`
+- **Product** - Path pattern: `product/{productId}` (e.g., `/store-api/content/product/abc123`)
+- **Category** - Path pattern: `category/{categoryId}` (e.g., `/store-api/content/category/xyz789`)
 
 Each entity type has dedicated factory creating RenderingSpecification from entity ID.
 

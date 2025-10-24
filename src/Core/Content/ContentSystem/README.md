@@ -21,9 +21,11 @@ Five-phase pipeline:
 
 Adapts CMS-capable entities to ContentSystem rendering. Products and Categories can have content layouts assigned directly in database with sales channel specificity, bypassing URL routing infrastructure.
 
-**Endpoints:**
-- `/store-api/content/product/{productId}`
-- `/store-api/content/category/{categoryId}`
+**Endpoint:** `/store-api/content/{path}`
+
+**Supported path patterns:**
+- `product/{productId}` - Direct product rendering (handled by ProductContextFactory)
+- `category/{categoryId}` - Direct category rendering (handled by CategoryContextFactory)
 
 Three-phase pipeline:
 1. **Layout Resolution**: Entity ID + sales channel → content layout (via `LayoutSearchHelper` with entity-specific factories)

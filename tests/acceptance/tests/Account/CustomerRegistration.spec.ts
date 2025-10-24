@@ -41,6 +41,5 @@ test('As a new customer, I should not be able to register with empty postal code
         if (!satisfies(InstanceMeta.version, '<6.7')) {
             await ShopCustomer.expects(StorefrontAccountLogin.page.locator('.invalid-feedback')).toContainText('Input should not be empty.');
         }
-
     });
 });

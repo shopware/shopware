@@ -1,6 +1,17 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.7
+*  [GHSA-m895-2hj3-8cg9](https://github.com/shopware/shopware/security/advisories/GHSA-m895-2hj3-8cg9) - fix: Reading media entities by aggregating fields individually bypasses MediaVisibilityRestrictionSubscriber
+*  [GHSA-27c9-vp3w-6ww8](https://github.com/shopware/shopware/security/advisories/GHSA-27c9-vp3w-6ww8) - fix: Exposure of sensitive user information via CSV export mapping
+*  [GHSA-3cpp-fv95-mpr5](https://github.com/shopware/shopware/security/advisories/GHSA-3cpp-fv95-mpr5) - fix: Server-Side Request Forgery (SSRF) - order invoice
+*  [GHSA-6wh5-mw9h-5c3w](https://github.com/shopware/shopware/security/advisories/GHSA-6wh5-mw9h-5c3w) - fix: Path traversal via Plugin upload
+*  [GHSA-r2vg-hvjm-fg38](https://github.com/shopware/shopware/security/advisories/GHSA-r2vg-hvjm-fg38) - fix: Customer Orders can be canceled, even if refunds are disabled
+*  [#6912 - fix: require with minimum-stability stable (fixes: #6912) (#6914)](https://github.com/shopware/shopware/issues/6912)
+*  [#6960 - ci: skip downstreams in case of no write perms (fixes: #6960) (#6985)](https://github.com/shopware/shopware/issues/6960)
+*  [#9031 - ci: reenable 6.6.0.0 update (fixes #9031)[6.6.x]  (#9248)](https://github.com/shopware/shopware/issues/9031)
+*  [#9851 - feat: implement event on Sitemap Generation, closes #9851 [6.6.x]  (#9968)](https://github.com/shopware/shopware/issues/9851)
+
 ## 6.6.10.6
 *  [#8724 - Added locking to cart mutating routes](./changelog/release-6-6-10-6/2025-07-15-added-locking-to-cart-mutating-routes.md)
 *  [#10763 - fix: remove 6.8.0.0 feature flag](https://github.com/shopware/shopware/issues/10763)

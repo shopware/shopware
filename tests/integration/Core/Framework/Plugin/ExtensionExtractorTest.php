@@ -5,7 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Plugin\PluginExtractor;
+use Shopware\Core\Framework\Plugin\ExtensionExtractor;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
@@ -15,7 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-class PluginExtractorTest extends TestCase
+class ExtensionExtractorTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -23,13 +24,13 @@ class PluginExtractorTest extends TestCase
 
     private Filesystem $filesystem;
 
-    private PluginExtractor $extractor;
+    private ExtensionExtractor $extractor;
 
     protected function setUp(): void
     {
         $this->container = static::getContainer();
         $this->filesystem = $this->container->get(Filesystem::class);
-        $this->extractor = new PluginExtractor(
+        $this->extractor = new ExtensionExtractor(
             [
                 PluginManagementService::PLUGIN => __DIR__ . '/_fixtures/plugins',
                 PluginManagementService::APP => __DIR__ . '/_fixtures/apps',
@@ -58,16 +59,28 @@ class PluginExtractorTest extends TestCase
 
         $archive = __DIR__ . '/_fixtures/TestShippingApp.zip';
 
+        static::assertFileDoesNotExist(__DIR__ . '/_fixtures/apps/TestShippingApp');
+
         if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);
         }
-
         $this->expectExceptionMessage('Unable to parse file "TestShippingApp/manifest.xml". Message: deliveryTime must not be empty');
-
         $this->extractor->extract($archive, false, PluginManagementService::APP);
+    }
 
-        static::assertFileDoesNotExist(__DIR__ . '/_fixtures/apps/TestShippingApp');
+    public function testExtractWithPathTraversal(): void
+    {
+        $zipPath = __DIR__ . '/_fixtures/DirectoryTraversal.zip';
+
+        $archive = new \ZipArchive();
+        $archive->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $archive->addEmptyDir('MyPlugin');
+        $archive->addFromString('MyPlugin/../../evil.php', 'This should not exist outside of the MyPlugin directory');
+        $archive->close();
+
+        $this->expectExceptionObject(PluginException::pluginExtractionError('Directory Traversal detected'));
+        $this->extractor->extract($zipPath, false, PluginManagementService::PLUGIN);
     }
 }

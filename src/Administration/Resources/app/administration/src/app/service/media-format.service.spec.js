@@ -2,10 +2,7 @@
  * @sw-package discovery
  */
 
-import {
-    isPlayableMediaFormat,
-    shouldShowUnsupportedFormatWarning,
-} from './media-format.service';
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from './media-format.service';
 
 describe('app/service/media-format.service.js', () => {
     it.each([
@@ -21,9 +18,12 @@ describe('app/service/media-format.service.js', () => {
         { mimeType: 'audio/aac', expected: false },
         { mimeType: 'image/jpeg', expected: false },
         { mimeType: 'application/pdf', expected: false },
-    ])('isPlayableMediaFormat should return correct value (mimeType: $mimeType, expected: $expected)', ({ mimeType, expected }) => {
-        expect(isPlayableMediaFormat(mimeType)).toBe(expected);
-    });
+    ])(
+        'isPlayableMediaFormat should return correct value (mimeType: $mimeType, expected: $expected)',
+        ({ mimeType, expected }) => {
+            expect(isPlayableMediaFormat(mimeType)).toBe(expected);
+        },
+    );
 
     it.each([
         { mimeType: 'video/quicktime', expected: true },
@@ -33,8 +33,10 @@ describe('app/service/media-format.service.js', () => {
         { mimeType: 'audio/mp3', expected: false },
         { mimeType: 'image/jpeg', expected: false },
         { mimeType: 'application/pdf', expected: false },
-    ])('shouldShowUnsupportedFormatWarning should return correct value (mimeType: $mimeType, expected: $expected)', ({ mimeType, expected }) => {
-        expect(shouldShowUnsupportedFormatWarning(mimeType)).toBe(expected);
-    });
+    ])(
+        'shouldShowUnsupportedFormatWarning should return correct value (mimeType: $mimeType, expected: $expected)',
+        ({ mimeType, expected }) => {
+            expect(shouldShowUnsupportedFormatWarning(mimeType)).toBe(expected);
+        },
+    );
 });
-

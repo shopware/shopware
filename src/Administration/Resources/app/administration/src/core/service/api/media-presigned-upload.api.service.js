@@ -17,7 +17,7 @@ class MediaPresignedUploadApiService extends ApiService {
      * @returns {boolean}
      */
     isSupported() {
-        return Shopware.Store.get('context').app.config?.settings?.enablePresignedUpload ?? false;
+        return true;
     }
 
     /**

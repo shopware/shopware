@@ -80,6 +80,7 @@ export default class CookieConfiguration extends Plugin {
             active: [],
             inactive: [],
         };
+        this._cleanupTasks = [];
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._httpClient = new HttpClient();
@@ -93,34 +94,25 @@ export default class CookieConfiguration extends Plugin {
             }
             this.openRequestConsentOffCanvas(payload.route, payload.cookieName);
         });
-
-        this._onOffCanvasCloseHandler = this._onOffCanvasClose.bind(this);
-        OffCanvasInstance.$emitter.subscribe('onCloseOffcanvas', this._onOffCanvasCloseHandler);
+        this._registerCleanup(() => {
+            document.$emitter.unsubscribe('CookieConfiguration/requestConsent');
+        });
     }
 
     /**
      * Clean up event listeners and resources when plugin is destroyed
      */
     destroy() {
-        // Remove delegated event handler
-        if (this._delegatedEventHandler) {
-            document.removeEventListener(this.options.submitEvent, this._delegatedEventHandler, true);
-            this._delegatedEventHandler = null;
-        }
-
-        // Clean up offcanvas event listeners
-        const offCanvas = this._getOffCanvas();
-        if (offCanvas && this._offCanvasDelegatedHandler && offCanvas.hasAttribute('data-offcanvas-events-registered')) {
-            offCanvas.removeEventListener('click', this._offCanvasDelegatedHandler, true);
-            offCanvas.removeAttribute('data-offcanvas-events-registered');
-            this._offCanvasDelegatedHandler = null;
-        }
-
-        // Clean up other event listeners
-        document.$emitter.unsubscribe('CookieConfiguration/requestConsent');
-        if (this._onOffCanvasCloseHandler) {
-            OffCanvasInstance.$emitter.unsubscribe('onCloseOffcanvas', this._onOffCanvasCloseHandler);
-            this._onOffCanvasCloseHandler = null;
+        if (this._cleanupTasks && this._cleanupTasks.length > 0) {
+            const tasks = this._cleanupTasks.slice();
+            this._cleanupTasks = [];
+            for (let i = 0; i < tasks.length; i++) {
+                try {
+                    tasks[i]();
+                } catch (_error) {
+                    // noop: best-effort cleanup
+                }
+            }
         }
     }
 
@@ -189,6 +181,10 @@ export default class CookieConfiguration extends Plugin {
         // Use single event delegation handler to avoid multiple listeners
         // Use capture phase to ensure this runs before other click handlers
         document.addEventListener(submitEvent, this._delegatedEventHandler, true);
+        this._registerCleanup(() => {
+            document.removeEventListener(submitEvent, this._delegatedEventHandler, true);
+            this._delegatedEventHandler = null;
+        });
     }
 
     /**
@@ -211,6 +207,11 @@ export default class CookieConfiguration extends Plugin {
 
             // Attach the delegated event listener
             offCanvas.addEventListener('click', this._offCanvasDelegatedHandler, true);
+            this._registerCleanup(() => {
+                offCanvas.removeEventListener('click', this._offCanvasDelegatedHandler, true);
+                offCanvas.removeAttribute('data-offcanvas-events-registered');
+                this._offCanvasDelegatedHandler = null;
+            });
         }
     }
 
@@ -575,30 +576,33 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerOffCanvasCloseListener() {
-        const onOffCanvasClose = () => {
+        // Subscribe once to the OffCanvas close event with a namespaced event
+        this._onOffCanvasOnceHandler = () => {
             this._checkAndShowCookieBarIfNeeded();
-            document.$emitter.unsubscribe('onCloseOffcanvas', onOffCanvasClose);
         };
 
-        document.$emitter.subscribe('onCloseOffcanvas', onOffCanvasClose);
+        OffCanvasInstance.$emitter.subscribe('onCloseOffcanvas', this._onOffCanvasOnceHandler, { once: true });
+        this._registerCleanup(() => {
+            OffCanvasInstance.$emitter.unsubscribe('onCloseOffcanvas');
+            this._onOffCanvasOnceHandler = null;
+        });
+    }
+
+    /**
+     * Register a cleanup callback to be executed on destroy
+     * @param {Function} cleanupFn
+     * @private
+     */
+    _registerCleanup(cleanupFn) {
+        if (!this._cleanupTasks) {
+            this._cleanupTasks = [];
+        }
+        this._cleanupTasks.push(cleanupFn);
     }
 
     _hideCookieBar() {
         const hideCookieBarEvent = new CustomEvent('hideCookieBar');
         document.dispatchEvent(hideCookieBarEvent);
-    }
-
-    /**
-     * Handle offcanvas close event - show cookie bar again if user hasn't made a choice
-     * @private
-     */
-    _onOffCanvasClose() {
-        const { cookiePreference } = this.options;
-        const hasPreference = CookieStorage.getItem(cookiePreference);
-
-        if (!hasPreference) {
-            this._checkAndShowCookieBarIfNeeded();
-        }
     }
 
     /**

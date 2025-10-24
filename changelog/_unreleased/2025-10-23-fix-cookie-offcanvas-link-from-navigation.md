@@ -12,6 +12,7 @@ author_github: @BrocksiNet
   * Enhanced click handling to support middle-click and Ctrl/Cmd+click for normal browser behavior
 * Changed `OffCanvas` plugin to properly dispose of Bootstrap Offcanvas instances
   * This fixes backdrop cleanup issues when replacing one offcanvas with another
+* Changed `ajax-offcanvas.plugin.js` and removed the `closable` parameter from the `setContent` method, to fix animation issues when closing offcanvas.
 ___
 # Upgrade Information
 

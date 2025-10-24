@@ -163,7 +163,7 @@ class WriteCommandQueue
     }
 
     /**
-     * @return array<int, mixed>
+     * @return list<mixed>
      */
     private static function decodeCommandPrimary(DefinitionInstanceRegistry $registry, WriteCommand $command): array
     {

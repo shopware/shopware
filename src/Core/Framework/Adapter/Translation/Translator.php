@@ -269,7 +269,7 @@ class Translator extends AbstractTranslator
     }
 
     /**
-     * @return array<int, MessageCatalogueInterface>
+     * @return list<MessageCatalogueInterface>
      */
     public function getCatalogues(): array
     {

@@ -1,6 +1,6 @@
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import CmsGdprVideoElement, { CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO } from 'src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin';
-import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS } from 'src/plugin/cookie/cookie-configuration.plugin';
+import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 
 /**
  * @sw-package discovery
@@ -44,6 +44,7 @@ describe('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin', () =
         cmsGdprVideoElement.init();
 
         expect(document.$emitter.subscribe).toHaveBeenCalledWith(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, expect.any(Function));
+        expect(document.$emitter.subscribe).toHaveBeenCalledWith(COOKIE_CONFIGURATION_UPDATE, expect.any(Function));
         expect(CookieStorageHelper.getItem(cmsGdprVideoElement.options.cookieName)).toBe('1');
         expect(_replaceElementWithVideo).toHaveBeenCalled();
     });
@@ -63,10 +64,47 @@ describe('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin', () =
         const options = { videoUrl, iframeTitle, iframeClasses: [] };
 
         cmsGdprVideoElement = initPlugin(options);
+        CookieStorageHelper.setItem(cmsGdprVideoElement.options.cookieName, '1', '30');
         cmsGdprVideoElement._replaceElementWithVideo();
 
         const iframe = document.querySelector('iframe');
         expect(iframe).not.toBeNull();
         expect(iframe.getAttribute('allowfullscreen')).toBe('allowfullscreen');
+    });
+
+    test('should not replace video when cookie is not set', () => {
+        const videoUrl = 'https://www.youtube.com/embed/test';
+        const iframeTitle = 'Test Video';
+        const options = { videoUrl, iframeTitle, iframeClasses: [] };
+
+        cmsGdprVideoElement = initPlugin(options);
+        const result = cmsGdprVideoElement._replaceElementWithVideo();
+
+        expect(result).toBe(false);
+        expect(document.querySelector('iframe')).toBeNull();
+    });
+
+    test('should only replace video when correct cookie is set', () => {
+        const videoUrl = 'https://www.vimeo.com/embed/test';
+        const iframeTitle = 'Vimeo Video';
+        const options = { cookieName: 'vimeo-video', videoUrl, iframeTitle, iframeClasses: [] };
+
+        cmsGdprVideoElement = initPlugin(options);
+
+        // Set youtube cookie instead of vimeo
+        CookieStorageHelper.setItem('youtube-video', '1', '30');
+        let result = cmsGdprVideoElement._replaceElementWithVideo();
+
+        // Should not replace with wrong cookie
+        expect(result).toBe(false);
+        expect(document.querySelector('iframe')).toBeNull();
+
+        // Set correct vimeo cookie
+        CookieStorageHelper.setItem('vimeo-video', '1', '30');
+        result = cmsGdprVideoElement._replaceElementWithVideo();
+
+        // Should replace with correct cookie
+        expect(result).toBe(true);
+        expect(document.querySelector('iframe')).not.toBeNull();
     });
 });

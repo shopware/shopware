@@ -62,7 +62,13 @@ class CookieProviderTest extends TestCase
         $comfortFeaturesGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         static::assertInstanceOf(CookieGroup::class, $comfortFeaturesGroup);
         static::assertNotNull($comfortFeaturesGroup->getEntries());
-        static::assertCount(1, $comfortFeaturesGroup->getEntries());
+        static::assertCount(2, $comfortFeaturesGroup->getEntries());
+
+        $youtubeCookie = $comfortFeaturesGroup->getEntries()->get('youtube-video');
+        static::assertNotNull($youtubeCookie);
+
+        $vimeoCookie = $comfortFeaturesGroup->getEntries()->get('vimeo-video');
+        static::assertNotNull($vimeoCookie);
     }
 
     public function testGetCookieGroupsWithTranslation(): void

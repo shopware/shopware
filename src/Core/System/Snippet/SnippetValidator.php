@@ -179,7 +179,7 @@ readonly class SnippetValidator implements SnippetValidatorInterface
     /**
      * @param array<string, mixed> $dataSet
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getRecursiveArrayKeys(array $dataSet, string $keyString = ''): array
     {
@@ -204,7 +204,7 @@ readonly class SnippetValidator implements SnippetValidatorInterface
 
     /**
      * @param array<string, array<string, array<string, mixed>>> $snippetFileMappings
-     * @param array<int, string> $availableISOs
+     * @param list<string> $availableISOs
      */
     private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): MissingSnippetCollection
     {

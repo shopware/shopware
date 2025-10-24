@@ -97,7 +97,13 @@ describe('NavbarPlugin', () => {
         window.location = new URL('https://www.example.com');
 
         const mockEventClick = { type: 'click', pageX: 99 };
-        const mockLink = { href: 'https://example.com/abc', target: '_self' };
+        const mockLink = {
+            href: 'https://example.com/abc',
+            target: '_self',
+            parentNode: {
+                classList: { contains: jest.fn().mockReturnValue(true) },
+            },
+        };
 
         navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
 
@@ -130,7 +136,7 @@ describe('NavbarPlugin', () => {
         const mockDropdown = {
             show: jest.fn(),
             hide: jest.fn(),
-            _menu: {classList: {contains: jest.fn().mockReturnValue(false)}}
+            _menu: { classList: { contains: jest.fn().mockReturnValue(false) } },
         };
         window.bootstrap = {
             Dropdown: {

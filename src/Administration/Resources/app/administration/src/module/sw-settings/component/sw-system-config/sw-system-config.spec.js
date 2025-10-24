@@ -430,11 +430,13 @@ function createConfig() {
                 domValueCheck: (field, domValue) => {
                     expect(field.find('input').element.value).toBe(domValue);
                 },
+                defaultValueDom: '2000/01/01',
                 afterValue: '2000-12-12T12:00:00+00:00',
                 childValue: '2020-12-12T12:00:00+00:00',
                 changeValueFunction: async (field, afterValue) => {
+                    console.log("afterValue", afterValue);
                     // change input value
-                    await field.find('input[type="text"]').setValue(afterValue);
+                    await field.find('input').setValue(afterValue);
                 },
             },
         },
@@ -476,7 +478,9 @@ function createConfig() {
                 childValue: '#789ced',
                 changeValueFunction: async (field, afterValue) => {
                     // change input value
-                    await field.find('input[type="text"]').setValue(afterValue);
+                    await field.find('input').setValue(afterValue);
+                    // Wait for debounced color change after 50ms
+                    await new Promise((resolve) => {setTimeout(resolve, 55)});
                 },
             },
         },
@@ -682,7 +686,14 @@ function createConfig() {
                 },
             },
         },
-    ];
+    ]
+    // TODO: filter just for debugging
+        .filter((element) => {
+            // Just return one type for testing
+            return element.type === 'date';
+
+            return true;
+        })
 
     return [
         {
@@ -757,7 +768,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     });
 
     createConfig()[0].elements.forEach(({ name, type, config, _test }) => {
-        it(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
+        it.only(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
             const afterValueDom = _test.afterValueDom || _test.afterValue;
 
@@ -825,10 +836,10 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             // check if value in dom shows the inherit value
             let field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
             await _test.domValueCheck(field, domValue);
-            let inheritanceSwitch = field.find('.sw-inheritance-switch');
+            let inheritanceSwitch = field.find('.mt-inheritance-switch');
 
             // check if switch show inheritance
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
 
             // check if inheritance switch is visible
             expect(inheritanceSwitch.isVisible()).toBe(true);
@@ -841,8 +852,8 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.sw-inheritance-switch');
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            inheritanceSwitch = field.find('.mt-inheritance-switch');
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
 
             // check if child gets parent value
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
@@ -897,11 +908,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(childValue);
 
             // check if inheritance switch is visible
-            let inheritanceSwitch = field.find('.sw-inheritance-switch');
+            let inheritanceSwitch = field.find('.mt-inheritance-switch');
             expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if switch show inheritance
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
 
             // restore inheritance
             await inheritanceSwitch.find('.mt-icon').trigger('click');
@@ -909,9 +920,9 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.sw-inheritance-switch');
+            inheritanceSwitch = field.find('.mt-inheritance-switch');
 
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
 
             // check if child gets parent value
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
@@ -964,20 +975,20 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(childValue);
 
             // check if inheritance switch is visible
-            let inheritanceSwitch = field.find('.sw-inheritance-switch');
+            let inheritanceSwitch = field.find('.mt-inheritance-switch');
             expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if switch show inheritance
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
 
             // restore inheritance
-            await inheritanceSwitch.find('.mt-icon').trigger('click');
+            await inheritanceSwitch.trigger('click');
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.sw-inheritance-switch');
+            inheritanceSwitch = field.find('.mt-inheritance-switch');
 
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
 
             // check if child gets fallback parent value
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);

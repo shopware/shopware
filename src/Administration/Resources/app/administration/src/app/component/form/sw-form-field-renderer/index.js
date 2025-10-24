@@ -251,14 +251,12 @@ export default {
         },
 
         componentPropName() {
-            switch (this.componentName) {
-                case 'mt-textarea':
-                case 'mt-switch':
-                case 'mt-number-field':
-                    return 'modelValue';
-                default:
-                    return 'value';
+            // When component name starts with "mt-" use "modelValue" as prop name
+            if (this.componentName.startsWith('mt-')) {
+                return 'modelValue';
             }
+
+            return 'value';
         },
     },
 
@@ -325,14 +323,14 @@ export default {
             const type = customType ?? this.type;
 
             const components = {
-                bool: 'sw-switch-field-deprecated',
-                switch: 'sw-switch-field-deprecated',
-                textarea: 'sw-textarea-field-deprecated',
-                checkbox: 'sw-checkbox-field-deprecated',
-                colorpicker: 'sw-colorpicker-deprecated',
+                bool: 'mt-switch',
+                switch: 'mt-switch',
+                textarea: 'mt-textarea',
+                checkbox: 'mt-checkbox',
+                colorpicker: 'mt-colorpicker',
                 compactColorpicker: 'sw-compact-colorpicker',
-                date: 'sw-datepicker-deprecated',
-                datetime: 'sw-datepicker-deprecated',
+                date: 'mt-datepicker',
+                datetime: 'mt-datepicker',
                 time: 'sw-datepicker-deprecated',
                 email: 'sw-email-field-deprecated',
                 float: 'sw-number-field-deprecated',
@@ -340,15 +338,15 @@ export default {
                 number: 'sw-number-field-deprecated',
                 'multi-entity-id-select': 'sw-entity-multi-id-select',
                 'multi-select': 'sw-multi-select',
-                password: 'sw-password-field-deprecated',
+                password: 'mt-password-field',
                 price: 'sw-price-field',
                 radio: 'sw-radio-field',
                 'single-entity-id-select': 'sw-entity-single-select',
                 'single-select': 'sw-single-select',
                 string: 'sw-text-field-deprecated',
-                text: 'sw-text-field-deprecated',
+                text: 'mt-text-field',
                 tagged: 'sw-tagged-field',
-                url: 'sw-url-field-deprecated',
+                url: 'mt-url-field',
             };
 
             return components[type] ?? 'sw-text-field-deprecated';

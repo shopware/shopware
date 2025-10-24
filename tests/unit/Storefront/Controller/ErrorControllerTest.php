@@ -31,6 +31,8 @@ class ErrorControllerTest extends TestCase
 
     private ErrorPageLoaderInterface $errorPageLoader;
 
+    private ConstraintViolationList $violations;
+
     protected function setUp(): void
     {
         $this->errorTemplateResolver = $this->createMock(ErrorTemplateResolver::class);
@@ -46,10 +48,7 @@ class ErrorControllerTest extends TestCase
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->set('request_stack', new RequestStack());
         $this->controller->setContainer($containerBuilder);
-    }
 
-    public function testOnCaptchaFailureWithErrorRouteParameter(): void
-    {
         $violation = new ConstraintViolation(
             'Captcha is invalid',
             null,
@@ -60,13 +59,16 @@ class ErrorControllerTest extends TestCase
             null,
             'captcha-invalid'
         );
-        $violations = new ConstraintViolationList([$violation]);
+        $this->violations = new ConstraintViolationList([$violation]);
+    }
 
+    public function testOnCaptchaFailureWithErrorRouteParameter(): void
+    {
         $request = new Request();
         $request->request->set('errorRoute', 'frontend.contact.page');
         $request->attributes->set('_route', 'frontend.account.login.page');
 
-        $this->controller->onCaptchaFailure($violations, $request);
+        $this->controller->onCaptchaFailure($this->violations, $request);
 
         static::assertSame('frontend.contact.page', $this->controller->forwardToRoute);
         static::assertArrayHasKey('formViolations', $this->controller->forwardToRouteAttributes);
@@ -78,22 +80,10 @@ class ErrorControllerTest extends TestCase
 
     public function testOnCaptchaFailureWithRouteAttributeFallback(): void
     {
-        $violation = new ConstraintViolation(
-            'Captcha is invalid',
-            null,
-            [],
-            null,
-            'captcha',
-            null,
-            null,
-            'captcha-invalid'
-        );
-        $violations = new ConstraintViolationList([$violation]);
-
         $request = new Request();
         $request->attributes->set('_route', 'frontend.account.register.page');
 
-        $this->controller->onCaptchaFailure($violations, $request);
+        $this->controller->onCaptchaFailure($this->violations, $request);
 
         static::assertSame('frontend.account.register.page', $this->controller->forwardToRoute);
         static::assertArrayHasKey('formViolations', $this->controller->forwardToRouteAttributes);
@@ -101,21 +91,9 @@ class ErrorControllerTest extends TestCase
 
     public function testOnCaptchaFailureWithDefaultFallback(): void
     {
-        $violation = new ConstraintViolation(
-            'Captcha is invalid',
-            null,
-            [],
-            null,
-            'captcha',
-            null,
-            null,
-            'captcha-invalid'
-        );
-        $violations = new ConstraintViolationList([$violation]);
-
         $request = new Request();
 
-        $this->controller->onCaptchaFailure($violations, $request);
+        $this->controller->onCaptchaFailure($this->violations, $request);
 
         static::assertSame('frontend.home.page', $this->controller->forwardToRoute);
         static::assertArrayHasKey('formViolations', $this->controller->forwardToRouteAttributes);
@@ -123,22 +101,10 @@ class ErrorControllerTest extends TestCase
 
     public function testOnCaptchaFailureWithXmlHttpRequest(): void
     {
-        $violation = new ConstraintViolation(
-            'Captcha is invalid',
-            null,
-            [],
-            null,
-            'captcha',
-            null,
-            null,
-            'captcha-invalid'
-        );
-        $violations = new ConstraintViolationList([$violation]);
-
         $request = new Request();
         $request->headers->set('X-Requested-With', 'XMLHttpRequest');
 
-        $response = $this->controller->onCaptchaFailure($violations, $request);
+        $response = $this->controller->onCaptchaFailure($this->violations, $request);
 
         static::assertInstanceOf(JsonResponse::class, $response);
 
@@ -156,23 +122,11 @@ class ErrorControllerTest extends TestCase
 
     public function testOnCaptchaFailureWithErrorRouteAsEmptyString(): void
     {
-        $violation = new ConstraintViolation(
-            'Captcha is invalid',
-            null,
-            [],
-            null,
-            'captcha',
-            null,
-            null,
-            'captcha-invalid'
-        );
-        $violations = new ConstraintViolationList([$violation]);
-
         $request = new Request();
         $request->request->set('errorRoute', '');
         $request->attributes->set('_route', 'frontend.account.login.page');
 
-        $this->controller->onCaptchaFailure($violations, $request);
+        $this->controller->onCaptchaFailure($this->violations, $request);
 
         // Empty string should fall back to the _route attribute
         static::assertSame('frontend.account.login.page', $this->controller->forwardToRoute);

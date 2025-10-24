@@ -91,8 +91,7 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes a DataRequirement to array format for storage.
-     * Public to allow other serializers to use it if needed.
+     * Public for ContentElementFieldSerializer to serialize nested requirements.
      *
      * @return array<string, mixed>
      */

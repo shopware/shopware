@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Abstract base for content route resolution.
+ * Decorator base for Store API content route.
  */
 #[Package('discovery')]
 abstract class AbstractContentRoute

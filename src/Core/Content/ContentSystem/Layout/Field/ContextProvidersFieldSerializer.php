@@ -106,8 +106,7 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes a ContextProvider to array format for storage.
-     * Public to allow other serializers to use it if needed.
+     * Public for ContentElementFieldSerializer to serialize nested providers.
      *
      * Note: Uses DistributionConfig::toArray() which must remain for runtime usage.
      *

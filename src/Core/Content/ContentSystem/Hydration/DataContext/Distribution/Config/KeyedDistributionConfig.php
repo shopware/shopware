@@ -6,13 +6,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Configuration for keyed distribution strategy.
- *
- * Keyed distributes collection items by matching keys - each child element
- * has a key property, and receives the collection item with that key.
- *
- * Used for: Named data slots
- * Example: Showcase with 'featured', 'related', 'bestseller' named slots
+ * Distributes collection items by matching child element key property.
  *
  * @internal
  */

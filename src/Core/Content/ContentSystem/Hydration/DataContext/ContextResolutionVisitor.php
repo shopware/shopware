@@ -7,7 +7,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Resolves context with stack-based scoping (inner providers shadow outer).
+ * Visitor implementing context resolution with provider shadowing.
  *
  * @internal
  */

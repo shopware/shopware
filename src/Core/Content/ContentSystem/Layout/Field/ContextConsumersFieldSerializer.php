@@ -100,8 +100,7 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes a ContextConsumer to array format for storage.
-     * Public to allow other serializers to use it if needed.
+     * Public for ContentElementFieldSerializer to serialize nested consumers.
      *
      * @return array<string, mixed>
      */

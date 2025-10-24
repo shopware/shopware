@@ -2,7 +2,7 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I expect to see and use a basic captcha function on the contact form.',
-    { tag: '@form @contact' },
+    { tag: ['@Storefront', '@Form', '@Captcha', '@Contact'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel, TestDataService, InstanceMeta }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -11,20 +11,21 @@ test(
 
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await StorefrontHome.contactFormLink.click();
+            await ShopCustomer.presses(StorefrontHome.contactFormLink);
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
         });
 
         await test.step('Fill out all necessary contact information.', async () => {
+            await ShopCustomer.presses(StorefrontContactForm.salutationSelect);
             await StorefrontContactForm.salutationSelect.selectOption('Mr.');
-            await StorefrontContactForm.firstNameInput.fill('John');
-            await StorefrontContactForm.lastNameInput.fill('Doe');
-            await StorefrontContactForm.emailInput.fill('mail@test.com');
-            await StorefrontContactForm.phoneInput.fill('0123456789');
-            await StorefrontContactForm.subjectInput.fill('Test: Product question');
-            await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
-            await StorefrontContactForm.basicCaptchaInput.fill('1234');
-            await StorefrontContactForm.privacyPolicyCheckbox.click();
+            await ShopCustomer.fillsIn(StorefrontContactForm.firstNameInput, 'John');
+            await ShopCustomer.fillsIn(StorefrontContactForm.lastNameInput, 'Doe');
+            await ShopCustomer.fillsIn(StorefrontContactForm.emailInput, 'mail@test.com');
+            await ShopCustomer.fillsIn(StorefrontContactForm.phoneInput, '0123456789');
+            await ShopCustomer.fillsIn(StorefrontContactForm.subjectInput, 'Test: Product question');
+            await ShopCustomer.fillsIn(StorefrontContactForm.commentInput, 'Test: Hello, I have a question about your products.');
+            await ShopCustomer.fillsIn(StorefrontContactForm.basicCaptchaInput, '1234');
+            await ShopCustomer.presses(StorefrontContactForm.privacyPolicyCheckbox);
         });
 
         await test.step('Validate the basic captcha is available.', async () => {
@@ -37,7 +38,7 @@ test(
             const contactFormPromise = StorefrontContactForm.page.waitForResponse(
                 `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
             );
-            await StorefrontContactForm.submitButton.click();
+            await ShopCustomer.presses(StorefrontContactForm.submitButton);
             const contactFormResponse = await contactFormPromise;
             expect(contactFormResponse.ok()).toBeTruthy();
 

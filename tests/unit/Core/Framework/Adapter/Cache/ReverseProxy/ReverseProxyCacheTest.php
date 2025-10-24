@@ -94,7 +94,7 @@ class ReverseProxyCacheTest extends TestCase
     /**
      * @deprecated tag:v6.8.0.0 - can be deleted as cache states are removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
     public function testWriteAddsGlobalStates(): void
     {
         $store = new ReverseProxyCache(

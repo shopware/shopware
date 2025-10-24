@@ -24,6 +24,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -421,6 +422,7 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'currency' => [Defaults::CURRENCY];
     }
 
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
     public function testStatesGetDeletedOnEmptyState(): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -551,6 +553,7 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'not found response' => [$salesChannelRequest, new Response('', Response::HTTP_NOT_FOUND)];
     }
 
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
     public function testNoCachingWhenInvalidateStateMatches(): void
     {
         $cartService = $this->createMock(CartService::class);
@@ -636,7 +639,7 @@ class CacheResponseSubscriberTest extends TestCase
      *     assertEqualsErrorMessage: string
      * }>
      */
-    public static function providerSetResponseCacheOnLogin(): iterable
+    public static function providerSetResponseCacheOnLoginDeprecated(): iterable
     {
         yield 'Don\'t set the cache on no_login via post' => [
             'route' => 'no.login',
@@ -673,6 +676,103 @@ class CacheResponseSubscriberTest extends TestCase
             'assertCountErrorMessage' => 'There should be 2 cookies set now!',
             'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
         ];
+    }
+
+    /**
+     * @return array<string, array{
+     *     route: string,
+     *     requestMethod: string,
+     *     cookiesAmount: int,
+     *     cookieName: string,
+     *     assertCountErrorMessage: string,
+     *     assertEqualsErrorMessage: string
+     * }>
+     */
+    public static function providerSetResponseCacheOnLogin(): iterable
+    {
+        yield 'Set cache on login via post' => [
+            'route' => 'frontend.account.login',
+            'requestMethod' => Request::METHOD_POST,
+            'cookiesAmount' => 1,
+            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
+            'assertCountErrorMessage' => 'There should be 1 cookies set now!',
+            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 1. cookie',
+        ];
+
+        yield 'Set cache on no_login via get' => [
+            'route' => 'anything',
+            'requestMethod' => Request::METHOD_GET,
+            'cookiesAmount' => 1,
+            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
+            'assertCountErrorMessage' => 'There should be 1 cookies set now!',
+            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 1. cookie',
+        ];
+
+        yield 'Set cache on login via get' => [
+            'route' => 'frontend.account.login',
+            'requestMethod' => Request::METHOD_GET,
+            'cookiesAmount' => 1,
+            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
+            'assertCountErrorMessage' => 'There should be 1 cookies set now!',
+            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 1. cookie',
+        ];
+    }
+
+    #[DataProvider('providerSetResponseCacheOnLoginDeprecated')]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    public function testSetResponseCacheOnLoginDeprecated(
+        string $route,
+        string $requestMethod,
+        int $cookiesAmount,
+        string $cookieName,
+        string $assertCountErrorMessage,
+        string $assertEqualsErrorMessage
+    ): void {
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            static::createStub(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            new RequestStack(),
+            null,
+            null,
+            $this->eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+        );
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext
+            ->method('getCustomer')
+            ->willReturn(new CustomerEntity());
+        $request = new Request();
+        $request->setMethod($requestMethod);
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+            $salesChannelContext
+        );
+        $request->attributes->set('_route', $route);
+
+        $response = new Response();
+        $subscriber->setResponseCache(
+            new ResponseEvent(
+                $this->createMock(HttpKernelInterface::class),
+                $request,
+                HttpKernelInterface::MAIN_REQUEST,
+                $response
+            )
+        );
+
+        static::assertCount(
+            $cookiesAmount,
+            $response->headers->getCookies(),
+            $assertCountErrorMessage
+        );
+        static::assertSame(
+            $cookieName,
+            $response->headers->getCookies()[$cookiesAmount - 1]->getName(),
+            $assertEqualsErrorMessage
+        );
     }
 
     #[DataProvider('providerSetResponseCacheOnLogin')]

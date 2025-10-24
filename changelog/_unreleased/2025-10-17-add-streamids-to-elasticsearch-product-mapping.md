@@ -1,7 +1,6 @@
 ---
 title: Add streamIds field to Elasticsearch product mapping
-issue: GITHUB-13151
-flag: skip-trigger-flow
+issue: 13151
 author: Timeo Schmidt
 author_email: timeo.schmidt@villa-schmidt.de
 author_github: timeo-schmidt

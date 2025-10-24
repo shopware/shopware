@@ -1259,7 +1259,7 @@ export default {
         },
 
         /**
-         * @deprecated: v6.8.0 - will be removed without replacement
+         * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getCmsPageOverrides() {
             if (this.currentPage === null) {
@@ -1294,7 +1294,7 @@ export default {
         },
 
         /**
-         * @deprecated: v6.8.0 - will be removed without replacement
+         * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         deleteSpecifcKeys(sections) {
             if (!sections) {

@@ -6,13 +6,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Configuration for sliced distribution strategy.
- *
- * Sliced divides a collection into chunks and distributes each chunk
- * to a different child element.
- *
- * Used for: Multi-row/column layouts
- * Example: Gallery with 3 rows, each receiving 4 products (slice_size=4)
+ * Divides collection into chunks distributed to child elements.
  *
  * @internal
  */

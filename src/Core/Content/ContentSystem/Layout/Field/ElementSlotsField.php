@@ -6,11 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Field for storing element slots map with recursive ContentElement tree.
- *
- * Handles conversion between JSON storage and ElementSlots object during
- * entity hydration/persistence. Supports recursive deserialization of nested
- * ContentElement structures.
+ * Field for storing element slots with recursive ContentElement tree (JSON to ElementSlots).
  *
  * @internal
  */

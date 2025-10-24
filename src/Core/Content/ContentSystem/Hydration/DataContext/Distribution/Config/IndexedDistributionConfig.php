@@ -6,13 +6,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Configuration for indexed distribution strategy.
- *
- * Indexed distributes collection items by position - first child receives
- * first item, second child receives second item, etc.
- *
- * Used for: Fixed-position layouts
- * Example: Product comparison grid with 3 product cards at fixed positions
+ * Distributes collection items by position to child elements.
  *
  * @internal
  */

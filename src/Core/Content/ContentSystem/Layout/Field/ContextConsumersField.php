@@ -6,10 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Field for storing context consumers map.
- *
- * Handles conversion between JSON storage and array<string, ContextConsumer>
- * during entity hydration/persistence.
+ * Field for storing context consumers map (JSON to array<string, ContextConsumer>).
  *
  * @internal
  */

@@ -6,13 +6,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Configuration for broadcast distribution strategy.
- *
- * Broadcast distributes a single entity to all child elements.
- * This is the simplest distribution pattern with no additional configuration.
- *
- * Used for: Detail pages where all children need the same entity
- * Example: Product detail page where header, gallery, info all need the same product
+ * Distributes single entity to all child elements.
  *
  * @internal
  */

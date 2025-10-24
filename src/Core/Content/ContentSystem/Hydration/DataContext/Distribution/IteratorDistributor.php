@@ -20,7 +20,7 @@ class IteratorDistributor implements DistributionStrategyInterface
     }
 
     /**
-     * Element cloning handled by DataContextResolver, not here.
+     * Returns raw collection items as cloning happens during tree traversal in DataContextResolver.
      *
      * @return array<int, mixed>
      */

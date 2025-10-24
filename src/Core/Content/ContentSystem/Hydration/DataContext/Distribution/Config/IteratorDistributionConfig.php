@@ -6,13 +6,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Configuration for iterator distribution strategy.
- *
- * Iterator repeats a template element for each item in a collection,
- * creating cloned elements dynamically.
- *
- * Used for: Dynamic lists with repeating templates
- * Example: Product listing where a product card template is repeated per product
+ * Clones template element for each collection item.
  *
  * @internal
  */

@@ -26,19 +26,14 @@ class ContentRouteLoader
     }
 
     /**
-     * Orchestrates the routing-independent content system pipeline to load and render content.
+     * Loads and renders content from a specification.
      *
-     * The rendering pipeline runs after context creation (which may come from routing or
-     * entity-based sources). Pipeline consists of refinement, hydration, and optional
-     * partial rendering.
+     * @param RenderingSpecification $specification Layout and placeholder configuration
+     * @param SalesChannelContext $salesChannelContext Context for data loading
      *
-     * @param RenderingSpecification $specification Rendering specification (layout ID, placeholders, target element)
-     * @param SalesChannelContext $salesChannelContext Sales channel context for data loading
+     * @throws ContentSystemException On pipeline failures (refinement, hydration, element lookup)
      *
-     * @throws ContentSystemException When refinement fails, hydration fails,
-     *                                or requested element ID not found in tree
-     *
-     * @return ContentPage Fully hydrated content page with element tree and metadata
+     * @return ContentPage Hydrated content page
      */
     public function load(
         RenderingSpecification $specification,

@@ -19,8 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class LayoutSearchHelper
 {
     /**
-     * Resolve content layout ID with sales channel specificity
-     * Priority: Sales channel specific → Global (null sales_channel_id)
+     * Resolves layout ID with sales channel fallback priority: specific → global (null)
      *
      * @template TEntityCollection of CategoryContentLayoutCollection|ProductContentLayoutCollection
      *

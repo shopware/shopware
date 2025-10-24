@@ -6,7 +6,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Resolves provider/consumer data flow using Visitor pattern with hierarchical context stacking.
+ * Resolves provider/consumer data flow with hierarchical context scoping.
  *
  * @internal
  */

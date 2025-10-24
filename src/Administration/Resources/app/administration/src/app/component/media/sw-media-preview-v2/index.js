@@ -1,6 +1,6 @@
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-preview-v2.html.twig';
 import './sw-media-preview-v2.scss';
-import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 
 const { Context, Filter } = Shopware;
 const { fileReader } = Shopware.Utils;

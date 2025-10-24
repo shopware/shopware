@@ -6,6 +6,7 @@
  * List of video formats that are playable in most browsers
  * @type {string[]}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_VIDEO_FORMATS = [
     'video/mp4',
     'video/ogg',
@@ -16,6 +17,7 @@ export const PLAYABLE_VIDEO_FORMATS = [
  * List of audio formats that are playable in most browsers
  * @type {string[]}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_AUDIO_FORMATS = [
     'audio/mp3',
     'audio/mpeg',
@@ -27,6 +29,7 @@ export const PLAYABLE_AUDIO_FORMATS = [
  * Combined list of all playable media formats
  * @type {string[]}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_MEDIA_FORMATS = [
     ...PLAYABLE_VIDEO_FORMATS,
     ...PLAYABLE_AUDIO_FORMATS,
@@ -37,6 +40,7 @@ export const PLAYABLE_MEDIA_FORMATS = [
  * @param {string} mimeType
  * @returns {boolean}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function isPlayableMediaFormat(mimeType) {
     return PLAYABLE_MEDIA_FORMATS.includes(mimeType);
 }
@@ -46,6 +50,7 @@ export function isPlayableMediaFormat(mimeType) {
  * @param {string} mimeType
  * @returns {boolean}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function shouldShowUnsupportedFormatWarning(mimeType) {
     if (!mimeType) {
         return false;

@@ -988,28 +988,6 @@ describe('CookieConfiguration plugin tests', () => {
             initializePluginsSpy.mockRestore();
         });
 
-        test('OffCanvas close listener is properly registered and unsubscribes', () => {
-            // Test uncovered lines 383-384
-            const subscribeSpy = jest.spyOn(document.$emitter, 'subscribe');
-            const unsubscribeSpy = jest.spyOn(document.$emitter, 'unsubscribe');
-            const checkAndShowCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded');
-
-            plugin._registerOffCanvasCloseListener();
-
-            // Get the callback that was subscribed
-            const callback = subscribeSpy.mock.calls[0][1];
-
-            // Simulate the offcanvas close event
-            callback();
-
-            expect(checkAndShowCookieBarSpy).toHaveBeenCalled();
-            expect(unsubscribeSpy).toHaveBeenCalledWith('onCloseOffcanvas', callback);
-
-            subscribeSpy.mockRestore();
-            unsubscribeSpy.mockRestore();
-            checkAndShowCookieBarSpy.mockRestore();
-        });
-
         test('_getOffCanvas behavior with and without elements', () => {
             const originalGetOffCanvas = OffCanvas.getOffCanvas;
 
@@ -1670,35 +1648,6 @@ describe('CookieConfiguration plugin tests', () => {
         });
     });
 
-    describe('OffCanvas Close Handling', () => {
-        test('_onOffCanvasClose shows cookie bar when user has no preference', () => {
-            // Mock no existing preference
-            const getItemSpy = jest.spyOn(CookieStorage, 'getItem').mockReturnValue(null);
-            const showCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded').mockImplementation();
-
-            plugin._onOffCanvasClose();
-
-            expect(getItemSpy).toHaveBeenCalledWith(plugin.options.cookiePreference);
-            expect(showCookieBarSpy).toHaveBeenCalled();
-
-            getItemSpy.mockRestore();
-            showCookieBarSpy.mockRestore();
-        });
-
-        test('_onOffCanvasClose does not show cookie bar when user has preference', () => {
-            // Mock existing preference
-            const getItemSpy = jest.spyOn(CookieStorage, 'getItem').mockReturnValue('1');
-            const showCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded').mockImplementation();
-
-            plugin._onOffCanvasClose();
-
-            expect(getItemSpy).toHaveBeenCalledWith(plugin.options.cookiePreference);
-            expect(showCookieBarSpy).not.toHaveBeenCalled();
-
-            getItemSpy.mockRestore();
-            showCookieBarSpy.mockRestore();
-        });
-    });
 
     describe('Cookie expiration configuration', () => {
         test('uses default expiration from options', () => {

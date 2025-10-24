@@ -12,8 +12,8 @@ test('Registered shop customer buys a product.', { tag: '@Checkout' }, async ({
     AddProductToCart,
     ProceedFromProductToCheckout,
     ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
+    SelectPaymentMethod,
+    SelectShippingMethod,
     SubmitOrder,
 }) => {
     const product = await TestDataService.createBasicProduct();
@@ -29,8 +29,8 @@ test('Registered shop customer buys a product.', { tag: '@Checkout' }, async ({
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+    await ShopCustomer.attemptsTo(SelectPaymentMethod());
+    await ShopCustomer.attemptsTo(SelectShippingMethod());
 
     await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText('€10.00');
 

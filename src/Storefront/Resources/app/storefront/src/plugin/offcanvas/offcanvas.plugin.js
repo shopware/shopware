@@ -113,12 +113,12 @@ class OffCanvasSingleton {
     /**
      * Opens the offcanvas and its backdrop
      *
-     * @param {HTMLElement} offCanvas
+     * @param {HTMLElement} _offCanvas
      * @param {function} callback
      *
      * @private
      */
-    _openOffcanvas(offCanvas, callback) {
+    _openOffcanvas(_offCanvas, callback) {
         window.focusHandler.saveFocusState('offcanvas');
 
         OffCanvasSingleton.bsOffcanvas.show();
@@ -181,16 +181,18 @@ class OffCanvasSingleton {
      * @private
      */
     _removeExistingOffCanvas() {
-        OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
         offCanvasElements.forEach(offCanvas => {
             // Properly dispose of Bootstrap Offcanvas instance to clean up backdrop
             const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
-            if (offCanvasInstance) {
+            if (offCanvasInstance && typeof offCanvasInstance.dispose === 'function') {
                 offCanvasInstance.dispose();
             }
             offCanvas.remove();
         });
+
+        // Clear the singleton reference after disposal
+        OffCanvasSingleton.bsOffcanvas = null;
     }
 
     /**

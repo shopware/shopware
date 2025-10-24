@@ -1,8 +1,8 @@
 ---
 title: Fix cookie offcanvas link not working when opened from navigation offcanvas
 issue: 13127
-author: BrocksiNet
-author_email: brocksinet@example.com
+author: Björn Meyer
+author_email: b.meyer@shopware.com
 author_github: @BrocksiNet
 ---
 # Storefront

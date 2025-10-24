@@ -98,6 +98,21 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
+     * Clean up event listeners and resources when plugin is destroyed
+     */
+    destroy() {
+        // Remove delegated event handler
+        if (this._delegatedEventHandler) {
+            document.removeEventListener(this.options.submitEvent, this._delegatedEventHandler, true);
+            this._delegatedEventHandler = null;
+        }
+
+        // Clean up other event listeners
+        document.$emitter.unsubscribe('CookieConfiguration/requestConsent');
+        OffCanvasInstance.$emitter.unsubscribe('onCloseOffcanvas', this._onOffCanvasClose.bind(this));
+    }
+
+    /**
      * Get the default cookie expiration value with validation
      * Ensures the value is a number and falls back to 30 if invalid
      * @returns {number}
@@ -118,11 +133,15 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerEvents() {
+        // Prevent duplicate event handler registration
+        if (this._delegatedEventHandler) {
+            return;
+        }
+
         const { submitEvent, buttonOpenSelector, customLinkSelector, buttonPermissionSelector, globalButtonAcceptAllSelector } = this.options;
 
-        // Use single event delegation handler to avoid multiple listeners
-        // Use capture phase to ensure this runs before other click handlers
-        document.addEventListener(submitEvent, (event) => {
+        // Store the handler reference for cleanup
+        this._delegatedEventHandler = (event) => {
             const target = event.target;
 
             // Check for custom link (e.g., cookie offcanvas link)
@@ -152,7 +171,11 @@ export default class CookieConfiguration extends Plugin {
                 this._acceptAllCookiesFromCookieBar(event);
                 return;
             }
-        }, true); // Use capture phase
+        };
+
+        // Use single event delegation handler to avoid multiple listeners
+        // Use capture phase to ensure this runs before other click handlers
+        document.addEventListener(submitEvent, this._delegatedEventHandler, true);
     }
 
     /**
@@ -184,14 +207,24 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Prevent the event default e.g. for anchor elements using the href-selector
+     * Handle custom link clicks (e.g., cookie offcanvas links)
+     * Prevents default behavior only for normal left-clicks, allows middle-click and Ctrl/Cmd+click for new tabs
      *
      * @param event
      * @private
      */
     _handleCustomLink(event) {
-        event.preventDefault();
+        // Allow middle-click, right-click, and Ctrl/Cmd+click for normal browser behavior
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey) {
+            return;
+        }
 
+        // Check if event was already prevented by another handler
+        if (event.defaultPrevented) {
+            return;
+        }
+
+        event.preventDefault();
         this.openOffCanvas();
     }
 

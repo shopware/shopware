@@ -240,12 +240,48 @@ describe('CookieConfiguration plugin tests', () => {
         plugin.acceptAllCookies().catch(done);
     });
 
-    test('Ensure handleCustomLink opens the off-canvas-menu', () => {
+    test('Ensure handleCustomLink opens the off-canvas-menu for normal left-click', () => {
         const openOffCanvas = jest.spyOn(plugin, 'openOffCanvas');
 
-        plugin._handleCustomLink({ preventDefault: () => {} });
+        // Test normal left-click (should open offcanvas)
+        plugin._handleCustomLink({
+            preventDefault: jest.fn(),
+            button: 0,
+            ctrlKey: false,
+            metaKey: false,
+            shiftKey: false,
+            defaultPrevented: false
+        });
 
         expect(openOffCanvas).toHaveBeenCalled();
+    });
+
+    test('Ensure handleCustomLink does not open offcanvas for middle-click or Ctrl+click', () => {
+        const openOffCanvas = jest.spyOn(plugin, 'openOffCanvas');
+
+        // Test middle-click (should not open offcanvas)
+        plugin._handleCustomLink({
+            preventDefault: jest.fn(),
+            button: 1,
+            ctrlKey: false,
+            metaKey: false,
+            shiftKey: false,
+            defaultPrevented: false
+        });
+
+        expect(openOffCanvas).not.toHaveBeenCalled();
+
+        // Test Ctrl+click (should not open offcanvas)
+        plugin._handleCustomLink({
+            preventDefault: jest.fn(),
+            button: 0,
+            ctrlKey: true,
+            metaKey: false,
+            shiftKey: false,
+            defaultPrevented: false
+        });
+
+        expect(openOffCanvas).not.toHaveBeenCalled();
     });
 
     test('Ensure the plugin is initialised when the off-canvas-panel is opened', () => {
@@ -1237,6 +1273,9 @@ describe('CookieConfiguration plugin tests', () => {
     describe('Event Subscription and Registration', () => {
         test('_registerEvents uses event delegation on document', () => {
             const addEventListenerSpy = jest.spyOn(document, 'addEventListener');
+
+            // Clear the existing handler to test fresh registration
+            plugin._delegatedEventHandler = null;
 
             // Re-register events
             plugin._registerEvents();

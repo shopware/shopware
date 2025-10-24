@@ -7,13 +7,13 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
 use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -40,6 +40,8 @@ class CacheStore implements StoreInterface
      * @internal
      *
      * @param array<string, mixed> $sessionOptions
+     *
+     * @deprecated tag:v6.8.0 - Parameter $stateValidator will be removed
      */
     public function __construct(
         private readonly TagAwareAdapterInterface&CacheInterface $cache,
@@ -106,8 +108,13 @@ class CacheStore implements StoreInterface
             }
         }
 
-        if (!$this->stateValidator->isValid($request, $response)) {
-            return null;
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            $isValid = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
+                return $this->stateValidator->isValid($request, $response);
+            });
+            if (!$isValid) {
+                return null;
+            }
         }
 
         $event = new HttpCacheHitEvent($item, $request, $response);
@@ -126,8 +133,13 @@ class CacheStore implements StoreInterface
             return $key;
         }
 
-        if (!$this->stateValidator->isValid($request, $response)) {
-            return $key;
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            $isValid = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
+                return $this->stateValidator->isValid($request, $response);
+            });
+            if (!$isValid) {
+                return $key;
+            }
         }
 
         $tags = $this->collector->get($request);

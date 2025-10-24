@@ -102,7 +102,12 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $states = $this->updateSystemState($cart, $context, $request, $response);
+        /** @deprecated tag:v6.8.0 - states can be removed */
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            $states = [];
+        } else {
+            $states = $this->updateSystemState($cart, $context, $request, $response);
+        }
 
         // We need to allow it on login, otherwise the state is wrong
         /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
@@ -134,6 +139,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             $cache = [];
         }
 
+        /** @deprecated tag:v6.8.0 - can be removed when cache states are, with 6.8 feature flag $states is always empty */
         if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
             return;
         }
@@ -141,10 +147,12 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
 
         $response->setSharedMaxAge($maxAge);
-        $response->headers->set(
-            HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
-            implode(',', $cache['states'] ?? [])
-        );
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            $response->headers->set(
+                HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
+                implode(',', $cache['states'] ?? [])
+            );
+        }
 
         if ($this->staleIfError !== null) {
             $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
@@ -230,8 +238,13 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
-            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ];
+
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            $parts = [
+                HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+            ];
+        }
 
         foreach ($this->cookies as $cookie) {
             if (!$request->cookies->has($cookie)) {

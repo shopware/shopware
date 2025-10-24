@@ -13,6 +13,10 @@ class HttpCacheCookieEvent
     public const VERSION_ID = 'version-id';
     public const CURRENCY_ID = 'currency-id';
     public const TAX_STATE = 'tax-state';
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed use cache cookie event instead
+     */
     public const LOGGED_IN_STATE = 'logged-in';
 
     /**

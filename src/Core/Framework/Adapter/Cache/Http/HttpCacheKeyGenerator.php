@@ -20,7 +20,13 @@ class HttpCacheKeyGenerator
 {
     final public const CURRENCY_COOKIE = 'sw-currency';
     final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed use cache cookie event instead
+     */
     final public const SYSTEM_STATE_COOKIE = 'sw-states';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed use cache cookie event instead
+     */
     final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
     /**
      * Virtual path of the "domain"

@@ -17,7 +17,7 @@ This document is a configuration guide for shop operators and layout designers. 
 The Content System enables dynamic, data-driven layouts for your shop. Core capabilities include:
 
 - Dynamic routing with URL patterns that resolve to entities
-- Direct entity rendering for Products and Categories (no routing needed)
+- Direct entity rendering for Products, Categories, and Landing Pages (no routing needed)
 - Reusable layout templates with nested content elements
 - Declarative data loading from the shop system
 - Context sharing between parent and child elements
@@ -65,36 +65,39 @@ graph LR
 
 ## Entity-Based Rendering
 
-Products and Categories can render directly using ContentSystem layouts without URL routing. Recommended for standard product/category pages.
+Products, Categories, and Landing Pages can render directly using ContentSystem layouts without URL routing. Recommended for standard product/category/landing pages.
 
 **Endpoint:** `/store-api/content/{path}`
 
 **Supported path patterns:**
 - `product/{productId}` - Product detail pages
 - `category/{categoryId}` - Category pages
+- `landing-page/{landingPageId}` - Landing pages
 
 **Example requests:**
 - `/store-api/content/product/abc123def456` - Renders product with ID abc123def456
 - `/store-api/content/category/xyz789abc012` - Renders category with ID xyz789abc012
+- `/store-api/content/landing-page/ghi345jkl678` - Renders landing page with ID ghi345jkl678
 
 **Database tables:**
 - `product_content_layout` - Product → layout assignments
 - `category_content_layout` - Category → layout assignments
+- `landing_page_content_layout` - Landing page → layout assignments
 
 ### Assignment Structure
 
 ```json
 {
   "id": "<uuid>",
-  "productId": "<product-uuid>",         // or categoryId for categories
-  "productVersionId": "<version-uuid>",  // or categoryVersionId
+  "productId": "<product-uuid>",         // or categoryId/landingPageId
+  "productVersionId": "<version-uuid>",  // or categoryVersionId/landingPageVersionId
   "salesChannelId": "<sales-channel-uuid>|null",
   "contentLayoutId": "<layout-uuid>"
 }
 ```
 
 Fields:
-- Entity ID (`productId`/`categoryId`) - Entity to render
+- Entity ID (`productId`/`categoryId`/`landingPageId`) - Entity to render
 - `salesChannelId` - Sales channel scope (`null` = global)
 - `contentLayoutId` - Layout to use
 
@@ -106,13 +109,14 @@ Example: Product with global layout and B2B-specific layout. B2B channel uses sp
 
 ### When to Use
 
-Use entity-based for standard product/category pages with sales channel-specific layouts. Use route-based for custom URLs, SEO paths, or complex routing logic.
+Use entity-based for standard product/category/landing pages with sales channel-specific layouts. Use route-based for custom URLs, SEO paths, or complex routing logic.
 
 ### Placeholders
 
 Available placeholders:
 - `{{productId}}` - Product UUID (product endpoint)
 - `{{categoryId}}` - Category UUID (category endpoint)
+- `{{landingPageId}}` - Landing page UUID (landing-page endpoint)
 
 Use these in element properties and data requirements like route-based placeholders. See [Example: Product Detail Page](#example-product-detail-page) for usage.
 

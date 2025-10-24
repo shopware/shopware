@@ -41,6 +41,7 @@ class ContentSystemException extends HttpException
     public const NO_FACTORY_CAN_HANDLE = 'CONTENT_SYSTEM__NO_FACTORY_CAN_HANDLE';
     public const INVALID_PRODUCT_PATH = 'CONTENT_SYSTEM__INVALID_PRODUCT_PATH';
     public const INVALID_CATEGORY_PATH = 'CONTENT_SYSTEM__INVALID_CATEGORY_PATH';
+    public const INVALID_LANDING_PAGE_PATH = 'CONTENT_SYSTEM__INVALID_LANDING_PAGE_PATH';
 
     public static function contentNotFound(string $pathInfo): self
     {
@@ -314,6 +315,16 @@ class ContentSystemException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_CATEGORY_PATH,
             'Invalid category path format: "{{ path }}". Expected format: /category/{categoryId}',
+            ['path' => $path]
+        );
+    }
+
+    public static function invalidLandingPagePath(string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_LANDING_PAGE_PATH,
+            'Invalid landing page path format: "{{ path }}". Expected format: /landing-page/{landingPageId}',
             ['path' => $path]
         );
     }

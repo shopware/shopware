@@ -22,8 +22,8 @@ class ContentRoute extends AbstractContentRoute
 {
     /**
      * @param iterable<RenderingSpecificationFactoryInterface> $renderingSpecificationFactories
-     * @internal
      *
+     * @internal
      */
     public function __construct(
         private readonly ContentRouteLoader $contentRouteLoader,

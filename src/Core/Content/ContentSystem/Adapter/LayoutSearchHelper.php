@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Adapter;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutCollection;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,7 +22,7 @@ class LayoutSearchHelper
     /**
      * Resolves layout ID with sales channel fallback priority: specific → global (null)
      *
-     * @template TEntityCollection of CategoryContentLayoutCollection|ProductContentLayoutCollection
+     * @template TEntityCollection of CategoryContentLayoutCollection|ProductContentLayoutCollection|LandingPageContentLayoutCollection
      *
      * @param EntityRepository<TEntityCollection> $repository
      */

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 #[Package('framework')]
 class Configuration implements ConfigurationInterface
@@ -916,22 +915,28 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('default_policies')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->arrayNode('storefront')
-                            ->addDefaultsIfNotSet()
-                            ->children()
-                                ->scalarNode('cacheable')->defaultNull()->end()
-                                ->scalarNode('uncacheable')->defaultNull()->end()
+                    ->info('Default cache policies per area. Currently only "storefront" and "store_api" are supported.')
+                    ->useAttributeAsKey('area')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('cacheable')
+                                ->info('Policy name to use for cacheable responses')
+                                ->defaultNull()
+                            ->end()
+                            ->scalarNode('uncacheable')
+                                ->info('Policy name to use for uncacheable responses')
+                                ->defaultNull()
                             ->end()
                         ->end()
-                        ->arrayNode('store_api')
-                            ->addDefaultsIfNotSet()
-                            ->children()
-                                ->scalarNode('cacheable')->defaultNull()->end()
-                                ->scalarNode('uncacheable')->defaultNull()->end()
-                            ->end()
-                        ->end()
+                    ->end()
+                    ->validate()
+                        ->ifTrue(function ($areas) {
+                            $allowedAreas = ['storefront', 'store_api'];
+                            $providedAreas = array_keys($areas);
+
+                            return !empty(array_diff($providedAreas, $allowedAreas));
+                        })
+                        ->thenInvalid('Only "storefront" and "store_api" areas are currently supported in default_policies. Config contains unsupported area(s): %s')
                     ->end()
                 ->end()
                 ->arrayNode('route_policies')
@@ -979,40 +984,31 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
             ->validate()
-                ->always()
-                ->then(function (array $config) {
+                ->ifTrue(function (array $config) {
                     $policies = array_keys($config['policies'] ?? []);
 
-                    $assertDefined = static function (?string $name, string $path) use ($policies): void {
-                        if ($name === null || $name === '') {
-                            return;
-                        }
-
-                        if (!\in_array($name, $policies, true)) {
-                            throw new InvalidConfigurationException(\sprintf(
-                                'Unknown cache policy "%s" referenced in "%s". Define it under shopware.http_cache.policies.',
-                                $name,
-                                $path
-                            ));
-                        }
-                    };
-
-                    foreach ((array) ($config['default_policies'] ?? []) as $area => $defaults) {
+                    // Check default_policies references
+                    foreach ((array) ($config['default_policies'] ?? []) as $defaults) {
                         if (!\is_array($defaults)) {
                             continue;
                         }
-
-                        foreach ($defaults as $key => $name) {
-                            $assertDefined(\is_string($name) ? $name : null, 'shopware.http_cache.default_policies.' . (string) $area . '.' . (string) $key);
+                        foreach ($defaults as $name) {
+                            if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                                return true;
+                            }
                         }
                     }
 
-                    foreach ((array) ($config['route_policies'] ?? []) as $route => $name) {
-                        $assertDefined(\is_string($name) ? $name : null, 'shopware.http_cache.route_policies.' . (string) $route);
+                    // Check route_policies references
+                    foreach ((array) ($config['route_policies'] ?? []) as $name) {
+                        if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                            return true;
+                        }
                     }
 
-                    return $config;
+                    return false;
                 })
+                ->thenInvalid('Configuration references unknown cache policies. All policy names in default_policies and route_policies must be defined under shopware.http_cache.policies.')
             ->end()
         ->end();
 

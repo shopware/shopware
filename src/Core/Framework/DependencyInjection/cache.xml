@@ -153,6 +153,13 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
 
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider">
+            <factory class="Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory" method="create"/>
+            <argument>%shopware.http_cache.policies%</argument>
+            <argument>%shopware.http_cache.route_policies%</argument>
+            <argument>%shopware.http_cache.default_policies%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber">
             <argument>%shopware.http_cache.cookies%</argument>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
@@ -164,9 +171,7 @@
             <argument>%shopware.http_cache.stale_if_error%</argument>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
-            <argument>%shopware.http_cache.policies%</argument>
-            <argument>%shopware.http_cache.default_policies%</argument>
-            <argument>%shopware.http_cache.route_policies%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

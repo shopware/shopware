@@ -53,12 +53,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         private ?string $staleIfError,
         private EventDispatcherInterface $dispatcher,
         private CacheRelevantRulesResolver $ruleResolver,
-        /** @var array<string, array<string, int|bool|null>> */
-        private array $policies = [],
-        /** @var array<string, array<string, string|null>> */
-        private array $defaultPolicies = [],
-        /** @var array<string, string> */
-        private array $routePolicies = [],
+        private CachePolicyProvider $policyProvider,
     ) {
     }
 
@@ -240,58 +235,20 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $this->applyPolicy($request, $response, self::POLICY_AREA_STORE_API, true);
     }
 
-    private function resolvePolicyName(Request $request, string $area, bool $cacheable): ?string
+    private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable): void
     {
         $route = (string) $request->attributes->get('_route', '');
 
-        // Special case to allow modifying policy by some modifier. Allows to have different policies for same route.
-        // Used for app script hooks as (route_name#hook_name)
         /** @var CacheAttribute $cacheAttribute */
         $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
-        if ($route !== '' && \is_array($cacheAttribute) && isset($cacheAttribute['policyModifier'])) {
-            $modifiedPolicyKey = $route . '#' . $cacheAttribute['policyModifier'];
-            if (isset($this->routePolicies[$modifiedPolicyKey])) {
-                return $this->routePolicies[$modifiedPolicyKey];
-            }
-        }
 
-        // Check for route-level policy
-        if ($route !== '' && isset($this->routePolicies[$route])) {
-            return $this->routePolicies[$route];
-        }
-
-        // Fallback to area defaults
-        $defaults = $this->defaultPolicies[$area] ?? null;
-        if (!$defaults) {
-            return null;
-        }
-
-        return $cacheable ? ($defaults['cacheable'] ?? null) : ($defaults['uncacheable'] ?? null);
-    }
-
-    private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable): void
-    {
-        $policyName = $this->resolvePolicyName($request, $area, $cacheable);
+        $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute);
 
         // reset existing cache-control to avoid mixing policies
         $response->headers->remove('cache-control');
 
-        // Fallback to no-cache if no policy could be resolved
-        if ($policyName === null || !isset($this->policies[$policyName])) {
-            $response->setCache([
-                'max_age' => 0,
-                's_maxage' => 0,
-                'public' => false,
-                'private' => true,
-                'must_revalidate' => true,
-                'no_store' => true,
-            ]);
-
-            return;
-        }
-
-        $policy = $this->policies[$policyName];
-        $response->setCache($policy);
+        // apply resolved policy to response
+        $response->setCache($policy->toArray());
     }
 
     /**

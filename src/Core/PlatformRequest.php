@@ -5,6 +5,9 @@ namespace Shopware\Core;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 
+/**
+ * @phpstan-type CacheAttribute array{maxAge?: int, states?: list<string>, policyModifier?: string }|true
+ */
 #[Package('framework')]
 final class PlatformRequest
 {

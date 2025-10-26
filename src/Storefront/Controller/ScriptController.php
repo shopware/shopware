@@ -18,6 +18,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
+ *
+ * @phpstan-import-type CacheAttribute from PlatformRequest
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
@@ -56,7 +58,14 @@ class ScriptController extends StorefrontController
         );
 
         if ($response->getCache()->isEnabled()) {
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, ['maxAge' => $response->getCache()->getMaxAge(), 'states' => $response->getCache()->getInvalidationStates()]);
+            /** @var CacheAttribute $cacheAttribute */
+            $cacheAttribute = [
+                'maxAge' => $response->getCache()->getMaxAge(),
+                'states' => $response->getCache()->getInvalidationStates(),
+                'policyModifier' => $hookName,
+            ];
+
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, $cacheAttribute);
             $symfonyResponse->headers->set(CacheStore::TAG_HEADER, \json_encode($response->getCache()->getCacheTags(), \JSON_THROW_ON_ERROR));
         }
 

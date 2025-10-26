@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -914,8 +915,8 @@ class CacheResponseSubscriberTest extends TestCase
      * @param array<string, mixed> $requestResponseOptions
      * @param array<string, mixed> $subscriberConfig
      */
-    #[DataProvider('storeApiCachingProvider')]
-    public function testStoreApiCaching(
+    #[DataProvider('cachePoliciesAppliedProvider')]
+    public function testCachePoliciesApplied(
         array $requestResponseOptions,
         array $subscriberConfig,
         string $expectedCacheControl,
@@ -955,8 +956,15 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         ));
 
+        // Check Cache-Control header
         static::assertSame($expectedCacheControl, $response->headers->get('cache-control'));
-        static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
+
+        // Check cookies absence for non-storefront routes
+        $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
+        static::assertIsArray($routeScope);
+        if (!\in_array(StorefrontRouteScope::ID, $routeScope, true)) {
+            static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
+        }
     }
 
     /**
@@ -966,19 +974,23 @@ class CacheResponseSubscriberTest extends TestCase
      *      expectedCacheControl: string
      *  }>
      */
-    public static function storeApiCachingProvider(): iterable
+    public static function cachePoliciesAppliedProvider(): iterable
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $baseRequestAttributes = [
+        $storefrontRequestAttributes = [
             PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
         ];
 
         $basePolicies = [
             'p_default' => [
                 'public' => true,
                 's_maxage' => 200,
+            ],
+            'p_storefront' => [
+                'public' => true,
+                's_maxage' => 100,
             ],
             'no_cache_private' => [
                 'private' => true,
@@ -987,15 +999,91 @@ class CacheResponseSubscriberTest extends TestCase
                 's_maxage' => 0,
             ],
         ];
+
         $defaultPolicies = [
+            'storefront' => [
+                'cacheable' => 'p_storefront',
+                'uncacheable' => 'no_cache_private',
+            ],
             'store_api' => [
                 'cacheable' => 'p_default',
                 'uncacheable' => 'no_cache_private',
             ],
         ];
 
+        yield 'Storefront policy applied' => [
+            'requestResponseOptions' => $storefrontRequestAttributes,
+            'subscriberConfig' => [
+                'defaultTtl' => 100,
+                'policies' => $basePolicies,
+                'defaultPolicies' => $defaultPolicies,
+            ],
+            'expectedCacheControl' => 'public, s-maxage=100',
+        ];
+
+        // Storefront policyModifier tests
+        yield 'Storefront policyModifier allows route-specific policies with modifiers' => [
+            'requestResponseOptions' => array_merge($storefrontRequestAttributes, [
+                '_route' => 'frontend.script_endpoint',
+                PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
+                    'policyModifier' => 'blog-update',
+                ],
+            ]),
+            'subscriberConfig' => [
+                'defaultTtl' => 100,
+                'policies' => array_merge($basePolicies, [
+                    'p_route' => [
+                        'public' => true,
+                        's_maxage' => 300,
+                        'stale_while_revalidate' => 10,
+                    ],
+                    'p_script_blog' => [
+                        'public' => true,
+                        's_maxage' => 600,
+                        'stale_while_revalidate' => 20,
+                    ],
+                ]),
+                'defaultPolicies' => $defaultPolicies,
+                'routePolicies' => [
+                    'frontend.script_endpoint' => 'p_route',
+                    'frontend.script_endpoint#blog-update' => 'p_script_blog',
+                ],
+            ],
+            'expectedCacheControl' => 'public, s-maxage=600, stale-while-revalidate=20',
+        ];
+
+        yield 'Storefront policyModifier falls back to route policy when modifier-specific policy not found' => [
+            'requestResponseOptions' => array_merge($storefrontRequestAttributes, [
+                '_route' => 'frontend.script_endpoint',
+                PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
+                    'policyModifier' => 'nonexistent-hook',
+                ],
+            ]),
+            'subscriberConfig' => [
+                'defaultTtl' => 100,
+                'policies' => array_merge($basePolicies, [
+                    'p_route' => [
+                        'public' => true,
+                        's_maxage' => 300,
+                        'stale_while_revalidate' => 10,
+                    ],
+                ]),
+                'defaultPolicies' => $defaultPolicies,
+                'routePolicies' => [
+                    'frontend.script_endpoint' => 'p_route',
+                ],
+            ],
+            'expectedCacheControl' => 'public, s-maxage=300, stale-while-revalidate=10',
+        ];
+
+        $storeApiRequestAttributes = [
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        ];
+
         yield 'Store API policy applied' => [
-            'requestResponseOptions' => $baseRequestAttributes,
+            'requestResponseOptions' => $storeApiRequestAttributes,
             'subscriberConfig' => [
                 'defaultTtl' => 100,
                 'policies' => $basePolicies,
@@ -1005,7 +1093,7 @@ class CacheResponseSubscriberTest extends TestCase
         ];
 
         yield 'Store API policy overwrites response cache-control' => [
-            'requestResponseOptions' => array_merge($baseRequestAttributes, [
+            'requestResponseOptions' => array_merge($storeApiRequestAttributes, [
                 'responseOriginalCacheControl' => 'no-cache, private',
             ]),
             'subscriberConfig' => [
@@ -1018,7 +1106,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         // route specific policy should override defaults
         yield 'Store API route-specific policy overrides defaults' => [
-            'requestResponseOptions' => array_merge($baseRequestAttributes, [
+            'requestResponseOptions' => array_merge($storeApiRequestAttributes, [
                 '_route' => 'store-api.product.search',
             ]),
             'subscriberConfig' => [
@@ -1039,7 +1127,7 @@ class CacheResponseSubscriberTest extends TestCase
         ];
 
         yield 'Store API POST is not cached (uncacheable policy)' => [
-            'requestResponseOptions' => array_merge($baseRequestAttributes, ['_method' => Request::METHOD_POST]),
+            'requestResponseOptions' => array_merge($storeApiRequestAttributes, ['_method' => Request::METHOD_POST]),
             'subscriberConfig' => [
                 'policies' => $basePolicies,
                 'defaultPolicies' => $defaultPolicies,

@@ -28,6 +28,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type CacheAttribute from PlatformRequest
  */
 #[Package('framework')]
 readonly class CacheResponseSubscriber implements EventSubscriberInterface
@@ -137,7 +139,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
         $this->updateCacheContextCookie($context, $cart, $request, $response);
 
-        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cacheAttribute */
+        /** @var CacheAttribute $cacheAttribute */
         $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
         if (!$cacheAttribute) {
             $this->noCache($request, $response, $isStoreApi);
@@ -187,7 +189,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
+        /** @var CacheAttribute $cache */
         $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
         if (!$cache) {
             return;
@@ -242,10 +244,23 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
     {
         $route = (string) $request->attributes->get('_route', '');
 
+        // Special case to allow modifying policy by some modifier. Allows to have different policies for same route.
+        // Used for app script hooks as (route_name#hook_name)
+        /** @var CacheAttribute $cacheAttribute */
+        $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+        if ($route !== '' && \is_array($cacheAttribute) && isset($cacheAttribute['policyModifier'])) {
+            $modifiedPolicyKey = $route . '#' . $cacheAttribute['policyModifier'];
+            if (isset($this->routePolicies[$modifiedPolicyKey])) {
+                return $this->routePolicies[$modifiedPolicyKey];
+            }
+        }
+
+        // Check for route-level policy
         if ($route !== '' && isset($this->routePolicies[$route])) {
             return $this->routePolicies[$route];
         }
 
+        // Fallback to area defaults
         $defaults = $this->defaultPolicies[$area] ?? null;
         if (!$defaults) {
             return null;

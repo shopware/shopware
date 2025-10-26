@@ -1058,7 +1058,8 @@
                 "route_policies": {
                     "type": "object",
                     "additionalProperties": { "type": "string" },
-                    "title": "Route name to policy mapping"
+                    "title": "Route name to policy mapping",
+                    "description": "Map route names to cache policies. Supports route#modifier pattern for granular script endpoint control (e.g., 'frontend.script_endpoint#hook-name')."
                 }
             }
         },

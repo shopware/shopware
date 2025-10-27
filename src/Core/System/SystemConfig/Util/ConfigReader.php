@@ -51,7 +51,7 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @return array<array{title: array<string, string|null>, name: string|null, elements: array<int, array<string, mixed>>, flag?: string|null}>
+     * @return array<array{title: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
      */
     private function getCardDefinitions(\DOMDocument $xml): array
     {
@@ -86,20 +86,18 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getElements(\DOMElement $xml): array
     {
         $elements = [];
-        $count = 0;
         foreach (static::getAllChildren($xml) as $element) {
             $nodeName = $element->nodeName;
             if (\in_array($nodeName, ['title', 'name', 'flag'], true)) {
                 continue;
             }
 
-            $elements[$count] = $this->elementToArray($element);
-            ++$count;
+            $elements[] = $this->elementToArray($element);
         }
 
         return $elements;

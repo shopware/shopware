@@ -126,6 +126,15 @@
             <tag name="shopware.route_scope"/>
         </service>
 
+        <service id="Shopware\Administration\Framework\SystemCheck\AdministrationReadinessCheck">
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
+            <argument type="service" id="filesystem"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
         <service id="Shopware\Administration\Snippet\AppAdministrationSnippetDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

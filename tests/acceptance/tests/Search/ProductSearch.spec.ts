@@ -37,7 +37,7 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
         });
 
         await test.step('Customer navigates to the results page to view all matching products', async () => {
-            await StorefrontSearchSuggest.searchSuggestTotalLink.click();
+            await ShopCustomer.presses(StorefrontSearchSuggest.searchSuggestTotalLink);
             await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText(`Bottle - ${productNameSuffix1}` + ' ' + `Bowl - ${productNameSuffix2}`);
             const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
             await ShopCustomer.expects(listedItemsCount).toBeGreaterThanOrEqual(2);

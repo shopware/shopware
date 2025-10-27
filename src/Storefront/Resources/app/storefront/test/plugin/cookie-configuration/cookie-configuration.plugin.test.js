@@ -240,12 +240,48 @@ describe('CookieConfiguration plugin tests', () => {
         plugin.acceptAllCookies().catch(done);
     });
 
-    test('Ensure handleCustomLink opens the off-canvas-menu', () => {
+    test('Ensure handleCustomLink opens the off-canvas-menu for normal left-click', () => {
         const openOffCanvas = jest.spyOn(plugin, 'openOffCanvas');
 
-        plugin._handleCustomLink({ preventDefault: () => {} });
+        // Test normal left-click (should open offcanvas)
+        plugin._handleCustomLink({
+            preventDefault: jest.fn(),
+            button: 0,
+            ctrlKey: false,
+            metaKey: false,
+            shiftKey: false,
+            defaultPrevented: false
+        });
 
         expect(openOffCanvas).toHaveBeenCalled();
+    });
+
+    test('Ensure handleCustomLink does not open offcanvas for middle-click or Ctrl+click', () => {
+        const openOffCanvas = jest.spyOn(plugin, 'openOffCanvas');
+
+        // Test middle-click (should not open offcanvas)
+        plugin._handleCustomLink({
+            preventDefault: jest.fn(),
+            button: 1,
+            ctrlKey: false,
+            metaKey: false,
+            shiftKey: false,
+            defaultPrevented: false
+        });
+
+        expect(openOffCanvas).not.toHaveBeenCalled();
+
+        // Test Ctrl+click (should not open offcanvas)
+        plugin._handleCustomLink({
+            preventDefault: jest.fn(),
+            button: 0,
+            ctrlKey: true,
+            metaKey: false,
+            shiftKey: false,
+            defaultPrevented: false
+        });
+
+        expect(openOffCanvas).not.toHaveBeenCalled();
     });
 
     test('Ensure the plugin is initialised when the off-canvas-panel is opened', () => {
@@ -952,28 +988,6 @@ describe('CookieConfiguration plugin tests', () => {
             initializePluginsSpy.mockRestore();
         });
 
-        test('OffCanvas close listener is properly registered and unsubscribes', () => {
-            // Test uncovered lines 383-384
-            const subscribeSpy = jest.spyOn(document.$emitter, 'subscribe');
-            const unsubscribeSpy = jest.spyOn(document.$emitter, 'unsubscribe');
-            const checkAndShowCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded');
-
-            plugin._registerOffCanvasCloseListener();
-
-            // Get the callback that was subscribed
-            const callback = subscribeSpy.mock.calls[0][1];
-
-            // Simulate the offcanvas close event
-            callback();
-
-            expect(checkAndShowCookieBarSpy).toHaveBeenCalled();
-            expect(unsubscribeSpy).toHaveBeenCalledWith('onCloseOffcanvas', callback);
-
-            subscribeSpy.mockRestore();
-            unsubscribeSpy.mockRestore();
-            checkAndShowCookieBarSpy.mockRestore();
-        });
-
         test('_getOffCanvas behavior with and without elements', () => {
             const originalGetOffCanvas = OffCanvas.getOffCanvas;
 
@@ -1235,38 +1249,64 @@ describe('CookieConfiguration plugin tests', () => {
     });
 
     describe('Event Subscription and Registration', () => {
-        test('_registerEvents adds event listeners to DOM elements', () => {
-            // Create DOM elements that should have event listeners added
-            const configButton = document.createElement('button');
-            configButton.className = 'js-cookie-configuration-button';
-            configButton.innerHTML = '<button>Configure</button>';
-            document.body.appendChild(configButton);
+        test('_registerEvents uses event delegation on document', () => {
+            const addEventListenerSpy = jest.spyOn(document, 'addEventListener');
 
-            const permissionButton = document.createElement('button');
-            permissionButton.className = 'js-cookie-permission-button';
-            document.body.appendChild(permissionButton);
-
-            const customLink = document.createElement('a');
-            customLink.href = window.router['frontend.cookie.offcanvas'];
-            document.body.appendChild(customLink);
-
-            const acceptAllButton = document.createElement('button');
-            acceptAllButton.className = 'js-cookie-accept-all-button';
-            document.body.appendChild(acceptAllButton);
-
-            const addEventListenerSpy = jest.spyOn(HTMLElement.prototype, 'addEventListener');
+            // Clear the existing handler to test fresh registration
+            plugin._delegatedEventHandler = null;
 
             // Re-register events
             plugin._registerEvents();
 
-            expect(addEventListenerSpy).toHaveBeenCalled();
+            // Should add a single delegated event listener on document with capture phase
+            expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function), true);
+
+            addEventListenerSpy.mockRestore();
+        });
+
+        test.each([
+            {
+                description: 'button open selector',
+                className: 'js-cookie-configuration-button',
+                methodName: 'openOffCanvas',
+                needsInnerButton: true,
+            },
+            {
+                description: 'permission button',
+                className: 'js-cookie-permission-button',
+                methodName: '_handlePermission',
+                needsInnerButton: false,
+            },
+            {
+                description: 'accept all button',
+                className: 'js-cookie-accept-all-button',
+                methodName: '_acceptAllCookiesFromCookieBar',
+                needsInnerButton: false,
+            },
+        ])('event delegation handles $description', ({ className, methodName, needsInnerButton }) => {
+            const methodSpy = jest.spyOn(plugin, methodName);
+
+            const button = document.createElement('button');
+            button.className = className;
+
+            let clickTarget = button;
+            if (needsInnerButton) {
+                const innerButton = document.createElement('button');
+                innerButton.textContent = 'Inner';
+                button.appendChild(innerButton);
+                clickTarget = innerButton;
+            }
+
+            document.body.appendChild(button);
+
+            // Event delegation is already set up, just click the button
+            clickTarget.click();
+
+            expect(methodSpy).toHaveBeenCalled();
 
             // Cleanup
-            document.body.removeChild(configButton);
-            document.body.removeChild(permissionButton);
-            document.body.removeChild(customLink);
-            document.body.removeChild(acceptAllButton);
-            addEventListenerSpy.mockRestore();
+            document.body.removeChild(button);
+            methodSpy.mockRestore();
         });
 
         test('handles CustomEvent vs regular payload in subscription', () => {
@@ -1305,34 +1345,6 @@ describe('CookieConfiguration plugin tests', () => {
 
             subscribeSpy.mockRestore();
             openSpy.mockRestore();
-        });
-
-        test('_registerEvents processes custom links correctly', () => {
-            // Test line 98 coverage - custom link event registration
-            const customLink = document.createElement('a');
-            customLink.href = window.router['frontend.cookie.offcanvas'];
-            document.body.appendChild(customLink);
-
-            // Mock Array.from and document.querySelectorAll to ensure our link is found
-            const originalQuerySelectorAll = document.querySelectorAll;
-            document.querySelectorAll = jest.fn((selector) => {
-                if (selector === plugin.options.customLinkSelector) {
-                    return [customLink];
-                }
-                return originalQuerySelectorAll.call(document, selector);
-            });
-
-            const addEventListenerSpy = jest.spyOn(customLink, 'addEventListener');
-
-            // Re-register events to trigger the line
-            plugin._registerEvents();
-
-            expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
-
-            // Restore
-            document.querySelectorAll = originalQuerySelectorAll;
-            document.body.removeChild(customLink);
-            addEventListenerSpy.mockRestore();
         });
     });
 
@@ -1636,35 +1648,6 @@ describe('CookieConfiguration plugin tests', () => {
         });
     });
 
-    describe('OffCanvas Close Handling', () => {
-        test('_onOffCanvasClose shows cookie bar when user has no preference', () => {
-            // Mock no existing preference
-            const getItemSpy = jest.spyOn(CookieStorage, 'getItem').mockReturnValue(null);
-            const showCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded').mockImplementation();
-
-            plugin._onOffCanvasClose();
-
-            expect(getItemSpy).toHaveBeenCalledWith(plugin.options.cookiePreference);
-            expect(showCookieBarSpy).toHaveBeenCalled();
-
-            getItemSpy.mockRestore();
-            showCookieBarSpy.mockRestore();
-        });
-
-        test('_onOffCanvasClose does not show cookie bar when user has preference', () => {
-            // Mock existing preference
-            const getItemSpy = jest.spyOn(CookieStorage, 'getItem').mockReturnValue('1');
-            const showCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded').mockImplementation();
-
-            plugin._onOffCanvasClose();
-
-            expect(getItemSpy).toHaveBeenCalledWith(plugin.options.cookiePreference);
-            expect(showCookieBarSpy).not.toHaveBeenCalled();
-
-            getItemSpy.mockRestore();
-            showCookieBarSpy.mockRestore();
-        });
-    });
 
     describe('Cookie expiration configuration', () => {
         test('uses default expiration from options', () => {

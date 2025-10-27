@@ -6,7 +6,7 @@ export const DownloadDigitalProductFromOrderAndExpectContentToBe = base.extend<{
         const task = (contentOfFile: string) => {
             return async function DownloadDigitalProductFromOrder() {
                 // TODO: Migrate to StorefrontAccountOrder.orderExpandButton.click(); when https://github.com/shopware/acceptance-test-suite/pull/126 is released.
-                await StorefrontAccountOrder.page.locator('.order-hide-btn').first().click();
+                await ShopCustomer.presses(StorefrontAccountOrder.page.locator('.order-hide-btn').first());
 
                 const [newTab] = await Promise.all([
                     StorefrontAccountOrder.page.waitForEvent('popup'),

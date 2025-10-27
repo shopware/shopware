@@ -97,6 +97,41 @@ describe('src/core/telemetry/index.js', () => {
                 }),
             );
         });
+
+        it('does not emit page change event when navigating to the same route', async () => {
+            const telemetry = new Telemetry({ queries: [] });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            const router = createRouter({
+                routes: [
+                    {
+                        path: '/',
+                        name: 'home',
+                        component: { template: '<div>Home</div>' },
+                    },
+                    {
+                        path: '/test',
+                        name: 'test',
+                        component: { template: '<div>Test</div>' },
+                    },
+                ],
+                history: createMemoryHistory(),
+            });
+            Shopware.Application.view.router = router;
+            await router.push({ name: 'home' });
+
+            Shopware.Application.viewInitialized = new Promise((resolve) => {
+                resolve();
+            });
+
+            telemetry.initialize();
+            await Shopware.Application.viewInitialized;
+
+            await router.push({ name: 'test' });
+            await router.push({ name: 'test' });
+
+            expect(eventBusSpy).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe('auto tracked elements', () => {

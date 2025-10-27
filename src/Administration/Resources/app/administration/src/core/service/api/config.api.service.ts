@@ -13,6 +13,7 @@ import type { LoginService } from '../login.service';
  * @sw-package framework
  */
 class ConfigApiService extends ApiService {
+
     constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'config') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'configService';
@@ -29,7 +30,7 @@ class ConfigApiService extends ApiService {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return new Promise((resolve) => {
+        const config = new Promise((resolve) => {
             void this.httpClient
                 .get('/_info/config', {
                     params,
@@ -39,6 +40,11 @@ class ConfigApiService extends ApiService {
                     resolve(ApiService.handleResponse(response));
                 });
         });
+
+        this.addLoad(config);
+        this.resolveInitialization();
+
+        return config;
     }
 }
 

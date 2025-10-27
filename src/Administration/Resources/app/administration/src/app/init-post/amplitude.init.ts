@@ -147,14 +147,13 @@ async function getDefaultLanguageName(): Promise<string> {
 }
 
 async function setUserId(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const currentUser = await Shopware.Service('userService').getUser();
-    const shopId = Shopware.Store.get('context').app.config.shopId; // not available before the user is loaded
+    await Shopware.Service('userService').getLoaded();
+    await Shopware.Service('configService').getLoaded();
+    const shopId = Shopware.Store.get('context').app.config.shopId;
+    const currentUser = Shopware.Store.get('session').currentUser;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (shopId && currentUser?.data?.id) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        amplitude.setUserId(`${shopId}:${currentUser.data.id}`);
+    if (shopId && currentUser?.id) {
+        amplitude.setUserId(`${shopId}:${currentUser.id}`);
     }
 }
 

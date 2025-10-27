@@ -32,6 +32,16 @@ class ApiService {
 
     name = '';
 
+    private initializing = {
+        promise: Promise.resolve(),
+        resolve: () => {},
+    };
+    private loading = {
+        list: [Promise.resolve()],
+        promise: Promise.resolve(),
+        resolve: () => {},
+    };
+
     constructor(
         httpClient: AxiosInstance,
         loginService: LoginService,
@@ -42,6 +52,14 @@ class ApiService {
         this.loginService = loginService;
         this.apiEndpoint = apiEndpoint;
         this.contentType = contentType;
+
+        this.initializing.promise = new Promise((resolve) => {
+            this.initializing.resolve = resolve;
+        });
+        this.loading.promise = new Promise((resolve) => {
+            this.loading.resolve = resolve;
+        });
+        this.addLoad(this.initializing.promise);
     }
 
     /**
@@ -158,6 +176,42 @@ class ApiService {
 
     set contentType(contentType) {
         this.type = contentType;
+    }
+
+    /**
+     * Returns a promise that resolves when all current the loading promises are settled (resolved or rejected)
+     */
+    getLoaded(): Promise<void> {
+        return this.loading.promise.then(() => {});
+    }
+
+    /**
+     * Adds a promise to the loading array
+     */
+    protected addLoad(load: Promise<any>): void {
+        this.loading.list.push(load.then(() => {}));
+
+        this.resolveLoading();
+    }
+
+    private resolveLoading(): void {
+        const listSize = this.loading.list.length;
+
+        Promise.allSettled(this.loading.list).then(() => {
+            if (this.loading.list.length === listSize) {
+                this.loading.resolve();
+                return;
+            }
+
+            this.resolveLoading();
+        });
+    }
+
+    /**
+     * Resolves the promise for the service initialization
+     */
+    protected resolveInitialization(): void {
+        this.initializing.resolve();
     }
 }
 

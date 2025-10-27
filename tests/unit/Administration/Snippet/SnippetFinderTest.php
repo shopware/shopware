@@ -16,7 +16,6 @@ use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -270,19 +269,25 @@ class SnippetFinderTest extends TestCase
 
         $adminBundle = $this->createMock(Administration::class);
 
+        $adminBundleFileName = (new \ReflectionClass(Administration::class))->getFileName();
+        static::assertNotFalse($adminBundleFileName);
+
         $adminBundle
             ->method('getPath')
-            ->willReturn(\dirname((string) ReflectionHelper::getFileName(Administration::class)));
+            ->willReturn(\dirname($adminBundleFileName));
 
-        $property = ReflectionHelper::getProperty(Administration::class, 'name');
+        $property = new \ReflectionProperty(Administration::class, 'name');
         $property->setValue($adminBundle, 'Administration');
 
         $storefrontBundle = $this->createMock(Storefront::class);
+        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
+        static::assertNotFalse($storefrontBundleFileName);
+
         $storefrontBundle
             ->method('getPath')
-            ->willReturn(\dirname((string) ReflectionHelper::getFileName(Storefront::class)));
+            ->willReturn(\dirname($storefrontBundleFileName));
 
-        $property = ReflectionHelper::getProperty(Storefront::class, 'name');
+        $property = new \ReflectionProperty(Storefront::class, 'name');
         $property->setValue($storefrontBundle, 'Storefront');
 
         $bundles = [

@@ -68,26 +68,34 @@ describe('FormAjaxSubmitPlugin tests', () => {
         expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
     });
 
-    test('executes callback when submitting form', async () => {
-        const submitButton = document.querySelector('button');
+    test('executes callback when submitting form via different events', async () => {
         const cb = jest.fn();
-
         formAjaxSubmit.addCallback(cb);
+
+        // Test via button click
+        const submitButton = document.querySelector('button');
         submitButton.click();
         await new Promise(process.nextTick);
-
         expect(cb).toHaveBeenCalledTimes(1);
-    });
 
-    test('executes callback when submitting form via form submit event', async () => {
-        const cb = jest.fn();
+        // Reset callback count
+        cb.mockClear();
 
-        formAjaxSubmit.addCallback(cb);
+        // Test via form submit event
         formElement.dispatchEvent(new Event('submit', { cancelable: true }));
         await new Promise(process.nextTick);
+        expect(cb).toHaveBeenCalledTimes(1);
 
+        // Reset callback count
+        cb.mockClear();
+
+        // Test via input change event
+        const inputElement = formElement.querySelector('input');
+        inputElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: false }));
+        await new Promise(process.nextTick);
         expect(cb).toHaveBeenCalledTimes(1);
     });
+
 
     test('not executes callback when submitting invalid form', async () => {
         formElement.checkValidity = jest.fn(() => false);
@@ -102,17 +110,6 @@ describe('FormAjaxSubmitPlugin tests', () => {
         expect(cb).toHaveBeenCalledTimes(0);
     });
 
-    test('executes callback when submitting form via input change event', async () => {
-        const cb = jest.fn();
-        const inputElement = formElement.querySelector('input');
-
-        formAjaxSubmit.addCallback(cb);
-        // native browser change event not cancelable
-        inputElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: false }));
-        await new Promise(process.nextTick);
-
-        expect(cb).toHaveBeenCalledTimes(1);
-    });
 
     test('calls _fireRequest when input matches submitOnChange selector', async () => {
         const cb = jest.fn();
@@ -223,7 +220,10 @@ describe('FormAjaxSubmitPlugin tests', () => {
 
         global.fetch = jest.fn((url, options) => {
             expect(url).toBe('/account/newsletter/unsubscribe');
-            expect(options).toStrictEqual({ headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+            expect(options).toStrictEqual({
+                method: 'get',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
 
             return Promise.resolve({
                 text: () => Promise.resolve('<div class="replace-me"><div class="alert">Success</div></div>'),

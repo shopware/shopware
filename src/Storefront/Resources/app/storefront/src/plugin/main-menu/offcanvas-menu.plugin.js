@@ -99,7 +99,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _getLinkEventHandler(event, link) {
-
         // Initial navigation
         if (!link) {
             const initialContentElement = document.querySelector(this.options.initialContentSelector);

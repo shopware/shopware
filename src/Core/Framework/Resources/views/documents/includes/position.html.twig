@@ -43,11 +43,11 @@ All blocks of this template are available in the template which renders this tem
                             {% endfor %}
                         {% endif %}
 
-                        <span class="line-item-label level-{{ level }}">{{ lineItem.label }}</span>
+                        <span class="line-item-label level-{{ level }}">{{ lineItem.label|sw_sanitize(null, true) }}</span>
                         {% if lineItem.payload.options|length >= 1 %}
                             <br/>
                             {% for option in lineItem.payload.options %}
-                                {{ option.group }}: {{ option.option }}
+                                {{ option.group|sw_sanitize(null, true) }}: {{ option.option|sw_sanitize(null, true) }}
                                 {% if lineItem.payload.options|last != option %}
                                     {{ " | " }}
                                 {% endif %}
@@ -58,8 +58,8 @@ All blocks of this template are available in the template which renders this tem
                             <br/>
                             {% for feature in lineItem.payload.features %}
                                 {% if feature.type == 'referencePrice' %}
-                                    {{ feature.value.purchaseUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }}
-                                    ({{ feature.value.price|currency(currencyIsoCode, languageId) }}{{ "general.star"|trans }} / {{ feature.value.referenceUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }})
+                                    {{ feature.value.purchaseUnit|sw_sanitize(null, true) }} {{ feature.value.unitName|sw_sanitize(null, true) }}
+                                    ({{ feature.value.price|currency(currencyIsoCode, languageId) }}{{ "general.star"|trans }} / {{ feature.value.referenceUnit|sw_sanitize(null, true) }} {{ feature.value.unitName|sw_sanitize(null, true) }})
                                     {% if lineItem.payload.features|last != feature %}
                                         {{ " | " }}
                                     {% endif %}

@@ -203,7 +203,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getScssEntryFileInDir(string $path, string $basePath): array
     {

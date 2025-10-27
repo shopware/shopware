@@ -13,7 +13,7 @@ test ('As a customer, I can request a new password with existing customer email 
     });
 
     await test.step('Fill in the customer email and request a password reset', async () => {
-        await StorefrontAccountRecover.emailInput.fill(customer.email);
+        await ShopCustomer.fillsIn(StorefrontAccountRecover.emailInput, customer.email);
         await ShopCustomer.presses(StorefrontAccountRecover.requestEmailButton);
     });
 
@@ -40,7 +40,7 @@ test ('As a customer, I can request a new password without existing customer ema
     });
 
     await test.step('Request password reset with a non-existing email', async () => {
-        await StorefrontAccountRecover.emailInput.fill('test-forgot-password-non-existing@email.net');
+        await ShopCustomer.fillsIn(StorefrontAccountRecover.emailInput, 'test-forgot-password-non-existing@email.net');
         await ShopCustomer.presses(StorefrontAccountRecover.requestEmailButton);
         // Verify that the success message is shown for security reasons
         await ShopCustomer.expects(StorefrontAccountRecover.passwordResetEmailSentMessage).toBeVisible();
@@ -69,7 +69,7 @@ test ('As a customer, I can reset my password using the password recovery proces
     });
 
     await test.step('Fill in the customer email and request a password reset', async () => {
-        await StorefrontAccountRecover.emailInput.fill(customer.email);
+        await ShopCustomer.fillsIn(StorefrontAccountRecover.emailInput, customer.email);
         await ShopCustomer.presses(StorefrontAccountRecover.requestEmailButton);
     });
 

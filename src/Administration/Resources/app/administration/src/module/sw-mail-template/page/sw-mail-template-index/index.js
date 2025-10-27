@@ -1,5 +1,4 @@
 import template from './sw-mail-template-index.html.twig';
-import './sw-mail-template-index.scss';
 
 /**
  * @sw-package after-sales

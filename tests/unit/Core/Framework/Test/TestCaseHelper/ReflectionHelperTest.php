@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Test\TestCaseHelper;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
@@ -12,6 +13,11 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 #[CoversClass(ReflectionHelper::class)]
 class ReflectionHelperTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+    }
+
     public function testGetMethodFromProtectedScope(): void
     {
         $class = new FakeClassForHelper();

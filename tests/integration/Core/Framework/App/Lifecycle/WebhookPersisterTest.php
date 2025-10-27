@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 
@@ -226,7 +225,7 @@ class WebhookPersisterTest extends TestCase
 
         // trigger loading of webhooks
         $webhookManager->dispatch(new AppDeletedEvent('app-id', $context));
-        $webhookCache = ReflectionHelper::getProperty(WebhookManager::class, 'webhooks')->getValue($webhookManager);
+        $webhookCache = (new \ReflectionProperty(WebhookManager::class, 'webhooks'))->getValue($webhookManager);
 
         static::assertCount(2, $webhookCache);
 
@@ -235,7 +234,7 @@ class WebhookPersisterTest extends TestCase
 
         // trigger loading of webhooks
         $webhookManager->dispatch(new AppDeletedEvent('app-id', $context));
-        $webhookCache = ReflectionHelper::getProperty(WebhookManager::class, 'webhooks')->getValue($webhookManager);
+        $webhookCache = (new \ReflectionProperty(WebhookManager::class, 'webhooks'))->getValue($webhookManager);
 
         // should now be three
         static::assertCount(3, $webhookCache);

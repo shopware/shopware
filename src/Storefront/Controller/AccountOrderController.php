@@ -242,9 +242,7 @@ class AccountOrderController extends StorefrontController
         $this->hook(new AccountEditOrderPageLoadedHook($page, $context));
 
         if ($page->isPaymentChangeable() === false) {
-            $refundsEnabled = $this->systemConfigService->get('core.cart.enableOrderRefunds');
-
-            if ($refundsEnabled) {
+            if ($this->systemConfigService->getBool('core.cart.enableOrderRefunds', $context->getSalesChannelId())) {
                 $this->addFlash(self::DANGER, $this->trans('account.editOrderPaymentNotChangeableWithRefunds'));
             } else {
                 $this->addFlash(self::DANGER, $this->trans('account.editOrderPaymentNotChangeable'));

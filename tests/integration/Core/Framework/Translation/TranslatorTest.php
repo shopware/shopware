@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -63,7 +62,7 @@ class TranslatorTest extends TestCase
         static::getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
 
         $stack = static::getContainer()->get(RequestStack::class);
-        $prop = ReflectionHelper::getProperty(RequestStack::class, 'requests');
+        $prop = new \ReflectionProperty(RequestStack::class, 'requests');
         $prop->setValue($stack, []);
 
         // fake request

@@ -2,17 +2,13 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
-use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -24,7 +20,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -239,14 +234,7 @@ class ProductUrlProviderTest extends TestCase
 
     private function getProductUrlProvider(): ProductUrlProvider
     {
-        return new ProductUrlProvider(
-            static::getContainer()->get(ConfigHandler::class),
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get(ProductDefinition::class),
-            static::getContainer()->get(IteratorFactory::class),
-            static::getContainer()->get(RouterInterface::class),
-            static::getContainer()->get(SystemConfigService::class)
-        );
+        return static::getContainer()->get(ProductUrlProvider::class);
     }
 
     /**

@@ -72,7 +72,7 @@ class ValidateAppCommand extends Command
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function validate(string $appDir): array
     {

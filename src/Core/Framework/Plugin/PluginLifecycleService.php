@@ -50,6 +50,7 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
@@ -88,6 +89,7 @@ class PluginLifecycleService
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -586,6 +588,12 @@ class PluginLifecycleService
 
     private function rebuildContainerWithNewPluginState(PluginEntity $plugin, string $pluginNamespace): void
     {
+        // Release session lock before container rebuild (to avoid holding file based session lock during long operation)
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request && $request->hasSession() && $request->getSession()->isStarted()) {
+            $request->getSession()->save(); // Releases flock() on session file
+        }
+
         $kernel = $this->container->get('kernel');
 
         $pluginDir = $kernel->getContainer()->getParameter('kernel.plugin_dir');

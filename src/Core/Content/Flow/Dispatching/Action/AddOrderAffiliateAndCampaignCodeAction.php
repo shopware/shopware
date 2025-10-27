@@ -35,7 +35,7 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements Delay
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function requirements(): array
     {

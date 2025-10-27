@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -207,7 +206,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      */
     private function assertThemes(array $expectation, ThemeNamespaceHierarchyBuilder $builder): void
     {
-        $refProperty = ReflectionHelper::getPropertyValue($builder, 'themes');
+        $refProperty = (new \ReflectionProperty(ThemeNamespaceHierarchyBuilder::class, 'themes'))->getValue($builder);
 
         static::assertEquals($expectation, $refProperty);
     }

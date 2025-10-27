@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
@@ -178,7 +177,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testFormatVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
     {
-        $formatVariables = ReflectionHelper::getMethod(ThemeCompiler::class, 'formatVariables');
+        $formatVariables = new \ReflectionMethod(ThemeCompiler::class, 'formatVariables');
 
         $variables = [
             'sw-color-brand-primary' => '#008490',
@@ -203,7 +202,7 @@ class ThemeCompilerTest extends TestCase
     #[DataProvider('configForDumpVariables')]
     public function testDumpVariables(array $config, string $expected): void
     {
-        $dumpVariables = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables');
+        $dumpVariables = new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables');
 
         $actual = $dumpVariables->invoke($this->getThemeCompiler(), $config, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
 

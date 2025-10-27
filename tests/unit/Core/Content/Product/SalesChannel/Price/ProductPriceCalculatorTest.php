@@ -33,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
@@ -149,7 +148,7 @@ class ProductPriceCalculatorTest extends TestCase
 
     public function testEnsureUnitCaching(): void
     {
-        $property = ReflectionHelper::getProperty(ProductPriceCalculator::class, 'units');
+        $property = new \ReflectionProperty(ProductPriceCalculator::class, 'units');
 
         static::assertNull($property->getValue($this->calculator));
 

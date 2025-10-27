@@ -21,6 +21,7 @@ import ViewportDetection from 'src/helper/viewport-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 import FocusHandler from 'src/helper/focus-handler.helper';
 import FormValidation from 'src/helper/form-validation.helper';
+import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 
 /*
 import utils
@@ -142,13 +143,50 @@ if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', () => import('src/plugin/google-analytics/google-analytics.plugin'));
 }
 
-if (window.googleReCaptchaV2Active) {
-    PluginManager.register('GoogleReCaptchaV2', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'), '[data-google-re-captcha-v2]');
+// This logic ensures `grecaptcha.ready()` can be safely called at any time.
+// Callbacks passed to `grecaptcha.ready()` before reCAPTCHA loads are enqueued
+// and executed by the reCAPTCHA script once it loads.
+if ((window.googleReCaptchaV2Active || window.googleReCaptchaV3Active) && typeof window.grecaptcha === 'undefined') {
+    window.grecaptcha = {
+        ready: (cb) => {
+            const c = '___grecaptcha_cfg';
+            window[c] = window[c] || {};
+            window[c].fns = window[c].fns || [];
+            window[c].fns.push(cb);
+        },
+    };
 }
 
-if (window.googleReCaptchaV3Active) {
-    PluginManager.register('GoogleReCaptchaV3', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'), '[data-google-re-captcha-v3]');
+/**
+ * Registers Google reCAPTCHA plugins based on current cookie preferences
+ */
+function registerGoogleReCaptchaPlugins() {
+    // depends on the value that is set via Shopware\Core\Content\Cookie\Service\CookieProvider for cookie.groupRequiredAccepted
+    const cookiesAccepted = CookieStorage.getItem('cookie-preference') === '1';
+
+    if (cookiesAccepted || !window.useDefaultCookieConsent) {
+        if (window.googleReCaptchaV2Active) {
+            PluginManager.register(
+                'GoogleReCaptchaV2',
+                () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'),
+                '[data-google-re-captcha-v2]',
+            );
+        }
+
+        if (window.googleReCaptchaV3Active) {
+            PluginManager.register(
+                'GoogleReCaptchaV3',
+                () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'),
+                '[data-google-re-captcha-v3]',
+            );
+        }
+    }
 }
+
+// Make the function globally available
+window.registerGoogleReCaptchaPlugins = registerGoogleReCaptchaPlugins;
+// Register Google reCAPTCHA plugins on inital page load
+registerGoogleReCaptchaPlugins();
 
 /*
 run plugins
@@ -163,13 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
      * This leads to console errors in some browsers, if an element within the modal still has focus.
      */
     const modals = document.querySelectorAll('.modal');
-    modals.forEach((modal) => {
+    for (const modal of modals) {
         modal.addEventListener('hide.bs.modal', () => {
             if (document.activeElement instanceof HTMLElement) {
                 document.activeElement.blur();
             }
         });
-    });
+    }
 
 }, false);
 

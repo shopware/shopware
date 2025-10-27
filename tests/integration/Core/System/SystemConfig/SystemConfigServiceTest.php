@@ -12,11 +12,10 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
-use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
-use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -101,8 +100,7 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
-            $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'string\'. But is of type \'array\'');
+            $this->expectExceptionObject(SystemConfigException::invalidSettingValueException('foo.bar', 'string', 'array'));
         }
         $actual = $this->systemConfigService->getString('foo.bar');
         static::assertSame($expected, $actual);
@@ -134,8 +132,7 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
-            $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'int\'. But is of type \'array\'');
+            $this->expectExceptionObject(SystemConfigException::invalidSettingValueException('foo.bar', 'int', 'array'));
         }
         $actual = $this->systemConfigService->getInt('foo.bar');
         static::assertSame($expected, $actual);
@@ -167,8 +164,7 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
-            $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'float\'. But is of type \'array\'');
+            $this->expectExceptionObject(SystemConfigException::invalidSettingValueException('foo.bar', 'float', 'array'));
         }
         $actual = $this->systemConfigService->getFloat('foo.bar');
         static::assertSame($expected, $actual);
@@ -348,13 +344,13 @@ class SystemConfigServiceTest extends TestCase
 
     public function testGetDomainEmptyThrows(): void
     {
-        $this->expectException(InvalidDomainException::class);
+        $this->expectExceptionObject(SystemConfigException::invalidDomain('Empty domain'));
         $this->systemConfigService->getDomain('');
     }
 
     public function testGetDomainOnlySpacesThrows(): void
     {
-        $this->expectException(InvalidDomainException::class);
+        $this->expectExceptionObject(SystemConfigException::invalidDomain('Empty domain'));
         $this->systemConfigService->getDomain('     ');
     }
 

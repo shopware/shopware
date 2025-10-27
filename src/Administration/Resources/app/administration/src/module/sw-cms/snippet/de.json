@@ -255,7 +255,12 @@
             "useFetchPriorityOnFirstItem": "Erstes Bild priorisiert laden",
             "useFetchPriorityOnFirstItemHelpText": "Wenn diese Option eingeschaltet wird, wird das erste Bild mit einer höheren Priorität geladen. Dies kann die Geschwindigkeit des Aufbaus der Seite im Browser verbessern.",
             "linkNewTab": "Link in neuem Tab öffnen",
-            "linkTo": "Linkziel"
+            "linkTo": "Linkziel",
+            "fetchPriorityHigh": "Hohe Ladepriorität"
+          },
+          "helpText": {
+            "fetchPriorityHigh": "Setze diese Option, wenn das Bild das erste Bild auf der Seite ist. Diesem Bild wird dann das Attribut 'fetchpriority=\"high\"' hinzugefügt, was dem Browser mitteilt, dass das Bild mit höherer Priorität geladen werden soll, was den Largest Contentful Paint (LCP) verbessern kann.",
+            "isDecorative": "Wenn diese Option eingeschaltet ist, werden die Bildinformationen nicht von Screenreadern vorgelesen, das heißt der \"alt\"-Tag und \"title\"-Tag bleiben leer."
           },
           "placeholder": {
             "enterMinHeight": "Minimale Höhe eingeben ...",

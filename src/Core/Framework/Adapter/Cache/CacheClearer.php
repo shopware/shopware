@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -21,7 +22,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class CacheClearer
 {
-    private const LOCK_TTL = 30;
+    private const LOCK_TTL = 5;
     private const LOCK_KEY_CONTAINER = 'container-cache-directories';
 
     /**
@@ -86,7 +87,8 @@ class CacheClearer
             return;
         }
 
-        $finder = (new Finder())->in($this->cacheDir)->name('*Container*')->depth(0);
+        $searchDir = $this->cacheDir;
+        $finder = (new Finder())->in($searchDir)->name('*Container*')->depth(0);
         $containerCaches = [];
 
         foreach ($finder->getIterator() as $containerPaths) {
@@ -95,7 +97,7 @@ class CacheClearer
 
         $this->lock(function () use ($containerCaches): void {
             $this->filesystem->remove($containerCaches);
-        }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
+        }, $this->lockKeyForDir($searchDir), self::LOCK_TTL);
     }
 
     public function scheduleCacheFolderCleanup(): void
@@ -137,10 +139,11 @@ class CacheClearer
             return;
         }
 
+        $searchDir = \dirname($this->cacheDir) . '/';
         $finder = (new Finder())
             ->directories()
             ->name($this->environment . '*')
-            ->in(\dirname($this->cacheDir) . '/');
+            ->in($searchDir);
 
         if (!$finder->hasResults()) {
             return;
@@ -155,7 +158,7 @@ class CacheClearer
         if ($remove !== []) {
             $this->lock(function () use ($remove): void {
                 $this->filesystem->remove($remove);
-            }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
+            }, $this->lockKeyForDir($searchDir), self::LOCK_TTL);
         }
     }
 
@@ -180,10 +183,17 @@ class CacheClearer
 
         // The execution is blocked until the key is found or the time to live is reached.
         if ($lock->acquire(true)) {
-            $closure();
-
-            $lock->release();
+            try {
+                $closure();
+            } finally {
+                $lock->release();
+            }
         }
+    }
+
+    private function lockKeyForDir(string $dir): string
+    {
+        return \sprintf('%s:%s', self::LOCK_KEY_CONTAINER, Hasher::hash($dir));
     }
 
     private function cleanupUrlGeneratorCacheFiles(): void

@@ -519,12 +519,112 @@ class SCSSValidatorTest extends TestCase
             ],
             'rgb(255 0 0 / 0.5)',
         ];
+        yield 'color correct rgb modern with variable' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb($myColor / 0.5)',
+            ],
+            'rgb($myColor / 0.5)',
+        ];
+        yield 'color correct rgb modern with hex color' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb(#fff / 0.5)',
+            ],
+            'rgb(#fff / 0.5)',
+        ];
         yield 'color correct rgba' => [
             [
                 'type' => 'color',
                 'value' => 'rgba(255, 0, 0, 0.5)',
             ],
             'rgba(255, 0, 0, 0.5)',
+        ];
+        yield 'color correct rgba with variable' => [
+            [
+                'type' => 'color',
+                'value' => 'rgba($myColor, 0.5)',
+            ],
+            'rgba($myColor, 0.5)',
+        ];
+        yield 'color correct rgba with hex color' => [
+            [
+                'type' => 'color',
+                'value' => 'rgba(#fff, 0.5)',
+            ],
+            'rgba(#fff, 0.5)',
+        ];
+        // HSL/HSLA with SCSS functions
+        yield 'color correct hsl with SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'hsl(hue($sw-border-color), saturation($sw-border-color), 94%)',
+            ],
+            'hsl(hue($sw-border-color), saturation($sw-border-color), 94%)',
+        ];
+        yield 'color correct hsl with partial SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'hsl(hue($primary), 100%, 50%)',
+            ],
+            'hsl(hue($primary), 100%, 50%)',
+        ];
+        yield 'color correct hsl modern with SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'hsl(180deg saturation($primary) lightness($primary))',
+            ],
+            'hsl(180deg saturation($primary) lightness($primary))',
+        ];
+        yield 'color correct hsla with SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'hsla(hue($color), saturation($color), 50%, 0.8)',
+            ],
+            'hsla(hue($color), saturation($color), 50%, 0.8)',
+        ];
+        yield 'color correct hsla with alpha function' => [
+            [
+                'type' => 'color',
+                'value' => 'hsla(hue($color), saturation($color), lightness($color), alpha($color))',
+            ],
+            'hsla(hue($color), saturation($color), lightness($color), alpha($color))',
+        ];
+        // RGB/RGBA with SCSS functions
+        yield 'color correct rgb with SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb(red($primary), green($primary), blue($primary))',
+            ],
+            'rgb(red($primary), green($primary), blue($primary))',
+        ];
+        yield 'color correct rgb with partial SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb(red($color), 128, blue($color))',
+            ],
+            'rgb(red($color), 128, blue($color))',
+        ];
+        yield 'color correct rgb modern with SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb(red($color) 128 blue($color))',
+            ],
+            'rgb(red($color) 128 blue($color))',
+        ];
+        yield 'color correct rgba with SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'rgba(red($primary), green($primary), blue($primary), 0.5)',
+            ],
+            'rgba(red($primary), green($primary), blue($primary), 0.5)',
+        ];
+        yield 'color correct rgba with all SCSS functions' => [
+            [
+                'type' => 'color',
+                'value' => 'rgba(red($color), green($color), blue($color), alpha($color))',
+            ],
+            'rgba(red($color), green($color), blue($color), alpha($color))',
         ];
         // Boolean values
         yield 'checkbox true' => [

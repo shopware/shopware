@@ -287,4 +287,82 @@ class CookieRouteTest extends TestCase
 
         $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
     }
+
+    public function testSetsCookieConfigHashValueWhenEntryExists(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create a cookie group with cookie-config-hash entry
+        $hashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        $hashEntry->value = 'old-hash';
+        $otherEntry = new CookieEntry('other-cookie');
+
+        $cookieGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $cookieGroup->setEntries(new CookieEntryCollection([$hashEntry, $otherEntry]));
+        $cookieGroups = new CookieGroupCollection([$cookieGroup]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        $cookieRoute = new CookieRoute($cookieProvider);
+        $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Verify that the hash entry value was updated to the generated hash
+        static::assertSame($response->getHash(), $hashEntry->value);
+        static::assertNotSame('old-hash', $hashEntry->value);
+    }
+
+    public function testSetsCookieConfigHashValueHandlesGroupsWithoutEntries(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create groups: one without entries, one with hash entry
+        $groupWithoutEntries = new CookieGroup('group.without.entries');
+        // Don't set entries, so it remains null
+
+        $hashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        $hashEntry->value = 'old-hash';
+        $groupWithHashEntry = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $groupWithHashEntry->setEntries(new CookieEntryCollection([$hashEntry]));
+
+        $cookieGroups = new CookieGroupCollection([$groupWithoutEntries, $groupWithHashEntry]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        $cookieRoute = new CookieRoute($cookieProvider);
+        $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Verify that processing continues and hash is still set correctly
+        static::assertSame($response->getHash(), $hashEntry->value);
+    }
+
+    public function testSetsCookieConfigHashValueStopsAfterFirstMatch(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        // Create two groups each with hash entries - required group should be first to test early return
+        $requiredHashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        $requiredHashEntry->value = 'old-hash-required';
+        $requiredGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $requiredGroup->setEntries(new CookieEntryCollection([$requiredHashEntry]));
+
+        $secondHashEntry = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        $secondHashEntry->value = 'old-hash-2';
+        $secondGroup = new CookieGroup('second.group');
+        $secondGroup->setEntries(new CookieEntryCollection([$secondHashEntry]));
+
+        // Place required group first in collection to match early return behavior
+        $cookieGroups = new CookieGroupCollection([$requiredGroup, $secondGroup]);
+
+        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        $cookieRoute = new CookieRoute($cookieProvider);
+        $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
+
+        // Verify only the required group's hash entry was updated (method returns early on required group)
+        static::assertSame($response->getHash(), $requiredHashEntry->value);
+        static::assertSame('old-hash-2', $secondHashEntry->value); // Should remain unchanged
+    }
 }

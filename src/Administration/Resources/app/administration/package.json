@@ -100,7 +100,7 @@
     "uuid": "11.0.5",
     "uuidv7": "1.0.2",
     "v-click-outside": "3.2.0",
-    "vite": "^6.0.11",
+    "vite": "6.4.1",
     "vite-plugin-dynamic-import": "^1.6.0",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-node-polyfills": "^0.23.0",
@@ -203,7 +203,7 @@
     "xml2js": "0.6.2"
   },
   "engines": {
-    "node": "^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0",
+    "node": "^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0 || ^25.0.0",
     "npm": ">=10.0.0"
   },
   "dependenciesComments": {

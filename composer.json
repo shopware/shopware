@@ -191,6 +191,7 @@
     "league/flysystem-google-cloud-storage": "^3.10.3",
     "nikic/php-parser": "^5.4.0",
     "opis/json-schema": "^2.3.0",
+    "phpat/phpat": "0.12.0",
     "phpbench/phpbench": "^1.2.15",
     "phpdocumentor/reflection-docblock": "^5.3.0",
     "phpdocumentor/type-resolver": "^1.7.1",
@@ -420,7 +421,7 @@
     "phpstan": [
       "Composer\\Config::disableProcessTimeout",
       "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
-      "phpstan analyze --memory-limit=2G -v"
+      "phpstan analyze --memory-limit=2G -vv"
     ],
     "phpstan-errors-by-area": [
       "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"

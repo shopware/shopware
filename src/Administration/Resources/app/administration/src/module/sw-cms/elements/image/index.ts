@@ -41,6 +41,10 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: null,
         },
+        ariaLabel: {
+            source: 'static',
+            value: null,
+        },
         newTab: {
             source: 'static',
             value: false,
@@ -58,6 +62,10 @@ Shopware.Service('cmsService').registerCmsElement({
             value: 'center',
         },
         isDecorative: {
+            source: 'static',
+            value: false,
+        },
+        fetchPriorityHigh: {
             source: 'static',
             value: false,
         },

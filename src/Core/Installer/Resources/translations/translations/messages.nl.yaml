@@ -20,9 +20,11 @@ shopware.installer:
     select_language_bs-BA: Bosnisch
     select_language_cs-CZ: Tsjechisch
     select_language_da-DK: Deens
-    select_language_de-DE: Duits
+    select_language_de-DE: Duits (Duitsland)
+    select_language_de-CH: Duits (Zwitserland)
+    select_language_de-AT: Duits (Oostenrijk)
     select_language_el-GR: Grieks
-    select_language_en-US: Engels (Verenigde Staten van Amerika)
+    select_language_en-US: Engels (Verenigde Staten)
     select_language_en-GB: Engels (Verenigd Koninkrijk)
     select_language_es-ES: Spaans
     select_language_fi-FI: Fins

@@ -53,7 +53,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getCoreSnippets(): array
     {
@@ -63,7 +63,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getPluginSnippets(): array
     {
@@ -83,7 +83,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getSnippetsFromDir(string $directory): array
     {

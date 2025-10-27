@@ -17,6 +17,7 @@ use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -79,6 +80,8 @@ class ThemeDumpCommand extends Command
 
             if ($input->isInteractive() && \count($choices) > 1) {
                 $helper = $this->getHelper('question');
+                \assert($helper instanceof QuestionHelper);
+
                 $this->io->note($this->getThemeAssignmentInfos());
                 $question = new ChoiceQuestion('Please select a theme:', $choices);
                 $themeName = $helper->ask($input, $output, $question);
@@ -211,6 +214,7 @@ class ThemeDumpCommand extends Command
 
         if (\count($domainUrls) > 1) {
             $helper = $this->getHelper('question');
+            \assert($helper instanceof QuestionHelper);
 
             $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
             $domainUrl = $helper->ask($input, $output, $question);

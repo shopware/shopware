@@ -27,6 +27,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('checkout')]
 class CustomerGroupSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12969)
+     */
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
 
     /**

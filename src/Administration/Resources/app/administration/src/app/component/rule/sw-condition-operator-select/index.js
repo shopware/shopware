@@ -1,6 +1,8 @@
 import template from './sw-condition-operator-select.html.twig';
 import './sw-condition-operator-select.scss';
 
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
 /**
  * @private
  * @sw-package fundamentals@after-sales
@@ -54,6 +56,16 @@ export default {
             },
         },
 
+        operatorClasses() {
+            return {
+                'has--error': this.hasError,
+            };
+        },
+
+        hasError() {
+            return !!this.conditionValueOperatorError;
+        },
+
         translatedOperators() {
             return this.operators.map(({ identifier, label }) => {
                 return {
@@ -62,6 +74,8 @@ export default {
                 };
             });
         },
+
+        ...mapPropertyErrors('condition', ['value.operator']),
     },
 
     methods: {

@@ -50,7 +50,7 @@ class CookieProviderTest extends TestCase
         $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(3, $requiredGroup->getEntries());
+        static::assertCount(4, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);
@@ -62,7 +62,13 @@ class CookieProviderTest extends TestCase
         $comfortFeaturesGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         static::assertInstanceOf(CookieGroup::class, $comfortFeaturesGroup);
         static::assertNotNull($comfortFeaturesGroup->getEntries());
-        static::assertCount(1, $comfortFeaturesGroup->getEntries());
+        static::assertCount(2, $comfortFeaturesGroup->getEntries());
+
+        $youtubeCookie = $comfortFeaturesGroup->getEntries()->get('youtube-video');
+        static::assertNotNull($youtubeCookie);
+
+        $vimeoCookie = $comfortFeaturesGroup->getEntries()->get('vimeo-video');
+        static::assertNotNull($vimeoCookie);
     }
 
     public function testGetCookieGroupsWithTranslation(): void
@@ -147,7 +153,7 @@ class CookieProviderTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertTrue($requiredGroup->isRequired);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(3, $requiredGroup->getEntries());
+        static::assertCount(4, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);

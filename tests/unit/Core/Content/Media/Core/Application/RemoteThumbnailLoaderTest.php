@@ -15,7 +15,6 @@ use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -191,10 +190,10 @@ class RemoteThumbnailLoaderTest extends TestCase
         );
 
         $loader->load([$entity]);
-        static::assertNotEmpty(ReflectionHelper::getPropertyValue($loader, 'mediaFolderThumbnailSizes'));
+        static::assertNotEmpty((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
 
         $loader->reset();
-        static::assertEmpty(ReflectionHelper::getPropertyValue($loader, 'mediaFolderThumbnailSizes'));
+        static::assertEmpty((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
     }
 
     public function testExtensionSkipThumbnail(): void

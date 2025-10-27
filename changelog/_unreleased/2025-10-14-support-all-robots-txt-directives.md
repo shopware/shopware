@@ -12,6 +12,7 @@ author_github: BrocksiNet
 * Added robots.txt parsing value objects: `ParsedRobots`, `ParseIssue`, `ParseIssueSeverity`, `RobotsDirective`, `RobotsDirectiveType`, `RobotsUserAgentBlock`
 * Added `Shopware\Storefront\Page\Robots\RobotsConfigChangeSubscriber` to log parsing issues when robots.txt is saved
 * Added system configuration option `core.basicInformation.robotsDisableDefaults` to disable default robots.txt rules
+* Deprecated passing a string to `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` constructor - use `ParsedRobots` object instead
 
 ___
 # Storefront
@@ -25,15 +26,15 @@ ___
 
 The robots.txt system has been enhanced to support the full robots.txt standard including User-agent blocks and all common directives.
 
-### Technical Changes (Backward Compatible)
+### Technical Changes
 
-The constructor of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` now supports both `string` and `ParsedRobots` objects as input:
+The constructor of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` now accepts `ParsedRobots` objects for proper parsing with validation:
 
 ```php
-// Simple string format (for basic Allow/Disallow rules)
+// ⚠️ DEPRECATED (will be removed in v6.8.0): String format
 new DomainRuleStruct('Disallow: /admin/', '/en');
 
-// ParsedRobots object format (for advanced features like User-agent blocks)
+// ✅ NEW: Use ParsedRobots for proper parsing with validation and events
 $parser = new RobotsDirectiveParser($this->eventDispatcher);
 $parsedRobots = $parser->parse("
     User-agent: Googlebot
@@ -43,7 +44,7 @@ $parsedRobots = $parser->parse("
 new DomainRuleStruct($parsedRobots, '/en');
 ```
 
-**Both formats are fully supported** - choose the one that fits your needs. The string format is convenient for simple rules, while the `ParsedRobots` object enables advanced features like custom User-agent blocks.
+**Migration required**: The string format is deprecated and will be removed in v6.8.0. Use `RobotsDirectiveParser::parse()` instead to get validation, error logging, and event support.
 
 ### Full robots.txt directive support
 
@@ -219,3 +220,24 @@ Allow: /widgets/
 ```
 
 Result: These directives are added to the default User-agent block with the domain path applied.
+
+___
+# Next Major Version Changes
+
+## Removal of string format in DomainRuleStruct constructor
+
+The string parameter in `DomainRuleStruct` constructor will be removed. Use `RobotsDirectiveParser::parse()` instead:
+
+**Before (v6.7.x):**
+```php
+new DomainRuleStruct('Disallow: /admin/', '/en');
+```
+
+**After (v6.8.0):**
+```php
+$parser = new RobotsDirectiveParser($eventDispatcher);
+$parsed = $parser->parse('Disallow: /admin/', $context);
+new DomainRuleStruct($parsed, '/en');
+```
+
+This ensures all robots.txt parsing goes through the same validation, error logging, and event system.

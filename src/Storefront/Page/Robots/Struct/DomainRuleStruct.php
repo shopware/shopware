@@ -23,13 +23,17 @@ class DomainRuleStruct extends Struct
     private array $directives = [];
 
     /**
-     * @param ParsedRobots|string $rules The robots.txt rules as string or parsed object
+     * @param ParsedRobots|string $rules The robots.txt rules as parsed object or deprecated string format
      */
     public function __construct(ParsedRobots|string $rules, private readonly string $basePath)
     {
         if ($rules instanceof ParsedRobots) {
             $this->initializeFromParsed($rules);
         } else {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing a string to DomainRuleStruct constructor is deprecated. Use RobotsDirectiveParser::parse() and pass the ParsedRobots object instead.'
+            );
             $this->parseRulesFromString($rules);
         }
     }

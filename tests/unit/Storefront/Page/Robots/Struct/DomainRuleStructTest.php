@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Robots\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 
@@ -15,8 +16,11 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 class DomainRuleStructTest extends TestCase
 {
     /**
+     * @deprecated tag:v6.8.0 - Tests deprecated string format, will be removed
+     *
      * @param list<array{type: string, path: string}> $expectedRules
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     #[DataProvider('getTestCases')]
     public function testParsesDomainRulesCorrectly(string $ruleString, string $basePath, array $expectedRules): void
     {
@@ -126,6 +130,10 @@ class DomainRuleStructTest extends TestCase
         ];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Tests deprecated string format, will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetDirectivesReturnsRobotsDirectiveObjects(): void
     {
         $domainRuleStruct = new DomainRuleStruct("Disallow: /private/\nAllow: /public/", '');

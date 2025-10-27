@@ -16,10 +16,10 @@ test('As a shop customer, I want to accept Google Analytics tracking via the bas
     });
 
     await test.step('Enable Google Analytics and marketing tracking via cookie settings', async () => {
-        await StorefrontHome.consentConfigureButton.click();
-        await StorefrontHome.consentDialogStatisticsCheckbox.click();
-        await StorefrontHome.consentDialogMarketingdCheckbox.click();
-        await StorefrontHome.consentDialogSaveButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentConfigureButton);
+        await ShopCustomer.presses(StorefrontHome.consentDialogStatisticsCheckbox);
+        await ShopCustomer.presses(StorefrontHome.consentDialogMarketingdCheckbox);
+        await ShopCustomer.presses(StorefrontHome.consentDialogSaveButton);
     });
 
     await test.step('Verify tracking cookies are set correctly after consent', async () => {

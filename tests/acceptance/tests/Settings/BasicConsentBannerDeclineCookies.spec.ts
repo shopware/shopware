@@ -21,8 +21,8 @@ test(
     });
 
     await test.step('Dismiss cookie banner using the configure option', async () => {
-        await StorefrontHome.consentConfigureButton.click();
-        await StorefrontHome.offcanvasBackdrop.click();
+        await ShopCustomer.presses(StorefrontHome.consentConfigureButton);
+        await ShopCustomer.presses(StorefrontHome.offcanvasBackdrop);
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
     });
 
@@ -33,7 +33,7 @@ test(
 
     await test.step('Navigate to the product page and verify the cookie banner', async () => {
         const productListItemLocators = await StorefrontHome.getListingItemByProductName(product.name);
-        await productListItemLocators.productName.click();
+        await ShopCustomer.presses(productListItemLocators.productName);
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
     });
 });

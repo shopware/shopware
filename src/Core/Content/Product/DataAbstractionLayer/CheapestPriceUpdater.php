@@ -186,16 +186,33 @@ class CheapestPriceUpdater
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'IFNULL(product.min_purchase, parent.min_purchase) as min_purchase',
             'price.price',
+            'GROUP_CONCAT(DISTINCT LOWER(HEX(visibilities.sales_channel_id))) as sales_channel_ids',
         );
 
         $query->from('product', 'product');
         $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.prices AND product.version_id = price.product_version_id');
         $query->leftJoin('product', 'product', 'parent', 'parent.id = product.parent_id');
+        $query->leftJoin('product', 'product_visibility', 'visibilities', 'visibilities.product_id = product.id AND visibilities.product_version_id = product.version_id');
 
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1');
         $query->andWhere('(product.child_count = 0 OR product.parent_id IS NOT NULL)');
+
+        $query->groupBy(
+            'product.id',
+            'price.rule_id',
+            'product.parent_id',
+            'product.unit_id',
+            'parent.unit_id',
+            'product.purchase_unit',
+            'parent.purchase_unit',
+            'product.reference_unit',
+            'parent.reference_unit',
+            'product.min_purchase',
+            'parent.min_purchase',
+            'price.price'
+        );
 
         $this->quantitySelector->add($query);
 
@@ -212,6 +229,21 @@ class CheapestPriceUpdater
             $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
         }
 
+        // Process sales channel IDs for all grouped data
+        foreach ($grouped as $parentId => $variants) {
+            foreach ($variants as $variantId => $rules) {
+                foreach ($rules as $ruleId => $priceData) {
+                    if (isset($priceData['sales_channel_ids'])) {
+                        $salesChannelIds = [];
+                        if (!empty($priceData['sales_channel_ids'])) {
+                            $salesChannelIds = explode(',', $priceData['sales_channel_ids']);
+                        }
+                        $grouped[$parentId][$variantId][$ruleId]['sales_channel_ids'] = $salesChannelIds;
+                    }
+                }
+            }
+        }
+
         $query = $this->connection->createQueryBuilder();
         $query->select(
             'LOWER(HEX(IFNULL(product.parent_id, product.id))) as parent_id',
@@ -224,13 +256,30 @@ class CheapestPriceUpdater
             'IFNULL(product.purchase_unit, parent.purchase_unit) as purchase_unit',
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'product.child_count as child_count',
+            'GROUP_CONCAT(DISTINCT LOWER(HEX(visibilities.sales_channel_id))) as sales_channel_ids',
         );
 
         $query->from('product', 'product');
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
+        $query->leftJoin('product', 'product_visibility', 'visibilities', 'visibilities.product_id = product.id AND visibilities.product_version_id = product.version_id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1 OR product.child_count > 0'); // always load parent products
+
+        $query->groupBy(
+            'product.id',
+            'product.parent_id',
+            'product.unit_id',
+            'parent.unit_id',
+            'product.purchase_unit',
+            'parent.purchase_unit',
+            'product.reference_unit',
+            'parent.reference_unit',
+            'product.min_purchase',
+            'parent.min_purchase',
+            'product.price',
+            'product.child_count'
+        );
 
         $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
@@ -253,6 +302,28 @@ class CheapestPriceUpdater
             }
 
             $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = $row;
+        }
+
+        // Process sales channel IDs for default prices
+        foreach ($defaults as $row) {
+            if ($row['price'] === null) {
+                continue;
+            }
+
+            $salesChannelIds = [];
+            if (!empty($row['sales_channel_ids'])) {
+                $salesChannelIds = explode(',', $row['sales_channel_ids']);
+            }
+
+            if ($row['child_count'] > 0) {
+                if (isset($grouped[(string) $row['parent_id']]['default'])) {
+                    $grouped[(string) $row['parent_id']]['default']['sales_channel_ids'] = $salesChannelIds;
+                }
+            } else {
+                if (isset($grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'])) {
+                    $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default']['sales_channel_ids'] = $salesChannelIds;
+                }
+            }
         }
 
         return $grouped;

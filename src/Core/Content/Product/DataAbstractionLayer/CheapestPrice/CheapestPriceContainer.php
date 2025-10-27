@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -48,12 +49,26 @@ class CheapestPriceContainer extends Struct
 
         $prices = [];
         $defaultWasAdded = false;
+        $source = $context->getSource();
+        $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
+
         foreach ($this->value as $variantId => $group) {
             foreach ($ruleIds as $ruleId) {
                 $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
 
                 if ($price === null) {
                     continue;
+                }
+
+                // Check sales channel availability
+                if ($currentSalesChannelId) {
+                    $isAvailable = $price === $this->default
+                        ? $this->isVariantAvailableInSalesChannel(['default' => $this->default], $currentSalesChannelId)
+                        : $this->isVariantAvailableInSalesChannel($group, $currentSalesChannelId);
+
+                    if (!$isAvailable) {
+                        continue;
+                    }
                 }
 
                 // overwrite the variantId in case the default price was added
@@ -275,5 +290,28 @@ class CheapestPriceContainer extends Struct
         }
 
         return $this->getCurrencyPrice($collection, Defaults::CURRENCY, false);
+    }
+
+    /**
+     * @param array<string, array<mixed>> $group
+     */
+    private function isVariantAvailableInSalesChannel(array $group, string $salesChannelId): bool
+    {
+        foreach ($group as $priceData) {
+            if ($priceData === null) {
+                continue;
+            }
+
+            $salesChannelIds = $priceData['sales_channel_ids'] ?? [];
+
+            // If no sales channel IDs are stored, assume it's available everywhere
+            if (empty($salesChannelIds)) {
+                return true;
+            }
+
+            return \in_array($salesChannelId, $salesChannelIds, true);
+        }
+
+        return false;
     }
 }

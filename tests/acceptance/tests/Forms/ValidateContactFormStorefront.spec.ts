@@ -26,7 +26,7 @@ test(
             const contactFormPromise = StorefrontContactForm.page.waitForResponse(
                 `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
             );
-            await ShopCustomer.presses(StorefrontHome.contactFormLink);
+            await ShopCustomer.presses(StorefrontContactForm.submitButton);
             const contactFormResponse = await contactFormPromise;
             expect(contactFormResponse.ok()).toBeTruthy();
 

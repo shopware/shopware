@@ -15,6 +15,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -65,6 +66,7 @@ class ThemeChangeCommand extends Command
 
         $this->io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
+        \assert($helper instanceof QuestionHelper);
 
         if ($input->getOption('sales-channel') && $input->getOption('all')) {
             $this->io->error('You can use either --sales-channel or --all, not both at the same time.');

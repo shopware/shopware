@@ -19,7 +19,7 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
     await test.step('Accept all cookies and reload page', async () => {
         await TestDataService.setSystemConfig({ 'core.basicInformation.acceptAllCookies': true });
         await ShopCustomer.goesTo(StorefrontHome.url());
-        await StorefrontHome.consentAcceptAllCookiesButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentAcceptAllCookiesButton);
         await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).not.toBeVisible();
     });
 
@@ -51,7 +51,7 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
     });
 
     await test.step('Navigate to the wishlist and verify that the products are visible', async () => {
-        await StorefrontHome.wishlistIcon.click();
+        await ShopCustomer.presses(StorefrontHome.wishlistIcon);
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('2');
         await ShopCustomer.expects(StorefrontWishlist.wishListHeader).toBeVisible();
         await ShopCustomer.expects(product1Locators.productName).toBeVisible();

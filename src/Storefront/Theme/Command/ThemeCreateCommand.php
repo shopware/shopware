@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -133,7 +134,7 @@ class ThemeCreateCommand extends Command
     private function createDirectory(string $pathName): void
     {
         if (!mkdir($pathName, 0755, true) && !is_dir($pathName)) {
-            throw new \RuntimeException(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
+            throw ThemeException::themeCreationFailure(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
         }
     }
 

@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { Manufacturer, Product, PropertyGroup } from '@shopware-ag/acceptance-test-suite';
 
-test('Customer should see unavailable filter disabled based on selected filter', { tag: ['@Product', '@Storefront'] }, async ({
+test.only('Customer should see unavailable filter disabled based on selected filter', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -9,7 +9,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
-    test.skip(InstanceMeta.isSaaS, 'See Github Issue #11628');
+    //test.skip(InstanceMeta.isSaaS, 'See Github Issue #11628');
     test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
@@ -67,7 +67,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
         });
         await TestDataService.clearCaches();
 
-        await CheckVisibilityInHome(variantProductSize.at(0).name)();
+        await ShopCustomer.attemptsTo(CheckVisibilityInHome(variantProductSize.at(0).name));
     });
 
     await test.step('Verify setup filters display', async () => {
@@ -102,7 +102,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.resetAllButton).toBeVisible();
         await ShopCustomer.presses(StorefrontHome.resetAllButton);
         await StorefrontHome.loader.waitFor({ state: 'hidden' });
-        await CheckVisibilityInHome(freeShipProduct.name)();
+        await ShopCustomer.attemptsTo(CheckVisibilityInHome(freeShipProduct.name));
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
@@ -133,7 +133,6 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 
     await test.step('Filter only by size and verify color and freeshipping filters are disabled', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url());
         const sizeFilter = await StorefrontHome.getFilterButtonByFilterName(size.name);
         await ShopCustomer.attemptsTo(SelectProductFilterOption(sizeFilter, sizeOptions[0].name));
         await StorefrontHome.loader.waitFor({ state: 'hidden' });
@@ -147,6 +146,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
         await ShopCustomer.presses(StorefrontHome.resetAllButton);
+        await StorefrontHome.loader.waitFor({ state: 'hidden' });
     });
 
     await test.step('Select filter by free shipping, verify that all filters are disabled', async () => {
@@ -159,14 +159,13 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 });
 
-test.only('Customer should see unavailable filter options disabled when filtering by rating', { tag: ['@Product', '@Storefront'] }, async ({
+test('Customer should see unavailable filter options disabled when filtering by rating', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
-    test.skip(InstanceMeta.isSaaS, 'See Github Issue #11628');
     test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup();
@@ -207,10 +206,9 @@ test.only('Customer should see unavailable filter options disabled when filterin
         const rating5Locator = await StorefrontHome.getRatingItemLocatorByRating(5);
         const rating4Locator = await StorefrontHome.getRatingItemLocatorByRating(4);
         const rating3Locator = await StorefrontHome.getRatingItemLocatorByRating(3);
-        
         /**
-         * Cannot use presses() as this is actually a list of radio buttons so you must first tab into the list. 
-         *     The inputs do not have a checked attribute so ShopCustomer.selectsRadioButton() cannot be used either.
+         * Cannot use presses() as this is actually a list of radio buttons but the inputs are lacking
+         *     a checked attribute so ShopCustomer.selectsRadioButton() cannot be used either.
          */
         await StorefrontHome.productRatingButton.press('Tab');
         await ShopCustomer.expects(rating5Locator).toHaveVisibleFocus();

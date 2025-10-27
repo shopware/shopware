@@ -1,0 +1,32 @@
+name: 'Code Owners'
+
+concurrency:
+  group: codeowners-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  codeowners:
+    name: 'Run Codeowners Plus'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Code Repository'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 'Codeowners Plus'
+        uses: multimediallc/codeowners-plus@v1.5.0
+        with:
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          pr: '${{ github.event.pull_request.number }}'
+          verbose: true
+          quiet: ${{ github.event.pull_request.draft }}

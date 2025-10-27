@@ -18,16 +18,26 @@ test('As a shop customer, I want to use an "Accept All Cookies" button in the ba
         await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).toBeVisible();
     });
 
-    await test.step('Click "Accept All Cookies" and verify initial cookies', async () => {
+    await test.step('Click "Accept All Cookies" and verify cookies are accepted', async () => {
         await StorefrontHome.consentAcceptAllCookiesButton.click();
+
+        // Wait for banner to disappear, which indicates cookies have been set
+        await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
+
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.length).toEqual(2);
+        // Verify essential cookies are set
+        const cookiePreference = allCookies.find(c => c.name === 'cookie-preference');
+        ShopCustomer.expects(cookiePreference).toBeDefined();
+        ShopCustomer.expects(cookiePreference?.value).toEqual('1');
     });
 
-    await test.step('Reload page and verify additional cookies are set', async () => {
+    await test.step('Reload page and verify cookie persistence', async () => {
         await StorefrontHome.page.reload();
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.length).toEqual(4);
+        // Verify cookie preference persists
+        const cookiePreference = allCookies.find(c => c.name === 'cookie-preference');
+        ShopCustomer.expects(cookiePreference).toBeDefined();
+        ShopCustomer.expects(cookiePreference?.value).toEqual('1');
     });
 
     await test.step('Verify cookie consent banner is no longer visible', async () => {

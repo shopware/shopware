@@ -167,7 +167,6 @@ class SnippetFinderTest extends TestCase
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('parseFiles');
-        $reflectionMethod->setAccessible(true);
 
         return $reflectionMethod->invoke(
             $this->snippetFinder,

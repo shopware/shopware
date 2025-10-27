@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
@@ -111,7 +110,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $contextMock = Context::createDefaultContext();
 
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
+        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
@@ -130,7 +129,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $contextMock = Context::createDefaultContext();
 
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
+        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
@@ -149,7 +148,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'buildConstraintsWithConfigs');
+        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'buildConstraintsWithConfigs');
 
         $result = $refMethod->invoke($systemConfigValidation, $elementConfig, $allowNulls);
 

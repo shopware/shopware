@@ -48,7 +48,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function requirements(): array
     {

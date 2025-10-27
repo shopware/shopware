@@ -1,4 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { expect, test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to fill out and submit the contact form.',
@@ -27,12 +27,12 @@ test(
             await test.step('Send and validate the contact form.', async () => {
 
                 const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                    `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
+                    `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
                 );
                 await StorefrontContactForm.submitButton.click();
                 const contactFormResponse = await contactFormPromise;
                 expect(contactFormResponse.status()).toBe(200);
-                
+
                 await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toBeVisible();
             });
         }).toPass({
@@ -65,7 +65,7 @@ test(
             await ShopCustomer.expects(StorefrontContactForm.commentInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
             // eslint-disable-next-line playwright/no-conditional-in-test
-            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+            if (InstanceMeta.features.ACCESSIBILITY_TWEAKS) {
                 await ShopCustomer.expects(StorefrontContactForm.formFieldFeedback).toHaveCount(7);
             }
 

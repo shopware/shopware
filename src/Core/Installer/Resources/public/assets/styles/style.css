@@ -236,6 +236,10 @@ details > summary::-webkit-details-marker {
     cursor: pointer;
 }
 
+.select-wrapper select:disabled {
+    cursor: default;
+}
+
 .select-wrapper:after {
     position: absolute;
     top: 50%;
@@ -726,6 +730,9 @@ table .notice-text td p {
     background-color: var(--color-white);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-default);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .card__title {

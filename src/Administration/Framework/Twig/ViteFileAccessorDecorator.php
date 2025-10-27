@@ -121,10 +121,6 @@ class ViteFileAccessorDecorator extends FileAccessor
 
                 // Prepend the asset path to the every entry point
                 foreach ($entrypoint as $index => $entry) {
-                    // There is an edge case where symfony removes the "bundle" suffix from the bundle name
-                    // @see \Shopware\Core\Framework\Plugin\Util\AssetService::getTargetDirectory
-                    $entry = str_replace('bundle/administration', '/administration', $entry);
-
                     $content['entryPoints'][$technicalBundleName][$key][$index] = \sprintf('%s%s', $this->assetPath, $entry);
                 }
             }

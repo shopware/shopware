@@ -1,5 +1,5 @@
 .condition-tree-node {
     .sw-condition-operator-select.sw-arrow-field + .sw-entity-multi-select {
-        padding-left: 15px;
+        padding-left: var(--scale-size-16);
     }
 }

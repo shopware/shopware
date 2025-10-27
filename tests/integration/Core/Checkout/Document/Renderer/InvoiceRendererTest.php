@@ -129,6 +129,7 @@ class InvoiceRendererTest extends TestCase
         ], $this->context);
 
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'documentComment' => '<script></script>This is a invoice.',
             'itemsPerPage' => 10,
             'displayHeader' => true,
             'displayFooter' => true,
@@ -742,10 +743,10 @@ class InvoiceRendererTest extends TestCase
 
         static::getContainer()->get('country.repository')->upsert([$updateData], Context::createDefaultContext());
 
-        static::getContainer()->get('order_address.repository')->upsert([
+        static::getContainer()->get('order_customer.repository')->upsert([
             [
-                'id' => $orderAddress->getId(),
-                'vatId' => $vatNumber,
+                'id' => $order->getOrderCustomer()?->getId(),
+                'vatIds' => [$vatNumber],
             ],
         ], Context::createDefaultContext());
 

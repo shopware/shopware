@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Range
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\RangeResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -50,7 +49,7 @@ class RangeAggregationTest extends TestCase
     #[DataProvider('buildRangeKeyDataProvider')]
     public function testBuildRangeKey(?float $from, ?float $to, string $expectedKey): void
     {
-        $method = ReflectionHelper::getMethod(RangeAggregation::class, 'buildRangeKey');
+        $method = new \ReflectionMethod(RangeAggregation::class, 'buildRangeKey');
 
         $aggregation = new RangeAggregation('test', 'test', []);
 

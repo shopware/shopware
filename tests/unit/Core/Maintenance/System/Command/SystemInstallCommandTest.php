@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -55,7 +54,7 @@ class SystemInstallCommandTest extends TestCase
 
         $systemInstallCmd = $this->prepareCommandInstance();
 
-        $refMethod = ReflectionHelper::getMethod(SystemInstallCommand::class, 'execute');
+        $refMethod = new \ReflectionMethod(SystemInstallCommand::class, 'execute');
 
         $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), $this->createMock(OutputInterface::class));
 

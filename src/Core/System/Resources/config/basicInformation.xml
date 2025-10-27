@@ -208,8 +208,8 @@
             <name>robotsDisableDefaults</name>
             <label>Disable default robots.txt rules</label>
             <label lang="de-DE">Standard-Regeln für robots.txt deaktivieren</label>
-            <helpText>When enabled, Shopware's default robots.txt rules will not be rendered. Use this if you want full control over the robots.txt content.</helpText>
-            <helpText lang="de-DE">Wenn aktiviert, werden die Standard robots.txt-Regeln von Shopware nicht gerendert. Verwenden Sie dies, wenn Sie die volle Kontrolle über den robots.txt-Inhalt haben möchten.</helpText>
+            <helpText>When enabled, Shopware's standard built-in robots.txt rules such as "User-agent: *", "Allow: /", "Disallow: /*?", etc. will not be included in your robots.txt. However, your own custom rules from the configuration below will still be included.</helpText>
+            <helpText lang="de-DE">Wenn diese Option aktiviert ist, werden die standardmäßig in Shopware enthaltenen robots.txt-Regeln wie "User-agent: *", "Allow: /", "Disallow: /*?" usw. nicht in Ihrer robots.txt ausgegeben. Ihre eigenen benutzerdefinierten Regeln aus der weiter unten folgenden Konfiguration werden jedoch weiterhin ausgegeben.</helpText>
         </input-field>
         <input-field type="textarea">
             <name>robotsRules</name>

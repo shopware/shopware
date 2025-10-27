@@ -10,29 +10,13 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 class ParsedRobots
 {
     /**
-     * @param RobotsUserAgentBlock[] $userAgentBlocks
-     * @param RobotsDirective[] $orphanedPathDirectives
+     * @param list<RobotsUserAgentBlock> $userAgentBlocks
+     * @param list<RobotsDirective> $orphanedPathDirectives
      */
     public function __construct(
-        private readonly array $userAgentBlocks,
-        private readonly array $orphanedPathDirectives
+        public readonly array $userAgentBlocks,
+        public readonly array $orphanedPathDirectives
     ) {
-    }
-
-    /**
-     * @return RobotsUserAgentBlock[]
-     */
-    public function getUserAgentBlocks(): array
-    {
-        return $this->userAgentBlocks;
-    }
-
-    /**
-     * @return RobotsDirective[]
-     */
-    public function getOrphanedPathDirectives(): array
-    {
-        return $this->orphanedPathDirectives;
     }
 
     public function hasUserAgentBlocks(): bool

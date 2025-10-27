@@ -25,8 +25,8 @@ class RobotsDirectiveParserTest extends TestCase
     {
         $result = $this->parser->parse('');
 
-        static::assertCount(0, $result->getUserAgentBlocks());
-        static::assertCount(0, $result->getOrphanedPathDirectives());
+        static::assertCount(0, $result->userAgentBlocks);
+        static::assertCount(0, $result->orphanedPathDirectives);
         static::assertFalse($result->hasUserAgentBlocks());
     }
 
@@ -41,9 +41,9 @@ TXT;
         $result = $this->parser->parse($text);
 
         static::assertTrue($result->hasUserAgentBlocks());
-        static::assertCount(1, $result->getUserAgentBlocks());
+        static::assertCount(1, $result->userAgentBlocks);
 
-        $block = $result->getUserAgentBlocks()[0];
+        $block = $result->userAgentBlocks[0];
         static::assertSame('Googlebot', $block->userAgent);
         static::assertCount(2, $block->directives);
 
@@ -65,13 +65,13 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(2, $result->getUserAgentBlocks());
+        static::assertCount(2, $result->userAgentBlocks);
 
-        $block1 = $result->getUserAgentBlocks()[0];
+        $block1 = $result->userAgentBlocks[0];
         static::assertSame('Googlebot', $block1->userAgent);
         static::assertCount(2, $block1->directives);
 
-        $block2 = $result->getUserAgentBlocks()[1];
+        $block2 = $result->userAgentBlocks[1];
         static::assertSame('Bingbot', $block2->userAgent);
         static::assertCount(1, $block2->directives);
     }
@@ -86,13 +86,13 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(2, $result->getUserAgentBlocks());
+        static::assertCount(2, $result->userAgentBlocks);
 
         // Both user agents should have the same directive
-        static::assertSame('Googlebot', $result->getUserAgentBlocks()[0]->userAgent);
-        static::assertSame('Bingbot', $result->getUserAgentBlocks()[1]->userAgent);
-        static::assertCount(1, $result->getUserAgentBlocks()[0]->directives);
-        static::assertCount(1, $result->getUserAgentBlocks()[1]->directives);
+        static::assertSame('Googlebot', $result->userAgentBlocks[0]->userAgent);
+        static::assertSame('Bingbot', $result->userAgentBlocks[1]->userAgent);
+        static::assertCount(1, $result->userAgentBlocks[0]->directives);
+        static::assertCount(1, $result->userAgentBlocks[1]->directives);
     }
 
     public function testParseOrphanedPathDirectives(): void
@@ -105,9 +105,9 @@ TXT;
         $result = $this->parser->parse($text);
 
         static::assertFalse($result->hasUserAgentBlocks());
-        static::assertCount(2, $result->getOrphanedPathDirectives());
+        static::assertCount(2, $result->orphanedPathDirectives);
 
-        $types = array_map(static fn (RobotsDirective $d) => $d->type, $result->getOrphanedPathDirectives());
+        $types = array_map(static fn (RobotsDirective $d) => $d->type, $result->orphanedPathDirectives);
         static::assertContains(RobotsDirectiveType::DISALLOW, $types);
         static::assertContains(RobotsDirectiveType::ALLOW, $types);
     }
@@ -123,8 +123,8 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(1, $result->getUserAgentBlocks());
-        $block = $result->getUserAgentBlocks()[0];
+        static::assertCount(1, $result->userAgentBlocks);
+        $block = $result->userAgentBlocks[0];
         static::assertCount(1, $block->directives);
     }
 
@@ -140,8 +140,8 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(1, $result->getUserAgentBlocks());
-        $block = $result->getUserAgentBlocks()[0];
+        static::assertCount(1, $result->userAgentBlocks);
+        $block = $result->userAgentBlocks[0];
         static::assertCount(1, $block->directives);
     }
 
@@ -155,8 +155,8 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(1, $result->getUserAgentBlocks());
-        $block = $result->getUserAgentBlocks()[0];
+        static::assertCount(1, $result->userAgentBlocks);
+        $block = $result->userAgentBlocks[0];
         static::assertCount(1, $block->directives);
         static::assertSame(RobotsDirectiveType::DISALLOW, $block->directives[0]->type);
     }
@@ -171,8 +171,8 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(1, $result->getUserAgentBlocks());
-        $block = $result->getUserAgentBlocks()[0];
+        static::assertCount(1, $result->userAgentBlocks);
+        $block = $result->userAgentBlocks[0];
         static::assertCount(1, $block->directives);
     }
 
@@ -191,8 +191,8 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(1, $result->getUserAgentBlocks());
-        $block = $result->getUserAgentBlocks()[0];
+        static::assertCount(1, $result->userAgentBlocks);
+        $block = $result->userAgentBlocks[0];
         static::assertCount(7, $block->directives);
 
         $types = array_map(static fn (RobotsDirective $d) => $d->type, $block->directives);
@@ -215,8 +215,8 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(1, $result->getUserAgentBlocks());
-        $block = $result->getUserAgentBlocks()[0];
+        static::assertCount(1, $result->userAgentBlocks);
+        $block = $result->userAgentBlocks[0];
         static::assertSame('googlebot', $block->userAgent);
         static::assertCount(2, $block->directives);
     }
@@ -230,8 +230,8 @@ TXT;
 
         $result = $this->parser->parse($text);
 
-        static::assertCount(1, $result->getUserAgentBlocks());
-        $block = $result->getUserAgentBlocks()[0];
+        static::assertCount(1, $result->userAgentBlocks);
+        $block = $result->userAgentBlocks[0];
         static::assertSame('Googlebot', $block->userAgent);
         static::assertSame('/admin/', $block->directives[0]->value);
     }
@@ -247,7 +247,7 @@ TXT;
         $result = $this->parser->parse($text);
 
         // Only path directives should be in orphaned
-        static::assertCount(1, $result->getOrphanedPathDirectives());
-        static::assertSame(RobotsDirectiveType::DISALLOW, $result->getOrphanedPathDirectives()[0]->type);
+        static::assertCount(1, $result->orphanedPathDirectives);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $result->orphanedPathDirectives[0]->type);
     }
 }

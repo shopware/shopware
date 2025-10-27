@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Robots\Struct;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
@@ -10,6 +11,8 @@ use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 class DomainRuleStruct extends Struct
 {
     /**
+     * @deprecated tag:v6.8.0 - Use getDirectives() instead
+     *
      * @var array<array{type: string, path: string}>
      */
     private array $rules = [];
@@ -32,10 +35,17 @@ class DomainRuleStruct extends Struct
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Use getDirectives() instead
+     *
      * @return array<array{type: string, path: string}>
      */
     public function getRules(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getDirectives')
+        );
+
         return $this->rules;
     }
 
@@ -55,14 +65,14 @@ class DomainRuleStruct extends Struct
     private function initializeFromParsed(ParsedRobots $parsed): void
     {
         // Collect orphaned path directives (for backward compatibility)
-        foreach ($parsed->getOrphanedPathDirectives() as $directive) {
+        foreach ($parsed->orphanedPathDirectives as $directive) {
             $directiveWithPath = $directive->withBasePath($this->basePath);
             $this->directives[] = $directiveWithPath;
             $this->rules[] = ['type' => $directiveWithPath->type->value, 'path' => $directiveWithPath->value];
         }
 
         // Collect path directives from user-agent blocks
-        foreach ($parsed->getUserAgentBlocks() as $block) {
+        foreach ($parsed->userAgentBlocks as $block) {
             foreach ($block->getPathDirectives() as $directive) {
                 $directiveWithPath = $directive->withBasePath($this->basePath);
                 $this->directives[] = $directiveWithPath;

@@ -29,8 +29,8 @@ class ParsedRobotsTest extends TestCase
 
         $parsed = new ParsedRobots($userAgentBlocks, $orphanedDirectives);
 
-        static::assertSame($userAgentBlocks, $parsed->getUserAgentBlocks());
-        static::assertSame($orphanedDirectives, $parsed->getOrphanedPathDirectives());
+        static::assertSame($userAgentBlocks, $parsed->userAgentBlocks);
+        static::assertSame($orphanedDirectives, $parsed->orphanedPathDirectives);
         static::assertTrue($parsed->hasUserAgentBlocks());
     }
 
@@ -58,8 +58,8 @@ class ParsedRobotsTest extends TestCase
     {
         $parsed = new ParsedRobots([], []);
 
-        static::assertCount(0, $parsed->getUserAgentBlocks());
-        static::assertCount(0, $parsed->getOrphanedPathDirectives());
+        static::assertCount(0, $parsed->userAgentBlocks);
+        static::assertCount(0, $parsed->orphanedPathDirectives);
         static::assertFalse($parsed->hasUserAgentBlocks());
     }
 
@@ -78,15 +78,15 @@ class ParsedRobotsTest extends TestCase
         $parsed = new ParsedRobots($userAgentBlocks, $orphanedDirectives);
 
         // Verify the arrays are the same objects (not cloned)
-        static::assertSame($userAgentBlocks, $parsed->getUserAgentBlocks());
-        static::assertSame($orphanedDirectives, $parsed->getOrphanedPathDirectives());
+        static::assertSame($userAgentBlocks, $parsed->userAgentBlocks);
+        static::assertSame($orphanedDirectives, $parsed->orphanedPathDirectives);
     }
 
     public function testGetUserAgentBlocksReturnsEmptyArrayWhenNoBlocks(): void
     {
         $parsed = new ParsedRobots([], []);
 
-        $blocks = $parsed->getUserAgentBlocks();
+        $blocks = $parsed->userAgentBlocks;
 
         static::assertIsArray($blocks);
         static::assertEmpty($blocks);
@@ -96,7 +96,7 @@ class ParsedRobotsTest extends TestCase
     {
         $parsed = new ParsedRobots([], []);
 
-        $directives = $parsed->getOrphanedPathDirectives();
+        $directives = $parsed->orphanedPathDirectives;
 
         static::assertIsArray($directives);
         static::assertEmpty($directives);
@@ -115,10 +115,10 @@ class ParsedRobotsTest extends TestCase
 
         $parsed = new ParsedRobots($userAgentBlocks, []);
 
-        static::assertCount(2, $parsed->getUserAgentBlocks());
+        static::assertCount(2, $parsed->userAgentBlocks);
         static::assertTrue($parsed->hasUserAgentBlocks());
 
-        $blocks = $parsed->getUserAgentBlocks();
+        $blocks = $parsed->userAgentBlocks;
         static::assertSame('Googlebot', $blocks[0]->userAgent);
         static::assertSame('Bingbot', $blocks[1]->userAgent);
     }
@@ -132,10 +132,10 @@ class ParsedRobotsTest extends TestCase
 
         $parsed = new ParsedRobots([], $orphanedDirectives);
 
-        static::assertCount(2, $parsed->getOrphanedPathDirectives());
+        static::assertCount(2, $parsed->orphanedPathDirectives);
         static::assertFalse($parsed->hasUserAgentBlocks());
 
-        $directives = $parsed->getOrphanedPathDirectives();
+        $directives = $parsed->orphanedPathDirectives;
         static::assertSame(RobotsDirectiveType::DISALLOW, $directives[0]->type);
         static::assertSame(RobotsDirectiveType::ALLOW, $directives[1]->type);
     }
@@ -154,8 +154,8 @@ class ParsedRobotsTest extends TestCase
 
         $parsed = new ParsedRobots($userAgentBlocks, $orphanedDirectives);
 
-        static::assertCount(1, $parsed->getUserAgentBlocks());
-        static::assertCount(1, $parsed->getOrphanedPathDirectives());
+        static::assertCount(1, $parsed->userAgentBlocks);
+        static::assertCount(1, $parsed->orphanedPathDirectives);
         static::assertTrue($parsed->hasUserAgentBlocks());
     }
 }

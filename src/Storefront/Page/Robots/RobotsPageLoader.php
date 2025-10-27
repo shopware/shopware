@@ -133,7 +133,7 @@ class RobotsPageLoader
             $parsed = $this->parser->parse($domainRules);
 
             // Collect global User-agent blocks (deduplicate by hash)
-            foreach ($parsed->getUserAgentBlocks() as $block) {
+            foreach ($parsed->userAgentBlocks as $block) {
                 $hash = $block->getHash();
                 if (!isset($globalBlocksByHash[$hash])) {
                     $globalBlocksByHash[$hash] = [
@@ -155,7 +155,6 @@ class RobotsPageLoader
 
         // Build final global blocks with merged path directives
         foreach ($globalBlocksByHash as $data) {
-            /** @var RobotsUserAgentBlock $block */
             $block = $data['block'];
             $pathDirectives = $data['pathDirectives'];
 

@@ -238,13 +238,8 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
+            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ];
-
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
-            $parts = [
-                HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-            ];
-        }
 
         foreach ($this->cookies as $cookie) {
             if (!$request->cookies->has($cookie)) {

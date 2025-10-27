@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
@@ -38,7 +37,7 @@ class SalesChannelCreateCommandTest extends TestCase
 
         $salesChannelCreateCmd = new SalesChannelCreateCommand($salesChannelCreatorMock);
 
-        $refMethod = ReflectionHelper::getMethod(SalesChannelCreateCommand::class, 'execute');
+        $refMethod = new \ReflectionMethod(SalesChannelCreateCommand::class, 'execute');
 
         $inputMock = $this->createMock(InputInterface::class);
         $inputMock->method('getOption')
@@ -80,7 +79,7 @@ class SalesChannelCreateCommandTest extends TestCase
 
         $salesChannelCreateCmd = new SalesChannelCreateCommand($salesChannelCreatorMock);
 
-        $refMethod = ReflectionHelper::getMethod(SalesChannelCreateCommand::class, 'execute');
+        $refMethod = new \ReflectionMethod(SalesChannelCreateCommand::class, 'execute');
 
         $inputMock = $this->createMock(InputInterface::class);
         $inputMock->method('getOption')

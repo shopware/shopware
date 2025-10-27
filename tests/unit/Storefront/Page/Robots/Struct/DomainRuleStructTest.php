@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 
 /**
  * @internal
@@ -22,7 +23,14 @@ class DomainRuleStructTest extends TestCase
         $domainRuleStruct = new DomainRuleStruct($ruleString, $basePath);
 
         static::assertSame($basePath, $domainRuleStruct->getBasePath());
-        static::assertSame($expectedRules, $domainRuleStruct->getRules());
+
+        $directives = $domainRuleStruct->getDirectives();
+        static::assertCount(\count($expectedRules), $directives);
+
+        foreach ($expectedRules as $index => $expectedRule) {
+            static::assertSame($expectedRule['type'], $directives[$index]->type->value);
+            static::assertSame($expectedRule['path'], $directives[$index]->value);
+        }
     }
 
     /**
@@ -125,6 +133,6 @@ class DomainRuleStructTest extends TestCase
         $directives = $domainRuleStruct->getDirectives();
 
         static::assertCount(2, $directives);
-        static::assertContainsOnlyInstancesOf(\Shopware\Storefront\Page\Robots\Struct\RobotsDirective::class, $directives);
+        static::assertContainsOnlyInstancesOf(RobotsDirective::class, $directives);
     }
 }

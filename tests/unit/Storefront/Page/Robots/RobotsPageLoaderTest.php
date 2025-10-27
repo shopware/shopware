@@ -16,6 +16,7 @@ use Shopware\Storefront\Page\Robots\RobotsPageLoadedEvent;
 use Shopware\Storefront\Page\Robots\RobotsPageLoader;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -46,7 +47,7 @@ class RobotsPageLoaderTest extends TestCase
             $this->eventDispatcher,
             $this->salesChannelDomainRepository,
             $this->systemConfigService,
-            new RobotsDirectiveParser()
+            new RobotsDirectiveParser(new EventDispatcher())
         );
     }
 
@@ -84,13 +85,20 @@ class RobotsPageLoaderTest extends TestCase
 
         $domainRule = $page->getDomainRules()->first();
         static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
-        static::assertEquals([
-            ['type' => 'Disallow', 'path' => '/account/'],
-            ['type' => 'Disallow', 'path' => '/checkout/'],
-            ['type' => 'Disallow', 'path' => '/widgets/'],
-            ['type' => 'Allow', 'path' => '/widgets/cms/'],
-            ['type' => 'Allow', 'path' => '/widgets/menu/offcanvas'],
-        ], $domainRule->getRules());
+
+        $directives = $domainRule->getDirectives();
+        static::assertCount(5, $directives);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $directives[0]->type);
+        static::assertSame('/account/', $directives[0]->value);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $directives[1]->type);
+        static::assertSame('/checkout/', $directives[1]->value);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $directives[2]->type);
+        static::assertSame('/widgets/', $directives[2]->value);
+        static::assertSame(RobotsDirectiveType::ALLOW, $directives[3]->type);
+        static::assertSame('/widgets/cms/', $directives[3]->value);
+        static::assertSame(RobotsDirectiveType::ALLOW, $directives[4]->type);
+        static::assertSame('/widgets/menu/offcanvas', $directives[4]->value);
+
         static::assertSame('', $domainRule->getBasePath());
     }
 
@@ -127,30 +135,31 @@ class RobotsPageLoaderTest extends TestCase
 
         static::assertInstanceOf(DomainRuleStruct::class, $firstDomainRule);
         static::assertSame('', $firstDomainRule->getBasePath());
-        static::assertCount(5, $firstDomainRule->getRules());
-        static::assertEquals(
-            [
-                ['type' => 'Disallow', 'path' => '/account/'],
-                ['type' => 'Disallow', 'path' => '/checkout/'],
-                ['type' => 'Disallow', 'path' => '/widgets/'],
-                ['type' => 'Allow', 'path' => '/widgets/cms/'],
-                ['type' => 'Allow', 'path' => '/widgets/menu/offcanvas'],
-            ],
-            $firstDomainRule->getRules()
-        );
+
+        $firstDirectives = $firstDomainRule->getDirectives();
+        static::assertCount(5, $firstDirectives);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $firstDirectives[0]->type);
+        static::assertSame('/account/', $firstDirectives[0]->value);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $firstDirectives[1]->type);
+        static::assertSame('/checkout/', $firstDirectives[1]->value);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $firstDirectives[2]->type);
+        static::assertSame('/widgets/', $firstDirectives[2]->value);
+        static::assertSame(RobotsDirectiveType::ALLOW, $firstDirectives[3]->type);
+        static::assertSame('/widgets/cms/', $firstDirectives[3]->value);
+        static::assertSame(RobotsDirectiveType::ALLOW, $firstDirectives[4]->type);
+        static::assertSame('/widgets/menu/offcanvas', $firstDirectives[4]->value);
 
         static::assertInstanceOf(DomainRuleStruct::class, $secondDomainRule);
         static::assertSame('/en', $secondDomainRule->getBasePath());
-        static::assertCount(3, $secondDomainRule->getRules());
 
-        static::assertEquals(
-            [
-                ['type' => 'Disallow', 'path' => '/en/private/'],
-                ['type' => 'Disallow', 'path' => '/en/admin/'],
-                ['type' => 'Allow', 'path' => '/en/widgets/cms/'],
-            ],
-            $secondDomainRule->getRules()
-        );
+        $secondDirectives = $secondDomainRule->getDirectives();
+        static::assertCount(3, $secondDirectives);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $secondDirectives[0]->type);
+        static::assertSame('/en/private/', $secondDirectives[0]->value);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $secondDirectives[1]->type);
+        static::assertSame('/en/admin/', $secondDirectives[1]->value);
+        static::assertSame(RobotsDirectiveType::ALLOW, $secondDirectives[2]->type);
+        static::assertSame('/en/widgets/cms/', $secondDirectives[2]->value);
     }
 
     public function testLoadWithEmptyRobotsRules(): void
@@ -199,10 +208,14 @@ class RobotsPageLoaderTest extends TestCase
 
         $domainRule = $page->getDomainRules()->first();
         static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
-        static::assertEquals([
-            ['type' => 'Disallow', 'path' => '/account/'],
-            ['type' => 'Allow', 'path' => '/public/'],
-        ], $domainRule->getRules());
+
+        $directives = $domainRule->getDirectives();
+        static::assertCount(2, $directives);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $directives[0]->type);
+        static::assertSame('/account/', $directives[0]->value);
+        static::assertSame(RobotsDirectiveType::ALLOW, $directives[1]->type);
+        static::assertSame('/public/', $directives[1]->value);
+
         static::assertSame('', $domainRule->getBasePath());
     }
 
@@ -258,10 +271,14 @@ class RobotsPageLoaderTest extends TestCase
 
         $domainRule = $page->getDomainRules()->first();
         static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
-        static::assertEquals([
-            ['type' => 'Disallow', 'path' => '/account/'],
-            ['type' => 'Allow', 'path' => '/public/'],
-        ], $domainRule->getRules());
+
+        $directives = $domainRule->getDirectives();
+        static::assertCount(2, $directives);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $directives[0]->type);
+        static::assertSame('/account/', $directives[0]->value);
+        static::assertSame(RobotsDirectiveType::ALLOW, $directives[1]->type);
+        static::assertSame('/public/', $directives[1]->value);
+
         static::assertSame('', $domainRule->getBasePath());
     }
 
@@ -332,8 +349,8 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('', $firstDomainRule->getBasePath());
         static::assertSame('/en', $secondDomainRule->getBasePath());
 
-        static::assertCount(2, $firstDomainRule->getRules());
-        static::assertCount(2, $secondDomainRule->getRules());
+        static::assertCount(2, $firstDomainRule->getDirectives());
+        static::assertCount(2, $secondDomainRule->getDirectives());
     }
 
     public function testLoadWithUserAgentBlocksOnlyNonPathDirectives(): void
@@ -371,7 +388,7 @@ class RobotsPageLoaderTest extends TestCase
             $this->eventDispatcher,
             $this->salesChannelDomainRepository,
             $this->systemConfigService,
-            new RobotsDirectiveParser()
+            new RobotsDirectiveParser(new EventDispatcher())
         );
 
         $this->eventDispatcher->expects($this->once())
@@ -457,7 +474,7 @@ class RobotsPageLoaderTest extends TestCase
             $this->eventDispatcher,
             $this->salesChannelDomainRepository,
             $this->systemConfigService,
-            new RobotsDirectiveParser()
+            new RobotsDirectiveParser(new EventDispatcher())
         );
 
         $this->eventDispatcher->expects($this->once())
@@ -534,7 +551,7 @@ class RobotsPageLoaderTest extends TestCase
             $this->eventDispatcher,
             $this->salesChannelDomainRepository,
             $this->systemConfigService,
-            new RobotsDirectiveParser()
+            new RobotsDirectiveParser(new EventDispatcher())
         );
 
         $this->eventDispatcher->expects($this->once())
@@ -680,7 +697,7 @@ class RobotsPageLoaderTest extends TestCase
             $this->eventDispatcher,
             $this->salesChannelDomainRepository,
             $this->systemConfigService,
-            new RobotsDirectiveParser()
+            new RobotsDirectiveParser(new EventDispatcher())
         );
     }
 

@@ -545,6 +545,10 @@
             <argument type="service" id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Robots\RobotsConfigChangeSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>

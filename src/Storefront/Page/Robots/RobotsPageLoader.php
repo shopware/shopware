@@ -44,7 +44,7 @@ class RobotsPageLoader
         if (\is_string($hostname) && $hostname !== '') {
             $domains = $this->getDomains($hostname, $context);
 
-            [$globalBlocks, $domainRules] = $this->collectRules($hostname, $domains);
+            [$globalBlocks, $domainRules] = $this->collectRules($hostname, $domains, $context);
 
             $page->setGlobalUserAgentBlocks($globalBlocks);
             $page->setDomainRules($domainRules);
@@ -114,7 +114,7 @@ class RobotsPageLoader
      *
      * @return array{0: RobotsUserAgentBlock[], 1: DomainRuleCollection}
      */
-    private function collectRules(string $hostname, SalesChannelDomainCollection $domains): array
+    private function collectRules(string $hostname, SalesChannelDomainCollection $domains, Context $context): array
     {
         $domainRuleCollection = new DomainRuleCollection();
         $globalBlocks = [];
@@ -130,7 +130,7 @@ class RobotsPageLoader
             }
 
             // Parse the configuration
-            $parsed = $this->parser->parse($domainRules);
+            $parsed = $this->parser->parse($domainRules, $context, $domain->getSalesChannelId());
 
             // Collect global User-agent blocks (deduplicate by hash)
             foreach ($parsed->userAgentBlocks as $block) {

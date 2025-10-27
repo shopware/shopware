@@ -2,23 +2,38 @@
 
 namespace Shopware\Storefront\Page\Robots\Parser;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Page\Robots\Event\RobotsDirectiveParsingEvent;
+use Shopware\Storefront\Page\Robots\Event\RobotsUnknownDirectiveEvent;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
 class RobotsDirectiveParser
 {
-    public function parse(string $text): ParsedRobots
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
+    }
+
+    public function parse(string $text, Context $context, ?string $salesChannelId = null): ParsedRobots
     {
         $lines = explode("\n", $text);
         $userAgentBlocks = [];
         $orphanedPathDirectives = [];
         $currentUserAgents = [];
         $currentDirectives = [];
+        $issues = [];
+        $lineNumber = 0;
 
         foreach ($lines as $line) {
+            ++$lineNumber;
             $line = trim($line);
 
             // Skip empty lines and comments
@@ -29,6 +44,13 @@ class RobotsDirectiveParser
             // Parse directive
             $parts = explode(':', $line, 2);
             if (\count($parts) !== 2) {
+                $issues[] = new ParseIssue(
+                    $lineNumber,
+                    $line,
+                    'Malformed line: missing colon separator',
+                    ParseIssueSeverity::ERROR
+                );
+
                 continue;
             }
 
@@ -38,6 +60,32 @@ class RobotsDirectiveParser
             // Validate directive
             $directiveTypeEnum = RobotsDirectiveType::tryFromInsensitive($directiveType);
             if ($directiveTypeEnum === null) {
+                // Dispatch event for unknown directive
+                $unknownDirectiveEvent = new RobotsUnknownDirectiveEvent(
+                    $lineNumber,
+                    $line,
+                    $directiveType,
+                    $directiveValue,
+                    \count($currentUserAgents) > 0,
+                    $context,
+                    $salesChannelId
+                );
+                $this->eventDispatcher->dispatch($unknownDirectiveEvent);
+
+                // If the event was handled, skip warning; otherwise add custom issue or default warning
+                if (!$unknownDirectiveEvent->isHandled()) {
+                    $issue = $unknownDirectiveEvent->getIssue();
+                    if ($issue === null) {
+                        $issue = new ParseIssue(
+                            $lineNumber,
+                            $line,
+                            'Unknown directive type: \'' . $directiveType . '\'',
+                            ParseIssueSeverity::WARNING
+                        );
+                    }
+                    $issues[] = $issue;
+                }
+
                 continue;
             }
 
@@ -69,6 +117,13 @@ class RobotsDirectiveParser
                 // Orphaned directive (backward compatibility)
                 if ($directiveTypeEnum->isPathBased()) {
                     $orphanedPathDirectives[] = $directive;
+                } else {
+                    $issues[] = new ParseIssue(
+                        $lineNumber,
+                        $line,
+                        'Directive \'' . $directiveTypeEnum->value . '\' found outside user-agent block and will be ignored',
+                        ParseIssueSeverity::WARNING
+                    );
                 }
             }
         }
@@ -80,6 +135,12 @@ class RobotsDirectiveParser
             }
         }
 
-        return new ParsedRobots($userAgentBlocks, $orphanedPathDirectives);
+        $parsedResult = new ParsedRobots($userAgentBlocks, $orphanedPathDirectives, $issues);
+
+        // Dispatch parsing event to allow modifications
+        $parsingEvent = new RobotsDirectiveParsingEvent($text, $parsedResult, $context, $salesChannelId);
+        $this->eventDispatcher->dispatch($parsingEvent);
+
+        return $parsingEvent->getParsedResult();
     }
 }

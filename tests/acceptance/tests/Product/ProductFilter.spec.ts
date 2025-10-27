@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { Manufacturer, Product, PropertyGroup } from '@shopware-ag/acceptance-test-suite';
 
-test.only('Customer should see unavailable filter disabled based on selected filter', { tag: ['@Product', '@Storefront'] }, async ({
+test('Customer should see unavailable filter disabled based on selected filter', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -193,6 +193,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
 
     await test.step('Verify setup filters display', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
+        await StorefrontHome.productRatingButton.waitFor({ state: 'visible' });
         await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();

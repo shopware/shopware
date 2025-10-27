@@ -33,7 +33,6 @@ test('As a customer, I must be able to change my email via account.', { tag: ['@
     await test.step('Attempt to change email to the same address', async () => {
         await ShopCustomer.goesTo(StorefrontAccountProfile.url());
         await ShopCustomer.presses(StorefrontAccountProfile.changeEmailButton);
-        await ShopCustomer.expects(StorefrontAccountProfile.emailAddressInput).toBeVisible();
         await ShopCustomer.fillsIn(StorefrontAccountProfile.emailAddressInput, customer.email);
         await ShopCustomer.fillsIn(StorefrontAccountProfile.emailAddressConfirmInput, customer.email);
         await ShopCustomer.fillsIn(StorefrontAccountProfile.emailConfirmPasswordInput, customer.password);
@@ -44,7 +43,6 @@ test('As a customer, I must be able to change my email via account.', { tag: ['@
     await test.step('Change email to a new valid address', async () => {
         await ShopCustomer.goesTo(StorefrontAccountProfile.url());
         await ShopCustomer.presses(StorefrontAccountProfile.changeEmailButton);
-        await ShopCustomer.expects(StorefrontAccountProfile.emailAddressInput).toBeVisible();
         await ShopCustomer.fillsIn(StorefrontAccountProfile.emailAddressInput, newEmail);
         await ShopCustomer.fillsIn(StorefrontAccountProfile.emailAddressConfirmInput, newEmail);
         await ShopCustomer.fillsIn(StorefrontAccountProfile.emailConfirmPasswordInput, customer.password);

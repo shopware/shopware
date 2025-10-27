@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to perform a checkout process with 19% tax rate with 2 same products.',
-    { tag: ['@Checkout'] },
+    { tag: ['@Checkout', '@Storefront'] },
     async ({
         ShopCustomer,
         TestDataService,
@@ -54,7 +54,7 @@ test(
 
 test(
     'As a customer, I want to perform a checkout process with 7% tax rate with 2 different products.',
-    { tag: ['@Checkout'] },
+    { tag: ['@Checkout', '@Storefront'] },
     async ({
         ShopCustomer,
         TestDataService,
@@ -109,7 +109,7 @@ test(
 
 test(
     'As a customer, I want to perform a checkout process with 7% and 19% tax rate per product.',
-    { tag: ['@Checkout'] },
+    { tag: ['@Checkout', '@Storefront'] },
     async ({
         ShopCustomer,
         TestDataService,
@@ -168,7 +168,7 @@ test(
 
 test(
     'As a customer, I want to perform a checkout process with 0% tax rate.',
-    { tag: ['@Checkout'] },
+    { tag: ['@Checkout', '@Storefront'] },
     async ({
         ShopCustomer,
         TestDataService,

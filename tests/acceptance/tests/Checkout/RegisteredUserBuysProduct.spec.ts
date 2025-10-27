@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Registered shop customer buys a product.', { tag: '@Checkout' }, async ({
+test('Registered shop customer buys a product.', { tag: ['@Checkout', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     DefaultSalesChannel,

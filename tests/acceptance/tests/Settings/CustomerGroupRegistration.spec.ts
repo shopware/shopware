@@ -29,7 +29,7 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
     });
 
 });
-test('As a customer, I can register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
+test('As a customer, I can register under a customer group in the Storefront.',{ tag: ['@CustomerGroups', '@Storefront'] }, async ({
     TestDataService,
     ShopAdmin,
     ShopCustomer,
@@ -59,7 +59,7 @@ test('As a customer, I can register under a customer group in the Storefront.', 
 
 });
 
-test('As a commercial customer, I can register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
+test('As a commercial customer, I can register under a customer group in the Storefront.',{ tag: ['@CustomerGroups', '@Storefront'] }, async ({
     TestDataService,
     ShopAdmin,
     ShopCustomer,

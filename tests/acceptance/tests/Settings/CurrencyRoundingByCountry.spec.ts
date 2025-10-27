@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a merchant, I would be able to adjust storefront rounding for defined country', { tag: '@Settings' }, async ({
+test('As a merchant, I would be able to adjust storefront rounding for defined country', { tag: ['@Settings', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     DefaultSalesChannel,

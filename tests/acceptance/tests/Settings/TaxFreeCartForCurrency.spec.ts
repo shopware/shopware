@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
 test(
-    'As a merchant, I would be able to adjust free tax for defined currency.', { tag: '@Settings' }, async ({
+    'As a merchant, I would be able to adjust free tax for defined currency.', { tag: ['@Settings', '@Storefront'] }, async ({
         ShopCustomer,
         TestDataService,
         DefaultSalesChannel,

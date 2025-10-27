@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait MigrationTestBehaviour
@@ -76,7 +75,7 @@ trait MigrationTestBehaviour
     public function removeMigrationSources(): void
     {
         $loader = static::getContainer()->get(MigrationCollectionLoader::class);
-        $prop = ReflectionHelper::getProperty(MigrationCollectionLoader::class, 'migrationSources');
+        $prop = new \ReflectionProperty(MigrationCollectionLoader::class, 'migrationSources');
         $migrationSources = $prop->getValue($loader);
         unset($migrationSources['_test_migrations_invalid_namespace']);
         unset($migrationSources['_test_migrations_valid']);
@@ -108,7 +107,7 @@ trait MigrationTestBehaviour
         $connection = static::getContainer()->get(Connection::class);
 
         /** @var MigrationSource $migrationSource */
-        $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
+        $migrationSource = (new \ReflectionProperty(MigrationCollection::class, 'migrationSource'))->getValue($migrationCollection);
 
         $dbMigrations = $connection
             ->fetchAllAssociative(

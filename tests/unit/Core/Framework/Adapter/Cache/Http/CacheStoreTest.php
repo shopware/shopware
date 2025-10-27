@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -57,7 +56,7 @@ class CacheStoreTest extends TestCase
 
         static::assertTrue($item->get());
 
-        $value = ReflectionHelper::getPropertyValue($item, 'expiry');
+        $value = (new \ReflectionProperty(CacheItem::class, 'expiry'))->getValue($item);
 
         static::assertEqualsWithDelta(time() + 3, $value, 1);
     }

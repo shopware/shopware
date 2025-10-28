@@ -1,3 +1,51 @@
+# 6.6.10.8
+With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
+This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.
+
+## Better support for long-running runtimes
+
+If you are running Shopware in a long-running environment (e.g., FrankenPHP or RoadRunner),
+this change enables Symfony to properly reset services implementing `ResetInterface` between requests.
+No configuration changes are required.
+
+## Symfony components update
+
+All Symfony components have been updated to version 7.3.
+This might lead to deprecation warnings in your extensions or customizations.
+Please check the [Symfony 7.3 upgrade guide](https://github.com/symfony/symfony/blob/v7.3.1/UPGRADE-7.3.md) for more information.
+
+## Opensearch 3.x compatibility
+
+OpenSearch 3.x introduced a breaking change that disallows defining index mapping fields with empty array `properties`. For e.g: 
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "customFields": {
+        "type": "object",
+        "properties": []
+      }
+    }
+  }
+}
+```
+
+So instead of defining a index mapping with empty `properties`, we should omit `properties` entirely or define it with empty object `{}`:
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "customFields": {
+        "type": "object",
+        "properties": {} // or can be omitted entirely
+      }
+    }
+  }
+}
+```
+
 # 6.6.10.5
 ## StorefrontSubscriber now adds context token to the current request
 The `\Shopware\Storefront\Framework\Routing\StorefrontSubscriber::startSession()` method has been updated to provide the context token to the current request if it differs from the main request.

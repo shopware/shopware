@@ -15,6 +15,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
+use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
@@ -59,11 +60,15 @@ class OrderGenerator implements DemodataGeneratorInterface
     {
         $this->faker = $context->getFaker();
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+        if ($salesChannelIds === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
         $paymentMethodIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM payment_method');
         $productIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM `product` ORDER BY RAND() LIMIT 1000');
         $promotionCodes = $this->connection->fetchFirstColumn('SELECT `code` FROM `promotion` ORDER BY RAND() LIMIT 1000');
         $customerIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
-        $tags = $this->getIds('tag');
+        $tags = $this->getTagIds();
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $context->getConsole()->progressStart($numberOfItems);
@@ -131,20 +136,20 @@ class OrderGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
-     * @return array<array{id: string}>
+     * @return list<array{id: string}>
      */
     private function getTags(array $tags): array
     {
         $tagAssignments = [];
 
         if (!empty($tags)) {
-            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    fn (string $id) => ['id' => $id],
+                    static fn (string $id) => ['id' => $id],
                     $chosenTags
                 );
             }
@@ -154,15 +159,15 @@ class OrderGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
-    private function getIds(string $table): array
+    private function getTagIds(): array
     {
-        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM tag LIMIT 500');
     }
 
     /**
-     * @param array<string> $salesChannelIds
+     * @param non-empty-list<string> $salesChannelIds
      * @param array<string> $paymentMethodIds
      */
     private function getContext(string $customerId, array $salesChannelIds, array $paymentMethodIds = []): SalesChannelContext

@@ -24,14 +24,11 @@ class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTes
             ->add('taxes', new EntityCollectionType(TaxDefinition::class));
     }
 
-    /**
-     * @return array<string, array<mixed>>
-     */
     public function getEncodeValues(string $shopwareVersion): array
     {
         $taxes = [];
 
-        foreach ($this->taxes->getElements() as $tax) {
+        foreach ($this->getTaxes() as $tax) {
             $taxes[] = [
                 'id' => $tax->getId(),
                 '_uniqueIdentifier' => $tax->getId(),
@@ -41,7 +38,7 @@ class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTes
                 'position' => $tax->getPosition(),
                 'customFields' => null,
                 'translated' => [],
-                'createdAt' => $tax->getCreatedAt() ? $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
+                'createdAt' => $tax->getCreatedAt()?->format(\DATE_RFC3339_EXTENDED),
                 'updatedAt' => null,
                 'apiAlias' => 'tax',
             ];

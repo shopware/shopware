@@ -1,13 +1,16 @@
 shopware.installer:
     header_title: Installation
-    menuitem_welcome: Start
-    menuitem_requirements: Systemkrav
-    menuitem_database-configuration: Databas-Konfiguration
-    menuitem_database-import: Installation
-    menuitem_edition: Shopware-Licens
-    menuitem_configuration: Konfiguration
-    menuitem_finish: Klart
-    menuitem_license: 'Allmänna affärsvillkor'
+    menuitem:
+        start: Start
+        configure_php: PHP-binärfil
+        download: Ladda ned
+        requirements: Systemkrav
+        license: Allmänna affärsvillkor
+        database-configuration: Databaskonfiguration
+        database-import: Installation
+        configuration: Butikskonfiguration
+        translation: Språknedladdning
+        finish: Klar
     license_incorrect: 'Den angivna licensnyckeln är ogiltig.'
     license_does_not_match: 'Den angivna licensnyckeln matchar inte någon kommersiell Shopware-version'
     license_domain_error: 'Den angivna licensnyckeln är ogiltig för domänen: '
@@ -49,10 +52,13 @@ shopware.installer:
     select_language_tr-TR: Turkiska
     select_language_uk-UA: Ukrainska
     select_language_vi-VN: Vietnamesiska
-    welcome_title: 'Välkommen till Shopware 6'
     language-selection_select_language: 'Installationsguidens språk'
-    welcome_header: 'Din Shopware-installation'
-    welcome_message: 'Vi är glada över att du vill vara en del av vår världsomspännande Shopware Community! Nu följer vi dig steg för steg genom installationsprocessen. Om du har frågor, vänligen se först efter svar i vårt <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontakta oss på telefon på telefonnummer <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> eller skriv till oss via <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome:
+        title: 'Välkommen till Shopware 6'
+        header: 'Din Shopware-installation'
+        message: >
+            Vi är glada att du ansluter dig till vår globala Shopware-community! Denna installationsguide leder dig
+            genom alla steg som krävs för att installera Shopware 6 smidigt.
     requirements_header: Systemkrav
     requirements_header_files: 'Filer och kataloger'
     requirements_header_system: System
@@ -159,7 +165,6 @@ shopware.installer:
         <p>
             Vi hoppas att du får både roligt och har framgång med din nya onlinebutik!
         </p>"
-    menuitem_translation: 'Språknedladdning'
     configuration_admin_shop_headline: 'Butiksdata'
     configuration_admin_language_headline: 'Språk'
     configuration_admin_language_select_all: 'Välj alla'
@@ -175,3 +180,10 @@ shopware.installer:
     finish_continue: 'Fortsätt till butik'
     translations_install_error_message: 'Något gick fel under översättningsinstallationen.'
     translations_install_retry_link: 'Klicka här för att försöka igen'
+    help:
+        title: Behöver du hjälp?
+        support_channel: Välj den supportkanal som passar dig bäst
+        forum: Forum
+        phone_number_call: +492555928850
+        phone_number_formatted: (+49) 2555 928850
+        email: E-post

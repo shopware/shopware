@@ -93,7 +93,7 @@ class ThemeDumpCommand extends Command
         }
 
         $themeEntity = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
-        if (!$themeEntity) {
+        if (!$themeEntity instanceof ThemeEntity) {
             $this->io->error('No theme found which is connected to a storefront sales channel');
 
             return self::FAILURE;
@@ -121,12 +121,13 @@ class ThemeDumpCommand extends Command
 
         $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
 
+        $themeName = $themeEntity->getTechnicalName() ?? $themeEntity->getId();
         $domainUrl = $input->getArgument('domain-url');
         if ($input->isInteractive()) {
             $domainUrl ??= $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
 
             if ($domainUrl === null) {
-                $this->io->error(\sprintf('No domain URL for theme %s found', $themeEntity->getTechnicalName()));
+                $this->io->error(\sprintf('No domain URL for theme %s found', $themeName));
 
                 return self::FAILURE;
             }
@@ -140,7 +141,7 @@ class ThemeDumpCommand extends Command
 
         $this->staticFileConfigDumper->dumpConfig($this->context);
 
-        $this->io->writeln(\sprintf('Theme `%s` config dumped to file: %s', $themeEntity->getTechnicalName(), 'theme-files.json'));
+        $this->io->writeln(\sprintf('Theme `%s` config dumped to file: %s', $themeName, 'theme-files.json'));
 
         return self::SUCCESS;
     }

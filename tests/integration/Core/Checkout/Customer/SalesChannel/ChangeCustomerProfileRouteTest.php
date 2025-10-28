@@ -484,6 +484,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
     {
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
+        static::assertNotEmpty($accountTypes);
         $accountType = $accountTypes[array_rand($accountTypes)];
 
         $changeData = [

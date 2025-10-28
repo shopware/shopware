@@ -182,7 +182,7 @@
 
         </service>
 
-        <service id="Shopware\Core\Installer\Controller\WelcomeController" public="true">
+        <service id="Shopware\Core\Installer\Controller\StartController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -186,7 +186,7 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         });
 
         await test.step('Customer fills out the missing field and re-attempts the registration', async () => {
-            await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
+            await ShopCustomer.fillsIn(StorefrontAccountLogin.lastNameInput, customer.lastName);
 
             await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
 

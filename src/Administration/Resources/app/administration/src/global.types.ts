@@ -135,6 +135,7 @@ import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store'
 import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
+import type { AnalyticsApiService } from "./core/service/api/analytics.api.service";
 // eslint-disable-next-line max-len
 import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 import type SsoSettingsService from './core/service/api/sso-settings.service';
@@ -297,6 +298,7 @@ declare global {
         ssoSettingsService: SsoSettingsService;
         ssoInvitationService: SsoInvitationService;
         shopIdChangeService: ShopIdChangeService;
+        analyticsService: AnalyticsApiService;
     }
 
     interface MixinContainer {

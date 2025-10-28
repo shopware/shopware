@@ -4,7 +4,7 @@ import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
     CreateRule: async ({ ShopAdmin, AdminApiContext }, use ) => {
 
-        const task = (testConfig    ) => {
+        const task = (testConfig) => {
             return async function CreateRule() {
 
                 const testRule = {

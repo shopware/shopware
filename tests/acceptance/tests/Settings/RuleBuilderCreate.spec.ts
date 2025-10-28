@@ -10,7 +10,7 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
 }) => {
 
     const { uuid: ruleId, id: uniqueId } = IdProvider.getIdPair();
-    const {id: taxId, name: taxName} = (await TestDataService.createTaxRate());
+    const { id: taxId, name: taxName } = (await TestDataService.createTaxRate());
     const today = new Date();
     const yesterday = new Date();
     yesterday.setHours(today.getHours() - 30);

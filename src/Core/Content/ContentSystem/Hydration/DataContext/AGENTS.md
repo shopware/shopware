@@ -24,6 +24,31 @@ Five strategies control how provider data distributes to direct children:
 
 See `DistributionStrategyInterface` implementations for details.
 
+### Context Path Resolution
+
+Consumers can use dot notation in context keys to access nested properties: `product.cover`, `product.manufacturer.name`, etc.
+
+**Key implementation points**:
+- `ContextPathResolver::parseContextKey()` splits keys into base + path segments
+- `ContextPathResolver::resolvePath()` traverses Struct objects using `getVars()`
+- Only works with Struct instances (all DAL entities)
+- Path resolution happens in `ContextResolutionVisitor::setContextForConsumer()`
+- Stack lookups use base key, then resolve path on retrieved data
+- Throws exception if `required: true` and path fails
+
+**Usage**:
+```php
+// Consumer declares path in context key
+"accepts_context": {
+  "product.cover": {"type": "single", "required": true}
+}
+
+// System resolves automatically:
+// 1. Finds "product" in stack/distribution
+// 2. Calls getVars() on product entity
+// 3. Returns $vars['cover']
+```
+
 ## Common Mistakes
 
 ### 1. Modifying Stack During Traversal
@@ -39,5 +64,8 @@ See `DistributionStrategyInterface` implementations for details.
 - **Strategy scope**: Only applies to direct children, deeper descendants use stack
 - **Stack manipulation**: Never push/pop manually, use provider/consumer definitions
 - **Strategies**: Broadcast (shared), Indexed (position), Keyed (named), Sliced (chunks), Iterator (round-robin)
-- **Implementation**: See ContextResolutionVisitor for visitor pattern
+- **Path resolution**: Use dot notation in context keys (`product.cover`) to access nested Struct properties
+- **Path requirements**: Only Struct objects, `getVars()` used for traversal, arbitrary depth supported
+- **Error handling**: `required: true` throws exception, `required: false` returns null
+- **Implementation**: See ContextResolutionVisitor for visitor pattern, ContextPathResolver for path logic
 - **Interface**: All strategies implement DistributionStrategyInterface

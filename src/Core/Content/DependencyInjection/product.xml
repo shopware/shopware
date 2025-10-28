@@ -42,10 +42,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
         </service>

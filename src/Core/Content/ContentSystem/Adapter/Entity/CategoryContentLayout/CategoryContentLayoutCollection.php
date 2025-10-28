@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Category\Aggregate\CategoryContentLayout;
+namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;

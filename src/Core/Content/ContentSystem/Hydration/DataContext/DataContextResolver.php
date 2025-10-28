@@ -17,13 +17,14 @@ class DataContextResolver
      * @param iterable<DistributionStrategyInterface> $strategies
      */
     public function __construct(
-        private readonly iterable $strategies
+        private readonly iterable $strategies,
+        private readonly ContextPathResolver $pathResolver
     ) {
     }
 
     public function resolve(ContentElement $element): void
     {
-        $visitor = new ContextResolutionVisitor($this->strategies);
+        $visitor = new ContextResolutionVisitor($this->strategies, $this->pathResolver);
         $element->traverse($visitor);
     }
 }

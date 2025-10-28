@@ -17,6 +17,21 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <!-- Routing Services -->
         <service id="Shopware\Core\Content\ContentSystem\Routing\Router\RouteCollectionBuilder">
             <argument type="service" id="content_route.repository"/>
@@ -210,7 +225,11 @@
 
         <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver">
             <argument type="tagged_iterator" tag="content_system.distribution_strategy"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolver"/>
         </service>
+
+        <!-- Context Path Resolver -->
+        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolver"/>
 
         <!-- Hydration Services -->
         <service id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator">
@@ -233,20 +252,47 @@
         <!-- Output Services (Post-Hydration Processing) -->
         <service id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
 
+        <!-- Query Placeholder Binder for Entity Adapters -->
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\QueryPlaceholderBinder">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
+        <!-- Entity Layout Builder -->
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutBuilder">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\QueryPlaceholderBinder"/>
+        </service>
+
+        <!-- Helper Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
+        <service id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
+
         <!-- Context Factories (Chain of Responsibility with Generator pattern) -->
         <!-- Entity Adapters (in Adapter/) - Higher priority -->
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\ProductContextFactory">
+        <!-- Single generic factory instantiated with different configurations -->
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\ProductContextFactory"
+                 class="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutContextFactory">
             <argument type="service" id="product_content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
             <tag name="content_system.context_factory" priority="100"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\CategoryContextFactory">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\CategoryContextFactory"
+                 class="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutContextFactory">
             <argument type="service" id="category_content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
             <tag name="content_system.context_factory" priority="90"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\LandingPageContextFactory">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\LandingPageContextFactory"
+                 class="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutContextFactory">
             <argument type="service" id="landing_page_content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
             <tag name="content_system.context_factory" priority="80"/>
         </service>
 
@@ -255,6 +301,7 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
             <tag name="content_system.context_factory" priority="0"/>
         </service>
 

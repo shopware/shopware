@@ -1,51 +1,43 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Category\Aggregate\CategoryContentLayout;
+namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout;
 
-use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterBinding;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 #[Package('discovery')]
-class CategoryContentLayoutEntity extends Entity
+class LandingPageContentLayoutEntity extends Entity implements ContentLayoutAssignmentInterface
 {
     use EntityIdTrait;
 
-    protected string $categoryId;
-
-    protected string $categoryVersionId;
+    protected string $landingPageId;
 
     protected ?string $salesChannelId = null;
 
     protected string $contentLayoutId;
 
-    protected ?CategoryEntity $category = null;
+    /**
+     * @var array<string, ParameterBinding>|null
+     */
+    protected ?array $parameterBindings = null;
 
     protected ?SalesChannelEntity $salesChannel = null;
 
     protected ?ContentLayoutEntity $contentLayout = null;
 
-    public function getCategoryId(): string
+    public function getLandingPageId(): string
     {
-        return $this->categoryId;
+        return $this->landingPageId;
     }
 
-    public function setCategoryId(string $categoryId): void
+    public function setLandingPageId(string $landingPageId): void
     {
-        $this->categoryId = $categoryId;
-    }
-
-    public function getCategoryVersionId(): string
-    {
-        return $this->categoryVersionId;
-    }
-
-    public function setCategoryVersionId(string $categoryVersionId): void
-    {
-        $this->categoryVersionId = $categoryVersionId;
+        $this->landingPageId = $landingPageId;
     }
 
     public function getSalesChannelId(): ?string
@@ -68,14 +60,25 @@ class CategoryContentLayoutEntity extends Entity
         $this->contentLayoutId = $contentLayoutId;
     }
 
-    public function getCategory(): ?CategoryEntity
+    /**
+     * @return array<string, ParameterBinding>|null
+     */
+    public function getParameterBindings(): ?array
     {
-        return $this->category;
+        return $this->parameterBindings;
     }
 
-    public function setCategory(?CategoryEntity $category): void
+    /**
+     * @param array<string, ParameterBinding>|null $parameterBindings
+     */
+    public function setParameterBindings(?array $parameterBindings): void
     {
-        $this->category = $category;
+        $this->parameterBindings = $parameterBindings;
+    }
+
+    public function getAssignedEntityId(): string
+    {
+        return $this->landingPageId;
     }
 
     public function getSalesChannel(): ?SalesChannelEntity

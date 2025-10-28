@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout;
+namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout;
 
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
+use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
-use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -11,15 +13,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 #[Package('discovery')]
-class LandingPageContentLayoutDefinition extends EntityDefinition
+class LandingPageContentLayoutDefinition extends EntityDefinition implements ContentLayoutAssignableDefinitionInterface
 {
     final public const ENTITY_NAME = 'landing_page_content_layout';
+
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly ?ContentLayoutMetadataDeriver $metadataDeriver = null
+    ) {
+    }
 
     public function getEntityName(): string
     {
@@ -36,9 +45,24 @@ class LandingPageContentLayoutDefinition extends EntityDefinition
         return LandingPageContentLayoutCollection::class;
     }
 
-    protected function getParentDefinitionClass(): ?string
+    public function getContentLayoutEntityIdField(): string
     {
-        return LandingPageDefinition::class;
+        return $this->getMetadataDeriver()->deriveEntityIdField($this->getContentLayoutEntityType());
+    }
+
+    public function getContentLayoutEntityType(): string
+    {
+        return 'landing_page';
+    }
+
+    public function getContentLayoutPathPrefix(): string
+    {
+        return $this->getMetadataDeriver()->derivePathPrefix($this->getContentLayoutEntityType());
+    }
+
+    public function getContentLayoutRoutePattern(): string
+    {
+        return $this->getMetadataDeriver()->deriveRoutePattern($this->getContentLayoutEntityIdField());
     }
 
     protected function defineFields(): FieldCollection
@@ -46,15 +70,19 @@ class LandingPageContentLayoutDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
-            (new FkField('landing_page_id', 'landingPageId', LandingPageDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new ReferenceVersionField(LandingPageDefinition::class))->addFlags(new Required()),
+            (new IdField('landing_page_id', 'landingPageId'))->addFlags(new ApiAware(), new Required()),
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
             (new FkField('content_layout_id', 'contentLayoutId', ContentLayoutDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ParameterBindingsField('parameter_bindings', 'parameterBindings'))->addFlags(new ApiAware()),
 
-            new ManyToOneAssociationField('landingPage', 'landing_page_id', LandingPageDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('contentLayout', 'content_layout_id', ContentLayoutDefinition::class, 'id', false),
         ]);
+    }
+
+    private function getMetadataDeriver(): ContentLayoutMetadataDeriver
+    {
+        return $this->metadataDeriver ?? new ContentLayoutMetadataDeriver();
     }
 }

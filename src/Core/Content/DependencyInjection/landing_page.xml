@@ -21,10 +21,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <service id="Shopware\Core\Content\LandingPage\DataAbstractionLayer\LandingPageIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="landing_page.repository"/>

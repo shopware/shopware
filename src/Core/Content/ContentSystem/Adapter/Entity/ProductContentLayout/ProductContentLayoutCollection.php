@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductContentLayout;
+namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<ProductContentLayoutEntity>
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class ProductContentLayoutCollection extends EntityCollection
 {
     /**

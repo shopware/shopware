@@ -23,16 +23,13 @@ class Migration1758018344LandingPageContentLayout extends MigrationStep
             CREATE TABLE IF NOT EXISTS `landing_page_content_layout` (
                 `id` BINARY(16) NOT NULL,
                 `landing_page_id` BINARY(16) NOT NULL,
-                `landing_page_version_id` BINARY(16) NOT NULL,
                 `sales_channel_id` BINARY(16) NULL,
                 `content_layout_id` BINARY(16) NOT NULL,
+                `parameter_bindings` JSON NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                UNIQUE INDEX `uniq.landing_page_content_layout.lp_ver_sc` (`landing_page_id`, `landing_page_version_id`, `sales_channel_id`),
-                CONSTRAINT `fk.landing_page_content_layout.landing_page_id`
-                    FOREIGN KEY (`landing_page_id`, `landing_page_version_id`)
-                    REFERENCES `landing_page` (`id`, `version_id`) ON DELETE CASCADE,
+                UNIQUE INDEX `uniq.landing_page_content_layout.lp_sc` (`landing_page_id`, `sales_channel_id`),
                 CONSTRAINT `fk.landing_page_content_layout.sales_channel_id`
                     FOREIGN KEY (`sales_channel_id`)
                     REFERENCES `sales_channel` (`id`) ON DELETE CASCADE,
@@ -47,6 +44,5 @@ class Migration1758018344LandingPageContentLayout extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

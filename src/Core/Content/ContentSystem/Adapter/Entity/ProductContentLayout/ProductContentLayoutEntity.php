@@ -1,28 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductContentLayout;
+namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout;
 
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutEntity;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterBinding;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('inventory')]
-class ProductContentLayoutEntity extends Entity
+#[Package('discovery')]
+class ProductContentLayoutEntity extends Entity implements ContentLayoutAssignmentInterface
 {
     use EntityIdTrait;
 
     protected string $productId;
 
-    protected string $productVersionId;
-
     protected ?string $salesChannelId = null;
 
     protected string $contentLayoutId;
 
-    protected ?ProductEntity $product = null;
+    /**
+     * @var array<string, ParameterBinding>|null
+     */
+    protected ?array $parameterBindings = null;
 
     protected ?SalesChannelEntity $salesChannel = null;
 
@@ -36,16 +38,6 @@ class ProductContentLayoutEntity extends Entity
     public function setProductId(string $productId): void
     {
         $this->productId = $productId;
-    }
-
-    public function getProductVersionId(): string
-    {
-        return $this->productVersionId;
-    }
-
-    public function setProductVersionId(string $productVersionId): void
-    {
-        $this->productVersionId = $productVersionId;
     }
 
     public function getSalesChannelId(): ?string
@@ -68,14 +60,25 @@ class ProductContentLayoutEntity extends Entity
         $this->contentLayoutId = $contentLayoutId;
     }
 
-    public function getProduct(): ?ProductEntity
+    /**
+     * @return array<string, ParameterBinding>|null
+     */
+    public function getParameterBindings(): ?array
     {
-        return $this->product;
+        return $this->parameterBindings;
     }
 
-    public function setProduct(?ProductEntity $product): void
+    /**
+     * @param array<string, ParameterBinding>|null $parameterBindings
+     */
+    public function setParameterBindings(?array $parameterBindings): void
     {
-        $this->product = $product;
+        $this->parameterBindings = $parameterBindings;
+    }
+
+    public function getAssignedEntityId(): string
+    {
+        return $this->productId;
     }
 
     public function getSalesChannel(): ?SalesChannelEntity

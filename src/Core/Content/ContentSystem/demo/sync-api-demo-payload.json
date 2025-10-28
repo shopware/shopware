@@ -1918,7 +1918,7 @@
                   ]
                 },
                 "data_requirements": {
-                  "featured_products": {
+                  "featuredProducts": {
                     "key": "featuredProducts",
                     "source": "entity_collection",
                     "config": {
@@ -1946,10 +1946,40 @@
                         "mediaHeight": 400
                       },
                       "accepts_context": {
-                        "product": {
+                        "featuredProducts": {
                           "type": "single",
                           "required": true
                         }
+                      },
+                      "slots": {
+                        "overlay": [
+                          {
+                            "id": "cover-only-image-1",
+                            "type": "Sw:Content:Image",
+                            "properties": {
+                              "size": "large"
+                            },
+                            "accepts_context": {
+                              "featuredProducts.cover": {
+                                "type": "single",
+                                "required": true
+                              }
+                            }
+                          },
+                          {
+                            "id": "featured-manufacturer-1",
+                            "type": "Sw:Content:Text",
+                            "properties": {
+                              "style": "manufacturer-badge"
+                            },
+                            "accepts_context": {
+                              "featuredProducts.manufacturer.name": {
+                                "type": "single",
+                                "required": false
+                              }
+                            }
+                          }
+                        ]
                       }
                     },
                     {
@@ -1960,10 +1990,27 @@
                         "mediaHeight": 300
                       },
                       "accepts_context": {
-                        "product": {
+                        "featuredProducts": {
                           "type": "single",
                           "required": true
                         }
+                      },
+                      "slots": {
+                        "overlay": [
+                          {
+                            "id": "cover-only-image-2",
+                            "type": "Sw:Content:Image",
+                            "properties": {
+                              "size": "medium"
+                            },
+                            "accepts_context": {
+                              "featuredProducts.cover": {
+                                "type": "single",
+                                "required": true
+                              }
+                            }
+                          }
+                        ]
                       }
                     },
                     {
@@ -1978,6 +2025,23 @@
                           "type": "single",
                           "required": true
                         }
+                      },
+                      "slots": {
+                        "overlay": [
+                          {
+                            "id": "cover-only-image-3",
+                            "type": "Sw:Content:Image",
+                            "properties": {
+                              "size": "medium"
+                            },
+                            "accepts_context": {
+                              "featuredProducts.cover": {
+                                "type": "single",
+                                "required": true
+                              }
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -2195,7 +2259,8 @@
           "type": "Sw:Grid",
           "properties": {
             "columns": "1",
-            "gap": 32
+            "gap": 32,
+            "product": "{{productId}}"
           },
           "data_requirements": {
             "product": {
@@ -2300,6 +2365,46 @@
                               "product": {
                                 "type": "single",
                                 "required": true
+                              }
+                            }
+                          },
+                          {
+                            "id": "manufacturer-badge",
+                            "type": "Sw:Content:Text",
+                            "properties": {
+                              "style": "badge"
+                            },
+                            "accepts_context": {
+                              "product.manufacturer.name": {
+                                "type": "single",
+                                "required": false
+                              }
+                            }
+                          },
+                          {
+                            "id": "cover-thumbnail",
+                            "type": "Sw:Content:Image",
+                            "properties": {
+                              "width": 120,
+                              "height": 120
+                            },
+                            "accepts_context": {
+                              "product.cover": {
+                                "type": "single",
+                                "required": true
+                              }
+                            }
+                          },
+                          {
+                            "id": "media-gallery",
+                            "type": "Sw:Content:Gallery",
+                            "properties": {
+                              "thumbnailSize": "small"
+                            },
+                            "accepts_context": {
+                              "product.media": {
+                                "type": "collection",
+                                "required": false
                               }
                             }
                           }
@@ -3390,25 +3495,45 @@
         "id": "0199b96001fe70ec851e971788686801",
         "productId": "0199b95007fe70ec851e971788386243",
         "salesChannelId": null,
-        "contentLayoutId": "0199b95101fe70ec851e971788686501"
+        "contentLayoutId": "0199b95101fe70ec851e971788686501",
+        "parameterBindings": {
+          "productId": {
+            "placeholder": "product_id"
+          }
+        }
       },
       {
         "id": "0199b96002fe70ec851e971788686802",
         "productId": "0199b95009fe70ec851e971788586445",
         "salesChannelId": "{{salesChannelId}}",
-        "contentLayoutId": "0199b95103fe70ec851e971788686503"
+        "contentLayoutId": "0199b95103fe70ec851e971788686503",
+        "parameterBindings": {
+          "productId": {
+            "placeholder": "product_id"
+          }
+        }
       },
       {
         "id": "0199b96003fe70ec851e971788686803",
         "productId": "a111c9a04b0d421e9e4a8968da01fce4",
         "salesChannelId": null,
-        "contentLayoutId": "0199b95102fe70ec851e971788686502"
+        "contentLayoutId": "0199b95102fe70ec851e971788686502",
+        "parameterBindings": {
+          "productId": {
+            "placeholder": "product_id"
+          }
+        }
       },
       {
         "id": "0199b96004fe70ec851e971788686804",
         "productId": "0199b95008fe70ec851e971788486344",
         "salesChannelId": "{{salesChannelId}}",
-        "contentLayoutId": "0199b95104fe70ec851e971788686504"
+        "contentLayoutId": "0199b95104fe70ec851e971788686504",
+        "parameterBindings": {
+          "productId": {
+            "placeholder": "product_id"
+          }
+        }
       }
     ]
   },
@@ -3420,25 +3545,45 @@
         "id": "0199b96101fe70ec851e971788686901",
         "categoryId": "2c25e419fa844b5cb34b0dbe9858556c",
         "salesChannelId": null,
-        "contentLayoutId": "7ca4ca09de0b4f7abd642160b570c124"
+        "contentLayoutId": "7ca4ca09de0b4f7abd642160b570c124",
+        "parameterBindings": {
+          "categoryId": {
+            "placeholder": "category_id"
+          }
+        }
       },
       {
         "id": "0199b96102fe70ec851e971788686902",
         "categoryId": "d58f8abbe47a4102984b326c0c01fd6e",
         "salesChannelId": "{{salesChannelId}}",
-        "contentLayoutId": "0199b95105fe70ec851e971788686505"
+        "contentLayoutId": "0199b95105fe70ec851e971788686505",
+        "parameterBindings": {
+          "categoryId": {
+            "placeholder": "category_id"
+          }
+        }
       },
       {
         "id": "0199b96103fe70ec851e971788686903",
         "categoryId": "0199b55509087207b86f6d01e3cc3f3c",
         "salesChannelId": null,
-        "contentLayoutId": "7ca4ca09de0b4f7abd642160b570c124"
+        "contentLayoutId": "7ca4ca09de0b4f7abd642160b570c124",
+        "parameterBindings": {
+          "categoryId": {
+            "placeholder": "category_id"
+          }
+        }
       },
       {
         "id": "0199b96104fe70ec851e971788686904",
         "categoryId": "0199b95509187207b86f6d01e3cc4f4c",
         "salesChannelId": "{{salesChannelId}}",
-        "contentLayoutId": "0199b95103fe70ec851e971788686503"
+        "contentLayoutId": "0199b95103fe70ec851e971788686503",
+        "parameterBindings": {
+          "categoryId": {
+            "placeholder": "category_id"
+          }
+        }
       }
     ]
   },
@@ -3500,23 +3645,23 @@
       {
         "id": "d66800af94774c8dadcd58eefd0d04af",
         "landingPageId": "71f4547dd685483b965b27f125af3946",
-        "landingPageVersionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
         "salesChannelId": null,
-        "contentLayoutId": "9de83dad35df4c188edeec6f87becc5d"
+        "contentLayoutId": "9de83dad35df4c188edeec6f87becc5d",
+        "parameterBindings": null
       },
       {
         "id": "3be8e97eb3324e4cb21e71808860bfc0",
         "landingPageId": "e417aa51760d4edda10fee3b4f5e4741",
-        "landingPageVersionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
         "salesChannelId": null,
-        "contentLayoutId": "aea5f8102cef41a2b5ad66167f52a84f"
+        "contentLayoutId": "aea5f8102cef41a2b5ad66167f52a84f",
+        "parameterBindings": null
       },
       {
         "id": "e421f13b3c20468ba5e250c60bd509a2",
         "landingPageId": "b860edda280a4407bd585bf4b45f2ed8",
-        "landingPageVersionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
         "salesChannelId": null,
-        "contentLayoutId": "3e3955da09d44ba9b643a79900278f5c"
+        "contentLayoutId": "3e3955da09d44ba9b643a79900278f5c",
+        "parameterBindings": null
       }
     ]
   }

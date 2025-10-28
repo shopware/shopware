@@ -82,4 +82,11 @@ $sw-media-preview-v2-locked-icon-z-index: 5;
         left: 16px;
         z-index: $sw-media-preview-v2-locked-icon-z-index;
     }
+
+    .sw-media-preview-v2__warning-icon {
+        position: absolute;
+        bottom: 2px;
+        left: 2px;
+        z-index: $sw-media-preview-v2-locked-icon-z-index;
+    }
 }

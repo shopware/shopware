@@ -193,7 +193,7 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{appSnippets: array<string, mixed>}>
+     * @return iterable<string, array{appSnippets: array<string, mixed>}>
      */
     public static function validAppSnippetsDataProvider(): iterable
     {
@@ -222,7 +222,7 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{before: array<string, mixed>, after: array<string, mixed>}>
+     * @return iterable<string, array{before: array<string, mixed>, after: array<string, mixed>}>
      */
     public static function sanitizeAppSnippetDataProvider(): iterable
     {

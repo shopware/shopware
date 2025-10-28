@@ -367,6 +367,8 @@ class SeoUrlGeneratorTest extends TestCase
             /**
              * @param int|string $level
              * @param mixed[] $context
+             *
+             * @throws void
              */
             public function log(mixed $level, string|\Stringable $message, array $context = []): void
             {

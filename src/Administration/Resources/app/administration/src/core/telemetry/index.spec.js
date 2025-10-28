@@ -79,12 +79,9 @@ describe('src/core/telemetry/index.js', () => {
             Shopware.Application.view.router = router;
             await router.push({ name: 'home' });
 
-            Shopware.Application.viewInitialized = new Promise((resolve) => {
-                resolve();
-            });
+            Shopware.Application.viewInitialized = Promise.resolve();
 
             telemetry.initialize();
-            await Shopware.Application.viewInitialized;
 
             await router.push({ name: 'test' });
 
@@ -120,12 +117,9 @@ describe('src/core/telemetry/index.js', () => {
             Shopware.Application.view.router = router;
             await router.push({ name: 'home' });
 
-            Shopware.Application.viewInitialized = new Promise((resolve) => {
-                resolve();
-            });
+            Shopware.Application.viewInitialized = Promise.resolve();
 
             telemetry.initialize();
-            await Shopware.Application.viewInitialized;
 
             await router.push({ name: 'test' });
             await router.push({ name: 'test' });

@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,12 +32,14 @@ class CacheStateValidatorTest extends TestCase
     public static function cases(): array
     {
         return [
-            [true, new Request(), new Response()],
-            [false, self::createRequest('logged-in'), self::createResponse('logged-in')],
-            [true, self::createRequest('logged-in'), self::createResponse()],
-            [true, self::createRequest(), self::createResponse('cart-filled')],
-            [false, self::createRequest('logged-in'), self::createResponse('cart-filled', 'logged-in')],
-            [false, self::createRequest('cart-filled', 'logged-in'), self::createResponse('cart-filled', 'logged-in')],
+            'states and invalidation states are empty' => [true, new Request(), new Response()],
+            'states match' => [false, self::createRequest('logged-in'), self::createResponse(['logged-in'])],
+            'invalidation states are empty' => [true, self::createRequest('logged-in'), self::createResponse()],
+            'states are empty' => [true, self::createRequest(), self::createResponse(['cart-filled'])],
+            'one of multiple states match' => [false, self::createRequest('logged-in'), self::createResponse(['cart-filled', 'logged-in'])],
+            'multiple states match' => [false, self::createRequest('cart-filled', 'logged-in'), self::createResponse(['cart-filled', 'logged-in'])],
+            'Response cookie overwrites/adds request value' => [false, self::createRequest('logged-in'), self::createResponse(['cart-filled'], ['cart-filled'])],
+            'Response cookie overwrites/removes request value' => [true, self::createRequest('cart-filled'), self::createResponse(['cart-filled'], [''])],
         ];
     }
 
@@ -48,10 +51,18 @@ class CacheStateValidatorTest extends TestCase
         return $request;
     }
 
-    private static function createResponse(string ...$states): Response
+    /**
+     * @param list<string> $invalidationStates
+     * @param list<string> $cookieStates
+     */
+    private static function createResponse(array $invalidationStates = [], array $cookieStates = []): Response
     {
         $response = new Response();
-        $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, implode(',', $states));
+        $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, implode(',', $invalidationStates));
+
+        foreach ($cookieStates as $state) {
+            $response->headers->setCookie(new Cookie(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, $state));
+        }
 
         return $response;
     }

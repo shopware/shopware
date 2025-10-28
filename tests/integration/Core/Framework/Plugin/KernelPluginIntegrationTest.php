@@ -35,6 +35,7 @@ use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -390,7 +391,8 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(PluginService::class),
             $this->createMock(VersionSanitizer::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            $this->createMock(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
     }
 

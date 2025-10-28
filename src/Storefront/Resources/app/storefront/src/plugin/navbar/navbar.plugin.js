@@ -96,6 +96,9 @@ export default class NavbarPlugin extends Plugin {
      * Navigates to the link href on click
      * We can not use event.pageType to check if the event was triggered by mouse (always undefined in firefox).
      * So we check the event type and the pageX position (pageX is always 0 on touch devices and keyboard).
+     *
+     * Since top level links lose the ability to be a link when a dropdown is attached, we enforce redirection here manually.
+     *
      * @param topLevelLink
      * @param event
      * @private
@@ -106,7 +109,10 @@ export default class NavbarPlugin extends Plugin {
                 window.open(topLevelLink.href, '_blank', 'noopener, noreferrer');
                 return;
             }
-            window.location.href = topLevelLink.href;
+
+            if (topLevelLink.parentNode.classList.contains('dropdown')) {
+                window.location.href = topLevelLink.href;
+            }
         }
     }
 

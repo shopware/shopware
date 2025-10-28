@@ -102,7 +102,7 @@ class ThemeService implements ResetInterface
     /**
      * Compiles all dependend saleschannel/Theme combinations
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     public function compileThemeById(
         string $themeId,

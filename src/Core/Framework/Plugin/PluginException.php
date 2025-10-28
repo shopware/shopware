@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
@@ -10,6 +9,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRemoveException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
+use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
@@ -29,9 +29,8 @@ class PluginException extends HttpException
     public const NO_PLUGIN_IN_ZIP = 'FRAMEWORK__PLUGIN_NO_PLUGIN_FOUND_IN_ZIP';
     public const STORE_NOT_AVAILABLE = 'FRAMEWORK__STORE_NOT_AVAILABLE';
     public const CANNOT_CREATE_TEMPORARY_DIRECTORY = 'FRAMEWORK__PLUGIN_CANNOT_CREATE_TEMPORARY_DIRECTORY';
-
     /**
-     * @deprecated tag:v6.8.0 - Will be removed with next major, as it is unused
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
      */
     public const PROJECT_DIR_IS_NOT_A_STRING = 'FRAMEWORK__PROJECT_DIR_IS_NOT_A_STRING';
 
@@ -42,6 +41,7 @@ class PluginException extends HttpException
     public const COULD_NOT_DETECT_COMPOSER_VERSION = 'FRAMEWORK__PLUGIN_COULD_NOT_DETECT_COMPOSER_VERSION';
     public const PLUGIN_COMPOSER_REQUIRE = 'FRAMEWORK__PLUGIN_COMPOSER_REQUIRE';
     public const PLUGIN_COMPOSER_REMOVE = 'FRAMEWORK__PLUGIN_COMPOSER_REMOVE';
+    public const PLUGIN_EXTRACTION_FAILED = 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -116,23 +116,16 @@ class PluginException extends HttpException
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed with next major. Use PluginException::invalidContainerParameter instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     public static function projectDirNotInContainer(): self
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'PluginException::invalidContainerParameter')
-            );
-
-            return new self(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                self::PROJECT_DIR_IS_NOT_A_STRING,
-                'Container parameter "kernel.project_dir" needs to be a string'
-            );
-        }
-
-        return self::invalidContainerParameter('kernel.project_dir', 'string');
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PROJECT_DIR_IS_NOT_A_STRING,
+            'Container parameter "kernel.project_dir" needs to be a string'
+        );
     }
 
     public static function invalidContainerParameter(string $name, string $expectedType): self
@@ -232,20 +225,7 @@ class PluginException extends HttpException
      */
     public static function pluginComposerRequire(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRequireException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new PluginComposerRequireException($pluginName, $pluginComposerName, $output);
-        }
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::PLUGIN_COMPOSER_REQUIRE,
-            \sprintf('Could not execute "composer require" for plugin "{{ pluginName }} ({{ pluginComposerName }}). Output:%s{{ output }}', \PHP_EOL),
-            [
-                'pluginName' => $pluginName,
-                'pluginComposerName' => $pluginComposerName,
-                'output' => $output,
-            ]
-        );
+        return new PluginComposerRequireException($pluginName, $pluginComposerName, $output);
     }
 
     /**
@@ -253,19 +233,11 @@ class PluginException extends HttpException
      */
     public static function pluginComposerRemove(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRemoveException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new PluginComposerRemoveException($pluginName, $pluginComposerName, $output);
-        }
+        return new PluginComposerRemoveException($pluginName, $pluginComposerName, $output);
+    }
 
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::PLUGIN_COMPOSER_REMOVE,
-            \sprintf('Could not execute "composer remove" for plugin "{{ pluginName }} ({{ pluginComposerName }}). Output:%s{{ output }}', \PHP_EOL),
-            [
-                'pluginName' => $pluginName,
-                'pluginComposerName' => $pluginComposerName,
-                'output' => $output,
-            ]
-        );
+    public static function pluginExtractionError(string $message): self
+    {
+        return new PluginExtractionException($message);
     }
 }

@@ -99,4 +99,68 @@ class InAppPurchaseUpdaterTest extends TestCase
 
         static::assertSame($jwt, $systemConfig->get('core.store.iapKey'));
     }
+
+    public function testUpdateActiveInAppPurchasesWithoutAuthentication(): void
+    {
+        $jwt = file_get_contents(__DIR__ . '../../../_fixtures/jwt.json');
+        static::assertIsString($jwt);
+
+        $jwks = file_get_contents(__DIR__ . '/../../../JWT/_fixtures/valid-jwks.json');
+        static::assertIsString($jwks);
+
+        $client = $this->createMock(ClientInterface::class);
+
+        $client->expects($this->never())
+            ->method('request');
+
+        $systemConfig = new StaticSystemConfigService([
+            'core.store.licenseHost' => 'example.com',
+            InAppPurchaseProvider::CONFIG_STORE_IAP_KEY => $jwt,
+            KeyFetcher::CORE_STORE_JWKS => $jwks,
+        ]);
+
+        $optionsProvider = $this->createMock(AbstractStoreRequestOptionsProvider::class);
+        $optionsProvider->expects($this->never())
+            ->method('getDefaultQueryParameters');
+        $optionsProvider->expects($this->once())
+            ->method('getAuthenticationHeader')
+            ->willReturn([]);
+
+        $context = Context::createDefaultContext();
+        $appId = Uuid::randomHex();
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn(['TestApp' => $appId]);
+
+        $iap = new InAppPurchase(
+            new InAppPurchaseProvider(
+                $systemConfig,
+                new JWTDecoder(),
+                new KeyFetcher(
+                    $this->createMock(ClientInterface::class),
+                    $this->createMock(StoreRequestOptionsProvider::class),
+                    $systemConfig,
+                    $this->createMock(LoggerInterface::class)
+                ),
+                $this->createMock(LoggerInterface::class)
+            )
+        );
+
+        $service = new InAppPurchaseUpdater(
+            $client,
+            $systemConfig,
+            'https://test.com',
+            $optionsProvider,
+            $iap,
+            $eventDispatcher,
+            $connection,
+            $this->createMock(LoggerInterface::class)
+        );
+        $service->update($context);
+
+        static::assertSame($jwt, $systemConfig->get('core.store.iapKey'));
+    }
 }

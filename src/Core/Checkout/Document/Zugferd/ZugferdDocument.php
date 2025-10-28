@@ -26,7 +26,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -71,13 +70,13 @@ class ZugferdDocument
 
     /**
      * @deprecated tag:v6.8.0 - added new parameter $calculator
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     public function getContent(OrderEntity $order/* , AmountCalculator $calculator */): string
     {
         $calculator = func_get_arg(1);
         if (!$calculator instanceof AmountCalculator) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'New required parameter $calculator missing');
-
             $calculator = new AmountCalculator(
                 new CashRounding(),
                 new PercentageTaxRuleBuilder(),
@@ -173,9 +172,8 @@ class ZugferdDocument
         }
 
         $this->addMappedPrice(self::LINE_TOTAL_AMOUNT, $price);
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->addLineTotalAmount($totalNet);
-        }
+        $this->addLineTotalAmount($totalNet);
+
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
             ->setDocumentPositionNetPrice(\round($totalNet / $lineItem->getQuantity(), 2), $lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
@@ -211,13 +209,12 @@ class ZugferdDocument
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
             $actualAmount = $this->getPrice($calculatedTax);
 
-            if (!Feature::isActive('v6.8.0.0')) {
-                if ($isCharge) {
-                    $this->addChargeAmount($actualAmount);
-                } else {
-                    $this->addAllowanceAmount($actualAmount);
-                }
+            if ($isCharge) {
+                $this->addChargeAmount($actualAmount);
+            } else {
+                $this->addAllowanceAmount($actualAmount);
             }
+
             $this->zugferdBuilder->addDocumentAllowanceCharge(
                 ...[
                     'actualAmount' => abs($actualAmount),
@@ -253,9 +250,8 @@ class ZugferdDocument
             foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
                 $actualAmount = $this->getPrice($calculatedTax);
 
-                if (!Feature::isActive('v6.8.0.0')) {
-                    $this->addChargeAmount($actualAmount);
-                }
+                $this->addChargeAmount($actualAmount);
+
                 $this->zugferdBuilder->addDocumentAllowanceCharge(
                     $actualAmount,
                     true,
@@ -298,31 +294,31 @@ class ZugferdDocument
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     protected function addChargeAmount(float $chargeAmount): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
-
         $this->chargeAmount += $chargeAmount;
     }
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     protected function addLineTotalAmount(float $lineTotalAmount): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
-
         $this->lineTotalAmount += $lineTotalAmount;
     }
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     protected function addAllowanceAmount(float $allowanceAmount): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
-
         $this->allowanceAmount += $allowanceAmount;
     }
 

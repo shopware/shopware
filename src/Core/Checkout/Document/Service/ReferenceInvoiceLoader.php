@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,13 +42,11 @@ final class ReferenceInvoiceLoader
             ->innerJoin('`document`', '`document_type`', '`document_type`', '`document`.`document_type_id` = `document_type`.`id`')
             ->innerJoin('`document`', '`order`', '`order`', '`document`.`order_id` = `order`.`id`');
 
-        $builder->where('`document_type`.`technical_name` = :techName')
+        $builder->where('`document_type`.`technical_name` IN (:technicalNames)')
             ->andWhere('`document`.`order_id` = :orderId');
 
-        $builder->setParameters([
-            'techName' => InvoiceRenderer::TYPE,
-            'orderId' => Uuid::fromHexToBytes($orderId),
-        ]);
+        $builder->setParameter('technicalNames', [InvoiceRenderer::TYPE, ZugferdEmbeddedRenderer::TYPE], ArrayParameterType::STRING);
+        $builder->setParameter('orderId', Uuid::fromHexToBytes($orderId));
 
         $builder->orderBy('`document`.`sent`', 'DESC');
         $builder->addOrderBy('`document`.`created_at`', 'DESC');

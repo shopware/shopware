@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -75,7 +75,7 @@ class EmailRule extends Rule
         return match ($this->operator) {
             Rule::OPERATOR_EQ => preg_match($regex, $customer->getEmail()) === 1,
             Rule::OPERATOR_NEQ => preg_match($regex, $customer->getEmail()) !== 1,
-            default => throw new UnsupportedOperatorException($this->operator, self::class),
+            default => throw CustomerException::unsupportedOperator($this->operator, self::class),
         };
     }
 

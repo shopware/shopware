@@ -113,12 +113,15 @@ const cssUrlMatcher = (url) => {
  * @returns {function(): string}
  */
 const injectPluginLoaderGenerator = (bundleName) => {
+    // Mimic PHP's logic: lowercase and remove trailing 'bundle' @see \Shopware\Core\Framework\Plugin\Util\AssetService::getTargetDirectory
+    const assetDir = bundleName.toLowerCase().replace(/bundle$/, '');
+
     return () => {
         // This code will be executed in the entry file of the bundle
         // set the webpack public path dynamically for every file in the main window
         const importContent = btoa(`
             if (window?.__sw__?.assetPath) {
-                __webpack_public_path__ = window.__sw__.assetPath + '/bundles/${bundleName}/';
+                __webpack_public_path__ = window.__sw__.assetPath + '/bundles/${assetDir}/';
             }
         `);
 

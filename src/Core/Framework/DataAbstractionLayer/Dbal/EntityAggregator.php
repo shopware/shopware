@@ -148,7 +148,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         // Early resolve terms to extract score queries
         if ($clone->getTerm()) {
-            $pattern = $this->interpreter->interpret((string) $criteria->getTerm());
+            $pattern = $this->interpreter->interpret((string) $criteria->getTerm(), $context);
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $clone->addQuery(...$queries);
             $clone->setTerm(null);
@@ -312,7 +312,7 @@ class EntityAggregator implements EntityAggregatorInterface
             DateHistogramAggregation::PER_MONTH => 'DATE_FORMAT(' . $accessor . ', \'%Y-%m\')',
             DateHistogramAggregation::PER_QUARTER => 'CONCAT(DATE_FORMAT(' . $accessor . ', \'%Y\'), \'-\', QUARTER(' . $accessor . '))',
             DateHistogramAggregation::PER_YEAR => 'DATE_FORMAT(' . $accessor . ', \'%Y\')',
-            default => throw new \RuntimeException('Provided date format is not supported'),
+            default => throw throw DataAbstractionLayerException::invalidDateFormat($aggregation->getInterval(), DateHistogramAggregation::ALLOWED_INTERVALS),
         };
         $query->addGroupBy($groupBy);
 

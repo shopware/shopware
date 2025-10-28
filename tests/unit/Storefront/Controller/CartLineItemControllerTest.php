@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -14,8 +16,10 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCartDeletedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Content\Product\Cart\PurchaseStepsError;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -697,6 +701,53 @@ class CartLineItemControllerTest extends TestCase
         $this->controller->updateLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
 
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    /**
+     * @param class-string<Error> $class
+     */
+    #[DataProvider('errorProvider')]
+    public function testFilterErrorSuccessMessages(string $class, bool $filtered): void
+    {
+        $id = Uuid::randomHex();
+
+        $request = new Request(['quantity' => 1]);
+        $cart = new Cart(Uuid::randomHex());
+        $cart->addLineItems(new LineItemCollection([new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE)]));
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $this->cartService
+            ->expects($this->once())
+            ->method('changeQuantity')
+            ->willReturn($cart);
+
+        /** @var Error&MockObject $error */
+        $error = $this->createMock($class);
+        $cart->addErrors($error);
+
+        $this->controller->changeQuantity($cart, $id, $request, $this->createMock(SalesChannelContext::class));
+
+        if ($filtered) {
+            static::assertCount(0, $cart->getErrors());
+
+            static::assertArrayHasKey('success', $session->getFlashBag()->peekAll());
+        } else {
+            static::assertCount(1, $cart->getErrors());
+        }
+    }
+
+    /**
+     * @return list<array{class-string<Error>, bool}>
+     */
+    public static function errorProvider(): array
+    {
+        return [
+            [PurchaseStepsError::class, false],
+            [PromotionCartDeletedInformationError::class, false],
+            [PromotionCartAddedInformationError::class, true],
+        ];
     }
 
     private function translatorCallback(?Session $session = null): void

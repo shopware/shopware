@@ -8,6 +8,8 @@
 
         <service id="Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand">
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+
             <tag name="console.command"/>
         </service>
 

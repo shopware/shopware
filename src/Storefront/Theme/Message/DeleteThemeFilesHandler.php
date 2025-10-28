@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Theme\Message;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -29,11 +28,6 @@ final class DeleteThemeFilesHandler
 
     public function __invoke(DeleteThemeFilesMessage $message): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
-        );
-
         $currentPath = $this->pathBuilder->assemblePath($message->getSalesChannelId(), $message->getThemeId());
         if ($currentPath === $message->getThemePath()) {
             return;

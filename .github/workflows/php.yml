@@ -48,6 +48,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cs-fixer-
 
+      - name: Lint composer.json files
+        run: bin/console sync:composer:version --dry-run
+
       - name: Code Style
         run: composer run ecs
 

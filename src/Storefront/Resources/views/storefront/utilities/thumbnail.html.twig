@@ -98,7 +98,7 @@
                 sizes="{{ sizesValue }}"
                 {% endif %}
             {% endif %}
-            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value|striptags|trim }}"{% elseif key == 'alt' and value is not same as(false) %} {{ key }}="{{ value|striptags|trim }}"{% endif %}{% endfor %}
         />
     {% endblock %}
 {% endblock %}

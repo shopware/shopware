@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Manifest;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -100,10 +102,9 @@ class ModuleLoaderTest extends TestCase
         $this->registerAppsWithModules();
 
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-            'app_url' => 'https://test.com',
-            'value' => Uuid::randomHex(),
-        ]);
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2(Uuid::randomHex(), [
+            AppUrl::IDENTIFIER => 'https://test.com',
+        ]));
 
         $loadedModules = $this->getSortedModules();
 
@@ -269,13 +270,14 @@ class ModuleLoaderTest extends TestCase
         $expectedUrl = parse_url($urlPath);
         static::assertSame($expectedUrl, $url);
 
-        $shopId = static::getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
-        static::assertIsArray($shopId);
+        $shopIdConfig = static::getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        static::assertIsArray($shopIdConfig);
+        $shopId = ShopId::fromSystemConfig($shopIdConfig);
 
         parse_str($queryString, $query);
         static::assertSame($_SERVER['APP_URL'], $query['shop-url']);
         static::assertArrayHasKey('shop-id', $query);
-        static::assertSame($shopId['value'], $query['shop-id']);
+        static::assertSame($shopId->id, $query['shop-id']);
         static::assertArrayHasKey('sw-version', $query);
         static::assertSame(static::getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
         static::assertArrayHasKey('sw-context-language', $query);

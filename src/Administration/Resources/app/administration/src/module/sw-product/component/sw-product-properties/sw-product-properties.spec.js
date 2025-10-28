@@ -78,7 +78,18 @@ const $refsMock = {
     },
 };
 
+let repositoryFactoryCreateResult;
+
 async function createWrapper() {
+    repositoryFactoryCreateResult = {
+        search: () => {
+            return Promise.resolve({ total: 0 });
+        },
+        searchIds: () => {
+            return Promise.resolve({ total: 0 });
+        },
+    };
+
     return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {
         global: {
             stubs: {
@@ -162,11 +173,7 @@ async function createWrapper() {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve({ total: 0 });
-                        },
-                    }),
+                    create: () => repositoryFactoryCreateResult,
                 },
             },
         },

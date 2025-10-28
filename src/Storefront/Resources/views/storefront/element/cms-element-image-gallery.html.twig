@@ -476,7 +476,7 @@
                                                                                 <div class="gallery-slider-thumbnails-play-button"></div>
                                                                         {% else %}
                                                                             {% set attributes = attributes|merge({
-                                                                                alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                alt: (image.translated.alt ?: false)
                                                                             }) %}
 
                                                                             {% if isProduct %}
@@ -790,7 +790,7 @@
                                                                                                         {% else %}
                                                                                                             {% set attributes = attributes|merge({
                                                                                                                 class: attributes.class ~ ' js-load-img',
-                                                                                                                alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                                                alt: (image.translated.alt ?: false)
                                                                                                             }) %}
 
                                                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {

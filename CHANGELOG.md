@@ -1,6 +1,77 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.8
+*  [#11055 - Add global styling for blockquotes](./changelog/release-6-6-10-8/2025-09-25-storefront-blockquote-styling.md)
+*  [#11215 - Restore ResetInterface support in long-running runtimes](./changelog/release-6-6-10-8/2025-07-14-restore-kernel-handle-resetinterface.md) @mateuszfl
+*  [#11484 - Don't check for canonical SEO Urls when no path info given during SEO URL creation](./changelog/release-6-6-10-8/2025-07-23-don-t-check-for-canonical-seo-urls-when-no-path-info-given.md) @M-arcus
+*  [#11580 - Increased minimum required version of MySQL database](./changelog/release-6-6-10-8/2025-07-28-increased-minimum-required-version-of-mysql-database.md)
+*  [#11580 - Symfony components updated](./changelog/release-6-6-10-8/2025-07-28-symfony-components-updated.md)
+*  [#11766 - Fix boolean fields in theme config](./changelog/release-6-6-10-8/2025-09-11-fixed-boolean-fields-in-theme-config.md)
+*  [#11803 - Fix advanced prices for fixed item price discount](./changelog/release-6-6-10-8/2025-08-06-fix-advanced-prices-for-fixed-item-price-discount.md)
+*  [#11823 - optimize fetching product properties](./changelog/release-6-6-10-8/2025-08-12-optimize-fetching-product-properties.md)
+*  [#11830 - Fix display of line item taxes with tax provider](./changelog/release-6-6-10-8/2025-08-07-fix-display-of-line-item-taxes-with-tax-provider.md)
+*  [#11838 - Fix recursive cart lock usage](./changelog/release-6-6-10-8/2025-08-08-fix-recursive-cart-lock-usage.md)
+*  [#11839 - Fix duplicate address display in sw-order-detail](./changelog/release-6-6-10-8/2025-08-07-fix-duplicate-address-display-in-order-detail.md)
+*  [#11855 - Fix removal of composer plugins](./changelog/release-6-6-10-8/2025-09-01-fix-remove-of-composer-plugins.md)
+*  [#11967 - Fix zoom functionality to prevent a large window](./changelog/release-6-6-10-8/2025-08-15-fix-the-zoom-functionality-to-prevent-a-large-window.md)
+*  [#12029 - Fix custom fields with same names as foreign keys](./changelog/release-6-6-10-8/2025-09-08-fix-custom-fields-with-fk-names.md)
+*  [#12209 - Allow docx file extension](./changelog/release-6-6-10-8/2025-08-28-allow-docx-extension.md)
+*  [#12225 - Fix invoice empty pages](./changelog/release-6-6-10-8/2025-04-08-fix-invoice-empty-pages.md) @lacknere
+*  [#12464 - Fix initialization of DiscountCampaignStruct and add additional properties](./changelog/release-6-6-10-8/2025-09-10-fix-initialization-of-discount-campaign-struct-and-add-additional-properties.md)
+*  [#12756 - Fix Cache Cookie Handling to prevent cache poisoning](./changelog/release-6-6-10-8/2025-10-14-fix-cache-cookie-handling.md)
+*  [#7156 - Fix API aware flag for proxied requests](./changelog/release-6-6-10-8/2025-08-28-fix-api-aware-flag-for-proxy.md)
+*  [#7238 - Update SwitchContextEvent](./changelog/release-6-6-10-8/2025-03-05-update-switch-context-event.md) @PheysX
+*  [#10707 - Fix Elasticsearch Datetime format](./changelog/release-6-6-10-8/2025-07-30-fix-elasticsearch-datetime-format.md)
+*  [#11001 - Show relevant products without previews when searching](./changelog/release-6-6-10-8/2025-07-09-show-relevant-variant-without-previews-when-searching.md) @tinect
+*  [#11074 - Fix admin es search for document number does not return any result](./changelog/release-6-6-10-8/2025-08-20-fix-admin-es-search-for-document-number-does-not-return-any-result.md)
+*  [#11097 - Fix wrong customer context on login if entry from sales_channel_api_context is expired](./changelog/release-6-6-10-8/2025-07-09-fix-wrong-customer-context-on-login.md)
+*  [#11528 - Show correct exception when updating an entity with a foreign key constraint fails](./changelog/release-6-6-10-8/2025-08-13-show-correct-exception-when-updating-an-entity-with-a-foreign-key-constraint-fails.md)
+*  [#11550 - Fix inconsistent seoUrls for cross-selling products](./changelog/release-6-6-10-8/2025-07-29-fix-inconsistent-seourls-for-cross-selling-products.md)
+*  [#11619 - Fix SeoUrl generate database-error when the url changes](./changelog/release-6-6-10-8/2025-07-31-fix-seourl-generate-database-error-when-the-url-changes.md)
+*  [#11654 - Fixing document squished line item listing](./changelog/release-6-6-10-8/2025-08-01-document-styling.md)
+*  [#11800 - fix overwrite slot config](./changelog/release-6-6-10-8/2025-08-18-fix-overwrite-slot-config.md)
+*  [#8018 - Move Search config loader class to Core bundle](./changelog/release-6-6-10-8/2025-07-28-move-search-config-loader-class-to-core-bundle.md)
+*  [#8018 - Use minimal search term length in config tables](./changelog/release-6-6-10-8/2025-07-07-use-minimal-search-term-length-in-config-tables.md)
+*  [#8584 - Error when trying to remove "Main category" for product](./changelog/release-6-6-10-8/2025-07-11-error-when-trying-to-remove-main-category-for-product.md)
+*  [#12979 - compatibility with OpenSearch 3.x](./changelog/release-6-6-10-8/2025-10-13-compatibility-with-opensearch-3-x.md)
+
+## 6.6.10.7
+*  [GHSA-m895-2hj3-8cg9](https://github.com/shopware/shopware/security/advisories/GHSA-m895-2hj3-8cg9) - fix: Reading media entities by aggregating fields individually bypasses MediaVisibilityRestrictionSubscriber
+*  [GHSA-27c9-vp3w-6ww8](https://github.com/shopware/shopware/security/advisories/GHSA-27c9-vp3w-6ww8) - fix: Exposure of sensitive user information via CSV export mapping
+*  [GHSA-3cpp-fv95-mpr5](https://github.com/shopware/shopware/security/advisories/GHSA-3cpp-fv95-mpr5) - fix: Server-Side Request Forgery (SSRF) - order invoice
+*  [GHSA-6wh5-mw9h-5c3w](https://github.com/shopware/shopware/security/advisories/GHSA-6wh5-mw9h-5c3w) - fix: Path traversal via Plugin upload
+*  [GHSA-r2vg-hvjm-fg38](https://github.com/shopware/shopware/security/advisories/GHSA-r2vg-hvjm-fg38) - fix: Customer Orders can be canceled, even if refunds are disabled
+*  [#6912 - fix: require with minimum-stability stable (fixes: #6912) (#6914)](https://github.com/shopware/shopware/issues/6912)
+*  [#6960 - ci: skip downstreams in case of no write perms (fixes: #6960) (#6985)](https://github.com/shopware/shopware/issues/6960)
+*  [#9031 - ci: reenable 6.6.0.0 update (fixes #9031)[6.6.x]  (#9248)](https://github.com/shopware/shopware/issues/9031)
+*  [#9851 - feat: implement event on Sitemap Generation, closes #9851 [6.6.x]  (#9968)](https://github.com/shopware/shopware/issues/9851)
+
+## 6.6.10.6
+*  [#8724 - Added locking to cart mutating routes](./changelog/release-6-6-10-6/2025-07-15-added-locking-to-cart-mutating-routes.md)
+*  [#10763 - fix: remove 6.8.0.0 feature flag](https://github.com/shopware/shopware/issues/10763)
+*  [#10146 - Filter cart success error messages](./changelog/release-6-6-10-6/2025-06-11-filter-cart-success-error-messages.md)
+*  [#10457 - Improve ES search scoring for numeric tokens](./changelog/release-6-6-10-6/2025-06-11-improve-es-search-scoring-for-numeric-tokens.md) @thuong.le
+*  [#10518 - Press ESC key in the modal will go back listing page](./changelog/release-6-6-10-6/2025-06-17-press-esc-key-in-the-modal-will-go-back-listing-page.md) 
+*  [#10682 - Live search page broken if the data is empty](./changelog/release-6-6-10-6/2025-06-18-live-search-page-broken-if-the-data-is-empty.md)
+*  [#10696 - Respect missing shipping method currency prices](./changelog/release-6-6-10-6/2025-06-20-respect-missing-shipping-method-currency-prices.md)
+*  [#10738 - Fix apps with duplicated custom field sets](./changelog/release-6-6-10-6/2025-06-24-fix-apps-with-duplicated-custom-field-sets.md)
+*  [#10774 - Multiple promotions order count fix](./changelog/release-6-6-10-6/2025-07-02-multiple-promotions-order-count-fix.md)
+*  [#10853 - Skip In-App Purchases update task on missing authentication headers](./changelog/release-6-6-10-6/2025-06-27-skip-in-app-purchases-update-task-on-missing-authentication.md)
+*  [#10900 - Add new data id to set off-canvas aria-labelledby](./changelog/release-6-6-10-6/2025-03-05-add-new-data-id-to-set-off-canvas-aria-labelledby.md)
+*  [#10919 - Delete correct expired store session](./changelog/release-6-6-10-6/2025-07-04-delete-correct-expired-store-session.md)
+*  [#11016 - Change URL generation for ESI includes to avoid HTTPS issues with Varnish](./changelog/release-6-6-10-6/2025-07-03-esi-url-instead-of-path.md) @stefanpoensgen
+*  [#11092 - Fix variant listing config when cloning products or deleting variants](./changelog/release-6-6-10-6/2024-07-26-fix-variant-listing-config-when-cloning-products-or-deleting-variants.md) @schneider-felix
+*  [#8228 - Allow empty alt with sw_thumbnails](./changelog/release-6-6-10-6/2025-06-16-allow-empty-alt-with-sw_thumbnails.md)
+*  [#8591 - Fixed theme config inheritance for database child themes](./changelog/release-6-6-10-6/2025-07-08-fix-theme-config-inheritance.md)
+*  [#9229 - Fix the reading of the cart widget by screen readers](./changelog/release-6-6-10-6/2025-07-04-fix-the-reading-of-the-cart-widget-by-screen-readers.md)
+*  [#9310 - E-invoice vertical tax calculation](./changelog/release-6-6-10-6/2025-05-22-e-invoice-vertical-tax-calculation.md)
+*  [#10513 - Fix issue SEO url not generating anymore](./changelog/release-6-6-10-6/2025-06-23-fix-issue-seo-url-not-generating-anymore.md)
+*  [#10906 - Change path of header and footer routes](./changelog/release-6-6-10-6/2025-07-01-change-path-of-header-and-footer-routes.md)
+*  [#8471 - ES should work correctly with ScoreQuery](./changelog/release-6-6-10-6/2025-06-17-es-should-work-correctly-with-scorequery.md)
+*  [#9367 - Fix alignment logo manufacturer media field not correct](./changelog/release-6-6-10-6/2025-05-26-fix-alignment-logo-manufacture-media-field.md)
+*  [#11106 - Fix Quote counts up the order number range](./changelog/release-6-6-10-6/2025-07-14-fix-quote-counts-up-the-order-number-range.md)
+
 ## 6.6.10.5
 *  [#10112 - Silence and log exceptions of In-App purchases](./changelog/release-6-6-10-5/2025-05-30-silence-and-log-exceptions-of-in-app-purchases.md)
 *  [#10254 - Pass through extensions from IdSearchResult to EntitySearchResult in ProductListingLoader](./changelog/release-6-6-10-5/2025-06-02-bypass-extensions-from-id-result-to-search-result.md) @OliverSkroblin

@@ -3,7 +3,7 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Throw_;
+use PhpParser\Node\Expr\Throw_;
 use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionMethod as BetterReflectionMethod;
 use PHPStan\BetterReflection\Reflection\ReflectionMethod;

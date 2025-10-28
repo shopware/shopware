@@ -234,6 +234,7 @@ jobs:
         run: ./local-php-security-checker
   code-ql:
     name: Analyze
+    if: ${{ github.repository == 'shopware/shopware' }}
     runs-on: ubuntu-24.04
 
     strategy:
@@ -270,6 +271,9 @@ jobs:
       - name: Generate versions
         id: versions
         uses: shopware/github-actions/versions@main
+        with:
+          major: v6.6.
+          lts-major: v6.5.
 
   acceptance-update:
     needs: tested-update-versions
@@ -315,13 +319,6 @@ jobs:
           composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
-      - name: Build updater
-        working-directory: new-shopware/src/WebInstaller
-        run: |
-          composer config platform.php 8.2
-          composer install
-          composer build-phar
-
       - name: Checkout template
         uses: actions/checkout@v4
         with:
@@ -342,8 +339,9 @@ jobs:
           sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
           bin/console system:install --basic-setup --drop-database --create-database
 
-      - name: Copy WebInstaller
-        run: cp new-shopware/src/WebInstaller/shopware-installer.phar.php old-shopware/public/shopware-installer.phar.php
+      - name: Download latest WebInstaller
+        run: |
+          curl -L https://github.com/shopware/web-installer/releases/latest/download/shopware-installer.phar.php -o old-shopware/public/shopware-installer.phar.php
 
       - name: Start web server
         working-directory: old-shopware

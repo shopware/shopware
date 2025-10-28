@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -50,10 +52,9 @@ class HandshakeFactoryTest extends TestCase
         $shopUrl = 'test.shop.com';
 
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-            'app_url' => 'https://test.com',
-            'value' => Uuid::randomHex(),
-        ]);
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2(Uuid::randomHex(), [
+            AppUrl::IDENTIFIER => 'https://test.com',
+        ]));
 
         $factory = new HandshakeFactory(
             $shopUrl,

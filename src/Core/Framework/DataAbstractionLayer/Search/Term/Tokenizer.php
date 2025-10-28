@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -11,6 +12,8 @@ class Tokenizer implements TokenizerInterface
      * @param string[] $preservedChars
      *
      * @internal
+     *
+     *  @deprecated tag:v6.8.0 - Property `$tokenMinimumLength` will be removed
      */
     public function __construct(
         private readonly int $tokenMinimumLength,
@@ -18,8 +21,17 @@ class Tokenizer implements TokenizerInterface
     ) {
     }
 
-    public function tokenize(string $string): array
+    /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $tokenMinimumLength will be added
+     */
+    public function tokenize(string $string/* , ?int $tokenMinimumLength = null */): array
     {
+        if (\func_num_args() === 2) {
+            $tokenMinimumLength = func_get_arg(1) ?? AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
+        } else {
+            $tokenMinimumLength = $this->tokenMinimumLength;
+        }
+
         $string = mb_strtolower(html_entity_decode($string), 'UTF-8');
         $string = trim(str_replace(['/', '\\'], ' ', $string));
         $string = str_replace('<', ' <', $string);
@@ -40,7 +52,7 @@ class Tokenizer implements TokenizerInterface
         foreach ($tags as $tag) {
             $tag = trim($tag);
 
-            if (empty($tag) || mb_strlen($tag) < $this->tokenMinimumLength) {
+            if (empty($tag) || mb_strlen($tag) < $tokenMinimumLength) {
                 continue;
             }
 

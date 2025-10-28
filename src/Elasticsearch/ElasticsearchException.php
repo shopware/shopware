@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,6 +13,7 @@ class ElasticsearchException extends HttpException
     public const DEFINITION_NOT_FOUND = 'ELASTICSEARCH__DEFINITION_NOT_FOUND';
     public const UNSUPPORTED_DEFINITION = 'ELASTICSEARCH__UNSUPPORTED_DEFINITION';
     public const INDEXING_ERROR = 'ELASTICSEARCH__INDEXING_ERROR';
+    public const INDEX_CREATION_ERROR = 'ELASTICSEARCH__INDEX_CREATION_ERROR';
     public const NESTED_AGGREGATION_MISSING = 'ELASTICSEARCH__NESTED_FILTER_AGGREGATION_MISSING';
     public const UNSUPPORTED_AGGREGATION = 'ELASTICSEARCH__UNSUPPORTED_AGGREGATION';
     public const UNSUPPORTED_FILTER = 'ELASTICSEARCH__UNSUPPORTED_FILTER';
@@ -22,6 +24,8 @@ class ElasticsearchException extends HttpException
     public const EMPTY_INDEXING_REQUEST = 'ELASTICSEARCH__EMPTY_INDEXING_REQUEST';
 
     public const AWS_CREDENTIALS_NOT_FOUND = 'ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND';
+
+    public const OPERATOR_NOT_ALLOWED = 'ELASTICSEARCH__OPERATOR_NOT_ALLOWED';
 
     public static function definitionNotFound(string $definition): self
     {
@@ -146,6 +150,36 @@ class ElasticsearchException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::EMPTY_INDEXING_REQUEST,
             'Empty indexing request provided'
+        );
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    public static function indexCreationFailed(string $index, array $config, \Throwable $exception): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INDEX_CREATION_ERROR,
+            'Creating index {{ index }} failed with payload {{ payload }}. Reason: {{ reason }}',
+            ['index' => $index, 'reason' => $exception->getMessage(), 'payload' => json_encode($config, \JSON_THROW_ON_ERROR)]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function operatorNotAllowed(string $operator): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException('Operator ' . $operator . ' not allowed');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::OPERATOR_NOT_ALLOWED,
+            'Operator {{ operator }} not allowed',
+            ['operator' => $operator]
         );
     }
 }

@@ -1,6 +1,30 @@
 services:
+    web:
+        image: ghcr.io/shopware/docker-dev:php8.4-node24-caddy
+        ports:
+            - 8000:8000
+            - 8080:8080
+            - 9998:9998
+            - 9999:9999
+        environment:
+            APP_ENV: ${APP_ENV-dev}
+            COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+            HOST: '0.0.0.0'
+            APP_URL: http://localhost:8000
+            DATABASE_URL: mysql://root:root@database/shopware
+            MAILER_DSN: smtp://mailer:1025
+            OPENSEARCH_URL: http://opensearch:9200
+            ADMIN_OPENSEARCH_URL: http://opensearch:9200
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            database:
+                condition: service_healthy
+
     database:
         image: mariadb:latest
+        ports:
+            - 3306:3306
         environment:
             MARIADB_ROOT_PASSWORD: root
             MARIADB_DATABASE: shopware
@@ -28,7 +52,7 @@ services:
             retries: 10
 
     adminer:
-        image: shyim/adminerevo:latest
+        image: adminer
         stop_signal: SIGKILL
         depends_on: [ database ]
         environment:
@@ -38,24 +62,19 @@ services:
 
     valkey:
         image: valkey/valkey:alpine
-        command: [ "--maxmemory-policy", "volatile-lfu" ]
-        ports:
-            - '6379:6379'
+        command: [ "--maxmemory-policy", "volatile-lfu", "--save", "", "--appendonly", "no" ]
 
     mailer:
         image: axllent/mailpit
         ports:
             - '8025:8025'
-            - '1025:1025'
 
     opensearch:
-        image: opensearchproject/opensearch:latest
-        ports:
-            - '9200:9200'
+        image: opensearchproject/opensearch:2
         environment:
             OPENSEARCH_INITIAL_ADMIN_PASSWORD: 'c3o_ZPHo!'
             discovery.type: single-node
             plugins.security.disabled: 'true'
 
 volumes:
-    db-data:
+  db-data:

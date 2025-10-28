@@ -83,6 +83,7 @@
             <argument>%elasticsearch.index.config%</argument>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider">
@@ -238,7 +239,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Product\SearchConfigLoader">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
@@ -246,7 +247,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\StopwordTokenFilter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Elasticsearch\Product\SearchConfigLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
             <argument type="service" id="Shopware\Elasticsearch\TokenQueryBuilder"/>
         </service>
 

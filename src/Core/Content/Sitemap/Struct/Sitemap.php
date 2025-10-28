@@ -22,9 +22,6 @@ class Sitemap extends Struct
      */
     protected $created;
 
-    /**
-     * @throws \Exception
-     */
     public function __construct(
         string $filename,
         private int $urlCount,

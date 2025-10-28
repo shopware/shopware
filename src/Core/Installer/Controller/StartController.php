@@ -20,6 +20,7 @@ class StartController extends InstallerController
     #[Route(path: '/installer', name: 'installer.start', methods: ['GET'])]
     public function start(Request $request): Response
     {
+        // Check if the wizard was called from the wen installer
         if ($request->query->has('ext_steps')) {
             $this->setInitialState($request);
 

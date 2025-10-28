@@ -65,6 +65,7 @@ abstract class InstallerController extends AbstractController
         $extendedMenu = [];
         $menuOrder = \array_values(self::ROUTES);
 
+        // Check if the wizard was called from the web installer and add the already completed steps to the menu
         if ($session->has('extendSteps')) {
             $extendedSteps = ['configure_php', 'download'];
             foreach ($extendedSteps as $step) {

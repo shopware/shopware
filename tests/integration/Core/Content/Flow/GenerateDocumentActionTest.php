@@ -141,7 +141,7 @@ class GenerateDocumentActionTest extends TestCase
     }
 
     #[DataProvider('genErrorDocumentProvider')]
-    public function testGenerateDocumentError(string $documentType, string $documentRangerType): void
+    public function testGenerateDocumentError(string $documentType, string $documentRangerType, string $documentTypeName): void
     {
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer();
@@ -177,7 +177,7 @@ class GenerateDocumentActionTest extends TestCase
         static::assertSame(
             \sprintf(
                 'Unable to generate document. Can not generate %s document because no invoice document exists. OrderId: %s',
-                str_replace('_', ' ', $documentType),
+                $documentTypeName,
                 $order->getId(),
             ),
             $record->message
@@ -249,8 +249,8 @@ class GenerateDocumentActionTest extends TestCase
      */
     public static function genErrorDocumentProvider(): iterable
     {
-        yield 'Generate storno with invoice not exist' => ['storno', 'document_storno'];
-        yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note'];
+        yield 'Generate storno with invoice not exist' => ['storno', 'document_storno', 'cancellation invoice'];
+        yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note', 'credit note'];
     }
 
     /**

@@ -340,7 +340,7 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertArrayHasKey($order->getId(), $response['errors']);
         $error = $response['errors'][$order->getId()][0];
-        static::assertSame('Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: ' . $order->getId(), $error['detail']);
+        static::assertSame('Unable to generate document. Can not generate cancellation invoice document because no invoice document exists. OrderId: ' . $order->getId(), $error['detail']);
     }
 
     public function testDownloadNoDocuments(): void

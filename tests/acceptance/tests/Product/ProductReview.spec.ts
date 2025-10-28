@@ -25,6 +25,10 @@ test('As a shop customer, I want to see reviews of a product.', {
 
 test('As a shop customer, I want to submit a review, so that I can share my experience with the product', {
     tag: ['@Product', '@Reviews', '@Storefront'],
+    annotation: {
+        type: 'issue',
+        description: 'https://github.com/shopware/shopware/issues/13219',
+  },
 }, async ({
     ShopCustomer,
     TestDataService,
@@ -64,6 +68,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
 
         const starRatingPoints = await StorefrontProductDetail.reviewRatingPoints.count();
         for (let i = 0; i < starRatingPoints; i++) {
+            //cannot use Actor.selectsRadioButton() until #13219 is resolved (see annotation above)
             await StorefrontProductDetail.reviewRatingPoints.nth(i).click();
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingPoints.nth(i)).toHaveClass('product-detail-review-form-star is-active');
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).not.toHaveClass('d-none');
@@ -74,6 +79,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
     });
 
     await test.step('Create a review and validate the submitted review.', async () => {
+        //cannot use Actor.selectsRadioButton() until #13219 is resolved (see annotation above)
         await StorefrontProductDetail.reviewRatingPoints.nth(3).click();
         const reviewContent = {
             title: `${product.name} is a great choice`,

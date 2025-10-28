@@ -80,7 +80,7 @@ test('As a customer, I can see the invisible Google reCaptcha V3 is loaded in th
 
             await acceptTechnicalRequiredCookies();
 
-            await StorefrontHome.contactFormLink.click();
+            await ShopCustomer.presses(StorefrontHome.contactFormLink);
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
         });
 

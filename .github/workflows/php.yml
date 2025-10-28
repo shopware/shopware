@@ -166,7 +166,7 @@ jobs:
           retention-days: 1
 
       - name: Run OpenAPI Snapshot Action
-        uses: patzick/explore-openapi-snapshot@5cb94b58322d077f45dc4a6829e8bd5d76b9c7cc # v1.0.0
+        uses: patzick/explore-openapi-snapshot@5d02271994580c9e65222c55a6f3dfe19522de05 # v1.1.0
         with:
           schema-file: "./api-types/storeApiSchema.json"
           project: "shopware-store-api"
@@ -298,20 +298,20 @@ jobs:
     name: "Smoke test with lowest dependencies"
     if: inputs.nightly == 'true'
     steps:
-        - name: Setup Shopware
-          uses: shopware/setup-shopware@main
-          with:
-              shopware-version: ${{ github.ref }}
-              shopware-repository: ${{ github.repository }}
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
 
-        - name: Install lowest dependencies
-          run: composer update --prefer-lowest
+      - name: Install lowest dependencies
+        run: composer update --prefer-lowest
 
-        - name: Generate Schema
-          run: composer run framework:schema:dump
+      - name: Generate Schema
+        run: composer run framework:schema:dump
 
-        - name: Run PHPStan as smoke test
-          run: composer phpstan
+      - name: Run PHPStan as smoke test
+        run: composer phpstan
 
   php-check:
     if: always()

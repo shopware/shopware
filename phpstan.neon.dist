@@ -15,7 +15,6 @@ parameters:
     symfony:
         constantHassers: false
         containerXmlPath: 'var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
-        consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
 
     excludePaths:
         # vendor patches over autoload files

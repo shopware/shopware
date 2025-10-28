@@ -9,6 +9,7 @@ use Shopware\Core\System\Snippet\SnippetValidator;
 use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -89,6 +90,7 @@ class ValidateSnippetsCommand extends Command
         }
 
         $questionHelper = $this->getHelper('question');
+        \assert($questionHelper instanceof QuestionHelper);
 
         foreach ($missingSnippetsCollection->getIterator() as $missingSnippetStruct) {
             $question = \sprintf(

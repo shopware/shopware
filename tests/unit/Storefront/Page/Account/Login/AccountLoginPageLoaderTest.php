@@ -94,7 +94,7 @@ class AccountLoginPageLoaderTest extends TestCase
         );
 
         $this->countryRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($countryResponse);
 
@@ -120,12 +120,12 @@ class AccountLoginPageLoaderTest extends TestCase
         $salutationsSorted = new SalutationCollection([$salutation2, $salutation]);
 
         $this->salutationRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($salutationResponse);
 
         $this->salutationSorter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sort')
             ->willReturn($salutationsSorted);
 
@@ -133,12 +133,12 @@ class AccountLoginPageLoaderTest extends TestCase
         $page->setMetaInformation(new MetaInformation());
         $page->getMetaInformation()?->setMetaTitle('testshop');
         $this->genericLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
         $this->translator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 

@@ -17,7 +17,8 @@
             "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
             "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
             "titleSidebarItemRefresh": "Aktualisieren",
-            "duplicatePromotionInfo": "Aktionscodes werden nicht dupliziert und müssen neu generiert werden."
+            "duplicatePromotionInfo": "Aktionscodes werden nicht dupliziert und müssen neu generiert werden.",
+            "deleteDisabledToolTip": "Die Aktion kann nicht gelöscht werden, da sie bereits verwendet wird."
         },
         "detail": {
             "header": {

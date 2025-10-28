@@ -62,10 +62,10 @@ class CachedProductReviewRouteTest extends TestCase
     public function testLoadWithSalesChannelContextHasState(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
-        $context->expects(static::once())->method('hasState')->willReturn(true);
+        $context->expects($this->once())->method('hasState')->willReturn(true);
 
         $this->productReviewRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with('product-id', new Request(), $context, new Criteria());
 
@@ -75,7 +75,7 @@ class CachedProductReviewRouteTest extends TestCase
     public function testLoadWithSalesChannelContextDoesNotHaveState(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
-        $context->expects(static::once())->method('hasState')->willReturn(false);
+        $context->expects($this->once())->method('hasState')->willReturn(false);
 
         $response = new ProductReviewRouteResponse(
             new EntitySearchResult(
@@ -88,7 +88,7 @@ class CachedProductReviewRouteTest extends TestCase
             )
         );
         $this->cache
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->willReturn(CacheValueCompressor::compress($response));
 

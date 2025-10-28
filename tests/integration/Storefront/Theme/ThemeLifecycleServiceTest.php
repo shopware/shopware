@@ -68,12 +68,12 @@ class ThemeLifecycleServiceTest extends TestCase
     protected function setUp(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::any())->method('getBundles')->willReturn([
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
             'ThemeWithFileAssociations' => new ThemeWithFileAssociations(),
             'ThemeWithLabels' => new ThemeWithLabels(),
         ]);
 
-        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
             ['ThemeWithFileAssociations', new ThemeWithFileAssociations()],
             ['ThemeWithLabels', new ThemeWithLabels()],
         ]);

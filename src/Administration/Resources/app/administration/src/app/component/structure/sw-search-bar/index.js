@@ -877,7 +877,7 @@ Component.register('sw-search-bar', {
                 return [];
             }
 
-            const moduleEntities = [];
+            let moduleEntities = [];
 
             this.searchableModules.forEach((module) => {
                 const matcher =
@@ -901,6 +901,8 @@ Component.register('sw-search-bar', {
             });
 
             moduleEntities.push(...this.getSalesChannelTypesBySearchTerm(regex));
+
+            moduleEntities = moduleEntities.filter((item) => item?.entity);
 
             return moduleEntities.slice(0, limit);
         },
@@ -994,7 +996,9 @@ Component.register('sw-search-bar', {
                     return {
                         entity: 'frequently_used',
                         total: entities.length,
-                        entities: entities?.map((item) => this.getInfoModuleFrequentlyUsed(item)),
+                        entities: entities
+                            ?.map((item) => this.getInfoModuleFrequentlyUsed(item))
+                            .filter((item) => item),
                     };
                 })
                 .catch(() => {});
@@ -1067,7 +1071,7 @@ Component.register('sw-search-bar', {
             const module = this.moduleFactory.getModuleByKey('name', moduleName);
 
             if (!module) {
-                return {};
+                return null;
             }
 
             const { routes, ...manifest } = module.manifest;

@@ -27,13 +27,13 @@ class LicenseControllerTest extends TestCase
         $request->setMethod('GET');
 
         $licenseFetcher = $this->createMock(LicenseFetcher::class);
-        $licenseFetcher->expects(static::once())
+        $licenseFetcher->expects($this->once())
             ->method('fetch')
             ->with($request)
             ->willReturn('licenseText');
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/license.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -56,13 +56,13 @@ class LicenseControllerTest extends TestCase
         $request->setMethod('GET');
 
         $licenseFetcher = $this->createMock(LicenseFetcher::class);
-        $licenseFetcher->expects(static::once())
+        $licenseFetcher->expects($this->once())
             ->method('fetch')
             ->with($request)
             ->willThrowException(new TransferException('license can not be fetched.'));
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/license.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -85,13 +85,13 @@ class LicenseControllerTest extends TestCase
         $request->setMethod('POST');
 
         $licenseFetcher = $this->createMock(LicenseFetcher::class);
-        $licenseFetcher->expects(static::once())
+        $licenseFetcher->expects($this->once())
             ->method('fetch')
             ->with($request)
             ->willReturn('licenseText');
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/license.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -114,14 +114,14 @@ class LicenseControllerTest extends TestCase
         $request->setMethod('POST');
 
         $licenseFetcher = $this->createMock(LicenseFetcher::class);
-        $licenseFetcher->expects(static::never())
+        $licenseFetcher->expects($this->never())
             ->method('fetch');
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::never())->method('render');
+        $twig->expects($this->never())->method('render');
 
         $router = $this->createMock(RouterInterface::class);
-        $router->expects(static::once())->method('generate')
+        $router->expects($this->once())->method('generate')
             ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-configuration');
 

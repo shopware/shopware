@@ -65,7 +65,7 @@ class ServiceControllerTest extends TestCase
         /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([[]]);
 
-        $this->bus->expects(static::never())->method('dispatch');
+        $this->bus->expects($this->never())->method('dispatch');
 
         $controller = new ServiceController($appRepo, $this->bus, $this->appStateService, $this->appLifecycle);
 
@@ -80,7 +80,7 @@ class ServiceControllerTest extends TestCase
         $source = new ShopApiSource('AABB');
         static::expectExceptionObject(ServiceException::updateRequiresAdminApiSource($source));
 
-        $this->bus->expects(static::never())->method('dispatch');
+        $this->bus->expects($this->never())->method('dispatch');
 
         $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle);
 
@@ -93,7 +93,7 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::updateRequiresIntegration());
 
-        $this->bus->expects(static::never())->method('dispatch');
+        $this->bus->expects($this->never())->method('dispatch');
 
         $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle);
 
@@ -105,7 +105,7 @@ class ServiceControllerTest extends TestCase
 
     public function testUpdateIsTriggered(): void
     {
-        $this->bus->expects(static::once())->method('dispatch')->willReturnCallback(function (UpdateServiceMessage $msg) {
+        $this->bus->expects($this->once())->method('dispatch')->willReturnCallback(function (UpdateServiceMessage $msg) {
             static::assertSame('MyCoolService', $msg->name);
 
             return new Envelope($msg, []);
@@ -165,7 +165,7 @@ class ServiceControllerTest extends TestCase
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
 
-        $this->appStateService->expects(static::once())->method('activateApp')->with($this->appId, $context);
+        $this->appStateService->expects($this->once())->method('activateApp')->with($this->appId, $context);
         $controller->activate('MyCoolService', $context);
     }
 
@@ -215,7 +215,7 @@ class ServiceControllerTest extends TestCase
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
 
-        $this->appStateService->expects(static::once())->method('deactivateApp')->with($this->appId, $context);
+        $this->appStateService->expects($this->once())->method('deactivateApp')->with($this->appId, $context);
         $controller->deactivate('MyCoolService', $context);
     }
 
@@ -226,7 +226,7 @@ class ServiceControllerTest extends TestCase
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
 
-        $this->appLifecycle->expects(static::once())->method('delete')->with($this->appId, ['id' => $this->appId], $context);
+        $this->appLifecycle->expects($this->once())->method('delete')->with($this->appId, ['id' => $this->appId], $context);
         $controller->uninstall('MyCoolService', $context);
     }
 

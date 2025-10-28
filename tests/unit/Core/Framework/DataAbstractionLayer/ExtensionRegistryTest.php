@@ -33,11 +33,11 @@ class ExtensionRegistryTest extends TestCase
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $salesChannelDefinitionRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
 
-        $definitionRegistry->expects(static::never())->method('getByEntityName');
-        $definitionRegistry->expects(static::never())->method('get');
-        $definitionRegistry->expects(static::never())->method('getByEntityName');
-        $salesChannelDefinitionRegistry->expects(static::never())->method('getByEntityName');
-        $salesChannelDefinitionRegistry->expects(static::never())->method('get');
+        $definitionRegistry->expects($this->never())->method('getByEntityName');
+        $definitionRegistry->expects($this->never())->method('get');
+        $definitionRegistry->expects($this->never())->method('getByEntityName');
+        $salesChannelDefinitionRegistry->expects($this->never())->method('getByEntityName');
+        $salesChannelDefinitionRegistry->expects($this->never())->method('get');
 
         $registry = new ExtensionRegistry([], []);
         $registry->configureExtensions(

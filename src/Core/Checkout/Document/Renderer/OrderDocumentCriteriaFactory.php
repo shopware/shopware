@@ -28,6 +28,7 @@ final class OrderDocumentCriteriaFactory
         $criteria->addAssociations([
             'lineItems',
             'transactions.paymentMethod',
+            'transactions.stateMachineState',
             'currency',
             'language.locale',
             'addresses.country',

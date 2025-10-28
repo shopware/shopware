@@ -74,6 +74,7 @@
       "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen Hinweis zur \"innergemeinschaftlichen Lieferung\" auf den Rechnungsdokumenten.",
       "helpTextCompanyAddress": "Obsolet ab Shopware 6.7 - Fülle die Adresse stattdessen in den einzelnen Feldern.\\n\\nVerwende Bindestriche (\"-\") um die einzelnen Elemente der Adresse voneinander abzugrenzen. Das hilft bei der gleichzeitigen Darstellung der Adresse an unterschiedlichen Stellen der Kopfzeile.",
       "helpTextPaymentDueDate": "Bsp.: +30 days, +4 weeks, +1 week 2 days",
+      "helpTextDisplayAdditionalNoteDelivery": "Nur für EU-Mitgliedsstaaten, siehe auch \"Einstellungen > Länder\".",
       "labelFileTypes": "Dateiformate"
     }
   },

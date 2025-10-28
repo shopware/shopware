@@ -76,7 +76,7 @@ class RegisterRouteTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->willReturnCallback(function (array $create) {
                 static::assertCount(1, $create);
@@ -361,7 +361,7 @@ class RegisterRouteTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->willReturnCallback(function (array $create) {
                 static::assertSame(['mapped' => 1], $create[0]['customFields']);
@@ -432,7 +432,7 @@ class RegisterRouteTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->willReturnCallback(function (array $create) use ($salutationId) {
                 static::assertCount(1, $create);
@@ -498,7 +498,7 @@ class RegisterRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::atLeast(1))
+            ->expects($this->atLeast(1))
             ->method('dispatch')
             ->with(
                 static::callback(function (Event $event): bool {
@@ -572,7 +572,7 @@ class RegisterRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::atLeast(1))
+            ->expects($this->atLeast(1))
             ->method('dispatch')
             ->with(
                 static::callback(function ($event): bool {
@@ -688,7 +688,7 @@ class RegisterRouteTest extends TestCase
 
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getViolations')
             ->with($data, static::callback(function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();
@@ -799,7 +799,7 @@ class RegisterRouteTest extends TestCase
 
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getViolations')
             ->with($data, static::callback(function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();

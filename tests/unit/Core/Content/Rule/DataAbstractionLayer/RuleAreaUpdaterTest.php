@@ -114,7 +114,7 @@ class RuleAreaUpdaterTest extends TestCase
         )->willReturn($resultStatement);
 
         $statement = $this->createMock(Statement::class);
-        $statement->expects(static::once())->method('executeStatement')->with([
+        $statement->expects($this->once())->method('executeStatement')->with([
             'areas' => json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA]),
             'id' => Uuid::fromHexToBytes($id),
         ]);
@@ -181,7 +181,7 @@ class RuleAreaUpdaterTest extends TestCase
         ]), []);
 
         $resultStatement = $this->createMock(Result::class);
-        $resultStatement->expects(static::once())->method('fetchAllAssociative')->willReturn([]);
+        $resultStatement->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
         $this->connection->method('executeQuery')
             ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD], 'flowTypes' => ['orderTags']]))
             ->willReturn($resultStatement);

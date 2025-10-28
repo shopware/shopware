@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml as AllowHtmlAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields as CustomFieldsAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
@@ -34,12 +35,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field as DalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -49,6 +52,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -200,6 +204,7 @@ class AttributeEntityCompiler
 
         return match ($field->type) {
             FieldType::INT => IntField::class,
+            FieldType::OBJECT => ObjectField::class,
             FieldType::TEXT => LongTextField::class,
             FieldType::FLOAT => FloatField::class,
             FieldType::BOOL => BoolField::class,
@@ -288,6 +293,11 @@ class AttributeEntityCompiler
             $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['reversed' => $instance->reversed]];
         }
 
+        if ($attr = $this->getAttribute($property, AllowHtmlAttr::class)) {
+            $instance = $attr->newInstance();
+            $flags[AllowHtml::class] = ['class' => AllowHtml::class, 'args' => ['sanitized' => $instance->sanitized]];
+        }
+
         if ($field->api !== false) {
             $aware = [];
             if (\is_array($field->api)) {
@@ -300,6 +310,14 @@ class AttributeEntityCompiler
             }
 
             $flags[ApiAware::class] = ['class' => ApiAware::class, 'args' => $aware];
+        }
+
+        if ($field->runtime !== false) {
+            $depends = [];
+            if (\is_array($field->runtime)) {
+                $depends = $field->runtime;
+            }
+            $flags[Runtime::class] = ['class' => Runtime::class, 'args' => $depends];
         }
 
         if ($protection = $this->getAttribute($property, Protection::class)) {

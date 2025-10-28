@@ -76,7 +76,7 @@ class ThemeLifecycleHandlerTest extends TestCase
     {
         $installConfig = $this->configFactory->createFromBundle(new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'));
 
-        $this->themeServiceMock->expects(static::once())
+        $this->themeServiceMock->expects($this->once())
             ->method('compileTheme')
             ->with(
                 TestDefaults::SALES_CHANNEL,
@@ -97,7 +97,7 @@ class ThemeLifecycleHandlerTest extends TestCase
     {
         $installConfig = $this->configFactory->createFromBundle(new PluginWithAdditionalBundles(true, __DIR__ . '/fixtures/PluginWithSubBundles'));
 
-        $this->themeServiceMock->expects(static::once())
+        $this->themeServiceMock->expects($this->once())
             ->method('compileTheme')
             ->with(
                 TestDefaults::SALES_CHANNEL,
@@ -142,7 +142,7 @@ class ThemeLifecycleHandlerTest extends TestCase
         $installConfig = $this->configFactory->createFromBundle(new SimpleTheme());
         $installConfig->setStyleFiles(FileCollection::createFromArray(['onlyForFile']));
 
-        $this->themeServiceMock->expects(static::once())
+        $this->themeServiceMock->expects($this->once())
             ->method('compileThemeById')
             ->with(
                 $themeId,
@@ -162,7 +162,7 @@ class ThemeLifecycleHandlerTest extends TestCase
     {
         $uninstalledConfig = $this->configFactory->createFromBundle(new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'));
 
-        $this->themeServiceMock->expects(static::once())
+        $this->themeServiceMock->expects($this->once())
             ->method('compileTheme')
             ->with(
                 TestDefaults::SALES_CHANNEL,
@@ -182,7 +182,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             $uninstalledConfig,
         ]);
 
-        $this->configurationRegistryMock->expects(static::once())
+        $this->configurationRegistryMock->expects($this->once())
             ->method('getConfigurations')
             ->willReturn($configs);
 
@@ -193,7 +193,7 @@ class ThemeLifecycleHandlerTest extends TestCase
     {
         $uninstalledConfig = $this->configFactory->createFromBundle(new SimplePluginWithoutCompilation());
 
-        $this->themeServiceMock->expects(static::never())
+        $this->themeServiceMock->expects($this->never())
             ->method('compileTheme');
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -201,7 +201,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             $uninstalledConfig,
         ]);
 
-        $this->configurationRegistryMock->expects(static::once())
+        $this->configurationRegistryMock->expects($this->once())
             ->method('getConfigurations')
             ->willReturn($configs);
 
@@ -226,7 +226,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $scCollection = new ThemeSalesChannelCollection();
         $scCollection->add(new ThemeSalesChannel(Uuid::randomHex(), Uuid::randomHex()));
-        $this->themeServiceMock->expects(static::once())
+        $this->themeServiceMock->expects($this->once())
             ->method('getThemeDependencyMapping')
             ->willReturn($scCollection);
 

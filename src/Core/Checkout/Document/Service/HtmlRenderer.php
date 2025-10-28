@@ -70,14 +70,18 @@ class HtmlRenderer extends AbstractDocumentTypeRenderer
 
         $language = $document->getOrder()->getLanguage();
 
+        $parameters = [
+            ...$document->getParameters(),
+            'order' => $document->getOrder(),
+            'config' => $config,
+            'rootDir' => $this->rootDir,
+            'context' => $document->getContext(),
+            ...$document->getExtensions(),
+        ];
+
         return $this->documentTemplateRenderer->render(
             $document->getTemplate(),
-            [
-                'order' => $document->getOrder(),
-                'config' => $config,
-                'rootDir' => $this->rootDir,
-                'context' => $document->getContext(),
-            ],
+            $parameters,
             $document->getContext(),
             $document->getOrder()->getSalesChannelId(),
             $document->getOrder()->getLanguageId(),

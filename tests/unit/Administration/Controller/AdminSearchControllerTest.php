@@ -69,7 +69,7 @@ class AdminSearchControllerTest extends TestCase
 
     public function testSearchWithNoQueryReturnsEmptyData(): void
     {
-        $this->serializer->expects(static::once())->method('decode')->willReturn([]);
+        $this->serializer->expects($this->once())->method('decode')->willReturn([]);
 
         $response = $this->controller->search(new Request(), Context::createDefaultContext());
 
@@ -79,16 +79,16 @@ class AdminSearchControllerTest extends TestCase
 
     public function testSearchWitMissingPrivilegeReturnsViolations(): void
     {
-        $this->serializer->expects(static::once())->method('decode')
+        $this->serializer->expects($this->once())->method('decode')
             ->willReturn(
                 [ProductDefinition::class => ['product'], LandingPageDefinition::class => ['page']]
             );
 
-        $this->definitionInstanceRegistry->expects(static::any())->method('has')
+        $this->definitionInstanceRegistry->expects($this->any())->method('has')
             ->willReturnOnConsecutiveCalls(true, false);
 
         $validationError = [ProductDefinition::class . ':' . AclRoleDefinition::PRIVILEGE_READ];
-        $this->criteriaValidator->expects(static::once())->method('validate')
+        $this->criteriaValidator->expects($this->once())->method('validate')
             ->willReturn($validationError);
 
         $response = $this->controller->search(new Request(['product' => true, 'page' => true]), Context::createDefaultContext());
@@ -112,12 +112,12 @@ class AdminSearchControllerTest extends TestCase
 
     public function testSearchWitMatchingEntitiesReturnsData(): void
     {
-        $this->serializer->expects(static::once())->method('decode')
+        $this->serializer->expects($this->once())->method('decode')
             ->willReturn(
                 [ProductEntity::class => ['product'], LandingPageDefinition::class => ['page']]
             );
 
-        $this->definitionInstanceRegistry->expects(static::any())->method('has')
+        $this->definitionInstanceRegistry->expects($this->any())->method('has')
             ->willReturnOnConsecutiveCalls(true, true);
 
         $productEntity = new ProductEntity();
@@ -125,7 +125,7 @@ class AdminSearchControllerTest extends TestCase
 
         $collection = new EntityCollection([$productEntity]);
 
-        $this->searcher->expects(static::once())->method('search')
+        $this->searcher->expects($this->once())->method('search')
             ->willReturn([
                 ProductEntity::class => [
                     'data' => $collection,

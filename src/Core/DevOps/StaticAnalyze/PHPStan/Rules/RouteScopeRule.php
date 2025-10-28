@@ -3,8 +3,8 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\ArrayItem;
 use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;

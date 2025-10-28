@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
@@ -35,7 +36,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
-use Shopware\Elasticsearch\Product\SearchConfigLoader;
 use Shopware\Elasticsearch\TokenQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -471,6 +471,10 @@ class ProductSearchQueryBuilderTest extends TestCase
             'query' => $query,
             'boost' => (float) $boost,
         ];
+
+        if (is_numeric($query) || preg_match('/\d{3,}/', (string) $query)) {
+            $fuzziness = 0;
+        }
 
         if ($fuzziness !== null) {
             $payload['fuzziness'] = $fuzziness;

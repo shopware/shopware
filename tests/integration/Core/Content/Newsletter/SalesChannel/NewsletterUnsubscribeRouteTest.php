@@ -55,7 +55,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         static::assertSame(1, $count);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->addEventListener($dispatcher, NewsletterUnsubscribeEvent::class, $listener);

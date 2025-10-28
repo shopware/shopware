@@ -43,7 +43,7 @@ class InAppPurchasesPayloadServiceTest extends TestCase
             ->willReturn($this->ids->get('shop-id'));
 
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects(static::once())
+        $appPayloadServiceHelper->expects($this->once())
             ->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
@@ -104,7 +104,7 @@ class InAppPurchasesPayloadServiceTest extends TestCase
             ->willReturn($this->ids->get('shop-id'));
 
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects(static::once())
+        $appPayloadServiceHelper->expects($this->once())
             ->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
@@ -200,7 +200,7 @@ class InAppPurchasesPayloadServiceTest extends TestCase
     public function testClientIsUsingPostMethod(): void
     {
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects(static::once())
+        $appPayloadServiceHelper->expects($this->once())
             ->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
@@ -217,7 +217,7 @@ class InAppPurchasesPayloadServiceTest extends TestCase
         /** @phpstan-ignore shopware.mockingSimpleObjects (it is literally tested, if post method is used) */
         $client = $this->createMock(Client::class);
         $client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('post')
             ->willReturn(new Response(200, [], \json_encode([
                 'purchases' => [

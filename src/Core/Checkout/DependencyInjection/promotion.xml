@@ -209,6 +209,12 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager"/>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager">
@@ -217,6 +223,10 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\CartPromotionsSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

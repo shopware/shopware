@@ -34,6 +34,19 @@
         }
     }
 
+    &__tab-settings-rotate-switch,
+    &__tab-settings-rotate-autoplay {
+        margin-bottom: 0;
+    }
+
+    &__setting-auto-slide-banner {
+        margin-bottom: 32px;
+    }
+
+    &__tab-settings-rotate-switch {
+        background-color: $color-white;
+    }
+
     .sw-cms-el-config-product-slider__tab-content-product-stream-performance-hint {
         width: 100%;
     }

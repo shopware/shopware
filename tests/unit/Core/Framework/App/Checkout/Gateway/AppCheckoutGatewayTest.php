@@ -47,7 +47,7 @@ class AppCheckoutGatewayTest extends TestCase
     {
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('search');
 
         $gateway = new AppCheckoutGateway(
@@ -93,7 +93,7 @@ class AppCheckoutGatewayTest extends TestCase
 
         $appRepo = $this->createMock(EntityRepository::class);
         $appRepo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($criteria))
             ->willReturn($result);
@@ -114,7 +114,7 @@ class AppCheckoutGatewayTest extends TestCase
 
         $payloadService = $this->createMock(AppCheckoutGatewayPayloadService::class);
         $payloadService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('request')
             ->with(
                 'https://example.com',
@@ -133,7 +133,7 @@ class AppCheckoutGatewayTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::equalTo(new CheckoutGatewayCommandsCollectedEvent($payload, $expectedCollection)));
 

@@ -49,7 +49,7 @@ class AppDownloaderTest extends TestCase
 
     public function testStreamingDownloadCreatesDirectory(): void
     {
-        $this->filesystem->expects(static::once())
+        $this->filesystem->expects($this->once())
             ->method('mkdir')
             ->with(static::equalTo('/path/to'));
 
@@ -66,7 +66,7 @@ class AppDownloaderTest extends TestCase
         $this->httpClient->method('request')->willReturn($response);
         $this->httpClient->method('stream')->willReturn($stream);
 
-        $matcher = static::exactly(2);
+        $matcher = $this->exactly(2);
 
         $this->filesystem
             ->expects($matcher)
@@ -89,7 +89,7 @@ class AppDownloaderTest extends TestCase
         $fs = new \League\Flysystem\Filesystem(new InMemoryFilesystemAdapter());
         $fs->write('/some/file.zip', 'content');
 
-        $this->filesystem->expects(static::once())
+        $this->filesystem->expects($this->once())
             ->method('dumpFile')
             ->willReturnCallback(function (string $path, $contentResource): void {
                 static::assertEquals('/path/to/file.zip', $path);
@@ -106,7 +106,7 @@ class AppDownloaderTest extends TestCase
 
         $fs = new \League\Flysystem\Filesystem(new InMemoryFilesystemAdapter());
 
-        $this->filesystem->expects(static::never())->method('dumpFile');
+        $this->filesystem->expects($this->never())->method('dumpFile');
 
         $this->appDownloader->downloadFromFilesystem($fs, '/some/file.zip', '/path/to/file.zip');
     }

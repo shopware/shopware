@@ -69,11 +69,11 @@ class MediaSerializerTest extends TestCase
             'png',
             1337
         );
-        $mediaService->expects(static::once())
+        $mediaService->expects($this->once())
             ->method('fetchFile')
             ->willReturn($expectedMediaFile);
 
-        $fileSaver->expects(static::once())
+        $fileSaver->expects($this->once())
             ->method('persistFileToMedia')
             ->willReturnCallback(function (MediaFile $m, string $dest, string $id) use ($expectedMediaFile, $expectedDestination, $mediaId): void {
                 $this->assertSame($expectedMediaFile, $m);
@@ -124,10 +124,10 @@ class MediaSerializerTest extends TestCase
             ],
         ];
 
-        $mediaService->expects(static::never())
+        $mediaService->expects($this->never())
             ->method('fetchFile');
 
-        $fileSaver->expects(static::never())
+        $fileSaver->expects($this->never())
             ->method('persistFileToMedia');
 
         $searchResult = new EntitySearchResult('media', 1, new MediaCollection([$mediaEntity]), null, new Criteria(), $context);
@@ -178,11 +178,11 @@ class MediaSerializerTest extends TestCase
             'png',
             1337
         );
-        $mediaService->expects(static::once())
+        $mediaService->expects($this->once())
             ->method('fetchFile')
             ->willReturn($expectedMediaFile);
 
-        $fileSaver->expects(static::once())
+        $fileSaver->expects($this->once())
             ->method('persistFileToMedia')
             ->willReturnCallback(function (MediaFile $m, string $dest) use ($expectedMediaFile, $expectedDestination): void {
                 $this->assertSame($expectedMediaFile, $m);

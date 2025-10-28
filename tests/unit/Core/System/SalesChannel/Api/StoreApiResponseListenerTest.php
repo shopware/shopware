@@ -41,7 +41,7 @@ class StoreApiResponseListenerTest extends TestCase
         $request->attributes->set('_route', 'store-api.my-route');
 
         $listener = $this->createMock(CallableClass::class);
-        $listener->expects(static::exactly(1))->method('__invoke');
+        $listener->expects($this->exactly(1))->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('store-api.my-route.encode', $listener);
@@ -61,7 +61,7 @@ class StoreApiResponseListenerTest extends TestCase
 
     public function testEncodeResponseWithIncludesSpecialCharacters(): void
     {
-        $this->encoder->expects(static::once())
+        $this->encoder->expects($this->once())
             ->method('encode')
             ->willReturn(['encoded' => 'data']);
 
@@ -99,7 +99,7 @@ class StoreApiResponseListenerTest extends TestCase
 
     public function testEncodeResponseWithDifferentStatusCode(): void
     {
-        $this->encoder->expects(static::once())
+        $this->encoder->expects($this->once())
             ->method('encode')
             ->willReturn(['encoded' => 'data']);
 
@@ -138,7 +138,7 @@ class StoreApiResponseListenerTest extends TestCase
 
     public function testEncodeResponsePreservesHeaders(): void
     {
-        $this->encoder->expects(static::once())
+        $this->encoder->expects($this->once())
             ->method('encode')
             ->willReturn(['encoded' => 'data']);
 

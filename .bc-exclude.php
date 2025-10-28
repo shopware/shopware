@@ -16,7 +16,7 @@ return [
         '**/src/Storefront/Framework/Twig/NavigationInfo.php', // new class (not released yet)
     ],
     'errors' => [
-        // ProductReviewLoader moved to core, the entire classes is deprecated, can be removed after 6.7.0.0 release
+        // ProductReviewLoader moved to core, the entire class is deprecated, can be removed after the 6.7.0.0 release
         'Type of property Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult#\\$.+ changed from .+ to having no type',
         'The return type of Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult#.+ changed from .+ to .+',
         'Type of property Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent#\\$.+ changed from .+ to having no type',
@@ -26,7 +26,7 @@ return [
         // Will be typed in Symfony 8 (maybe)
         'Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void',
 
-        'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+        'An enum expression .* is not supported in .*', // Cannot be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
 
         // Criteria is @final so changing from void should be fine
         'The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria#setTitle\(\) changed from void',
@@ -44,14 +44,14 @@ return [
         'Parameter 3 of Shopware\\\\Elasticsearch\\\\TokenQueryBuilder#build\(\) changed name from languageIdChain to context',
         'Parameter context was added to Method build\(\) of class Shopware\\\\Elasticsearch\\\\TokenQueryBuilder',
 
-        // Changed SHOPWARE_FALLBACK_VERSION to comply with latest composer changes, see: https://github.com/composer/composer/commit/1b5b56f234ab52a9dcfc935228d49e2a5e262e39
+        // Changed SHOPWARE_FALLBACK_VERSION to comply with the latest composer changes, see: https://github.com/composer/composer/commit/1b5b56f234ab52a9dcfc935228d49e2a5e262e39
         'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999.9999999-dev\' to \'6.6.9999999-dev\'',
 
         // The return type was incorrect and led to an error. It is not a breaking change if it's already breaking.
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection#getOrderCustomers\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerCollection to the non-covariant Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerCollection',
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection#getOrderCustomers\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerCollection to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerCollection',
 
-        // Version related const values changed for 7.2 update
+        // Version-related const values changed for the 7.2 update
         'Value of constant Symfony\\\\Component\\\\HttpKernel\\\\Kernel',
 
         // Class is marked as @final
@@ -67,6 +67,24 @@ return [
         'The parameter \\$previous of Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\MigrateException\\#__construct\(\) changed',
 
         // changing constructor in a safe way as long as you don't extend the hook
-        'Parameter salesChannelId was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigChangedHook'
+        'Parameter salesChannelId was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigChangedHook',
+
+        // revert deprecated return value
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::customerNotLoggedIn\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException',
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::guestNotAuthenticated\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException',
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::wrongGuestCredentials\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\WrongGuestCredentialsException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\WrongGuestCredentialsException',
+
+        // Fix to make promotions work with order recalculation
+        'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
+
+        'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput',
+
+        // Added runtime parameter to Field attribute
+        'ADDED: Parameter runtime was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Field',
+
+        // The "parts" arrays of these events could contain values that are not correctly represented in the getter and add methods. Those are necessary fixes, otherwise type errors will occur.
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent#get() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#get() changed from string|null', '/'),
+        preg_quote('CHANGED: The parameter $value of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#add() changed from string', '/'),
     ],
 ];

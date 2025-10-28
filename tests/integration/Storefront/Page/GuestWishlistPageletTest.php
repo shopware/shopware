@@ -96,7 +96,7 @@ class GuestWishlistPageletTest extends TestCase
             return new ProductListResponse($searchResult);
         };
 
-        $this->productListRouteMock->expects(static::once())->method('load')->willReturnCallback($productRouteLoadClosure);
+        $this->productListRouteMock->expects($this->once())->method('load')->willReturnCallback($productRouteLoadClosure);
 
         $context = $this->salesChannelContextMock;
 
@@ -131,7 +131,7 @@ class GuestWishlistPageletTest extends TestCase
 
         $context = $this->salesChannelContextMock;
 
-        $this->systemConfigServiceMock->expects(static::once())->method('getBool')
+        $this->systemConfigServiceMock->expects($this->once())->method('getBool')
             ->with('core.listing.hideCloseoutProductsWhenOutOfStock')->willReturn(true);
 
         $eventDidRun = null;

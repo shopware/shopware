@@ -26,6 +26,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -61,7 +62,7 @@ class AccountServiceTest extends TestCase
 
         $loggedinSalesChannelContext = Generator::generateSalesChannelContext();
         $cartRestorer = $this->createMock(CartRestorer::class);
-        $cartRestorer->expects(static::once())
+        $cartRestorer->expects($this->once())
             ->method('restore')
             ->willReturn($loggedinSalesChannelContext);
 
@@ -120,7 +121,7 @@ class AccountServiceTest extends TestCase
         $customer->setDoubleOptInRegistration(false);
 
         $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository->expects(static::once())
+        $customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 CustomerDefinition::ENTITY_NAME,
@@ -132,7 +133,7 @@ class AccountServiceTest extends TestCase
             ));
 
         $cartRestorer = $this->createMock(CartRestorer::class);
-        $cartRestorer->expects(static::never())
+        $cartRestorer->expects($this->never())
             ->method('restore');
 
         $accountService = new AccountService(
@@ -158,13 +159,13 @@ class AccountServiceTest extends TestCase
         $customer->setLegacyEncoder('bar');
 
         $legacyPasswordVerifier = $this->createMock(LegacyPasswordVerifier::class);
-        $legacyPasswordVerifier->expects(static::once())
+        $legacyPasswordVerifier->expects($this->once())
             ->method('verify')
             ->with('password', $customer)
             ->willReturn(true);
 
         $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository->expects(static::once())
+        $customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 CustomerDefinition::ENTITY_NAME,
@@ -179,7 +180,7 @@ class AccountServiceTest extends TestCase
         $writeException = new WriteException();
         $writeException->add($exception);
 
-        $customerRepository->expects(static::once())
+        $customerRepository->expects($this->once())
             ->method('update')
             ->with([[
                 'id' => $customer->getId(),
@@ -213,13 +214,13 @@ class AccountServiceTest extends TestCase
         $customer->setLegacyEncoder('bar');
 
         $legacyPasswordVerifier = $this->createMock(LegacyPasswordVerifier::class);
-        $legacyPasswordVerifier->expects(static::once())
+        $legacyPasswordVerifier->expects($this->once())
             ->method('verify')
             ->with('password', $customer)
             ->willReturn(true);
 
         $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository->expects(static::once())
+        $customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 CustomerDefinition::ENTITY_NAME,
@@ -234,7 +235,7 @@ class AccountServiceTest extends TestCase
         $writeException = new WriteException();
         $writeException->add($exception);
 
-        $customerRepository->expects(static::once())
+        $customerRepository->expects($this->once())
             ->method('update')
             ->with([[
                 'id' => $customer->getId(),
@@ -254,5 +255,21 @@ class AccountServiceTest extends TestCase
 
         $this->expectException(WriteException::class);
         $accountService->getCustomerByLogin('user', 'password', $salesChannelContext);
+    }
+
+    public function testPasswordTooLongThrowsBadCredentials(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $accountService = new AccountService(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(LegacyPasswordVerifier::class),
+            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            $this->createMock(CartRestorer::class),
+        );
+
+        static::expectException(BadCredentialsException::class);
+
+        $accountService->loginByCredentials('foo@bar.de', \str_repeat('a', PasswordHasherInterface::MAX_PASSWORD_LENGTH + 1), $salesChannelContext);
     }
 }

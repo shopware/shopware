@@ -31,7 +31,11 @@
     },
     "card": {
       "buttonImitateCustomer": "Log in as customer",
-      "tooltipImitateCustomerGuest": "Guest accounts cannot be imitated.",
+      "tooltipImitateCustomerGuest": "Guest customers cannot be imitated.",
+      "tooltipImitateCustomerInactive": "Inactive customers cannot be imitated.",
+      "tooltipImitateCustomerInactiveSalesChannel": "The customers Sales Channel is not active.",
+      "tooltipImitateCustomerNoDomain": "The Sales Channel of the customer has no domain configured.",
+      "tooltipImitateCustomerNoStorefront": "The Sales Channel of the customer is not of type Storefront.",
       "placeholderTitle": "Title",
       "placeholderFirstName": "First name",
       "placeholderLastName": "Last name",
@@ -196,6 +200,7 @@
       "modalDescription": "Choose the Sales Channel in which you would like to log in as {firstname} {lastname}.",
       "modalInfo": "Please remember to {logout} after you have finished your work.",
       "modalInfoLogout": "log out",
+      "modalInfoNoDomains": "No active domain found. Please check your Sales Channel settings.",
       "labelCancel": "Close"
     },
     "addressForm": {

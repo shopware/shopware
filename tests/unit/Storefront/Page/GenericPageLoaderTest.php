@@ -26,16 +26,16 @@ class GenericPageLoaderTest extends TestCase
     public function testLoad(): void
     {
         $headerPageletLoader = $this->createMock(HeaderPageletLoaderInterface::class);
-        $headerPageletLoader->expects(static::never())->method('load');
+        $headerPageletLoader->expects($this->never())->method('load');
 
         $footerPageletLoader = $this->createMock(FooterPageletLoaderInterface::class);
-        $footerPageletLoader->expects(static::never())->method('load');
+        $footerPageletLoader->expects($this->never())->method('load');
 
         $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
-        $paymentMethodRoute->expects(static::never())->method('load');
+        $paymentMethodRoute->expects($this->never())->method('load');
 
         $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
-        $shippingMethodRoute->expects(static::never())->method('load');
+        $shippingMethodRoute->expects($this->never())->method('load');
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn('Shopware');

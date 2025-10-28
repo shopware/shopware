@@ -60,7 +60,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $repo = $this->createMock(SalesChannelRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);

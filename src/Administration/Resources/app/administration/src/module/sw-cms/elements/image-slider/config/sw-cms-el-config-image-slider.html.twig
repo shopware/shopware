@@ -171,46 +171,53 @@
                     </div>
                     {% endblock %}
 
-                    <div class="sw-cms-el-config-image-slider__setting-slide">
-                        {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
-                        <sw-switch-field
-                            :value="false"
-                            class="sw-cms-el-config-image-slider__setting-auto-slide"
-                            :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
-                            :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
-                            bordered
-                            disabled
+                    <div class="sw-cms-el-config-image-slider__setting-speed">
+                        <sw-number-field
+                            v-model:value="element.config.speed.value"
+                            class="sw-cms-el-config-image-slider__setting-speed-slide"
+                            number-type="int"
+                            :min="0"
+                            :max="3600000"
+                            :label="$tc('sw-cms.elements.general.config.label.speed')"
+                            :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
+                            :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
                         />
                     </div>
 
-                    <div class="sw-cms-el-config-image-slider__setting-option">
-                        <div class="sw-cms-el-config-image-slider__setting-delay">
-                            <sw-number-field
-                                v-model:value="element.config.autoplayTimeout.value"
-                                class="sw-cms-el-config-image-slider__setting-delay-slide"
-                                number-type="int"
-                                :min="0"
-                                :max="3600000"
-                                :disabled="true"
-                                :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
-                                :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
-                                :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
-                            />
+                    <mt-banner
+                        class="sw-cms-el-config-image-slider__setting-auto-slide-banner"
+                        variant="attention"
+                        :title="$tc('sw-cms.elements.general.config.infoText.autoSlideTitle')"
+                    >
+                        <p class="sw-cms-el-config-image-slider__setting-auto-slide-attention">
+                            {{ $tc('sw-cms.elements.general.config.infoText.autoSlide') }}
+                        </p>
+
+                        <div class="sw-cms-el-config-image-slider__setting-auto-slide-container sw-cms-el-config-image-slider__setting-option">
+                            <div class="sw-cms-el-config-image-slider__setting-slide">
+                                <sw-switch-field
+                                    v-model:value="element.config.autoSlide.value"
+                                    class="sw-cms-el-config-image-slider__setting-auto-slide"
+                                    :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
+                                    bordered
+                                />
+                            </div>
+
+                            <div class="sw-cms-el-config-image-slider__setting-delay">
+                                <sw-number-field
+                                    v-model:value="element.config.autoplayTimeout.value"
+                                    class="sw-cms-el-config-image-slider__setting-delay-slide"
+                                    number-type="int"
+                                    :min="0"
+                                    :max="3600000"
+                                    :disabled="!element.config.autoSlide.value"
+                                    :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                                    :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                                    :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
+                                />
+                            </div>
                         </div>
-                        <div class="sw-cms-el-config-image-slider__setting-speed">
-                            <sw-number-field
-                                v-model:value="element.config.speed.value"
-                                class="sw-cms-el-config-image-slider__setting-speed-slide"
-                                number-type="int"
-                                :min="0"
-                                :max="3600000"
-                                :disabled="true"
-                                :label="$tc('sw-cms.elements.general.config.label.speed')"
-                                :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
-                                :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
-                            />
-                        </div>
-                    </div>
+                    </mt-banner>
 
                     {% block sw_cms_element_image_slider_config_settings_links %}
                     <div class="sw-cms-el-config-image-slider__settings-links sw-cms-el-config-image-slider__setting-option">

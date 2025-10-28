@@ -322,7 +322,7 @@ class StaticKernelPluginLoaderTest extends TestCase
             ],
         ]);
 
-        $classLoader->expects(static::once())->method('add')->with('Test_', [
+        $classLoader->expects($this->once())->method('add')->with('Test_', [
             TEST_PROJECT_DIR . '/custom/plugins/TestPlugin/src',
         ], false);
 
@@ -361,7 +361,7 @@ class StaticKernelPluginLoaderTest extends TestCase
             ],
         ]);
 
-        $classLoader->expects(static::once())->method('add')->with('Test_', [
+        $classLoader->expects($this->once())->method('add')->with('Test_', [
             TEST_PROJECT_DIR . '/custom/plugins/TestPlugin/src',
         ], false);
 
@@ -381,7 +381,7 @@ class StaticKernelPluginLoaderTest extends TestCase
             ],
         ]);
 
-        $classLoader->expects(static::once())->method('add')->with('Test_', [
+        $classLoader->expects($this->once())->method('add')->with('Test_', [
             TEST_PROJECT_DIR . '/custom/plugins/TestPlugin/src',
             TEST_PROJECT_DIR . '/custom/plugins/TestPlugin/components',
         ], false);

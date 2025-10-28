@@ -20,7 +20,7 @@ class ActiveAppsLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -61,7 +61,7 @@ class ActiveAppsLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willThrowException(new \Exception('test'));
 
@@ -100,12 +100,12 @@ class ActiveAppsLoaderTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('fetchAllAssociative');
 
         $appLoader = $this->createMock(AppLoader::class);
         $appLoader
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('load');
 
         $activeAppsLoader = new ActiveAppsLoader(

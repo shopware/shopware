@@ -109,7 +109,7 @@ class SearchControllerTest extends TestCase
 
         $executor = static::createMock(ScriptExecutor::class);
         $executor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('execute')
             ->with($hook);
 
@@ -127,7 +127,7 @@ class SearchControllerTest extends TestCase
         $this->container->set(ScriptExecutor::class, $executor);
         $templateFinder = $this->createMock(TemplateFinder::class);
         $templateFinder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('find')
             ->with('@Storefront/storefront/page/search/index.html.twig')
             ->willReturn('@Storefront/storefront/page/search/index.html.twig');
@@ -140,7 +140,7 @@ class SearchControllerTest extends TestCase
         ];
 
         $twig = static::createMock(Environment::class);
-        $twig->expects(static::once())
+        $twig->expects($this->once())
             ->method('render')
             ->with('@Storefront/storefront/page/search/index.html.twig', $parameters)
             ->willReturn('foo');
@@ -149,7 +149,7 @@ class SearchControllerTest extends TestCase
 
         $this->container->set('router', $this->createMock(RouterInterface::class));
 
-        $this->searchPageLoader->expects(static::once())->method('load')->willReturn($searchPage);
+        $this->searchPageLoader->expects($this->once())->method('load')->willReturn($searchPage);
 
         $response = $this->searchController->search($context, $request);
 
@@ -174,7 +174,7 @@ class SearchControllerTest extends TestCase
 
         $executor = static::createMock(ScriptExecutor::class);
         $executor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('execute')
             ->with($hook);
 
@@ -192,7 +192,7 @@ class SearchControllerTest extends TestCase
         $this->container->set(ScriptExecutor::class, $executor);
         $templateFinder = $this->createMock(TemplateFinder::class);
         $templateFinder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('find')
             ->with('@Storefront/storefront/page/search/index.html.twig')
             ->willReturn('@Storefront/storefront/page/search/index.html.twig');
@@ -205,7 +205,7 @@ class SearchControllerTest extends TestCase
         ];
 
         $twig = static::createMock(Environment::class);
-        $twig->expects(static::once())
+        $twig->expects($this->once())
             ->method('render')
             ->with('@Storefront/storefront/page/search/index.html.twig', $parameters)
             ->willReturn('foo');
@@ -214,7 +214,7 @@ class SearchControllerTest extends TestCase
 
         $this->container->set('router', $this->createMock(RouterInterface::class));
 
-        $this->searchPageLoader->expects(static::once())->method('load')->willReturn($searchPage);
+        $this->searchPageLoader->expects($this->once())->method('load')->willReturn($searchPage);
 
         $response = $this->searchController->search($context, $request);
 
@@ -225,7 +225,7 @@ class SearchControllerTest extends TestCase
     {
         $context = $this->createMock(SalesChannelContext::class);
 
-        $this->searchPageLoader->expects(static::once())
+        $this->searchPageLoader->expects($this->once())
             ->method('load')
             ->willThrowException(RoutingException::missingRequestParameter('search'));
 
@@ -241,12 +241,12 @@ class SearchControllerTest extends TestCase
         $this->container->set('twig', $twig);
 
         $router = static::createMock(RouterInterface::class);
-        $router->expects(static::once())
+        $router->expects($this->once())
             ->method('generate')
             ->with('frontend.home.page', [], 10)
             ->willReturn('http://localhost/');
 
-        $router->expects(static::once())
+        $router->expects($this->once())
             ->method('match')
             ->willReturn(['_controller' => SearchController::class]);
 
@@ -265,7 +265,7 @@ class SearchControllerTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $this->searchPageLoader->expects(static::once())
+        $this->searchPageLoader->expects($this->once())
             ->method('load')
             ->willThrowException($exception);
 
@@ -303,7 +303,7 @@ class SearchControllerTest extends TestCase
 
         $router = static::createMock(RouterInterface::class);
         $router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('frontend.detail.page', ['productId' => '123'])
             ->willReturn('http://localhost/product/123');

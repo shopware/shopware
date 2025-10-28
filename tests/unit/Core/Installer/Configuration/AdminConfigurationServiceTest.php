@@ -19,7 +19,7 @@ class AdminConfigurationServiceTest extends TestCase
     {
         $localeId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('insert')
             ->with(
                 'user',
@@ -36,7 +36,7 @@ class AdminConfigurationServiceTest extends TestCase
                 })
             );
 
-        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
+        $connection->expects($this->once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
 
         $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),

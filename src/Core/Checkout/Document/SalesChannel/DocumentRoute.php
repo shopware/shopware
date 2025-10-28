@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -53,13 +52,10 @@ final class DocumentRoute extends AbstractDocumentRoute
     ): Response {
         $fileType = \func_get_args()[4] ?? PdfRenderer::FILE_EXTENSION;
 
-        if (!$context->getCustomer()) {
-            $this->checkGuestAuth($documentId, $request, $context->getContext());
-        }
+        $this->checkAuth($documentId, $request, $context);
 
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
-        if ($customer->getGuest() && $deepLinkCode === '') {
+        $isGuest = $context->getCustomer() === null || $context->getCustomer()->getGuest();
+        if ($isGuest && $deepLinkCode === '') {
             throw DocumentException::customerNotLoggedIn();
         }
 
@@ -96,30 +92,41 @@ final class DocumentRoute extends AbstractDocumentRoute
         return $response;
     }
 
-    private function checkGuestAuth(string $documentId, Request $request, Context $context): void
+    private function checkAuth(string $documentId, Request $request, SalesChannelContext $context): void
     {
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('order.orderCustomer.customer');
-        $criteria->addAssociation('order.billingAddress');
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
 
-        $document = $this->documentRepository->search($criteria, $context)->first();
-        if (!$document instanceof DocumentEntity) {
+        $document = $this->documentRepository->search($criteria, $context->getContext())->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
         $order = $document->getOrder();
-        if ($order === null) {
-            throw DocumentException::guestNotAuthenticated();
+        if (!$order) {
+            throw DocumentException::orderNotFound($document->getOrderId());
         }
 
         $orderCustomer = $order->getOrderCustomer();
-        if ($orderCustomer === null) {
+        if (!$orderCustomer) {
             throw DocumentException::customerNotLoggedIn();
         }
 
-        $guest = $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
-        // Throw exception when customer is not guest
-        if (!$guest) {
+        if ($orderCustomer->getCustomerId() === $context->getCustomer()?->getId()) {
+            return;
+        }
+
+        $this->checkGuestAuth($order, $orderCustomer, $request);
+    }
+
+    private function checkGuestAuth(
+        OrderEntity $order,
+        OrderCustomerEntity $orderCustomer,
+        Request $request
+    ): void {
+        $isOrderByGuest = $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
+
+        if (!$isOrderByGuest) {
             throw DocumentException::customerNotLoggedIn();
         }
 

@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
  * The `request` service allows you to access the current request in the script
  *
  * Examples:
- * {% raw %}
  * ```twig
  * {% block response %}
  *  {% if services.request.method != "POST" %}
@@ -24,7 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
  *  {% do hook.setResponse(response) %}
  * {% endblock %}
  * ```
- * {% endraw %}
  *
  * @script-service miscellaneous
  *

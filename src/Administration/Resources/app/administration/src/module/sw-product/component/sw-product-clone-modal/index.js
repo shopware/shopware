@@ -6,6 +6,7 @@ import template from './sw-product-clone-modal.html.twig';
 import './sw-product-clone-modal.scss';
 
 const { Criteria } = Shopware.Data;
+const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -59,7 +60,8 @@ export default {
         },
 
         async cloneParent(number) {
-            const variantListingConfigOverwrite = this.product.variantListingConfig;
+            // Create shallow copy to prevent changing the original product
+            const variantListingConfigOverwrite = cloneDeep(this.product.variantListingConfig);
             if (variantListingConfigOverwrite && variantListingConfigOverwrite.mainVariantId) {
                 variantListingConfigOverwrite.mainVariantId = null;
             }
@@ -72,6 +74,7 @@ export default {
                     active: false,
                     mainVariantId: null,
                     variantListingConfig: variantListingConfigOverwrite,
+                    childCount: this.product.childCount,
                 },
             };
 

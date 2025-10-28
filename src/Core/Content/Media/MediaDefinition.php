@@ -102,7 +102,7 @@ class MediaDefinition extends EntityDefinition
             (new JsonField('config', 'config'))->addFlags(new ApiAware()),
             (new TranslatedField('alt'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('title'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime(['path', 'updatedAt'])),
+            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime(['path', 'private', 'updatedAt'])),
             (new StringField('path', 'path'))->addFlags(new ApiAware()),
             (new BoolField('has_file', 'hasFile'))->addFlags(new ApiAware(), new Runtime()),
             (new BoolField('private', 'private'))->addFlags(new ApiAware()),

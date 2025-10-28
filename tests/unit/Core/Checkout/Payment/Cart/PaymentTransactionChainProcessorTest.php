@@ -70,7 +70,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(PayPaymentOrderCriteriaEvent::class));
 
@@ -134,7 +134,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(PayPaymentOrderCriteriaEvent::class));
 
@@ -174,23 +174,23 @@ class PaymentTransactionChainProcessorTest extends TestCase
         $requestDataBag = new RequestDataBag();
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())->method('dispatch')->with(static::isInstanceOf(PayPaymentOrderCriteriaEvent::class));
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(static::isInstanceOf(PayPaymentOrderCriteriaEvent::class));
 
         $orderRepository = $this->createMock(EntityRepository::class);
-        $orderRepository->expects(static::once())->method('search')->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $context->getContext()));
+        $orderRepository->expects($this->once())->method('search')->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $context->getContext()));
 
         $struct = new SyncPaymentTransactionStruct($transaction, $order);
         $paymentStructFactory = $this->createMock(AbstractPaymentTransactionStructFactory::class);
-        $paymentStructFactory->expects(static::once())->method('sync')->willReturn($struct);
+        $paymentStructFactory->expects($this->once())->method('sync')->willReturn($struct);
 
         $paymentHandler = $this->createMock(SynchronousPaymentHandlerInterface::class);
-        $paymentHandler->expects(static::once())->method('pay')->with($struct, $requestDataBag, $context);
+        $paymentHandler->expects($this->once())->method('pay')->with($struct, $requestDataBag, $context);
 
         $paymentHandlerRegistry = $this->createMock(PaymentHandlerRegistry::class);
-        $paymentHandlerRegistry->expects(static::once())->method('getPaymentMethodHandler')->with($transaction->getPaymentMethodId())->willReturn($paymentHandler);
+        $paymentHandlerRegistry->expects($this->once())->method('getPaymentMethodHandler')->with($transaction->getPaymentMethodId())->willReturn($paymentHandler);
 
         $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
-        $initialStateIdLoader->expects(static::once())->method('get')->willReturn(OrderTransactionStates::STATE_OPEN);
+        $initialStateIdLoader->expects($this->once())->method('get')->willReturn(OrderTransactionStates::STATE_OPEN);
 
         $processor = new PaymentTransactionChainProcessor(
             $this->createMock(TokenFactoryInterfaceV2::class),

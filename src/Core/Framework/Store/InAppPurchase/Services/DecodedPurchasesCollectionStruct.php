@@ -21,7 +21,7 @@ class DecodedPurchasesCollectionStruct extends Collection
     public static function fromArray(array $data): self
     {
         $elements['elements'] = \array_map(static function (array $element): DecodedPurchaseStruct {
-            $dto = ValidatorFactory::create($element, DecodedPurchaseStruct::class);
+            $dto = ValidatorFactory::create($element, DecodedPurchaseStruct::class, true);
             if (!$dto instanceof DecodedPurchaseStruct) {
                 throw StoreException::invalidType(DecodedPurchaseStruct::class, $dto::class);
             }

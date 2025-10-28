@@ -1,7 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @sw-package framework
@@ -38,17 +36,14 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      * @private
      */
     _onViewportHasChanged() {
-        const event = 'click';
+        this._columns.forEach(column => {
+            const trigger = column.querySelector(this.options.collapseColumnTriggerSelector);
+            const collapseEl = column.querySelector(this.options.collapseColumnContentSelector);
 
-        Iterator.iterate(this._columns, column => {
-            const trigger = DomAccess.querySelector(column, this.options.collapseColumnTriggerSelector);
-
-            // remove possibly existing event listeners
-            trigger.removeEventListener(event, this._onClickCollapseTrigger);
-
-            // add event listener if currently in an allowed viewport
             if (this._isInAllowedViewports()) {
-                trigger.addEventListener(event, this._onClickCollapseTrigger.bind(this));
+                this._initCollapse(trigger, collapseEl);
+            } else {
+                this._disposeCollapse(trigger, collapseEl);
             }
         });
 
@@ -56,33 +51,55 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
     }
 
     /**
-     * On clicking the collapse trigger (column headline) the columns
-     * content area shall be toggled open/close
-     * @param {Event} event
+     +  * Initializes new collapse (mobile/tablet). Also ensures trigger has
+     +  * proper data-API attributes so Bootstrap will toggle it.
+     +  *
+     +  * @param {HTMLElement} trigger
+     +  * @param {HTMLElement} collapseEl
+     +  * @private
+     +  */
+    _initCollapse(trigger, collapseEl) {
+        if (!collapseEl) return;
+
+        // Ensure the collapse element has a stable id the trigger can target
+        if (!collapseEl.id) {
+            collapseEl.id = `footer-collapse-${Math.random().toString(36).slice(2)}`;
+        }
+
+        if (trigger) {
+            trigger.setAttribute('data-bs-toggle', 'collapse');
+            trigger.setAttribute('data-bs-target', `#${collapseEl.id}`);
+            trigger.setAttribute('aria-controls', collapseEl.id);
+            trigger.classList.add('collapsed');
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        new bootstrap.Collapse(collapseEl, { toggle: false });
+    }
+
+    /**
+     * Removes the collapse and corresponding attributes.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} collapseEl
      * @private
      */
-    _onClickCollapseTrigger(event) {
-        const trigger = event.target;
-        const collapseEl = trigger.parentNode.querySelector(this.options.collapseColumnContentSelector);
-        const collapseShowClass = this.options.collapseShowClass;
+    _disposeCollapse(trigger, collapseEl) {
+        if (!trigger || !collapseEl) {
+            return;
+        }
 
-        new bootstrap.Collapse(collapseEl, {
-            toggle: true,
-        });
+        const collapse = bootstrap.Collapse.getInstance(collapseEl);
 
-        collapseEl.addEventListener('shown.bs.collapse', () => {
-            trigger.classList.add(collapseShowClass);
+        if (collapse) {
+            collapse.dispose();
+        }
 
-            this.$emitter.publish('onCollapseShown');
-        });
-
-        collapseEl.addEventListener('hidden.bs.collapse', () => {
-            trigger.classList.remove(collapseShowClass);
-
-            this.$emitter.publish('onCollapseHidden');
-        });
-
-        this.$emitter.publish('onClickCollapseTrigger');
+        trigger.removeAttribute('data-bs-toggle');
+        trigger.removeAttribute('data-bs-target');
+        trigger.removeAttribute('aria-controls');
+        trigger.classList.remove('collapsed');
+        trigger.setAttribute('aria-expanded', 'true');
     }
 
     /**

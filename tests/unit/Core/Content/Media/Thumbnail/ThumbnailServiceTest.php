@@ -97,13 +97,13 @@ class ThumbnailServiceTest extends TestCase
         $mediaFolderEntity = $this->createMediaFolderEntity();
 
         $file = file_get_contents(__DIR__ . '/shopware-logo.png');
-        $this->filesystemPublic->expects(static::once())->method('read')->willReturn($file);
+        $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
         $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $mediaThumbnailEntity->setMedia($mediaEntity);
         $mediaCollection = new MediaCollection([$mediaEntity]);
 
-        $this->indexer->expects(static::once())
+        $this->indexer->expects($this->once())
             ->method('handle')
             ->with(static::isInstanceOf(MediaIndexingMessage::class));
 
@@ -192,7 +192,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaFolderEntity = $this->createMediaFolderEntity();
 
         $file = file_get_contents(__DIR__ . '/shopware-logo.png');
-        $this->filesystemPublic->expects(static::once())->method('read')->willReturn($file);
+        $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
         $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $mediaThumbnailEntity->setMedia($mediaEntity);
@@ -203,7 +203,7 @@ class ThumbnailServiceTest extends TestCase
         $newMediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $newMediaEntity->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('transactional')
             ->willReturn($expected);
 
@@ -342,7 +342,7 @@ class ThumbnailServiceTest extends TestCase
             'id' => 'media-1',
         ]);
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('transactional')
             ->willReturnCallback(function (callable $callback) {
                 return $callback();

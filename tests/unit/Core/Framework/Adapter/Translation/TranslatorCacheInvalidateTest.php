@@ -69,7 +69,7 @@ class TranslatorCacheInvalidateTest extends TestCase
 
         $snippetIds = [Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->connection->expects(static::once())->method('fetchFirstColumn')->with(
+        $this->connection->expects($this->once())->method('fetchFirstColumn')->with(
             'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
             ['ids' => $snippetIds],
             ['ids' => ArrayParameterType::STRING],
@@ -91,7 +91,7 @@ class TranslatorCacheInvalidateTest extends TestCase
             $this->context
         );
 
-        $this->cacheInvalidator->expects(static::once())->method('invalidate')->with([
+        $this->cacheInvalidator->expects($this->once())->method('invalidate')->with([
             'translation.catalog.' . $ids->get('snippetSet1'),
             'translation.catalog.' . $ids->get('snippetSet2'),
         ], false);
@@ -108,7 +108,7 @@ class TranslatorCacheInvalidateTest extends TestCase
             $ids->get('snippetSet2'),
         ];
 
-        $this->connection->expects(static::never())->method('fetchFirstColumn');
+        $this->connection->expects($this->never())->method('fetchFirstColumn');
 
         $writeResults = [];
         foreach ($snippetSetIds as $snippetSetId) {
@@ -126,7 +126,7 @@ class TranslatorCacheInvalidateTest extends TestCase
             $this->context
         );
 
-        $this->cacheInvalidator->expects(static::once())->method('invalidate')->with([
+        $this->cacheInvalidator->expects($this->once())->method('invalidate')->with([
             'translation.catalog.' . $ids->get('snippetSet1'),
             'translation.catalog.' . $ids->get('snippetSet2'),
         ], false);

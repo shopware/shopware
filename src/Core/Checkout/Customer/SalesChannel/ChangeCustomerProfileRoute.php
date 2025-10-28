@@ -25,7 +25,6 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -52,7 +51,12 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-profile', name: 'store-api.account.change-profile', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
+    #[Route(
+        path: '/store-api/account/change-profile',
+        name: 'store-api.account.change-profile',
+        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['POST']
+    )]
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $validation = $this->customerProfileValidationFactory->update($context);
@@ -72,9 +76,8 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->set('vatIds', null);
         }
 
-        /** @var ?RequestDataBag $vatIds */
         $vatIds = $data->get('vatIds');
-        if ($vatIds) {
+        if ($vatIds instanceof RequestDataBag) {
             $vatIds = \array_filter($vatIds->all());
             $data->set('vatIds', empty($vatIds) ? null : $vatIds);
         }
@@ -108,6 +111,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                 CustomerDefinition::ENTITY_NAME,
                 $data->get('customFields')
             );
+            if ($customerData['customFields'] === []) {
+                unset($customerData['customFields']);
+            }
         }
 
         $mappingEvent = new DataMappingEvent($data, $customerData, $context->getContext());
@@ -130,7 +136,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
     private function addVatIdsValidation(DataValidationDefinition $validation, CustomerAddressEntity $address): void
     {
-        /** @var Constraint[] $constraints */
         $constraints = [
             new Type('array'),
             new CustomerVatIdentification(
@@ -173,9 +178,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
         );
 
-        /** @var array<string> $ids */
-        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
-
-        return $ids[0] ?? null;
+        return $this->salutationRepository->searchIds($criteria, $context->getContext())->firstId();
     }
 }

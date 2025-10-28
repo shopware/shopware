@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\ServiceClientFactory;
@@ -44,7 +45,7 @@ class ServiceClientFactoryTest extends TestCase
     public function testNewForServiceRegistryEntry(): void
     {
         $this->httpClient
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('withOptions')
             ->with([
                 'base_uri' => 'https://mycoolservice.com',
@@ -62,14 +63,14 @@ class ServiceClientFactoryTest extends TestCase
     public function testFromNameProxiesToServiceRegistryClient(): void
     {
         $this->httpClient
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('withOptions')
             ->with([
                 'base_uri' => 'https://mycoolservice.com',
             ])
             ->willReturn($this->scopedClient);
         $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
-        $serviceClientRegistry->expects(static::once())
+        $serviceClientRegistry->expects($this->once())
             ->method('get')
             ->with('MyCoolService')
             ->willReturn(new ServiceRegistryEntry('MyCoolService', 'My Cool Service', 'https://mycoolservice.com', '/app-endpoint'));
@@ -136,7 +137,7 @@ class ServiceClientFactoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->appPayloadServiceHelper->method('buildSource')->willThrowException(new AppUrlChangeDetectedException('App URL changed', 'foo', 'shopid'));
+        $this->appPayloadServiceHelper->method('buildSource')->willThrowException(new AppUrlChangeDetectedException('App URL changed', 'foo', ShopId::v2('shopid')));
 
         $this->expectException(AppUrlChangeDetectedException::class);
         $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);

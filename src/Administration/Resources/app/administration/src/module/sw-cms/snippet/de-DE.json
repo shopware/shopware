@@ -230,6 +230,8 @@
             "options": "Optionen"
           },
           "infoText": {
+            "autoSlideTitle": "Bedenken hinsichtlich der Barrierefreiheit",
+            "autoSlide": "Das Aktivieren dieser Funktion kann dazu führen, dass Teile Deiner Storefront für Menschen mit Einschränkungen nicht zugänglich sind. Dies kann eine Nichteinhaltung der in Deiner Gerichtsbarkeit geltenden Barrierefreiheitsgesetze darstellen (z.B. des Europäischen Rechtsakts zur Barrierefreiheit). Mit dem Fortfahren erkennst Du dieses Risiko an und übernimmst die volle Verantwortung.",
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
           }
         },

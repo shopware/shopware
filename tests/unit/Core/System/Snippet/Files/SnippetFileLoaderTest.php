@@ -135,7 +135,7 @@ class SnippetFileLoaderTest extends TestCase
     public function testLoadSnippetsFromPlugin(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             SnippetSet::class => 'Plugin Manufacturer',
         ]);
 
@@ -187,7 +187,7 @@ class SnippetFileLoaderTest extends TestCase
     public function testLoadBaseSnippetsFromPlugin(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             BaseSnippetSet::class => 'Plugin Manufacturer',
         ]);
 

@@ -74,7 +74,7 @@ class CachedSalutationRouteTest extends TestCase
         );
 
         $core = $this->createMock(SalutationRoute::class);
-        $core->expects(static::exactly(2))
+        $core->expects($this->exactly(2))
             ->method('load')
             ->willReturn($response);
 
@@ -121,7 +121,7 @@ class CachedSalutationRouteTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
 
-        $listener->expects(static::exactly($calls))->method('__invoke');
+        $listener->expects($this->exactly($calls))->method('__invoke');
         $this->addEventListener($dispatcher, 'salutation.loaded', $listener);
 
         $before(static::getContainer());

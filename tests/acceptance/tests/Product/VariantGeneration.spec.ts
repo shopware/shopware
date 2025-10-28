@@ -5,19 +5,15 @@ test('Shop administrator should be able to create product variants.', { tag: '@P
     TestDataService,
     AdminProductDetail,
     GenerateVariants,
-    InstanceMeta,
 }) => {
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40158');
-
     const product = await TestDataService.createBasicProduct();
-    await TestDataService.createColorPropertyGroup();
-    await TestDataService.createTextPropertyGroup();
+    const color = await TestDataService.createColorPropertyGroup();
+    const size = await TestDataService.createTextPropertyGroup();
 
     await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
     await ShopAdmin.page.waitForLoadState('domcontentloaded');
 
-    await test.slow();
-    await ShopAdmin.attemptsTo(GenerateVariants());
+    await ShopAdmin.attemptsTo(GenerateVariants(color.name, size.name));
 
     /**
      * The test has to handle random behaviour.

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -85,7 +86,7 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->hreflangLoader->expects(static::never())->method('load');
+        $this->hreflangLoader->expects($this->never())->method('load');
 
         $this->subscriber->addHreflang($event);
     }
@@ -105,7 +106,7 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->hreflangLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn(new HreflangCollection());
 
@@ -128,7 +129,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn([]);
 
         $this->shopIdProvider
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getShopId');
 
         $this->subscriber->addShopIdParameter($event);
@@ -148,9 +149,9 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn(['someApp']);
 
         $this->shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new AppUrlChangeDetectedException('before', 'new', '123'));
+            ->willThrowException(new AppUrlChangeDetectedException('before', 'new', ShopId::v2('123')));
 
         $this->subscriber->addShopIdParameter($event);
     }
@@ -169,7 +170,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn(['someApp']);
 
         $this->shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
             ->willReturn('123');
 
@@ -188,7 +189,7 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->themeRegistry
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getConfigurations');
 
         $this->subscriber->addIconSetConfig($event);
@@ -207,7 +208,7 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->themeRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getConfigurations');
 
         $this->subscriber->addIconSetConfig($event);
@@ -259,11 +260,11 @@ class TemplateDataSubscriberTest extends TestCase
         $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
 
         $themeRegistry
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getConfigurations');
 
         $themeRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getByTechnicalName')
             ->willReturn($themeConfig);
 

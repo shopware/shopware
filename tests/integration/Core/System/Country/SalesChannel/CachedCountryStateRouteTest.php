@@ -103,7 +103,7 @@ class CachedCountryStateRouteTest extends TestCase
         static::assertInstanceOf(CachedCountryStateRoute::class, $route);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly($calls))->method('__invoke');
+        $listener->expects($this->exactly($calls))->method('__invoke');
 
         static::getContainer()
             ->get('event_dispatcher')

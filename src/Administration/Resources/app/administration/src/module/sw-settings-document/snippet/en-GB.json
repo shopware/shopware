@@ -74,6 +74,7 @@
       "helpTextDisplayDeliveryCountries": "Displays indication of \"intra community delivery\" on invoice documents for selected countries.",
       "helpTextCompanyAddress": "Deprecated for Shopware 6.7 - Use single address fields instead.\\n\\nUse hyphens (\"-\") to separate the different elements of the address. This helps to render the address in multiple places of the header simultaneously.",
       "helpTextPaymentDueDate": "E.g.: +30 days, +4 weeks, +1 week 2 days",
+      "helpTextDisplayAdditionalNoteDelivery": "Eligible only for EU member states, see also \"Settings > Countries\".",
       "labelFileTypes": "File formats"
     }
   },

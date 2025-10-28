@@ -173,14 +173,14 @@ class SyncServiceTest extends TestCase
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $createListener->expects(static::once())
+        $createListener->expects($this->once())
             ->method('__invoke');
 
         $deleteListener = $this
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $deleteListener->expects(static::exactly(3))
+        $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
 
         $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $createListener);
@@ -237,7 +237,7 @@ class SyncServiceTest extends TestCase
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $listener->expects(static::once())
+        $listener->expects($this->once())
             ->method('__invoke');
 
         $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $listener);

@@ -142,7 +142,7 @@ class MediaLocationBuilderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('fetchAllAssociativeIndexed');
 
         $builder = new SqlMediaLocationBuilder(new EventDispatcher(), $connection);

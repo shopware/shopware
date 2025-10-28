@@ -57,12 +57,12 @@ class FirstRunWizardServiceTest extends TestCase
         $firstRunWizardStartedEvent = new FirstRunWizardStartedEvent(FrwState::openState(), $this->context);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with($firstRunWizardStartedEvent);
 
         $trackingEventClient = $this->createMock(TrackingEventClient::class);
-        $trackingEventClient->expects(static::once())
+        $trackingEventClient->expects($this->once())
             ->method('fireTrackingEvent')
             ->with('First Run Wizard started');
 
@@ -110,7 +110,7 @@ class FirstRunWizardServiceTest extends TestCase
         ];
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('frwLogin')
             ->with('shopwareId', 'password', $this->context)
             ->willReturn($firstRunWizardUserToken);
@@ -119,7 +119,7 @@ class FirstRunWizardServiceTest extends TestCase
         static::assertInstanceOf(AdminApiSource::class, $source);
 
         $userRepository = $this->createMock(EntityRepository::class);
-        $userRepository->expects(static::once())
+        $userRepository->expects($this->once())
             ->method('upsert')
             ->with([
                 [
@@ -147,7 +147,7 @@ class FirstRunWizardServiceTest extends TestCase
     public function testUpgradeAccessTokenFailsIfContextSourceIsNotAdminApi(): void
     {
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('upgradeAccessToken')
             ->willThrowException(new \RuntimeException());
 
@@ -181,12 +181,12 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('upgradeAccessToken')
             ->willReturn($shopUserTokenResponse);
 
         $storeService = $this->createMock(StoreService::class);
-        $storeService->expects(static::once())
+        $storeService->expects($this->once())
             ->method('updateStoreToken')
             ->with($this->context, $accessTokenStruct);
 
@@ -194,7 +194,7 @@ class FirstRunWizardServiceTest extends TestCase
         static::assertInstanceOf(AdminApiSource::class, $source);
 
         $userConfigRepository = $this->createMock(EntityRepository::class);
-        $userConfigRepository->expects(static::once())
+        $userConfigRepository->expects($this->once())
             ->method('searchIds')
             ->willReturn(
                 new IdSearchResult(
@@ -204,11 +204,11 @@ class FirstRunWizardServiceTest extends TestCase
                     $this->context,
                 ),
             );
-        $userConfigRepository->expects(static::once())
+        $userConfigRepository->expects($this->once())
             ->method('delete');
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('set')
             ->with(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, $accessTokenStruct->getShopSecret());
 
@@ -234,7 +234,7 @@ class FirstRunWizardServiceTest extends TestCase
     public function testFrwShouldNotRunIfStatusIsCompleted(): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('getString')
             ->with('core.frw.completedAt')
             ->willReturn((new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT));
@@ -287,7 +287,7 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::exactly(2))
+        $frwClient->expects($this->exactly(2))
             ->method('getLicenseDomains')
             ->willReturnOnConsecutiveCalls(
                 // The first request will return an empty collection
@@ -303,18 +303,18 @@ class FirstRunWizardServiceTest extends TestCase
                     ],
                 ],
             );
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('fetchVerificationInfo')
             ->willReturn([
                 'content' => $domainVerificationRequestStruct->getContent(),
                 'fileName' => $domainVerificationRequestStruct->getFileName(),
             ]);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('checkVerificationSecret')
             ->with($domain, $this->context);
 
         $filesystem = $this->createMock(FilesystemOperator::class);
-        $filesystem->expects(static::once())
+        $filesystem->expects($this->once())
             ->method('write')
             ->with(
                 $domainVerificationRequestStruct->getFileName(),
@@ -345,7 +345,7 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::exactly(2))
+        $frwClient->expects($this->exactly(2))
             ->method('getLicenseDomains')
             ->willReturnOnConsecutiveCalls(
                 // The first request will return an empty collection
@@ -361,18 +361,18 @@ class FirstRunWizardServiceTest extends TestCase
                     ],
                 ],
             );
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('fetchVerificationInfo')
             ->willReturn([
                 'content' => $domainVerificationRequestStruct->getContent(),
                 'fileName' => $domainVerificationRequestStruct->getFileName(),
             ]);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('checkVerificationSecret')
             ->with($domain, $this->context);
 
         $filesystem = $this->createMock(FilesystemOperator::class);
-        $filesystem->expects(static::once())
+        $filesystem->expects($this->once())
             ->method('write')
             ->with(
                 $domainVerificationRequestStruct->getFileName(),
@@ -403,25 +403,25 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::exactly(1))
+        $frwClient->expects($this->exactly(1))
             ->method('getLicenseDomains')
             ->willReturn([]);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('fetchVerificationInfo')
             ->willReturn([
                 'content' => $domainVerificationRequestStruct->getContent(),
                 'fileName' => $domainVerificationRequestStruct->getFileName(),
             ]);
-        $frwClient->expects(static::never())
+        $frwClient->expects($this->never())
             ->method('checkVerificationSecret');
 
         $filesystem = $this->createMock(FilesystemOperator::class);
-        $filesystem->expects(static::once())
+        $filesystem->expects($this->once())
             ->method('write')
             ->willThrowException(new UnableToWriteFile());
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::never())
+        $systemConfigService->expects($this->never())
             ->method('set');
 
         $frwService = $this->createFirstRunWizardService(
@@ -460,12 +460,12 @@ class FirstRunWizardServiceTest extends TestCase
         ];
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getLicenseDomains')
             ->willReturn($licenseDomains);
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('getString')
             ->with(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN)
             ->willReturn('täst.de');
@@ -491,7 +491,7 @@ class FirstRunWizardServiceTest extends TestCase
     public function testRecommendationRegions(): void
     {
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getRecommendationRegions')
             ->willReturn([
                 [
@@ -547,7 +547,7 @@ class FirstRunWizardServiceTest extends TestCase
     public function testFiltersOutCategoriesWithMissingNameOrLabel(): void
     {
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getRecommendationRegions')
             ->willReturn([
                 [
@@ -603,7 +603,7 @@ class FirstRunWizardServiceTest extends TestCase
     public function testFiltersOutRecommendationRegionWithMissingNameOrLabel(): void
     {
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getRecommendationRegions')
             ->willReturn([
                 [
@@ -656,7 +656,7 @@ class FirstRunWizardServiceTest extends TestCase
         ];
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getRecommendations')
             ->with('us', 'payment', $this->context)
             ->willReturn($recommendations);
@@ -706,7 +706,7 @@ class FirstRunWizardServiceTest extends TestCase
         ];
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getRecommendations')
             ->with('us', 'payment', $this->context)
             ->willReturn($recommendations);
@@ -759,7 +759,7 @@ class FirstRunWizardServiceTest extends TestCase
         ];
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getRecommendations')
             ->with('us', 'payment', $this->context)
             ->willReturn($recommendations);
@@ -793,12 +793,12 @@ class FirstRunWizardServiceTest extends TestCase
     public function testUpdatesFrwStateToFailedOnFrwFinishWithoutTrackingEvent(): void
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(FirstRunWizardFinishedEvent::class));
 
         $trackingEventClient = $this->createMock(TrackingEventClient::class);
-        $trackingEventClient->expects(static::never())
+        $trackingEventClient->expects($this->never())
             ->method('fireTrackingEvent');
 
         $systemConfigService = new StaticSystemConfigService();
@@ -816,12 +816,12 @@ class FirstRunWizardServiceTest extends TestCase
     public function testUpdatesFrwStateToCompletedOnFrwFinishWithTrackingEvent(): void
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(FirstRunWizardFinishedEvent::class));
 
         $trackingEventClient = $this->createMock(TrackingEventClient::class);
-        $trackingEventClient->expects(static::once())
+        $trackingEventClient->expects($this->once())
             ->method('fireTrackingEvent');
 
         $systemConfigService = new StaticSystemConfigService();
@@ -853,7 +853,7 @@ class FirstRunWizardServiceTest extends TestCase
         ];
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getLanguagePlugins')
             ->willReturn($languagePlugins);
 
@@ -881,7 +881,7 @@ class FirstRunWizardServiceTest extends TestCase
         ];
 
         $frwClient = $this->createMock(FirstRunWizardClient::class);
-        $frwClient->expects(static::once())
+        $frwClient->expects($this->once())
             ->method('getDemoDataPlugins')
             ->willReturn($demodataPlugins);
 

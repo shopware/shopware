@@ -62,10 +62,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         $activateContextMock = $this->createMock(ActivateContext::class);
-        $activateContextMock->expects(static::once())->method('getContext')->willReturn($context);
+        $activateContextMock->expects($this->once())->method('getContext')->willReturn($context);
         $eventMock = $this->createMock(PluginPostActivateEvent::class);
-        $eventMock->expects(static::once())->method('getContext')->willReturn($activateContextMock);
-        $eventMock->expects(static::never())->method('getPlugin');
+        $eventMock->expects($this->once())->method('getContext')->willReturn($activateContextMock);
+        $eventMock->expects($this->never())->method('getPlugin');
 
         $this->pluginSubscriber->pluginPostActivate($eventMock);
     }
@@ -76,7 +76,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $pluginMock->setPath('');
         $pluginMock->setBaseClass(FakePlugin::class);
         $eventMock = $this->createMock(PluginPostActivateEvent::class);
-        $eventMock->expects(static::exactly(2))->method('getPlugin')->willReturn($pluginMock);
+        $eventMock->expects($this->exactly(2))->method('getPlugin')->willReturn($pluginMock);
         $this->pluginSubscriber->pluginPostActivate($eventMock);
     }
 
@@ -87,7 +87,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $pluginMock->setBaseClass(FakePlugin::class);
 
         $eventMock = $this->createMock(PluginPostDeactivationFailedEvent::class);
-        $eventMock->expects(static::exactly(2))->method('getPlugin')->willReturn($pluginMock);
+        $eventMock->expects($this->exactly(2))->method('getPlugin')->willReturn($pluginMock);
         $this->pluginSubscriber->pluginPostDeactivateFailed($eventMock);
     }
 }

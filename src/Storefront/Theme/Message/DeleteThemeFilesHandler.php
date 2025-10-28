@@ -10,6 +10,10 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed. Unused theme files are now deleted with a scheduled task.
+ * @see \Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask
+ * @see \Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler
  */
 #[AsMessageHandler]
 #[Package('framework')]
@@ -25,7 +29,6 @@ final class DeleteThemeFilesHandler
     public function __invoke(DeleteThemeFilesMessage $message): void
     {
         $currentPath = $this->pathBuilder->assemblePath($message->getSalesChannelId(), $message->getThemeId());
-
         if ($currentPath === $message->getThemePath()) {
             return;
         }

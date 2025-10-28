@@ -34,7 +34,7 @@ class DeliveryValidatorTest extends TestCase
         $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
         $cart->setDeliveries(new DeliveryCollection([$this->generateDeliveryDummy(self::SHIPPING_METHOD_AVAILABILITY_RULE_ID)]));
-        $context->expects(static::once())->method('getRuleIds')->willReturn([self::SHIPPING_METHOD_AVAILABILITY_RULE_ID]);
+        $context->expects($this->once())->method('getRuleIds')->willReturn([self::SHIPPING_METHOD_AVAILABILITY_RULE_ID]);
 
         $validator = new DeliveryValidator();
         $errors = new ErrorCollection();

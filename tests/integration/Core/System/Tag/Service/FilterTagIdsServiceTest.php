@@ -236,8 +236,9 @@ class FilterTagIdsServiceTest extends TestCase
             ],
         ];
 
-        Context::createDefaultContext()->addState(EntityIndexerRegistry::DISABLE_INDEXING);
-        static::getContainer()->get('tag.repository')->create($tags, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        static::getContainer()->get('tag.repository')->create($tags, $context);
     }
 
     /**

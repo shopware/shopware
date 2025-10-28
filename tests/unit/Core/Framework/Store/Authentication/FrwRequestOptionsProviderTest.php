@@ -44,7 +44,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         );
 
         $userConfigRepositoryMock = static::createMock(EntityRepository::class);
-        $userConfigRepositoryMock->expects(static::once())
+        $userConfigRepositoryMock->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -78,7 +78,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         );
 
         $userConfigRepositoryMock = static::createMock(EntityRepository::class);
-        $userConfigRepositoryMock->expects(static::once())
+        $userConfigRepositoryMock->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -106,7 +106,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         );
 
         $userConfigRepositoryMock = static::createMock(EntityRepository::class);
-        $userConfigRepositoryMock->expects(static::once())
+        $userConfigRepositoryMock->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -125,7 +125,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         $context = Context::createDefaultContext();
 
         $userConfigRepositoryMock = static::createMock(EntityRepository::class);
-        $userConfigRepositoryMock->expects(static::never())
+        $userConfigRepositoryMock->expects($this->never())
             ->method('search');
 
         $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
@@ -146,7 +146,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         $userConfigRepositoryMock = static::createMock(EntityRepository::class);
 
         $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
-        $innerOptionsProvider->expects(static::once())
+        $innerOptionsProvider->expects($this->once())
             ->method('getDefaultQueryParameters')
             ->with($context)
             ->willReturn([

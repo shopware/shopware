@@ -120,7 +120,7 @@ class DataCollectorTest extends TestCase
     {
         $client = $this->createMock(ClientProfiler::class);
         $client
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('cluster');
 
         $collector = new DataCollector(

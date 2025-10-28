@@ -17,7 +17,7 @@ class VerificationHashControllerTest extends TestCase
     public function testGetVerificationHash(): void
     {
         $systemConfigMock = $this->createMock(SystemConfigService::class);
-        $systemConfigMock->expects(static::once())->method('getString')->willReturn('TheVerificationHash123');
+        $systemConfigMock->expects($this->once())->method('getString')->willReturn('TheVerificationHash123');
 
         $controller = new VerificationHashController($systemConfigMock);
         $response = $controller->load();
@@ -30,7 +30,7 @@ class VerificationHashControllerTest extends TestCase
     public function testGetVerificationHashEmpty(): void
     {
         $systemConfigMock = $this->createMock(SystemConfigService::class);
-        $systemConfigMock->expects(static::once())->method('getString')->willReturn('');
+        $systemConfigMock->expects($this->once())->method('getString')->willReturn('');
 
         $controller = new VerificationHashController($systemConfigMock);
         $response = $controller->load();

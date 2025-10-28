@@ -201,7 +201,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $updateMessage2->setStrict(false);
         $updateMessage2->setContext($this->context);
 
-        $thumbnailServiceMock->expects(static::once())
+        $thumbnailServiceMock->expects($this->once())
             ->method('generate')
             ->with($testEntities1, $this->context)
             ->willReturn($testEntities1->count());
@@ -215,7 +215,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $parameters = [];
 
-        $thumbnailServiceMock->expects(static::exactly($testEntities2->count() + $testEntities3->count()))
+        $thumbnailServiceMock->expects($this->exactly($testEntities2->count() + $testEntities3->count()))
             ->method('updateThumbnails')
             ->willReturnCallback(function (...$params) use (&$parameters): void {
                 $parameters[] = $params;

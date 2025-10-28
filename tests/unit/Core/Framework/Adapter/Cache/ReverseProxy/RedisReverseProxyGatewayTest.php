@@ -58,7 +58,7 @@ class RedisReverseProxyGatewayTest extends TestCase
 
         $this
             ->redis
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('lPush')
             ->willReturnCallback(function ($key) use (&$parameters): int {
                 $parameters[] = $key;
@@ -73,8 +73,8 @@ class RedisReverseProxyGatewayTest extends TestCase
 
     public function testInvalidate(): void
     {
-        $this->redis->expects(static::once())->method('eval')->willReturn(['/foo']);
-        $this->redis->expects(static::once())->method('del')->with('product-1');
+        $this->redis->expects($this->once())->method('eval')->willReturn(['/foo']);
+        $this->redis->expects($this->once())->method('del')->with('product-1');
 
         $this->mockHandler->append(new Response(200, [], null));
 
@@ -86,7 +86,7 @@ class RedisReverseProxyGatewayTest extends TestCase
 
     public function testInvalidateFails(): void
     {
-        $this->redis->expects(static::once())->method('eval')->willReturn(['/foo']);
+        $this->redis->expects($this->once())->method('eval')->willReturn(['/foo']);
 
         $this->mockHandler->append(new Response(500, [], null));
 

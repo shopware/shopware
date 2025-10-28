@@ -91,7 +91,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
 
         expect(syncMethod).toHaveBeenCalledTimes(1);
         expect(syncMethod).toHaveBeenCalledWith(
-            JSON.stringify(payload),
+            payload,
             {},
             {
                 'single-operation': 1,

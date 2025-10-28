@@ -228,18 +228,36 @@ export default Component.wrapComponentConfig({
                     knownTransactionIds.push(entry.referencedId);
                 }
 
-                // @ts-expect-error - the entityName have to be order, order_transaction or order_delivery
+                // @ts-expect-error - the entityName has to be order, order_transaction or order_delivery
                 states[entry.entityName] = entry.toStateMachineState;
                 // @ts-expect-error - states exists
                 entries.push(this.createEntry(states, entry));
             });
+
+            const lastTransaction = this.order.transactions?.last();
+            if (
+                !!lastTransaction &&
+                !knownTransactionIds.includes(lastTransaction.id) &&
+                (this.order.transactions?.length ?? 0) > 1
+            ) {
+                entries.push(
+                    this.createEntry(
+                        {
+                            ...states,
+                            // @ts-expect-error - states exists
+                            order_transaction: lastTransaction?.stateMachineState,
+                        },
+                        lastTransaction,
+                    ),
+                );
+            }
 
             return entries;
         },
 
         createEntry(
             states: CombinedStates,
-            entry: Entity<'state_machine_history'> | Entity<'order'>,
+            entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>,
         ): StateMachineHistoryData {
             return {
                 order: states.order,
@@ -247,8 +265,8 @@ export default Component.wrapComponentConfig({
                 delivery: states.order_delivery,
                 createdAt: 'orderDateTime' in entry ? entry.orderDateTime : entry.createdAt,
                 user: 'user' in entry ? entry.user : undefined,
-                entity: 'entityName' in entry ? entry.entityName : 'order',
-                referencedId: 'referencedId' in entry ? entry.referencedId : undefined,
+                entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
+                referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
             };
         },
 

@@ -1248,6 +1248,7 @@
     "order.campaignCode",
     "order.customerComment",
     "order.source",
+    "order.taxCalculationType",
     "order.stateMachineState",
     "order.customFields",
     "order.createdById",

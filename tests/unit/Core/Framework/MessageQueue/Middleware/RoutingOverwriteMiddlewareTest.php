@@ -13,7 +13,7 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
 use Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
+use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
@@ -153,7 +153,7 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
         ];
 
         yield 'Default config, no stamps, message in envelope, envelope with stamp' => [
-            'message' => (new Envelope(new AsyncMessage()))->with(new DelayStamp(5)),
+            'message' => (new Envelope(new AsyncMessage()))->with(new BusNameStamp('test')),
             'config' => [
                 AsyncMessageInterface::class => 'async',
                 LowPriorityMessageInterface::class => 'low_priority',
@@ -161,7 +161,20 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
             ],
             'providedStamps' => [],
             'expectedStamps' => [
-                new DelayStamp(5),
+                new BusNameStamp('test'),
+            ],
+        ];
+
+        yield 'Default config, no stamps, message in envelope, message implements interface' => [
+            'message' => (new Envelope(new LowPriorityMessage())),
+            'config' => [
+                AsyncMessageInterface::class => 'async',
+                LowPriorityMessageInterface::class => 'low_priority',
+                SendEmailMessage::class => 'async',
+            ],
+            'providedStamps' => [],
+            'expectedStamps' => [
+                new TransportNamesStamp(['low_priority']),
             ],
         ];
     }
@@ -171,5 +184,12 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
  * @internal
  */
 class AsyncMessage
+{
+}
+
+/**
+ * @internal
+ */
+class LowPriorityMessage implements LowPriorityMessageInterface
 {
 }

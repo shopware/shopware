@@ -20,10 +20,10 @@ class FeatureFlagControllerTest extends TestCase
     public function testEnable(): void
     {
         $featureFlagService = $this->createMock(FeatureFlagRegistry::class);
-        $featureFlagService->expects(static::once())->method('enable')->with('foo');
+        $featureFlagService->expects($this->once())->method('enable')->with('foo');
 
         $cacheClearer = $this->createMock(CacheClearer::class);
-        $cacheClearer->expects(static::once())->method('clear');
+        $cacheClearer->expects($this->once())->method('clear');
 
         $controller = new FeatureFlagController($featureFlagService, $cacheClearer);
         $controller->enable('foo');
@@ -32,10 +32,10 @@ class FeatureFlagControllerTest extends TestCase
     public function testDisable(): void
     {
         $featureFlagService = $this->createMock(FeatureFlagRegistry::class);
-        $featureFlagService->expects(static::once())->method('disable')->with('foo');
+        $featureFlagService->expects($this->once())->method('disable')->with('foo');
 
         $cacheClearer = $this->createMock(CacheClearer::class);
-        $cacheClearer->expects(static::once())->method('clear');
+        $cacheClearer->expects($this->once())->method('clear');
 
         $controller = new FeatureFlagController($featureFlagService, $cacheClearer);
         $controller->disable('foo');
@@ -72,7 +72,7 @@ class FeatureFlagControllerTest extends TestCase
         Feature::registerFeatures($featureFlags);
 
         $featureFlagService = $this->createMock(FeatureFlagRegistry::class);
-        $featureFlagService->expects(static::never())->method('disable')->with('foo');
+        $featureFlagService->expects($this->never())->method('disable')->with('foo');
 
         $controller = new FeatureFlagController(
             $featureFlagService,

@@ -69,7 +69,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $context = Context::createDefaultContext(new SalesChannelApiSource(Defaults::SALES_CHANNEL_TYPE_API));
 
         $event = $this->createMock(EntityWrittenEvent::class);
-        $event->expects(static::once())
+        $event->expects($this->once())
             ->method('getContext')
             ->willReturn($context);
 
@@ -83,7 +83,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource(Defaults::SALES_CHANNEL_TYPE_API));
 
         $event = $this->createMock(EntityWrittenEvent::class);
-        $event->expects(static::atLeast(1))
+        $event->expects($this->atLeast(1))
             ->method('getContext')
             ->willReturn($context);
 
@@ -94,20 +94,20 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ],
         ];
 
-        $event->expects(static::once())
+        $event->expects($this->once())
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->customerIndexer->expects(static::never())
+        $this->customerIndexer->expects($this->never())
             ->method('handle');
 
-        $this->restorer->expects(static::once())
+        $this->restorer->expects($this->once())
             ->method('restoreByCustomer')
             ->willThrowException(SalesChannelException::providedLanguageNotAvailable('de-DE', ['en-GB']));
 
-        $this->dispatcher->expects(static::never())->method('dispatch');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('delete');
 
         $this->customerFlowEventsSubscriber->onCustomerWritten($event);
@@ -120,7 +120,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource(Defaults::SALES_CHANNEL_TYPE_API));
 
         $event = $this->createMock(EntityWrittenEvent::class);
-        $event->expects(static::atLeast(1))
+        $event->expects($this->atLeast(1))
             ->method('getContext')
             ->willReturn($context);
 
@@ -131,20 +131,20 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ],
         ];
 
-        $event->expects(static::once())
+        $event->expects($this->once())
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->customerIndexer->expects(static::never())
+        $this->customerIndexer->expects($this->never())
             ->method('handle');
 
-        $this->restorer->expects(static::once())
+        $this->restorer->expects($this->once())
             ->method('restoreByCustomer')
             ->willThrowException(SalesChannelException::salesChannelNotFound('sales-channel-id'));
 
-        $this->dispatcher->expects(static::never())->method('dispatch');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
-        $this->connection->expects(static::never())
+        $this->connection->expects($this->never())
             ->method('delete');
 
         $this->customerFlowEventsSubscriber->onCustomerWritten($event);
@@ -157,7 +157,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
     public function testOnCustomerUpdateWithoutCustomerInContext(): void
     {
         $event = $this->createMock(EntityWrittenEvent::class);
-        $event->expects(static::exactly(2))
+        $event->expects($this->exactly(2))
             ->method('getContext')
             ->willReturn(Context::createDefaultContext());
 
@@ -168,11 +168,11 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ],
         ];
 
-        $event->expects(static::once())
+        $event->expects($this->once())
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->dispatcher->expects(static::never())->method('dispatch');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $this->customerFlowEventsSubscriber->onCustomerWritten($event);
     }
@@ -184,7 +184,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
     public function testOnCustomerUpdateWithCustomer(): void
     {
         $event = $this->createMock(EntityWrittenEvent::class);
-        $event->expects(static::exactly(2))
+        $event->expects($this->exactly(2))
             ->method('getContext')
             ->willReturn(Context::createDefaultContext());
 
@@ -195,17 +195,17 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ],
         ];
 
-        $event->expects(static::once())
+        $event->expects($this->once())
             ->method('getPayloads')
             ->willReturn($payloads);
 
         $customer = new CustomerEntity();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 
-        $this->restorer->expects(static::once())
+        $this->restorer->expects($this->once())
             ->method('restoreByCustomer')
             ->willReturn($salesChannelContext);
 
@@ -215,7 +215,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             new RequestDataBag()
         );
 
-        $this->dispatcher->expects(static::once())
+        $this->dispatcher->expects($this->once())
             ->method('dispatch')
             ->with($customerChangePaymentMethodEvent);
 
@@ -225,7 +225,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
     public function testOnCustomerCreatedWithoutCustomerInContext(): void
     {
         $event = $this->createMock(EntityWrittenEvent::class);
-        $event->expects(static::exactly(2))
+        $event->expects($this->exactly(2))
             ->method('getContext')
             ->willReturn(Context::createDefaultContext());
 
@@ -236,11 +236,11 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ],
         ];
 
-        $event->expects(static::once())
+        $event->expects($this->once())
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->dispatcher->expects(static::never())->method('dispatch');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $this->customerFlowEventsSubscriber->onCustomerWritten($event);
     }
@@ -248,7 +248,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
     public function testOnCustomerCreatedWithCustomer(): void
     {
         $event = $this->createMock(EntityWrittenEvent::class);
-        $event->expects(static::exactly(2))
+        $event->expects($this->exactly(2))
             ->method('getContext')
             ->willReturn(Context::createDefaultContext());
 
@@ -259,21 +259,21 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             ],
         ];
 
-        $event->expects(static::once())
+        $event->expects($this->once())
             ->method('getPayloads')
             ->willReturn($payloads);
 
-        $this->customerIndexer->expects(static::once())
+        $this->customerIndexer->expects($this->once())
             ->method('handle')
             ->with(new CustomerIndexingMessage([$this->ids->get('customerId')]));
 
         $customer = new CustomerEntity();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 
-        $this->restorer->expects(static::once())
+        $this->restorer->expects($this->once())
             ->method('restoreByCustomer')
             ->willReturn($salesChannelContext);
 
@@ -282,7 +282,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
             $customer
         );
 
-        $this->dispatcher->expects(static::once())
+        $this->dispatcher->expects($this->once())
             ->method('dispatch')
             ->with($customerCreated);
 

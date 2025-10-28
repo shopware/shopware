@@ -103,10 +103,10 @@ class TaskRegistryTest extends TestCase
         $registeredTask->setScheduledTaskClass('InvalidClass');
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$registeredTask]));
-        $this->scheduleTaskRepository->expects(static::once())->method('search')->willReturn($result);
-        $this->scheduleTaskRepository->expects(static::never())->method('update');
-        $this->scheduleTaskRepository->expects(static::never())->method('create');
-        $this->scheduleTaskRepository->expects(static::once())->method('delete')->with([
+        $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
+        $this->scheduleTaskRepository->expects($this->never())->method('update');
+        $this->scheduleTaskRepository->expects($this->never())->method('create');
+        $this->scheduleTaskRepository->expects($this->once())->method('delete')->with([
             [
                 'id' => 'deletedId',
             ],
@@ -149,9 +149,9 @@ class TaskRegistryTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$queuedTask, $scheduledTask]));
 
-        $this->scheduleTaskRepository->expects(static::once())->method('search')->willReturn($result);
+        $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects(static::exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
             static::assertCount(2, $data);
 
             static::assertNotEmpty($data[0]);
@@ -171,8 +171,8 @@ class TaskRegistryTest extends TestCase
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
 
-        $this->scheduleTaskRepository->expects(static::never())->method('delete');
-        $this->scheduleTaskRepository->expects(static::never())->method('create');
+        $this->scheduleTaskRepository->expects($this->never())->method('delete');
+        $this->scheduleTaskRepository->expects($this->never())->method('create');
 
         $registry->registerTasks();
     }
@@ -211,9 +211,9 @@ class TaskRegistryTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$queuedTask, $skippedTask]));
 
-        $this->scheduleTaskRepository->expects(static::once())->method('search')->willReturn($result);
+        $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects(static::exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
             static::assertCount(2, $data);
 
             static::assertNotEmpty($data[0]);
@@ -233,8 +233,8 @@ class TaskRegistryTest extends TestCase
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
 
-        $this->scheduleTaskRepository->expects(static::never())->method('delete');
-        $this->scheduleTaskRepository->expects(static::never())->method('create');
+        $this->scheduleTaskRepository->expects($this->never())->method('delete');
+        $this->scheduleTaskRepository->expects($this->never())->method('create');
 
         $registry->registerTasks();
     }
@@ -257,9 +257,9 @@ class TaskRegistryTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$taskEntity]));
 
-        $this->scheduleTaskRepository->expects(static::once())->method('search')->willReturn($result);
+        $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects(static::exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
             static::assertCount(1, $data);
 
             static::assertNotEmpty($data[0]);
@@ -271,8 +271,8 @@ class TaskRegistryTest extends TestCase
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
 
-        $this->scheduleTaskRepository->expects(static::never())->method('delete');
-        $this->scheduleTaskRepository->expects(static::never())->method('create');
+        $this->scheduleTaskRepository->expects($this->never())->method('delete');
+        $this->scheduleTaskRepository->expects($this->never())->method('create');
 
         $registry->registerTasks();
     }
@@ -295,9 +295,9 @@ class TaskRegistryTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$taskEntity]));
 
-        $this->scheduleTaskRepository->expects(static::once())->method('search')->willReturn($result);
+        $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects(static::exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
             static::assertCount(1, $data);
 
             static::assertNotEmpty($data[0]);
@@ -309,8 +309,8 @@ class TaskRegistryTest extends TestCase
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
 
-        $this->scheduleTaskRepository->expects(static::never())->method('delete');
-        $this->scheduleTaskRepository->expects(static::never())->method('create');
+        $this->scheduleTaskRepository->expects($this->never())->method('delete');
+        $this->scheduleTaskRepository->expects($this->never())->method('create');
 
         $registry->registerTasks();
     }

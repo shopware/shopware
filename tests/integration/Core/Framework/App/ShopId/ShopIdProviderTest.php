@@ -3,8 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\ShopId;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -12,7 +16,11 @@ use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ShopIdV1Config from ShopId
+ * @phpstan-import-type ShopIdV2Config from ShopId
  */
+#[Package('framework')]
 class ShopIdProviderTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -29,84 +37,110 @@ class ShopIdProviderTest extends TestCase
         $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
-    public function testGetShopIdWithoutStoredShopId(): void
+    public function testGeneratesNewShopIdV2IfNoShopIdPresentInSystemConfig(): void
     {
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
+
         $shopId = $this->shopIdProvider->getShopId();
+        $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
 
-        static::assertEquals([
-            'app_url' => $_SERVER['APP_URL'],
+        static::assertIsArray($shopIdConfig);
+
+        static::assertArrayHasKey('id', $shopIdConfig);
+        static::assertSame($shopId, $shopIdConfig['id']);
+
+        static::assertArrayHasKey('version', $shopIdConfig);
+        static::assertSame(2, $shopIdConfig['version']);
+
+        static::assertArrayHasKey('fingerprints', $shopIdConfig);
+        static::assertArrayHasKey(AppUrl::IDENTIFIER, $shopIdConfig['fingerprints']);
+        static::assertSame($_SERVER['APP_URL'], $shopIdConfig['fingerprints'][AppUrl::IDENTIFIER]);
+    }
+
+    public function testUpgradesShopIdToV2IfShopIdV1PresentInSystemConfig(): void
+    {
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
+
+        $this->systemConfigService->set(
+            ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY,
+            $this->createShopIdV1Config('1234567890', $_SERVER['APP_URL'])
+        );
+
+        $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
+
+        $shopId = $this->shopIdProvider->getShopId();
+        $shopIdV2Config = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+
+        static::assertIsArray($shopIdV2Config);
+
+        static::assertArrayHasKey('id', $shopIdV2Config);
+        static::assertSame($shopId, $shopIdV2Config['id']);
+
+        static::assertArrayHasKey('version', $shopIdV2Config);
+        static::assertSame(2, $shopIdV2Config['version']);
+
+        static::assertArrayHasKey('fingerprints', $shopIdV2Config);
+        static::assertArrayHasKey(AppUrl::IDENTIFIER, $shopIdV2Config['fingerprints']);
+        static::assertSame($newAppUrl, $shopIdV2Config['fingerprints'][AppUrl::IDENTIFIER]);
+    }
+
+    public function testThrowsIfAppUrlHasChangedAndHasAppsRegisteredAtAppServers(): void
+    {
+        $oldAppUrl = EnvironmentHelper::getVariable('APP_URL');
+
+        $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
+
+        $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
+
+        try {
+            $this->shopIdProvider->getShopId();
+
+            static::fail(\sprintf('Expected %s to be thrown', AppUrlChangeDetectedException::class));
+        } catch (AppUrlChangeDetectedException $e) {
+            static::assertSame($oldAppUrl, $e->getPreviousUrl());
+            static::assertSame($newAppUrl, $e->getCurrentUrl());
+        }
+    }
+
+    public function testUpdatesShopIdIfAppUrlHasChangedButHasNoAppsRegisteredAtAppServers(): void
+    {
+        /** @var string $appUrlBeforeUpdate */
+        $appUrlBeforeUpdate = EnvironmentHelper::getVariable('APP_URL');
+        $shopIdBeforeUpdate = $this->shopIdProvider->getShopId();
+        $shopIdConfigBeforeUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        static::assertSame($appUrlBeforeUpdate, $shopIdConfigBeforeUpdate['fingerprints'][AppUrl::IDENTIFIER] ?? null);
+
+        $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
+        $shopIdAfterUpdate = $this->shopIdProvider->getShopId();
+        static::assertSame($shopIdBeforeUpdate, $shopIdAfterUpdate);
+        $shopIdConfigAfterUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        static::assertSame($newAppUrl, $shopIdConfigAfterUpdate['fingerprints'][AppUrl::IDENTIFIER] ?? null);
+    }
+
+    public function testDeletesShopIdConfigV1AndShopIdConfigV2(): void
+    {
+        $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, ['value' => '1234567890', 'app_url' => 'https://foo.bar']);
+        $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, ['value' => '1234567890', 'version' => 2, 'fingerprints' => ['app_url' => 'https://foo.bar']]);
+
+        static::assertIsArray($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+        static::assertIsArray($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
+
+        $this->shopIdProvider->deleteShopId();
+
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
+    }
+
+    /**
+     * @return ShopIdV1Config
+     */
+    private function createShopIdV1Config(string $shopId, string $appUrl): array
+    {
+        return [
             'value' => $shopId,
-        ], $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
-    }
-
-    public function testGetShopIdReturnsSameIdOnMultipleCalls(): void
-    {
-        $firstShopId = $this->shopIdProvider->getShopId();
-        $secondShopId = $this->shopIdProvider->getShopId();
-
-        static::assertSame($firstShopId, $secondShopId);
-
-        static::assertEquals([
-            'app_url' => $_SERVER['APP_URL'],
-            'value' => $firstShopId,
-        ], $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
-    }
-
-    public function testGetShopIdThrowsIfAppUrlIsChangedAndAppsArePresent(): void
-    {
-        $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
-
-        $this->shopIdProvider->getShopId();
-
-        $this->setEnvVars([
-            'APP_URL' => 'http://test.com',
-        ]);
-
-        try {
-            $this->shopIdProvider->getShopId();
-            static::fail('expected AppUrlChangeDetectedException was not thrown.');
-        } catch (AppUrlChangeDetectedException) {
-            // exception is expected
-        }
-    }
-
-    public function testGetShopIdUpdatesItselfIfAppUrlIsChangedAndNoAppsArePresent(): void
-    {
-        $firstShopId = $this->shopIdProvider->getShopId();
-
-        $this->setEnvVars([
-            'APP_URL' => 'http://test.com',
-        ]);
-
-        $secondShopId = $this->shopIdProvider->getShopId();
-
-        static::assertEquals([
-            'app_url' => 'http://test.com',
-            'value' => $firstShopId,
-        ], $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
-
-        static::assertSame($firstShopId, $secondShopId);
-    }
-
-    public function testItRemovesTheAppUrlChangedMarkerIfOutdated(): void
-    {
-        $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
-
-        $this->shopIdProvider->getShopId();
-
-        $this->setEnvVars([
-            'APP_URL' => 'http://test.com',
-        ]);
-
-        try {
-            $this->shopIdProvider->getShopId();
-            static::fail('expected AppUrlChangeDetectedException was not thrown.');
-        } catch (AppUrlChangeDetectedException) {
-            // exception is expected
-        }
-
-        $this->resetEnvVars();
-
-        $this->shopIdProvider->getShopId();
+            'app_url' => $appUrl,
+        ];
     }
 }

@@ -101,7 +101,7 @@ describe('Administration meta tests', () => {
             expect(typeof packageJson).toBe('object');
             expect(packageJson.hasOwnProperty('engines')).toBe(true);
             expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
-            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0');
+            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0');
             expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
             expect(packageJson.engines.npm).toBe('>=10.0.0');
         });
@@ -188,7 +188,7 @@ describe('Administration meta tests', () => {
 
             expect(
                 newBlocks,
-                `New blocks have been added. Please run 'generate-block-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
+                `New blocks have been added. Please run 'generate-blocks-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
             ).toHaveLength(0);
         });
     });

@@ -21,7 +21,7 @@ class DomainNotMappedListenerTest extends TestCase
     public function testAnotherExceptionDoesNothing(): void
     {
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects(static::never())->method('get');
+        $container->expects($this->never())->method('get');
 
         $listener = new DomainNotMappedListener($container);
 
@@ -38,7 +38,7 @@ class DomainNotMappedListenerTest extends TestCase
     public function testSalesChannelMappingException(): void
     {
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects(static::once())->method('get')->willReturn($this->createMock(Environment::class));
+        $container->expects($this->once())->method('get')->willReturn($this->createMock(Environment::class));
 
         $listener = new DomainNotMappedListener($container);
 

@@ -1,17 +1,14 @@
 {# @sw-package framework #}
-
-{# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
-
-{% block base_doctype %}
-<!DOCTYPE html>
-{% endblock %}
+{% block base_doctype %}<!DOCTYPE html>{% endblock %}
 
 {% block base_html %}
 <html lang="{{ context.saleschannel.languages.first.translationCode.code }}"
       itemscope="itemscope"
       itemtype="https://schema.org/WebPage">
 {% endblock %}
+
+{# Set variable to "true" to enable HMR (hot page reloading) mode #}
+{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
 
 {% block base_head %}
     {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
@@ -39,7 +36,7 @@
         {% endblock %}
 
         {% if feature('cache_rework') %}
-            {{ render_esi(url('frontend.header')) }}
+            {{ render_esi(path('frontend.header')) }}
 
             {% block base_navigation_styling %}
                 {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
@@ -115,7 +112,7 @@
 
 
         {% if feature('cache_rework') %}
-            {{ render_esi(url('frontend.footer')) }}
+            {{ render_esi(path('frontend.footer')) }}
         {% else %}
             {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/footer.html.twig #}
             {% block base_footer %}

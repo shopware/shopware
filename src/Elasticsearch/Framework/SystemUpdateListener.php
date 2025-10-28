@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
+use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -24,12 +25,15 @@ class SystemUpdateListener
     public function __construct(
         private readonly AbstractKeyValueStorage $storage,
         private readonly ElasticsearchIndexer $indexer,
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly IndexMappingUpdater $mappingUpdater
     ) {
     }
 
     public function __invoke(UpdatePostFinishEvent $event): void
     {
+        $this->mappingUpdater->update($event->getContext());
+
         $entitiesToReindex = $this->storage->get(self::CONFIG_KEY, []);
 
         if (empty($entitiesToReindex)) {

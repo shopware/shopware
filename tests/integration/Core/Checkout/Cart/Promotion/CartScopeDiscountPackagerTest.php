@@ -43,7 +43,9 @@ class CartScopeDiscountPackagerTest extends TestCase
         $discount = new DiscountLineItem('test', new QuantityPriceDefinition(10, new TaxRuleCollection([]), 1), [
             'discountScope' => 'scope',
             'discountType' => 'type',
-            'filter' => [],
+            'filter' => [
+                'considerAdvancedRules' => true,
+            ],
         ], null);
 
         $packages = $packager->getMatchingItems($discount, $cart, $context);

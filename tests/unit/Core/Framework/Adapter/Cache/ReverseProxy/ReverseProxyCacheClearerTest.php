@@ -19,7 +19,7 @@ class ReverseProxyCacheClearerTest extends TestCase
     public function testClear(): void
     {
         $gateway = $this->createMock(AbstractReverseProxyGateway::class);
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('banAll');
 
         $clearer = new ReverseProxyCacheClearer($gateway);
@@ -31,7 +31,7 @@ class ReverseProxyCacheClearerTest extends TestCase
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
         $gateway = $this->createMock(AbstractReverseProxyGateway::class);
-        $gateway->expects(static::never())
+        $gateway->expects($this->never())
             ->method('banAll');
 
         $clearer = new ReverseProxyCacheClearer($gateway);

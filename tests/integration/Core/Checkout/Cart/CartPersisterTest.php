@@ -46,7 +46,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(false);
 
@@ -68,7 +68,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(
                 ['payload' => serialize(new Cart('existing')), 'rule_ids' => json_encode([]), 'compressed' => 0]
@@ -325,7 +325,7 @@ class CartPersisterTest extends TestCase
 
     private function expectSqlQuery(MockObject $connection, string $beginOfSql): void
     {
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('prepare')
             ->with(
                 static::callback(fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))

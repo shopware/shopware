@@ -18,7 +18,7 @@ class CacheDecoratorTest extends TestCase
     {
         $adapter = $this->createMock(TagAwareAdapter::class);
         $adapter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('reset');
 
         $decorator = new CacheDecorator($adapter, new CacheTagCollection());

@@ -46,12 +46,12 @@ class ThemeFileResolverTest extends TestCase
 
         $kernel = $this->createMock(Kernel::class);
 
-        $kernel->expects(static::any())->method('getBundles')->willReturn([
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
             'ThemeWithStorefrontSkinScss' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
         ]);
 
-        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
             ['ThemeWithStorefrontSkinScss', $themePluginBundle],
             ['MockStorefront', $storefrontBundle],
         ]);
@@ -92,12 +92,12 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($storefront);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::any())->method('getBundles')->willReturn([
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
             'ThemeWithStorefrontBootstrapScss' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
         ]);
 
-        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
             ['ThemeWithStorefrontBootstrapScss', $themePluginBundle],
             ['MockStorefront', $storefrontBundle],
         ]);
@@ -141,13 +141,13 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($plugin);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::once())->method('getBundles')->willReturn([
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
             'ThemeWithMultiInheritance' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
             'SimplePlugin' => $pluginBundle,
         ]);
 
-        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
             ['ThemeWithMultiInheritance', $themePluginBundle],
             ['MockStorefront', $storefrontBundle],
             ['SimplePlugin', $pluginBundle],
@@ -192,13 +192,13 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($plugin);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::once())->method('getBundles')->willReturn([
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
             'ThemeNotIncludingPluginJsAndCss' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
             'SimplePlugin' => $pluginBundle,
         ]);
 
-        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
             ['ThemeNotIncludingPluginJsAndCss', $themePluginBundle],
             ['MockStorefront', $storefrontBundle],
             ['SimplePlugin', $pluginBundle],
@@ -266,12 +266,12 @@ class ThemeFileResolverTest extends TestCase
         $currentPath = $firstFile->getFilepath();
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::once())->method('getBundles')->willReturn([
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
             'ThemeWithStorefrontSkinScss' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
         ]);
 
-        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
             ['ThemeWithStorefrontSkinScss', $themePluginBundle],
             ['MockStorefront', $storefrontBundle],
         ]);

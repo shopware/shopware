@@ -302,7 +302,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
     {
         $validator = $this->createMock(DataValidator::class);
         $validator
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getViolations');
 
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
@@ -341,7 +341,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $this->createMock(DataValidator::class)
         );
 
-        $addressValidationMock->expects(static::exactly(2))->method('create')->willReturnOnConsecutiveCalls(
+        $addressValidationMock->expects($this->exactly(2))->method('create')->willReturnOnConsecutiveCalls(
             new DataValidationDefinition('address.create'),
             new DataValidationDefinition('address.update'),
         );
@@ -360,7 +360,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
     {
         $cartService = static::createMock(StorefrontCartFacade::class);
         $cartService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->with(null, static::isInstanceOf(SalesChannelContext::class), false, true);
 

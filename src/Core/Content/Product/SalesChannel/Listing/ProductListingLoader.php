@@ -13,6 +13,8 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
+use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -79,7 +81,7 @@ class ProductListingLoader
         $ids = $idResult->getIds();
         // no products found, no need to continue
         if (empty($ids)) {
-            return new EntitySearchResult(
+            $result = new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
                 new ProductCollection(),
@@ -87,6 +89,11 @@ class ProductListingLoader
                 $criteria,
                 $context->getContext()
             );
+
+            $result->addState(...$idResult->getStates());
+            $result->addExtensions($idResult->getExtensions());
+
+            return $result;
         }
 
         $mapping = $this->resolvePreviews($ids, $clone, $context);
@@ -97,6 +104,7 @@ class ProductListingLoader
 
         $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
         $result->addState(...$idResult->getStates());
+        $result->addExtensions($productSearchResult->getExtensions());
 
         return $result;
     }
@@ -286,7 +294,10 @@ class ProductListingLoader
         $mapping = array_combine($keys, $keys);
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
-        if (!$hasOptionFilter) {
+
+        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria);
+
+        if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
                 name: LoadPreviewExtension::NAME,
                 extension: new LoadPreviewExtension($keys, $context),
@@ -298,6 +309,15 @@ class ProductListingLoader
         $this->dispatcher->dispatch($event);
 
         return $event->getMapping();
+    }
+
+    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria): bool
+    {
+        if ($hasOptionFilter === true) {
+            return false;
+        }
+
+        return !$criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
     }
 
     /**

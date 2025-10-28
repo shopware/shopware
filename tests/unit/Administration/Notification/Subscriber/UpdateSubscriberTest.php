@@ -35,7 +35,7 @@ class UpdateSubscriberTest extends TestCase
 
         $notificationServiceMock = $this->createMock(NotificationService::class);
         $notificationServiceMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createNotification')
             ->willReturnCallback(function ($data): void {
                 static::assertEquals('something to inform' . \PHP_EOL, $data['message']);
@@ -55,7 +55,7 @@ class UpdateSubscriberTest extends TestCase
         $version = '6.0.1_test';
 
         $notificationServiceMock = $this->createMock(NotificationService::class);
-        $notificationServiceMock->expects(static::never())->method('createNotification');
+        $notificationServiceMock->expects($this->never())->method('createNotification');
 
         $event = new UpdatePostFinishEvent($context, $version, $version);
 

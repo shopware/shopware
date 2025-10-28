@@ -70,7 +70,7 @@ class DeliveryBuilderTest extends TestCase
             ->onlyMethods(['buildByUsingShippingMethod'])
             ->getMock();
 
-        $deliveryBuilder->expects(static::once())
+        $deliveryBuilder->expects($this->once())
             ->method('buildByUsingShippingMethod')
             ->with($cart, $shippingMethod, $salesChannelContext);
 
@@ -143,7 +143,7 @@ class DeliveryBuilderTest extends TestCase
         $deliveryLocation = new ShippingLocation(new CountryEntity(), null, null);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getShippingLocation')
             ->willReturn($deliveryLocation);
 

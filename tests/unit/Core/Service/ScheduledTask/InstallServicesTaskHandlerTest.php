@@ -18,7 +18,7 @@ class InstallServicesTaskHandlerTest extends TestCase
     public function testRunDelegatesToInstaller(): void
     {
         $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects(static::once())->method('install');
+        $installer->expects($this->once())->method('install');
 
         $handler = new InstallServicesTaskHandler(
             $this->createMock(EntityRepository::class),

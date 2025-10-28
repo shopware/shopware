@@ -95,7 +95,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
-        $this->productRepository->expects(static::exactly(1))
+        $this->productRepository->expects($this->exactly(1))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -137,7 +137,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn(
                 $idsSearchResult
             );
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
@@ -153,7 +153,7 @@ class ProductDetailRouteTest extends TestCase
     public function testLoadVariantListingConfig(): void
     {
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": false, "mainVariantId": "2"}',
@@ -166,7 +166,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('2');
         $productEntity->setAvailable(true);
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -193,7 +193,7 @@ class ProductDetailRouteTest extends TestCase
     public function testResolveVariantIdFromEvent(): void
     {
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": true, "mainVariantId": "2"}',
@@ -205,7 +205,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId($variantId);
         $productEntity->setCmsPageId('4');
         $productEntity->setAvailable(true);
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->with(static::callback(function (Criteria $criteria) use ($variantId): bool {
                 $ids = $criteria->getIds();
@@ -235,6 +235,47 @@ class ProductDetailRouteTest extends TestCase
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
+    public function testResolveVariantIdFromEventWithWrongTypeForDisplayParent(): void
+    {
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => '{"displayParent": 1, "mainVariantId": "2"}', // Wrong displayParent type, should be boolean
+                'parentId' => '2',
+            ]);
+
+        $productId = Uuid::randomHex();
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId($productId);
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('2');
+        $productEntity->setAvailable(true);
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, function (ResolveVariantIdEvent $event) use ($productId): void {
+            static::assertSame($productId, $event->getProductId());
+            // In checkVariantListingConfig we want to make sure that the variant ID is not returned against displayParent
+            static::assertNull($event->getResolvedVariantId(), 'Wrong variant ID resolved:' . $event->getResolvedVariantId());
+        });
+
+        $result = $this->route->load($productId, new Request(), $this->context, new Criteria());
+
+        static::assertSame('2', $result->getProduct()->getUniqueIdentifier());
+        static::assertTrue($result->getProduct()->getAvailable());
+    }
+
     public function testConfigHideCloseoutProductsWhenOutOfStockFiltersResults(): void
     {
         $productEntity = new SalesChannelProductEntity();
@@ -253,7 +294,7 @@ class ProductDetailRouteTest extends TestCase
         $criteria2->addFilter($filter);
 
         $this->productRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())

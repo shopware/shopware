@@ -4,11 +4,11 @@
     {% block sw_cms_block_config__quickactions %}
     <ul
         class="sw-cms-block-config__quickactions-list"
-        :class="quickactionClasses"
     >
         {% block sw_cms_block_config__quickaction_duplicate %}
         <li
             class="sw-cms-block-config__quickaction"
+            :class="combinedDuplicateClasses"
             role="button"
             tabindex="0"
             @click="onBlockDuplicate"
@@ -25,6 +25,7 @@
         {% block sw_cms_block_config__quickaction_delete %}
         <li
             class="sw-cms-block-config__quickaction is--danger"
+            :class="quickactionClasses"
             role="button"
             tabindex="0"
             @click="onBlockDelete"

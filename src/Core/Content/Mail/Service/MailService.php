@@ -124,8 +124,11 @@ class MailService extends AbstractMailService
 
         try {
             $data['subject'] = $this->templateRenderer->render($template, $templateData, $context, false);
-            $template = $data['senderName'];
-            $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context, false);
+            if (\is_string($data['senderName'])) {
+                $template = $data['senderName'];
+                $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context, false);
+            }
+
             foreach ($contents as $index => $template) {
                 $contents[$index] = $this->templateRenderer->render($template, $templateData, $context, $index !== 'text/plain');
             }
@@ -289,7 +292,6 @@ class MailService extends AbstractMailService
         $definition->add('contentHtml', new NotBlank());
         $definition->add('contentPlain', new NotBlank());
         $definition->add('subject', new NotBlank());
-        $definition->add('senderName', new NotBlank());
 
         return $definition;
     }

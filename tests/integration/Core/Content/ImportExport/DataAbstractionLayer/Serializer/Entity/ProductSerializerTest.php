@@ -155,7 +155,7 @@ class ProductSerializerTest extends TestCase
             1000,
             'bc0d90db4dd806bd671ae9f7fabc5796'
         );
-        $mediaService->expects(static::any())
+        $mediaService->expects($this->any())
             ->method('fetchFile')
             ->willReturnCallback(function (Request $request) use ($expectedMediaFile): MediaFile {
                 if ($request->get('url') === 'http://172.16.11.80/shopware-logo.png') {
@@ -181,10 +181,10 @@ class ProductSerializerTest extends TestCase
         $mediaSerializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
         $serializerRegistry = $this->createMock(SerializerRegistry::class);
-        $serializerRegistry->expects(static::any())
+        $serializerRegistry->expects($this->any())
             ->method('getEntity')
             ->willReturn($mediaSerializer);
-        $serializerRegistry->expects(static::any())
+        $serializerRegistry->expects($this->any())
             ->method('getFieldSerializer')
             ->willReturn(new FieldSerializer());
 

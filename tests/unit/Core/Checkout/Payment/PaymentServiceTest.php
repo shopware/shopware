@@ -47,14 +47,14 @@ class PaymentServiceTest extends TestCase
         $request = new Request();
 
         $tokenFactory = $this->createMock(JWTFactoryV2::class);
-        $tokenFactory->expects(static::once())->method('parseToken')->with('paymentToken')->willReturn(new TokenStruct('id', 'token', 'paymentMethodId', $transactionId, 'finishUrl', \PHP_INT_MAX));
-        $tokenFactory->expects(static::once())->method('invalidateToken')->with('token');
+        $tokenFactory->expects($this->once())->method('parseToken')->with('paymentToken')->willReturn(new TokenStruct('id', 'token', 'paymentMethodId', $transactionId, 'finishUrl', \PHP_INT_MAX));
+        $tokenFactory->expects($this->once())->method('invalidateToken')->with('token');
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())->method('dispatch')->with(static::isInstanceOf(FinalizePaymentOrderTransactionCriteriaEvent::class));
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(static::isInstanceOf(FinalizePaymentOrderTransactionCriteriaEvent::class));
 
         $transactionRepository = $this->createMock(EntityRepository::class);
-        $transactionRepository->expects(static::once())->method('search')->with(static::callback(function (Criteria $criteria) use ($transactionId) {
+        $transactionRepository->expects($this->once())->method('search')->with(static::callback(function (Criteria $criteria) use ($transactionId) {
             static::assertEquals($transactionId, $criteria->getIds()[0]);
             static::assertSame('payment-service::load-transaction', $criteria->getTitle());
             static::assertTrue($criteria->hasAssociation('order'));
@@ -65,13 +65,13 @@ class PaymentServiceTest extends TestCase
 
         $struct = new AsyncPaymentTransactionStruct($transaction, $order, '');
         $paymentStructFactory = $this->createMock(AbstractPaymentTransactionStructFactory::class);
-        $paymentStructFactory->expects(static::once())->method('async')->willReturn($struct);
+        $paymentStructFactory->expects($this->once())->method('async')->willReturn($struct);
 
         $paymentHandler = $this->createMock(AsynchronousPaymentHandlerInterface::class);
-        $paymentHandler->expects(static::once())->method('finalize')->with($struct, $request, $context);
+        $paymentHandler->expects($this->once())->method('finalize')->with($struct, $request, $context);
 
         $paymentHandlerRegistry = $this->createMock(PaymentHandlerRegistry::class);
-        $paymentHandlerRegistry->expects(static::once())->method('getAsyncPaymentHandler')->willReturn($paymentHandler);
+        $paymentHandlerRegistry->expects($this->once())->method('getAsyncPaymentHandler')->willReturn($paymentHandler);
 
         $paymentService = new PaymentService(
             $this->createMock(PaymentTransactionChainProcessor::class),

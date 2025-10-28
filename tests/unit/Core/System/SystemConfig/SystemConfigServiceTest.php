@@ -65,7 +65,7 @@ class SystemConfigServiceTest extends TestCase
             static::assertSame(40, $event->getConfig()['foo.bar']);
         };
 
-        $expects = static::exactly(7);
+        $expects = $this->exactly(7);
         $this->eventDispatcher
             ->expects($expects)
             ->method('dispatch')

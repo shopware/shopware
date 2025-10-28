@@ -68,7 +68,7 @@ class SortedPaymentMethodRouteTest extends TestCase
     public function testTriggersScriptHookExecution(): void
     {
         $this->decorated
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($this->response);
 

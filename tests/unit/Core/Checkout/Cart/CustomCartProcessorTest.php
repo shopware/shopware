@@ -79,7 +79,7 @@ class CustomCartProcessorTest extends TestCase
 
         $quantityPriceCalculator = $this->createMock(QuantityPriceCalculator::class);
         $quantityPriceCalculator
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('calculate')
             ->with($price, $context)
             ->willReturn(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection()));

@@ -58,7 +58,7 @@ class NotificationServiceTest extends TestCase
             'createdByUserId' => 'user1234',
         ];
 
-        $this->entityRepository->expects(static::once())
+        $this->entityRepository->expects($this->once())
             ->method('create')
             ->with([$notification], $context);
 
@@ -101,7 +101,7 @@ class NotificationServiceTest extends TestCase
 
         $notificationCollection->add($notification);
 
-        $this->entityRepository->expects(static::once())
+        $this->entityRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'notification',
@@ -141,7 +141,7 @@ class NotificationServiceTest extends TestCase
 
         $notificationCollection->add($notification);
 
-        $this->entityRepository->expects(static::once())
+        $this->entityRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'notification',
@@ -183,7 +183,7 @@ class NotificationServiceTest extends TestCase
 
         $notificationCollection->add($notification);
 
-        $this->entityRepository->expects(static::once())
+        $this->entityRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'notification',

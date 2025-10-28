@@ -71,9 +71,9 @@ class TemplateFinderTest extends TestCase
             $map[] = '@' . $bundleName . '/' . $templatePath;
         }
 
-        $this->loader->expects(static::any())->method('exists')->willReturnCallback(fn (string $template) => \in_array($template, $map, true));
+        $this->loader->expects($this->any())->method('exists')->willReturnCallback(fn (string $template) => \in_array($template, $map, true));
 
-        $this->hierarchyBuilder->expects(static::once())->method('buildHierarchy')->willReturn($bundles);
+        $this->hierarchyBuilder->expects($this->once())->method('buildHierarchy')->willReturn($bundles);
 
         $foundTemplate = $this->finder->find($template, $ignoreMissing, $source);
 
@@ -82,8 +82,8 @@ class TemplateFinderTest extends TestCase
 
     public function testFindModifiesCache(): void
     {
-        $this->twig->expects(static::once())->method('getCache')->willReturn($this->createMock(FilesystemCache::class));
-        $this->twig->expects(static::once())->method('setCache')->with(static::callback(static function (ConfigurableFilesystemCache $cache) {
+        $this->twig->expects($this->once())->method('getCache')->willReturn($this->createMock(FilesystemCache::class));
+        $this->twig->expects($this->once())->method('setCache')->with(static::callback(static function (ConfigurableFilesystemCache $cache) {
             $hash = $cache->generateKey('foo', 'bar');
             $cache->setTemplateScopes(['foo']);
 
@@ -95,7 +95,7 @@ class TemplateFinderTest extends TestCase
 
             return $hash !== $cache->generateKey('foo', 'bar');
         }));
-        $this->templateScopeDetector->expects(static::once())->method('getScopes')->willReturn(['foo']);
+        $this->templateScopeDetector->expects($this->once())->method('getScopes')->willReturn(['foo']);
         $this->finder->find('', true);
     }
 

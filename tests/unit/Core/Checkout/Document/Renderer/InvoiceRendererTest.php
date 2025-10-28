@@ -241,7 +241,7 @@ class InvoiceRendererTest extends TestCase
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
         $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::never())->method('render');
+        $documentTemplateRenderer->expects($this->never())->method('render');
 
         $documentConfigLoaderMock = new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class));
 

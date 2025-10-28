@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @deprecated tag:v6.7.0 - reason:becomes-final - Will become final in v6.7.0
  */
 #[Package('fundamentals@after-sales')]
 class PromotionLineItemRule extends Rule
@@ -51,10 +51,6 @@ class PromotionLineItemRule extends Rule
         }
 
         foreach ($promotionLineItems as $lineItem) {
-            if ($lineItem->getPayloadValue('promotionId') === null) {
-                continue;
-            }
-
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }
@@ -88,11 +84,10 @@ class PromotionLineItemRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE) {
+        $promotionId = $lineItem->getPayloadValue('promotionId');
+        if ($lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE || $promotionId === null) {
             return $this->operator === self::OPERATOR_NEQ;
         }
-
-        $promotionId = $lineItem->getPayloadValue('promotionId');
 
         return RuleComparison::uuids([$promotionId], $this->identifiers, $this->operator);
     }

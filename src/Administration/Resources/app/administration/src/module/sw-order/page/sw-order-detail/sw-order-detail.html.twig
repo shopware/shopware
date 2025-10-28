@@ -12,7 +12,7 @@
 
             {% block sw_order_detail_header_label_manual_order %}
             <sw-label
-                v-if="createdById"
+                v-if="order.createdById"
                 appearance="pill"
                 size="small"
                 class="sw-order-detail__manual-order-label"
@@ -225,7 +225,7 @@
                 @save-and-recalculate="onSaveAndRecalculate"
                 @recalculate-and-reload="onRecalculateAndReload"
                 @reload-entity-data="reloadEntityData"
-                @save-and-reload="onSaveAndReload"
+                @save-and-reload="saveAndReload"
                 @save-edits="onSaveEdits"
                 @error="onError"
             />

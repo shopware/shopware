@@ -184,6 +184,7 @@
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
@@ -416,6 +417,7 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
+            <argument>%shopware.product_stream.indexing%</argument>
             <tag name="shopware.entity_indexer"/>
         </service>
 
@@ -435,6 +437,7 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector"/>
@@ -558,7 +561,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

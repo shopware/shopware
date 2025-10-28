@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 
 /**
  * @internal
@@ -14,7 +15,7 @@ class AppUrlChangeDetectedExceptionTest extends TestCase
 {
     public function testException(): void
     {
-        $exception = new AppUrlChangeDetectedException('oldUrl', 'currentUrl', 'shopId');
+        $exception = new AppUrlChangeDetectedException('oldUrl', 'currentUrl', ShopId::v2('shopId'));
 
         static::assertSame(
             'Detected APP_URL change, was "oldUrl" and is now "currentUrl".',
@@ -33,7 +34,7 @@ class AppUrlChangeDetectedExceptionTest extends TestCase
 
         static::assertSame(
             'shopId',
-            $exception->getShopId()
+            $exception->getShopId()->id
         );
     }
 }

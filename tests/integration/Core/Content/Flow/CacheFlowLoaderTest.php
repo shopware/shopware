@@ -33,7 +33,7 @@ class CacheFlowLoaderTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $dispatcher->addListener(FlowEvents::FLOW_WRITTEN_EVENT, $listener);
 
         $flowLoader = static::getContainer()->get(CachedFlowLoader::class);

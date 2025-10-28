@@ -249,6 +249,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
                     individualCodePattern: '',
                     individualCodes: null,
                     active: false,
+                    orderCount: 0,
+                    ordersPerCustomerCount: null,
                 },
             },
             Shopware.Context.api,
@@ -258,5 +260,47 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
             name: 'sw.promotion.v2.detail',
             params: { id: 'new-promotion-id' },
         });
+    });
+
+    it('should return correct tooltip for delete button', async () => {
+        const wrapper = await createWrapper();
+
+        const promotionWithOrders = { orderCount: 1 };
+        const promotionWithoutOrders = { orderCount: 0 };
+
+        const tooltipWithOrders = wrapper.vm.deleteDisabledTooltip(promotionWithOrders);
+        expect(tooltipWithOrders).toEqual({
+            showDelay: 300,
+            message: 'sw-promotion-v2.list.deleteDisabledToolTip',
+            disabled: false,
+        });
+
+        const tooltipWithoutOrders = wrapper.vm.deleteDisabledTooltip(promotionWithoutOrders);
+        expect(tooltipWithoutOrders).toEqual({
+            showDelay: 300,
+            message: 'sw-promotion-v2.list.deleteDisabledToolTip',
+            disabled: true,
+        });
+    });
+
+    it('should disable bulk delete with undeletable promotions', async () => {
+        const wrapper = await createWrapper();
+
+        const promotionWithOrders = { orderCount: 1 };
+        const promotionWithoutOrders = { orderCount: 0 };
+
+        wrapper.vm.updateSelection({ 0: promotionWithoutOrders });
+        await flushPromises();
+        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBe('true');
+
+        wrapper.vm.updateSelection({ 0: promotionWithoutOrders, 1: promotionWithOrders });
+        await flushPromises();
+        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBe(
+            process.env.DISABLE_JEST_COMPAT_MODE ? 'false' : undefined,
+        );
+
+        wrapper.vm.updateSelection({ 0: promotionWithoutOrders });
+        await flushPromises();
+        expect(wrapper.find('sw-entity-listing-stub').attributes()['allow-delete']).toBe('true');
     });
 });

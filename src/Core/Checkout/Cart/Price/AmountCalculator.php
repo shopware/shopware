@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -38,20 +39,43 @@ class AmountCalculator
         return $this->calculateNetAmount($prices, $shippingCosts, $context);
     }
 
+    public function calculateTaxes(PriceCollection $prices, string $calculationType, string $taxState, CashRoundingConfig $itemRounding): CalculatedTaxCollection
+    {
+        if ($calculationType === SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL) {
+            $taxes = $prices->getCalculatedTaxes();
+
+            $taxes->round($this->rounding, $itemRounding);
+
+            return $taxes;
+        }
+
+        $totalAmount = $prices->getTotalPriceAmount();
+        $rules = $this->taxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $totalAmount);
+
+        if ($taxState === CartPrice::TAX_STATE_GROSS) {
+            $taxes = $this->taxCalculator->calculateGrossTaxes($totalAmount, $rules);
+        } else {
+            $taxes = $this->taxCalculator->calculateNetTaxes($totalAmount, $rules);
+        }
+
+        $taxes->round($this->rounding, $itemRounding);
+
+        return $taxes;
+    }
+
     /**
      * Calculates the amount for a new delivery.
      * `CalculatedPrice::price` and `CalculatedPrice::netPrice` are equals and taxes are empty.
      */
     private function calculateNetDeliveryAmount(PriceCollection $prices, PriceCollection $shippingCosts): CartPrice
     {
-        $positionPrice = $prices->sum();
-
-        $total = $positionPrice->getTotalPrice() + $shippingCosts->sum()->getTotalPrice();
+        $totalPrice = $prices->getTotalPriceAmount();
+        $total = $totalPrice + $shippingCosts->getTotalPriceAmount();
 
         return new CartPrice(
             $total,
             $total,
-            $positionPrice->getTotalPrice(),
+            $totalPrice,
             new CalculatedTaxCollection([]),
             new TaxRuleCollection([]),
             CartPrice::TAX_STATE_FREE
@@ -67,28 +91,27 @@ class AmountCalculator
     private function calculateGrossAmount(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
     {
         $all = $prices->merge($shippingCosts);
-
-        $total = $all->sum();
-        $taxes = $this->calculateTaxes($all, $context);
+        $totalPrice = $all->getTotalPriceAmount();
+        $taxes = $this->calculateTaxes($all, $context->getTaxCalculationType(), $context->getTaxState(), $context->getItemRounding());
 
         $price = $this->rounding->cashRound(
-            $total->getTotalPrice(),
+            $totalPrice,
             $context->getTotalRounding()
         );
 
         $net = $this->rounding->mathRound(
-            $total->getTotalPrice() - $taxes->getAmount(),
+            $totalPrice - $taxes->getAmount(),
             $context->getItemRounding()
         );
 
         return new CartPrice(
             $net,
             $price,
-            $prices->sum()->getTotalPrice(),
+            $prices->getTotalPriceAmount(),
             $taxes,
-            $total->getTaxRules(),
+            $all->getTaxRules(),
             CartPrice::TAX_STATE_GROSS,
-            $total->getTotalPrice()
+            $totalPrice
         );
     }
 
@@ -101,51 +124,22 @@ class AmountCalculator
     private function calculateNetAmount(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
     {
         $all = $prices->merge($shippingCosts);
-
-        $total = $all->sum();
-        $taxes = $this->calculateTaxes($all, $context);
+        $allTotalAmount = $all->getTotalPriceAmount();
+        $taxes = $this->calculateTaxes($all, $context->getTaxCalculationType(), $context->getTaxState(), $context->getItemRounding());
 
         $price = $this->rounding->cashRound(
-            $total->getTotalPrice() + $taxes->getAmount(),
+            $allTotalAmount + $taxes->getAmount(),
             $context->getTotalRounding()
         );
 
         return new CartPrice(
-            $total->getTotalPrice(),
+            $allTotalAmount,
             $price,
-            $prices->sum()->getTotalPrice(),
+            $prices->getTotalPriceAmount(),
             $taxes,
-            $total->getTaxRules(),
+            $all->getTaxRules(),
             CartPrice::TAX_STATE_NET,
-            $total->getTotalPrice() + $taxes->getAmount()
+            $allTotalAmount + $taxes->getAmount()
         );
-    }
-
-    private function calculateTaxes(PriceCollection $prices, SalesChannelContext $context): CalculatedTaxCollection
-    {
-        if ($context->getTaxCalculationType() === SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL) {
-            $taxes = $prices->getCalculatedTaxes();
-
-            $taxes->round(
-                $this->rounding,
-                $context->getItemRounding()
-            );
-
-            return $taxes;
-        }
-
-        $price = $prices->sum();
-
-        $rules = $this->taxRuleBuilder->buildRules($price);
-
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-            $taxes = $this->taxCalculator->calculateGrossTaxes($price->getTotalPrice(), $rules);
-        } else {
-            $taxes = $this->taxCalculator->calculateNetTaxes($price->getTotalPrice(), $rules);
-        }
-
-        $taxes->round($this->rounding, $context->getItemRounding());
-
-        return $taxes;
     }
 }

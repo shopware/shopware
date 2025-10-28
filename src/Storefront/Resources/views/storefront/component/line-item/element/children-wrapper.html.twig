@@ -10,7 +10,7 @@
                         {% block component_line_item_children_headline %}
                             <div class="col line-item-headline">
                                 {% block component_line_item_children_headline_text %}
-                                    <span class="line-item-headline-text">
+                                    <span class="line-item-headline-text" id="headline-{{ childrenCollapseId }}">
                                         {{ 'checkout.lineItemContainerHeadline'|trans }}
                                     </span>
                                 {% endblock %}
@@ -32,6 +32,7 @@
                                     data-bs-toggle="collapse"
                                     data-bs-target="#{{ childrenCollapseId }}"
                                     aria-controls="{{ childrenCollapseId }}"
+                                    aria-labelledby="headline-{{ childrenCollapseId }}"
                                     aria-expanded="false">
                                     {% block component_line_item_children_collapse_icon %}
                                         <div class="line-item-collapse-icon">
@@ -50,13 +51,15 @@
         {% endblock %}
 
         {% block component_line_item_children_elements %}
-            <div class="container line-item-children-elements collapse" id="{{ childrenCollapseId }}">
+            {{ (feature('ACCESSIBILITY_TWEAKS')
+                ? '<ul class="container line-item-children-elements collapse list-unstyled" id="' ~ childrenCollapseId ~ '">'
+                : '<div class="container line-item-children-elements collapse" role="list" id="' ~ childrenCollapseId ~ '">')|raw }}
                 {% for nestedLineItem in lineItem.children %}
                     {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
                         lineItem: nestedLineItem
                     } %}
                 {% endfor %}
-            </div>
+            {{ (feature('ACCESSIBILITY_TWEAKS') ? '</ul>' : '</div>')|raw }}
         {% endblock %}
     </div>
 {% endblock %}

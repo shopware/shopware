@@ -41,6 +41,10 @@ class ThemeController extends AbstractController
     {
         $config = $request->request->all('config');
 
+        if ($request->query->getBoolean('reset')) {
+            $this->themeService->resetTheme($themeId, $context);
+        }
+
         $this->themeService->updateTheme(
             $themeId,
             $config,

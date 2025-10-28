@@ -20,13 +20,13 @@ class StagingSalesChannelHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')->willReturn([
                 ['id' => 'id1', 'url' => 'http://localhost'],
             ]);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')->with(
                 'sales_channel_domain',
                 ['url' => 'http://staging.local'],
@@ -49,13 +49,13 @@ class StagingSalesChannelHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')->willReturn([
                 ['id' => 'id1', 'url' => 'http://localhost'],
             ]);
 
         $connection
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('update');
 
         $handler = new StagingSalesChannelHandler(
@@ -74,13 +74,13 @@ class StagingSalesChannelHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')->willReturn([
                 ['id' => 'id1', 'url' => 'https://pikachu.com'],
             ]);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')->with(
                 'sales_channel_domain',
                 ['url' => 'http://pikachu-com.local'],
@@ -103,13 +103,13 @@ class StagingSalesChannelHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')->willReturn([
                 ['id' => 'id1', 'url' => 'https://pikachu.com/en'],
             ]);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')->with(
                 'sales_channel_domain',
                 ['url' => 'http://localhost/en'],

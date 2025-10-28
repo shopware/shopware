@@ -28,7 +28,7 @@ In case of issue existing only on Jira, link to the Jira issue.
 ### 5. Checklist
 
 - [ ] I have written tests and verified that they fail without my change
-- [ ] I have created a [changelog file](https://github.com/shopware/platform/blob/trunk/adr/2020-08-03-implement-new-changelog.md) with all necessary information about my changes
+- [ ] I have created a [changelog file](https://github.com/shopware/shopware/blob/trunk/adr/2020-08-03-implement-new-changelog.md) with all necessary information about my changes
 - [ ] I have written or adjusted the documentation according to my changes
 - [ ] This change has comments for package types, values, functions, and non-obvious lines of code
 - [ ] I have read the contribution requirements and fulfill them.

@@ -84,9 +84,9 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExport = $this->getProductExportEntity();
 
-        $this->contextPersister->expects(static::once())->method('save');
-        $this->salesChannelContextService->expects(static::once())->method('get');
-        $this->parserFactory->expects(static::once())->method('getParser');
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get');
+        $this->parserFactory->expects($this->once())->method('getParser');
 
         $generator = new ProductExportGenerator(
             $this->productStreamBuilder,
@@ -116,14 +116,14 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExport = $this->getProductExportEntity();
 
-        $this->contextPersister->expects(static::once())->method('save');
-        $this->salesChannelContextService->expects(static::once())->method('get');
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get');
 
         $errorMessage = 'error message';
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->method('parse')
             ->willThrowException(new \Exception($errorMessage));
-        $this->parserFactory->expects(static::once())
+        $this->parserFactory->expects($this->once())
             ->method('getParser')
             ->willReturn($twigVariableParser);
 

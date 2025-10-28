@@ -98,7 +98,11 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeSalesChannelRepositoryMock->expects(static::once())->method('upsert')->with(
+        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+            $callback();
+        });
+
+        $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
             [[
                 'themeId' => $themeId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -106,11 +110,11 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL)
         );
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -128,7 +132,11 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeSalesChannelRepositoryMock->expects(static::once())->method('upsert')->with(
+        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+            $callback();
+        });
+
+        $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
             [[
                 'themeId' => $themeId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -136,11 +144,11 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL)
         );
 
-        $this->themeCompilerMock->expects(static::never())->method('compileTheme');
+        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
 
         $assigned = $this->themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context, true);
 
@@ -151,7 +159,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -169,9 +177,9 @@ class ThemeServiceTest extends TestCase
 
         $this->context->addState(ThemeService::STATE_NO_QUEUE);
 
-        $this->messageBusMock->expects(static::never())->method('dispatch');
+        $this->messageBusMock->expects($this->never())->method('dispatch');
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -189,10 +197,10 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects(static::never())->method('compileTheme');
+        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
 
         $context = $this->context;
-        $this->messageBusMock->expects(static::once())->method('dispatch')
+        $this->messageBusMock->expects($this->once())->method('dispatch')
             ->willReturnCallback(function () use ($themeId, $context): Envelope {
                 return new Envelope(
                     new CompileThemeMessage(
@@ -215,7 +223,7 @@ class ThemeServiceTest extends TestCase
 
         $confCollection = new StorefrontPluginConfigurationCollection();
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -231,7 +239,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -262,7 +270,7 @@ class ThemeServiceTest extends TestCase
         $parameters = [];
 
         $this->themeCompilerMock
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(function ($salesChannelId, $themeId) use (&$parameters): void {
                 $parameters[] = [$salesChannelId, $themeId];
@@ -339,7 +347,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->themeCompilerMock->expects(static::exactly(2))->method('compileTheme');
+        $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -384,11 +392,11 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
         );
 
-        $this->themeCompilerMock->expects(static::exactly(2))->method('compileTheme');
+        $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, ['test' => ['value' => ['test']]], $parentThemeId, $this->context);
     }
@@ -416,7 +424,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->themeCompilerMock->expects(static::never())->method('compileTheme');
+        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -444,11 +452,11 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeConfigResetEvent($themeId)
         );
 
-        $this->themeRepositoryMock->expects(static::once())->method('update')->with(
+        $this->themeRepositoryMock->expects($this->once())->method('update')->with(
             [
                 [
                     'id' => $themeId,
@@ -527,16 +535,7 @@ class ThemeServiceTest extends TestCase
         ?array $expectedStructured = null,
         ?array $expectedStructuredNotTranslated = null
     ): void {
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
+        $this->mockThemeRepositorySearch($themeCollection);
 
         $storefrontPlugin = new StorefrontPluginConfiguration('Test');
         $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
@@ -577,16 +576,7 @@ class ThemeServiceTest extends TestCase
             $expected = $expectedNotTranslated;
         }
 
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
+        $this->mockThemeRepositorySearch($themeCollection);
 
         $storefrontPlugin = new StorefrontPluginConfiguration('Test');
         $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
@@ -623,16 +613,7 @@ class ThemeServiceTest extends TestCase
         ?array $expectedStructured = null,
         ?array $expectedStructuredNotTranslated = null
     ): void {
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
+        $this->mockThemeRepositorySearch($themeCollection);
 
         $storefrontPlugin = new StorefrontPluginConfiguration('Test');
         $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
@@ -673,16 +654,7 @@ class ThemeServiceTest extends TestCase
             $expectedStructured = $expectedStructuredNotTranslated;
         }
 
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
+        $this->mockThemeRepositorySearch($themeCollection);
 
         $storefrontPlugin = new StorefrontPluginConfiguration('Test');
         $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
@@ -726,10 +698,10 @@ class ThemeServiceTest extends TestCase
             $this->createMock(NotificationService::class)
         );
 
-        $this->systemConfigMock->expects(static::never())->method('get');
-        $this->messageBusMock->expects(static::never())->method('dispatch');
+        $this->systemConfigMock->expects($this->never())->method('get');
+        $this->messageBusMock->expects($this->never())->method('dispatch');
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -749,6 +721,7 @@ class ThemeServiceTest extends TestCase
         $themeId = Uuid::randomHex();
         $parentThemeId = Uuid::randomHex();
         $baseThemeId = Uuid::randomHex();
+        $databaseThemeId = Uuid::randomHex();
 
         return [
             [
@@ -1474,6 +1447,158 @@ class ThemeServiceTest extends TestCase
                     'tabs' => ThemeFixtures::getExtractedTabs13(),
                 ],
             ],
+            [
+                'ids' => [
+                    'themeId' => $databaseThemeId,
+                    'physicalThemeId' => $themeId,
+                    'parentThemeId' => $parentThemeId,
+                    'baseThemeId' => $baseThemeId,
+                ],
+                'themeCollection' => new ThemeCollection(
+                    [
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $databaseThemeId,
+                                '_uniqueIdentifier' => $databaseThemeId,
+                                'technicalName' => null, // Database child themes don't have a technical name.
+                                'parentThemeId' => $themeId,
+                                'salesChannels' => new SalesChannelCollection(),
+                                'configValues' => [
+                                    'sw-color-brand-primary' => ['value' => '#db0f80'],
+                                ],
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $themeId,
+                                '_uniqueIdentifier' => $themeId,
+                                'technicalName' => 'Test',
+                                'parentThemeId' => $parentThemeId,
+                                'baseConfig' => [
+                                    'configInheritance' => [
+                                        '@ParentTheme',
+                                    ],
+                                    'config' => ThemeFixtures::getThemeJsonConfig(),
+                                    'fields' => [
+                                        'extend-parent-custom-config' => [
+                                            'type' => 'int',
+                                            'value' => '20',
+                                            'editable' => true,
+                                            'label' => [
+                                                'de-DE' => 'DE',
+                                                'en-GB' => 'EN',
+                                            ],
+                                            'helpText' => [
+                                                'de-DE' => 'De Helptext',
+                                                'en-GB' => 'EN Helptext',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                                'configValues' => [
+                                    'parent-custom-config' => ['value' => '40'],
+                                ],
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $parentThemeId,
+                                'technicalName' => 'ParentTheme',
+                                'parentThemeId' => $baseThemeId,
+                                '_uniqueIdentifier' => $parentThemeId,
+                                'baseConfig' => [
+                                    'configInheritance' => [
+                                        '@Storefront',
+                                    ],
+                                    'fields' => [
+                                        'parent-custom-config' => [
+                                            'type' => 'int',
+                                            'value' => '20',
+                                            'editable' => true,
+                                            'label' => [
+                                                'de-DE' => 'DE',
+                                                'en-GB' => 'EN',
+                                            ],
+                                            'helpText' => [
+                                                'de-DE' => 'De Helptext',
+                                                'en-GB' => 'EN Helptext',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $baseThemeId,
+                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                                '_uniqueIdentifier' => $baseThemeId,
+                            ]
+                        ),
+                    ]
+                ),
+                'expected' => [
+                    'fields' => ThemeFixtures::getExtractedFields13(),
+                    'configInheritance' => ThemeFixtures::getExtractedConfigInheritance(),
+                    'config' => ThemeFixtures::getExtractedConfig1(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields9(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields9(),
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                ],
+                'expectedNotTranslated' => [
+                    'fields' => ThemeFixtures::getExtractedFields13(),
+                    'configInheritance' => ThemeFixtures::getExtractedConfigInheritance(),
+                    'config' => ThemeFixtures::getExtractedConfig1(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields9(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields9(),
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                ],
+                'expectedStructured' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs15(),
+                ],
+                'expectedStructuredNotTranslated' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs14(),
+                ],
+            ],
         ];
+    }
+
+    private function mockThemeRepositorySearch(ThemeCollection $themeCollection): void
+    {
+        // Set up the mock to handle both the main search and the parent theme search
+        $this->themeRepositoryMock->method('search')->willReturnCallback(
+            function (Criteria $criteria) use ($themeCollection) {
+                // If the criteria has a filter for a specific ID, find that theme
+                $filters = $criteria->getFilters();
+                foreach ($filters as $filter) {
+                    if ($filter instanceof \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter
+                        && $filter->getField() === 'id') {
+                        $searchId = (string) $filter->getValue();
+                        $foundTheme = $themeCollection->get($searchId);
+
+                        if ($foundTheme) {
+                            return new EntitySearchResult(
+                                'theme',
+                                1,
+                                new ThemeCollection([$foundTheme]),
+                                null,
+                                $criteria,
+                                $this->context
+                            );
+                        }
+                    }
+                }
+
+                // Default: return the full collection for the main search
+                return new EntitySearchResult(
+                    'theme',
+                    $themeCollection->count(),
+                    $themeCollection,
+                    null,
+                    $criteria,
+                    $this->context
+                );
+            }
+        );
     }
 }

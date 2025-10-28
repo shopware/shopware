@@ -53,7 +53,7 @@ class AdminProductStreamControllerTest extends TestCase
 
         $collection = new ProductCollection();
 
-        $this->salesChannelRepository->expects(static::once())->method('search')
+        $this->salesChannelRepository->expects($this->once())->method('search')
             ->willReturn(new EntitySearchResult(
                 'product',
                 1,

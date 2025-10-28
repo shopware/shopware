@@ -61,7 +61,7 @@ class ReinstallAppsStrategyTest extends TestCase
         $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::once())
+        $registrationsService->expects($this->once())
             ->method('registerApp')
             ->with(
                 static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
@@ -71,7 +71,7 @@ class ReinstallAppsStrategyTest extends TestCase
             );
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(AppInstalledEvent::class));
 
@@ -103,14 +103,14 @@ class ReinstallAppsStrategyTest extends TestCase
         $appDir = __DIR__ . '/../Lifecycle/Registration/_fixtures/no-setup';
         $this->loadAppsFromDir($appDir);
 
-        $shopId = $this->changeAppUrl();
+        $shopId = $this->changeAppUrl(false);
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::never())
+        $registrationsService->expects($this->never())
             ->method('registerApp');
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::never())
+        $eventDispatcher->expects($this->never())
             ->method('dispatch');
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
@@ -126,19 +126,20 @@ class ReinstallAppsStrategyTest extends TestCase
         static::assertNotEquals($shopId, $this->shopIdProvider->getShopId());
     }
 
-    private function changeAppUrl(): string
+    private function changeAppUrl(bool $expectToThrow = true): string
     {
         $shopId = $this->shopIdProvider->getShopId();
 
         // create AppUrlChange
         $this->setEnvVars(['APP_URL' => 'https://test.new']);
+        $wasThrown = false;
 
         try {
             $this->shopIdProvider->getShopId();
-            static::fail('Expected exception AppUrlChangeDetectedException was not thrown');
         } catch (AppUrlChangeDetectedException) {
-            // exception is expected
+            $wasThrown = true;
         }
+        static::assertSame($expectToThrow, $wasThrown);
 
         return $shopId;
     }

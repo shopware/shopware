@@ -67,9 +67,10 @@ class OrderConverter
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION => true,
-        PromotionCollector::SKIP_PROMOTION => true,
         ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
         ProductCartProcessor::KEEP_INACTIVE_PRODUCT => true,
+        PromotionCollector::PIN_MANUAL_PROMOTIONS => true,
+        PromotionCollector::PIN_AUTOMATIC_PROMOTIONS => true,
     ];
 
     /**
@@ -84,7 +85,7 @@ class OrderConverter
         protected AbstractSalesChannelContextFactory $salesChannelContextFactory,
         protected EventDispatcherInterface $eventDispatcher,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        private readonly OrderDefinition $orderDefinition,
+        private readonly OrderDefinition $orderDefinition, // @phpstan-ignore-line
         private readonly EntityRepository $orderAddressRepository,
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly LineItemDownloadLoader $downloadLoader,
@@ -113,7 +114,7 @@ class OrderConverter
             $cart,
             $context,
             $this->initialStateIdLoader->get(OrderStates::STATE_MACHINE),
-            $conversionContext->shouldIncludeOrderDate()
+            $conversionContext->shouldIncludePersistentData(),
         );
 
         if ($conversionContext->shouldIncludeCustomer()) {
@@ -189,18 +190,21 @@ class OrderConverter
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);
         $data['id'] = $idStruct ? $idStruct->getId() : Uuid::randomHex();
 
-        $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
-        if ($orderNumberStruct !== null) {
-            $data['orderNumber'] = $orderNumberStruct->getId();
-        } else {
-            $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-                $this->orderDefinition->getEntityName(),
-                $context->getContext(),
-                $context->getSalesChannelId()
-            );
+        if ($conversionContext->shouldIncludeOrderNumber()) {
+            $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
+            if ($orderNumberStruct !== null) {
+                $data['orderNumber'] = $orderNumberStruct->getId();
+            } else {
+                $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
+                    OrderDefinition::ENTITY_NAME,
+                    $context->getContext(),
+                    $context->getSalesChannelId()
+                );
+            }
         }
 
         $data['ruleIds'] = $context->getRuleIds();
+        $data['taxCalculationType'] = $context->getTaxCalculationType();
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
         $this->eventDispatcher->dispatch($event);

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeExcept
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
-use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -36,6 +35,10 @@ class DocumentException extends HttpException
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
 
     public const FILE_EXTENSION_NOT_SUPPORTED = 'DOCUMENT__FILE_EXTENSION_NOT_SUPPORTED';
+
+    public const CANNOT_CREATE_ZIP_FILE = 'DOCUMENT__CANNOT_CREATE_ZIP_FILE';
+
+    public const DOCUMENT_ZIP_READ_ERROR = 'DOCUMENT__ZIP_READ_ERROR';
 
     public static function invalidDocumentGeneratorType(string $type): self
     {
@@ -95,19 +98,8 @@ class DocumentException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
-    public static function customerNotLoggedIn(): self|CustomerNotLoggedInException
+    public static function customerNotLoggedIn(): CustomerNotLoggedInException
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
-                'Customer is not logged in.'
-            );
-        }
-
         return new CustomerNotLoggedInException(
             Response::HTTP_FORBIDDEN,
             CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
@@ -182,35 +174,13 @@ class DocumentException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
-    public static function guestNotAuthenticated(): self|GuestNotAuthenticatedException
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-                'Guest not authenticated.'
-            );
-        }
-
         return new GuestNotAuthenticatedException();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
-    public static function wrongGuestCredentials(): self|WrongGuestCredentialsException
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
-                'Wrong credentials for guest authentication.'
-            );
-        }
-
         return new WrongGuestCredentialsException();
     }
 
@@ -237,6 +207,27 @@ class DocumentException extends HttpException
                 'counter' => $count,
                 'violations' => $violations,
             ]
+        );
+    }
+
+    public static function cannotCreateZipFile(string $filePath): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_CREATE_ZIP_FILE,
+            'Cannot create ZIP file at "{{ filePath }}"',
+            ['filePath' => $filePath]
+        );
+    }
+
+    public static function cannotReadZipFile(string $filePath, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DOCUMENT_ZIP_READ_ERROR,
+            'Cannot read document ZIP file: {{ filePath }}',
+            ['filePath' => $filePath],
+            $previous
         );
     }
 }

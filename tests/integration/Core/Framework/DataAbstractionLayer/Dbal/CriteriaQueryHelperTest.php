@@ -42,7 +42,7 @@ class CriteriaQueryHelperTest extends TestCase
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('addOrderBy');
 
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
@@ -56,7 +56,7 @@ class CriteriaQueryHelperTest extends TestCase
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('addOrderBy');
 
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
@@ -70,7 +70,7 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'test matching'), 1000));
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('addOrderBy')
             ->with('_score', 'DESC');
 
@@ -85,7 +85,7 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->setTerm('searchTerm');
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('addOrderBy')
             ->with('_score', 'DESC');
 

@@ -355,11 +355,11 @@ class ProcessorTest extends TestCase
         $cart = new Cart('test');
 
         $collector = $this->createMock(CartDataCollectorInterface::class);
-        $collector->expects(static::never())
+        $collector->expects($this->never())
             ->method('collect');
 
         $processorMock = $this->createMock(CartProcessorInterface::class);
-        $processorMock->expects(static::never())
+        $processorMock->expects($this->never())
             ->method('process');
 
         $processor = new Processor(

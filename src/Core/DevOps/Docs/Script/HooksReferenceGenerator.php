@@ -138,6 +138,11 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 'description' => 'All available hooks that can be used to execute scripts during your app\'s lifecycle.',
                 'hooks' => [],
             ],
+            self::USE_CASE_PRODUCT => [
+                'title' => 'Product',
+                'description' => 'All available hooks that can be used to manipulate products.',
+                'hooks' => [],
+            ],
         ];
 
         /** @var class-string<Hook> $hook */
@@ -248,7 +253,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
         $group = $this->serviceReferenceGenerator->getGroupForService($reflection);
 
-        return \sprintf('./%s#%s', ServiceReferenceGenerator::GROUPS[$group], $reflection->getShortName());
+        return \sprintf('./%s#%s', \str_replace('.md', '', ServiceReferenceGenerator::GROUPS[$group]), $reflection->getShortName());
     }
 
     /**

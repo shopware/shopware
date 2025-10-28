@@ -50,6 +50,8 @@ class RateLimiterTest extends TestCase
     use OrderFixture;
     use RateLimiterTestTrait;
 
+    public static string $customCacheId;
+
     private Context $context;
 
     private IdsCollection $ids;
@@ -60,18 +62,14 @@ class RateLimiterTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        DisableRateLimiterCompilerPass::disableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        DisableRateLimiterCompilerPass::enableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+        self::$customCacheId = Uuid::randomHex();
     }
 
     protected function setUp(): void
     {
+        DisableRateLimiterCompilerPass::disableNoLimit();
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
+
         $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
 
@@ -88,6 +86,7 @@ class RateLimiterTest extends TestCase
     protected function tearDown(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
     public function testRateLimitLoginRoute(): void

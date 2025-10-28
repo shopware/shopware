@@ -35,7 +35,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         ]]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'cf_bool' => 'bool',
         ]);
 

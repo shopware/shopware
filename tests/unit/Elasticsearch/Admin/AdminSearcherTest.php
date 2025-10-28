@@ -50,7 +50,7 @@ class AdminSearcherTest extends TestCase
     public function testElasticSearch(): void
     {
         $this->client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('msearch')
             ->with([
                 'body' => [
@@ -131,7 +131,7 @@ class AdminSearcherTest extends TestCase
     public function testSearchWithLimit(): void
     {
         $this->client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('msearch')
             ->with([
                 'body' => [

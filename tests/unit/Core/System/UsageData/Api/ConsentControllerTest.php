@@ -96,7 +96,7 @@ class ConsentControllerTest extends TestCase
     public function testDelegatesConsentRevocation(): void
     {
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('revokeConsent');
 
         $controller = new ConsentController(
@@ -115,7 +115,7 @@ class ConsentControllerTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
         $bannerService = $this->createMock(BannerService::class);
-        $bannerService->expects(static::once())
+        $bannerService->expects($this->once())
             ->method('hideConsentBannerForUser')
             ->with($userId, $context);
 
@@ -131,7 +131,7 @@ class ConsentControllerTest extends TestCase
     public function testCatchesConsentAlreadyRequestedException(): void
     {
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('requestConsent')
             ->willThrowException(UsageDataException::consentAlreadyRequested());
 
@@ -148,7 +148,7 @@ class ConsentControllerTest extends TestCase
     public function testCatchesConsentAlreadyAcceptedException(): void
     {
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('acceptConsent')
             ->willThrowException(UsageDataException::consentAlreadyAccepted());
 
@@ -165,7 +165,7 @@ class ConsentControllerTest extends TestCase
     public function testCatchesConsentAlreadyRevokedException(): void
     {
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('revokeConsent')
             ->willThrowException(UsageDataException::consentAlreadyRevoked());
 

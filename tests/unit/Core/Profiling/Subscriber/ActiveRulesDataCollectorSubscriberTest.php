@@ -88,7 +88,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
 
         $ruleRepository = $this->createMock(EntityRepository::class);
         $ruleRepository
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('search');
 
         $subscriber = new ActiveRulesDataCollectorSubscriber($ruleRepository);

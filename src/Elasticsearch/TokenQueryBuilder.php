@@ -125,16 +125,18 @@ class TokenQueryBuilder
 
             $queries[] = new MatchQuery($searchField, $token, [
                 'boost' => $config->getRanking(),
-                'fuzziness' => $config->tokenize() ? 'auto' : 1,
+                'fuzziness' => $config->getFuzziness($token),
                 'operator' => $operator,
             ]);
 
-            // Prefix match
-            $queries[] = new MatchPhrasePrefixQuery($searchField, $token, [
-                'boost' => 0.6 * $config->getRanking(),
-                'slop' => 3,
-                'max_expansions' => 10,
-            ]);
+            if ($config->usePrefixMatch()) {
+                // Prefix match
+                $queries[] = new MatchPhrasePrefixQuery($searchField, $token, [
+                    'boost' => 0.6 * $config->getRanking(),
+                    'slop' => 3,
+                    'max_expansions' => 10,
+                ]);
+            }
 
             if ($config->tokenize() && $tokenCount === 1) {
                 // ngram search
@@ -180,6 +182,7 @@ class TokenQueryBuilder
                 $ranking,
                 $config->tokenize(),
                 $config->isAndLogic(),
+                $config->usePrefixMatch(),
             );
 
             $languageQuery = $this->matchQuery($field, $token, $languageConfig);

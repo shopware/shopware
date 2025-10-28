@@ -26,7 +26,7 @@ class PluginUpdateAllCommandTest extends TestCase
     public function testNoUpdates(): void
     {
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())->method('refreshPlugins');
+        $pluginService->expects($this->once())->method('refreshPlugins');
 
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
@@ -34,7 +34,7 @@ class PluginUpdateAllCommandTest extends TestCase
         ])]);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
-        $pluginLifecycleService->expects(static::never())->method('updatePlugin');
+        $pluginLifecycleService->expects($this->never())->method('updatePlugin');
 
         $command = new PluginUpdateAllCommand($pluginService, $pluginRepository, $pluginLifecycleService);
         $command->setHelperSet(new HelperSet());
@@ -46,7 +46,7 @@ class PluginUpdateAllCommandTest extends TestCase
     public function testUpdatableButNotActive(): void
     {
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())->method('refreshPlugins');
+        $pluginService->expects($this->once())->method('refreshPlugins');
 
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
@@ -54,7 +54,7 @@ class PluginUpdateAllCommandTest extends TestCase
         ])]);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
-        $pluginLifecycleService->expects(static::never())->method('updatePlugin');
+        $pluginLifecycleService->expects($this->never())->method('updatePlugin');
 
         $command = new PluginUpdateAllCommand($pluginService, $pluginRepository, $pluginLifecycleService);
         $command->setHelperSet(new HelperSet());
@@ -66,7 +66,7 @@ class PluginUpdateAllCommandTest extends TestCase
     public function testUpdatesOnlyAvailablePlugins(): void
     {
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())->method('refreshPlugins');
+        $pluginService->expects($this->once())->method('refreshPlugins');
 
         $updateAblePlugin = $this->createPlugin('Test2', upgradeVersion: '1.0.1');
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
@@ -78,7 +78,7 @@ class PluginUpdateAllCommandTest extends TestCase
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('updatePlugin')
             ->with($updateAblePlugin)
             ->willReturnCallback(function (PluginEntity $plugin, Context $context) use ($updateMock) {
@@ -101,7 +101,7 @@ class PluginUpdateAllCommandTest extends TestCase
     public function testUpdatesOnlyAvailablePluginsSkipAssetBuild(): void
     {
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())->method('refreshPlugins');
+        $pluginService->expects($this->once())->method('refreshPlugins');
 
         $updateAblePlugin = $this->createPlugin('Test2', upgradeVersion: '1.0.1');
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
@@ -113,7 +113,7 @@ class PluginUpdateAllCommandTest extends TestCase
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('updatePlugin')
             ->with($updateAblePlugin)
             ->willReturnCallback(function (PluginEntity $plugin, Context $context) use ($updateMock) {

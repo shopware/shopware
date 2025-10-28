@@ -76,7 +76,7 @@ class UserRecoveryServiceTest extends TestCase
         ], new SalesChannelDefinition());
 
         $this->dispatcher
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch');
 
         $service = new UserRecoveryService(
@@ -126,12 +126,12 @@ class UserRecoveryServiceTest extends TestCase
         ], new SalesChannelDefinition());
 
         $this->router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
 
         $this->dispatcher
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch');
 
         $service = new UserRecoveryService(
@@ -182,17 +182,17 @@ class UserRecoveryServiceTest extends TestCase
         ], new SalesChannelDefinition());
 
         $this->router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
 
         $this->salesChannelContextService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->willReturn($this->createMock(SalesChannelContext::class));
 
         $this->dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(
                 static::isInstanceOf(UserRecoveryRequestEvent::class),
@@ -253,17 +253,17 @@ class UserRecoveryServiceTest extends TestCase
         ], new SalesChannelDefinition());
 
         $this->router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
 
         $this->salesChannelContextService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->willReturn($this->createMock(SalesChannelContext::class));
 
         $this->dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(
                 static::isInstanceOf(UserRecoveryRequestEvent::class),

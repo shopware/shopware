@@ -36,7 +36,7 @@ class ManyToManyAssociationServiceTest extends TestCase
         $ids = new IdsCollection();
         $connection = $this->createMock(Connection::class);
         $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('executeQuery')
             ->with(
                 'SELECT `referenceColumn`, `localColumn` FROM `ManyToManyEntity` WHERE (`localColumn` IN (:ids)) AND (`product_version_id` = UNHEX(:versionId))',

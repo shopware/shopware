@@ -59,6 +59,11 @@ class OrderBuilder
 
     protected string $stateId;
 
+    /**
+     * @var array{id: string, orderId: string, customerId: string, versionId: string, orderVersionId: string, firstName: string, lastName: string, email: string}|null
+     */
+    protected ?array $orderCustomer;
+
     public function __construct(
         IdsCollection $ids,
         string $orderNumber,
@@ -160,6 +165,22 @@ class OrderBuilder
         ], $customParams);
 
         $this->addresses[$key] = $address;
+
+        return $this;
+    }
+
+    public function orderCustomer(string $firstName, string $customerNumber): self
+    {
+        $this->orderCustomer = [
+            'id' => $this->ids->get('orderCustomer'),
+            'orderId' => $this->id,
+            'customerId' => $this->ids->get($customerNumber),
+            'versionId' => Defaults::LIVE_VERSION,
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'firstName' => $firstName,
+            'lastName' => 'Mustermann',
+            'email' => 'some@mail.de',
+        ];
 
         return $this;
     }

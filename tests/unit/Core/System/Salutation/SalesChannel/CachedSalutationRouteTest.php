@@ -68,7 +68,7 @@ class CachedSalutationRouteTest extends TestCase
     public function testLoadWithDisabledCacheWillCallDecoratedRoute(): void
     {
         $this->decorated
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn(new SalutationRouteResponse(new EntitySearchResult(
                 'entity',
@@ -79,7 +79,7 @@ class CachedSalutationRouteTest extends TestCase
                 Context::createDefaultContext()
             )));
         $this->cache
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('get');
         $this->eventDispatcher->addListener(
             SalutationRouteCacheKeyEvent::class,
@@ -92,10 +92,10 @@ class CachedSalutationRouteTest extends TestCase
     public function testLoadWithEnabledCacheWillReturnDataFromCache(): void
     {
         $this->decorated
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('load');
         $this->cache
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->willReturn(
                 CacheValueCompressor::compress(

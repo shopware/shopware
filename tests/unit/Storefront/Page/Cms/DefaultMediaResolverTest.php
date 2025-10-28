@@ -32,12 +32,12 @@ class DefaultMediaResolverTest extends TestCase
     public function testGetDefaultCmsMediaEntity(): void
     {
         $decorated = $this->createMock(AbstractDefaultMediaResolver::class);
-        $decorated->expects(static::once())
+        $decorated->expects($this->once())
             ->method('getDefaultCmsMediaEntity')
             ->willReturn(new MediaEntity());
 
         $translator = $this->createMock(AbstractTranslator::class);
-        $translator->expects(static::exactly(2))
+        $translator->expects($this->exactly(2))
             ->method('trans')
             ->willReturn('media-title');
 
@@ -60,7 +60,7 @@ class DefaultMediaResolverTest extends TestCase
     public function testGetDefaultCmsMediaEntityReturnsNullIfNoMediaFound(): void
     {
         $decorated = $this->createMock(AbstractDefaultMediaResolver::class);
-        $decorated->expects(static::once())
+        $decorated->expects($this->once())
             ->method('getDefaultCmsMediaEntity')
             ->willReturn(null);
 

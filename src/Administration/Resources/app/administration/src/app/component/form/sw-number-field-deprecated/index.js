@@ -142,7 +142,7 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
         },
 
         stringRepresentation() {
-            if (this.currentValue === null) {
+            if (this.currentValue === null || Number.isNaN(this.currentValue)) {
                 return '';
             }
 

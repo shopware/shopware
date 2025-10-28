@@ -56,7 +56,7 @@ class CronIntervalFieldSerializerTest extends TestCase
 
         $cronExpression = $this->intervalFieldSerializer->encode(
             new CronIntervalField('fake', 'fake'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -73,7 +73,7 @@ class CronIntervalFieldSerializerTest extends TestCase
 
         $this->intervalFieldSerializer->encode(
             new ManyToOneAssociationField('test', 'test', 'test'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -85,7 +85,7 @@ class CronIntervalFieldSerializerTest extends TestCase
 
         $interval = $this->intervalFieldSerializer->encode(
             new CronIntervalField('name', 'name'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         );
@@ -102,7 +102,7 @@ class CronIntervalFieldSerializerTest extends TestCase
         $data = new KeyValuePair('key', new CronIntervalField('name', 'name'), false);
 
         $this->validator
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('validate')
             ->with($data->getValue(), static::callback(static function ($constraint): bool {
                 return $constraint instanceof NotNull || ($constraint instanceof Type && $constraint->type === CronExpression::class);
@@ -113,7 +113,7 @@ class CronIntervalFieldSerializerTest extends TestCase
 
         $this->intervalFieldSerializer->encode(
             (new CronIntervalField('name', 'name'))->setFlags(new Required()),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -125,7 +125,7 @@ class CronIntervalFieldSerializerTest extends TestCase
 
         $cronExpression = $this->intervalFieldSerializer->encode(
             new CronIntervalField('fake', 'fake'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -142,7 +142,7 @@ class CronIntervalFieldSerializerTest extends TestCase
 
         $this->intervalFieldSerializer->encode(
             new CronIntervalField('fake', 'fake'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -154,7 +154,7 @@ class CronIntervalFieldSerializerTest extends TestCase
 
         $interval = $this->intervalFieldSerializer->encode(
             new CronIntervalField('name', 'name'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         );

@@ -6,6 +6,7 @@ import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const block = {
+    id: 'blockId',
     name: 'Block name',
     type: 'text',
     backgroundColor: '',

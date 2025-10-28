@@ -217,6 +217,18 @@ export default {
                     return;
                 }
 
+                const actionType = Shopware.Service('flowBuilderService').mapActionType(action.name);
+
+                if (actionType) {
+                    const hasDuplicate = availableActions.find((existingName) => {
+                        return Shopware.Service('flowBuilderService').mapActionType(existingName) === actionType;
+                    });
+
+                    if (hasDuplicate !== undefined) {
+                        return;
+                    }
+                }
+
                 availableActions.push(action.name);
             });
 
@@ -310,7 +322,7 @@ export default {
         },
 
         fetchTriggerActions({ commit }) {
-            Service('businessEventService')
+            return Service('businessEventService')
                 .getBusinessEvents()
                 .then((result) => {
                     commit('setTriggerEvents', result);

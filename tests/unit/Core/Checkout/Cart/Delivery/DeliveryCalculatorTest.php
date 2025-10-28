@@ -61,9 +61,9 @@ class DeliveryCalculatorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
+        $delivery->expects($this->atLeastOnce())->method('getShippingCosts')->willReturn($costs);
         $newCosts = null;
-        $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+        $delivery->expects($this->once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
             /** @var CalculatedPrice $newCosts */
             $newCosts = $costsParameter;
         });
@@ -82,7 +82,7 @@ class DeliveryCalculatorTest extends TestCase
         $price = $lineItem->getPrice();
         static::assertNotNull($price);
 
-        $delivery->expects(static::once())->method('getPositions')->willReturn(
+        $delivery->expects($this->once())->method('getPositions')->willReturn(
             new DeliveryPositionCollection(
                 [
                     new DeliveryPosition(
@@ -105,7 +105,7 @@ class DeliveryCalculatorTest extends TestCase
         $cart->setBehavior($cartBehavior);
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
-        $quantityPriceCalculatorMock->expects(static::once())->method('calculate')->willReturn($costs);
+        $quantityPriceCalculatorMock->expects($this->once())->method('calculate')->willReturn($costs);
 
         $deliveryCalculator = new DeliveryCalculator(
             $quantityPriceCalculatorMock,

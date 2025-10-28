@@ -29,7 +29,7 @@ class CustomerIndexerTest extends TestCase
         $event = $this->createMock(EntityWrittenContainerEvent::class);
 
         $event->method('getPrimaryKeys')->willReturn(['customer']);
-        $event->expects(static::once())->method('getPrimaryKeysWithPropertyChange')->willReturn([
+        $event->expects($this->once())->method('getPrimaryKeysWithPropertyChange')->willReturn([
             $customerId,
         ]);
 
@@ -61,7 +61,7 @@ class CustomerIndexerTest extends TestCase
         $message->method('getIds')->willReturn([$customerId]);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())->method('dispatch')->willReturnCallback(function ($message) use ($customerId) {
+        $eventDispatcher->expects($this->once())->method('dispatch')->willReturnCallback(function ($message) use ($customerId) {
             static::assertInstanceOf(CustomerIndexerEvent::class, $message);
             static::assertSame($message->getIds(), [$customerId]);
 

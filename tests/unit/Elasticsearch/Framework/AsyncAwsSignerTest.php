@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AsyncAwsSigner;
 
@@ -29,6 +30,7 @@ class AsyncAwsSignerTest extends TestCase
         $this->credentialProvider = $this->createMock(CredentialProvider::class);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvokeSignsRequestSuccessfully(): void
     {
         $configuration = Configuration::create([
@@ -64,7 +66,7 @@ class AsyncAwsSignerTest extends TestCase
 
         $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'test', $this->credentialProvider);
 
-        $this->logger->expects(static::once())
+        $this->logger->expects($this->once())
             ->method('error')
             ->with(static::stringContains('Error signing request'));
 

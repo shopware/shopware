@@ -27,7 +27,7 @@ class MakerCommandTest extends TestCase
     public function testExecute(): void
     {
         $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
-        $scaffoldingWriter->expects(static::once())
+        $scaffoldingWriter->expects($this->once())
             ->method('write')
             ->with(static::callback(static function (StubCollection $stubCollection) {
                 $stub = $stubCollection->get('src/Resources/config/services.xml');
@@ -38,7 +38,7 @@ class MakerCommandTest extends TestCase
             }));
 
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())
+        $pluginService->expects($this->once())
             ->method('getPluginByName')
             ->with('ExamplePlugin')
             ->willReturn($this->getPluginEntity());
@@ -78,7 +78,7 @@ class MakerCommandTest extends TestCase
         $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
 
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())
+        $pluginService->expects($this->once())
             ->method('getPluginByName')
             ->with('ExamplePlugin')
             ->willReturn(new PluginEntity());

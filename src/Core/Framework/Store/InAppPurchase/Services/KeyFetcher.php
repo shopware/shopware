@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Store\InAppPurchase\Services;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\JWT\Struct\JWKCollection;
 use Shopware\Core\Framework\JWT\Struct\JWKStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -41,7 +41,7 @@ final class KeyFetcher
             return $key;
         }
 
-        return $this->fetchAndStoreKey($context) ?? $key ?? throw AppException::jwksNotFound();
+        return $this->fetchAndStoreKey($context) ?? $key ?? throw StoreException::jwksNotFound();
     }
 
     private function getStoredKey(): ?JWKCollection

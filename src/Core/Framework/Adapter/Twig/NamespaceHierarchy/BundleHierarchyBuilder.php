@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -63,6 +64,11 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
      */
     private function getAppTemplateNamespaces(): array
     {
+        // @deprecated tag:v6.7.0 - remove if condition
+        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
+            return [];
+        }
+
         return $this->connection->fetchAllAssociativeIndexed(
             'SELECT `app`.`name`, `app`.`version`, `app`.`template_load_priority`
              FROM `app`

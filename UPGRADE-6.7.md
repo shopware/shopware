@@ -493,6 +493,67 @@ The existing forms in the Shopware Storefront are already reworked to use the de
 * Product reviews
 * Newsletter registration (CMS)
 * Contact form (CMS)
+
+## Use `<button>` elements instead of `<a>` to open modal windows
+
+Modal triggers that were previously using anchor `<a>` elements are now using `<button>` elements.
+Anchor `<a>` elements are recognized as native links by the screen-reader and should not open a dialog/modal window instead of redirecting to a new page.
+A modal window should be opened via `<button>` and is mainly driven by JavaScript. `<a href="#">` elements should only be native hyperlinks and not trigger additional modals. This can confuse screen-reader users.
+
+To maintain the link appearance, the classes `btn btn-link-inline` are used. The "link" looks like a regular link but is semantically a `<button>` when it triggers a modal.
+
+### Ajax modal trigger before:
+```html
+<a data-ajax-modal="true" data-url="/some-route" href="/some-route">Open ajax modal</a>
+```
+
+### Ajax modal trigger after:
+```html
+<button data-ajax-modal="true" data-url="/some-route" class="btn btn-link-inline">Open ajax modal</button>
+```
+
+### New translation keys with button modal triggers
+
+Some modal triggers are inside translation texts. With 6.7 new translation keys are used that have buttons instead of links.
+There are also new translation parameters to avoid too much HTML and modal logic inside the translation strings.
+
+| Old key                             | Old params                   | New key                                  | New params                                                                                   |
+|-------------------------------------|------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------|
+| `general.privacyNoticeText`         | `%privacyUrl%`, `%tosUrl%`   | `general.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`, `%tosModalTagOpen%`, `%tosModalTagClose%` |
+| `contact.privacyNoticeText`         | `%privacyUrl%`, `%prevUrl%`  | `contact.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`                                            |
+| `checkout.confirmRevocationNotice`  | `%url%`                      | `checkout.confirmRevocationNoticeModal`  | `%revocationModalTagOpen%`, `%revocationModalTagClose%`                                      |
+| `checkout.confirmTermsText`         | `%url%`                      | `checkout.confirmTermsTextModal`         | `%tosModalTagOpen%`, `%tosModalTagClose%`                                                    |
+| `checkout.confirmTermsReminderText` | `%url%`                      | `checkout.confirmTermsReminderTextModal` | `%tosModalTagOpen%`, `'%tosModalTagClose%`                                                   |
+
+### Old translation string structure
+The HTML of the modal trigger was part of the translation.
+
+```twig
+{{ 'checkout.confirmTermsReminderText')|trans({
+    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }),
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>."
+}
+```
+
+### New translation string structure
+The HTML of the modal trigger is now inside the twig template instead.
+
+```twig
+{{ 'checkout.confirmTermsReminderTextModal')|trans({
+    '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+    '%tosModalTagClose%': '</button>'
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderTextModal": "You have already accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%."
+}
+```
+
 </details>
 
 # Further Changes
@@ -2527,6 +2588,11 @@ Make sure to pass it to the constructor.
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
 * The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Use the following alternatives in templates instead:
+    * `context.currency` instead of `page.header.activeCurrency`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
 * The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` were removed.
   Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
 * The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` was removed.
@@ -2551,6 +2617,11 @@ Make sure to pass it to the constructor.
 * The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
 * The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
 * The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
+* The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
+## FooterPagelet changes
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
 
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
@@ -2717,4 +2788,38 @@ Alternatively you can use the `cache:clear:all` command to clear all caches (inc
 
 Prior Shopware 6.7, the cache ID was loaded by the database from the `app_config` table and created complete different caches using that. This was used in earlier Shopware versions to clear the cache rapidly without having to clear the whole cache.
 You can still set `SHOPWARE_CACHE_ID` as an environment variable to set the cache ID.
+</details>
+
+# Document renderer structure change
+We made some changes in the document renderer structure, which might affect your project setups.
+<details>
+  <summary>Detailed Changes</summary>
+
+## AbstractDocumentRenderer render workflow
+With the next major version, the PDF rendering will be moved from the `\Shopware\Core\Checkout\Document\Service\DocumentGenerator` to each renderer with a PDF document.
+Each implementation of the `\Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer` class needs to set the fully rendered file with `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::setContent()`.
+With this change, the `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::html` property is not needed anymore and will be removed.
+The content of a PDF document must be rendered within the renderer.
+Before:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $html,
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+```
+After:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+$doc->setContent($this->pdfRenderer->render($doc, $html));
+```
 </details>

@@ -29,7 +29,7 @@ class StoreHandshakeTest extends TestCase
         $shopId = Random::getAlphanumericString(12);
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::once())
+        $storeClientMock->expects($this->once())
             ->method('signPayloadWithAppSecret')
             ->willReturn('1234');
 
@@ -68,7 +68,7 @@ class StoreHandshakeTest extends TestCase
         $shopId = Random::getAlphanumericString(12);
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::once())
+        $storeClientMock->expects($this->once())
             ->method('signPayloadWithAppSecret')
             ->with($shopId . $shopUrl . $appName, $appName)
             ->willReturn('1234');

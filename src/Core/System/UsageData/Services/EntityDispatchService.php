@@ -32,6 +32,7 @@ class EntityDispatchService
         private readonly GatewayStatusService $gatewayStatusService,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly SystemConfigService $systemConfigService,
+        private readonly bool $collectionEnabled,
     ) {
     }
 
@@ -42,6 +43,10 @@ class EntityDispatchService
 
     public function dispatchCollectEntityDataMessage(): void
     {
+        if (!$this->collectionEnabled) {
+            return;
+        }
+
         $this->messageBus->dispatch(new CollectEntityDataMessage($this->shopIdProvider->getShopId()));
     }
 

@@ -32,7 +32,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItReturnsDefaultCookiesIfNoAppIsInstalled(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn(['test']);
 
@@ -43,7 +43,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItAddsSingleCookieFromApp(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([]);
 
@@ -61,7 +61,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItAddsCookieGroupFromApp(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([]);
 
@@ -87,7 +87,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItMergesCookiesFromAppWithCoreGroup(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([[
                 'snippet_name' => 'cookie.groupRequired',
@@ -125,7 +125,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItMergesCookiesFromMultipleApps(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([]);
 
@@ -155,7 +155,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItIgnoresDeactivatedApps(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([]);
 

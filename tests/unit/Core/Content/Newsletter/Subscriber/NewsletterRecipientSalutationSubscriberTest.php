@@ -57,7 +57,7 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::never())->method('executeUpdate');
+        $this->connection->expects($this->never())->method('executeUpdate');
 
         $this->salutationSubscriber->setDefaultSalutation($event);
     }
@@ -75,7 +75,7 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('executeStatement')
             ->willReturnCallback(function ($sql, $params) use ($newsletterRecipientId): void {
                 static::assertSame($params, [

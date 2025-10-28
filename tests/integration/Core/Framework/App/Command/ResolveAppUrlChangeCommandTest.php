@@ -16,14 +16,14 @@ class ResolveAppUrlChangeCommandTest extends TestCase
     public function testResolveAppUrlChangeChoosesRightStrategy(): void
     {
         $urlChangeStrategy = $this->createMock(Resolver::class);
-        $urlChangeStrategy->expects(static::once())
+        $urlChangeStrategy->expects($this->once())
             ->method('getAvailableStrategies')
             ->willReturn([
                 'testStrategy' => 'test Description',
                 'secondStrategy' => 'second Description',
             ]);
 
-        $urlChangeStrategy->expects(static::once())
+        $urlChangeStrategy->expects($this->once())
             ->method('resolve')
             ->with(
                 'testStrategy',
@@ -48,14 +48,14 @@ class ResolveAppUrlChangeCommandTest extends TestCase
     public function testResolveAppUrlChangeWithProvidedStrategy(): void
     {
         $urlChangeStrategy = $this->createMock(Resolver::class);
-        $urlChangeStrategy->expects(static::once())
+        $urlChangeStrategy->expects($this->once())
             ->method('getAvailableStrategies')
             ->willReturn([
                 'testStrategy' => 'test Description',
                 'secondStrategy' => 'second Description',
             ]);
 
-        $urlChangeStrategy->expects(static::once())
+        $urlChangeStrategy->expects($this->once())
             ->method('resolve')
             ->with(
                 'testStrategy',
@@ -77,14 +77,14 @@ class ResolveAppUrlChangeCommandTest extends TestCase
     public function testResolveAppUrlWithNotFoundStrategy(): void
     {
         $urlChangeStrategy = $this->createMock(Resolver::class);
-        $urlChangeStrategy->expects(static::once())
+        $urlChangeStrategy->expects($this->once())
             ->method('getAvailableStrategies')
             ->willReturn([
                 'testStrategy' => 'test Description',
                 'secondStrategy' => 'second Description',
             ]);
 
-        $urlChangeStrategy->expects(static::once())
+        $urlChangeStrategy->expects($this->once())
             ->method('resolve')
             ->with(
                 'testStrategy',

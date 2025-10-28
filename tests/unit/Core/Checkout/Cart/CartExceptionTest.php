@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -18,6 +20,15 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(CartException::class)]
 class CartExceptionTest extends TestCase
 {
+    public function testDeliveryDateNotSupportedUnit(): void
+    {
+        $e = CartException::deliveryDateNotSupportedUnit('badUnit');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(CartException::CART_DELIVERY_DATE_NOT_SUPPORTED_UNIT, $e->getErrorCode());
+        static::assertSame('Not supported unit badUnit', $e->getMessage());
+    }
+
     public function testShippingMethodNotFound(): void
     {
         $e = CartException::shippingMethodNotFound('shipping-method-id');
@@ -31,6 +42,17 @@ class CartExceptionTest extends TestCase
         }
 
         static::assertSame('Could not find shipping method with id "shipping-method-id"', $e->getMessage());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedOperator(): void
+    {
+        $e = CartException::unsupportedOperator('$', 'testClass');
+
+        static::assertInstanceOf(UnsupportedOperatorException::class, $e);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('CONTENT__RULE_OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $e->getMessage());
     }
 
     public function testDeserializeFailed(): void

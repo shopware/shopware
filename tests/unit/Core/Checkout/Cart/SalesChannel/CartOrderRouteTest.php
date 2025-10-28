@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -54,6 +55,8 @@ class CartOrderRouteTest extends TestCase
 
     private CartOrderRoute $route;
 
+    private CartLocker&MockObject $cartLocker;
+
     protected function setUp(): void
     {
         $this->cartCalculator = $this->createMock(CartCalculator::class);
@@ -61,6 +64,8 @@ class CartOrderRouteTest extends TestCase
         $this->orderPersister = $this->createMock(OrderPersister::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->cartContextHasher = new CartContextHasher(new EventDispatcher());
+        $this->cartLocker = $this->createMock(CartLocker::class);
+        $this->cartLocker->method('locked')->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $this->route = new CartOrderRoute(
             $this->cartCalculator,
@@ -72,7 +77,8 @@ class CartOrderRouteTest extends TestCase
             $this->createMock(PaymentProcessor::class),
             $this->createMock(TaxProviderProcessor::class),
             $this->createMock(AbstractCheckoutGatewayRoute::class),
-            $this->cartContextHasher
+            $this->cartContextHasher,
+            $this->cartLocker,
         );
 
         $this->context = Generator::generateSalesChannelContext();
@@ -97,14 +103,14 @@ class CartOrderRouteTest extends TestCase
 
         $calculatedCart = new Cart('calculated');
 
-        $this->cartCalculator->expects(static::once())
+        $this->cartCalculator->expects($this->once())
             ->method('calculate')
             ->with($cart, $this->context)
             ->willReturn($calculatedCart);
 
         $orderID = 'oder-ID';
 
-        $this->orderPersister->expects(static::once())
+        $this->orderPersister->expects($this->once())
             ->method('persist')
             ->with($calculatedCart, $this->context)
             ->willReturn($orderID);
@@ -113,11 +119,11 @@ class CartOrderRouteTest extends TestCase
 
         $orderEntity = new OrderEntity();
 
-        $this->orderRepository->expects(static::once())
+        $this->orderRepository->expects($this->once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
-        $orderEntityMock->expects(static::once())
+        $orderEntityMock->expects($this->once())
             ->method('first')
             ->willReturn($orderEntity);
 
@@ -146,14 +152,14 @@ class CartOrderRouteTest extends TestCase
 
         $calculatedCart = new Cart('calculated');
 
-        $this->cartCalculator->expects(static::once())
+        $this->cartCalculator->expects($this->once())
             ->method('calculate')
             ->with($cart, $this->context)
             ->willReturn($calculatedCart);
 
         $orderID = 'oder-ID';
 
-        $this->orderPersister->expects(static::once())
+        $this->orderPersister->expects($this->once())
             ->method('persist')
             ->with($calculatedCart, $this->context)
             ->willReturn($orderID);
@@ -162,15 +168,15 @@ class CartOrderRouteTest extends TestCase
 
         $orderEntity = new OrderEntity();
 
-        $this->orderRepository->expects(static::once())
+        $this->orderRepository->expects($this->once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
-        $orderEntityMock->expects(static::once())
+        $orderEntityMock->expects($this->once())
             ->method('first')
             ->willReturn($orderEntity);
 
-        $this->eventDispatcher->expects(static::exactly(2))
+        $this->eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::callback(static function ($event) use ($orderID, $orderEntity) {
                 if ($event instanceof CheckoutOrderPlacedCriteriaEvent) {
@@ -210,14 +216,14 @@ class CartOrderRouteTest extends TestCase
 
         $calculatedCart = new Cart('calculated');
 
-        $this->cartCalculator->expects(static::once())
+        $this->cartCalculator->expects($this->once())
             ->method('calculate')
             ->with($cart, $this->context)
             ->willReturn($calculatedCart);
 
         $orderID = 'oder-ID';
 
-        $this->orderPersister->expects(static::once())
+        $this->orderPersister->expects($this->once())
             ->method('persist')
             ->with($calculatedCart, $this->context)
             ->willReturn($orderID);
@@ -226,11 +232,11 @@ class CartOrderRouteTest extends TestCase
 
         $orderEntity = new OrderEntity();
 
-        $this->orderRepository->expects(static::once())
+        $this->orderRepository->expects($this->once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
-        $orderEntityMock->expects(static::once())
+        $orderEntityMock->expects($this->once())
             ->method('first')
             ->willReturn($orderEntity);
 
@@ -276,6 +282,26 @@ class CartOrderRouteTest extends TestCase
         $data->set('hash', $this->cartContextHasher->generate($cart2, $this->context));
 
         static::expectException(CartException::class);
+
+        $this->route->order($cart, $this->context, $data);
+    }
+
+    public function testRouteUsesLock(): void
+    {
+        $cart = new Cart('token');
+        $data = new RequestDataBag();
+
+        $this->cartLocker
+            ->expects($this->once())
+            ->method('locked')
+            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
+
+        $exception = new \Exception('test exception');
+        $this->cartCalculator
+            ->method('calculate')
+            ->willThrowException($exception);
+
+        static::expectExceptionObject($exception);
 
         $this->route->order($cart, $this->context, $data);
     }

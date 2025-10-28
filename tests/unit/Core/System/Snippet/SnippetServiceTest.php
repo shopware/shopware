@@ -70,7 +70,7 @@ class SnippetServiceTest extends TestCase
 
         $container = $this->createMock(ContainerInterface::class);
         $container->method('has')->with(StorefrontPluginRegistry::class)->willReturn($withThemeRegistry);
-        $this->connection->expects(static::once())->method('fetchOne')->willReturn($fetchLocaleResult);
+        $this->connection->expects($this->once())->method('fetchOne')->willReturn($fetchLocaleResult);
 
         if ($withThemeRegistry) {
             $plugins = new StorefrontPluginConfigurationCollection();
@@ -82,8 +82,8 @@ class SnippetServiceTest extends TestCase
             }
 
             $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
-            $themeRegistry->expects(static::once())->method('getConfigurations')->willReturn($plugins);
-            $container->expects(static::once())->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
+            $themeRegistry->expects($this->once())->method('getConfigurations')->willReturn($plugins);
+            $container->expects($this->once())->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
         }
 
         $cachedThemeLoader = null;
@@ -94,12 +94,12 @@ class SnippetServiceTest extends TestCase
                 'themeId' => Uuid::randomHex(),
             ];
             $connectionMock = $this->createMock(Connection::class);
-            $connectionMock->expects(static::once())->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects($this->once())->method('fetchAssociative')->willReturn($expectedDB);
             $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
         }
 
         if ($databaseSnippets !== []) {
-            $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($databaseSnippets);
+            $this->connection->expects($this->once())->method('fetchAllKeyValue')->willReturn($databaseSnippets);
         }
 
         $snippetService = new SnippetService(
@@ -126,7 +126,7 @@ class SnippetServiceTest extends TestCase
         $catalog = new MessageCatalogue($locale, []);
 
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects(static::exactly(2))->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
+        $container->expects($this->exactly(2))->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
 
         $snippetService = new SnippetService(
             $this->connection,
@@ -148,7 +148,7 @@ class SnippetServiceTest extends TestCase
     {
         $snippetSetIdWithSalesChannelDomain = Uuid::randomHex();
 
-        $this->connection->expects(static::once())->method('fetchOne')->willReturn($snippetSetIdWithSalesChannelDomain);
+        $this->connection->expects($this->once())->method('fetchOne')->willReturn($snippetSetIdWithSalesChannelDomain);
 
         $snippetService = new SnippetService(
             $this->connection,
@@ -170,8 +170,8 @@ class SnippetServiceTest extends TestCase
     #[DataProvider('findSnippetSetIdDataProvider')]
     public function testFindSnippetSetIdWithoutSalesChannelDomain(array $sets, string $expected): void
     {
-        $this->connection->expects(static::once())->method('fetchOne')->willReturn(null);
-        $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($sets);
+        $this->connection->expects($this->once())->method('fetchOne')->willReturn(null);
+        $this->connection->expects($this->once())->method('fetchAllKeyValue')->willReturn($sets);
 
         $snippetService = new SnippetService(
             $this->connection,

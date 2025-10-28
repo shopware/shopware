@@ -28,9 +28,9 @@ class SystemCheckerTest extends TestCase
         $context = SystemCheckExecutionContext::WEB;
         $result = new Result('test', Status::OK, 'test', true, []);
         foreach ($checks as $check) {
-            $check->expects(static::once())->method('allowedToRunIn')->with($context)->willReturn(true);
-            $check->expects(static::once())->method('category')->willReturn(Category::SYSTEM);
-            $check->expects(static::once())->method('run')->willReturn($result);
+            $check->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
+            $check->expects($this->once())->method('category')->willReturn(Category::SYSTEM);
+            $check->expects($this->once())->method('run')->willReturn($result);
         }
 
         $results = $checker->check($context);
@@ -51,14 +51,14 @@ class SystemCheckerTest extends TestCase
         $context = SystemCheckExecutionContext::WEB;
         $resultForRunningTest = new Result('test', Status::OK, 'test', true, []);
         $skippedResult = new Result('test', Status::SKIPPED, 'Check not allowed to run in this execution context: WEB', null, []);
-        $checks[0]->expects(static::once())->method('allowedToRunIn')->with($context)->willReturn(false);
-        $checks[0]->expects(static::once())->method('name')->willReturn('test');
-        $checks[0]->expects(static::never())->method('run');
-        $checks[0]->expects(static::never())->method('category');
+        $checks[0]->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(false);
+        $checks[0]->expects($this->once())->method('name')->willReturn('test');
+        $checks[0]->expects($this->never())->method('run');
+        $checks[0]->expects($this->never())->method('category');
 
-        $checks[1]->expects(static::once())->method('allowedToRunIn')->with($context)->willReturn(true);
-        $checks[1]->expects(static::once())->method('category')->willReturn(Category::SYSTEM);
-        $checks[1]->expects(static::once())->method('run')->willReturn($resultForRunningTest);
+        $checks[1]->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
+        $checks[1]->expects($this->once())->method('category')->willReturn(Category::SYSTEM);
+        $checks[1]->expects($this->once())->method('run')->willReturn($resultForRunningTest);
 
         $results = $checker->check($context);
         static::assertCount(2, $results);
@@ -76,14 +76,14 @@ class SystemCheckerTest extends TestCase
         $result = new Result('test', Status::ERROR, 'test', false, []);
         $skippedResult = new Result('test', Status::SKIPPED, 'Check is not run due to previous failed checks.', null, []);
 
-        $highPriorityCheck->expects(static::once())->method('allowedToRunIn')->with($context)->willReturn(true);
-        $highPriorityCheck->expects(static::once())->method('category')->willReturn(Category::SYSTEM);
-        $highPriorityCheck->expects(static::once())->method('run')->willReturn($result);
+        $highPriorityCheck->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
+        $highPriorityCheck->expects($this->once())->method('category')->willReturn(Category::SYSTEM);
+        $highPriorityCheck->expects($this->once())->method('run')->willReturn($result);
 
-        $lowPriorityCheck->expects(static::once())->method('allowedToRunIn')->with($context)->willReturn(true);
-        $lowPriorityCheck->expects(static::once())->method('category')->willReturn(Category::AUXILIARY);
-        $lowPriorityCheck->expects(static::once())->method('name')->willReturn('test');
-        $lowPriorityCheck->expects(static::never())->method('run');
+        $lowPriorityCheck->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
+        $lowPriorityCheck->expects($this->once())->method('category')->willReturn(Category::AUXILIARY);
+        $lowPriorityCheck->expects($this->once())->method('name')->willReturn('test');
+        $lowPriorityCheck->expects($this->never())->method('run');
 
         $results = $checker->check($context);
         static::assertCount(2, $results);

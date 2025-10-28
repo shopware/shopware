@@ -198,6 +198,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\CoreSubscriber">
             <argument>%shopware.security.csp_templates%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

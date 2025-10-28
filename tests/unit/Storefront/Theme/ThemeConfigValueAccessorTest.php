@@ -22,7 +22,7 @@ class ThemeConfigValueAccessorTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
 
         $themeConfigLoader = $this->createMock(AbstractResolvedConfigLoader::class);
-        $themeConfigLoader->expects(static::once())
+        $themeConfigLoader->expects($this->once())
             ->method('load')
             ->willReturn(['foo' => 'bar']);
 

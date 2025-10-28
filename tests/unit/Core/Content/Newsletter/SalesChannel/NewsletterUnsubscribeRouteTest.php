@@ -53,7 +53,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),
@@ -88,7 +88,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),
@@ -118,7 +118,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),

@@ -32,7 +32,7 @@ class CompileThemeHandlerTest extends TestCase
         $context = Context::createDefaultContext();
         $message = new CompileThemeMessage(TestDefaults::SALES_CHANNEL, $themeId, true, $context);
 
-        $themeCompilerMock->expects(static::once())->method('compileTheme');
+        $themeCompilerMock->expects($this->once())->method('compileTheme');
 
         $scEntity = new SalesChannelEntity();
         $scEntity->setUniqueIdentifier(Uuid::randomHex());

@@ -101,7 +101,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(DocumentFileRendererRegistry::class),
             $mediaService,
             $documentRepository,
-            $this->createMock(Connection::class),
+            $this->createMock(Connection::class)
         );
 
         try {
@@ -138,7 +138,7 @@ class DocumentGeneratorTest extends TestCase
         $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
         $mockRenderer->method('supports')->willReturn('invoice');
         $mockRenderer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->with(
                 ['orderId' => $operation],
@@ -161,7 +161,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
+            $this->createMock(Connection::class)
         );
 
         $document = $generator->preview('invoice', $operation, 'deepLinkCode', $context);
@@ -189,7 +189,7 @@ class DocumentGeneratorTest extends TestCase
         $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
         $mockRenderer->method('supports')->willReturn('invoice');
         $mockRenderer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->with(
                 ['orderId' => $operation],
@@ -208,7 +208,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
+            $this->createMock(Connection::class)
         );
 
         $this->expectException(DocumentException::class);

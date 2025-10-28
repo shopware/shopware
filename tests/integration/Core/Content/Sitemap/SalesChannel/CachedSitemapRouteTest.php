@@ -105,7 +105,7 @@ class CachedSitemapRouteTest extends TestCase
         );
 
         $config = $this->createMock(SystemConfigService::class);
-        $config->expects(static::any())
+        $config->expects($this->any())
             ->method('getInt')
             ->with('core.sitemap.sitemapRefreshStrategy')
             ->willReturn($strategy);

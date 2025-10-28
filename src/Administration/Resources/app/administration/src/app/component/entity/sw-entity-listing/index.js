@@ -203,8 +203,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.records = result;
             const { total, criteria } = result;
             this.total = total;
-            this.page = criteria.page || 1;
-            this.limit = criteria.limit || this.criteriaLimit;
+            this.page = criteria?.page || 1;
+            this.limit = criteria?.limit || this.criteriaLimit;
             this.loading = false;
 
             if (criteria?.sortings?.[0]?.field) {

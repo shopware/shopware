@@ -161,6 +161,7 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
                 - src/Core/Framework/DataAbstractionLayer/Entity.php
                 - src/Core/Framework/DataAbstractionLayer/Util/AfterSort.php
+                - src/Core/Checkout/Document/DocumentConfigurationFactory.php
 
         - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'

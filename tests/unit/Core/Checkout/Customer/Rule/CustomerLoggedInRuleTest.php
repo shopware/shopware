@@ -72,7 +72,7 @@ class CustomerLoggedInRuleTest extends TestCase
     {
         $rule = new CustomerLoggedInRule($isLoggedIn);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($hasCustomer ? new CustomerEntity() : null);
 

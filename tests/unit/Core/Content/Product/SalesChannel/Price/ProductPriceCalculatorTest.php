@@ -78,11 +78,13 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedPrice::class, $price);
 
-        static::assertEquals($expected->price, $price->getTotalPrice());
+        static::assertSame($expected->price, $price->getTotalPrice());
 
-        static::assertEquals($expected->reference, $price->getReferencePrice()?->getPrice());
+        static::assertSame($expected->reference, $price->getReferencePrice()?->getPrice());
 
-        static::assertEquals($expected->listPrice, $price->getListPrice()?->getPrice());
+        static::assertSame($expected->listPrice, $price->getListPrice()?->getPrice());
+
+        static::assertSame($expected->regulation, $price->getRegulationPrice()?->getPrice());
     }
 
     #[DataProvider('taxStateWillBeUsedProvider')]
@@ -101,7 +103,7 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedPrice::class, $price);
 
-        static::assertEquals($expected, $price->getTotalPrice());
+        static::assertSame($expected, $price->getTotalPrice());
     }
 
     public static function taxStateWillBeUsedProvider(): \Generator
@@ -219,14 +221,20 @@ class ProductPriceCalculatorTest extends TestCase
             new PriceAssertion(1.0, null, null, 2.0),
         ];
 
-        yield 'Regulation price will be skipped when equals' => [
+        yield 'Regulation price will be not skipped when equals' => [
             (new PartialEntity())->assign([
                 'taxId' => Uuid::randomHex(),
                 'price' => new PriceCollection([
-                    new Price(Defaults::CURRENCY, 2, 2, false, null, null, new Price(Defaults::CURRENCY, 2, 2, false)),
+                    new Price(
+                        currencyId: Defaults::CURRENCY,
+                        net: 2,
+                        gross: 2,
+                        linked: false,
+                        regulationPrice: new Price(Defaults::CURRENCY, 2, 2, false)
+                    ),
                 ]),
             ]),
-            new PriceAssertion(2.0),
+            new PriceAssertion(2.0, null, null, 2.0),
         ];
     }
 
@@ -254,14 +262,14 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedPriceCollection::class, $prices);
 
-        static::assertEquals(\count($expected), $prices->count());
+        static::assertCount(\count($expected), $prices);
 
         foreach ($expected as $index => $value) {
             static::assertTrue($prices->has($index));
 
             $price = $prices->get($index);
 
-            static::assertEquals($value, $price->getTotalPrice());
+            static::assertSame($value, $price->getTotalPrice());
         }
     }
 
@@ -345,11 +353,11 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedCheapestPrice::class, $price);
 
-        static::assertEquals($expected->price, $price->getTotalPrice());
+        static::assertSame($expected->price, $price->getTotalPrice());
 
-        static::assertEquals($expected->reference, $price->getReferencePrice()?->getPrice());
+        static::assertSame($expected->reference, $price->getReferencePrice()?->getPrice());
 
-        static::assertEquals($expected->listPrice, $price->getListPrice()?->getPrice());
+        static::assertSame($expected->listPrice, $price->getListPrice()?->getPrice());
     }
 
     public static function cheapestPriceWillBeCalculatedProvider(): \Generator

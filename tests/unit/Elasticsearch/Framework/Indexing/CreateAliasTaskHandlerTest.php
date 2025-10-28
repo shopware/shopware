@@ -24,13 +24,13 @@ class CreateAliasTaskHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willThrowException(new \Exception('test'));
 
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('logAndThrowException');
 
         $handler = new CreateAliasTaskHandler(
@@ -50,12 +50,12 @@ class CreateAliasTaskHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
         $client = $this->createMock(Client::class);
-        $client->expects(static::never())->method('indices');
+        $client->expects($this->never())->method('indices');
 
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
@@ -74,7 +74,7 @@ class CreateAliasTaskHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -92,14 +92,14 @@ class CreateAliasTaskHandlerTest extends TestCase
             ]);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('executeStatement');
 
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
 
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('putSettings')
             ->with([
                 'index' => 'second',
@@ -110,7 +110,7 @@ class CreateAliasTaskHandlerTest extends TestCase
             ]);
 
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('putAlias')
             ->with(['index' => 'second', 'name' => 'second_alias']);
 
@@ -150,7 +150,7 @@ class CreateAliasTaskHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -162,7 +162,7 @@ class CreateAliasTaskHandlerTest extends TestCase
             ]);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('executeStatement');
 
         $client = $this->createMock(Client::class);

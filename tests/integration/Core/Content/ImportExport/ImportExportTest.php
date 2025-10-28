@@ -92,7 +92,6 @@ use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -137,6 +136,11 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
+        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->enable();
+        }
+
         $this->listener->addSubscriber(new StockSubscriber());
 
         $productId = Uuid::randomHex();
@@ -153,10 +157,19 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $csv = $this->getCsvContent($progress->getLogId());
         static::assertStringContainsString(\sprintf(';%s;', $newStock), $csv);
+
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->disable();
+        }
     }
 
     public function testImportEvents(): void
     {
+        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->enable();
+        }
+
         $this->listener->addSubscriber(new TestSubscriber());
         $this->importCategoryCsv();
         $events = array_column($this->listener->getCalledListeners(), 'event');
@@ -164,6 +177,10 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertContains(ImportExportBeforeImportRecordEvent::class, $events);
         static::assertContains(ImportExportAfterImportRecordEvent::class, $events);
         static::assertNotContains(ImportExportExceptionImportRecordEvent::class, $events);
+
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->disable();
+        }
     }
 
     public function testImportExport(): void
@@ -889,14 +906,14 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
     public function testFinishedImportDoesNothing(): void
     {
         $reader = $this->createMock(AbstractReader::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $writer = $this->createMock(AbstractWriter::class);
-        $writer->expects(static::never())->method('append');
+        $writer->expects($this->never())->method('append');
 
         $pipe = $this->createMock(AbstractPipe::class);
-        $pipe->expects(static::never())->method('in');
-        $pipe->expects(static::never())->method('out');
+        $pipe->expects($this->never())->method('in');
+        $pipe->expects($this->never())->method('out');
 
         $logEntity = new ImportExportLogEntity();
         $logEntity->assign([
@@ -914,7 +931,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             $importExportService,
             $logEntity,
             static::getContainer()->get('shopware.filesystem.private'),
-            $this->createMock(EventDispatcherInterface::class),
+            $this->listener,
             static::getContainer()->get(Connection::class),
             $this->createMock(EntityRepository::class),
             $pipe,
@@ -1292,16 +1309,29 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         $mailSent = false;
 
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-
         $listenerClosure = function () use (&$mailSent): void {
             $mailSent = true;
         };
 
-        $this->addEventListener($eventDispatcher, MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($this->listener, MailSentEvent::class, $listenerClosure);
 
-        $progress = $this->import($context, CustomerDefinition::ENTITY_NAME, '/fixtures/customers.csv', 'customers.csv');
-        $eventDispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+        $profile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
+        $mapping = $profile->getMapping();
+        $mapping[] = [
+            'key' => 'password',
+            'mappedKey' => 'password',
+        ];
+        $this->updateProfileMapping($profile->getId(), $mapping);
+
+        $progress = $this->import(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            '/fixtures/customers.csv',
+            'customers.csv',
+            $profile->getId(),
+        );
+
+        $this->listener->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
         static::assertFalse($mailSent, 'The mail.sent Event did run');
@@ -1321,6 +1351,12 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertTrue($result->has('0a1dea4bd2de43929ac210fd17339dde'));
         $customerWithMultipleAddresses = $result->get('0a1dea4bd2de43929ac210fd17339dde');
 
+        $passwords = \array_values(array_map(fn (CustomerEntity $customer) => $customer->getPassword(), $result->getElements()));
+        static::assertCount(3, $passwords);
+        static::assertNull($passwords[0]);
+        static::assertNull($passwords[1]);
+        static::assertNull($passwords[2]);
+
         static::assertInstanceOf(CustomerAddressCollection::class, $customerWithMultipleAddresses->getAddresses());
         static::assertCount(4, $customerWithMultipleAddresses->getAddresses());
         static::assertInstanceOf(CustomerAddressEntity::class, $customerWithMultipleAddresses->getDefaultBillingAddress());
@@ -1334,7 +1370,13 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertInstanceOf(CustomerAddressEntity::class, $customerWithUpdatedAddresses->getDefaultShippingAddress());
         static::assertSame('shopware AG', $customerWithUpdatedAddresses->getDefaultShippingAddress()->getCompany());
 
-        $progress = $this->export($context, CustomerDefinition::ENTITY_NAME);
+        $progress = $this->export(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            null,
+            null,
+            $profile->getId()
+        );
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
@@ -1343,6 +1385,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertStringContainsString('shopware AG', $csv);
         static::assertStringContainsString('en-GB', $csv);
         static::assertStringContainsString('Standard customer group', $csv);
+        static::assertStringNotContainsString('password', $csv);
     }
 
     public function testImportWithCreateAndUpdateConfig(): void
@@ -1736,7 +1779,6 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $pipeFactory = static::getContainer()->get(PipeFactory::class);
         $readerFactory = static::getContainer()->get(CsvReaderFactory::class);
         $writerFactory = static::getContainer()->get(CsvFileWriterFactory::class);
-        $eventDispatcher = static::getContainer()->get(EventDispatcherInterface::class);
 
         $mockRepository = new MockRepository(static::getContainer()->get(CustomerDefinition::class));
 
@@ -1744,14 +1786,14 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             $importExportService,
             $logEntity,
             static::getContainer()->get('shopware.filesystem.private'),
-            static::getContainer()->get('event_dispatcher'),
+            $this->listener,
             static::getContainer()->get(Connection::class),
             $mockRepository,
             $pipeFactory->create($logEntity),
             $readerFactory->create($logEntity),
             $writerFactory->create($logEntity),
             static::getContainer()->get(FileService::class),
-            new BatchImportStrategy($eventDispatcher, $mockRepository),
+            new BatchImportStrategy($this->listener, $mockRepository),
             10,
             10
         );

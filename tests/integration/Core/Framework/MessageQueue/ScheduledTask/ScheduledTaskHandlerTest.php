@@ -197,7 +197,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestRescheduleOnFailureTask();
         $task->setTaskId($taskId);
 
-        $this->logger->expects(static::once())->method('error');
+        $this->logger->expects($this->once())->method('error');
 
         $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
 

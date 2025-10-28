@@ -74,4 +74,10 @@ class BusinessEventEncoderTest extends TestCase
         static::expectException(\RuntimeException::class);
         $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
     }
+
+    public function testEncodeWithInvalidObjectOrData(): void
+    {
+        static::expectException(\RuntimeException::class);
+        $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
+    }
 }

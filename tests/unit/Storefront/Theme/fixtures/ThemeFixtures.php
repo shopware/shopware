@@ -1008,7 +1008,6 @@ class ThemeFixtures
                         'en-GB' => 'Primary colour',
                         'de-DE' => 'Primärfarbe',
                     ],
-
                     'type' => 'color',
                     'value' => '#008490',
                     'editable' => true,
@@ -1021,7 +1020,6 @@ class ThemeFixtures
                         'en-GB' => 'Secondary colour',
                         'de-DE' => 'Sekundärfarbe',
                     ],
-
                     'type' => 'color',
                     'value' => '#526e7f',
                     'editable' => true,
@@ -1034,7 +1032,6 @@ class ThemeFixtures
                         'en-GB' => 'Border',
                         'de-DE' => 'Rahmen',
                     ],
-
                     'type' => 'color',
                     'value' => '#bcc1c7',
                     'editable' => true,
@@ -1047,7 +1044,6 @@ class ThemeFixtures
                         'en-GB' => 'Background',
                         'de-DE' => 'Hintergrund',
                     ],
-
                     'type' => 'color',
                     'value' => '#fff',
                     'editable' => true,
@@ -1060,7 +1056,6 @@ class ThemeFixtures
                         'en-GB' => 'Success',
                         'de-DE' => 'Erfolg',
                     ],
-
                     'type' => 'color',
                     'value' => '#3cc261',
                     'editable' => true,
@@ -1073,7 +1068,6 @@ class ThemeFixtures
                         'en-GB' => 'Information',
                         'de-DE' => 'Information',
                     ],
-
                     'type' => 'color',
                     'value' => '#26b6cf',
                     'editable' => true,
@@ -1086,7 +1080,6 @@ class ThemeFixtures
                         'en-GB' => 'Notice',
                         'de-DE' => 'Hinweis',
                     ],
-
                     'type' => 'color',
                     'value' => '#ffbd5d',
                     'editable' => true,
@@ -1099,7 +1092,6 @@ class ThemeFixtures
                         'en-GB' => 'Error',
                         'de-DE' => 'Fehler',
                     ],
-
                     'type' => 'color',
                     'value' => '#e52427',
                     'editable' => true,
@@ -1112,7 +1104,6 @@ class ThemeFixtures
                         'en-GB' => 'Fonttype text',
                         'de-DE' => 'Schriftart Text',
                     ],
-
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
@@ -1125,7 +1116,6 @@ class ThemeFixtures
                         'en-GB' => 'Text colour',
                         'de-DE' => 'Textfarbe',
                     ],
-
                     'type' => 'color',
                     'value' => '#4a545b',
                     'editable' => true,
@@ -1138,7 +1128,6 @@ class ThemeFixtures
                         'en-GB' => 'Fonttype headline',
                         'de-DE' => 'Schriftart Überschrift',
                     ],
-
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
@@ -1151,7 +1140,6 @@ class ThemeFixtures
                         'en-GB' => 'Headline colour',
                         'de-DE' => 'Überschriftfarbe',
                     ],
-
                     'type' => 'color',
                     'value' => '#4a545b',
                     'editable' => true,
@@ -1164,7 +1152,6 @@ class ThemeFixtures
                         'en-GB' => 'Price',
                         'de-DE' => 'Preis',
                     ],
-
                     'type' => 'color',
                     'value' => '#4a545b',
                     'editable' => true,
@@ -1177,7 +1164,6 @@ class ThemeFixtures
                         'en-GB' => 'Buy button',
                         'de-DE' => 'Kaufen-Button',
                     ],
-
                     'type' => 'color',
                     'value' => '#008490',
                     'editable' => true,
@@ -1190,7 +1176,6 @@ class ThemeFixtures
                         'en-GB' => 'Buy button text',
                         'de-DE' => 'Kaufen-Button Text',
                     ],
-
                     'type' => 'color',
                     'value' => '#fff',
                     'editable' => true,
@@ -1203,12 +1188,10 @@ class ThemeFixtures
                         'en-GB' => 'Desktop',
                         'de-DE' => 'Desktop',
                     ],
-
                     'helpText' => [
                         'en-GB' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
                         'de-DE' => 'Wird bei Ansichten über 991px angezeigt und als Alternative bei kleineren Auflösungen, für die kein anderes Logo eingestellt ist.',
                     ],
-
                     'type' => 'media',
                     'value' => 'app/storefront/dist/assets/logo/demostore-logo.png',
                     'editable' => true,
@@ -1222,12 +1205,10 @@ class ThemeFixtures
                         'en-GB' => 'Tablet',
                         'de-DE' => 'Tablet',
                     ],
-
                     'helpText' => [
                         'en-GB' => 'Displayed between a viewport of 767px to 991px',
                         'de-DE' => 'Wird zwischen einem viewport von 767px bis 991px angezeigt',
                     ],
-
                     'type' => 'media',
                     'value' => 'app/storefront/dist/assets/logo/demostore-logo.png',
                     'editable' => true,
@@ -1241,12 +1222,10 @@ class ThemeFixtures
                         'en-GB' => 'Mobile',
                         'de-DE' => 'Mobil',
                     ],
-
                     'helpText' => [
                         'en-GB' => 'Displayed up to a viewport of 767px',
                         'de-DE' => 'Wird bis zu einem Viewport von 767px angezeigt',
                     ],
-
                     'type' => 'media',
                     'value' => 'app/storefront/dist/assets/logo/demostore-logo.png',
                     'editable' => true,
@@ -1260,7 +1239,6 @@ class ThemeFixtures
                         'en-GB' => 'App & share icon',
                         'de-DE' => 'App- & Share-Icon',
                     ],
-
                     'type' => 'media',
                     'value' => '',
                     'editable' => true,
@@ -1273,7 +1251,6 @@ class ThemeFixtures
                         'en-GB' => 'Favicon',
                         'de-DE' => 'Favicon',
                     ],
-
                     'type' => 'media',
                     'value' => 'app/storefront/dist/assets/logo/favicon.png',
                     'editable' => true,
@@ -4570,6 +4547,286 @@ class ThemeFixtures
         }
 
         return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedFields13(): array
+    {
+        $fields = [...self::getExtractedFieldsSub1(), ...[
+            'parent-custom-config' => [
+                'extensions' => [
+                ],
+                'name' => 'parent-custom-config',
+                'label' => [
+                    'de-DE' => 'DE',
+                    'en-GB' => 'EN',
+                ],
+                'helpText' => [
+                    'de-DE' => 'De Helptext',
+                    'en-GB' => 'EN Helptext',
+                ],
+                'type' => 'int',
+                'value' => '40',
+                'editable' => true,
+                'block' => null,
+                'section' => null,
+                'tab' => null,
+                'order' => null,
+                'sectionOrder' => null,
+                'blockOrder' => null,
+                'tabOrder' => null,
+                'custom' => null,
+                'scss' => null,
+                'fullWidth' => null,
+            ],
+            'extend-parent-custom-config' => [
+                'extensions' => [
+                ],
+                'name' => 'extend-parent-custom-config',
+                'label' => [
+                    'de-DE' => 'DE',
+                    'en-GB' => 'EN',
+                ],
+                'helpText' => [
+                    'de-DE' => 'De Helptext',
+                    'en-GB' => 'EN Helptext',
+                ],
+                'type' => 'int',
+                'value' => '20',
+                'editable' => true,
+                'block' => null,
+                'section' => null,
+                'tab' => null,
+                'order' => null,
+                'sectionOrder' => null,
+                'blockOrder' => null,
+                'tabOrder' => null,
+                'custom' => null,
+                'scss' => null,
+                'fullWidth' => null,
+            ],
+        ]];
+
+        $fields['sw-color-brand-primary']['value'] = '#db0f80';
+
+        unset($fields['test']);
+        unset($fields['test-something-with-options']);
+
+        return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedCurrentFields9(): array
+    {
+        $currentFields = [
+            'sw-color-brand-primary' => [
+                'isInherited' => false,
+                'value' => '#db0f80',
+            ],
+            'sw-color-brand-secondary' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-border-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-background-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-success' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-info' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-warning' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-danger' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-font-family-base' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-text-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-font-family-headline' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-headline-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-price' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-buy-button' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-buy-button-text' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-desktop' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-tablet' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-mobile' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-share' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-favicon' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'parent-custom-config' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'extend-parent-custom-config' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+        ];
+
+        return $currentFields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedBaseThemeFields9(): array
+    {
+        $baseThemeFields = self::getExtractedBaseThemeFields6();
+
+        $baseThemeFields['parent-custom-config'] = [
+            'isInherited' => false,
+            'value' => '40',
+        ];
+
+        $baseThemeFields['extend-parent-custom-config'] = [
+            'isInherited' => false,
+            'value' => '20',
+        ];
+
+        unset($baseThemeFields['test-something-with-options']);
+
+        return $baseThemeFields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedTabs14(): array
+    {
+        $tabs = self::getExtractedTabs11();
+
+        unset($tabs['default']['blocks']['default']['sections']['default']['fields']['test']);
+
+        return $tabs;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedTabs15(): array
+    {
+        $tabs = self::getExtractedTabs10();
+
+        $tabs['default']['blocks']['media'] = [
+            'label' => 'media',
+            'sections' => [
+                'default' => [
+                    'label' => '',
+                    'fields' => [
+                        'sw-logo-desktop' => [
+                            'label' => 'sw-logo-desktop',
+                            'helpText' => [
+                                'en-GB' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                                'de-DE' => 'Wird bei Ansichten über 991px angezeigt und als Alternative bei kleineren Auflösungen, für die kein anderes Logo eingestellt ist.',
+                            ],
+                            'type' => 'media',
+                            'custom' => null,
+                            'fullWidth' => true,
+                        ],
+                        'sw-logo-tablet' => [
+                            'label' => 'sw-logo-tablet',
+                            'helpText' => [
+                                'en-GB' => 'Displayed between a viewport of 767px to 991px',
+                                'de-DE' => 'Wird zwischen einem viewport von 767px bis 991px angezeigt',
+                            ],
+                            'type' => 'media',
+                            'custom' => null,
+                            'fullWidth' => true,
+                        ],
+                        'sw-logo-mobile' => [
+                            'label' => 'sw-logo-mobile',
+                            'helpText' => [
+                                'en-GB' => 'Displayed up to a viewport of 767px',
+                                'de-DE' => 'Wird bis zu einem Viewport von 767px angezeigt',
+                            ],
+                            'type' => 'media',
+                            'custom' => null,
+                            'fullWidth' => true,
+                        ],
+                        'sw-logo-share' => [
+                            'label' => 'sw-logo-share',
+                            'helpText' => null,
+                            'type' => 'media',
+                            'custom' => null,
+                            'fullWidth' => null,
+                        ],
+                        'sw-logo-favicon' => [
+                            'label' => 'sw-logo-favicon',
+                            'helpText' => null,
+                            'type' => 'media',
+                            'custom' => null,
+                            'fullWidth' => null,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $tabs['default']['blocks']['default']['sections']['default']['fields']['parent-custom-config']['label'] = 'parent-custom-config';
+        $tabs['default']['blocks']['default']['sections']['default']['fields']['extend-parent-custom-config']['label'] = 'extend-parent-custom-config';
+
+        $tabs['default']['blocks']['default']['sections']['default']['fields']['parent-custom-config']['helpText'] = [
+            'de-DE' => 'De Helptext',
+            'en-GB' => 'EN Helptext',
+        ];
+        $tabs['default']['blocks']['default']['sections']['default']['fields']['extend-parent-custom-config']['helpText'] = [
+            'de-DE' => 'De Helptext',
+            'en-GB' => 'EN Helptext',
+        ];
+
+        unset($tabs['default']['blocks']['default']['sections']['default']['fields']['test']);
+
+        return $tabs;
     }
 
     /**

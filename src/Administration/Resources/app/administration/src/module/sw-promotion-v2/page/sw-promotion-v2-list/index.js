@@ -68,6 +68,10 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        allowBulkDelete() {
+            return !this.selectionArray.some((item) => item.orderCount > 0);
+        },
     },
 
     methods: {
@@ -145,6 +149,8 @@ export default {
                         individualCodePattern: '',
                         individualCodes: null,
                         active: false,
+                        orderCount: 0,
+                        ordersPerCustomerCount: null,
                     },
                 };
                 const clone = await this.promotionRepository.clone(referencePromotion.id, behavior, Shopware.Context.api);
@@ -164,6 +170,14 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        deleteDisabledTooltip(promotion) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-promotion-v2.list.deleteDisabledToolTip'),
+                disabled: promotion.orderCount === 0,
+            };
         },
     },
 };

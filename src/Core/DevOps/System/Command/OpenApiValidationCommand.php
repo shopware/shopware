@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\System\Command;
 
+use Shopware\Core\DevOps\DevOpsException;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -43,7 +44,7 @@ class OpenApiValidationCommand extends Command
         $apiType = match ($input->getOption('api-type')) {
             DefinitionService::API => DefinitionService::API,
             DefinitionService::STORE_API => DefinitionService::STORE_API,
-            default => throw new \InvalidArgumentException('Invalid --api-type, must be one of "api" or "store-api"'),
+            default => throw DevOpsException::invalidArgumentException('Invalid --api-type, must be one of "api" or "store-api"'),
         };
 
         $schema = $this->definitionService->generate(

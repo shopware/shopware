@@ -590,6 +590,7 @@ class OrderSerializerTest extends TestCase
             'transactions' => null,
             'orderNumber' => '10000',
             'ruleIds' => [],
+            'taxCalculationType' => null,
             'addresses' => [
                 [
                     'city' => 'billing-address-city',

@@ -145,7 +145,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         $patternReg = new ValueGeneratorPatternRegistry([$incrPattern, new ValueGeneratorPatternDate()]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(['id' => Uuid::randomHex(), 'pattern' => $pattern, 'start' => 1]);
 

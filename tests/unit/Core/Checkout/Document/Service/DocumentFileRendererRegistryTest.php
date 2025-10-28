@@ -28,7 +28,7 @@ class DocumentFileRendererRegistryTest extends TestCase
     {
         $registry = $this->createMock(DocumentFileRendererRegistry::class);
         $registry
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('render')
             ->willReturn($document->getContent());
 

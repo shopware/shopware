@@ -57,11 +57,11 @@ class MediaUploadControllerTest extends TestCase
             Uuid::randomHex()
         );
 
-        $this->mediaService->expects(static::once())
+        $this->mediaService->expects($this->once())
             ->method('fetchFile')
             ->willReturn($uploadFile);
 
-        $this->fileSaver->expects(static::once())
+        $this->fileSaver->expects($this->once())
             ->method('persistFileToMedia')
             ->with($uploadFile, 'filename.png', $mediaId, $context);
 
@@ -84,7 +84,7 @@ class MediaUploadControllerTest extends TestCase
 
         $request = new Request([], ['fileName' => $invalidFileName]);
 
-        $this->fileSaver->expects(static::once())
+        $this->fileSaver->expects($this->once())
             ->method('renameMedia')
             ->with($mediaId, 'filename.png', $context);
 
@@ -111,7 +111,7 @@ class MediaUploadControllerTest extends TestCase
             'mediaId' => $mediaId,
         ]);
 
-        $this->fileNameProvider->expects(static::once())
+        $this->fileNameProvider->expects($this->once())
             ->method('provide')
             ->with('filename.png', 'jpg', $mediaId, $context);
 

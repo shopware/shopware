@@ -37,7 +37,7 @@ class LandingPageLoaderTest extends TestCase
     public function testNoLandingPageIdException(): void
     {
         $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
-        $landingPageRouteMock->expects(static::never())->method('load');
+        $landingPageRouteMock->expects($this->never())->method('load');
 
         $landingPageLoader = new LandingPageLoader(
             $this->createMock(GenericPageLoader::class),
@@ -55,7 +55,7 @@ class LandingPageLoaderTest extends TestCase
     public function testNoLandingPageException(): void
     {
         $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
-        $landingPageRouteMock->expects(static::once())->method('load');
+        $landingPageRouteMock->expects($this->once())->method('load');
 
         $landingPageLoader = new LandingPageLoader(
             $this->createMock(GenericPageLoader::class),

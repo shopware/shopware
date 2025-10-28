@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -199,7 +200,7 @@ class AppRegistrationServiceTest extends TestCase
         ]);
 
         $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
-        $shopIdProviderMock->expects(static::once())
+        $shopIdProviderMock->expects($this->once())
             ->method('getShopId')
             ->willReturn($shopId);
 
@@ -211,9 +212,9 @@ class AppRegistrationServiceTest extends TestCase
         );
 
         $shopIdMock = $this->createMock(ShopIdProvider::class);
-        $shopIdMock->expects(static::once())
+        $shopIdMock->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new AppUrlChangeDetectedException('https://test.com', 'https://new.com', $shopId));
+            ->willThrowException(new AppUrlChangeDetectedException('https://test.com', 'https://new.com', ShopId::v2($shopId)));
 
         $registrator = new AppRegistrationService(
             $handshakeFactory,

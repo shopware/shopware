@@ -27,7 +27,7 @@ class FailedMessageSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('insert')
             ->with(
                 static::equalTo('log_entry'),
@@ -69,7 +69,7 @@ class FailedMessageSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $matcher = static::exactly(2);
+        $matcher = $this->exactly(2);
 
         $connection->expects($matcher)
             ->method('insert')

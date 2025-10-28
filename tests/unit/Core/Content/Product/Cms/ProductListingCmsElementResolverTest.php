@@ -76,7 +76,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $response = new ProductListingRouteResponse($expectedResult);
 
         $route = $this->createMock(AbstractProductListingRoute::class);
-        $route->expects(static::once())->method('load')->willReturn($response);
+        $route->expects($this->once())->method('load')->willReturn($response);
 
         $sorting = new ProductSortingCollection([
             (new ProductSortingEntity())->assign([
@@ -125,7 +125,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $response = new ProductListingRouteResponse($expectedResult);
 
         $route = $this->createMock(AbstractProductListingRoute::class);
-        $route->expects(static::once())->method('load')->willReturn($response);
+        $route->expects($this->once())->method('load')->willReturn($response);
 
         $sorting = new ProductSortingCollection([
             (new ProductSortingEntity())->assign([

@@ -147,7 +147,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(OffcanvasCartPageLoadedEvent::class));
 

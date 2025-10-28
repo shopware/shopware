@@ -19,6 +19,15 @@
                         }
                     },
                     {
+                        "name": "p",
+                        "in": "query",
+                        "description": "The page number to fetch.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
                         "name": "sw-include-seo-urls",
                         "in": "header",
                         "description": "Determines if the response must contain a SeoUrl entity for a product entity",

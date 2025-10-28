@@ -28,6 +28,9 @@ final class HasValidRSAJWKSignature implements Constraint
         $this->jwks = $jwks;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function assert(Token $token): void
     {
         $this->validateAlgorithm($token);

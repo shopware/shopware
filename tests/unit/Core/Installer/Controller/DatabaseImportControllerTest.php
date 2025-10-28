@@ -67,10 +67,10 @@ class DatabaseImportControllerTest extends TestCase
 
     public function testImportDatabaseRedirectsToConfigPageWhenDatabaseConnectionWasNotConfigured(): void
     {
-        $this->twig->expects(static::never())
+        $this->twig->expects($this->never())
             ->method('render');
 
-        $this->router->expects(static::once())->method('generate')
+        $this->router->expects($this->once())->method('generate')
             ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-configuration');
 
@@ -85,7 +85,7 @@ class DatabaseImportControllerTest extends TestCase
 
     public function testImportDatabaseRoute(): void
     {
-        $this->twig->expects(static::once())->method('render')
+        $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-import.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -106,7 +106,7 @@ class DatabaseImportControllerTest extends TestCase
 
     public function testDatabaseMigrateReturnsErrorIfSessionExpired(): void
     {
-        $this->databaseMigrator->expects(static::never())->method('migrate');
+        $this->databaseMigrator->expects($this->never())->method('migrate');
 
         $session = new Session(new MockArraySessionStorage());
         $request = Request::create('/installer/database-import');
@@ -123,7 +123,7 @@ class DatabaseImportControllerTest extends TestCase
     public function testDatabaseMigrateWithoutOffset(): void
     {
         $connection = $this->createMock(Connection::class);
-        $this->connectionFactory->expects(static::once())
+        $this->connectionFactory->expects($this->once())
             ->method('getConnection')
             ->willReturn($connection);
 
@@ -133,7 +133,7 @@ class DatabaseImportControllerTest extends TestCase
             'isFinished' => false,
         ];
 
-        $this->databaseMigrator->expects(static::once())
+        $this->databaseMigrator->expects($this->once())
             ->method('migrate')
             ->with(3, $connection)
             ->willReturn($result);
@@ -152,11 +152,11 @@ class DatabaseImportControllerTest extends TestCase
     public function testDatabaseMigrateWillReportException(): void
     {
         $connection = $this->createMock(Connection::class);
-        $this->connectionFactory->expects(static::once())
+        $this->connectionFactory->expects($this->once())
             ->method('getConnection')
             ->willReturn($connection);
 
-        $this->databaseMigrator->expects(static::once())
+        $this->databaseMigrator->expects($this->once())
             ->method('migrate')
             ->with(3, $connection)
             ->willThrowException(new \Exception('Test exception'));

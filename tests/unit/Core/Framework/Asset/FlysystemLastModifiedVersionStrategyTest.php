@@ -64,7 +64,7 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
     public function testWithEmptyString(): void
     {
         $fs = $this->createMock(FilesystemOperator::class);
-        $fs->expects(static::never())->method('lastModified');
+        $fs->expects($this->never())->method('lastModified');
 
         $strategy = new FlysystemLastModifiedVersionStrategy('test', $fs, new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()));
 

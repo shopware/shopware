@@ -47,7 +47,9 @@
                                     {% if feature('ADDRESS_SELECTION_REWORK') %}
                                         {% set addressManagerOptions = {
                                             initialTab: 'shipping',
-                                            activeShippingAddressId: shippingAddress.id
+                                            activeShippingAddressId: shippingAddress.id,
+                                            addressManagerUrl: path('frontend.account.addressmanager.get'),
+                                            addressSwitchUrl: path('frontend.account.address.switch-default'),
                                         } %}
                                     {% else %}
                                         {% set addressEditorOptions = {
@@ -93,7 +95,7 @@
 
                             {% block page_checkout_confirm_address_billing_data %}
                                 <div class="confirm-address-billing">
-                                    {% if billingAddress.id is same as(shippingAddress.id) %}
+                                    {% if billingAddress.id is same as(shippingAddress.id) and not page.isHideShippingAddress() %}
                                         {% block page_checkout_confirm_address_billing_data_equal %}
                                             <p>
                                                 {{ 'checkout.addressEqualText'|trans|sw_sanitize }}
@@ -114,6 +116,8 @@
                                         {% set addressManagerOptions = {
                                             initialTab: 'billing',
                                             addressId: billingAddress.id,
+                                            addressManagerUrl: path('frontend.account.addressmanager.get'),
+                                            addressSwitchUrl: path('frontend.account.address.switch-default'),
                                         } %}
                                     {% else %}
                                         {% set addressEditorOptions = {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\Visibility;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
@@ -224,7 +225,8 @@ class AssetService
         foreach ($uploads as $file) {
             $batches[] = new CopyBatchInput(
                 $originDir . '/' . $file,
-                [$targetDirectory . '/' . $file]
+                [$targetDirectory . '/' . $file],
+                $this->parameterBag->get('shopware.filesystem.asset.config')['visibility'] ?? Visibility::PUBLIC,
             );
         }
 

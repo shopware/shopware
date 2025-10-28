@@ -114,22 +114,22 @@ class UpdateControllerTest extends TestCase
         $flexMigrator = $this->createMock(FlexMigrator::class);
 
         $flexMigrator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('cleanup')
             ->with('/path/to/shopware');
 
         $flexMigrator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('patchRootComposerJson')
             ->with('/path/to/shopware');
 
         $flexMigrator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('copyNewTemplateFiles')
             ->with('/path/to/shopware');
 
         $flexMigrator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('migrateEnvFile')
             ->with('/path/to/shopware');
 
@@ -158,7 +158,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -195,7 +195,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -244,7 +244,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -299,7 +299,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -370,7 +370,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -422,7 +422,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -463,7 +463,7 @@ class UpdateControllerTest extends TestCase
     {
         $releaseInfoProvider = $this->createMock(ReleaseInfoProvider::class);
         $releaseInfoProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchUpdateVersions')
             ->willReturn(['6.3.5.0', '6.4.18.0']);
 

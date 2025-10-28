@@ -32,7 +32,7 @@ class AppLifecycleIteratorTest extends TestCase
         );
 
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $appLifecycle->expects(static::once())->method('install');
+        $appLifecycle->expects($this->once())->method('install');
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
@@ -61,8 +61,8 @@ class AppLifecycleIteratorTest extends TestCase
         );
 
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $appLifecycle->expects(static::never())->method('install');
-        $appLifecycle->expects(static::once())->method('update');
+        $appLifecycle->expects($this->never())->method('install');
+        $appLifecycle->expects($this->once())->method('update');
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
@@ -91,8 +91,8 @@ class AppLifecycleIteratorTest extends TestCase
         );
 
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $appLifecycle->expects(static::never())->method('install');
-        $appLifecycle->expects(static::never())->method('update');
+        $appLifecycle->expects($this->never())->method('install');
+        $appLifecycle->expects($this->never())->method('update');
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
@@ -118,9 +118,9 @@ class AppLifecycleIteratorTest extends TestCase
         );
 
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $appLifecycle->expects(static::never())->method('install');
-        $appLifecycle->expects(static::never())->method('update');
-        $appLifecycle->expects(static::once())->method('delete');
+        $appLifecycle->expects($this->never())->method('install');
+        $appLifecycle->expects($this->never())->method('update');
+        $appLifecycle->expects($this->once())->method('delete');
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
@@ -146,9 +146,9 @@ class AppLifecycleIteratorTest extends TestCase
         );
 
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $appLifecycle->expects(static::never())->method('install');
-        $appLifecycle->expects(static::never())->method('update');
-        $appLifecycle->expects(static::never())->method('delete');
+        $appLifecycle->expects($this->never())->method('install');
+        $appLifecycle->expects($this->never())->method('update');
+        $appLifecycle->expects($this->never())->method('delete');
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
@@ -171,7 +171,7 @@ class AppLifecycleIteratorTest extends TestCase
         );
 
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $appLifecycle->expects(static::once())->method('install')->willThrowException(new \Exception('Test'));
+        $appLifecycle->expects($this->once())->method('install')->willThrowException(new \Exception('Test'));
 
         $fails = $lifecycle->iterateOverApps(
             $appLifecycle,

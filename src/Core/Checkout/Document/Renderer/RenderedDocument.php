@@ -19,6 +19,11 @@ final class RenderedDocument extends Struct
     private ?Context $context = null;
 
     /**
+     * @var array<string, mixed>
+     */
+    private array $parameters = [];
+
+    /**
      * @param array<string, mixed> $config
      *
      * @deprecated tag:v6.7.0 - reason:parameter-change - html argument will be removed
@@ -135,5 +140,26 @@ final class RenderedDocument extends Struct
     public function setTemplate(string $template): void
     {
         $this->template = $template;
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function setParameters(array $parameters): void
+    {
+        $this->parameters = $parameters;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    public function addParameter(string $key, mixed $value): void
+    {
+        $this->parameters[$key] = $value;
     }
 }

@@ -29,7 +29,7 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 * 🙋‍♂️ &nbsp;[Be part of shopware!](https://www.shopware.com/en/jobs/) ‍&nbsp;We are hiring!  🙋
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
 * 🧩 &nbsp;Browse more than [3,100 extensions](https://store.shopware.com/en/) in our community store
-* 📖 &nbsp;Learn how to [develop extensions](https://developer.shopware.com) and everything else about the tech behind Shopware
+* 📖 &nbsp;Learn how to [develop extensions](https://developer.shopware.com) and everything else about the tech behind Shopware via our developer docs.
 * 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 🛠 &nbsp;[Report bugs](https://github.com/shopware/shopware/issues) in our issue tracker
 * 💡 &nbsp;Give us [feedback](https://feedback.shopware.com/) or vote existing ideas
@@ -84,7 +84,7 @@ After setting up [Shopware locally for development](https://developer.shopware.c
 
 The preferred way of extending Shopware is through the [App System](https://developer.shopware.com/docs/guides/plugins/apps/app-base-guide).
 If the feature you want to implement needs direct access to the Shopware process and the database, you can also use the [plugin system](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide).    
-You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/concepts/extensions).
+You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/guides/plugins/overview.html).
 
 ### Production setup
 
@@ -96,7 +96,7 @@ These plans enrich your shop with unique functionality, giving you an additional
 
 There is a list of [hosting partners](https://www.shopware.com/en/partner/hosting/), who offer a pre-installed shop, making your start a lot faster.
 
-We also provide a [web-based installer](https://www.shopware.com/en/download/), the [documentation](https://docs.shopware.com/en/shopware-6-en/first-steps/installing-shopware-6?category=shopware-6-en/getting-started) walks you through the necessary steps.
+We also provide a [web-based installer](https://www.shopware.com/en/download/), the [course](https://hub.shopware.com/learn/course/shopware-setup) walks you through the necessary steps.
 
 ### Code Contribution
 
@@ -106,7 +106,7 @@ To ensure the quality of our code and our products we have created a guideline w
 It helps you and us to collaborate.
 Following these guidelines will help us to integrate your changes in our daily workflow.
 
-Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contribution-guideline) or in our short [HowTo contribute code](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contributing-code).
+Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contribution-guideline) on how to contribute code.
 
 #### Contribution setup
 

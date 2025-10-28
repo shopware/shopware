@@ -413,6 +413,8 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
+# Cache improvements
+
 ## Only rules relevant for product prices are considered in the `sw-cache-hash`
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
 
@@ -439,6 +441,44 @@ If some custom entity has a relation to a rule, which might alter the storefront
 
 ## Removed unused `RuleAreas` constants
 The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
+
+## Removed `sw-states` handling
+The `sw-states` handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
+Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+If your extension is too dynamic you can restore the old behaviour by manually creating a cache key listener in your plugin:
+```php
+class HttpCacheKeyListener implements EventSubscriberInterface
+{
+    public function __construct(
+        private readonly CartService $cartService
+    ) {
+    }
+    
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            HttpCacheCookieEvent::class => 'onCacheCookie',
+        ];
+    }
+
+    public function onCacheCookie(HttpCacheCookieEvent $event): void
+    {
+        // disable cache for logged in customers
+        if ($event->context->getCustomer() !== null) {
+            $event->isCacheable = false;
+        }
+
+        // disable cache for filled carts
+        $cart = $this->cartService->getCart($event->context->getToken(), $event->context);
+        if ($cart->getLineItems()->count() > 0) {
+            $event->isCacheable = false;
+        }
+    }
+}
+```
+**Note:** Keep in mind that this has severe performance implications and should only be used if absolutely necessary.
 
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.

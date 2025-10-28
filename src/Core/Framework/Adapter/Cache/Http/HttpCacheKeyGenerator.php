@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -58,9 +59,9 @@ class HttpCacheKeyGenerator
      * headers, use a `vary` header to indicate them, and each representation will
      * be stored independently under the same cache key.
      *
-     * @return string A key for the given request
+     * @return CacheKey The cache key for the given request
      */
-    public function generate(Request $request, ?Response $response = null): string
+    public function generate(Request $request, ?Response $response = null): CacheKey
     {
         $event = new HttpCacheKeyEvent($request);
 
@@ -74,7 +75,10 @@ class HttpCacheKeyGenerator
 
         $parts = $event->getParts();
 
-        return 'http-cache-' . Hasher::hash(implode('|', $parts));
+        return new CacheKey(
+            'http-cache-' . Hasher::hash(implode('|', $parts)),
+            $event->isCacheable
+        );
     }
 
     private function getRequestUri(Request $request): string
@@ -109,6 +113,10 @@ class HttpCacheKeyGenerator
                 self::CONTEXT_CACHE_COOKIE,
                 $cacheCookie
             );
+
+            if ($cacheCookie === HttpCacheCookieEvent::NOT_CACHEABLE) {
+                $event->isCacheable = false;
+            }
 
             return;
         }

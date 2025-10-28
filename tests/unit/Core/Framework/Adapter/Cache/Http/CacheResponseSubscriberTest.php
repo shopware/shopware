@@ -908,6 +908,48 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame($firstCacheCookie->getValue(), $secondCacheCookie->getValue());
     }
 
+    public function testCacheCookieHasNoCacheValueIfSetInEvent(): void
+    {
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            static::createStub(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            new RequestStack(),
+            null,
+            null,
+            $this->eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+        );
+
+        $customer = new CustomerEntity();
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+
+        $firstResponse = new Response();
+        $subscriber->setResponseCache($this->createResponseEvent($request, $firstResponse));
+
+        $firstCacheCookie = $firstResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
+        static::assertInstanceOf(Cookie::class, $firstCacheCookie);
+
+        $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, function (HttpCacheCookieEvent $event): void {
+            $event->isCacheable = false;
+        });
+
+        $secondResponse = new Response();
+        $subscriber->setResponseCache($this->createResponseEvent($request, $secondResponse));
+
+        $secondCacheCookie = $secondResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
+        static::assertInstanceOf(Cookie::class, $secondCacheCookie);
+
+        static::assertNotSame($firstCacheCookie->getValue(), $secondCacheCookie->getValue());
+        static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $secondCacheCookie->getValue());
+    }
+
     private function createResponseEvent(Request $request, Response $response): ResponseEvent
     {
         return new ResponseEvent(

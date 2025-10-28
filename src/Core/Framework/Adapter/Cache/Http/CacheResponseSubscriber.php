@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -252,7 +251,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $event = new HttpCacheCookieEvent($request, $context, $parts);
         $this->dispatcher->dispatch($event);
 
-        return Hasher::hash($event->getParts());
+        return $event->getHash();
     }
 
     /**

@@ -65,8 +65,12 @@ class CacheStore implements StoreInterface
         }
 
         $key = $this->cacheKeyGenerator->generate($request);
+        // Caching is disabled for the request
+        if (!$key->isCacheable) {
+            return null;
+        }
 
-        $item = $this->cache->getItem($key);
+        $item = $this->cache->getItem($key->key);
 
         if (!$item->isHit() || !$item->get()) {
             return null;
@@ -92,7 +96,7 @@ class CacheStore implements StoreInterface
                     return null;
                 }
 
-                $lockKey = $key . '.lock';
+                $lockKey = $key->key . '.lock';
 
                 /**
                  * We use this cache item to lock that we dispatch only one RefreshHttpCacheMessage for the same request.
@@ -127,10 +131,14 @@ class CacheStore implements StoreInterface
     public function write(Request $request, Response $response): string
     {
         $key = $this->cacheKeyGenerator->generate($request, $response);
+        // Caching is disabled for the request
+        if (!$key->isCacheable) {
+            return $key->key;
+        }
 
         // maintenance mode active and current ip is whitelisted > disable caching
         if ($this->maintenanceResolver->isMaintenanceRequest($request)) {
-            return $key;
+            return $key->key;
         }
 
         if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
@@ -138,7 +146,7 @@ class CacheStore implements StoreInterface
                 return $this->stateValidator->isValid($request, $response);
             });
             if (!$isValid) {
-                return $key;
+                return $key->key;
             }
         }
 
@@ -153,7 +161,7 @@ class CacheStore implements StoreInterface
             $response->headers->remove(self::TAG_HEADER);
         }
 
-        $item = $this->cache->getItem($key);
+        $item = $this->cache->getItem($key->key);
 
         /**
          * Symfony pops out in AbstractSessionListener(https://github.com/symfony/symfony/blob/v5.4.5/src/Symfony/Component/HttpKernel/EventListener/AbstractSessionListener.php#L139-L186) the session and assigns it to the Response
@@ -186,7 +194,7 @@ class CacheStore implements StoreInterface
 
         $this->cache->save($item);
 
-        return $key;
+        return $key->key;
     }
 
     public function invalidate(Request $request): void
@@ -268,7 +276,9 @@ class CacheStore implements StoreInterface
 
     private function getLockKey(Request $request): string
     {
-        return 'http_lock_' . $this->cacheKeyGenerator->generate($request);
+        $key = $this->cacheKeyGenerator->generate($request);
+
+        return 'http_lock_' . $key->key;
     }
 
     /**

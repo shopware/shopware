@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheKey;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
@@ -78,6 +79,35 @@ class CacheStoreTest extends TestCase
             $stateValidator,
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
+            $this->createMock(MaintenanceModeResolver::class),
+            [],
+            $this->createMock(CacheTagCollector::class),
+            false,
+            new CollectingMessageBus()
+        );
+
+        $store->write($request, $response);
+    }
+
+    public function testWriteDoesNotWriteCacheIfCachingIsDisabledByCacheKeyEvent(): void
+    {
+        $request = new Request();
+        $response = new Response();
+
+        $cache = $this->createMock(TagAwareAdapter::class);
+        $cache->expects($this->never())->method('save');
+
+        $keyGenerator = $this->createMock(HttpCacheKeyGenerator::class);
+        $keyGenerator->expects($this->once())
+            ->method('generate')
+            ->with($request, $response)
+            ->willReturn(new CacheKey('foo', false));
+
+        $store = new CacheStore(
+            $cache,
+            $this->createMock(CacheStateValidator::class),
+            new EventDispatcher(),
+            $keyGenerator,
             $this->createMock(MaintenanceModeResolver::class),
             [],
             $this->createMock(CacheTagCollector::class),
@@ -273,7 +303,7 @@ class CacheStoreTest extends TestCase
 
         // Pre-populate cache with response data and invalidation timestamp
         $keyGenerator = new HttpCacheKeyGenerator('test', new EventDispatcher(), []);
-        $cacheKey = $keyGenerator->generate($request);
+        $cacheKey = $keyGenerator->generate($request)->key;
 
         $cacheItem = $cache->getItem($cacheKey);
         $cacheItem = CacheCompressor::compress($cacheItem, ['response' => $response, 'tags' => ['tag1']]);
@@ -322,7 +352,7 @@ class CacheStoreTest extends TestCase
 
         // Pre-populate cache with response data and invalidation timestamp
         $keyGenerator = new HttpCacheKeyGenerator('test', new EventDispatcher(), []);
-        $cacheKey = $keyGenerator->generate($request);
+        $cacheKey = $keyGenerator->generate($request)->key;
 
         $cacheItem = $cache->getItem($cacheKey);
         $cacheItem = CacheCompressor::compress($cacheItem, ['response' => $response, 'tags' => ['tag1']]);
@@ -372,7 +402,7 @@ class CacheStoreTest extends TestCase
 
         // Pre-populate cache with response data and invalidation timestamp
         $keyGenerator = new HttpCacheKeyGenerator('test', new EventDispatcher(), []);
-        $cacheKey = $keyGenerator->generate($request);
+        $cacheKey = $keyGenerator->generate($request)->key;
 
         $cacheItem = $cache->getItem($cacheKey);
         $cacheItem = CacheCompressor::compress($cacheItem, ['response' => $response, 'tags' => ['tag1']]);
@@ -423,7 +453,7 @@ class CacheStoreTest extends TestCase
 
         // Pre-populate cache with response data and invalidation timestamp
         $keyGenerator = new HttpCacheKeyGenerator('test', new EventDispatcher(), []);
-        $cacheKey = $keyGenerator->generate($request);
+        $cacheKey = $keyGenerator->generate($request)->key;
 
         $cacheItem = $cache->getItem($cacheKey);
         $cacheItem = CacheCompressor::compress($cacheItem, ['response' => $response, 'tags' => ['tag1']]);
@@ -462,5 +492,45 @@ class CacheStoreTest extends TestCase
         static::assertInstanceOf(Response::class, $result);
 
         static::assertCount(0, $bus->getMessages());
+    }
+
+    public function testLookupCachingIsDisabledByCacheKeyEvent(): void
+    {
+        $request = new Request();
+        $response = new Response();
+        $response->headers->set('date', date('Y-m-d H:i:s'));
+
+        $cache = $this->createMock(TagAwareAdapter::class);
+        $cache->expects($this->never())->method('getItem');
+
+        $keyGenerator = $this->createMock(HttpCacheKeyGenerator::class);
+        $keyGenerator->expects($this->once())
+            ->method('generate')
+            ->with($request)
+            ->willReturn(new CacheKey('foo', false));
+
+        $stateValidator = $this->createMock(CacheStateValidator::class);
+        $stateValidator->expects($this->never())->method('isValid');
+
+        $maintenanceResolver = $this->createMock(MaintenanceModeResolver::class);
+        $maintenanceResolver->expects($this->once())->method('shouldBeCached')->willReturn(true);
+
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel->expects($this->never())->method('handle');
+
+        $bus = new CollectingMessageBus();
+        $store = new CacheStore(
+            $cache,
+            $stateValidator,
+            new EventDispatcher(),
+            $keyGenerator,
+            $maintenanceResolver,
+            [],
+            $this->createMock(CacheTagCollector::class),
+            true,
+            $bus
+        );
+
+        static::assertNull($store->lookup($request));
     }
 }

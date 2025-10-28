@@ -40,7 +40,7 @@ class InstallerRedirectHelper
      */
     public function buildQueryString(): string
     {
-        if (empty($this->queryParameters)) {
+        if ($this->queryParameters === []) {
             return '';
         }
 

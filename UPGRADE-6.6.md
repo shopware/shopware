@@ -1,4 +1,7 @@
 # 6.6.10.8
+
+## Use minimal search term length in config tables
+
 With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
 This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.
 

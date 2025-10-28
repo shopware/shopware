@@ -1,5 +1,6 @@
 {% props
-    filterName = ''
+    filterName = '',
+    slots = [],
 %}
 
 {% set defaultAttributes = {
@@ -22,6 +23,8 @@
     </button>
 
     <div class="sw-filter-item__dropdown dropdown-menu p-0">
-        {% block content %}{% endblock %}
+        {% block content %}
+            <twig:Slot name="content"></twig:Slot>
+        {% endblock %}
     </div>
 </div>

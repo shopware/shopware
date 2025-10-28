@@ -1,5 +1,6 @@
 {% props
     listing = null,
+    slots = [],
 %}
 
 {% set attributeDefaults = {
@@ -15,33 +16,40 @@
 <div {{ attributes.defaults(attributeDefaults) }} class="{{ listingCVA.apply({}, attributes.render('class')) }}">
 
     {% block filters %}
-        <twig:Sw:Filter:Panel 
-            :totalCount="listing.total"
-            :currentSorting="listing.sorting"
-            :filterAggregations="listing.aggregations" 
-            :availableSortings="listing.availableSortings">
-        </twig:Sw:Filter:Panel>
+        <twig:Slot name="filters-panel">
+            <twig:Sw:Filter:Panel 
+                :totalCount="listing.total"
+                :currentSorting="listing.sorting"
+                :filterAggregations="listing.aggregations" 
+                :availableSortings="listing.availableSortings">
+            </twig:Sw:Filter:Panel>
+        </twig:Slot> 
 
-        <twig:Sw:Filter:ActiveFilters />
+        <twig:Slot name="filters-active">
+            <twig:Sw:Filter:ActiveFilters />
+        </twig:Slot>
     {% endblock %}
 
     {% block content %}
         {% if listing.total > 0 %}
-            <twig:Sw:Grid:Container
-                class="product-listing__grid"
-                :columns="layout == 'horizontal' ? '1' : '4'"
-                :columnsXl="layout == 'horizontal' ? '1' : '3'"
-                :columnsLg="layout == 'horizontal' ? '1' : '2'"
-                :columnsSm="layout == 'horizontal' ? '1' : '2'"
-                gap="20"
-            >
-                {% for product in listing.elements %}
-                    <twig:Sw:Product:Card
-                        :product="product"
-                        :layout="layout ? layout : 'default'"
-                    />
-                {% endfor %}
-            </twig:Sw:Grid:Container>
+            <twig:Slot name="product-grid">
+                <twig:Sw:Grid:Container
+                    class="product-listing__grid"
+                    :columns="layout == 'horizontal' ? '1' : '4'"
+                    :columnsXl="layout == 'horizontal' ? '1' : '3'"
+                    :columnsLg="layout == 'horizontal' ? '1' : '2'"
+                    :columnsSm="layout == 'horizontal' ? '1' : '2'"
+                    gap="20">
+                    {% for product in listing.elements %}
+                        <twig:Slot name="product-card">
+                            <twig:Sw:Product:Card
+                                :product="product"
+                                :layout="layout ? layout : 'default'"
+                            />
+                        </twig:Slot>
+                    {% endfor %}
+                </twig:Sw:Grid:Container>
+            </twig:Slot>
         {% else %}
             <div class="container">
                 <twig:Sw:Alert type="info">
@@ -52,12 +60,14 @@
     {% endblock %}
 
     {% block pagination %}
-        <twig:Sw:Content:Pagination
-            :page="listing.page"
-            :total="listing.total"
-            :limit="listing.limit"
-            :scope="listing.entity"
-        />
+        <twig:Slot name="pagination">
+            <twig:Sw:Content:Pagination
+                :page="listing.page"
+                :total="listing.total"
+                :limit="listing.limit"
+                :scope="listing.entity"
+            />
+        </twig:Slot>
     {% endblock %}
 
 </div>

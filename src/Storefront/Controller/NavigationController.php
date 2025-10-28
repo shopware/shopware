@@ -245,9 +245,9 @@ class NavigationController extends StorefrontController
                                                 'content' => [
                                                     [
                                                         'id' => '123',
-                                                        'component' => 'Sw:Button',
+                                                        'component' => 'Sw:Content:Text',
                                                         'properties' => [
-                                                            'text' => 'Click Me!',
+                                                            'text' => 'Hello World',
                                                         ],
                                                     ]
                                                 ]
@@ -265,6 +265,33 @@ class NavigationController extends StorefrontController
                     'properties' => [
                         'listing' => $listingData
                     ],
+                    'slots' => [
+                        'filters-panel' => [
+                            [
+                                'id' => '123',
+                                'component' => 'Sw:Filter:Panel',
+                                'properties' => [
+                                    'totalCount' => $listingData->getTotal(),
+                                    'currentSorting' => $listingData->getSorting(),
+                                    'filterAggregations' => $listingData->getAggregations(),
+                                    'availableSortings' => $listingData->getAvailableSortings(),
+                                ],
+                                'slots' => [
+                                    // 'additional-filters-start' => [
+                                    //     [
+                                    //         'id' => '123',
+                                    //         'component' => 'Sw:Filter:Type:BooleanFilter',
+                                    //         'properties' => [
+                                    //             'name' => 'isCloseout',
+                                    //             'displayName' => 'Closeout',
+                                    //         ]
+                                    //     ]
+                                    // ]
+                                ]
+                            ]
+                        ],
+                        'product-card' => []
+                    ]
                 ]
             ]
         ];

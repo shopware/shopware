@@ -16,11 +16,11 @@ insert_final_newline = true
 [*.json]
 indent_size = 2
 
-[config-schema.json]
+[composer.json]
 indent_size = 4
 
-[*.md]
-trim_trailing_whitespace = false
+[config-schema.json]
+indent_size = 4
 
 [*.nix]
 indent_size = 2

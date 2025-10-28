@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class Migration1758018342ProductContentLayout extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -23,16 +23,13 @@ class Migration1758018342ProductContentLayout extends MigrationStep
             CREATE TABLE IF NOT EXISTS `product_content_layout` (
                 `id` BINARY(16) NOT NULL,
                 `product_id` BINARY(16) NOT NULL,
-                `product_version_id` BINARY(16) NOT NULL,
                 `sales_channel_id` BINARY(16) NULL,
                 `content_layout_id` BINARY(16) NOT NULL,
+                `parameter_bindings` JSON NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                UNIQUE INDEX `uniq.product_content_layout.prod_ver_sc` (`product_id`, `product_version_id`, `sales_channel_id`),
-                CONSTRAINT `fk.product_content_layout.product_id`
-                    FOREIGN KEY (`product_id`, `product_version_id`)
-                    REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE,
+                UNIQUE INDEX `uniq.product_content_layout.prod_sc` (`product_id`, `sales_channel_id`),
                 CONSTRAINT `fk.product_content_layout.sales_channel_id`
                     FOREIGN KEY (`sales_channel_id`)
                     REFERENCES `sales_channel` (`id`) ON DELETE CASCADE,
@@ -47,6 +44,5 @@ class Migration1758018342ProductContentLayout extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

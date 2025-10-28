@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Layout\Element;
 
+use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -124,7 +125,15 @@ class ContentElement extends Struct
 
     public function acceptsContext(string $key): bool
     {
-        return $this->contextDefinitions->accepts($key);
+        $acceptedKeys = array_keys($this->contextDefinitions->getAllConsumers());
+
+        foreach ($acceptedKeys as $acceptedKey) {
+            if (ContextPathResolver::matches($key, $acceptedKey)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

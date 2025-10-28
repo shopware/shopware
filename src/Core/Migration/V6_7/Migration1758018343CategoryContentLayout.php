@@ -23,16 +23,13 @@ class Migration1758018343CategoryContentLayout extends MigrationStep
             CREATE TABLE IF NOT EXISTS `category_content_layout` (
                 `id` BINARY(16) NOT NULL,
                 `category_id` BINARY(16) NOT NULL,
-                `category_version_id` BINARY(16) NOT NULL,
                 `sales_channel_id` BINARY(16) NULL,
                 `content_layout_id` BINARY(16) NOT NULL,
+                `parameter_bindings` JSON NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                UNIQUE INDEX `uniq.category_content_layout.cat_ver_sc` (`category_id`, `category_version_id`, `sales_channel_id`),
-                CONSTRAINT `fk.category_content_layout.category_id`
-                    FOREIGN KEY (`category_id`, `category_version_id`)
-                    REFERENCES `category` (`id`, `version_id`) ON DELETE CASCADE,
+                UNIQUE INDEX `uniq.category_content_layout.cat_sc` (`category_id`, `sales_channel_id`),
                 CONSTRAINT `fk.category_content_layout.sales_channel_id`
                     FOREIGN KEY (`sales_channel_id`)
                     REFERENCES `sales_channel` (`id`) ON DELETE CASCADE,
@@ -47,6 +44,5 @@ class Migration1758018343CategoryContentLayout extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

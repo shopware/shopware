@@ -37,6 +37,29 @@ Walk tree with context stack:
 
 Inner providers shadow outer providers for same context key. Consumers without property value get from stack. Direct children of provider receive via immediate distribution, deeper descendants get from stack.
 
+## Context Path Resolution
+
+Consumers can request nested properties from context using dot notation (e.g., `product.cover`, `product.manufacturer.name`). The system automatically resolves these paths on Shopware Struct objects.
+
+**How it works**:
+1. Consumer declares context key with path: `"product.cover"` or `"product.manufacturer.name"`
+2. System extracts base key (`product`) and path segments (`["cover"]` or `["manufacturer", "name"]`)
+3. Looks up base key in context stack or direct distribution
+4. Uses `getVars()` on Struct objects to traverse path
+5. Validates each segment exists and is Struct (for intermediate values)
+6. Returns final value or throws exception if required
+
+**Requirements**:
+- Only works with Struct objects (all DAL entities extend Struct)
+- Each intermediate value must be a Struct instance
+- Missing properties or null intermediates handled based on `required` flag
+
+**Error handling**:
+- `required: true` - Throws `ContentSystemException::contextPathNotResolvable()` with details
+- `required: false` - Returns null silently
+
+**Implementation**: See `ContextPathResolver` class for path parsing and resolution logic.
+
 ## Distribution Strategies
 
 Five strategies control how provider data splits across multiple consumers. Strategy selected by provider's distribution config.

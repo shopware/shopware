@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\ContentSystem\Adapter;
 
-use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutCollection;
-use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -17,21 +19,21 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  */
 #[Package('discovery')]
-class LayoutSearchHelper
+class EntityLayoutFinder
 {
     /**
-     * Resolves layout ID with sales channel fallback priority: specific → global (null)
+     * Resolves layout assignment entity with sales channel fallback priority: specific → global (null)
      *
      * @template TEntityCollection of CategoryContentLayoutCollection|ProductContentLayoutCollection|LandingPageContentLayoutCollection
      *
      * @param EntityRepository<TEntityCollection> $repository
      */
-    public static function buildLayoutIdSearchCriteria(
+    public static function findLayoutAssignment(
         string $entityIdField,
         string $entityId,
         SalesChannelContext $salesChannelContext,
         EntityRepository $repository
-    ): ?string {
+    ): ?ContentLayoutAssignmentInterface {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter($entityIdField, $entityId));
         $criteria->addFilter(new OrFilter([
@@ -40,10 +42,10 @@ class LayoutSearchHelper
         ]));
         $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::DESCENDING));
         $criteria->setLimit(1);
+        $criteria->addAssociation('contentLayout');
 
         $result = $repository->search($criteria, $salesChannelContext->getContext());
-        $entity = $result->first();
 
-        return $entity?->getContentLayoutId();
+        return $result->first();
     }
 }

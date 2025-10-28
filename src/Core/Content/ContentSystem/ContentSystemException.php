@@ -42,6 +42,7 @@ class ContentSystemException extends HttpException
     public const INVALID_PRODUCT_PATH = 'CONTENT_SYSTEM__INVALID_PRODUCT_PATH';
     public const INVALID_CATEGORY_PATH = 'CONTENT_SYSTEM__INVALID_CATEGORY_PATH';
     public const INVALID_LANDING_PAGE_PATH = 'CONTENT_SYSTEM__INVALID_LANDING_PAGE_PATH';
+    public const CONTEXT_PATH_NOT_RESOLVABLE = 'CONTENT_SYSTEM__CONTEXT_PATH_NOT_RESOLVABLE';
 
     public static function contentNotFound(string $pathInfo): self
     {
@@ -326,6 +327,21 @@ class ContentSystemException extends HttpException
             self::INVALID_LANDING_PAGE_PATH,
             'Invalid landing page path format: "{{ path }}". Expected format: /landing-page/{landingPageId}',
             ['path' => $path]
+        );
+    }
+
+    public static function contextPathNotResolvable(string $fullPath, string $elementId, ?string $reason = null): self
+    {
+        $message = 'Cannot resolve context path "{{ fullPath }}" for element "{{ elementId }}"';
+        if ($reason !== null) {
+            $message .= ': {{ reason }}';
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONTEXT_PATH_NOT_RESOLVABLE,
+            $message,
+            ['fullPath' => $fullPath, 'elementId' => $elementId, 'reason' => $reason]
         );
     }
 }

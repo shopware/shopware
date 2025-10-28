@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Routing;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Content\ContentSystem\RenderingSpecificationFactoryInterface;
@@ -22,7 +23,8 @@ class RouteBasedContextFactory implements RenderingSpecificationFactoryInterface
     public function __construct(
         private readonly ContentRouter $contentRouter,
         private readonly EntityIdResolver $entityIdResolver,
-        private readonly LayoutResolver $layoutResolver
+        private readonly LayoutResolver $layoutResolver,
+        private readonly RequestParameterExtractor $requestParameterExtractor
     ) {
     }
 
@@ -54,10 +56,7 @@ class RouteBasedContextFactory implements RenderingSpecificationFactoryInterface
 
         $placeholderValues = PlaceholderValues::from($resolvedData->getValues());
 
-        $targetElementId = $request->query->get('elementId');
-        if ($targetElementId !== null && !\is_string($targetElementId)) {
-            throw ContentSystemException::invalidElementId();
-        }
+        $targetElementId = $this->requestParameterExtractor->extractTargetElementId($request);
 
         return new RenderingSpecification(
             layoutId: $layoutId,

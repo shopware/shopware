@@ -18,10 +18,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition">
             <tag name="shopware.sales_channel.entity.definition"/>
         </service>

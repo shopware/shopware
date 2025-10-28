@@ -312,7 +312,7 @@ class ProductDetailRouteTest extends TestCase
 
         $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, function (ResolveVariantIdEvent $event) use ($productId): void {
             static::assertSame($productId, $event->getProductId());
-            // In checkVariantListingConfig we want to make sure that the variant ID is not returned against displayParent
+            // In checkVariantListingConfig we want to make sure that the variant ID is not returned against displayParent when no variant ID is set
             static::assertNull($event->getResolvedVariantId(), 'Wrong variant ID resolved:' . $event->getResolvedVariantId());
         });
 
@@ -353,7 +353,7 @@ class ProductDetailRouteTest extends TestCase
 
         $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, function (ResolveVariantIdEvent $event) use ($productId): void {
             static::assertSame($productId, $event->getProductId());
-            // In checkVariantListingConfig we want to make sure that the variant ID is not returned against displayParent
+            // In checkVariantListingConfig we want to make sure that the variant ID is returned even if displayParent is true
             static::assertSame('2', $event->getResolvedVariantId(), 'Wrong variant ID resolved:' . $event->getResolvedVariantId());
         });
 

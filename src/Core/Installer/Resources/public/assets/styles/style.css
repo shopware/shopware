@@ -1,3 +1,4 @@
+/*region Variables*/
 /* ==========================================================================
    Variables
    ========================================================================== */
@@ -29,8 +30,16 @@
     --border-radius-default: 4px;
     --box-shadow-field: 0 0 4px 0 rgba(24, 158, 255, 0.3);
     --font-family-default: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-size-s: 16px;
+    --font-size-2xs: 12px;
+    --font-line-height-s: 26px;
+    --font-line-height-2xs: 18px;
 }
+/*endregion*/
 
+/*region Global*/
 /* ==========================================================================
    Global
    ========================================================================== */
@@ -119,7 +128,9 @@ h6 {
 a {
     color: var(--color-shopware-brand-500);
 }
+/*endregion*/
 
+/*region Forms and Inputs*/
 /* ==========================================================================
    Forms and Inputs
    ========================================================================== */
@@ -221,8 +232,11 @@ details > summary::marker,
 details > summary::-webkit-details-marker {
     display: none;
 }
+/*endregion*/
 
-/* Custom select
+/*region Custom select*/
+/* ==========================================================================
+   Custom select
    ========================================================================== */
 
 .select-wrapper {
@@ -263,8 +277,11 @@ details > summary::-webkit-details-marker {
     left: 18px;
     border-radius: 2px;
 }
+/*endregion*/
 
-/* Custom switch
+/*region Custom switch*/
+/* ==========================================================================
+   Custom switch
    ========================================================================== */
 
 .custom-switch {
@@ -319,8 +336,11 @@ details > summary::-webkit-details-marker {
     background-color: var(--color-white);
     left: 10px;
 }
+/*endregion*/
 
-/* Custom checkbox
+/*region Custom checkbox*/
+/* ==========================================================================
+   Custom checkbox
    ========================================================================== */
 
 .custom-checkbox {
@@ -386,8 +406,11 @@ details > summary::-webkit-details-marker {
 .is--submitted .custom-checkbox input[type="checkbox"]:invalid ~ label:before {
     border-color: var(--color-crimson-500);
 }
+/*endregion*/
 
-/* Input utilities
+/*region Input utilities*/
+/* ==========================================================================
+   Input utilities
    ========================================================================== */
 
 .input-group {
@@ -399,7 +422,9 @@ details > summary::-webkit-details-marker {
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 32px;
 }
+/*endregion*/
 
+/*region Button*/
 /* ==========================================================================
    Button
    ========================================================================== */
@@ -460,12 +485,16 @@ button:disabled,
     cursor: default;
     opacity: 0.5;
 }
+/*endregion*/
 
+/*region Alert*/
 /* ==========================================================================
    Alert
    ========================================================================== */
 
-/* Default alert
+/*region Default alert*/
+/* ==========================================================================
+   Default alert
    ========================================================================== */
 
 .alert {
@@ -568,8 +597,11 @@ h3.alert-heading {
     font-size: 50px;
     padding: 0 20px 0 0;
 }
+/*endregion*/
 
-/* Hero alert
+/*region Hero alert*/
+/* ==========================================================================
+   Hero alert
    ========================================================================== */
 
 .alert-hero {
@@ -608,7 +640,11 @@ h3.alert-heading {
 .alert-hero-text {
     color: var(--color-text);
 }
+/*endregion*/
 
+/*endregion*/
+
+/*region Table*/
 /* ==========================================================================
    Table
    ========================================================================== */
@@ -646,7 +682,9 @@ table .notice-text [class^="icon-"] {
 table .notice-text td p {
     margin-bottom: 0;
 }
+/*endregion*/
 
+/*region General layout*/
 /* ==========================================================================
    General layout
    ========================================================================== */
@@ -803,35 +841,34 @@ table .notice-text td p {
     font-size: 10px;
 }
 
-.header-main__language-selection [data-tooltip]:before {
-    bottom: auto;
-    top: 100%;
-    margin-top: 5px;
-    margin-bottom: 0;
-    width: max-content;
-    max-width: 320px;
-    white-space: normal;
-    word-wrap: break-word;
+.footer-main {
+    padding: 32px;
+    text-align: right;
+    height: 90px;
 }
 
-.header-main__language-selection [data-tooltip]:after {
-    bottom: auto;
-    top: 100%;
-    transform: translateX(-50%) translateY(-11px);
-    border-top-color: transparent;
-    border-bottom-color: var(--color-biscay);
-    margin-top: 5px;
-    margin-bottom: 0;
+.help-container .help-title {
+    font-size: var(--font-size-s);
+    line-height: var(--font-line-height-s);
+    font-weight: var(--font-weight-semibold);
 }
 
-.header-main__language-selection [data-tooltip]:hover:before,
-.header-main__language-selection [data-tooltip]:focus:before,
-.header-main__language-selection [data-tooltip]:hover:after,
-.header-main__language-selection [data-tooltip]:focus:after {
-    margin-top: 12px;
-    margin-bottom: 0;
+.footer-main a {
+    color: var(--color-text);
+    font-size: var(--font-size-2xs, 12px);
+    font-style: normal;
+    font-weight: var(--font-weight-medium);
+    line-height: var(--font-line-height-2xs, 18px);
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: none;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+    text-underline-position: from-font;
 }
+/*endregion*/
 
+/*region Main navigation*/
 /* ==========================================================================
    Main navigation
    ========================================================================== */
@@ -930,7 +967,9 @@ table .notice-text td p {
 .is--active .navigation--link {
     color: var(--color-text);
 }
+/*endregion*/
 
+/*region Progress bar*/
 /* ==========================================================================
    Progress bar
    ========================================================================== */
@@ -955,7 +994,9 @@ table .notice-text td p {
     transition: width .6s ease;
     border-radius: 25px;
 }
+/*endregion*/
 
+/*region Loading indicator*/
 /* ==========================================================================
    Loading indicator
    ========================================================================== */
@@ -993,63 +1034,70 @@ table .notice-text td p {
     border-style: solid;
     border-color: #333 #CCC #CCC #CCC;
 }
+/*endregion*/
 
+/*region Tooltip*/
 /* ==========================================================================
    Tooltip
    ========================================================================== */
 
 [data-tooltip] {
     position: relative;
-    cursor: default;
+    cursor: pointer;
     text-decoration: none;
-    --tooltip-transition:
-        opacity 0.2s ease-in-out,
-        visibility 0.2s ease-in-out,
-        margin-bottom 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
 }
 
-[data-tooltip]:before {
+.tooltip-content {
     position: absolute;
     bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: var(--tooltip-transition);
-    width: 280px;
+    right: 0;
+    transform: none;
+    transition: opacity 0.2s ease-in-out,
+    visibility 0.2s ease-in-out,
+    margin-bottom 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+    width: 200px;
     padding: 8px 12px;
-    content: attr(data-tooltip);
-    background-color: var(--color-biscay);
-    color: var(--color-white);
+    background-color: var(--color-white);
+    color: var(--color-text);
     font-size: 13px;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     border-radius: 4px;
-    outline: none;
+    border: solid 1px var(--color-gray-200);
+    box-shadow: 0 3px 6px 0 var(--color-gray-200);
     z-index: 1000;
     margin-bottom: -12px;
+    text-align: left;
+    cursor: default;
 }
 
-[data-tooltip]:after {
+.tooltip-arrow {
     position: absolute;
     bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(11px);
+    right: 12px;
+    translate: 0 11px;
     border: 6px solid transparent;
     background: transparent;
     border-top-color: var(--color-biscay);
-    content: "";
     opacity: 0;
+    visibility: hidden;
     margin-bottom: -12px;
-    transition: var(--tooltip-transition);
+    transition: opacity 0.2s ease-in-out,
+    visibility 0.2s ease-in-out,
+    margin-bottom 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
 }
 
-[data-tooltip]:hover:before,
-[data-tooltip]:focus:before,
-[data-tooltip]:hover:after,
-[data-tooltip]:focus:after {
+[data-tooltip].tooltip-active .tooltip-content,
+[data-tooltip].tooltip-active .tooltip-arrow {
     opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
     margin-bottom: 5px;
 }
+/*endregion*/
 
+/*region Utilities*/
 /* ==========================================================================
    Utilities
    ========================================================================== */
@@ -1122,12 +1170,16 @@ table .notice-text td p {
     padding: 0 0 12px;
     font-size: 13px;
 }
+/*endregion*/
 
+/*region Installer steps*/
 /* ==========================================================================
    Installer steps
    ========================================================================== */
 
-/* Step: Start / Language selection
+/*region Step: Start / Language selection*/
+/* ==========================================================================
+   Step: Start / Language selection
    ========================================================================== */
 
 .welcome-illustration {
@@ -1157,8 +1209,11 @@ table .notice-text td p {
     color: var(--color-shopware-brand-500);
     text-decoration: underline;
 }
+/*endregion*/
 
-/* Step: System requirements
+/*region Step: System requirements*/
+/* ==========================================================================
+   Step: System requirements
    ========================================================================== */
 
 .requirement-group {
@@ -1213,8 +1268,11 @@ table .notice-text td p {
 .status-indicator.warning {
     background-color: var(--color-pumpkin-spice-500);
 }
+/*endregion*/
 
-/* Step: Terms of service
+/*region Step: Terms of service*/
+/* ==========================================================================
+   Step: Terms of service
    ========================================================================== */
 
 .license-agreement {
@@ -1227,8 +1285,11 @@ table .notice-text td p {
     overflow-y: scroll;
     margin-bottom: 20px;
 }
+/*endregion*/
 
-/* Step: Database import / migration
+/*region Step: Database import / migration*/
+/* ==========================================================================
+   Step: Database import / migration
    ========================================================================== */
 
 .database-hint {
@@ -1279,8 +1340,11 @@ table .notice-text td p {
     cursor: pointer;
     padding-left: 0;
 }
+/*endregion*/
 
-/* Step: Cleanup
+/*region Step: Cleanup*/
+/* ==========================================================================
+   Step: Cleanup
    ========================================================================== */
 
 .clearCacheSpinner {
@@ -1300,10 +1364,14 @@ table .notice-text td p {
 .error-message-container {
     display: none;
 }
+/*endregion*/
 
-/* =======================
+/*endregion*/
+
+/*region Installer: Languages UI*/
+/* ==========================================================================
    Installer: Languages UI
-   ======================= */
+   ========================================================================== */
 
 .section-header {
     margin: 32px 0 24px;
@@ -1487,3 +1555,4 @@ table .notice-text td p {
 .retry-link:hover {
     color: #2980b9;
 }
+/*endregion*/

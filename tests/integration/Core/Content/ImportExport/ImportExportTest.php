@@ -228,7 +228,9 @@ class ImportExportTest extends AbstractImportExportTestCase
     #[Group('needsWebserver')]
     public function testMediaWithEncodedUrl(): void
     {
-        $csvContent = \sprintf('url %s', EnvironmentHelper::getVariable('APP_URL')) . '/media/%C3%9Fhopware-log%C3%B6.png';
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+        $csvContent = \sprintf('url %s', $appUrl) . '/media/%C3%9Fhopware-log%C3%B6.png';
 
         $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
         file_put_contents($fixturesPath, $csvContent);

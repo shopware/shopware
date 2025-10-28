@@ -211,9 +211,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $languageMapping = $this->getLanguageMapping();
 
         foreach ($data as $id => $item) {
-            /** @var array<int|string, array<string, string|null>> $translation */
+            /** @var list<array<string, string|null>> $translation */
             $translation = $item['translation'] ?? [];
-            /** @var array<int, array{id: string, languageId?: string}> $categories */
+            /** @var list<array<string, string|null>> $categories */
             $categories = $item['categories'] ?? [];
 
             $names = ElasticsearchFieldMapper::translated(field: 'name', items: $translation);
@@ -287,7 +287,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'parentId' => $item['parentId'],
                 'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
-                'categories' => ElasticsearchFieldMapper::toManyAssociations(items: $categories ?? [], translatedFields: ['name']),
+                'categories' => ElasticsearchFieldMapper::toManyAssociations(items: $categories, translatedFields: ['name']),
                 'manufacturer' => [
                     'id' => $item['productManufacturerId'],
                     'name' => ElasticsearchFieldMapper::translated(field: 'manufacturerName', items: $translation),
@@ -337,7 +337,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array<string, array<mixed>|string>>
+     * @return array<string, array<string, string|array<int, array<string, string|null>>|null>>
      */
     private function fetchProducts(array $ids, Context $context): array
     {
@@ -410,7 +410,7 @@ SQL;
             ], 'visibilities'),
         ];
 
-        /** @var array<string, array<string, string>> $base */
+        /** @var array<string, array<string, string|null>> $base */
         $base = $this->connection->fetchAllAssociativeIndexed(
             str_replace(array_keys($baseMapping), array_values($baseMapping), $baseSql),
             [
@@ -461,7 +461,7 @@ SQL;
         $translationSql = str_replace(array_keys($translationMapping), array_values($translationMapping), $translationSql);
 
         foreach ($languages as $languageId) {
-            /** @var array<string, array<string, string>> $translations */
+            /** @var array<string, array<string, string|null>> $translations */
             $translations = $this->connection->fetchAllAssociativeIndexed(
                 $translationSql,
                 [
@@ -476,7 +476,7 @@ SQL;
 
             foreach ($translations as $id => $translation) {
                 $translation['languageId'] = $languageId;
-                /** @var array<mixed> $categories */
+                /** @var list<array<string, string|null>> $categories */
                 $categories = $base[$id]['categories'] ?? [];
                 $translatedCategories = ElasticsearchIndexingUtils::parseJson($translation, 'categories');
 

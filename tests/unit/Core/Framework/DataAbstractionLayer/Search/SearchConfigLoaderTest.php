@@ -30,9 +30,11 @@ class SearchConfigLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
+        $firstLanguageId = array_key_first($configKeyedByLanguageId);
+        static::assertNotNull($firstLanguageId);
         $connection->expects($this->once())
             ->method('fetchAllAssociative')
-            ->willReturn($configKeyedByLanguageId[array_key_first($configKeyedByLanguageId)]);
+            ->willReturn($configKeyedByLanguageId[$firstLanguageId]);
 
         $loader = new SearchConfigLoader($connection);
 
@@ -53,7 +55,7 @@ class SearchConfigLoaderTest extends TestCase
 
     public function testLoadWithNoResult(): void
     {
-        static::expectExceptionObject(DataAbstractionLayerException::configNotFound());
+        $this->expectExceptionObject(DataAbstractionLayerException::configNotFound());
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())

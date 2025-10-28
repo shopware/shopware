@@ -21,11 +21,30 @@ The team now prefers a curated, in-repo workflow for developer-facing release no
 2. We adopt a **curated in-repo model**:
    - `RELEASE_INFO-6.<currentMajor>.md`: developer-facing release notes with per-minor sections.
    - `UPGRADE-6.<upcomingMajor>.md`: upgrade instructions and breaking changes.
+```
+Example: RELEASE_INFO-6.7.md
+
+## 6.7.5 (Upcoming)
+### Core
+- Added new `CartRoute` parameter `guestLogin` (PR #12326)
+- Improved indexing performance for product categories (PR #12657)
+### Administration
+- Updated TypeScript target to ES2023 (PR #12408)
+``` 
+```
+Example: UPGRADE-6.8.md
+
+## Break: Deprecated SalesChannelContextSwitcher
+- **What changed:** The old service is deprecated and will be removed in 6.8.
+- **Impact:** Plugins using it should migrate to the new ContextResolver.
+- **How to adjust:** Replace constructor injection with the new service interface.
+```
 3. PR authors must add developer-facing entries as part of their PRs:
    - Information that benefits external developers → `RELEASE_INFO-6.X.md` (in the “Upcoming” section).
    - Breaking changes → `UPGRADE-6.Y.md`.
-4. The full exhaustive changelog will remain **auto-generated** from GitHub release notes (commit history and merges) and linked from each release for completeness.
-5. The PR template is updated to reference this process and provide checklist guidance.  
+4. Entries should follow this minimal structure (category, concise description, PR reference). CI will not enforce a strict format initially, but reviewers are responsible for verifying consistency and readability.
+5. The full exhaustive changelog will remain **auto-generated** from GitHub release notes (commit history and merges) and linked from each release for completeness.
+6. The PR template is updated to reference this process and provide checklist guidance.  
    CI will later validate that either `RELEASE_INFO` or `UPGRADE` was updated when relevant (or explicitly skipped with justification).
 
 ---

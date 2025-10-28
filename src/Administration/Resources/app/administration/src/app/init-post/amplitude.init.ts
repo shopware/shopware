@@ -2,7 +2,10 @@
  * @sw-package framework
  */
 import * as amplitude from '@amplitude/analytics-browser';
+import type { BaseEvent, TransportType, Transport, Payload, Response } from '@amplitude/analytics-core';
 import { string } from 'src/core/service/util.service';
+import { SendBeaconTransport } from '@amplitude/analytics-browser/lib/esm/transports/send-beacon';
+import { BaseTransport } from '@amplitude/analytics-core';
 import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telemetry/types';
 
 /**
@@ -52,7 +55,7 @@ export default async function (): Promise<void> {
 
     // check for consent
 
-    amplitude.init('a04bb926f471ce883bc219814fc9577', undefined, {
+    const amp = amplitude.init('placeholder-apikey', undefined, {
         autocapture: false,
         serverZone: 'EU',
         appVersion: Shopware.Store.get('context').app.config.version as string,
@@ -62,8 +65,39 @@ export default async function (): Promise<void> {
             platform: false,
         },
         fetchRemoteConfig: false,
-        // serverUrl: use proxy server url here, e.g. usage-data.shopware.io/product-analytics,
+        serverUrl: 'http://localhost:8080/event',
+        transportProvider: (transport?: TransportType): Transport => {
+            if (transport === 'beacon') {
+                return new SendBeaconTransport();
+            }
+
+            return new class extends BaseTransport implements Transport {
+                async send(serverUrl: string, payload: Payload): Promise<Response | null> {
+                    const token = await Shopware.Service('analyticsService').getToken()
+
+                    const options: RequestInit = {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorisation': `Bearer ${token.token}`,
+                            Accept: '*/*',
+                        },
+                        body: JSON.stringify(payload),
+                        method: 'POST',
+                    };
+                    const response = await fetch(serverUrl, options);
+                    const responseText = await response.text();
+                    try {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        return this.buildResponse(JSON.parse(responseText));
+                    } catch {
+                        return this.buildResponse({ code: response.status });
+                    }
+                }
+            }
+        },
     });
+
+
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener
     Shopware.Utils.EventBus.on('telemetry', pushTelemetryEventToAmplitude);

@@ -50,19 +50,41 @@ class MediaPresignedUploadController extends AbstractController
             ], 400);
         }
 
-        $presignedData = $this->presignedUrlGenerator->generatePresignedUrl(
-            $fileName,
-            $extension,
-            $mimeType,
-            $mediaFolderId
-        );
+        try {
+            $presignedData = $this->presignedUrlGenerator->generatePresignedUrl(
+                $fileName,
+                $extension,
+                $mimeType,
+                $mediaFolderId
+            );
+        } catch (\RuntimeException $e) {
+            return new JsonResponse([
+                'errors' => [
+                    [
+                        'status' => '400',
+                        'title' => 'Presigned Upload Configuration Error',
+                        'detail' => $e->getMessage(),
+                    ],
+                ],
+            ], 400);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'errors' => [
+                    [
+                        'status' => '500',
+                        'title' => 'Presigned URL Generation Failed',
+                        'detail' => 'Failed to generate presigned URL: ' . $e->getMessage(),
+                    ],
+                ],
+            ], 500);
+        }
 
         if (!$presignedData) {
             return new JsonResponse([
                 'errors' => [
-                    ['detail' => 'S3 storage not configured. Presigned URLs require S3.'],
+                    ['detail' => 'Failed to generate presigned URL for unknown reason.'],
                 ],
-            ], 400);
+            ], 500);
         }
 
         $mediaData = [

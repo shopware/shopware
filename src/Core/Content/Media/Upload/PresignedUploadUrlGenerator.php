@@ -18,11 +18,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('discovery')]
 class PresignedUploadUrlGenerator
 {
-    private readonly S3Client $s3Client;
+    private readonly ?S3Client $s3Client;
 
-    private readonly string $bucket;
+    private readonly ?string $bucket;
 
-    private readonly string $region;
+    private readonly ?string $region;
 
     private readonly bool $enabled;
 
@@ -39,6 +39,9 @@ class PresignedUploadUrlGenerator
 
         // Only initialize S3 if feature is enabled and filesystem type is S3
         if (!$this->enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
+            $this->s3Client = null;
+            $this->bucket = null;
+            $this->region = null;
             return;
         }
 
@@ -78,7 +81,11 @@ class PresignedUploadUrlGenerator
         ?string $mediaFolderId = null
     ): ?array {
         if (!$this->enabled) {
-            return null;
+            throw new \RuntimeException('Presigned upload feature is disabled. Set "shopware.media.enable_presigned_upload: true" in configuration.');
+        }
+
+        if (!$this->isS3Configured()) {
+            throw new \RuntimeException('S3 is not configured. Filesystem type must be "amazon-s3" with valid bucket configuration.');
         }
 
         try {
@@ -170,10 +177,30 @@ class PresignedUploadUrlGenerator
     private function validateS3Config(array $s3Config): void
     {
         if (empty($s3Config['bucket'])) {
-            throw new \RuntimeException('S3 configuration missing: bucket');
+            throw new \RuntimeException(
+                'S3 bucket is not configured. Check your shopware.yaml: ' .
+                'shopware.filesystem.public.config.bucket must be set.'
+            );
+        }
+
+        if (empty($s3Config['region'])) {
+            throw new \RuntimeException(
+                'S3 region is not configured. Check your shopware.yaml: ' .
+                'shopware.filesystem.public.config.region must be set.'
+            );
         }
 
         // Credentials are optional - AWS SDK will use IAM roles if not provided
+        // If credentials are provided, validate them
+        $credentials = $s3Config['credentials'] ?? [];
+        if (!empty($credentials)) {
+            if (empty($credentials['key']) || empty($credentials['secret'])) {
+                throw new \RuntimeException(
+                    'S3 credentials are incomplete. If providing credentials, both key and secret are required. ' .
+                    'Alternatively, remove credentials to use IAM roles.'
+                );
+            }
+        }
     }
 
     /**

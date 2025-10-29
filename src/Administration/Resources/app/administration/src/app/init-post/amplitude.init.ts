@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import * as amplitude from '@amplitude/analytics-browser';
-import type { BaseEvent, EventOptions } from '@amplitude/analytics-types';
 import { string } from 'src/core/service/util.service';
 import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telemetry/types';
 
@@ -10,22 +9,9 @@ import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telem
  * @private
  */
 export default async function (): Promise<void> {
-    const loginService = Shopware.Service('loginService');
 
-    loginService.addOnLoginListener(async () => {
-        await setUserId();
-        track('Login');
-    });
-
-    loginService.addOnLogoutListener(() => {
+    Shopware.Service('loginService').addOnLogoutListener(() => {
         amplitude.setTransport('beacon');
-        track('Logout');
-
-        // we need a timeout if we want to include the click on the logout button
-        setTimeout(() => {
-            amplitude.flush();
-            amplitude.reset();
-        }, 0);
     });
 
     let defaultLanguageName = '';
@@ -66,7 +52,6 @@ export default async function (): Promise<void> {
     });
 
     // check for consent
-    // identify user
 
     amplitude.init('a04bb926f471ce883bc219814fc9577', undefined, {
         autocapture: false,
@@ -85,15 +70,41 @@ export default async function (): Promise<void> {
     Shopware.Utils.EventBus.on('telemetry', pushTelemetryEventToAmplitude);
 }
 
-function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes>) {
+async function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes>) {
     if (isEventOfType('page_change', telemetryEvent)) {
-        track('Page Viewed', {
+        amplitude.track('Page Viewed', {
             sw_route_from_name: telemetryEvent.eventData.from.name,
             sw_route_from_href: telemetryEvent.eventData.from.path,
             sw_route_to_name: telemetryEvent.eventData.to.name,
             sw_route_to_href: telemetryEvent.eventData.to.path,
             sw_route_to_query: telemetryEvent.eventData.to.fullPath.split('?')[1],
         });
+        return;
+    }
+
+    if (isEventOfType('identify', telemetryEvent)) {
+        const previousUserId = amplitude.getUserId();
+        const newUserId = telemetryEvent.eventData.userId;
+
+        amplitude.setUserId(newUserId);
+        // TODO: add more user properties via amplitude.identify();
+
+        if (newUserId && previousUserId !== newUserId) {
+            amplitude.track('Login');
+        }
+
+        return;
+    }
+
+    if (isEventOfType('reset', telemetryEvent)) {
+        amplitude.track('Logout');
+
+        // we need a timeout if we want to include the click on the logout button
+        setTimeout(() => {
+            amplitude.flush();
+            amplitude.reset();
+        }, 0);
+
         return;
     }
 
@@ -127,16 +138,8 @@ function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes
             eventProperties.sw_pointer_button = originalEvent.buttons;
         }
 
-        track(eventName, eventProperties);
+        amplitude.track(eventName, eventProperties);
     }
-}
-
-function track(
-    eventInput: string | BaseEvent,
-    eventProperties?: Record<string, unknown>,
-    eventOptions?: EventOptions,
-): void {
-    amplitude.track(eventInput, eventProperties, eventOptions);
 }
 
 async function getDefaultLanguageName(): Promise<string> {
@@ -144,17 +147,6 @@ async function getDefaultLanguageName(): Promise<string> {
     const defaultLanguage = await languageRepository.get(Shopware.Context.api.systemLanguageId!);
 
     return defaultLanguage!.name;
-}
-
-async function setUserId(): Promise<void> {
-    await Shopware.Service('userService').getLoaded();
-    await Shopware.Service('configService').getLoaded();
-    const shopId = Shopware.Store.get('context').app.config.shopId;
-    const currentUser = Shopware.Store.get('session').currentUser;
-
-    if (shopId && currentUser?.id) {
-        amplitude.setUserId(`${shopId}:${currentUser.id}`);
-    }
 }
 
 function isEventOfType<N extends EventTypes>(

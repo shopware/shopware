@@ -7,6 +7,7 @@ import { TelemetryEvent, type EventTypes, type EventPayload, type ElementQuery, 
 import AnchorTags from './ElementQueries/anchor-tags';
 import ProductAnalyticsTag from './ElementQueries/product-analytics-tag';
 import TaggedButtons from './ElementQueries/tagged-buttons';
+
 /**
  * @private
  */
@@ -37,6 +38,7 @@ export class Telemetry {
 
         this.initializeObservables();
         this.initializePageChanges();
+        this.initializeUserChanges();
         this.initializeDebugListener();
 
         this.#initialized = true;
@@ -52,15 +54,6 @@ export class Telemetry {
 
     track(eventData: EventPayload<'programmatic'>) {
         this.dispatchEvent('programmatic', eventData);
-    }
-
-    identify(userId: string, deviceId: string, locale: string, permissions: string[]) {
-        this.dispatchEvent('identify', {
-            userId,
-            locale,
-            deviceId,
-            permissions,
-        });
     }
 
     private initializePageChanges(): void {
@@ -79,6 +72,32 @@ export class Telemetry {
 
                 this.dispatchEvent('page_change', { from, to });
             });
+        });
+    }
+
+    private initializeUserChanges(): void {
+        const loginService = Shopware.Service('loginService');
+
+        loginService.addOnLoginListener(() => {
+            Promise.all([
+                Shopware.Service('userService').getLoaded(),
+                Shopware.Service('configService').getLoaded(),
+            ]).then(() => {
+                const shopId = Shopware.Store.get('context').app.config.shopId;
+                const currentUser = Shopware.Store.get('session').currentUser;
+
+                if (shopId && currentUser?.id) {
+                    this.dispatchEvent('identify', {
+                        userId: `${shopId}:${currentUser.id}`,
+                        locale: null,
+                        isAdmin: currentUser.admin || null,
+                    });
+                }
+            });
+        });
+
+        loginService.addOnLogoutListener(() => {
+            this.dispatchEvent('reset', {});
         });
     }
 

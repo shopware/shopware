@@ -19,10 +19,10 @@ type AnalyticsEvents = {
     };
     identify: {
         userId: string;
-        deviceId: string;
-        locale: string;
-        permissions: string[];
+        locale: string | null;
+        isAdmin: boolean | null;
     };
+    reset: {};
 };
 
 type EventTypes = keyof AnalyticsEvents;

@@ -347,7 +347,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, CustomerEntity|Cart|bool|string|null>>
+     * @return iterable<string, array<int, CustomerEntity|Cart|bool|string|null>>
      */
     public static function cashHashProvider(): iterable
     {
@@ -365,7 +365,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, bool|string[]>>
+     * @return iterable<string, array<int, bool|string[]>>
      */
     public static function maintenanceRequest(): iterable
     {
@@ -414,7 +414,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, string|null>>
+     * @return iterable<string, array<int, string|null>>
      */
     public static function providerCurrencyChange(): iterable
     {
@@ -486,7 +486,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, Request>>
+     * @return iterable<string, array<int, Request>>
      */
     public static function notCacheableRequestProvider(): iterable
     {
@@ -532,7 +532,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1?: Response}>
+     * @return iterable<string, array{0: Request, 1?: Response}>
      */
     public static function cookiesUntouchedProvider(): iterable
     {
@@ -630,7 +630,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array{
+     * @return iterable<string, array{
      *     route: string,
      *     requestMethod: string,
      *     cookiesAmount: int,

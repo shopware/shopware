@@ -197,7 +197,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             static::assertSame(
                 $ids->get($expectedProduct),
                 $resultIds[$key],
-                \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key]))
+                \sprintf('Expected product %s at position %d to be there, but got "%s"', $expectedProduct, $key, (string) $ids->getKey($resultIds[$key]))
             );
         }
     }

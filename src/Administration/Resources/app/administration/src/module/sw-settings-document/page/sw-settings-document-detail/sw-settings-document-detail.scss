@@ -1,43 +1,20 @@
 .sw-settings-document-detail {
-    .sw-settings-document--alert-change-parent {
-        margin-top: 30px;
+    .sw-settings-document-detail__select-type {
         margin-bottom: 0;
     }
 
-    .sw-settings-document-detail__field_default {
-        position: relative;
-
-        .sw-help-text {
-            position: absolute;
-            top: 38px;
-            right: 18px;
-        }
-    }
-
-    .sw-form-field-renderer.sw-select {
-        margin-bottom: 22px;
-    }
-
-    .sw-settings-document-detail__form-field-renderer {
-        margin-bottom: 22px;
-    }
-
-    .sw-settings-document-detail__field_delivery_countries {
-        grid-column: auto / span 2;
-
-        .sw-select-selection-list > li:only-child {
-            width: 100%;
-        }
-    }
-
-    .sw-field--checkbox .sw-field--checkbox__content {
-        align-items: center;
-        height: 100%;
-    }
-
+    &__form-field-renderer,
+    .sw-form-field-renderer.sw-select,
     .sw-field--text,
     .sw-field--checkbox {
-        margin-bottom: 22px;
+        margin-bottom: var(--scale-size-22);
+    }
+
+    .sw-field--checkbox {
+        &__content {
+            align-items: center;
+            height: 100%;
+        }
     }
 
     .sw-multi-select .sw-select-selection-list__input-wrapper > .sw-select-selection-list__input {

@@ -384,9 +384,9 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $event) {
             $actualEvents = array_values(array_filter($response, static fn ($x) => $x['name'] === $event['name']));
+            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
-            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvents);
             static::assertSame($event, $actualEvents[0], $event['name']);
         }

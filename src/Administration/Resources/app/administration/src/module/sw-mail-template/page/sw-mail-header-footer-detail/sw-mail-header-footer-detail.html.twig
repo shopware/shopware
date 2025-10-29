@@ -1,6 +1,5 @@
 {% block sw_mail_header_footer_detail %}
 <sw-page class="sw-mail-header-footer-detail">
-
     {% block sw_mail_header_footer_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.textHeadline')) }}</h2>
@@ -71,7 +70,6 @@
                     position-identifier="sw-mail-header-footer-detail-basic-info"
                 >
                     {% block sw_mail_header_footer_basic_form_name_field %}
-
                     <mt-text-field
                         v-model="mailHeaderFooter.name"
                         name="sw-field--mailHeaderFooter-name"
@@ -102,6 +100,7 @@
                         :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"
                         :disabled="!acl.can('mail_templates.editor') || undefined"
+                        required
                     />
                     {% endblock %}
                 </mt-card>
@@ -115,6 +114,7 @@
                     {% block sw_mail_header_footer_detail_content_header_plain_field %}
                     <sw-code-editor
                         v-model:value="mailHeaderFooter.headerPlain"
+                        class="sw-mail-header-footer-detail__code-editor--header-plain"
                         identifier="header_plain"
                         name="header_plain"
                         completion-mode="entity"
@@ -129,6 +129,7 @@
                     {% block sw_mail_header_footer_detail_content_header_html_field %}
                     <sw-code-editor
                         v-model:value="mailHeaderFooter.headerHtml"
+                        class="sw-mail-header-footer-detail__code-editor--header-html"
                         identifier="header_html"
                         name="header_html"
                         completion-mode="entity"
@@ -150,6 +151,7 @@
                     {% block sw_mail_header_footer_detail_content_footer_plain_field %}
                     <sw-code-editor
                         v-model:value="mailHeaderFooter.footerPlain"
+                        class="sw-mail-header-footer-detail__code-editor--footer-plain"
                         identifier="footer_plain"
                         name="footer_plain"
                         completion-mode="entity"
@@ -164,6 +166,7 @@
                     {% block sw_mail_header_footer_detail_content_footer_html_field %}
                     <sw-code-editor
                         v-model:value="mailHeaderFooter.footerHtml"
+                        class="sw-mail-header-footer-detail__code-editor--footer-html"
                         identifier="footer_html"
                         name="footer_html"
                         completion-mode="entity"
@@ -184,16 +187,20 @@
             :title="$tc('sw-mail-header-footer.modal.title')"
             @modal-close="onClose"
         >
-            <div>{{ $tc('sw-mail-header-footer.modal.mainContent') }}</div>
-            <div>{{ $tc('sw-mail-header-footer.modal.affectedList') }}</div>
+            <p>{{ $tc('sw-mail-header-footer.modal.mainContent') }}</p>
+
             <div class="sw-mail-header-footer-detail__sales-channel-list">
-                <div
+                <p class="sw-mail-header-footer-detail__sales-channel-list-label">
+                    {{ $tc('sw-mail-header-footer.modal.affectedList') }}
+                </p>
+
+                <p
                     v-for="salesChannel in alreadyAssignedSalesChannels"
                     :key="salesChannel.translated.name"
                     class="sw-mail-header-footer-detail__sales-channel-list-entry"
                 >
                     {{ salesChannel.translated.name }}
-                </div>
+                </p>
             </div>
 
             <template #modal-footer>
@@ -203,14 +210,14 @@
                 >
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
-                <sw-button-process
+
+                <mt-button
                     :is-loading="isLoading"
-                    :process-success="isSaveSuccessful"
-                    variant="primary"
+                    variant="critical"
                     @click="confirmSave"
                 >
-                    {{ $tc('global.default.save') }}
-                </sw-button-process>
+                    {{ $tc('sw-mail-header-footer.modal.confirmButton') }}
+                </mt-button>
             </template>
         </sw-modal>
     </template>

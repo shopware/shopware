@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
@@ -116,8 +115,8 @@ class DocumentControllerTest extends TestCase
         /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
-        /** @var DocumentTypeEntity $type */
         $type = $documentTypeRepository->search($criteria, $context)->first();
+        static::assertNotNull($type);
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -172,11 +171,12 @@ class DocumentControllerTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         static::assertNotNull($order);
 
-        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $order->getDeepLinkCode());
+        $deepLinkCode = $order->getDeepLinkCode();
+        static::assertIsString($deepLinkCode);
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $deepLinkCode);
         $this->getBrowser()->request('GET', $endpoint);
 
         static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
@@ -192,7 +192,9 @@ class DocumentControllerTest extends TestCase
         static::assertNotEmpty($response['errors']);
         static::assertSame('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
 
-        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
+        $deepLinkCode = $order->getDeepLinkCode();
+        static::assertIsString($deepLinkCode);
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $deepLinkCode);
 
         $this->getBrowser()->request('GET', $endpoint);
 
@@ -206,7 +208,6 @@ class DocumentControllerTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         static::assertNotNull($order);
 
@@ -215,7 +216,9 @@ class DocumentControllerTest extends TestCase
             []
         )->authorizeBrowser($this->getBrowser());
 
-        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
+        $deepLinkCode = $order->getDeepLinkCode();
+        static::assertIsString($deepLinkCode);
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $deepLinkCode);
 
         $this->getBrowser()->request('GET', $endpoint);
 

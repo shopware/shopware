@@ -149,11 +149,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // ----------------------
         const firstLinkVisitedProps = firstLinkVisited.event_properties;
 
-        expect(firstLinkVisitedProps.sw_link_href).toBeDefined();
-        expect(firstLinkVisitedProps.sw_link_type).toBeDefined();
-        expect(firstLinkVisitedProps.sw_page_path).toBeDefined();
-        expect(firstLinkVisitedProps.sw_page_name).toBeDefined();
-
         expect(firstLinkVisitedProps.sw_link_href).toBe('#/sw/order/index');
         expect(firstLinkVisitedProps.sw_link_type).toBe('internal');
         expect(firstLinkVisitedProps.sw_page_path).toBe('/sw/dashboard/index');
@@ -163,13 +158,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // event_id = 2: first Page Viewed (dashboard -> order listing)
         // ----------------------
         const pageViewEventProps = pageViewed.event_properties;
-
-        expect(pageViewEventProps.sw_route_from_name).toBeDefined();
-        expect(pageViewEventProps.sw_route_from_href).toBeDefined();
-        expect(pageViewEventProps.sw_route_to_name).toBeDefined();
-        expect(pageViewEventProps.sw_route_to_href).toBeDefined();
-        expect(pageViewEventProps.sw_page_name).toBeDefined();
-        expect(pageViewEventProps.sw_page_path).toBeDefined();
 
         expect(pageViewEventProps.sw_route_from_name).toBe('sw.dashboard.index');
         expect(pageViewEventProps.sw_route_from_href).toBe('/sw/dashboard/index');
@@ -182,14 +170,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // event_id = 3: Page Viewed (order listing, query param present)
         // ----------------------
         const pageViewed2Props = pageViewed2.event_properties;
-
-        expect(pageViewed2Props.sw_route_from_name).toBeDefined();
-        expect(pageViewed2Props.sw_route_from_href).toBeDefined();
-        expect(pageViewed2Props.sw_route_to_name).toBeDefined();
-        expect(pageViewed2Props.sw_route_to_href).toBeDefined();
-        expect(pageViewed2Props.sw_route_to_query).toBeDefined();
-        expect(pageViewed2Props.sw_page_name).toBeDefined();
-        expect(pageViewed2Props.sw_page_path).toBeDefined();
 
         expect(pageViewed2Props.sw_route_from_name).toBe('sw.order.index');
         expect(pageViewed2Props.sw_route_from_href).toBe('/sw/order/index');
@@ -204,14 +184,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // ----------------------
         const pageViewed3Props = pageViewed3.event_properties;
 
-        expect(pageViewed3Props.sw_route_from_name).toBeDefined();
-        expect(pageViewed3Props.sw_route_from_href).toBeDefined();
-        expect(pageViewed3Props.sw_route_to_name).toBeDefined();
-        expect(pageViewed3Props.sw_route_to_href).toBeDefined();
-        expect(pageViewed3Props.sw_route_to_query).toBeDefined();
-        expect(pageViewed3Props.sw_page_name).toBeDefined();
-        expect(pageViewed3Props.sw_page_path).toBeDefined();
-
         expect(pageViewed3Props.sw_route_from_name).toBe('sw.order.index');
         expect(pageViewed3Props.sw_route_from_href).toBe('/sw/order/index');
         expect(pageViewed3Props.sw_route_to_name).toBe('sw.order.index');
@@ -225,11 +197,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // ----------------------
         const linkVisitedProps = linkVisited.event_properties;
 
-        expect(linkVisitedProps.sw_link_href).toBeDefined();
-        expect(linkVisitedProps.sw_link_type).toBeDefined();
-        expect(linkVisitedProps.sw_page_path).toBeDefined();
-        expect(linkVisitedProps.sw_page_name).toBeDefined();
-
         expect(linkVisitedProps.sw_link_href).toContain('#/sw/order/detail/');
         expect(linkVisitedProps.sw_link_type).toBe('internal');
         expect(linkVisitedProps.sw_page_path).toBe('/sw/order/index');
@@ -239,14 +206,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // event_id = 6: Page Viewed (order detail.general)
         // ----------------------
         const pageViewedDetailProps = pageViewedDetail.event_properties;
-
-        expect(pageViewedDetailProps.sw_route_from_name).toBeDefined();
-        expect(pageViewedDetailProps.sw_route_from_href).toBeDefined();
-        expect(pageViewedDetailProps.sw_route_to_name).toBeDefined();
-        expect(pageViewedDetailProps.sw_route_to_href).toBeDefined();
-        expect(pageViewedDetailProps.sw_page_name).toBeDefined();
-        expect(pageViewedDetailProps.sw_page_path).toBeDefined();
-        expect(pageViewedDetailProps.sw_page_full_path).toBeDefined();
 
         expect(pageViewedDetailProps.sw_route_from_name).toBe('sw.order.index');
         expect(pageViewedDetailProps.sw_route_from_href).toBe('/sw/order/index');
@@ -261,11 +220,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // ----------------------
         const buttonEventProps = buttonClicked.event_properties;
 
-        expect(buttonEventProps.sw_element_id).toBeDefined();
-        expect(buttonEventProps.sw_page_full_path).toBeDefined();
-        expect(buttonEventProps.sw_page_path).toBeDefined();
-        expect(buttonEventProps.sw_page_name).toBeDefined();
-
         expect(buttonEventProps.sw_element_id).toBe('sw-order-detail.save-edits');
         expect(buttonEventProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
         expect(buttonEventProps.sw_page_path).toBe(`/sw/order/detail/${order.id}/general`);
@@ -275,13 +229,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // event_id = 8: final Page Viewed (back to dashboard)
         // ----------------------
         const pageViewedBackToDashProps = pageViewedBackToDash.event_properties;
-
-        expect(pageViewedBackToDashProps.sw_route_from_name).toBeDefined();
-        expect(pageViewedBackToDashProps.sw_route_from_href).toBeDefined();
-        expect(pageViewedBackToDashProps.sw_route_to_name).toBeDefined();
-        expect(pageViewedBackToDashProps.sw_route_to_href).toBeDefined();
-        expect(pageViewedBackToDashProps.sw_page_name).toBeDefined();
-        expect(pageViewedBackToDashProps.sw_page_path).toBeDefined();
 
         expect(pageViewedBackToDashProps.sw_route_from_name).toBe('sw.order.detail.general');
         expect(pageViewedBackToDashProps.sw_route_from_href).toBe(`/sw/order/detail/${order.id}/general`);

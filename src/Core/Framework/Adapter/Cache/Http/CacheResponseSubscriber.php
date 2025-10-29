@@ -29,7 +29,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  *
- * @phpstan-import-type CacheAttribute from PlatformRequest
+ * @phpstan-import-type CacheAttributeArray from \Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute
+ * @phpstan-import-type CacheAttributeType from \Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute
  */
 #[Package('framework')]
 readonly class CacheResponseSubscriber implements EventSubscriberInterface
@@ -105,11 +106,16 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // Normalize attribute value to CacheAttribute instance or null
+        /** @var CacheAttributeType $cacheAttributeValue */
+        $cacheAttributeValue = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+        $cacheAttribute = $this->normalizeAttributeValue($cacheAttributeValue);
+
         // In Store API we rely on headers to manage caching, as it more explicit and easier to parse on reverse proxy side.
         // As we don't control headers that browser sends, in storefront we have to rely on cookies. For this reason here
         // we have two separate branches of logic.
         if ($this->isStoreApi($request) && Feature::isActive('HTTP_CACHE_POLICIES')) {
-            $this->applyStoreApiPolicy($request, $response);
+            $this->applyStoreApiPolicy($request, $response, $cacheAttribute);
 
             return;
         }
@@ -134,17 +140,14 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
         $this->updateCacheContextCookie($context, $cart, $request, $response);
 
-        /** @var CacheAttribute $cacheAttribute */
-        $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
-        if (!$cacheAttribute) {
+        if ($cacheAttribute === null) {
             $this->noCache($request, $response, $isStoreApi);
 
             return;
         }
 
-        $cacheConfig = $cacheAttribute === true ? [] : $cacheAttribute;
-
-        if ($this->hasInvalidationState($cacheConfig['states'] ?? [], $states)) {
+        $attributeStates = $cacheAttribute->states ?? [];
+        if ($this->hasInvalidationState($attributeStates, $states)) {
             $this->noCache($request, $response, $isStoreApi);
 
             return;
@@ -152,13 +155,13 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
         $response->headers->set(
             HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
-            implode(',', $cacheConfig['states'] ?? [])
+            implode(',', $attributeStates)
         );
 
         // old behavior
         if (!Feature::isActive('HTTP_CACHE_POLICIES')) {
-            $maxAge = $cacheConfig['maxAge'] ?? $this->defaultTtl;
-            $response->setSharedMaxAge($maxAge);
+            $sMaxAge = $cacheAttribute->sMaxAge ?? $this->defaultTtl;
+            $response->setSharedMaxAge($sMaxAge);
 
             if ($this->staleIfError !== null) {
                 $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
@@ -171,7 +174,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->applyPolicy($request, $response, self::POLICY_AREA_STOREFRONT, true);
+        $this->applyPolicy($request, $response, self::POLICY_AREA_STOREFRONT, true, $cacheAttribute);
     }
 
     public function setResponseCacheHeader(ResponseEvent $event): void
@@ -184,7 +187,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        /** @var CacheAttribute $cache */
+        /** @var CacheAttributeType $cache */
         $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
         if (!$cache) {
             return;
@@ -219,28 +222,25 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
     private function noCache(Request $request, Response $response, bool $storeApi): void
     {
         if (Feature::isActive('HTTP_CACHE_POLICIES')) {
-            $this->applyPolicy($request, $response, $storeApi ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT, false);
+            $this->applyPolicy($request, $response, $storeApi ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT, false, null);
         }
         // do nothing for backwards compatibility
     }
 
-    private function applyStoreApiPolicy(Request $request, Response $response): void
+    private function applyStoreApiPolicy(Request $request, Response $response, ?CacheAttribute $cacheAttribute): void
     {
-        if (!$request->isMethod(Request::METHOD_GET) || !$request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE)) {
+        if (!$request->isMethod(Request::METHOD_GET) || $cacheAttribute === null) {
             $this->noCache($request, $response, true);
 
             return;
         }
 
-        $this->applyPolicy($request, $response, self::POLICY_AREA_STORE_API, true);
+        $this->applyPolicy($request, $response, self::POLICY_AREA_STORE_API, true, $cacheAttribute);
     }
 
-    private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable): void
+    private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable, ?CacheAttribute $cacheAttribute): void
     {
         $route = (string) $request->attributes->get('_route', '');
-
-        /** @var CacheAttribute $cacheAttribute */
-        $cacheAttribute = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
 
         $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute);
 
@@ -405,6 +405,45 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             StoreApiRouteScope::ID,
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
+        );
+    }
+
+    /**
+     * @param CacheAttributeType $attributeValue
+     */
+    private function normalizeAttributeValue(array|bool|CacheAttribute|null $attributeValue): ?CacheAttribute
+    {
+        if (\is_array($attributeValue)) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing an array as HTTP cache attribute is deprecated and will not be supported anymore in v6.8.0.0. Please use null, true or CacheAttribute instance instead.');
+
+            return $this->attributeFromArray($attributeValue);
+        }
+
+        if ($attributeValue === true) {
+            return new CacheAttribute();
+        }
+
+        if ($attributeValue === false) {
+            return null;
+        }
+
+        return $attributeValue;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, use CacheAttribute class directly
+     *
+     * @param CacheAttributeArray $attributeValue
+     */
+    private function attributeFromArray(array $attributeValue): CacheAttribute
+    {
+        $sMaxAge = $attributeValue['maxAge'] ?? null;
+        $states = $attributeValue['states'] ?? null;
+
+        return new CacheAttribute(
+            null,
+            $sMaxAge,
+            $states,
         );
     }
 }

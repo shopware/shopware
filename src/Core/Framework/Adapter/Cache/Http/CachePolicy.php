@@ -47,7 +47,7 @@ readonly class CachePolicy
     /**
      * Convert policy to array format suitable for Response::setCache()
      *
-     * @return array<string, int|bool>
+     * @return CachePolicyConfig
      */
     public function toArray(): array
     {
@@ -86,6 +86,16 @@ readonly class CachePolicy
             staleWhileRevalidate: isset($data['stale_while_revalidate']) ? (int) $data['stale_while_revalidate'] : null,
             staleIfError: isset($data['stale_if_error']) ? (int) $data['stale_if_error'] : null,
         );
+    }
+
+    /**
+     * Create a new CachePolicy with overridden values
+     *
+     * @param CachePolicyConfig $overrides
+     */
+    public function with(array $overrides): self
+    {
+        return self::fromArray(array_merge($this->toArray(), $overrides));
     }
 
     /**

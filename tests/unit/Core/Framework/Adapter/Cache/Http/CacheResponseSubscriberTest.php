@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
@@ -614,9 +615,9 @@ class CacheResponseSubscriberTest extends TestCase
         );
 
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, [
-            'states' => ['cart-filled'],
-        ]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, new CacheAttribute(
+            states: ['cart-filled'],
+        ));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
         $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
 
@@ -984,9 +985,9 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'Storefront policyModifier allows route-specific policies with modifiers' => [
             'requestResponseOptions' => array_merge($storefrontRequestAttributes, [
                 '_route' => 'frontend.script_endpoint',
-                PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
-                    'policyModifier' => 'blog-update',
-                ],
+                PlatformRequest::ATTRIBUTE_HTTP_CACHE => new CacheAttribute(
+                    policyModifier: 'blog-update',
+                ),
             ]),
             'subscriberConfig' => [
                 'defaultTtl' => 100,
@@ -1014,9 +1015,9 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'Storefront policyModifier falls back to route policy when modifier-specific policy not found' => [
             'requestResponseOptions' => array_merge($storefrontRequestAttributes, [
                 '_route' => 'frontend.script_endpoint',
-                PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
-                    'policyModifier' => 'nonexistent-hook',
-                ],
+                PlatformRequest::ATTRIBUTE_HTTP_CACHE => new CacheAttribute(
+                    policyModifier: 'nonexistent-hook',
+                ),
             ]),
             'subscriberConfig' => [
                 'defaultTtl' => 100,
@@ -1212,9 +1213,9 @@ class CacheResponseSubscriberTest extends TestCase
 
         // Test Store API with states that would normally prevent caching
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, [
-            'states' => ['cart-filled', 'logged-in'],
-        ]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, new CacheAttribute(
+            states: ['cart-filled', 'logged-in'],
+        ));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled,logged-in');

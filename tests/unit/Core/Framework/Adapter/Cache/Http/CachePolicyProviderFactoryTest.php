@@ -36,7 +36,7 @@ class CachePolicyProviderFactoryTest extends TestCase
             $defaultPoliciesConfig
         );
 
-        $policy = $provider->getPolicy('test.route', 'storefront', true, true);
+        $policy = $provider->getPolicy('test.route', 'storefront', true, null);
 
         static::assertTrue($policy->public);
         static::assertSame(600, $policy->maxAge);

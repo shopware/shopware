@@ -119,6 +119,28 @@ class CachePolicyTest extends TestCase
         static::assertSame(300, $policy->staleIfError);
     }
 
+    public function testWith(): void
+    {
+        $policy = new CachePolicy(
+            public: true,
+            maxAge: 600,
+            sMaxAge: 3600
+        );
+
+        $newPolicy = $policy->with(
+            [
+                'public' => false,
+                'max_age' => 1200,
+                'no_store' => true,
+            ]
+        );
+
+        static::assertFalse($newPolicy->public);
+        static::assertSame(1200, $newPolicy->maxAge);
+        static::assertSame(3600, $newPolicy->sMaxAge);
+        static::assertTrue($newPolicy->noStore);
+    }
+
     public function testNoCache(): void
     {
         $policy = CachePolicy::noCache();

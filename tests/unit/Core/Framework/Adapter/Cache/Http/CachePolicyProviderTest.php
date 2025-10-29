@@ -5,14 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
 
 /**
  * @internal
- *
- * @phpstan-import-type CacheAttribute from \Shopware\Core\PlatformRequest
  */
 #[CoversClass(CachePolicyProvider::class)]
 class CachePolicyProviderTest extends TestCase
@@ -21,7 +20,6 @@ class CachePolicyProviderTest extends TestCase
      * @param array<string, CachePolicy> $policies
      * @param array<string, string> $routePolicies
      * @param array<string, DefaultPolicies> $defaultPolicies
-     * @param CacheAttribute $cacheAttribute
      */
     #[DataProvider('providePolicyResolutionCases')]
     public function testGetPolicy(
@@ -31,7 +29,7 @@ class CachePolicyProviderTest extends TestCase
         string $route,
         string $area,
         bool $cacheable,
-        array|bool|null $cacheAttribute,
+        ?CacheAttribute $cacheAttribute,
         CachePolicy $expectedPolicy,
     ): void {
         $provider = new CachePolicyProvider($policies, $routePolicies, $defaultPolicies);
@@ -72,7 +70,7 @@ class CachePolicyProviderTest extends TestCase
             'route' => 'my.route',
             'area' => 'store_api',
             'cacheable' => true,
-            'cacheAttribute' => true,
+            'cacheAttribute' => new CacheAttribute(),
             'expectedPolicy' => $specificPolicy,
         ];
 
@@ -88,7 +86,7 @@ class CachePolicyProviderTest extends TestCase
             'route' => 'frontend.script_endpoint',
             'area' => 'storefront',
             'cacheable' => true,
-            'cacheAttribute' => ['policyModifier' => 'my-hook'],
+            'cacheAttribute' => new CacheAttribute(policyModifier: 'my-hook'),
             'expectedPolicy' => $hookPolicy,
         ];
 
@@ -101,8 +99,47 @@ class CachePolicyProviderTest extends TestCase
             'route' => 'some.route',
             'area' => 'storefront',
             'cacheable' => true,
-            'cacheAttribute' => true,
+            'cacheAttribute' => new CacheAttribute(),
             'expectedPolicy' => $defaultPolicy,
+        ];
+
+        yield 'area cacheable default with max_age from CacheAttribute' => [
+            'policies' => ['area_cacheable' => new CachePolicy(public: true, maxAge: 300)],
+            'routePolicies' => [],
+            'defaultPolicies' => [
+                'storefront' => new DefaultPolicies('area_cacheable', 'no_cache'),
+            ],
+            'route' => 'some.route',
+            'area' => 'storefront',
+            'cacheable' => true,
+            'cacheAttribute' => new CacheAttribute(maxAge: 1200),
+            'expectedPolicy' => new CachePolicy(public: true, maxAge: 1200),
+        ];
+
+        yield 'area cacheable default with s_maxage from CacheAttribute' => [
+            'policies' => ['area_cacheable' => new CachePolicy(public: true, sMaxAge: 300)],
+            'routePolicies' => [],
+            'defaultPolicies' => [
+                'storefront' => new DefaultPolicies('area_cacheable', 'no_cache'),
+            ],
+            'route' => 'some.route',
+            'area' => 'storefront',
+            'cacheable' => true,
+            'cacheAttribute' => new CacheAttribute(sMaxAge: 1100),
+            'expectedPolicy' => new CachePolicy(public: true, sMaxAge: 1100),
+        ];
+
+        yield 'area cacheable default with max_age not overridden by CacheAttribute value while missing in original policy' => [
+            'policies' => ['area_cacheable' => new CachePolicy(public: true, sMaxAge: 300)],
+            'routePolicies' => [],
+            'defaultPolicies' => [
+                'storefront' => new DefaultPolicies('area_cacheable', 'no_cache'),
+            ],
+            'route' => 'some.route',
+            'area' => 'storefront',
+            'cacheable' => true,
+            'cacheAttribute' => new CacheAttribute(maxAge: 1100, sMaxAge: 1200),
+            'expectedPolicy' => new CachePolicy(public: true, sMaxAge: 1200),
         ];
 
         yield 'area uncacheable default' => [
@@ -114,7 +151,7 @@ class CachePolicyProviderTest extends TestCase
             'route' => 'some.route',
             'area' => 'store_api',
             'cacheable' => false,
-            'cacheAttribute' => true,
+            'cacheAttribute' => new CacheAttribute(),
             'expectedPolicy' => $uncacheablePolicy,
         ];
 
@@ -125,7 +162,7 @@ class CachePolicyProviderTest extends TestCase
             'route' => 'unknown.route',
             'area' => 'unknown_area',
             'cacheable' => true,
-            'cacheAttribute' => true,
+            'cacheAttribute' => new CacheAttribute(),
             'expectedPolicy' => CachePolicy::noCache(),
         ];
     }

@@ -54,6 +54,10 @@ export default Mixin.register(
             },
 
             initBaseConfig() {
+                if (!this.element.type) {
+                    return;
+                }
+
                 const config = merge(this.cmsElements[this.element.type]?.defaultConfig, this.defaultConfig);
 
                 set(this.element, 'config', {});
@@ -72,7 +76,7 @@ export default Mixin.register(
             },
 
             applyContentOverride() {
-                if (!this.contentEntity || !this.contentEntity.slotConfig) {
+                if (!this.contentEntity || !this.contentEntity.slotConfig || !this.element.id) {
                     return;
                 }
 

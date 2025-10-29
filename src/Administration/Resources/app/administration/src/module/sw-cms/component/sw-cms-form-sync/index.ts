@@ -1,7 +1,8 @@
 import type { PropType } from 'vue';
 import type { RuntimeSlot } from '../../service/cms.service';
 
-const { set } = Shopware.Utils.object;
+const { get, set, getObjectDiff } = Shopware.Utils.object;
+const { isEmpty } = Shopware.Utils.types;
 
 type FieldConfig = {
     value: unknown;
@@ -58,6 +59,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
         fieldChangeHandler(key: string, config: FieldConfig) {
             const path = `slotConfig.${this.element.id}.${key}`;
+
+            if (isEmpty(getObjectDiff(config, get(this.contentEntity, path)))) {
+                return;
+            }
 
             set(this.contentEntity!, path, config);
         },

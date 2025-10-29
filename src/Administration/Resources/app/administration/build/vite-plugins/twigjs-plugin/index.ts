@@ -28,16 +28,28 @@ export default function twigPlugin(): Plugin {
             // Trim the content and remove HTML comments
             fileContent = fileContent
                 .replace(/<!--[\s\S]*?-->/gm, '') // Remove HTML comments first
-                .trim()
-                .replace(/\s+/g, ' '); // Normalize whitespace
+                .trim();
+
+            const isProductExportTemplate = id.includes('product-export-templates/');
+            if (!isProductExportTemplate) {
+                fileContent = fileContent.replace(/\s+/g, ' '); // Normalize whitespace
+            }
 
             // Escape characters that might break the string
             fileContent = fileContent
                 .replace(/\\/g, '\\\\') // Escape backslashes first
                 .replace(/"/g, '\\"') // Escape double quotes
-                .replace(/\$/g, '\\$') // Escape dollar signs
-                .replace(/\n/g, ' ') // Replace newlines with spaces
-                .replace(/\r/g, ' '); // Replace carriage returns with spaces
+                .replace(/\$/g, '\\$'); // Escape dollar signs
+
+            if (!isProductExportTemplate) {
+                fileContent = fileContent
+                    .replace(/\n/g, ' ') // Replace newlines with spaces
+                    .replace(/\r/g, ' '); // Replace carriage returns with spaces
+            } else {
+                fileContent = fileContent
+                    .replace(/\r\n/g, '\\n') // Preserve Windows line endings (CRLF)
+                    .replace(/\n/g, '\\n'); // Preserve Unix/Mac line endings (LF)
+            }
 
             const code = `export default "${fileContent}"`;
 

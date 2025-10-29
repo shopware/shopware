@@ -252,7 +252,6 @@ export default {
         },
 
         componentPropName() {
-            // When component name starts with "mt-" use "modelValue" as prop name
             if (this.componentName.startsWith('mt-')) {
                 return 'modelValue';
             }

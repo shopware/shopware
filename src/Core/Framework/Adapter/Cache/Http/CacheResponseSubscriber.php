@@ -96,7 +96,9 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $route = $request->attributes->get('_route');
         /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
         if ($route === 'frontend.checkout.configure') {
-            $this->setCurrencyCookie($request, $response);
+            if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+                $this->setCurrencyCookie($request, $response);
+            }
         }
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
@@ -321,6 +323,9 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         return $states;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - can be removed when currency cookie is removed
+     */
     private function setCurrencyCookie(Request $request, Response $response): void
     {
         $currencyId = $request->get(SalesChannelContextService::CURRENCY_ID);

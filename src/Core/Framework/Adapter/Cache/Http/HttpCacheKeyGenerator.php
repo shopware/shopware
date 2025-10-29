@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\SalesChannelRequest;
@@ -19,6 +20,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class HttpCacheKeyGenerator
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed as it is already part of the cache cookie
+     */
     final public const CURRENCY_COOKIE = 'sw-currency';
     final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
     /**
@@ -106,8 +110,6 @@ class HttpCacheKeyGenerator
 
     private function addCookies(Request $request, ?Response $response, HttpCacheKeyEvent $event): void
     {
-        // this will be changed within v6.6 lane that we only use the context cache cookie and developers can change the cookie instead
-        // with this change, the reverse proxies are much easier to configure
         if ($cacheCookie = $this->getCookieValue($request, $response, self::CONTEXT_CACHE_COOKIE)) {
             $event->add(
                 self::CONTEXT_CACHE_COOKIE,
@@ -121,13 +123,16 @@ class HttpCacheKeyGenerator
             return;
         }
 
-        if ($currencyCookie = $this->getCookieValue($request, $response, self::CURRENCY_COOKIE)) {
-            $event->add(
-                self::CURRENCY_COOKIE,
-                $currencyCookie
-            );
+        /** @deprecated tag:v6.8.0 - Currency cookie will be removed */
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            if ($currencyCookie = $this->getCookieValue($request, $response, self::CURRENCY_COOKIE)) {
+                $event->add(
+                    self::CURRENCY_COOKIE,
+                    $currencyCookie
+                );
 
-            return;
+                return;
+            }
         }
 
         if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)) {

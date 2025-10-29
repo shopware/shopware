@@ -442,9 +442,9 @@ If some custom entity has a relation to a rule, which might alter the storefront
 ## Removed unused `RuleAreas` constants
 The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
 
-## Removed `sw-states` handling
-The `sw-states` handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
-Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible.
+## Removed `sw-states` and `sw-currency` cache cookie handling
+The `sw-states` and `sw-currency` cache cookie handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
+Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
 
 You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
 If your extension is too dynamic you can restore the old behaviour by manually creating a cache key listener in your plugin:
@@ -485,8 +485,12 @@ For this the following classes and constants were removed:
   * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
   * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
   * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
   * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
   * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was removed:
+* `shopware.cache.invalidation.http_cache`
 
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.

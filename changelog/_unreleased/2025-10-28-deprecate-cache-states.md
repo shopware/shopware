@@ -10,6 +10,7 @@ issue: #13139
 * Deprecated following constants:
   * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
   * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
   * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
   * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
 * Deprecated following configuration:
@@ -17,9 +18,9 @@ issue: #13139
 ___
 # Next Major Version Changes
 
-## Deprecation of `sw-states` handling and new way to disable caching
-The `sw-states` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
-Due to the rework of the contained rules in the cache hash, this becomes efficiently possible.
+## Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
+Due to the rework of the contained rules in the cache hash, this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
 
 You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
 If your extension is too dynamic you can restore the old behaviour by manually creating a cache key listener in your plugin:
@@ -60,5 +61,9 @@ For this the following classes and constants were deprecated:
 * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
 * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
 * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
 * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
 * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was deprecated:
+* `shopware.cache.invalidation.http_cache`

@@ -86,7 +86,8 @@ export default {
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
             criteria.addAssociation('group');
-            criteria.addSorting(Criteria.sort('name', 'ASC', true));
+            // Note: naturalSorting needs to be false for alphanumeric property group option sorting in loadOptions() to work
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             if (this.currentGroup) {
                 criteria.addFilter(Criteria.equals('groupId', this.currentGroup.id));
@@ -274,23 +275,10 @@ export default {
             this.propertyGroupOptionRepository
                 .search(this.propertyGroupOptionCriteria, Shopware.Context.api)
                 .then((groupOptions) => {
-                    const sortedOptions = this.sortOptions(Array.from(groupOptions));
-                    this.groupOptions = sortedOptions;
+                    this.groupOptions = groupOptions;
                     this.optionTotal = groupOptions.total;
                     this.selectOptions(this.$refs.optionGrid);
                 });
-        },
-
-        sortOptions(options) {
-            if (options.length > 0 && options[0].group.sortingType === 'alphanumeric') {
-                options.sort((a, b) => a.translated.name.localeCompare(b.translated.name, undefined, { numeric: true }));
-            } else {
-                options.sort((a, b) => a.position - b.position);
-            }
-            const start = (this.optionPage - 1) * 10;
-            const end = start + 10;
-            options = options.slice(start, end);
-            return options;
         },
 
         refreshSelection() {

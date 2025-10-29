@@ -121,18 +121,6 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
     }
 }
 
-// TODO: remove when the issue is fixed https://github.com/shopware/meteor/issues/587
-.wrapper {
-    & > .mt-field-label.mt-field-label {
-        line-height: 16px;
-        margin-bottom: 1.6px;
-    }
-
-    .dp__input {
-        height: 45px;
-    }
-}
-
 // TODO: remove when the bottom margin issue is fixed in checkbox field
 .mt-field--checkbox__container .mt-field--checkbox.mt-field--checkbox {
     margin-bottom: 0;
@@ -140,11 +128,6 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
 
 .mt-switch.mt-switch--not-bordered {
     min-height: 0;
-}
-
-// TODO: rename selector after https://github.com/shopware/meteor/issues/603
-.field-hint {
-    margin-bottom: 24px;
 }
 
 .mt-card__toolbar {

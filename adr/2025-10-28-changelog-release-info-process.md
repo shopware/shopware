@@ -34,10 +34,12 @@ Example: RELEASE_INFO-6.7.md
 ```
 Example: UPGRADE-6.8.md
 
-## Break: Deprecated SalesChannelContextSwitcher
-- **What changed:** The old service is deprecated and will be removed in 6.8.
-- **Impact:** Plugins using it should migrate to the new ContextResolver.
-- **How to adjust:** Replace constructor injection with the new service interface.
+## Deprecated SalesChannelContextSwitcher
+
+The `SalesChannelContextSwitcher` service is deprecated and will be removed in 6.8.  
+Plugins using it should migrate to `ContextResolverInterface`.
+
+_(Tip: You can use short headings like “What changed” or “How to adjust” if it helps readability, but they’re not mandatory.)_
 ```
 3. PR authors must add developer-facing entries as part of their PRs:
    - Information that benefits external developers → `RELEASE_INFO-6.X.md` (in the “Upcoming” section).

@@ -1,4 +1,9 @@
 .sw-newsletter-recipient-list {
+    .sw-page__smart-bar-amount {
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
+    }
+
     &__content {
         width: 100%;
         height: 100%;
@@ -6,6 +11,6 @@
     }
 
     .sw-collapse__content {
-        padding: 0 20px;
+        padding: 0 var(--scale-size-24);
     }
 }

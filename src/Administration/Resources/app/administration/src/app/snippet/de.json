@@ -438,7 +438,8 @@
     "sw-media-preview-v2": {
       "fallbackVideoTagSupport": "Dein Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Dein Browser unterstützt diesen Audio-Tag nicht",
-      "textNoMedia": "Kein Medium verfügbar"
+      "textNoMedia": "Kein Medium verfügbar",
+      "warningUnsupportedFormat": "Format \"{format}\" wird möglicherweise nicht in allen Browsern unterstützt."
     },
     "sw-media-upload": {
       "buttonFileUpload": "Dateien hochladen",

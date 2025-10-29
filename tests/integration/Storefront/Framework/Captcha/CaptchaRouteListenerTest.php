@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -66,7 +67,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         $response = $browser->getResponse();
         static::assertInstanceOf(JsonResponse::class, $response);
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $responseContent = $response->getContent() ?: '';
         $content = (array) json_decode($responseContent, null, 512, \JSON_THROW_ON_ERROR);
@@ -106,6 +107,42 @@ class CaptchaRouteListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
-        static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
+    }
+
+    public function testCaptchaFailureRespectsErrorRoute(): void
+    {
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+
+        $systemConfig->set('core.basicInformation.activeCaptchasV2', [
+            BasicCaptcha::CAPTCHA_NAME => [
+                'name' => BasicCaptcha::CAPTCHA_NAME,
+                'isActive' => true,
+            ],
+        ]);
+
+        $data = [
+            'shopware_basic_captcha_confirm' => 'invalid',
+            'errorRoute' => 'frontend.account.register.page',
+        ];
+
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request(
+            'POST',
+            EnvironmentHelper::getVariable('APP_URL') . '/account/register',
+            $this->tokenize('frontend.account.register.save', $data)
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertInstanceOf(Response::class, $response);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
+
+        // Verify that the response forwards to the account register page
+        // The errorRoute parameter should be respected (internal forward, not redirect)
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Check that we're on the register page by looking for the register form
+        static::assertStringContainsString('action="/account/register"', $content);
     }
 }

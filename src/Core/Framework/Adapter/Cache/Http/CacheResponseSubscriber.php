@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,29 +25,33 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-readonly class CacheResponseSubscriber implements EventSubscriberInterface
+class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterface
 {
+    private bool $contextWasChanged = false;
+
     /**
      * @param array<string> $cookies
      *
      * @internal
      */
     public function __construct(
-        private array $cookies,
-        private CartService $cartService,
-        private int $defaultTtl,
-        private bool $httpCacheEnabled,
-        private MaintenanceModeResolver $maintenanceResolver,
-        private RequestStack $requestStack,
-        private ?string $staleWhileRevalidate,
-        private ?string $staleIfError,
-        private EventDispatcherInterface $dispatcher,
-        private CacheRelevantRulesResolver $ruleResolver,
+        private readonly array $cookies,
+        private readonly CartService $cartService,
+        private readonly int $defaultTtl,
+        private readonly bool $httpCacheEnabled,
+        private readonly MaintenanceModeResolver $maintenanceResolver,
+        private readonly RequestStack $requestStack,
+        private readonly ?string $staleWhileRevalidate,
+        private readonly ?string $staleIfError,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheRelevantRulesResolver $ruleResolver,
+        private readonly SalesChannelContextService $contextService,
     ) {
     }
 
@@ -61,7 +67,13 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             ],
             CustomerLoginEvent::class => 'onCustomerLogin',
             CustomerLogoutEvent::class => 'onCustomerLogout',
+            SalesChannelContextSwitchEvent::class => 'onContextSwitched',
         ];
+    }
+
+    public function reset(): void
+    {
+        $this->contextWasChanged = false;
     }
 
     public function setResponseCache(ResponseEvent $event): void
@@ -110,13 +122,13 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             $states = $this->updateSystemState($cart, $context, $request, $response);
         }
 
-        // We need to allow it on login, otherwise the state is wrong
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
-        if (!($route === 'frontend.account.login' || $request->isMethod(Request::METHOD_GET))) {
+        // We need to allow it on login and context switch route, otherwise the state is wrong on the first request afterwards
+        if (!($this->contextWasChanged || $request->isMethod(Request::METHOD_GET))
+        ) {
             return;
         }
 
-        if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
+        if ($context->getCustomer() || $cart->getLineItems()->count() > 0 || $context->getCurrencyId() !== $context->getSalesChannel()->getCurrencyId()) {
             $newValue = $this->buildCacheHash($request, $context);
 
             if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
@@ -191,6 +203,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $event->getSalesChannelContext());
+        $this->contextWasChanged = true;
     }
 
     public function onCustomerLogout(CustomerLogoutEvent $event): void
@@ -204,6 +217,25 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $context->assign(['customer' => null]);
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $this->contextWasChanged = true;
+    }
+
+    public function onContextSwitched(SalesChannelContextSwitchEvent $event): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return;
+        }
+
+        $updatedContext = $this->contextService->get(
+            new SalesChannelContextServiceParameters(
+                $event->getSalesChannelContext()->getSalesChannelId(),
+                $event->getSalesChannelContext()->getToken()
+            )
+        );
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $updatedContext);
+        $this->contextWasChanged = true;
     }
 
     /**

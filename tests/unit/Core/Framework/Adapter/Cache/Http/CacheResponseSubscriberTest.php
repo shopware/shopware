@@ -20,10 +20,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -69,6 +73,7 @@ class CacheResponseSubscriberTest extends TestCase
             ],
             CustomerLoginEvent::class => 'onCustomerLogin',
             CustomerLogoutEvent::class => 'onCustomerLogout',
+            SalesChannelContextSwitchEvent::class => 'onContextSwitched',
         ];
 
         static::assertSame($expected, CacheResponseSubscriber::getSubscribedEvents());
@@ -87,6 +92,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $customer = new CustomerEntity();
@@ -119,6 +125,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $request = new Request();
@@ -146,6 +153,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $request = new Request();
@@ -173,6 +181,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $request = new Request();
@@ -204,6 +213,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -288,6 +298,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $customer = new CustomerEntity();
@@ -333,6 +344,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -344,6 +356,50 @@ class CacheResponseSubscriberTest extends TestCase
         $subscriber->onCustomerLogin($event);
 
         static::assertSame($salesChannelContext, $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
+    }
+
+    public function testOnContextSwitched(): void
+    {
+        $requestStack = new RequestStack();
+
+        $updatedContext = $this->createMock(SalesChannelContext::class);
+
+        $contextServiceMock = $this->createMock(SalesChannelContextService::class);
+        $contextServiceMock->expects($this->once())
+            ->method('get')
+            ->with(new SalesChannelContextServiceParameters(
+                'test-sales-channel',
+                'test-token',
+            ))
+            ->willReturn($updatedContext);
+
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            $this->createMock(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            $requestStack,
+            null,
+            null,
+            $this->eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $contextServiceMock
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')
+            ->willReturn('test-sales-channel');
+        $salesChannelContext->method('getToken')
+            ->willReturn('test-token');
+
+        $request = new Request();
+        $requestStack->push($request);
+
+        $event = new SalesChannelContextSwitchEvent($salesChannelContext, new RequestDataBag());
+        $subscriber->onContextSwitched($event);
+
+        static::assertSame($updatedContext, $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
     }
 
     /**
@@ -376,6 +432,10 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     #[DataProvider('providerCurrencyChange')]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    /**
+     * @deprecated tag:v6.8.0 - can be removed as currency cookie is no longer used
+     */
     public function testCurrencyChange(?string $currencyId): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -389,6 +449,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $request = new Request();
@@ -411,6 +472,77 @@ class CacheResponseSubscriberTest extends TestCase
             static::assertNotEmpty($cookies);
             static::assertSame($currencyId, $cookies[0]->getValue());
         }
+    }
+
+    public function testCurrencyChangeLeadsToDifferentCacheHash(): void
+    {
+        $subscriber = new CacheResponseSubscriber(
+            [],
+            $this->createMock(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            new RequestStack(),
+            null,
+            null,
+            $this->eventDispatcher,
+            new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
+        );
+
+        $request = new Request();
+        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
+
+        $response = new Response();
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        $cookies = $response->headers->getCookies();
+        static::assertEmpty($cookies);
+
+        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock->method('getCurrencyId')->willReturn('foo');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
+
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        $cookies = $response->headers->getCookies();
+        static::assertNotEmpty($cookies);
+        // assert cache hash exist when currency is set to different value then the sales channel default
+        static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
+        $firstHash = $cookies[0]->getValue();
+
+        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock->method('getCurrencyId')->willReturn('bar');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
+
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        $cookies = $response->headers->getCookies();
+        static::assertNotEmpty($cookies);
+        static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
+        $secondHash = $cookies[0]->getValue();
+        // assert cache hash is different when currency id is different
+        static::assertNotSame($firstHash, $secondHash);
     }
 
     /**
@@ -436,6 +568,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $request = new Request();
@@ -471,6 +604,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $response = new Response();
@@ -514,6 +648,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         if (!$response) {
@@ -572,6 +707,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $request = new Request();
@@ -611,6 +747,7 @@ class CacheResponseSubscriberTest extends TestCase
             '6',
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $request = new Request();
@@ -631,127 +768,70 @@ class CacheResponseSubscriberTest extends TestCase
 
     /**
      * @return iterable<string, array{
-     *     route: string,
      *     requestMethod: string,
-     *     cookiesAmount: int,
-     *     cookieName: string,
-     *     assertCountErrorMessage: string,
-     *     assertEqualsErrorMessage: string
      * }>
      */
     public static function providerSetResponseCacheOnLoginDeprecated(): iterable
     {
-        yield 'Don\'t set the cache on no_login via post' => [
-            'route' => 'no.login',
-            'requestMethod' => Request::METHOD_POST,
-            'cookiesAmount' => 1,
-            'cookieName' => HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE,
-            'assertCountErrorMessage' => 'There should be 1 cookies set now!',
-            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE should be set as 1. cookie',
-        ];
-
         yield 'Set cache on login via post' => [
-            'route' => 'frontend.account.login',
             'requestMethod' => Request::METHOD_POST,
-            'cookiesAmount' => 2,
-            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            'assertCountErrorMessage' => 'There should be 2 cookies set now!',
-            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
-        ];
-
-        yield 'Set cache on no_login via get' => [
-            'route' => 'anything',
-            'requestMethod' => Request::METHOD_GET,
-            'cookiesAmount' => 2,
-            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            'assertCountErrorMessage' => 'There should be 2 cookies set now!',
-            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
         ];
 
         yield 'Set cache on login via get' => [
-            'route' => 'frontend.account.login',
             'requestMethod' => Request::METHOD_GET,
-            'cookiesAmount' => 2,
-            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            'assertCountErrorMessage' => 'There should be 2 cookies set now!',
-            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
         ];
     }
 
     /**
-     * @return array<string, array{
-     *     route: string,
+     * @return iterable<string, array{
      *     requestMethod: string,
-     *     cookiesAmount: int,
-     *     cookieName: string,
-     *     assertCountErrorMessage: string,
-     *     assertEqualsErrorMessage: string
      * }>
      */
     public static function providerSetResponseCacheOnLogin(): iterable
     {
         yield 'Set cache on login via post' => [
-            'route' => 'frontend.account.login',
             'requestMethod' => Request::METHOD_POST,
-            'cookiesAmount' => 1,
-            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            'assertCountErrorMessage' => 'There should be 1 cookies set now!',
-            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 1. cookie',
-        ];
-
-        yield 'Set cache on no_login via get' => [
-            'route' => 'anything',
-            'requestMethod' => Request::METHOD_GET,
-            'cookiesAmount' => 1,
-            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            'assertCountErrorMessage' => 'There should be 1 cookies set now!',
-            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 1. cookie',
         ];
 
         yield 'Set cache on login via get' => [
-            'route' => 'frontend.account.login',
             'requestMethod' => Request::METHOD_GET,
-            'cookiesAmount' => 1,
-            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            'assertCountErrorMessage' => 'There should be 1 cookies set now!',
-            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 1. cookie',
         ];
     }
 
     #[DataProvider('providerSetResponseCacheOnLoginDeprecated')]
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
     public function testSetResponseCacheOnLoginDeprecated(
-        string $route,
         string $requestMethod,
-        int $cookiesAmount,
-        string $cookieName,
-        string $assertCountErrorMessage,
-        string $assertEqualsErrorMessage
     ): void {
+        $request = new Request();
+        $request->setMethod($requestMethod);
+
         $subscriber = new CacheResponseSubscriber(
             [],
             static::createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver($this->eventDispatcher),
-            new RequestStack(),
+            new RequestStack([$request]),
             null,
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getCustomer')
             ->willReturn(new CustomerEntity());
-        $request = new Request();
-        $request->setMethod($requestMethod);
-        $request->attributes->set(
-            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
-            $salesChannelContext
+
+        $subscriber->onCustomerLogin(
+            new CustomerLoginEvent(
+                $salesChannelContext,
+                new CustomerEntity(),
+                'test'
+            )
         );
-        $request->attributes->set('_route', $route);
 
         $response = new Response();
         $subscriber->setResponseCache(
@@ -763,51 +843,43 @@ class CacheResponseSubscriberTest extends TestCase
             )
         );
 
-        static::assertCount(
-            $cookiesAmount,
-            $response->headers->getCookies(),
-            $assertCountErrorMessage
-        );
-        static::assertSame(
-            $cookieName,
-            $response->headers->getCookies()[$cookiesAmount - 1]->getName(),
-            $assertEqualsErrorMessage
-        );
+        static::assertCount(2, $response->headers->getCookies());
+        static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $response->headers->getCookies()[1]->getName());
     }
 
     #[DataProvider('providerSetResponseCacheOnLogin')]
     public function testSetResponseCacheOnLogin(
-        string $route,
         string $requestMethod,
-        int $cookiesAmount,
-        string $cookieName,
-        string $assertCountErrorMessage,
-        string $assertEqualsErrorMessage
     ): void {
+        $request = new Request();
+        $request->setMethod($requestMethod);
+
         $subscriber = new CacheResponseSubscriber(
             [],
             static::createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver($this->eventDispatcher),
-            new RequestStack(),
+            new RequestStack([$request]),
             null,
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getCustomer')
             ->willReturn(new CustomerEntity());
-        $request = new Request();
-        $request->setMethod($requestMethod);
-        $request->attributes->set(
-            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
-            $salesChannelContext
+
+        $subscriber->onCustomerLogin(
+            new CustomerLoginEvent(
+                $salesChannelContext,
+                new CustomerEntity(),
+                'test'
+            )
         );
-        $request->attributes->set('_route', $route);
 
         $response = new Response();
         $subscriber->setResponseCache(
@@ -819,16 +891,8 @@ class CacheResponseSubscriberTest extends TestCase
             )
         );
 
-        static::assertCount(
-            $cookiesAmount,
-            $response->headers->getCookies(),
-            $assertCountErrorMessage
-        );
-        static::assertSame(
-            $cookieName,
-            $response->headers->getCookies()[$cookiesAmount - 1]->getName(),
-            $assertEqualsErrorMessage
-        );
+        static::assertCount(1, $response->headers->getCookies());
+        static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $response->headers->getCookies()[0]->getName());
     }
 
     public function testRequestContextGetsUpdatedWhileLogout(): void
@@ -854,6 +918,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $subscriber->onCustomerLogout($event);
@@ -877,6 +942,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $customer = new CustomerEntity();
@@ -921,6 +987,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $this->eventDispatcher,
             new CacheRelevantRulesResolver(new ExtensionDispatcher($this->eventDispatcher)),
+            $this->createMock(SalesChannelContextService::class)
         );
 
         $customer = new CustomerEntity();

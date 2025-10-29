@@ -164,8 +164,10 @@
             <argument>%shopware.http_cache.stale_if_error%</argument>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver">

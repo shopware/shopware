@@ -1,0 +1,11 @@
+---
+title: Clarify
+date: 2025-10-28
+area: development
+tags: command, demodata, framework
+author: Adrian Bacani
+---
+
+# Core
+
+* Changed `\Shopware\Core\Framework\Demodata\Command` so that the `framework:demodata` command outputs a more concise message

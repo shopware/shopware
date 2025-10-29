@@ -85,6 +85,7 @@ export default {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
+            criteria.addAssociation('group');
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
 
             if (this.currentGroup) {
@@ -103,8 +104,6 @@ export default {
                         criteria.addQuery(Criteria.contains('name', option.trim()), 1000);
                         criteria.addQuery(Criteria.contains('group.name', option.trim()), 800);
                     });
-
-                criteria.addAssociation('group');
             }
 
             return criteria;
@@ -275,7 +274,8 @@ export default {
             this.propertyGroupOptionRepository
                 .search(this.propertyGroupOptionCriteria, Shopware.Context.api)
                 .then((groupOptions) => {
-                    this.groupOptions = groupOptions;
+                    const sortedOptions = this.sortOptions(Array.from(groupOptions));
+                    this.groupOptions = sortedOptions;
                     this.optionTotal = groupOptions.total;
                     this.selectOptions(this.$refs.optionGrid);
                 });

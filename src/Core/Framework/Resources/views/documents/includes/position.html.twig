@@ -42,8 +42,9 @@ All blocks of this template are available in the template which renders this tem
                                 </span>
                             {% endfor %}
                         {% endif %}
-
-                        <span class="line-item-label level-{{ level }}">{{ lineItem.label|sw_sanitize(null, true) }}</span>
+                        {% block document_line_item_table_column_label_level %}
+                            <span class="line-item-label level-{{ level }}">{{ lineItem.label|sw_sanitize(null, true) }}</span>
+                        {% endblock %}
                         {% if lineItem.payload.options|length >= 1 %}
                             <br/>
                             {% for option in lineItem.payload.options %}

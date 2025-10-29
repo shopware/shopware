@@ -31,7 +31,7 @@ class PaymentMethodBlockedError extends Error
         $this->message = \sprintf(
             'Payment method %s not available. Reason: %s',
             $name,
-            $reason,
+            $reason ?? 'No reason provided.',
         );
 
         parent::__construct($this->message);
@@ -70,6 +70,8 @@ class PaymentMethodBlockedError extends Error
     public function getId(): string
     {
         if (Feature::isActive('v6.8.0.0')) {
+            \assert($this->id !== null);
+
             return \sprintf('%s-%s', self::KEY, $this->id);
         }
 

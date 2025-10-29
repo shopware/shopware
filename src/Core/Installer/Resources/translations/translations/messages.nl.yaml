@@ -1,13 +1,16 @@
 shopware.installer:
     header_title: Installatie
-    menuitem_welcome: Start
-    menuitem_requirements: Systeemvereisten
-    menuitem_database-configuration: 'Configuratie databank'
-    menuitem_database-import: Installatie
-    menuitem_edition: Shopware-licentie
-    menuitem_configuration: Configuratie
-    menuitem_finish: Gereed
-    menuitem_license: 'Algemene voorwaarden'
+    menuitem:
+        start: Start
+        configure_php: PHP-binair bestand
+        download: Downloaden
+        requirements: Systeemvereisten
+        license: Algemene voorwaarden
+        database-configuration: Databaseconfiguratie
+        database-import: Installatie
+        configuration: Winkelconfiguratie
+        translation: Taaldownload
+        finish: Gereed
     license_incorrect: 'De ingevoerde licentiesleutel is ongeldig.'
     license_does_not_match: 'De ingevoerde licentiesleutel past niet bij een commerciële Shopware-versie'
     license_domain_error: 'De ingevoerde licentiesleutel is niet geldig voor het domein: '
@@ -49,10 +52,13 @@ shopware.installer:
     select_language_tr-TR: Turks
     select_language_uk-UA: Oekraïens
     select_language_vi-VN: Vietnamees
-    welcome_title: 'Welkom bij Shopware 6'
     language-selection_select_language: 'Taal van de installatie-assistent'
-    welcome_header: 'Je Shopware-installatie'
-    welcome_message: 'We zijn blij dat je deel wilt uitmaken van onze wereldwijde Shopware-community! Nu begeleiden we je stap voor stap door het installatieproces. Ga voor vragen naar ons <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, bel ons op <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> of schrijf een <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome:
+        title: 'Welkom bij Shopware 6'
+        header: 'Je Shopware-installatie'
+        message: >
+            We zijn verheugd dat u zich aansluit bij onze wereldwijde Shopware-community! Deze installatieprogramma
+            begeleidt u bij elke stap die nodig is om Shopware 6 soepel te installeren.
     requirements_header: Systeemvereisten
     requirements_header_files: 'Bestanden en mappen'
     requirements_header_system: Systeem
@@ -161,7 +167,6 @@ shopware.installer:
         <p>
             Veel plezier en succes met je nieuwe onlineshop!
         </p>"
-    menuitem_translation: 'Taaldownload'
     configuration_admin_shop_headline: 'Shopgegevens'
     configuration_admin_language_headline: 'Talen'
     configuration_admin_language_select_all: 'Alles selecteren'
@@ -177,3 +182,10 @@ shopware.installer:
     finish_continue: 'Doorgaan naar shop'
     translations_install_error_message: 'Er ging iets mis tijdens de installatie van vertalingen.'
     translations_install_retry_link: 'Klik hier om opnieuw te proberen'
+    help:
+        title: Hulp nodig?
+        support_channel: Kies het ondersteuningskanaal dat bij u past
+        forum: Forum
+        phone_number_call: +492555928850
+        phone_number_formatted: (+49) 2555 928850
+        email: E-mail

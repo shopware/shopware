@@ -190,3 +190,7 @@ parameters:
             message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
             paths:
                 - tests/**
+
+        - # RedisArray has missing methods in the stub. See https://github.com/phpredis/phpredis/discussions/2736
+            message: '#Call to an undefined method Predis\\ClientInterface\|Redis\|RedisArray\|RedisCluster\|Relay\\Cluster\|Relay\\Relay::#'
+            identifier: method.notFound

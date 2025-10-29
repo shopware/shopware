@@ -467,10 +467,10 @@ class EntityAggregator implements EntityAggregatorInterface
             $id = $range['key'] ?? (($range['from'] ?? '*') . '-' . ($range['to'] ?? '*'));
             $sum = '1';
             if (isset($range['from'])) {
-                $sum .= \sprintf(' AND %s >= %f', $accessor, $range['from']);
+                $sum .= \sprintf(' AND %s >= %s', $accessor, (string) $range['from']);
             }
             if (isset($range['to'])) {
-                $sum .= \sprintf(' AND %s < %f', $accessor, $range['to']);
+                $sum .= \sprintf(' AND %s < %s', $accessor, (string) $range['to']);
             }
 
             $query->addSelect(\sprintf('SUM(%s) as %s', $sum, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.' . $id)));
@@ -710,7 +710,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $row = array_shift($rows);
         if ($row) {
             foreach ($aggregation->getRanges() as $range) {
-                $ranges[(string) $range['key']] = (int) $row[\sprintf('%s.%s', $aggregation->getName(), $range['key'])];
+                $ranges[(string) $range['key']] = (int) $row[\sprintf('%s.%s', $aggregation->getName(), (string) $range['key'])];
             }
         }
 

@@ -22,7 +22,9 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  *
- * @phpstan-type Mapping array<string, array{current_default: string, new_default: string, inserts: list<string>, updateId: string, deletions: list<string>, state: list<string>}>
+ * @phpstan-type Mapping       array<string, array{new_default?: string, inserts?: list<string>, updateId?: string, deletions?: list<string>, state?: array{}}>
+ * @phpstan-type ChannelData                 array{new_default?: string, inserts?: list<string>, updateId?: string, deletions?: list<string>, state?: list<string>, current_default?: string}
+ * @phpstan-type MergedMapping array<string, ChannelData>
  */
 #[Package('discovery')]
 class SalesChannelValidator implements EventSubscriberInterface
@@ -70,17 +72,6 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * Build a key map with the following data structure:
-     *
-     * 'sales_channel_id' => [
-     *     'current_default' => 'en',
-     *     'new_default' => 'de',
-     *     'inserts' => ['de', 'en'],
-     *     'updateId' => 'de',
-     *     'deletions' => ['gb'],
-     *     'state' => ['en', 'gb']
-     * ]
-     *
      * @return Mapping
      */
     private function extractMapping(PreWriteValidationEvent $event): array
@@ -88,13 +79,13 @@ class SalesChannelValidator implements EventSubscriberInterface
         $mapping = [];
         foreach ($event->getCommands() as $command) {
             if ($command->getEntityName() === SalesChannelDefinition::ENTITY_NAME) {
-                $this->handleSalesChannelMapping($mapping, $command);
+                $mapping = $this->handleSalesChannelMapping($mapping, $command);
 
                 continue;
             }
 
             if ($command->getEntityName() === SalesChannelLanguageDefinition::ENTITY_NAME) {
-                $this->handleSalesChannelLanguageMapping($mapping, $command);
+                $mapping = $this->handleSalesChannelLanguageMapping($mapping, $command);
             }
         }
 
@@ -103,29 +94,32 @@ class SalesChannelValidator implements EventSubscriberInterface
 
     /**
      * @param Mapping $mapping
+     *
+     * @return array<string, array{updateId?: string, new_default?: string, inserts?: array{}, state?: array{}}>
      */
-    private function handleSalesChannelMapping(array &$mapping, WriteCommand $command): void
+    private function handleSalesChannelMapping(array $mapping, WriteCommand $command): array
     {
         if (!isset($command->getPayload()['language_id'])) {
-            return;
+            return $mapping;
         }
 
         $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
-        \assert(\array_key_exists($id, $mapping));
 
         if ($command instanceof UpdateCommand) {
             $mapping[$id]['updateId'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
 
-            return;
+            return $mapping;
         }
 
         if (!$command instanceof InsertCommand || !$this->isSupportedSalesChannelType($command)) {
-            return;
+            return $mapping;
         }
 
         $mapping[$id]['new_default'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
         $mapping[$id]['inserts'] = [];
         $mapping[$id]['state'] = [];
+
+        return $mapping;
     }
 
     private function isSupportedSalesChannelType(WriteCommand $command): bool
@@ -138,27 +132,31 @@ class SalesChannelValidator implements EventSubscriberInterface
 
     /**
      * @param Mapping $mapping
+     *
+     * @return array<string, array{state: array{}, deletions?: list<string>, inserts?: list<string>}>
      */
-    private function handleSalesChannelLanguageMapping(array &$mapping, WriteCommand $command): void
+    private function handleSalesChannelLanguageMapping(array $mapping, WriteCommand $command): array
     {
         $language = Uuid::fromBytesToHex($command->getPrimaryKey()['language_id']);
         $id = Uuid::fromBytesToHex($command->getPrimaryKey()['sales_channel_id']);
-        \assert(\array_key_exists($id, $mapping));
+
         $mapping[$id]['state'] = [];
 
         if ($command instanceof DeleteCommand) {
             $mapping[$id]['deletions'][] = $language;
 
-            return;
+            return $mapping;
         }
 
         if ($command instanceof InsertCommand) {
             $mapping[$id]['inserts'][] = $language;
         }
+
+        return $mapping;
     }
 
     /**
-     * @param array<string, array<string, list<string>>> $mapping
+     * @param MergedMapping $mapping
      */
     private function validateLanguages(array $mapping, PreWriteValidationEvent $event): void
     {
@@ -169,22 +167,22 @@ class SalesChannelValidator implements EventSubscriberInterface
 
         foreach ($mapping as $id => $channel) {
             if (isset($channel['inserts'])) {
-                if (!$this->validInsertCase($channel)) {
+                if (isset($channel['new_default']) && $this->isValidInsertCase($channel)) {
                     $inserts[$id] = $channel['new_default'];
                 }
 
                 $duplicatedIds = $this->getDuplicates($channel);
 
-                if ($duplicatedIds) {
+                if ($duplicatedIds !== []) {
                     $duplicates[$id] = $duplicatedIds;
                 }
             }
 
-            if (isset($channel['deletions']) && !$this->validDeleteCase($channel)) {
+            if (isset($channel['deletions'], $channel['current_default']) && $this->isValidDeleteCase($channel)) {
                 $deletions[$id] = $channel['current_default'];
             }
 
-            if (isset($channel['updateId']) && !$this->validUpdateCase($channel)) {
+            if (isset($channel['updateId']) && $this->isValidUpdateCase($channel)) {
                 $updates[$id] = $channel['updateId'];
             }
         }
@@ -196,46 +194,45 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $channel
+     * @param array{new_default: string, inserts: list<string>, updateId?: string, deletions?: list<string>, state?: list<string>, current_default?: string} $channel
      */
-    private function validInsertCase(array $channel): bool
+    private function isValidInsertCase(array $channel): bool
     {
-        return empty($channel['new_default'])
-            || \in_array($channel['new_default'], $channel['inserts'], true);
+        return !\in_array($channel['new_default'], $channel['inserts'], true);
     }
 
     /**
-     * @param array<string, mixed> $channel
+     * @param array{new_default?: string, inserts?: list<string>, updateId: string, deletions?: list<string>, state?: list<string>, current_default?: string} $channel
      */
-    private function validUpdateCase(array $channel): bool
+    private function isValidUpdateCase(array $channel): bool
     {
         $updateId = $channel['updateId'];
 
-        return \in_array($updateId, $channel['state'], true)
-            || empty($channel['new_default']) && $updateId === $channel['current_default']
-            || isset($channel['inserts']) && \in_array($updateId, $channel['inserts'], true);
+        return !\in_array($updateId, $channel['state'] ?? [], true)
+            && !(empty($channel['new_default']) && $updateId === ($channel['current_default'] ?? null))
+            && !(isset($channel['inserts']) && \in_array($updateId, $channel['inserts'], true));
     }
 
     /**
-     * @param array<string, mixed> $channel
+     * @param array{new_default?: string, inserts?: list<string>, updateId?: string, deletions: list<string>, state?: list<string>, current_default: string} $channel
      */
-    private function validDeleteCase(array $channel): bool
+    private function isValidDeleteCase(array $channel): bool
     {
-        return !\in_array($channel['current_default'], $channel['deletions'], true);
+        return \in_array($channel['current_default'], $channel['deletions'], true);
     }
 
     /**
-     * @param array<string, list<string>> $channel
+     * @param array{new_default?: string, inserts: list<string>, updateId?: string, deletions?: list<string>, state?: list<string>, current_default?: string} $channel
      *
      * @return list<string>
      */
     private function getDuplicates(array $channel): array
     {
-        return array_values(array_intersect($channel['state'], $channel['inserts']));
+        return array_values(array_intersect($channel['state'] ?? [], $channel['inserts']));
     }
 
     /**
-     * @param array<string, mixed> $inserts
+     * @param array<string, string> $inserts
      */
     private function writeInsertViolationExceptions(array $inserts, PreWriteValidationEvent $event): void
     {
@@ -295,7 +292,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $deletions
+     * @param array<string, string> $deletions
      */
     private function writeDeleteViolationExceptions(array $deletions, PreWriteValidationEvent $event): void
     {
@@ -323,7 +320,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $updates
+     * @param array<string, string> $updates
      */
     private function writeUpdateViolationExceptions(array $updates, PreWriteValidationEvent $event): void
     {
@@ -351,13 +348,13 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $salesChannelIds
+     * @param list<string> $salesChannelIds
      *
-     * @return list<array<string, string>>
+     * @return list<array{sales_channel_id: string, current_default: string, language_id: string}>
      */
     private function fetchCurrentLanguageStates(array $salesChannelIds): array
     {
-        /** @var list<array<string, mixed>> $result */
+        /** @var list<array{sales_channel_id: string, current_default: string, language_id: string}> $result */
         $result = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(sales_channel.id)) AS sales_channel_id,
             LOWER(HEX(sales_channel.language_id)) AS current_default,
@@ -374,21 +371,29 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $mapping
-     * @param list<array<string, mixed>> $states
+     * @param Mapping $mapping
+     * @param list<array{sales_channel_id: string, current_default: string, language_id: string}> $states
      *
-     * @return array<string, mixed>
+     * @return MergedMapping
      */
     private function mergeCurrentStatesWithMapping(array $mapping, array $states): array
     {
+        if ($states === []) {
+            return $mapping;
+        }
+
         foreach ($states as $record) {
-            $id = (string) $record['sales_channel_id'];
+            $id = $record['sales_channel_id'];
+            if (!\array_key_exists($id, $mapping)) {
+                continue;
+            }
+
             $mapping[$id]['current_default'] = $record['current_default'];
             $mapping[$id]['state'][] = $record['language_id'];
-            $mapping[$id]['inserts'] = array_filter(
+            $mapping[$id]['inserts'] = array_values(array_filter(
                 $mapping[$id]['inserts'] ?? [],
-                fn ($value) => $value !== $record['language_id']
-            );
+                static fn ($value) => $value !== $record['language_id']
+            ));
             if (empty($mapping[$id]['inserts'])) {
                 unset($mapping[$id]['inserts']);
             }

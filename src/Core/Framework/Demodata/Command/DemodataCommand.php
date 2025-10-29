@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Demodata\Command;
 
@@ -85,8 +83,7 @@ class DemodataCommand extends Command
         $this->ensureAllDependenciesArePresent();
 
         if ($this->kernelEnv !== 'prod') {
-            $output->writeln('Demo data command requires APP_ENV=prod to run. ' .
-                'Execute with: `APP_ENV=prod bin/console framework:demodata`');
+            $output->writeln('Demo data command requires the app environment set to production to run. Execute it with: `APP_ENV=prod bin/console framework:demodata`');
             return self::INVALID;
         }
 

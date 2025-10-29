@@ -916,6 +916,10 @@ export default {
             sections.forEach((section) => {
                 section.blocks.forEach((block) => {
                     block.slots.forEach((slot) => {
+                        if (!slot.config) {
+                            return;
+                        }
+
                         Object.values(slot.config).forEach((configField) => {
                             if (configField.entity) {
                                 delete configField.entity;
@@ -930,6 +934,10 @@ export default {
         },
 
         checkRequiredSlotConfigField(slot, block) {
+            if (!slot.config) {
+                return [];
+            }
+
             return Object.keys(slot.config).reduce((accumulator, index) => {
                 const slotConfig = { ...slot.config[index] };
                 if (!!slotConfig.required && (slotConfig.value === null || slotConfig.value.length < 1)) {

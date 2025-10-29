@@ -56,6 +56,8 @@ export default Mixin.register(
             initBaseConfig() {
                 const config = merge(this.cmsElements[this.element.type]?.defaultConfig, this.defaultConfig);
 
+                set(this.element, 'config', {});
+
                 Object.entries(config).forEach(([ key, value ]) => {
                     const path = `config.${key}`;
 

@@ -8,4 +8,4 @@ issue: 12996
 ___
 # Upgrade Information
 ## Added PHP 8.5 polyfill
-The new dependency `symfony/polyfill-php85` was added, to make it possible to already use PHP 8.5 features, like `array_first` and `array_last
+The new dependency `symfony/polyfill-php85` was added, to make it possible to already use PHP 8.5 features, like `array_first` and `array_last`

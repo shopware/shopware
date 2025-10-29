@@ -85,7 +85,6 @@ export default {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
-            criteria.addAssociation('group');
             // Note: naturalSorting needs to be false for alphanumeric property group option sorting in loadOptions() to work
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
@@ -105,6 +104,7 @@ export default {
                         criteria.addQuery(Criteria.contains('name', option.trim()), 1000);
                         criteria.addQuery(Criteria.contains('group.name', option.trim()), 800);
                     });
+                criteria.addAssociation('group');
             }
 
             return criteria;

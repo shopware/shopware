@@ -61,14 +61,8 @@ class CheapestPriceContainer extends Struct
                 }
 
                 // Check sales channel availability
-                if ($currentSalesChannelId) {
-                    $isAvailable = $price === $this->default
-                        ? $this->isVariantAvailableInSalesChannel(['default' => $this->default], $currentSalesChannelId)
-                        : $this->isVariantAvailableInSalesChannel($group, $currentSalesChannelId);
-
-                    if (!$isAvailable) {
-                        continue;
-                    }
+                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
+                    continue;
                 }
 
                 // overwrite the variantId in case the default price was added
@@ -293,25 +287,17 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @param array<string, array<mixed>> $group
+     * @param array<mixed> $price
      */
-    private function isVariantAvailableInSalesChannel(array $group, string $salesChannelId): bool
+    private function isVariantPriceAvailableInSalesChannel(array $price, string $salesChannelId): bool
     {
-        foreach ($group as $priceData) {
-            if ($priceData === null) {
-                continue;
-            }
-
-            $salesChannelIds = $priceData['sales_channel_ids'] ?? [];
-
-            // If no sales channel IDs are stored, assume it's available everywhere
-            if (empty($salesChannelIds)) {
-                return true;
-            }
-
-            return \in_array($salesChannelId, $salesChannelIds, true);
+        // If no sales channel IDs are stored, assume it's available everywhere
+        if (!\array_key_exists('sales_channel_ids', $price)) {
+            return true;
         }
 
-        return false;
+        $salesChannelIds = $price['sales_channel_ids'] ?? [];
+
+        return \in_array($salesChannelId, $salesChannelIds, true);
     }
 }

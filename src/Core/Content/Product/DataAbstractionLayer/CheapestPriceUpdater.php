@@ -8,6 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -186,63 +187,26 @@ class CheapestPriceUpdater
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'IFNULL(product.min_purchase, parent.min_purchase) as min_purchase',
             'price.price',
-            'GROUP_CONCAT(DISTINCT LOWER(HEX(visibilities.sales_channel_id))) as sales_channel_ids',
         );
 
         $query->from('product', 'product');
         $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.prices AND product.version_id = price.product_version_id');
         $query->leftJoin('product', 'product', 'parent', 'parent.id = product.parent_id');
-        $query->leftJoin('product', 'product_visibility', 'visibilities', 'visibilities.product_id = product.id AND visibilities.product_version_id = product.version_id');
 
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1');
         $query->andWhere('(product.child_count = 0 OR product.parent_id IS NOT NULL)');
 
-        $query->groupBy(
-            'product.id',
-            'price.rule_id',
-            'product.parent_id',
-            'product.unit_id',
-            'parent.unit_id',
-            'product.purchase_unit',
-            'parent.purchase_unit',
-            'product.reference_unit',
-            'parent.reference_unit',
-            'product.min_purchase',
-            'parent.min_purchase',
-            'price.price'
-        );
-
         $this->quantitySelector->add($query);
 
-        $ids = Uuid::fromHexToBytesList($ids);
+        $idsBytes = Uuid::fromHexToBytesList($ids);
+        $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
-        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
-        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
+        $query->setParameter('ids', $idsBytes, ArrayParameterType::BINARY);
+        $query->setParameter('version', $versionBytes);
 
         $data = $query->executeQuery()->fetchAllAssociative();
-
-        $grouped = [];
-        foreach ($data as $row) {
-            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
-            $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
-        }
-
-        // Process sales channel IDs for all grouped data
-        foreach ($grouped as $parentId => $variants) {
-            foreach ($variants as $variantId => $rules) {
-                foreach ($rules as $ruleId => $priceData) {
-                    if (isset($priceData['sales_channel_ids'])) {
-                        $salesChannelIds = [];
-                        if (!empty($priceData['sales_channel_ids'])) {
-                            $salesChannelIds = explode(',', $priceData['sales_channel_ids']);
-                        }
-                        $grouped[$parentId][$variantId][$ruleId]['sales_channel_ids'] = $salesChannelIds;
-                    }
-                }
-            }
-        }
 
         $query = $this->connection->createQueryBuilder();
         $query->select(
@@ -256,35 +220,34 @@ class CheapestPriceUpdater
             'IFNULL(product.purchase_unit, parent.purchase_unit) as purchase_unit',
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'product.child_count as child_count',
-            'GROUP_CONCAT(DISTINCT LOWER(HEX(visibilities.sales_channel_id))) as sales_channel_ids',
         );
 
         $query->from('product', 'product');
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
-        $query->leftJoin('product', 'product_visibility', 'visibilities', 'visibilities.product_id = product.id AND visibilities.product_version_id = product.version_id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1 OR product.child_count > 0'); // always load parent products
-
-        $query->groupBy(
-            'product.id',
-            'product.parent_id',
-            'product.unit_id',
-            'parent.unit_id',
-            'product.purchase_unit',
-            'parent.purchase_unit',
-            'product.reference_unit',
-            'parent.reference_unit',
-            'product.min_purchase',
-            'parent.min_purchase',
-            'product.price',
-            'product.child_count'
-        );
-
-        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
-        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
+        $query->setParameter('ids', $idsBytes, ArrayParameterType::BINARY);
+        $query->setParameter('version', $versionBytes);
 
         $defaults = $query->executeQuery()->fetchAllAssociative();
+
+        // Collect all unique product IDs from both queries
+        $productIds = [];
+        $rows = [...$data, ...$defaults];
+        foreach ($rows as $row) {
+            $productIds[$row['variant_id']] = true;
+        }
+
+        // Fetch visibility once for all products
+        $visibilityMap = $this->fetchVisibilityMap(array_keys($productIds), $context);
+
+        $grouped = [];
+        foreach ($data as $row) {
+            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
+            $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
+            $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
+        }
 
         foreach ($defaults as $row) {
             if ($row['price'] === null) {
@@ -295,6 +258,8 @@ class CheapestPriceUpdater
 
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
+            $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
+
             if ($row['child_count'] > 0) {
                 $grouped[(string) $row['parent_id']]['default'] = $row;
 
@@ -304,29 +269,35 @@ class CheapestPriceUpdater
             $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = $row;
         }
 
-        // Process sales channel IDs for default prices
-        foreach ($defaults as $row) {
-            if ($row['price'] === null) {
-                continue;
-            }
+        return $grouped;
+    }
 
-            $salesChannelIds = [];
-            if (!empty($row['sales_channel_ids'])) {
-                $salesChannelIds = explode(',', $row['sales_channel_ids']);
-            }
-
-            if ($row['child_count'] > 0) {
-                if (isset($grouped[(string) $row['parent_id']]['default'])) {
-                    $grouped[(string) $row['parent_id']]['default']['sales_channel_ids'] = $salesChannelIds;
-                }
-            } else {
-                if (isset($grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'])) {
-                    $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default']['sales_channel_ids'] = $salesChannelIds;
-                }
-            }
+    /**
+     * @param array<string> $productIds
+     *
+     * @return array<string, array<string>> Map of product_id => [sales_channel_ids]
+     */
+    private function fetchVisibilityMap(array $productIds, Context $context): array
+    {
+        if (empty($productIds)) {
+            return [];
         }
 
-        return $grouped;
+        $results = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_id)) as product_id, LOWER(HEX(sales_channel_id)) as sales_channel_id
+             FROM product_visibility
+             WHERE product_id IN (:ids)
+             AND product_version_id = :version',
+            [
+                'ids' => Uuid::fromHexToBytesList($productIds),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ]
+        );
+
+        return FetchModeHelper::group($results, static fn ($row): string => (string) $row['sales_channel_id']);
     }
 
     /**

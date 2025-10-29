@@ -36,10 +36,11 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
 
         $container = new CheapestPriceContainer([]);
         $reflection = new \ReflectionClass($container);
-        $method = $reflection->getMethod('isVariantAvailableInSalesChannel');
+        $method = $reflection->getMethod('isVariantPriceAvailableInSalesChannel');
         $method->setAccessible(true);
 
-        $result = $method->invoke($container, $group, $salesChannelId);
+        $price = $group['default'];
+        $result = $method->invoke($container, $price, $salesChannelId);
 
         static::assertTrue($result);
     }
@@ -64,15 +65,16 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
 
         $container = new CheapestPriceContainer([]);
         $reflection = new \ReflectionClass($container);
-        $method = $reflection->getMethod('isVariantAvailableInSalesChannel');
+        $method = $reflection->getMethod('isVariantPriceAvailableInSalesChannel');
         $method->setAccessible(true);
 
-        $result = $method->invoke($container, $group, $salesChannelId);
+        $price = $group['default'];
+        $result = $method->invoke($container, $price, $salesChannelId);
 
         static::assertFalse($result);
     }
 
-    public function testIsVariantAvailableInSalesChannelWithEmptyIds(): void
+    public function testIsVariantAvailableInSalesChannelWithoutIds(): void
     {
         $salesChannelId = Uuid::randomHex();
         $group = [
@@ -80,7 +82,6 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 100.0, 'net' => 84.03, 'linked' => true],
                 ],
-                'sales_channel_ids' => [],
                 'is_ranged' => false,
                 'rule_id' => 'default',
                 'parent_id' => 'parent1',
@@ -91,10 +92,11 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
 
         $container = new CheapestPriceContainer([]);
         $reflection = new \ReflectionClass($container);
-        $method = $reflection->getMethod('isVariantAvailableInSalesChannel');
+        $method = $reflection->getMethod('isVariantPriceAvailableInSalesChannel');
         $method->setAccessible(true);
 
-        $result = $method->invoke($container, $group, $salesChannelId);
+        $price = $group['default'];
+        $result = $method->invoke($container, $price, $salesChannelId);
 
         static::assertTrue($result);
     }

@@ -77,12 +77,10 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 'administration' => [
                     'path' => 'Resources/app/administration/src',
                     'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/administration/src'),
-                    'webpack' => $this->getWebpackConfig($bundle->getPath(), 'Resources/app/administration'),
                 ],
                 'storefront' => [
                     'path' => 'Resources/app/storefront/src',
                     'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/storefront/src'),
-                    'webpack' => $this->getWebpackConfig($bundle->getPath(), 'Resources/app/storefront'),
                     'styleFiles' => $this->getStyleFiles($bundle->getName(), $this->stripProjectDir($bundle->getPath())),
                 ],
             ];
@@ -108,7 +106,6 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 'storefront' => [
                     'path' => 'Resources/app/storefront/src',
                     'entryFilePath' => $this->getEntryFile($absolutePath, 'Resources/app/storefront/src'),
-                    'webpack' => $this->getWebpackConfig($absolutePath, 'Resources/app/storefront'),
                     'styleFiles' => $this->getStyleFiles($app['name'], $app['path']),
                 ],
             ];
@@ -134,31 +131,6 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         }
 
         return null;
-    }
-
-    private function getWebpackConfig(string $rootPath, string $componentPath): ?string
-    {
-        $path = trim($componentPath, '/');
-        $absolutePath = $rootPath . '/' . $path;
-
-        $configFileName = match (true) {
-            \is_file($absolutePath . '/build/webpack.config.ts') => 'webpack.config.ts',
-            \is_file($absolutePath . '/build/webpack.config.cts') => 'webpack.config.cts',
-            \is_file($absolutePath . '/build/webpack.config.js') => 'webpack.config.js',
-            \is_file($absolutePath . '/build/webpack.config.cjs') => 'webpack.config.cjs',
-            default => null,
-        };
-
-        if ($configFileName === null) {
-            return null;
-        }
-
-        if (mb_strpos($path, $this->projectDir) === 0) {
-            // make relative
-            $path = ltrim(mb_substr($path, mb_strlen($this->projectDir)), '/');
-        }
-
-        return $path . '/build/' . $configFileName;
     }
 
     /**

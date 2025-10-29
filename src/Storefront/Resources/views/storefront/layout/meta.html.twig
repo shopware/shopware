@@ -110,9 +110,13 @@
         {% endblock %}
 
         {% block layout_head_stylesheet %}
-            {% if isHMRMode %}
-                {# CSS will be loaded from the JS automatically #}
+            {% set viteDevServer = vite_dev_server_enabled() %}
+            
+            {% if viteDevServer %}
+                {# Development mode - load CSS from Vite dev server #}
+                <script type="module" src="http://localhost:5173/build/vite/scss-entry.js"></script>
             {% else %}
+                {# Production mode - load from compiled theme #}
                 {% set assets = theme_config('assets.css') %}
                 {% for file in assets %}
                     <link rel="stylesheet"
@@ -204,24 +208,30 @@
             {% sw_include '@Storefront/storefront/utilities/form-validation-config.html.twig' %}
         {% endblock %}
 
-        {% block layout_head_javascript_hmr_mode %}
-            {% if isHMRMode %}
-                {% block layout_head_javascript_hmr_dev %}
-                    {# Entry point for dev-server #}
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/hot-reloading.js" defer></script>
-                    {% for script in theme_scripts() %}
-                        <script type="text/javascript" src="{{ script|replace({'js/': '/_webpack_hot_proxy_/'}) }}" defer></script>
-                    {% endfor %}
-                {% endblock %}
+        {% block layout_head_javascript_theme %}
+            {% set viteDevServer = vite_dev_server_enabled() %}
+
+            {% if viteDevServer %}
+                {# Development mode with Vite dev server #}
+                <script type="module" src="http://localhost:5173/@vite/client"></script>
+
+                {# Load all script files from their source locations #}
+                {% for scriptConfig in theme_source_files() %}
+                    {# Use /@fs/ prefix for absolute paths outside Vite root #}
+                    <script type="module" src="http://localhost:5173/@fs/{{ scriptConfig.filepath }}"></script>
+                {% endfor %}
             {% else %}
-                {% block layout_head_javascript_prod %}
-                    <script>
-                        window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
-                    </script>
-                    {% for script in theme_scripts() %}
-                        <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
-                    {% endfor %}
-                {% endblock %}
+                {# Production mode - load from compiled theme #}
+                <script>
+                    window.__vite_plugin_config__ = {
+                        base: '{{ asset('js', 'theme') }}'
+                    };
+                </script>
+                {% for script in theme_scripts() %}
+                    {# Remove query string from ES modules #}
+                    {% set scriptUrl = asset(script, 'theme')|split('?')[0] %}
+                    <script type="module" src="{{ scriptUrl }}"></script>
+                {% endfor %}
             {% endif %}
         {% endblock %}
     </head>

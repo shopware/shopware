@@ -110,6 +110,17 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Twig\Extension\ViteDevServerExtension">
+            <argument>%kernel.project_dir%</argument>
+            <tag name="twig.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Extension\ThemeFilePathsExtension">
+            <argument type="service" id="request_stack"/>
+            <argument>%kernel.project_dir%</argument>
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Twig\IconExtension">
             <tag name="twig.extension"/>
         </service>

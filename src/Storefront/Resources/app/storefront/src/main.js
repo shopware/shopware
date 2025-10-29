@@ -157,6 +157,7 @@ if ((window.googleReCaptchaV2Active || window.googleReCaptchaV3Active) && typeof
     };
 }
 
+
 /**
  * Registers Google reCAPTCHA plugins based on current cookie preferences
  */
@@ -210,10 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 }, false);
-
-// Set webpack publicPath at runtime because we don't know the theme seed hash when running webpack
-// https://webpack-v3.jsx.app/guides/public-path/#on-the-fly
-window.__webpack_public_path__ = window.themeJsPublicPath;
 
 /*
 run utils

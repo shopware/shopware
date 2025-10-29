@@ -592,10 +592,13 @@ export default class PluginManager {
     /**
      * Returns the definition of a plugin.
      *
+     * @param {string} pluginName
+     * @param {boolean} strict
+     *
      * @returns {*}
      */
-    static getPlugin(pluginName) {
-        return PluginManagerInstance.getPlugin(pluginName);
+    static getPlugin(pluginName, strict = true) {
+        return PluginManagerInstance.getPlugin(pluginName, strict);
     }
 
     /**

@@ -67,7 +67,7 @@ class ThemeFileResolver
             $themeConfig,
             $configurationCollection,
             $onlySourceFiles,
-            fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
+            fn (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) => $configuration->getStyleFiles()
         );
     }
 

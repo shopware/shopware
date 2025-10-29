@@ -161,7 +161,7 @@ class DeleteNotUsedMediaCommand extends Command
                     MemorySizeCalculator::formatToBytes($media->getFileSize() ?? 0),
                 ];
 
-                $output->write(\sprintf("\n%s", implode(',', array_map(fn ($col) => \sprintf('"%s"', $col), $row))));
+                $output->write(\sprintf("\n%s", implode(',', array_map(static fn ($col) => \sprintf('"%s"', (string) $col), $row))));
             }
         }
 

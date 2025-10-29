@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
+use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
@@ -26,9 +27,9 @@ use Shopware\Core\Test\TestDefaults;
 class CustomerGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var array<string>
+     * @var non-empty-list<string>
      */
-    private array $salutationIds = [];
+    private array $salutationIds;
 
     private Generator $faker;
 
@@ -84,7 +85,13 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $billingAddressId = Uuid::randomHex();
         $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
         $countries = $this->connection->fetchFirstColumn('SELECT id FROM country WHERE active = 1');
+        if ($countries === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+        if ($salesChannelIds === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
 
         $customer = [
             'id' => $id,
@@ -138,9 +145,12 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
         $netCustomerGroupId = $this->createNetCustomerGroup($context->getContext());
         $customerGroups = [TestDefaults::FALLBACK_CUSTOMER_GROUP, $netCustomerGroupId];
-        $tags = $this->getIds('tag');
+        $tags = $this->getTagIds();
 
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+        if ($salesChannelIds === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
         $countries = $this->connection->fetchFirstColumn('SELECT id FROM country WHERE active = 1');
 
         $payload = [];
@@ -168,6 +178,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                     'city' => $context->getFaker()->format('city'),
                 ];
             }
+            \assert($addresses !== []);
 
             $customer = [
                 'id' => $id,
@@ -218,9 +229,9 @@ class CustomerGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
-     * @return array<array{id: string}>
+     * @return list<array{id: string}>
      */
     private function getTags(array $tags): array
     {
@@ -231,27 +242,31 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    fn ($id) => ['id' => $id],
+                    static fn (string $id) => ['id' => $id],
                     $chosenTags
                 );
             }
         }
 
-        return $tagAssignments;
+        return array_values($tagAssignments);
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
-    private function getIds(string $table): array
+    private function getTagIds(): array
     {
-        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM tag LIMIT 500');
     }
 
     private function getRandomSalutationId(): string
     {
-        if (!$this->salutationIds) {
-            $this->salutationIds = $this->connection->fetchFirstColumn('SELECT id FROM salutation');
+        if (!isset($this->salutationIds)) {
+            $salutationIds = $this->connection->fetchFirstColumn('SELECT id FROM salutation');
+            if ($salutationIds === []) {
+                throw DemodataException::wrongExecutionOrder();
+            }
+            $this->salutationIds = $salutationIds;
         }
 
         return $this->salutationIds[array_rand($this->salutationIds)];

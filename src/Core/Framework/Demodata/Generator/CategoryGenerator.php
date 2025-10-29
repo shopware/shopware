@@ -163,7 +163,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
                 $commaSeparatedCategories = implode(', ', \array_slice($categories, 0, -1));
                 $categories = [
                     $commaSeparatedCategories,
-                    end($categories),
+                    array_last($categories),
                 ];
             }
             ++$max;

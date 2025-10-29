@@ -16,7 +16,8 @@
         {% block sw_newsletter_recipient_list_smart_bar_header_title %}
         <h2>
             {% block sw_newsletter_recipientlist_list_smart_bar_header_title_text %}
-            {{ $tc('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}
+            <span>{{ $tc('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
@@ -75,7 +76,6 @@
                 @page-change="onPageChange"
                 @column-sort="onSortColumn"
             >
-
                 {% block sw_newsletter_recipientlist_list_grid_email %}
                 <template #column-email="{ item }">
                     <p>{{ emailIdnFilter(item.email) }}</p>
@@ -86,11 +86,9 @@
                 <template
                     #column-firstName="{ item, compact, isInlineEdit }"
                 >
-
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_name %}
                     <template v-if="isInlineEdit">
                         {% block sw_newsletter_recipientlist_list_grid_inline_edit_first_name %}
-
                         <mt-text-field
                             v-model="item.firstName"
                             class="sw-newsletter-recipient-list__inline-edit-first-name"
@@ -99,7 +97,6 @@
                         {% endblock %}
 
                         {% block sw_newsletter_recipientlist_list_grid_inline_edit_last_name %}
-
                         <mt-text-field
                             v-model="item.lastName"
                             class="sw-newsletter-recipient-list__inline-edit-last-name"
@@ -164,7 +161,7 @@
                 </template>
                 {% endblock %}
 
-            {% block sw_newsletter_recipientlist_list_grid_updated_at %}
+                {% block sw_newsletter_recipientlist_list_grid_updated_at %}
                 <template
                     #column-updatedAt="{ item }"
                 >
@@ -173,16 +170,15 @@
                         :date="item.updatedAt"
                     />
                 </template>
-            {% endblock %}
+                {% endblock %}
 
-            {% block sw_newsletter_recipientlist_list_grid_created_at %}
+                {% block sw_newsletter_recipientlist_list_grid_created_at %}
                 <template
                     #column-createdAt="{ item }"
                 >
                     <sw-time-ago :date="item.createdAt" />
                 </template>
-            {% endblock %}
-
+                {% endblock %}
             </sw-entity-listing>
             {% endblock %}
             {% endblock %}
@@ -209,12 +205,12 @@
                 @sw-sidebar-item-close-content="closeContent"
                 @click="closeContent"
             >
-
                 {% block sw_newsletter_recipient_list_sidebar_filter_status %}
                 <sw-sidebar-collapse>
                     <template #header>
                         {{ $tc('sw-newsletter-recipient.list.status') }}
                     </template>
+
                     <template #content>
                         {% block sw_newsletter_recipient_list_sidebar_filter_status_not_set %}
                         <sw-newsletter-recipient-filter-switch
@@ -224,6 +220,7 @@
                             @update:value="onChange"
                         />
                         {% endblock %}
+
                         {% block sw_newsletter_recipient_list_sidebar_filter_status_direct %}
                         <sw-newsletter-recipient-filter-switch
                             id="direct"
@@ -232,6 +229,7 @@
                             @update:value="onChange"
                         />
                         {% endblock %}
+
                         {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_in %}
                         <sw-newsletter-recipient-filter-switch
                             id="optIn"
@@ -240,6 +238,7 @@
                             @update:value="onChange"
                         />
                         {% endblock %}
+
                         {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_out %}
                         <sw-newsletter-recipient-filter-switch
                             id="optOut"
@@ -257,6 +256,7 @@
                     <template #header>
                         {{ $tc('sw-newsletter-recipient.general.language') }}
                     </template>
+
                     <template #content>
                         {% block sw_newsletter_recipient_list_sidebar_filter_language_items %}
                         <div
@@ -280,6 +280,7 @@
                     <template #header>
                         {{ $tc('sw-newsletter-recipient.general.salesChannel') }}
                     </template>
+
                     <template #content>
                         {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel_items %}
                         <div
@@ -303,6 +304,7 @@
                     <template #header>
                         {{ $tc('sw-newsletter-recipient.general.tags') }}
                     </template>
+
                     <template #content>
                         {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
                         <sw-entity-multi-select
@@ -315,7 +317,6 @@
                 {% endblock %}
             </sw-sidebar-item>
             {% endblock %}
-
         </sw-sidebar>
     </template>
     {% endblock %}

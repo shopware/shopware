@@ -244,7 +244,7 @@ export default {
             if (this.hasMapInheritanceSupport(element)) {
                 return {};
             }
-            
+
             if (this.isMeteorComponent(element)) {
                 return {};
             }
@@ -319,9 +319,13 @@ export default {
          * New methods for Meteor components
          */
         isMeteorComponent(element) {
-            // TODO: This is for easier development. Replace it with all meteor supported types later.
-            return true;
+            const componentName = element.config ? element.config.componentName : undefined;
 
+            // Special case for sw-text-editor, because we still support the legacy one
+            const componentsWithMeteorSupport = [
+                'sw-text-editor',
+            ];
+            
             const typesWithMeteorSupport = [
                 'bool',
                 'switch',
@@ -330,9 +334,18 @@ export default {
                 'url',
                 'checkbox',
                 'colorpicker',
+                'password',
+                'date',
+                'datetime',
+                'time',
+                'single-select',
+                'multi-select',
+                'float',
+                'int',
             ]
 
-            return typesWithMeteorSupport.includes(element.type);
+            return typesWithMeteorSupport.includes(element.type)
+                || componentsWithMeteorSupport.includes(componentName);
         },
 
         getMeteorElementBind(element, mapInheritance) {
@@ -348,13 +361,29 @@ export default {
             bind.isInheritanceField = mapInheritance?.isInheritField;
             bind.isInherited = mapInheritance?.isInherited;
 
-            // Handle datepicker date/datatime value format
+            // Handle datepicker date/datetime value format
             if (element.type === 'date') {
                 bind.dateType = 'date';
             }
 
             if (element.type === 'datetime') {
                 bind.dateType = 'datetime';
+            }
+
+            // Handle select properties
+            if (
+                [
+                    'single-select',
+                    'multi-select',
+                ].includes(element.type)
+            ) {
+                bind.config.labelProperty = 'name';
+                bind.config.valueProperty = 'id';
+            }
+
+            // Handle multi select
+            if (element.type === 'multi-select') {
+                bind.enableMultiSelection = true;
             }
 
             return bind;

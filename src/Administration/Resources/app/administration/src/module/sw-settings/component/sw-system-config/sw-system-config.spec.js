@@ -6,7 +6,7 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
-import { MtUrlField } from '@shopware-ag/meteor-component-library';
+import {MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
 import { kebabCase } from 'lodash';
 import uuid from 'test/_helper_/uuid';
 import 'src/app/filter/media-name.filter';
@@ -25,6 +25,19 @@ async function createWrapper(defaultValues = {}) {
             directives: {
                 tooltip: {},
                 popover: {},
+            },
+            mocks: {
+                $t: (key) => {
+                    if (key === 'global.sw-field.ariaUnlinkInheritance') {
+                        return 'Unlink inheritance';
+                    }
+
+                    if (key === 'global.sw-field.ariaLinkInheritance') {
+                        return 'Link inheritance';
+                    }
+
+                    return key;
+                },
             },
             renderStubDefaultSlot: true,
             stubs: {
@@ -67,6 +80,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-simple-search-field': true,
                 'sw-loader': true,
                 'sw-datepicker-deprecated': await wrapTestComponent('sw-text-field-deprecated'),
+                'mt-datepicker': MtTextField,
                 'sw-text-editor': await wrapTestComponent('sw-text-field'),
                 'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', { sync: true }),
                 'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
@@ -430,11 +444,9 @@ function createConfig() {
                 domValueCheck: (field, domValue) => {
                     expect(field.find('input').element.value).toBe(domValue);
                 },
-                defaultValueDom: '2000/01/01',
                 afterValue: '2000-12-12T12:00:00+00:00',
                 childValue: '2020-12-12T12:00:00+00:00',
                 changeValueFunction: async (field, afterValue) => {
-                    console.log("afterValue", afterValue);
                     // change input value
                     await field.find('input').setValue(afterValue);
                 },
@@ -518,17 +530,17 @@ function createConfig() {
             },
             _test: {
                 domValueCheck: (field, domValue) => {
-                    expect(field.find('.sw-single-select__selection-text').text()).toBe(domValue);
+                    expect(field.find('input').element.value).toBe(domValue);
                 },
                 afterValue: 'green',
                 childValue: 'yellow',
                 changeValueFunction: async (field, afterValue) => {
                     // open select field
-                    await field.find('.sw-select__selection').trigger('click');
+                    await field.find('.mt-select__selection').trigger('click');
                     await flushPromises();
 
                     // find after value
-                    const optionChoice = field.find(`.sw-select-option--${afterValue}`);
+                    const optionChoice = field.find(`.mt-select-option--${afterValue}`);
                     expect(optionChoice.isVisible()).toBe(true);
 
                     // click on second option
@@ -569,7 +581,7 @@ function createConfig() {
                 domValueCheck: (field, domValue) => {
                     expect(Array.isArray(domValue)).toBe(true);
                     domValue.forEach((value, index) => {
-                        expect(field.find(`.sw-select-selection-list__item-holder--${index}`).text()).toBe(value);
+                        expect(field.find(`.mt-select-selection-list__item-holder--${index}`).text()).toBe(value);
                     });
                 },
                 afterValue: [
@@ -583,11 +595,11 @@ function createConfig() {
                 fallbackValue: [],
                 changeValueFunction: async (field) => {
                     // open select field
-                    await field.find('.sw-select__selection').trigger('click');
+                    await field.find('.mt-select__selection').trigger('click');
                     await flushPromises();
 
                     // find third value
-                    const optionChoice = field.find('.sw-select-option--2');
+                    const optionChoice = field.find('.mt-select-option--2');
                     expect(optionChoice.isVisible()).toBe(true);
 
                     // click on third option
@@ -604,6 +616,7 @@ function createConfig() {
                 label: {
                     'en-GB': 'Choose a product',
                 },
+                legacy: true,
             },
             _test: {
                 defaultValueDom: 'Pullover',
@@ -637,6 +650,7 @@ function createConfig() {
                 label: {
                     'en-GB': 'Upload media or choose one from the media manager',
                 },
+                legacy: true,
             },
             _test: {
                 defaultValueDom: 'funny-image.jpg',
@@ -687,13 +701,6 @@ function createConfig() {
             },
         },
     ]
-    // TODO: filter just for debugging
-        .filter((element) => {
-            // Just return one type for testing
-            return element.type === 'date';
-
-            return true;
-        })
 
     return [
         {
@@ -768,7 +775,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     });
 
     createConfig()[0].elements.forEach(({ name, type, config, _test }) => {
-        it.only(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
+        it(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
             const afterValueDom = _test.afterValueDom || _test.afterValue;
 
@@ -802,6 +809,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
         it(`should render field with type "${type || name}" with the inherit value and should be able to remove the inheritance`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
+            const inheritanceSwitchSelector = config.legacy ? '.sw-inheritance-switch' : '.mt-inheritance-switch';
 
             wrapper = await createWrapper({
                 'ConfigRenderer.config': {
@@ -836,7 +844,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             // check if value in dom shows the inherit value
             let field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
             await _test.domValueCheck(field, domValue);
-            let inheritanceSwitch = field.find('.mt-inheritance-switch');
+            let inheritanceSwitch = field.find(inheritanceSwitchSelector);
 
             // check if switch show inheritance
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
@@ -852,7 +860,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.mt-inheritance-switch');
+            inheritanceSwitch = field.find(inheritanceSwitchSelector);
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
 
             // check if child gets parent value
@@ -867,6 +875,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             const domValue = _test.defaultValueDom || config.defaultValue;
             const childValue = _test.childValue;
             const childValueDom = _test.childValueDom || childValue;
+            const inheritanceSwitchSelector = config.legacy ? '.sw-inheritance-switch' : '.mt-inheritance-switch';
 
             wrapper = await createWrapper({
                 'ConfigRenderer.config': {
@@ -908,7 +917,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(childValue);
 
             // check if inheritance switch is visible
-            let inheritanceSwitch = field.find('.mt-inheritance-switch');
+            let inheritanceSwitch = field.find(inheritanceSwitchSelector);
             expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if switch show inheritance
@@ -920,7 +929,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.mt-inheritance-switch');
+            inheritanceSwitch = field.find(inheritanceSwitchSelector);
 
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
 
@@ -936,6 +945,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             const childValue = _test.childValue;
             const childValueDom = _test.childValueDom || childValue;
             const fallbackValue = _test.hasOwnProperty('fallbackValue') ? _test.fallbackValue : '';
+            const inheritanceSwitchSelector = config.legacy ? '.sw-inheritance-switch' : '.mt-inheritance-switch';
 
             wrapper = await createWrapper({
                 'ConfigRenderer.config': {
@@ -975,18 +985,18 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(childValue);
 
             // check if inheritance switch is visible
-            let inheritanceSwitch = field.find('.mt-inheritance-switch');
+            let inheritanceSwitch = field.find(inheritanceSwitchSelector);
             expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if switch show inheritance
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
 
             // restore inheritance
-            await inheritanceSwitch.trigger('click');
+            await inheritanceSwitch.find('.mt-icon').trigger('click');
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.mt-inheritance-switch');
+            inheritanceSwitch = field.find(inheritanceSwitchSelector);
 
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
 

@@ -220,6 +220,7 @@ export default {
                 [
                     'sw-single-select',
                     'sw-multi-select',
+                    'mt-select',
                 ].includes(this.componentName)
             ) {
                 if (!this.config.hasOwnProperty('options')) {
@@ -331,25 +332,25 @@ export default {
                 compactColorpicker: 'sw-compact-colorpicker',
                 date: 'mt-datepicker',
                 datetime: 'mt-datepicker',
-                time: 'sw-datepicker-deprecated',
-                email: 'sw-email-field-deprecated',
-                float: 'sw-number-field-deprecated',
-                int: 'sw-number-field-deprecated',
-                number: 'sw-number-field-deprecated',
+                time: 'mt-datepicker',
+                email: 'mt-email-field',
+                float: 'mt-number-field',
+                int: 'mt-number-field',
+                number: 'mt-number-field',
                 'multi-entity-id-select': 'sw-entity-multi-id-select',
-                'multi-select': 'sw-multi-select',
+                'multi-select': 'mt-select',
                 password: 'mt-password-field',
                 price: 'sw-price-field',
                 radio: 'sw-radio-field',
                 'single-entity-id-select': 'sw-entity-single-select',
-                'single-select': 'sw-single-select',
-                string: 'sw-text-field-deprecated',
+                'single-select': 'mt-select',
+                string: 'mt-text-field',
                 text: 'mt-text-field',
                 tagged: 'sw-tagged-field',
                 url: 'mt-url-field',
             };
 
-            return components[type] ?? 'sw-text-field-deprecated';
+            return components[type] ?? 'mt-text-field';
         },
 
         createRepository(entity) {

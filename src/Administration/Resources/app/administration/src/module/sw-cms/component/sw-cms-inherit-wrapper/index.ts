@@ -2,7 +2,7 @@ import template from './sw-cms-inherit-wrapper.html.twig';
 import './sw-cms-inherit-wrapper.scss';
 import type { CmsSlotConfig, RuntimeSlot } from '../../service/cms.service';
 
-const { get, set, unset, has } = Shopware.Utils.object;
+const { get, set, unset, has, cloneDeep } = Shopware.Utils.object;
 const { isEmpty, isUndefined } = Shopware.Utils.types;
 
 const EVENTS = {
@@ -81,6 +81,10 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showModal: false,
+            originValue: null,
+        } as {
+            showModal: boolean;
+            originValue: unknown;
         };
     },
     computed: {
@@ -124,7 +128,7 @@ export default Shopware.Component.wrapComponentConfig({
         async onInheritanceRestore() {
             this.showModal = false;
 
-            set(this.runtimeConfig, this.field, get(this.baseConfig, this.field, this.fieldDefaultValue));
+            set(this.runtimeConfig, this.field, cloneDeep(get(this.baseConfig, this.field, this.fieldDefaultValue)));
 
             /**
              * Run watchers before removing the slotConfig to ensure sw-cms-form-sync won't
@@ -153,19 +157,14 @@ export default Shopware.Component.wrapComponentConfig({
                 this.contentEntity.slotConfig[this.element.id] = {};
             }
 
+            const baseField = cloneDeep(get(this.baseConfig, this.field, BASE_FIELD_FALLBACK));
+
             if (!has(this.childConfig, this.field)) {
-                set(this.childConfig!, this.field, get(this.baseConfig, this.field, BASE_FIELD_FALLBACK));
+                set(this.childConfig!, this.field, baseField);
             }
 
-            const value = get(this.baseConfig, this.fullPath, get(BASE_FIELD_FALLBACK, this.fieldPath, '')) ??
-                this.fieldDefaultValue;
-
-            set(
-                this.childConfig!,
-                this.fullPath,
-                value,
-            );
-            set(this.runtimeConfig, this.fullPath, value);
+            set(this.childConfig!, this.fullPath, get(baseField, this.fieldPath));
+            set(this.runtimeConfig, this.fullPath, get(baseField, this.fieldPath));
 
             this.$emit(EVENTS.REMOVE);
         },

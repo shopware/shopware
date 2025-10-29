@@ -44,6 +44,7 @@
                         :disabled="isInherited"
                     >
                         <sw-text-editor
+                            :key="isInherited"
                             :value="element.config.content.value"
                             :disabled="isInherited"
                             :allow-inline-data-mapping="true"

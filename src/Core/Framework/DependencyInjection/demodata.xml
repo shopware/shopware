@@ -155,6 +155,12 @@
             <tag name="shopware.demodata_generator" option-name="mail-header-footer" option-default="3" option-description="Mail header/footer count"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Demodata\Generator\SalesChannelDomainGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
+
+            <tag name="shopware.demodata_generator" option-name="sales-channel-domain" option-default="1"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Demodata\Generator\UserGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\System\User\UserDefinition" />

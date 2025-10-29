@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Product should be added to the cart if stock:1 and clearance-sale:true.', { tag: '@Product' }, async ({
+test('Product should be added to the cart if stock:1 and clearance-sale:true.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
@@ -15,7 +15,7 @@ test('Product should be added to the cart if stock:1 and clearance-sale:true.', 
     await ShopCustomer.attemptsTo(AddProductToCart(product));
 });
 
-test('Product should not be added to the cart if stock:0 and clearance-sale:true.', { tag: '@Product' }, async ({
+test('Product should not be added to the cart if stock:0 and clearance-sale:true.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
@@ -29,7 +29,7 @@ test('Product should not be added to the cart if stock:0 and clearance-sale:true
     await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeHidden();
 });
 
-test('Product should be added to the cart if stock:0 and clearance-sale:false.', { tag: '@Product' }, async ({
+test('Product should be added to the cart if stock:0 and clearance-sale:false.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
@@ -44,7 +44,7 @@ test('Product should be added to the cart if stock:0 and clearance-sale:false.',
     await ShopCustomer.attemptsTo(AddProductToCart(product));
 });
 
-test('Product should be removed from existing cart if stock:0 and cleareance-sale is changed to true.', { tag: '@Product' }, async ({
+test('Product should be removed from existing cart if stock:0 and cleareance-sale is changed to true.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     AdminApiContext,
@@ -75,7 +75,7 @@ test('Product should be removed from existing cart if stock:0 and cleareance-sal
 
 });
 
-test('Stock reached message should be displayed if stock is changed to 1 and clearance-sale:active after adding 2 products to the cart.', { tag: '@Product' }, async ({
+test('Stock reached message should be displayed if stock is changed to 1 and clearance-sale:active after adding 2 products to the cart.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     AdminApiContext,

@@ -16,6 +16,11 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -131,9 +136,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     'sw-skeleton': true,
                     'sw-skeleton-bar': true,
                     'sw-settings-tax-provider-sorting-modal': true,
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
-                    },
                     'sw-checkbox-field': true,
                     'mt-number-field': true,
                 },
@@ -323,7 +325,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.noTaxProvidersFound).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should have a tax rate field with a correct "digits" property', async () => {

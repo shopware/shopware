@@ -93,13 +93,6 @@ async function createWrapper() {
                             event: 'change',
                         },
                     },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
-                        props: [
-                            'title',
-                            'absolute',
-                        ],
-                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -110,6 +103,15 @@ async function createWrapper() {
                                 default:
                                     throw new Error(`No Mock for ${repositoryName} Repository not found`);
                             }
+                        },
+                    },
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
                         },
                     },
                 },

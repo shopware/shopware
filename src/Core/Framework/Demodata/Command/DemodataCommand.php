@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -120,6 +121,7 @@ class DemodataCommand extends Command
 
         $request->add(MailTemplateDefinition::class, $this->getCount($input, 'mail-template'));
         $request->add(MailHeaderFooterDefinition::class, $this->getCount($input, 'mail-header-footer'));
+        $request->add(SalesChannelDomainDefinition::class, $this->getCount($input, 'sales-channel-domain'));
 
         $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context, $input));
 

@@ -3,9 +3,6 @@
  */
 import './page/index';
 
-import de from './snippet/de.json';
-import en from './snippet/en.json';
-
 /**
  * @private
  */
@@ -19,16 +16,11 @@ const { Module } = Shopware;
 Module.register('sw-sso-error', {
     type: 'core',
     name: 'sso-error',
-    title: 'sw-sso-error.general.title',
-    description: 'sw-sso-error.general.description',
+    title: 'global.sw-sso-error.general.title',
+    description: 'global.sw-sso-error.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#f1122c',
-
-    snippets: {
-        'de-DE': de,
-        'en-GB': en,
-    },
 
     routes: {
         index: {

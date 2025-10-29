@@ -36,7 +36,7 @@ class Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSlider exte
 
     public function setAutoplayTimeout(Connection $connection): void
     {
-        $connection->executeQuery(
+        $connection->executeStatement(
             <<<'SQL'
                 UPDATE `cms_slot_translation`
                 LEFT JOIN `cms_slot` ON `cms_slot`.`id` = `cms_slot_translation`.`cms_slot_id`
@@ -53,7 +53,7 @@ class Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSlider exte
 
     public function setSpeed(Connection $connection): void
     {
-        $connection->executeQuery(
+        $connection->executeStatement(
             <<<'SQL'
                 UPDATE `cms_slot_translation`
                 LEFT JOIN `cms_slot` ON `cms_slot`.`id` = `cms_slot_translation`.`cms_slot_id`

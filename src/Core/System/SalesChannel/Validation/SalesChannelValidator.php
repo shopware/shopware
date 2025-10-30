@@ -95,11 +95,14 @@ class SalesChannelValidator implements EventSubscriberInterface
         }
 
         $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
-        $salesChannelData = $mapping->get($id) ?? new SalesChannelData();
+        $salesChannelData = $mapping->get($id);
+        if ($salesChannelData === null) {
+            $salesChannelData = new SalesChannelData();
+            $mapping->set($id, $salesChannelData);
+        }
 
         if ($command instanceof UpdateCommand) {
             $salesChannelData->updateId = Uuid::fromBytesToHex($command->getPayload()['language_id']);
-            $mapping->set($id, $salesChannelData);
 
             return;
         }
@@ -110,7 +113,6 @@ class SalesChannelValidator implements EventSubscriberInterface
 
         $salesChannelData->newDefault = Uuid::fromBytesToHex($command->getPayload()['language_id']);
         $salesChannelData->inserts = [];
-        $mapping->set($id, $salesChannelData);
     }
 
     private function isSupportedSalesChannelType(WriteCommand $command): bool
@@ -126,18 +128,20 @@ class SalesChannelValidator implements EventSubscriberInterface
         $language = Uuid::fromBytesToHex($command->getPrimaryKey()['language_id']);
         $id = Uuid::fromBytesToHex($command->getPrimaryKey()['sales_channel_id']);
 
-        $salesChannelData = $mapping->get($id) ?? new SalesChannelData();
+        $salesChannelData = $mapping->get($id);
+        if ($salesChannelData === null) {
+            $salesChannelData = new SalesChannelData();
+            $mapping->set($id, $salesChannelData);
+        }
 
         if ($command instanceof DeleteCommand) {
             $salesChannelData->deletions[] = $language;
-            $mapping->set($id, $salesChannelData);
 
             return;
         }
 
         if ($command instanceof InsertCommand) {
             $salesChannelData->inserts[] = $language;
-            $mapping->set($id, $salesChannelData);
         }
     }
 

@@ -6,7 +6,7 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
-import {MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
+import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
 import { kebabCase } from 'lodash';
 import uuid from 'test/_helper_/uuid';
 import 'src/app/filter/media-name.filter';
@@ -492,7 +492,9 @@ function createConfig() {
                     // change input value
                     await field.find('input').setValue(afterValue);
                     // Wait for debounced color change after 50ms
-                    await new Promise((resolve) => {setTimeout(resolve, 55)});
+                    await new Promise((resolve) => {
+                        setTimeout(resolve, 55);
+                    });
                 },
             },
         },
@@ -700,7 +702,7 @@ function createConfig() {
                 },
             },
         },
-    ]
+    ];
 
     return [
         {

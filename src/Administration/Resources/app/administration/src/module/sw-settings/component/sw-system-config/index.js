@@ -325,7 +325,7 @@ export default {
             const componentsWithMeteorSupport = [
                 'sw-text-editor',
             ];
-            
+
             const typesWithMeteorSupport = [
                 'bool',
                 'switch',
@@ -342,15 +342,14 @@ export default {
                 'multi-select',
                 'float',
                 'int',
-            ]
+            ];
 
-            return typesWithMeteorSupport.includes(element.type)
-                || componentsWithMeteorSupport.includes(componentName);
+            return typesWithMeteorSupport.includes(element.type) || componentsWithMeteorSupport.includes(componentName);
         },
 
         getMeteorElementBind(element, mapInheritance) {
             const bind = {};
-            
+
             // Bind necessary props to sw-form-field-renderer
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;

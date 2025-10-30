@@ -152,9 +152,11 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
             $cache = [];
         }
 
-        /** @deprecated tag:v6.8.0 - can be removed when cache states are, with 6.8 feature flag $states is always empty */
-        if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
-            return;
+        /** @deprecated tag:v6.8.0 - can be removed when cache states are always empty */
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
+                return;
+            }
         }
 
         $maxAge = $cache['maxAge'] ?? $this->defaultTtl;

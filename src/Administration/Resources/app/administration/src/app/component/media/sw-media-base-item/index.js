@@ -88,6 +88,12 @@ export default {
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -149,6 +155,10 @@ export default {
         },
 
         handleItemClick(originalDomEvent) {
+            if (this.disabled) {
+                return;
+            }
+
             if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
             }

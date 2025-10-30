@@ -7,6 +7,7 @@
             :presentation="presentation"
             :sorting="sorting"
             :hide-presentation="compact"
+            :disabled="disabled"
             @media-presentation-change="presentation = $event"
             @media-sorting-change="sorting = $event"
         />
@@ -17,13 +18,13 @@
 
         {% block sw_media_index_create_folder %}
         <mt-button
-            v-if="editable"
+            v-if="editable || allowCreateFolder"
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('media.creator'),
                 showOnDisabledElements: true
             }"
-            :disabled="!acl.can('media.creator')"
+            :disabled="!acl.can('media.creator') || disabled"
             class="sw-media-index__create-folder-action"
             ghost
             size="small"
@@ -56,6 +57,7 @@
                     v-if="parentFolder && (!isLoading || selectableItems.length > 0)"
                     :allow-edit="acl.can('media.editor')"
                     :allow-delete="acl.can('media.deleter')"
+                    :disabled="disabled"
                     class="sw-media-library__parent-folder"
                     :item="parentFolder"
                     :show-selection-indicator="false"
@@ -73,6 +75,7 @@
                     :key="gridItem.getEntityName() + '_' + gridItem.id"
                     :class="`sw-media-grid-item__item--${index}`"
                     :item="gridItem"
+                    :disabled="disabled"
                     :allow-edit="acl.can('media.editor')"
                     :allow-delete="acl.can('media.deleter')"
                     :selected="showItemSelected(gridItem)"

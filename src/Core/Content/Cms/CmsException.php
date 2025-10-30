@@ -15,6 +15,7 @@ class CmsException extends HttpException
     final public const INVALID_FIELD_CONFIG_SOURCE_CODE = 'CONTENT__INVALID_FIELD_CONFIG_SOURCE';
     final public const CMS_PAGE_NOT_FOUND = 'CONTENT__CMS_PAGE_NOT_FOUND';
     final public const UNEXPECTED_VALUE_TYPE = 'CONTENT__CMS_UNEXPECTED_VALUE_TYPE';
+    final public const PAGE_CREATION_FAILURE = 'CONTENT__CMS_PAGE_CREATION_FAILURE';
 
     /**
      * @param array<string> $cmsPages
@@ -80,6 +81,15 @@ class CmsException extends HttpException
                 'expectedType' => $expectedType,
                 'givenType' => $givenType,
             ]
+        );
+    }
+
+    public static function pageCreationFailure(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PAGE_CREATION_FAILURE,
+            $message,
         );
     }
 }

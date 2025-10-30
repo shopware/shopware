@@ -71,7 +71,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
                 if (empty($invoice)) {
-                    throw DocumentException::generationError('Can not generate storno document because no invoice document exists. OrderId: ' . $operation->getOrderId());
+                    throw DocumentException::generationError('Can not generate cancellation invoice document because no invoice document exists. OrderId: ' . $operation->getOrderId());
                 }
 
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
@@ -142,7 +142,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
                 $language = $order->getLanguage();
                 if ($language === null) {
-                    throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
+                    throw DocumentException::generationError('Can not generate cancellation invoice document because no language exists. OrderId: ' . $operation->getOrderId());
                 }
 
                 $doc = new RenderedDocument(

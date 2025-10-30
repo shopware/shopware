@@ -17,7 +17,7 @@ class ShippingAddressCountryRegionMissingError extends CountryRegionMissingError
             'A country region needs to be defined for the billing address "%s %s %s %s".',
             $address->getFirstName(),
             $address->getLastName(),
-            $address->getZipcode(),
+            (string) $address->getZipcode(),
             $address->getCity()
         );
 

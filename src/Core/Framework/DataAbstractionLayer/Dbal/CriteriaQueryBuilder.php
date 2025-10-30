@@ -179,19 +179,19 @@ class CriteriaQueryBuilder
                 continue;
             }
 
-            $associatedDefinition = $this->helper->getAssociatedDefinition($definition, $scoreQuery->getScoreField());
+            $associatedDefinition = EntityDefinitionQueryHelper::getAssociatedDefinition($definition, $scoreQuery->getScoreField());
 
             if ($associatedDefinition === $definition) {
                 continue;
             }
 
-            $associationPath = $this->helper->getAssociationPath($scoreQuery->getScoreField(), $definition);
+            $associationPath = EntityDefinitionQueryHelper::getAssociationPath($scoreQuery->getScoreField(), $definition);
             $associationPrimary = $associatedDefinition->getPrimaryKeys()->first();
 
             \assert($associationPrimary instanceof StorageAware);
 
             $field = $this->helper->getFieldAccessor(
-                \sprintf('%s.%s', $associationPath, $associationPrimary->getPropertyName()),
+                \sprintf('%s.%s', (string) $associationPath, $associationPrimary->getPropertyName()),
                 $definition,
                 $definition->getEntityName(),
                 $context

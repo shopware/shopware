@@ -56,9 +56,17 @@ class PresignedUploadUrlGenerator
         // Build S3 client config
         $s3ClientConfig = [
             'region' => $this->region,
-            'endpoint' => $s3Config['endpoint'] ?? null,
-            'pathStyleEndpoint' => $s3Config['use_path_style_endpoint'] ?? false,
         ];
+
+        // Only set endpoint if it's explicitly provided and not empty
+        $endpoint = $s3Config['endpoint'] ?? null;
+        if (!empty($endpoint)) {
+            $s3ClientConfig['endpoint'] = $endpoint;
+        }
+
+        if (!empty($s3Config['use_path_style_endpoint'])) {
+            $s3ClientConfig['pathStyleEndpoint'] = $s3Config['use_path_style_endpoint'];
+        }
 
         // Only add explicit credentials if provided (otherwise AWS SDK uses IAM roles)
         if (!empty($credentials['key']) && !empty($credentials['secret'])) {

@@ -114,7 +114,8 @@
             
             {% if viteDevServer %}
                 {# Development mode - load CSS from Vite dev server #}
-                <script type="module" src="http://localhost:5173/build/vite/scss-entry.js"></script>
+                {% set vitePort = vite_dev_server_port() %}
+                <script type="module" src="http://localhost:{{ vitePort }}/build/vite/scss-entry.js"></script>
             {% else %}
                 {# Production mode - load from compiled theme #}
                 {% set assets = theme_config('assets.css') %}
@@ -213,12 +214,13 @@
 
             {% if viteDevServer %}
                 {# Development mode with Vite dev server #}
-                <script type="module" src="http://localhost:5173/@vite/client"></script>
+                {% set vitePort = vite_dev_server_port() %}
+                <script type="module" src="http://localhost:{{ vitePort }}/@vite/client"></script>
 
                 {# Load all script files from their source locations #}
                 {% for scriptConfig in theme_source_files() %}
                     {# Use /@fs/ prefix for absolute paths outside Vite root #}
-                    <script type="module" src="http://localhost:5173/@fs/{{ scriptConfig.filepath }}"></script>
+                    <script type="module" src="http://localhost:{{ vitePort }}/@fs/{{ scriptConfig.filepath }}"></script>
                 {% endfor %}
             {% else %}
                 {# Production mode - load from compiled theme #}

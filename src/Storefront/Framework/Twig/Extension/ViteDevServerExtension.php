@@ -18,6 +18,7 @@ class ViteDevServerExtension extends AbstractExtension
     {
         return [
             new TwigFunction('vite_dev_server_enabled', $this->isViteDevServerEnabled(...)),
+            new TwigFunction('vite_dev_server_port', $this->getViteDevServerPort(...)),
         ];
     }
 
@@ -27,5 +28,11 @@ class ViteDevServerExtension extends AbstractExtension
         $flagFile = $this->projectDir . '/var/vite-dev-server.flag';
 
         return file_exists($flagFile);
+    }
+
+    public function getViteDevServerPort(): int
+    {
+        // Get port from environment variable, default to 5175 (Vite default is 5173)
+        return (int) ($_ENV['STOREFRONT_VITE_PORT'] ?? $_SERVER['STOREFRONT_VITE_PORT'] ?? 5175);
     }
 }

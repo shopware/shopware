@@ -31,6 +31,9 @@ The dev server watches the core Storefront files, but also files from Shopware e
 
 **Configuration options:**
 ```bash
+# Change dev server port (default: 5175)
+STOREFRONT_VITE_PORT=5180 composer storefront:dev-server
+
 # Disable SCSS compilation
 DISABLE_STOREFRONT_SCSS=true composer storefront:dev-server
 

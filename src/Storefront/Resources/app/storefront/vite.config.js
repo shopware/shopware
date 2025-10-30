@@ -64,10 +64,13 @@ export default defineConfig(({ mode, command }) => {
     
     // Control SCSS deprecation warnings via environment variable
     const silenceScssDeprecations = process.env.SILENCE_SCSS_DEPRECATIONS !== 'false';
+    
+    // Storefront dev server port (different from admin port 5173)
+    const devServerPort = parseInt(process.env.STOREFRONT_VITE_PORT || '5175', 10);
 
     return {
         server: {
-            port: 5173,
+            port: devServerPort,
             strictPort: true,
             cors: {
                 origin: '*', // Allow all origins for dev server
@@ -79,7 +82,8 @@ export default defineConfig(({ mode, command }) => {
             hmr: {
                 protocol: 'ws',
                 host: 'localhost',
-                clientPort: 5173,
+                port: devServerPort,
+                clientPort: devServerPort,
             },
             fs: {
                 // Allow serving files from the project root (needed for extensions in custom/apps)

@@ -23,6 +23,7 @@ console.log(chalk.green('✓ Dev server mode enabled\n'));
 const vite = spawn('npx', ['vite', '--mode', 'development'], {
     stdio: 'inherit',
     shell: true,
+    env: process.env,
 });
 
 // Cleanup function

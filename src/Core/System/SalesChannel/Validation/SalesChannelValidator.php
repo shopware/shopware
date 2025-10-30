@@ -141,7 +141,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         }
 
         if ($command instanceof InsertCommand) {
-            $salesChannelData->inserts[] = $language;
+            $inserts = $salesChannelData->inserts ?? [];
+            $inserts[] = $language;
+            $salesChannelData->inserts = $inserts;
         }
     }
 

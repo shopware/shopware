@@ -148,5 +148,7 @@ class SalesChannelContextTest extends TestCase
 
         static::expectExceptionObject(SalesChannelException::contextTokenNotAccessible());
         $salesChannelContext->getToken();
+
+        FieldVisibility::$isInTwigRenderingContext = false;
     }
 }

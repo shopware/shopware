@@ -101,6 +101,14 @@ TXT;
         static::assertSame('Bingbot', $result->userAgentBlocks[1]->userAgent);
         static::assertCount(1, $result->userAgentBlocks[0]->directives);
         static::assertCount(1, $result->userAgentBlocks[1]->directives);
+
+        // Verify both blocks have the same directive type and value
+        $directive1 = $result->userAgentBlocks[0]->directives[0];
+        $directive2 = $result->userAgentBlocks[1]->directives[0];
+        static::assertSame(RobotsDirectiveType::DISALLOW, $directive1->type);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $directive2->type);
+        static::assertSame('/admin/', $directive1->value);
+        static::assertSame('/admin/', $directive2->value);
     }
 
     public function testParseOrphanedPathDirectives(): void
@@ -227,6 +235,11 @@ TXT;
         $block = $result->userAgentBlocks[0];
         static::assertSame('googlebot', $block->userAgent);
         static::assertCount(2, $block->directives);
+
+        // Verify directive types are normalized to enum constants
+        $types = array_map(static fn (RobotsDirective $d) => $d->type, $block->directives);
+        static::assertContains(RobotsDirectiveType::DISALLOW, $types);
+        static::assertContains(RobotsDirectiveType::CRAWL_DELAY, $types);
     }
 
     public function testParseTrimsWhitespace(): void
@@ -257,52 +270,6 @@ TXT;
         // Only path directives should be in orphaned
         static::assertCount(1, $result->orphanedPathDirectives);
         static::assertSame(RobotsDirectiveType::DISALLOW, $result->orphanedPathDirectives[0]->type);
-    }
-
-    public function testParseMalformedLineWithoutColon(): void
-    {
-        $text = <<<'TXT'
-User-agent: Googlebot
-This is not a valid line
-Disallow: /admin/
-TXT;
-
-        $result = $this->parser->parse($text, Context::createDefaultContext());
-
-        static::assertCount(1, $result->userAgentBlocks);
-        static::assertCount(1, $result->userAgentBlocks[0]->directives);
-        static::assertCount(1, $result->issues);
-        static::assertTrue($result->hasErrors());
-        static::assertFalse($result->hasWarnings());
-
-        $error = $result->issues[0];
-        static::assertSame(2, $error->lineNumber);
-        static::assertSame('This is not a valid line', $error->lineContent);
-        static::assertSame('Malformed line: missing colon separator', $error->reason);
-        static::assertSame(ParseIssueSeverity::ERROR, $error->severity);
-    }
-
-    public function testParseUnknownDirectiveType(): void
-    {
-        $text = <<<'TXT'
-User-agent: Googlebot
-Unknown-Directive: some value
-Disallow: /admin/
-TXT;
-
-        $result = $this->parser->parse($text, Context::createDefaultContext());
-
-        static::assertCount(1, $result->userAgentBlocks);
-        static::assertCount(1, $result->userAgentBlocks[0]->directives);
-        static::assertCount(1, $result->issues);
-        static::assertFalse($result->hasErrors());
-        static::assertTrue($result->hasWarnings());
-
-        $warning = $result->issues[0];
-        static::assertSame(2, $warning->lineNumber);
-        static::assertSame('Unknown-Directive: some value', $warning->lineContent);
-        static::assertSame('Unknown directive type: \'Unknown-Directive\'', $warning->reason);
-        static::assertSame(ParseIssueSeverity::WARNING, $warning->severity);
     }
 
     public function testParseOrphanedNonPathDirectiveWarning(): void

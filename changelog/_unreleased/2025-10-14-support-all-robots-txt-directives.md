@@ -7,17 +7,11 @@ author_github: BrocksiNet
 ---
 # Core
 * Added `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` to parse robots.txt with error tracking and extensibility events
-* Added `Shopware\Storefront\Page\Robots\Event\RobotsDirectiveParsingEvent` to allow modification of parsed results
-* Added `Shopware\Storefront\Page\Robots\Event\RobotsUnknownDirectiveEvent` to handle custom directives
-* Added robots.txt parsing value objects: `ParsedRobots`, `ParseIssue`, `ParseIssueSeverity`, `RobotsDirective`, `RobotsDirectiveType`, `RobotsUserAgentBlock`
-* Added `Shopware\Storefront\Page\Robots\RobotsConfigChangeSubscriber` to log parsing issues when robots.txt is saved
-* Added system configuration option `core.basicInformation.robotsDisableDefaults` to disable default robots.txt rules
 * Deprecated passing a string to `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` constructor - use `ParsedRobots` object instead
 
 ___
 # Storefront
-* Changed rendering of robots.txt to support custom User-agent blocks
-* Changed robots.txt template to respect new `robotsDisableDefaults` configuration
+* Changed rendering of `robots.txt` file to support custom User-agent blocks
 
 ___
 # Upgrade Information
@@ -121,7 +115,7 @@ The following robots.txt directives are now supported:
 
 #### Disable default rules
 
-You can now disable Shopware's default robots.txt rules via the new configuration option "Disable default robots.txt rules" in Settings > Basic information. This gives you full control over the robots.txt content.
+You can now disable Shopware's default `robots.txt` rules via the new configuration option "Disable default robots.txt rules" in Settings > Basic information (`core.basicInformation.robotsDisableDefaults`). This gives you full control over the `robots.txt` content.
 
 #### Parsing error detection and logging
 

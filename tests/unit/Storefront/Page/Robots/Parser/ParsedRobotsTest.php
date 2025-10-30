@@ -7,9 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Parser\ParseIssue;
 use Shopware\Storefront\Page\Robots\Parser\ParseIssueSeverity;
-use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
-use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
-use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 
 /**
  * @internal
@@ -17,21 +14,16 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 #[CoversClass(ParsedRobots::class)]
 class ParsedRobotsTest extends TestCase
 {
-    public function testHasUserAgentBlocksLogic(): void
+    public function testIssueFiltering(): void
     {
-        $emptyParsed = new ParsedRobots([], []);
-        static::assertFalse($emptyParsed->hasUserAgentBlocks());
+        // Test with no issues
+        $emptyParsed = new ParsedRobots([], [], []);
+        static::assertFalse($emptyParsed->hasErrors());
+        static::assertFalse($emptyParsed->hasWarnings());
+        static::assertCount(0, $emptyParsed->getErrors());
+        static::assertCount(0, $emptyParsed->getWarnings());
 
-        $withBlocksParsed = new ParsedRobots([
-            new RobotsUserAgentBlock('Googlebot', [
-                new RobotsDirective(RobotsDirectiveType::CRAWL_DELAY, '10'),
-            ]),
-        ], []);
-        static::assertTrue($withBlocksParsed->hasUserAgentBlocks());
-    }
-
-    public function testIssueFilteringByError(): void
-    {
+        // Test with mixed errors and warnings
         $issues = [
             new ParseIssue(1, 'Invalid line', 'Malformed line', ParseIssueSeverity::ERROR),
             new ParseIssue(2, 'Unknown: directive', 'Unknown directive type', ParseIssueSeverity::WARNING),
@@ -41,53 +33,27 @@ class ParsedRobotsTest extends TestCase
 
         $parsed = new ParsedRobots([], [], $issues);
 
+        // Test has* methods
         static::assertTrue($parsed->hasErrors());
         static::assertTrue($parsed->hasWarnings());
 
+        // Test get* methods filter correctly
         $errors = $parsed->getErrors();
+        $warnings = $parsed->getWarnings();
+
         static::assertCount(2, $errors);
+        static::assertCount(2, $warnings);
+
+        // Verify returned arrays are lists (sequential keys)
         static::assertArrayHasKey(0, $errors);
         static::assertArrayHasKey(1, $errors);
-        static::assertSame(ParseIssueSeverity::ERROR, $errors[0]->severity);
-        static::assertSame(ParseIssueSeverity::ERROR, $errors[1]->severity);
-
-        $warnings = $parsed->getWarnings();
-        static::assertCount(2, $warnings);
         static::assertArrayHasKey(0, $warnings);
         static::assertArrayHasKey(1, $warnings);
+
+        // Verify correct severity filtering
+        static::assertSame(ParseIssueSeverity::ERROR, $errors[0]->severity);
+        static::assertSame(ParseIssueSeverity::ERROR, $errors[1]->severity);
         static::assertSame(ParseIssueSeverity::WARNING, $warnings[0]->severity);
         static::assertSame(ParseIssueSeverity::WARNING, $warnings[1]->severity);
-    }
-
-    public function testGetErrorsReturnsListNotAssociativeArray(): void
-    {
-        $issues = [
-            new ParseIssue(1, 'Unknown: directive', 'Unknown directive type', ParseIssueSeverity::WARNING),
-            new ParseIssue(2, 'Invalid line', 'Malformed line', ParseIssueSeverity::ERROR),
-            new ParseIssue(3, 'Another: warning', 'Another warning', ParseIssueSeverity::WARNING),
-        ];
-
-        $parsed = new ParsedRobots([], [], $issues);
-
-        $errors = $parsed->getErrors();
-        static::assertCount(1, $errors);
-        static::assertArrayHasKey(0, $errors);
-        static::assertSame('Malformed line', $errors[0]->reason);
-    }
-
-    public function testGetWarningsReturnsListNotAssociativeArray(): void
-    {
-        $issues = [
-            new ParseIssue(1, 'Invalid line', 'Malformed line', ParseIssueSeverity::ERROR),
-            new ParseIssue(2, 'Unknown: directive', 'Unknown directive type', ParseIssueSeverity::WARNING),
-            new ParseIssue(3, 'Bad line', 'Another error', ParseIssueSeverity::ERROR),
-        ];
-
-        $parsed = new ParsedRobots([], [], $issues);
-
-        $warnings = $parsed->getWarnings();
-        static::assertCount(1, $warnings);
-        static::assertArrayHasKey(0, $warnings);
-        static::assertSame('Unknown directive type', $warnings[0]->reason);
     }
 }

@@ -48,7 +48,12 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-product-variant-info': true,
                     'sw-cms-inherit-wrapper': {
                         template: '<div><slot :isInherited="false"></slot></div>',
-                        props: ['field', 'element', 'contentEntity', 'label'],
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
                     },
                 },
                 provide: {

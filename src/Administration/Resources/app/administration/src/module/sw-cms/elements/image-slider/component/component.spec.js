@@ -52,11 +52,39 @@ async function createWrapper() {
             global: {
                 sync: false,
                 provide: {
-                    cmsService: Shopware.Service('cmsService'),
+                    cmsService: {
+                        getCmsElementRegistry: () => ({
+                            'image-slider': {
+                                defaultConfig: {
+                                    sliderItems: {
+                                        source: 'static',
+                                        value: [],
+                                    },
+                                    navigationArrows: {
+                                        source: 'static',
+                                        value: 'outside',
+                                    },
+                                    navigationDots: {
+                                        source: 'static',
+                                        value: null,
+                                    },
+                                    displayMode: {
+                                        source: 'static',
+                                        value: 'standard',
+                                    },
+                                    verticalAlign: {
+                                        source: 'static',
+                                        value: null,
+                                    },
+                                },
+                            },
+                        }),
+                    },
                 },
             },
             props: {
                 element: {
+                    type: 'image-slider',
                     config: {},
                     data: {},
                 },

@@ -69,7 +69,12 @@ async function createWrapper() {
                     'sw-media-modal-v2': true,
                     'sw-cms-inherit-wrapper': {
                         template: '<div><slot :isInherited="false"></slot></div>',
-                        props: ['field', 'element', 'contentEntity', 'label'],
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
                     },
                 },
             },

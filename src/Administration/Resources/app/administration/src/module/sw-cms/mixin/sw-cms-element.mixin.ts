@@ -1,10 +1,10 @@
 import { defineComponent } from 'vue';
-import { type RuntimeSlot} from '../service/cms.service';
+import { type RuntimeSlot } from '../service/cms.service';
 import './sw-cms-state.mixin';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
-const { cloneDeep, merge, get, set, has  } = Shopware.Utils.object;
+const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
 
 /**
  * @private
@@ -64,17 +64,22 @@ export default Mixin.register(
                     set(this.element, 'config', {});
                 }
 
-                Object.entries(config).forEach(([ key, value ]) => {
-                    const path = `config.${key}`;
+                Object.entries(config).forEach(
+                    ([
+                        key,
+                        value,
+                    ]) => {
+                        const path = `config.${key}`;
 
-                    if (has(this.element, path)) {
-                        return;
-                    }
+                        if (has(this.element, path)) {
+                            return;
+                        }
 
-                    const newValue: unknown = get(this.element, `translated.${path}`, value);
+                        const newValue: unknown = get(this.element, `translated.${path}`, value);
 
-                    set(this.element, path, newValue);
-                });
+                        set(this.element, path, newValue);
+                    },
+                );
             },
 
             applyContentOverride() {
@@ -88,9 +93,14 @@ export default Mixin.register(
                     return;
                 }
 
-                Object.entries(overrideConfig).forEach(([ key, value ]) => {
-                    set(this.element, `config.${key}`, value);
-                });
+                Object.entries(overrideConfig).forEach(
+                    ([
+                        key,
+                        value,
+                    ]) => {
+                        set(this.element, `config.${key}`, value);
+                    },
+                );
             },
 
             initElementData(elementName: string) {

@@ -72,7 +72,10 @@ async function createWrapper() {
                     'sw-extension-component-section': true,
                     'sw-cms-form-sync': {
                         template: '<slot />',
-                        props: ['element', 'contentEntity'],
+                        props: [
+                            'element',
+                            'contentEntity',
+                        ],
                     },
                 },
                 provide: {

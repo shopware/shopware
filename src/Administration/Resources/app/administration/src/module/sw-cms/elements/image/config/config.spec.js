@@ -34,7 +34,12 @@ async function createWrapper() {
                     'sw-context-menu-item': true,
                     'sw-cms-inherit-wrapper': {
                         template: '<div><slot :isInherited="false"></slot></div>',
-                        props: ['field', 'element', 'contentEntity', 'label'],
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
                     },
                     'sw-container': await wrapTestComponent('sw-container'),
                 },

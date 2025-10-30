@@ -27,11 +27,18 @@ async function createWrapper(props = {}) {
                 stubs: {
                     'mt-icon': {
                         template: '<i class="mt-icon" :name="name"></i>',
-                        props: ['name', 'size', 'color'],
+                        props: [
+                            'name',
+                            'size',
+                            'color',
+                        ],
                     },
                     'mt-link': {
                         template: '<button class="mt-link" @click="$emit(\'click\')"><slot /></button>',
-                        props: ['variant', 'as'],
+                        props: [
+                            'variant',
+                            'as',
+                        ],
                     },
                     'sw-confirm-modal': {
                         template: `
@@ -41,7 +48,12 @@ async function createWrapper(props = {}) {
                                 <button class="close-btn" @click="$emit('close')">Close</button>
                             </div>
                         `,
-                        props: ['type', 'text', 'title', 'textConfirm'],
+                        props: [
+                            'type',
+                            'text',
+                            'title',
+                            'textConfirm',
+                        ],
                     },
                 },
                 mocks: {
@@ -126,7 +138,6 @@ describe('src/module/sw-cms/component/sw-cms-reset-inheritance', () => {
             expect(wrapper.find('.sw-category-layout-card__desc-reset').exists()).toBe(false);
         });
     });
-
 
     it('should unset slotConfig from contentEntity', async () => {
         const contentEntity = {

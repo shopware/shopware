@@ -15,7 +15,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showModal: false,
-        }
+        };
     },
     computed: {
         cmsPageStore() {
@@ -54,4 +54,4 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
     },
-})
+});

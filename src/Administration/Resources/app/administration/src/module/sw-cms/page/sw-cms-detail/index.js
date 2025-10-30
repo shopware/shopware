@@ -49,10 +49,8 @@ export default {
             page: {
                 sections: [],
             },
-            salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
-            currentSalesChannelKey: null,
             selectedBlockSectionId: null,
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
@@ -143,10 +141,6 @@ export default {
 
         slotRepository() {
             return this.repositoryFactory.create('cms_slot');
-        },
-
-        salesChannelRepository() {
-            return this.repositoryFactory.create('sales_channel');
         },
 
         defaultFolderRepository() {
@@ -329,23 +323,11 @@ export default {
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id.toLowerCase();
                 this.isLoading = true;
-                const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
-
                 Shopware.Store.get('shopwareApps').selectedIds = [
                     this.pageId,
                 ];
 
-                const criteria = new Criteria(1, 25);
-                criteria.addFilter(Criteria.equals('typeId', defaultStorefrontId));
-
-                this.salesChannelRepository.search(criteria).then((response) => {
-                    this.salesChannels = response;
-
-                    if (this.salesChannels.length > 0) {
-                        this.currentSalesChannelKey = this.salesChannels[0].id;
-                        this.loadPage(this.pageId);
-                    }
-                });
+                this.loadPage(this.pageId);
             }
 
             this.setPageContext();
@@ -497,12 +479,9 @@ export default {
         onChangeLanguage() {
             this.isLoading = true;
 
-            return this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
-                this.salesChannels = response;
-                const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
-                this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
-                return this.loadPage(this.pageId);
-            });
+            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+            this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
+            return this.loadPage(this.pageId);
         },
 
         abortOnLanguageChange() {

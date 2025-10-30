@@ -42,25 +42,45 @@ async function createWrapper() {
                 'mt-select': {
                     template:
                         '<select class="mt-select" :value="modelValue" @change="$emit(`update:modelValue`, $event.target.value)"><slot></slot></select>',
-                    props: ['modelValue', 'options', 'disabled'],
+                    props: [
+                        'modelValue',
+                        'options',
+                        'disabled',
+                    ],
                 },
                 'mt-text-field': {
                     template:
                         '<input class="mt-text-field" :value="modelValue" @input="$emit(`update:modelValue`, $event.target.value)" />',
-                    props: ['modelValue', 'disabled'],
+                    props: [
+                        'modelValue',
+                        'disabled',
+                    ],
                 },
                 'mt-textarea': {
                     template:
                         '<textarea class="mt-textarea" :value="modelValue" @input="$emit(`update:modelValue`, $event.target.value)" />',
-                    props: ['modelValue', 'disabled'],
+                    props: [
+                        'modelValue',
+                        'disabled',
+                    ],
                 },
                 'sw-tagged-field': {
                     template: '<div class="sw-tagged-field"></div>',
-                    props: ['value', 'name', 'placeholder', 'disabled'],
+                    props: [
+                        'value',
+                        'name',
+                        'placeholder',
+                        'disabled',
+                    ],
                 },
                 'sw-cms-inherit-wrapper': {
                     template: '<div><slot :isInherited="false"></slot></div>',
-                    props: ['field', 'element', 'contentEntity', 'label'],
+                    props: [
+                        'field',
+                        'element',
+                        'contentEntity',
+                        'label',
+                    ],
                 },
             },
         },

@@ -11,7 +11,7 @@ type WithSlotConfig = {
 
 type ContentEntity<T extends keyof Entities> = Entity<T> & WithSlotConfig;
 
-    /**
+/**
  * @private
  * @sw-package discovery
  */

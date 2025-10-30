@@ -7,7 +7,7 @@ const { isEmpty } = Shopware.Utils.types;
 type FieldConfig = {
     value: unknown;
     [key: string]: unknown;
-}
+};
 
 /**
  * Since the CMS layout editor is always editing the cms_page even if used on content pages,

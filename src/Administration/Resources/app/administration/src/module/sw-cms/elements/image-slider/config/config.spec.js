@@ -80,7 +80,12 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     'mt-url-field': MtUrlField,
                     'sw-cms-inherit-wrapper': {
                         template: '<div><slot :isInherited="false"></slot></div>',
-                        props: ['field', 'element', 'contentEntity', 'label'],
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
                     },
                 },
             },

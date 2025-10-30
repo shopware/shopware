@@ -5,21 +5,23 @@ import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 function createWrapper(routeName = '') {
-    return mount({
-        template: '<div></div>',
-        mixins: [
-            Shopware.Mixin.getByName('cms-state'),
-        ],
-    }, {
-        global: {
-            mocks: {
-                $route: {
-                    name: routeName,
+    return mount(
+        {
+            template: '<div></div>',
+            mixins: [
+                Shopware.Mixin.getByName('cms-state'),
+            ],
+        },
+        {
+            global: {
+                mocks: {
+                    $route: {
+                        name: routeName,
+                    },
                 },
             },
-
-        }
-    });
+        },
+    );
 }
 
 const deviceViews = {
@@ -76,5 +78,4 @@ describe('module/sw-cms/mixin/sw-cms-state.mixin.js', () => {
 
         expect(wrapper.vm.contentEntity).toBeNull();
     });
-
 });

@@ -79,7 +79,12 @@ async function createWrapper(props = {}, options = {}, route = categoryDetailCms
                                 <button class="close-btn" @click="$emit('close')">Close</button>
                             </div>
                         `,
-                        props: ['type', 'text', 'title', 'textConfirm'],
+                        props: [
+                            'type',
+                            'text',
+                            'title',
+                            'textConfirm',
+                        ],
                     },
                 },
                 directives: {
@@ -286,7 +291,7 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
     describe('onInheritanceRemove method', () => {
         it('should create slotConfig structure if it does not exist', async () => {
-            const contentEntity= {};
+            const contentEntity = {};
             Shopware.Store.get('swCategoryDetail').category = contentEntity;
 
             const wrapper = await createWrapper();
@@ -334,8 +339,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
             wrapper.vm.onInheritanceRemove();
 
-            expect(contentEntity.slotConfig['test-slot-id'].testField.value).toBe('default-value');
-            expect(wrapper.vm.runtimeConfig.testField.value).toBe('default-value');
+            expect(contentEntity.slotConfig['test-slot-id'].testField.value).toBeNull();
+            expect(wrapper.vm.runtimeConfig.testField.value).toBeNull();
         });
 
         it('should create field in childConfig if it does not exist', async () => {
@@ -502,7 +507,10 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
             await wrapper.vm.onInheritanceRestore();
 
-            expect(wrapper.vm.runtimeConfig.testField).toBe('default-value');
+            expect(wrapper.vm.runtimeConfig.testField).toMatchObject({
+                value: null,
+                source: 'static',
+            });
         });
 
         it('should remove field from childConfig', async () => {
@@ -639,15 +647,18 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                     'test-slot-id': {},
                 },
             };
-            const wrapper = await createWrapper({}, {
-                slots: {
-                    default: `
+            const wrapper = await createWrapper(
+                {},
+                {
+                    slots: {
+                        default: `
                         <template #default="{ isInherited }">
                             <div class="slot-content" :data-inherited="isInherited">Content</div>
                         </template>
                     `,
+                    },
                 },
-            });
+            );
 
             const slotContent = wrapper.find('.slot-content');
             expect(slotContent.exists()).toBe(true);
@@ -662,15 +673,18 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
                     },
                 },
             };
-            const wrapper = await createWrapper({}, {
-                slots: {
-                    default: `
+            const wrapper = await createWrapper(
+                {},
+                {
+                    slots: {
+                        default: `
                         <template #default="{ isInherited }">
                             <div class="slot-content" :data-inherited="isInherited">Content</div>
                         </template>
                     `,
+                    },
                 },
-            });
+            );
 
             const slotContent = wrapper.find('.slot-content');
             expect(slotContent.exists()).toBe(true);

@@ -10,27 +10,31 @@ const categoryDetailCmsRoute = {
     name: 'sw.category.detail.cms',
 };
 
-async function createWrapper(props = {}, options = {}, route = categoryDetailCmsRoute) {
-    const defaultProps = {
-        element: {
-            id: 'test-slot-id',
-            type: 'text',
-            config: {
-                content: {
-                    value: 'test content',
-                },
-                verticalAlign: {
-                    value: null,
-                },
-            },
-            translated: {
-                config: {
-                    content: {
-                        value: 'base content',
-                    },
-                },
+const defaultElementId = 'test-slot-id';
+
+const getDefaultElement = () => ({
+    id: defaultElementId,
+    type: 'text',
+    config: {
+        content: {
+            value: 'test content',
+        },
+        verticalAlign: {
+            value: null,
+        },
+    },
+    translated: {
+        config: {
+            content: {
+                value: 'base content',
             },
         },
+    },
+});
+
+async function createWrapper(props = {}, options = {}, route = categoryDetailCmsRoute) {
+    const defaultProps = {
+        element: getDefaultElement(),
         ...props,
     };
 
@@ -67,13 +71,19 @@ async function createWrapper(props = {}, options = {}, route = categoryDetailCms
 }
 
 describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
+    beforeEach(() => {
+        Shopware.Store.get('swCategoryDetail').$reset();
+    });
+
     it('should not sync field changes if contentEntity is not provided', async () => {
         const wrapper = await createWrapper();
+        wrapper.vm.createWatcher = jest.fn();
 
         set(wrapper.vm.element.config, 'content.value', 'updated content');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.contentEntity).toBeNull();
+        expect(wrapper.vm.createWatcher).toHaveBeenCalledTimes(0);
     });
 
     it('should sync field changes to contentEntity.slotConfig', async () => {
@@ -86,8 +96,8 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         set(wrapper.vm.element.config, 'content.value', 'updated content');
         await wrapper.vm.$nextTick();
 
-        expect(contentEntity.slotConfig['test-slot-id']).toBeDefined();
-        expect(contentEntity.slotConfig['test-slot-id'].content).toStrictEqual({
+        expect(contentEntity.slotConfig[defaultElementId]).toBeDefined();
+        expect(contentEntity.slotConfig[defaultElementId].content).toStrictEqual({
             value: 'updated content',
         });
     });
@@ -106,7 +116,7 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         });
         await wrapper.vm.$nextTick();
 
-        expect(contentEntity.slotConfig['test-slot-id'].content).toStrictEqual({
+        expect(contentEntity.slotConfig[wrapper.vm.element.id].content).toStrictEqual({
             value: 'new content',
             source: 'static',
         });
@@ -115,12 +125,12 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
     it('should skip initial setup when oldConfig is undefined', async () => {
         const contentEntity = {
             slotConfig: {},
-        }
+        };
         Shopware.Store.get('swCategoryDetail').category = contentEntity;
 
         await createWrapper({
             element: {
-                id: 'test-slot-id',
+                id: 'initial-slot-id',
                 type: 'text',
                 config: {
                     content: {
@@ -133,7 +143,7 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
             },
         });
 
-        expect(contentEntity.slotConfig['test-slot-id']).toBeUndefined();
+        expect(contentEntity.slotConfig[defaultElementId]).toBeUndefined();
     });
 
     it('should handle contentEntity without initial slotConfig', async () => {
@@ -146,6 +156,6 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         await wrapper.vm.$nextTick();
 
         expect(contentEntity.slotConfig).toBeDefined();
-        expect(contentEntity.slotConfig['test-slot-id'].content.value).toBe('new value');
+        expect(contentEntity.slotConfig[defaultElementId].content.value).toBe('new value');
     });
 });

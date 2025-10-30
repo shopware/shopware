@@ -36,7 +36,7 @@ const defaultConfig = {
     productStreamLimit: {
         value: 10,
     },
-}
+};
 
 const productStreamMock = {
     name: 'Cheap pc parts',
@@ -96,7 +96,12 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-highlight-text': true,
                     'sw-cms-inherit-wrapper': {
                         template: '<div><slot :isInherited="false"></slot></div>',
-                        props: ['field', 'element', 'contentEntity', 'label'],
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
                     },
                 },
                 provide: {

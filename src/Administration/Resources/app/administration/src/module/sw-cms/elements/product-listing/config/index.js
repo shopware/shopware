@@ -24,11 +24,7 @@ export default {
 
     data() {
         return {
-            productSortings: new EntityCollection(  // only for presentational usage
-                '/product-sorting',
-                'product_sorting',
-                Shopware.Context.api,
-            ),
+            productSortings: new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api),
             defaultSorting: {},
             filters: [],
             filterPropertiesTerm: '',

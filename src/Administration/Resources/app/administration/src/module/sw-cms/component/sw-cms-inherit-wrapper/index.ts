@@ -114,11 +114,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.field.concat('.', this.fieldPath);
         },
         fieldDefaultValue() {
-            return get(
-                this.cmsElements[this.element.type]?.defaultConfig,
-                this.fullPath,
-                BASE_FIELD_FALLBACK.value,
-            );
+            return get(this.cmsElements[this.element.type]?.defaultConfig, this.fullPath, BASE_FIELD_FALLBACK.value);
         },
     },
     methods: {

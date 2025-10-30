@@ -6,7 +6,7 @@ author_email: b.meyer@shopware.com
 author_github: BrocksiNet
 ---
 # Core
-* Added `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` to parse robots.txt with error tracking and extensibility events
+* Added `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` to parse `robots.txt` file with error tracking and extensibility events
 * Deprecated passing a string to `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` constructor - use `ParsedRobots` object instead
 
 ___
@@ -38,7 +38,8 @@ $parsedRobots = $parser->parse("
 new DomainRuleStruct($parsedRobots, '/en');
 ```
 
-**Migration required**: The string format is deprecated and will be removed in v6.8.0. Use `RobotsDirectiveParser::parse()` instead to get validation, error logging, and event support.
+Passing a string to the `DomainRuleStruct` is deprecated and will be removed with the next major version.
+Use `RobotsDirectiveParser::parse()` instead to get validation, error logging, and event support.
 
 ### Full robots.txt directive support
 
@@ -81,12 +82,6 @@ Disallow: /konto/
 
 **Resulting robots.txt:**
 ```
-User-agent: *
-Allow: /
-Disallow: /*?
-Allow: /*theme/
-Allow: /media/*?ts=
-
 User-agent: Googlebot
 Crawl-delay: 10
 Disallow: /en/account/
@@ -97,8 +92,8 @@ Sitemap: https://example.com/de/sitemap.xml
 ```
 
 Note how:
-- The `Googlebot` block appears only once (deduplicated)
-- The `Crawl-delay` directive is global (no path prefix)
+- The `Googlebot` block appears only once (deduplicated from both channels)
+- The `Crawl-delay` directive is global (no path prefix applied)
 - The `Disallow` directives are domain-specific (paths prefixed with `/en/` and `/de/`)
 
 #### Supported directives
@@ -128,7 +123,6 @@ When you save robots.txt configuration in the admin, Shopware now validates the 
 **Logging behavior:**
 - Issues are logged only when configuration is saved via admin (not on every page load)
 - Each issue includes line number, line content, and error reason
-- Errors are logged with `error` level, warnings with `warning` level
 - Scope information indicates if the issue is in global or sales channel-specific configuration
 
 **Example log entry:**
@@ -159,9 +153,8 @@ class YandexDirectiveSubscriber
 {
     public function onUnknownDirective(RobotsUnknownDirectiveEvent $event): void
     {
-        if ($event->getDirectiveType() === 'Clean-param') {
-            // Mark as handled so it doesn't generate a warning
-            $event->setHandled(true);
+        if ($event->directiveType === 'Clean-param') {
+            $event->handled = true; // Mark as handled to prevent warning
         }
     }
 }
@@ -174,11 +167,9 @@ class RobotsSecurityPolicySubscriber
 {
     public function onParsingComplete(RobotsDirectiveParsingEvent $event): void
     {
-        $parsed = $event->getParsedResult();
-
-        // Ensure /admin/ is always disallowed for all bots
+        // Check if /admin/ is disallowed
         $hasAdminDisallow = false;
-        foreach ($parsed->orphanedPathDirectives as $directive) {
+        foreach ($event->parsedResult->orphanedPathDirectives as $directive) {
             if ($directive->type === RobotsDirectiveType::DISALLOW && $directive->value === '/admin/') {
                 $hasAdminDisallow = true;
                 break;
@@ -186,16 +177,12 @@ class RobotsSecurityPolicySubscriber
         }
 
         if (!$hasAdminDisallow) {
-            // Add a warning about missing security directive
-            $newIssues = [
-                ...$parsed->issues,
-                new ParseIssue(0, '', 'Security: /admin/ should be disallowed', ParseIssueSeverity::WARNING),
-            ];
-            $event->setParsedResult(new ParsedRobots(
-                $parsed->userAgentBlocks,
-                $parsed->orphanedPathDirectives,
-                $newIssues
-            ));
+            // ParsedRobots is immutable, so create new instance with added issue
+            $event->parsedResult = new ParsedRobots(
+                $event->parsedResult->userAgentBlocks,
+                $event->parsedResult->orphanedPathDirectives,
+                [...$event->parsedResult->issues, new ParseIssue(0, '', 'Security: /admin/ should be disallowed', ParseIssueSeverity::WARNING)]
+            );
         }
     }
 }

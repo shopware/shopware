@@ -73,8 +73,8 @@ class RobotsDirectiveParser
                 $this->eventDispatcher->dispatch($unknownDirectiveEvent);
 
                 // If the event was handled, skip warning; otherwise add custom issue or default warning
-                if (!$unknownDirectiveEvent->isHandled()) {
-                    $issue = $unknownDirectiveEvent->getIssue();
+                if (!$unknownDirectiveEvent->handled) {
+                    $issue = $unknownDirectiveEvent->issue;
                     if ($issue === null) {
                         $issue = new ParseIssue(
                             $lineNumber,
@@ -141,6 +141,6 @@ class RobotsDirectiveParser
         $parsingEvent = new RobotsDirectiveParsingEvent($text, $parsedResult, $context, $salesChannelId);
         $this->eventDispatcher->dispatch($parsingEvent);
 
-        return $parsingEvent->getParsedResult();
+        return $parsingEvent->parsedResult;
     }
 }

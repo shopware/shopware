@@ -23,10 +23,10 @@ class RobotsDirectiveParsingEventTest extends TestCase
 
         $event = new RobotsDirectiveParsingEvent($text, $parsedResult, $context, $salesChannelId);
 
-        static::assertSame($text, $event->getText());
-        static::assertSame($parsedResult, $event->getParsedResult());
+        static::assertSame($text, $event->text);
+        static::assertSame($parsedResult, $event->parsedResult);
         static::assertSame($context, $event->getContext());
-        static::assertSame($salesChannelId, $event->getSalesChannelId());
+        static::assertSame($salesChannelId, $event->salesChannelId);
     }
 
     public function testSetParsedResultUpdatesResult(): void
@@ -37,12 +37,12 @@ class RobotsDirectiveParsingEventTest extends TestCase
 
         $event = new RobotsDirectiveParsingEvent('test', $originalResult, $context);
 
-        static::assertSame($originalResult, $event->getParsedResult());
+        static::assertSame($originalResult, $event->parsedResult);
 
-        $event->setParsedResult($newResult);
+        $event->parsedResult = $newResult;
 
-        static::assertSame($newResult, $event->getParsedResult());
-        static::assertNotSame($originalResult, $event->getParsedResult());
+        static::assertSame($newResult, $event->parsedResult);
+        static::assertNotSame($originalResult, $event->parsedResult);
     }
 
     public function testSalesChannelIdCanBeNull(): void
@@ -52,6 +52,6 @@ class RobotsDirectiveParsingEventTest extends TestCase
 
         $event = new RobotsDirectiveParsingEvent('test', $parsedResult, $context, null);
 
-        static::assertNull($event->getSalesChannelId());
+        static::assertNull($event->salesChannelId);
     }
 }

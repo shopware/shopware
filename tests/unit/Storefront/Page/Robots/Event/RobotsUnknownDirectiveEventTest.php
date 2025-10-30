@@ -35,13 +35,13 @@ class RobotsUnknownDirectiveEventTest extends TestCase
             $salesChannelId
         );
 
-        static::assertSame($lineNumber, $event->getLineNumber());
-        static::assertSame($line, $event->getLine());
-        static::assertSame($directiveType, $event->getDirectiveType());
-        static::assertSame($directiveValue, $event->getDirectiveValue());
-        static::assertTrue($event->isInsideUserAgentBlock());
+        static::assertSame($lineNumber, $event->lineNumber);
+        static::assertSame($line, $event->line);
+        static::assertSame($directiveType, $event->directiveType);
+        static::assertSame($directiveValue, $event->directiveValue);
+        static::assertTrue($event->insideUserAgentBlock);
         static::assertSame($context, $event->getContext());
-        static::assertSame($salesChannelId, $event->getSalesChannelId());
+        static::assertSame($salesChannelId, $event->salesChannelId);
     }
 
     public function testHandledDefaultsToFalse(): void
@@ -55,7 +55,7 @@ class RobotsUnknownDirectiveEventTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertFalse($event->isHandled());
+        static::assertFalse($event->handled);
     }
 
     public function testSetHandledUpdatesValue(): void
@@ -69,11 +69,11 @@ class RobotsUnknownDirectiveEventTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $event->setHandled(true);
-        static::assertTrue($event->isHandled());
+        $event->handled = true;
+        static::assertTrue($event->handled);
 
-        $event->setHandled(false);
-        static::assertFalse($event->isHandled());
+        $event->handled = false;
+        static::assertFalse($event->handled);
     }
 
     public function testIssueDefaultsToNull(): void
@@ -87,7 +87,7 @@ class RobotsUnknownDirectiveEventTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertNull($event->getIssue());
+        static::assertNull($event->issue);
     }
 
     public function testSetIssueUpdatesValue(): void
@@ -102,9 +102,9 @@ class RobotsUnknownDirectiveEventTest extends TestCase
         );
 
         $issue = new ParseIssue(1, 'test: value', 'Custom error', ParseIssueSeverity::ERROR);
-        $event->setIssue($issue);
+        $event->issue = $issue;
 
-        static::assertSame($issue, $event->getIssue());
+        static::assertSame($issue, $event->issue);
     }
 
     public function testSetIssueCanSetNull(): void
@@ -119,11 +119,11 @@ class RobotsUnknownDirectiveEventTest extends TestCase
         );
 
         $issue = new ParseIssue(1, 'test: value', 'Custom error', ParseIssueSeverity::ERROR);
-        $event->setIssue($issue);
-        static::assertSame($issue, $event->getIssue());
+        $event->issue = $issue;
+        static::assertSame($issue, $event->issue);
 
-        $event->setIssue(null);
-        static::assertNull($event->getIssue());
+        $event->issue = null;
+        static::assertNull($event->issue);
     }
 
     public function testSalesChannelIdCanBeNull(): void
@@ -138,6 +138,6 @@ class RobotsUnknownDirectiveEventTest extends TestCase
             null
         );
 
-        static::assertNull($event->getSalesChannelId());
+        static::assertNull($event->salesChannelId);
     }
 }

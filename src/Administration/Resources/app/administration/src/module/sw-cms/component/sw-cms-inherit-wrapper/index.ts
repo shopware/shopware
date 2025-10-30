@@ -128,7 +128,7 @@ export default Shopware.Component.wrapComponentConfig({
         async onInheritanceRestore() {
             this.showModal = false;
 
-            set(this.runtimeConfig, this.field, cloneDeep(get(this.baseConfig, this.field, this.fieldDefaultValue)));
+            set(this.runtimeConfig, this.field, cloneDeep(get(this.baseConfig, this.field, BASE_FIELD_FALLBACK)));
 
             /**
              * Run watchers before removing the slotConfig to ensure sw-cms-form-sync won't

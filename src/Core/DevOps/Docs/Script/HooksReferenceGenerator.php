@@ -212,11 +212,6 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             ];
         }
 
-        // sort by name
-        usort($availableData, function ($a, $b) {
-            return $a['name'] <=> $b['name'];
-        });
-
         return $availableData;
     }
 

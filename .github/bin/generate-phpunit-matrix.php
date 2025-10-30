@@ -23,7 +23,6 @@ $matrix = [
             ['path' => '{Administration,Elasticsearch}'],
             ['path' => '{Core/Installer,Core/Maintenance,Core/Service,Core/System}'],
             ['testsuite' => 'migration'],
-            ['testsuite' => 'devops']
         ],
         'php' => $php,
         'db' => $db,
@@ -34,6 +33,11 @@ $matrix = [
                 'php' => '8.2',
                 'db' => 'mariadb:11'
             ],
+            [
+                'test' => ['testsuite' => 'devops'],
+                'php' => '8.4',
+                'db' => 'mariadb:11'
+            ]
         ]
     ]
 ];

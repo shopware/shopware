@@ -153,7 +153,7 @@ export default {
                     primary: false,
                 },
                 {
-                    property: 'user.lastName',
+                    property: 'userName',
                     dataIndex: 'user.lastName',
                     label: 'sw-import-export.activity.columns.user',
                     allowResize: true,

@@ -685,7 +685,7 @@ class RobotsPageLoaderTest extends TestCase
                 // Handle array config (for multiple sales channels)
                 foreach ($value as $index => $configValue) {
                     if (isset($domains[$index]) && $domains[$index] instanceof SalesChannelDomainEntity) {
-                        $this->systemConfigService->set($key, $configValue, $domains[$index]->salesChannelId);
+                        $this->systemConfigService->set($key, $configValue, $domains[$index]->getSalesChannelId());
                     }
                 }
             } else {

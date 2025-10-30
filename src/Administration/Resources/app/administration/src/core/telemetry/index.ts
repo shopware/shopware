@@ -72,6 +72,11 @@ export class Telemetry {
                 if (!this.isInitialized) {
                     return;
                 }
+
+                if (to.name === from.name) {
+                    return;
+                }
+
                 this.dispatchEvent('page_change', { from, to });
             });
         });

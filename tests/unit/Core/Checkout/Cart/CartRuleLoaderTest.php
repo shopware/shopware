@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -109,7 +110,11 @@ class CartRuleLoaderTest extends TestCase
         $country->setId(Generator::COUNTRY);
         $country->setCustomerTax(new TaxFreeConfig());
 
-        $salesChannelContext = Generator::generateSalesChannelContext(country: $country);
+        $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        $customer->setId('test-id');
+
+        $salesChannelContext = Generator::generateSalesChannelContext(customer: $customer, country: $country);
 
         $rule1 = new RuleEntity();
         $rule1->setId(Uuid::randomHex());

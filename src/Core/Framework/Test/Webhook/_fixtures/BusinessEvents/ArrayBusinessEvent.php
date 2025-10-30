@@ -17,13 +17,13 @@ use Shopware\Core\System\Tax\TaxEntity;
 class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
     /**
-     * @var TaxEntity[]
+     * @var list<TaxEntity>
      */
     private readonly array $taxes;
 
     public function __construct(TaxCollection $taxes)
     {
-        $this->taxes = $taxes->getElements();
+        $this->taxes = array_values($taxes->getElements());
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -32,9 +32,6 @@ class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInte
             ->add('taxes', new ArrayType(new EntityType(TaxDefinition::class)));
     }
 
-    /**
-     * @return array<string, array<mixed>>
-     */
     public function getEncodeValues(string $shopwareVersion): array
     {
         $taxes = [];
@@ -71,7 +68,7 @@ class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInte
     }
 
     /**
-     * @return TaxEntity[]
+     * @return list<TaxEntity>
      */
     public function getTaxes(): array
     {

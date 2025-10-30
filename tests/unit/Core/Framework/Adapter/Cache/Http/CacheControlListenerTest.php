@@ -39,7 +39,7 @@ class CacheControlListenerTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, bool|string|null>>
+     * @return iterable<string, array<int, bool|string|null>>
      */
     public static function headerCases(): iterable
     {

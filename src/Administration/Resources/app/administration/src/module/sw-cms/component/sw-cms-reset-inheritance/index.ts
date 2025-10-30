@@ -48,7 +48,7 @@ export default Shopware.Component.wrapComponentConfig({
                         }
 
                         const origin = slot.getOrigin();
-                        slot.config = merge(slot.config, origin.translated?.config ?? origin.config ?? {});
+                        merge(slot.config, origin.translated?.config ?? origin.config ?? {});
                     });
                 });
             });

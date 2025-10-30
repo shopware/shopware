@@ -19,7 +19,7 @@
       "unlinkAllButton": "Alle Felder zurücksetzen.",
       "unlinkAllConfirmText": "Möchtest Du wirklich alle Felder zurücksetzen? Dadurch werden alle überschriebenen Inhalte dauerhaft gelöscht.",
       "unlinkFieldConfirmText": "Möchtest Du wirklich dieses Feld zurücksetzen? Dadurch werden überschriebene Inhalte dauerhaft gelöscht.",
-      "unlinkAllTitle": "All Felder zurücksetzen",
+      "unlinkAllTitle": "Alle Felder zurücksetzen",
       "unlinkFieldTitle": "Feld zurücksetzen"
     },
     "sorting": {

@@ -60,7 +60,7 @@ export default Shopware.Component.wrapComponentConfig({
         fieldChangeHandler(key: string, config: FieldConfig) {
             const path = `slotConfig.${this.element.id}.${key}`;
 
-            if (isEmpty(getObjectDiff(config, get(this.contentEntity, path)))) {
+            if (isEmpty(getObjectDiff(get(this.contentEntity, path, {}), config))) {
                 return;
             }
 

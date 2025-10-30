@@ -113,9 +113,6 @@ export default Shopware.Component.wrapComponentConfig({
         fullPath() {
             return this.field.concat('.', this.fieldPath);
         },
-        sourcePath() {
-            return this.field.concat('.', 'source');
-        },
         fieldDefaultValue() {
             return get(
                 this.cmsElements[this.element.type]?.defaultConfig,

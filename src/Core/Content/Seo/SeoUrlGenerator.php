@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -206,11 +207,11 @@ class SeoUrlGenerator
         foreach ($variables as $variable) {
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $variable, true);
 
-            $lastField = end($fields);
+            $lastField = array_last($fields);
 
             $runtime = new Runtime();
 
-            if ($lastField && $lastField->getFlag(Runtime::class)) {
+            if ($lastField instanceof Field && $lastField->getFlag(Runtime::class)) {
                 $associations = array_merge($associations, $runtime->getDepends());
             }
 

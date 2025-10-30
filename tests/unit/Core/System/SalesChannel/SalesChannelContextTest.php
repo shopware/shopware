@@ -20,7 +20,7 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(SalesChannelContext::class)]
 class SalesChannelContextTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         // reset field visibility, see `testGetTokenIsNotAccessibleFromTwigRenderingContext()` test
         FieldVisibility::$isInTwigRenderingContext = false;

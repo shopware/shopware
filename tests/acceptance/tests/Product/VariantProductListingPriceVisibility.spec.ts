@@ -1,4 +1,4 @@
-import { test, PropertyGroup } from '@fixtures/AcceptanceTest';
+import { test, PropertyGroup, getCurrencySymbolFromLocale, getLocale } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I should see the correct listing price and normal price for variant products with differing prices.',
@@ -37,11 +37,11 @@ test(
             price: prices,
         });
         const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
-
+        const currencyIcon = getCurrencySymbolFromLocale(getLocale());
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await ShopCustomer.expects(productItemLocators.productPrice).toContainText('€10.00');
-            await ShopCustomer.expects(productItemLocators.productListingPrice).toContainText('€20.00');
+            await ShopCustomer.expects(productItemLocators.productPrice).toContainText(`${currencyIcon}10.00`);
+            await ShopCustomer.expects(productItemLocators.productListingPrice).toContainText(`${currencyIcon}20.00`);
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(50% saved)');
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
@@ -49,9 +49,13 @@ test(
         await test.step('Validating listing price is available for each variant product.', async () => {
             for (const variantProduct of variantProducts) {
                 await ShopCustomer.goesTo(StorefrontProductDetail.url(variantProduct));
-                await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText('€10.00');
+                await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(
+                    `${currencyIcon}10.00`
+                );
                 await ShopCustomer.expects(StorefrontProductDetail.productListingPriceBadge).toContainText('%');
-                await ShopCustomer.expects(StorefrontProductDetail.productListingPrice).toContainText('€20.00');
+                await ShopCustomer.expects(StorefrontProductDetail.productListingPrice).toContainText(
+                    `${currencyIcon}20.00`
+                );
                 await ShopCustomer.expects(StorefrontProductDetail.productListingPricePercentage).toContainText(
                     '(50% saved)'
                 );

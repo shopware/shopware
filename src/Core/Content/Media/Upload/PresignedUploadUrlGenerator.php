@@ -121,7 +121,11 @@ class PresignedUploadUrlGenerator
                 'expiresAt' => $expiresAt->format('c'),
             ];
         } catch (\Exception $e) {
-            return null;
+            throw new \RuntimeException(
+                'Failed to generate presigned URL: ' . $e->getMessage(),
+                0,
+                $e
+            );
         }
     }
 

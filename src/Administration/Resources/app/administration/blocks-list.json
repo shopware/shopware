@@ -2531,6 +2531,7 @@
  "sw_import_export_activity_listing_records",
  "sw_import_export_activity_listing_size",
  "sw_import_export_activity_listing_state",
+ "sw_import_export_activity_listing_userName",
  "sw_import_export_activity_log_info_modal",
  "sw_import_export_activity_log_info_modal_description",
  "sw_import_export_activity_log_info_modal_description_date",

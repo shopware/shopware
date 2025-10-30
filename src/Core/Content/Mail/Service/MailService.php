@@ -150,7 +150,7 @@ class MailService extends AbstractMailService
      */
     private function createMail(array &$data, array $templateData, Context $context): ?Email
     {
-        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || !empty($data['testMode']);
+        $testMode = $this->systemConfigService->getBool('shopware.staging.mailing.disable_delivery') || !empty($data['testMode']);
 
         $salesChannel = $this->getSalesChannel($data, $templateData, $context);
 

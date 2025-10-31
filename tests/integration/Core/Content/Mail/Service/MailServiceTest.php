@@ -283,6 +283,141 @@ class MailServiceTest extends TestCase
         $mailService->send($data, $context, $templateData);
     }
 
+    public function testMailSendingInStagingModeWithMailingDeliveryDisabledMode(): void
+    {
+        $mailSender = $this->createMock(AbstractMailSender::class);
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->method('getBool')
+            ->willReturnCallback(function (string $key) {
+                return match ($key) {
+                    'core.staging', 'shopware.staging.mailing.disable_delivery' => true,
+                    default => false,
+                };
+            });
+
+        $mailService = new MailService(
+            $this->getContainer()->get(DataValidator::class),
+            $templateRenderer,
+            static::getContainer()->get(MailFactory::class),
+            $mailSender,
+            $this->createMock(EntityRepository::class),
+            static::getContainer()->get('sales_channel.repository'),
+            $systemConfigService,
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(LanguageLocaleCodeProvider::class)
+        );
+
+        $salesChannel = $this->createSalesChannel();
+
+        $data = [
+            'senderName' => 'Foo Bar',
+            'senderMail' => 'baz@example.com',
+            'recipients' => ['baz@example.com' => 'Baz'],
+            'salesChannelId' => $salesChannel['id'],
+            'contentHtml' => '<span>Test</span>',
+            'contentPlain' => 'Test',
+            'subject' => 'Test subject',
+        ];
+
+        $templateData = [
+            'salesChannel' => [],
+            'order' => [
+                'deepLinkCode' => 'home',
+            ],
+            'eventName' => 'state_enter.order_transaction.state.paid',
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $mailSender->expects($this->once())
+            ->method('send')
+            ->with(static::callback(function (Email $mail) use ($salesChannel, $context): bool {
+                $from = $mail->getFrom();
+                $this->assertCount(1, $from);
+
+                $this->assertNotNull($mail->getHeaders()->get('X-Shopware-Event-Name'));
+                $this->assertNotNull($mail->getHeaders()->get('X-Shopware-Sales-Channel-Id'));
+                $this->assertNotNull($mail->getHeaders()->get('X-Shopware-Language-Id'));
+
+                $salesChannelIdHeader = $mail->getHeaders()->get('X-Shopware-Sales-Channel-Id');
+                $this->assertSame($salesChannel['id'], $salesChannelIdHeader->getBodyAsString());
+
+                $languageIdHeader = $mail->getHeaders()->get('X-Shopware-Language-Id');
+                $this->assertSame($context->getLanguageId(), $languageIdHeader->getBodyAsString());
+
+                return true;
+            }));
+        $mailService->send($data, $context, $templateData);
+    }
+
+    public function testMailSendingInStagingModeWithMailingDeliveryEnabledMode(): void
+    {
+        $mailSender = $this->createMock(AbstractMailSender::class);
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->method('getBool')
+            ->willReturnCallback(function (string $key) {
+                return match ($key) {
+                    'core.staging' => true,
+                    'shopware.staging.mailing.disable_delivery' => false,
+                    default => false,
+                };
+            });
+
+        $mailService = new MailService(
+            $this->getContainer()->get(DataValidator::class),
+            $templateRenderer,
+            static::getContainer()->get(MailFactory::class),
+            $mailSender,
+            $this->createMock(EntityRepository::class),
+            static::getContainer()->get('sales_channel.repository'),
+            $systemConfigService,
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(LanguageLocaleCodeProvider::class)
+        );
+
+        $salesChannel = $this->createSalesChannel();
+
+        $data = [
+            'senderName' => 'Foo Bar',
+            'senderMail' => 'baz@example.com',
+            'recipients' => ['baz@example.com' => 'Baz'],
+            'salesChannelId' => $salesChannel['id'],
+            'contentHtml' => '<span>Test</span>',
+            'contentPlain' => 'Test',
+            'subject' => 'Test subject',
+        ];
+
+        $templateData = [
+            'salesChannel' => [],
+            'order' => [
+                'deepLinkCode' => 'home',
+            ],
+            'eventName' => 'state_enter.order_transaction.state.paid',
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $mailSender->expects($this->once())
+            ->method('send')
+            ->with(static::callback(function (Email $mail): bool {
+                $from = $mail->getFrom();
+                $this->assertCount(1, $from);
+
+                $this->assertNull($mail->getHeaders()->get('X-Shopware-Event-Name'));
+                $this->assertNull($mail->getHeaders()->get('X-Shopware-Sales-Channel-Id'));
+                $this->assertNull($mail->getHeaders()->get('X-Shopware-Language-Id'));
+
+                return true;
+            }));
+        $mailService->send($data, $context, $templateData);
+    }
+
     public function testHtmlEscaping(): void
     {
         $mailSender = $this->createMock(AbstractMailSender::class);

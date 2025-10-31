@@ -162,7 +162,7 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('/en/widgets/cms/', $secondDirectives[2]->value);
     }
 
-    public function testLoadWithEmptyRobotsRules(): void
+    public function testLoadWithEmptyOrMissingRobotsRules(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com']);
         $context = Context::createDefaultContext();
@@ -171,15 +171,27 @@ class RobotsPageLoaderTest extends TestCase
         $domain = $this->createExampleComDomain($salesChannelId);
         $domains = [$domain];
 
+        // Expect event to be dispatched twice (once per load call)
+        $this->eventDispatcher->expects($this->exactly(2))
+            ->method('dispatch')
+            ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+
+        // Test with empty string robots rules
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
             'core.basicInformation.robotsRules' => '',
         ]);
 
-        $this->setupEventDispatcherExpectation();
+        $page = $this->robotsPageLoader->load($request, $context);
+
+        $this->assertBasicPageStructure($page, 1, 0, 0);
+        static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
+
+        // Test with no robots rules configured at all
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains);
 
         $page = $this->robotsPageLoader->load($request, $context);
 
-        $this->assertBasicPageStructure($page, 1, 0, 0); // Empty rules should not create domain rule
+        $this->assertBasicPageStructure($page, 1, 0, 0);
         static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
     }
 
@@ -217,26 +229,6 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('/public/', $directives[1]->value);
 
         static::assertSame('', $domainRule->getBasePath());
-    }
-
-    public function testLoadWithDomainHavingNoRobotsRules(): void
-    {
-        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
-        $context = Context::createDefaultContext();
-        $salesChannelId = 'test-sales-channel-id';
-
-        $domain = $this->createExampleComDomain($salesChannelId);
-        $domains = [$domain];
-
-        // Don't set any robots rules for this sales channel
-        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains);
-
-        $this->setupEventDispatcherExpectation();
-
-        $page = $this->robotsPageLoader->load($request, $context);
-
-        $this->assertBasicPageStructure($page, 1, 0, 0); // No rules should be present
-        static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
     }
 
     public function testLoadWithDifferentHostnames(): void
@@ -322,21 +314,8 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(1, $crawlDelayDirectives);
 
         // Check that both domain's path directives are present with correct paths
-        $disallowDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::DISALLOW);
-        $allowDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::ALLOW);
-
-        static::assertCount(2, $disallowDirectives);
-        static::assertCount(2, $allowDirectives);
-
-        // Verify the paths are correctly prefixed
-        $disallowPaths = array_map(fn ($d) => $d->value, array_values($disallowDirectives));
-        $allowPaths = array_map(fn ($d) => $d->value, array_values($allowDirectives));
-
-        sort($disallowPaths);
-        sort($allowPaths);
-
-        static::assertEquals(['/account/', '/en/private/'], $disallowPaths);
-        static::assertEquals(['/en/api/', '/widgets/'], $allowPaths);
+        $this->assertDirectivePaths($directives, RobotsDirectiveType::DISALLOW, ['/account/', '/en/private/']);
+        $this->assertDirectivePaths($directives, RobotsDirectiveType::ALLOW, ['/en/api/', '/widgets/']);
 
         // Domain rules should still exist but only contain the path directives for each domain
         $domainRules = $page->getDomainRules();
@@ -360,40 +339,17 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domain1 = new SalesChannelDomainEntity();
-        $domain1->setId('test-domain-id-1');
-        $domain1->setUrl('https://example.com');
-        $domain1->setSalesChannelId($salesChannelId1);
-
-        $domain2 = new SalesChannelDomainEntity();
-        $domain2->setId('test-domain-id-2');
-        $domain2->setUrl('https://example.com/en');
-        $domain2->setSalesChannelId($salesChannelId2);
-
-        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$domain1, $domain2])]);
+        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
 
         // Configure robots rules with User-agent blocks that have only non-path directives
-        $this->systemConfigService->set(
-            'core.basicInformation.robotsRules',
-            "User-agent: Googlebot\nCrawl-delay: 10\nRequest-rate: 1/10",
-            $salesChannelId1
-        );
-        $this->systemConfigService->set(
-            'core.basicInformation.robotsRules',
-            "User-agent: Googlebot\nCrawl-delay: 10\nVisit-time: 0600-1200",
-            $salesChannelId2
-        );
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
+            'core.basicInformation.robotsRules' => [
+                "User-agent: Googlebot\nCrawl-delay: 10\nRequest-rate: 1/10",
+                "User-agent: Googlebot\nCrawl-delay: 10\nVisit-time: 0600-1200",
+            ],
+        ]);
 
-        $this->robotsPageLoader = new RobotsPageLoader(
-            $this->eventDispatcher,
-            $this->salesChannelDomainRepository,
-            $this->systemConfigService,
-            new RobotsDirectiveParser(new EventDispatcher())
-        );
-
-        $this->eventDispatcher->expects($this->once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+        $this->setupEventDispatcherExpectation();
 
         $page = $this->robotsPageLoader->load($request, $context);
 
@@ -401,39 +357,10 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(2, $page->getSitemaps());
 
         // Should have two global User-agent blocks (different non-path directives)
-        static::assertCount(2, $page->getGlobalUserAgentBlocks());
-
         $globalBlocks = $page->getGlobalUserAgentBlocks();
+        static::assertCount(2, $globalBlocks);
 
-        // Sort by directive count for consistent testing (both should have 2 directives)
-        usort($globalBlocks, fn ($a, $b) => \count($a->directives) <=> \count($b->directives));
-
-        $firstBlock = $globalBlocks[0];
-        $secondBlock = $globalBlocks[1];
-
-        static::assertSame('Googlebot', $firstBlock->userAgent);
-        static::assertSame('Googlebot', $secondBlock->userAgent);
-
-        // Each block should have 2 directives (1 Crawl-delay + 1 other directive)
-        static::assertCount(2, $firstBlock->directives);
-        static::assertCount(2, $secondBlock->directives);
-
-        // Collect all directive types from both blocks
-        $allDirectiveTypes = [];
-        foreach ($globalBlocks as $block) {
-            $types = array_map(fn ($d) => $d->type, $block->directives);
-            $allDirectiveTypes = array_merge($allDirectiveTypes, $types);
-        }
-
-        // Sort by enum value for consistent ordering
-        usort($allDirectiveTypes, fn ($a, $b) => $a->value <=> $b->value);
-
-        static::assertEquals([
-            RobotsDirectiveType::CRAWL_DELAY,
-            RobotsDirectiveType::CRAWL_DELAY,
-            RobotsDirectiveType::REQUEST_RATE,
-            RobotsDirectiveType::VISIT_TIME,
-        ], $allDirectiveTypes);
+        $this->assertUserAgentBlocksHaveCorrectDirectiveTypes($globalBlocks);
 
         // Domain rules should exist for both domains (they contain the original parsed rules)
         static::assertCount(2, $page->getDomainRules());
@@ -446,40 +373,17 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domain1 = new SalesChannelDomainEntity();
-        $domain1->setId('test-domain-id-1');
-        $domain1->setUrl('https://example.com');
-        $domain1->setSalesChannelId($salesChannelId1);
-
-        $domain2 = new SalesChannelDomainEntity();
-        $domain2->setId('test-domain-id-2');
-        $domain2->setUrl('https://example.com/en');
-        $domain2->setSalesChannelId($salesChannelId2);
-
-        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$domain1, $domain2])]);
+        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
 
         // Configure robots rules with User-agent blocks that have only path directives
-        $this->systemConfigService->set(
-            'core.basicInformation.robotsRules',
-            "User-agent: Googlebot\nDisallow: /account/\nAllow: /widgets/",
-            $salesChannelId1
-        );
-        $this->systemConfigService->set(
-            'core.basicInformation.robotsRules',
-            "User-agent: Googlebot\nDisallow: /private/\nAllow: /api/",
-            $salesChannelId2
-        );
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
+            'core.basicInformation.robotsRules' => [
+                "User-agent: Googlebot\nDisallow: /account/\nAllow: /widgets/",
+                "User-agent: Googlebot\nDisallow: /private/\nAllow: /api/",
+            ],
+        ]);
 
-        $this->robotsPageLoader = new RobotsPageLoader(
-            $this->eventDispatcher,
-            $this->salesChannelDomainRepository,
-            $this->systemConfigService,
-            new RobotsDirectiveParser(new EventDispatcher())
-        );
-
-        $this->eventDispatcher->expects($this->once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+        $this->setupEventDispatcherExpectation();
 
         $page = $this->robotsPageLoader->load($request, $context);
 
@@ -487,30 +391,19 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(2, $page->getSitemaps());
 
         // Should have one global User-agent block (deduplicated)
-        static::assertCount(1, $page->getGlobalUserAgentBlocks());
+        $globalBlocks = $page->getGlobalUserAgentBlocks();
+        static::assertCount(1, $globalBlocks);
 
-        $globalBlock = $page->getGlobalUserAgentBlocks()[0];
+        $globalBlock = $globalBlocks[0];
         static::assertSame('Googlebot', $globalBlock->userAgent);
 
         // Should have only path directives (no non-path directives)
         $directives = $globalBlock->directives;
         static::assertCount(4, $directives);
 
-        $disallowDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::DISALLOW);
-        $allowDirectives = array_filter($directives, fn ($d) => $d->type === RobotsDirectiveType::ALLOW);
-
-        static::assertCount(2, $disallowDirectives);
-        static::assertCount(2, $allowDirectives);
-
         // Verify the paths are correctly prefixed
-        $disallowPaths = array_map(fn ($d) => $d->value, array_values($disallowDirectives));
-        $allowPaths = array_map(fn ($d) => $d->value, array_values($allowDirectives));
-
-        sort($disallowPaths);
-        sort($allowPaths);
-
-        static::assertEquals(['/account/', '/en/private/'], $disallowPaths);
-        static::assertEquals(['/en/api/', '/widgets/'], $allowPaths);
+        $this->assertDirectivePaths($directives, RobotsDirectiveType::DISALLOW, ['/account/', '/en/private/']);
+        $this->assertDirectivePaths($directives, RobotsDirectiveType::ALLOW, ['/en/api/', '/widgets/']);
 
         // Domain rules should also exist with the same path directives
         static::assertCount(2, $page->getDomainRules());
@@ -523,40 +416,17 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domain1 = new SalesChannelDomainEntity();
-        $domain1->setId('test-domain-id-1');
-        $domain1->setUrl('https://example.com');
-        $domain1->setSalesChannelId($salesChannelId1);
-
-        $domain2 = new SalesChannelDomainEntity();
-        $domain2->setId('test-domain-id-2');
-        $domain2->setUrl('https://example.com/en');
-        $domain2->setSalesChannelId($salesChannelId2);
-
-        $this->salesChannelDomainRepository = new StaticEntityRepository([new SalesChannelDomainCollection([$domain1, $domain2])]);
+        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
 
         // Configure robots rules with different User-agent blocks
-        $this->systemConfigService->set(
-            'core.basicInformation.robotsRules',
-            "User-agent: Googlebot\nCrawl-delay: 10\nDisallow: /account/\n\nUser-agent: Bingbot\nDisallow: /admin/",
-            $salesChannelId1
-        );
-        $this->systemConfigService->set(
-            'core.basicInformation.robotsRules',
-            "User-agent: Googlebot\nCrawl-delay: 10\nDisallow: /private/\n\nUser-agent: Bingbot\nDisallow: /secret/",
-            $salesChannelId2
-        );
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
+            'core.basicInformation.robotsRules' => [
+                "User-agent: Googlebot\nCrawl-delay: 10\nDisallow: /account/\n\nUser-agent: Bingbot\nDisallow: /admin/",
+                "User-agent: Googlebot\nCrawl-delay: 10\nDisallow: /private/\n\nUser-agent: Bingbot\nDisallow: /secret/",
+            ],
+        ]);
 
-        $this->robotsPageLoader = new RobotsPageLoader(
-            $this->eventDispatcher,
-            $this->salesChannelDomainRepository,
-            $this->systemConfigService,
-            new RobotsDirectiveParser(new EventDispatcher())
-        );
-
-        $this->eventDispatcher->expects($this->once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+        $this->setupEventDispatcherExpectation();
 
         $page = $this->robotsPageLoader->load($request, $context);
 
@@ -564,9 +434,8 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(2, $page->getSitemaps());
 
         // Should have two global User-agent blocks (different user agents)
-        static::assertCount(2, $page->getGlobalUserAgentBlocks());
-
         $globalBlocks = $page->getGlobalUserAgentBlocks();
+        static::assertCount(2, $globalBlocks);
 
         // Sort by user agent for consistent testing
         usort($globalBlocks, fn ($a, $b) => strcmp($a->userAgent, $b->userAgent));
@@ -578,26 +447,12 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('Googlebot', $googlebotBlock->userAgent);
 
         // Googlebot block should have merged directives from both domains
-        $googlebotDirectives = $googlebotBlock->directives;
-        static::assertCount(3, $googlebotDirectives); // 1 Crawl-delay + 2 Disallow
-
-        $googlebotDisallowPaths = array_map(
-            fn ($d) => $d->value,
-            array_filter($googlebotDirectives, fn ($d) => $d->type === RobotsDirectiveType::DISALLOW)
-        );
-        sort($googlebotDisallowPaths);
-        static::assertEquals(['/account/', '/en/private/'], $googlebotDisallowPaths);
+        static::assertCount(3, $googlebotBlock->directives); // 1 Crawl-delay + 2 Disallow
+        $this->assertDirectivePaths($googlebotBlock->directives, RobotsDirectiveType::DISALLOW, ['/account/', '/en/private/']);
 
         // Bingbot block should have merged directives from both domains
-        $bingbotDirectives = $bingbotBlock->directives;
-        static::assertCount(2, $bingbotDirectives); // 2 Disallow
-
-        $bingbotDisallowPaths = array_map(
-            fn ($d) => $d->value,
-            array_filter($bingbotDirectives, fn ($d) => $d->type === RobotsDirectiveType::DISALLOW)
-        );
-        sort($bingbotDisallowPaths);
-        static::assertEquals(['/admin/', '/en/secret/'], $bingbotDisallowPaths);
+        static::assertCount(2, $bingbotBlock->directives); // 2 Disallow
+        $this->assertDirectivePaths($bingbotBlock->directives, RobotsDirectiveType::DISALLOW, ['/admin/', '/en/secret/']);
 
         // Domain rules should exist for both domains
         static::assertCount(2, $page->getDomainRules());
@@ -723,5 +578,73 @@ class RobotsPageLoaderTest extends TestCase
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
+    }
+
+    /**
+     * Helper to assert that User-agent blocks have correct directive types
+     *
+     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $globalBlocks
+     */
+    private function assertUserAgentBlocksHaveCorrectDirectiveTypes(array $globalBlocks): void
+    {
+        // Sort by directive count for consistent testing (both should have 2 directives)
+        usort($globalBlocks, fn ($a, $b) => \count($a->directives) <=> \count($b->directives));
+
+        $firstBlock = $globalBlocks[0];
+        $secondBlock = $globalBlocks[1];
+
+        static::assertSame('Googlebot', $firstBlock->userAgent);
+        static::assertSame('Googlebot', $secondBlock->userAgent);
+
+        // Each block should have 2 directives (1 Crawl-delay + 1 other directive)
+        static::assertCount(2, $firstBlock->directives);
+        static::assertCount(2, $secondBlock->directives);
+
+        // Collect all directive types from both blocks
+        $allDirectiveTypes = $this->collectDirectiveTypes($globalBlocks);
+
+        static::assertEquals([
+            RobotsDirectiveType::CRAWL_DELAY,
+            RobotsDirectiveType::CRAWL_DELAY,
+            RobotsDirectiveType::REQUEST_RATE,
+            RobotsDirectiveType::VISIT_TIME,
+        ], $allDirectiveTypes);
+    }
+
+    /**
+     * Collects and sorts all directive types from given blocks
+     *
+     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $blocks
+     *
+     * @return list<RobotsDirectiveType>
+     */
+    private function collectDirectiveTypes(array $blocks): array
+    {
+        $allDirectiveTypes = [];
+        foreach ($blocks as $block) {
+            $types = array_map(fn ($d) => $d->type, $block->directives);
+            $allDirectiveTypes = array_merge($allDirectiveTypes, $types);
+        }
+
+        // Sort by enum value for consistent ordering
+        usort($allDirectiveTypes, fn ($a, $b) => $a->value <=> $b->value);
+
+        return $allDirectiveTypes;
+    }
+
+    /**
+     * Asserts that directives contain specific paths for a given directive type
+     *
+     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsDirective> $directives
+     * @param list<string> $expectedPaths
+     */
+    private function assertDirectivePaths(array $directives, RobotsDirectiveType $type, array $expectedPaths): void
+    {
+        $filteredDirectives = array_filter($directives, fn ($d) => $d->type === $type);
+        $actualPaths = array_map(fn ($d) => $d->value, array_values($filteredDirectives));
+        sort($actualPaths);
+        sort($expectedPaths);
+
+        static::assertEquals($expectedPaths, $actualPaths);
     }
 }

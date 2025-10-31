@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  *
- * @phpstan-type Mapping array<string, array{current_default: string, new_default: string, inserts: list<string>, updateId: string, deletions: list<string>, state: list<string>}>
+ * @phpstan-type CurrentLanguageStates list<array{sales_channel_id: string, current_default: string, language_id: string}>
  */
 #[Package('discovery')]
 class SalesChannelValidator implements EventSubscriberInterface
@@ -57,35 +58,21 @@ class SalesChannelValidator implements EventSubscriberInterface
     {
         $mapping = $this->extractMapping($event);
 
-        if (!$mapping) {
+        if ($mapping->count() === 0) {
             return;
         }
 
-        $salesChannelIds = array_keys($mapping);
+        $salesChannelIds = $mapping->getKeys();
         $states = $this->fetchCurrentLanguageStates($salesChannelIds);
 
-        $mapping = $this->mergeCurrentStatesWithMapping($mapping, $states);
+        $this->mergeCurrentStatesWithMapping($mapping, $states);
 
         $this->validateLanguages($mapping, $event);
     }
 
-    /**
-     * Build a key map with the following data structure:
-     *
-     * 'sales_channel_id' => [
-     *     'current_default' => 'en',
-     *     'new_default' => 'de',
-     *     'inserts' => ['de', 'en'],
-     *     'updateId' => 'de',
-     *     'deletions' => ['gb'],
-     *     'state' => ['en', 'gb']
-     * ]
-     *
-     * @return Mapping
-     */
-    private function extractMapping(PreWriteValidationEvent $event): array
+    private function extractMapping(PreWriteValidationEvent $event): Mapping
     {
-        $mapping = [];
+        $mapping = new Mapping();
         foreach ($event->getCommands() as $command) {
             if ($command->getEntityName() === SalesChannelDefinition::ENTITY_NAME) {
                 $this->handleSalesChannelMapping($mapping, $command);
@@ -101,20 +88,21 @@ class SalesChannelValidator implements EventSubscriberInterface
         return $mapping;
     }
 
-    /**
-     * @param Mapping $mapping
-     */
-    private function handleSalesChannelMapping(array &$mapping, WriteCommand $command): void
+    private function handleSalesChannelMapping(Mapping $mapping, WriteCommand $command): void
     {
         if (!isset($command->getPayload()['language_id'])) {
             return;
         }
 
         $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
-        \assert(\array_key_exists($id, $mapping));
+        $salesChannelData = $mapping->get($id);
+        if ($salesChannelData === null) {
+            $salesChannelData = new SalesChannelData();
+            $mapping->set($id, $salesChannelData);
+        }
 
         if ($command instanceof UpdateCommand) {
-            $mapping[$id]['updateId'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
+            $salesChannelData->updateId = Uuid::fromBytesToHex($command->getPayload()['language_id']);
 
             return;
         }
@@ -123,9 +111,8 @@ class SalesChannelValidator implements EventSubscriberInterface
             return;
         }
 
-        $mapping[$id]['new_default'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
-        $mapping[$id]['inserts'] = [];
-        $mapping[$id]['state'] = [];
+        $salesChannelData->newDefault = Uuid::fromBytesToHex($command->getPayload()['language_id']);
+        $salesChannelData->inserts = [];
     }
 
     private function isSupportedSalesChannelType(WriteCommand $command): bool
@@ -136,130 +123,112 @@ class SalesChannelValidator implements EventSubscriberInterface
             || $typeId === Defaults::SALES_CHANNEL_TYPE_API;
     }
 
-    /**
-     * @param Mapping $mapping
-     */
-    private function handleSalesChannelLanguageMapping(array &$mapping, WriteCommand $command): void
+    private function handleSalesChannelLanguageMapping(Mapping $mapping, WriteCommand $command): void
     {
         $language = Uuid::fromBytesToHex($command->getPrimaryKey()['language_id']);
         $id = Uuid::fromBytesToHex($command->getPrimaryKey()['sales_channel_id']);
-        \assert(\array_key_exists($id, $mapping));
-        $mapping[$id]['state'] = [];
+
+        $salesChannelData = $mapping->get($id);
+        if ($salesChannelData === null) {
+            $salesChannelData = new SalesChannelData();
+            $mapping->set($id, $salesChannelData);
+        }
 
         if ($command instanceof DeleteCommand) {
-            $mapping[$id]['deletions'][] = $language;
+            $salesChannelData->deletions[] = $language;
 
             return;
         }
 
         if ($command instanceof InsertCommand) {
-            $mapping[$id]['inserts'][] = $language;
+            $inserts = $salesChannelData->inserts ?? [];
+            $inserts[] = $language;
+            $salesChannelData->inserts = $inserts;
         }
     }
 
-    /**
-     * @param array<string, array<string, list<string>>> $mapping
-     */
-    private function validateLanguages(array $mapping, PreWriteValidationEvent $event): void
+    private function validateLanguages(Mapping $mapping, PreWriteValidationEvent $event): void
     {
         $inserts = [];
         $duplicates = [];
         $deletions = [];
         $updates = [];
 
-        foreach ($mapping as $id => $channel) {
-            if (isset($channel['inserts'])) {
-                if (!$this->validInsertCase($channel)) {
-                    $inserts[$id] = $channel['new_default'];
+        foreach ($mapping as $salesChannelId => $salesChannelData) {
+            if ($salesChannelData->inserts !== null) {
+                if ($this->isInvalidInsertCase($salesChannelData)) {
+                    $inserts[$salesChannelId] = $salesChannelData->newDefault;
                 }
 
-                $duplicatedIds = $this->getDuplicates($channel);
+                $duplicatedIds = $this->getDuplicates($salesChannelData);
 
-                if ($duplicatedIds) {
-                    $duplicates[$id] = $duplicatedIds;
+                if ($duplicatedIds !== []) {
+                    $duplicates[$salesChannelId] = $duplicatedIds;
                 }
             }
 
-            if (isset($channel['deletions']) && !$this->validDeleteCase($channel)) {
-                $deletions[$id] = $channel['current_default'];
+            if ($salesChannelData->deletions !== [] && $this->isInvalidDeleteCase($salesChannelData)) {
+                $deletions[$salesChannelId] = $salesChannelData->currentDefault;
             }
 
-            if (isset($channel['updateId']) && !$this->validUpdateCase($channel)) {
-                $updates[$id] = $channel['updateId'];
+            if ($salesChannelData->updateId !== null && $this->isInvalidUpdateCase($salesChannelData)) {
+                $updates[$salesChannelId] = $salesChannelData->updateId;
             }
         }
 
-        $this->writeInsertViolationExceptions($inserts, $event);
         $this->writeDuplicateViolationExceptions($duplicates, $event);
-        $this->writeDeleteViolationExceptions($deletions, $event);
-        $this->writeUpdateViolationExceptions($updates, $event);
+        $this->writeViolationExceptions($inserts, self::INSERT_VALIDATION_MESSAGE, self::INSERT_VALIDATION_CODE, $event);
+        $this->writeViolationExceptions($deletions, self::DELETE_VALIDATION_MESSAGE, self::DELETE_VALIDATION_CODE, $event);
+        $this->writeViolationExceptions($updates, self::UPDATE_VALIDATION_MESSAGE, self::UPDATE_VALIDATION_CODE, $event);
     }
 
     /**
-     * @param array<string, mixed> $channel
+     * @phpstan-assert-if-true !null $salesChannelData->newDefault
      */
-    private function validInsertCase(array $channel): bool
+    private function isInvalidInsertCase(SalesChannelData $salesChannelData): bool
     {
-        return empty($channel['new_default'])
-            || \in_array($channel['new_default'], $channel['inserts'], true);
+        if ($salesChannelData->newDefault === null) {
+            return false;
+        }
+
+        if ($salesChannelData->inserts === null) {
+            throw SalesChannelException::invalidMappingOperation('Inserts are not allowed to be null while calling this method.');
+        }
+
+        return !\in_array($salesChannelData->newDefault, $salesChannelData->inserts, true);
+    }
+
+    private function isInvalidUpdateCase(SalesChannelData $salesChannelData): bool
+    {
+        $updateId = $salesChannelData->updateId;
+
+        return !\in_array($updateId, $salesChannelData->state, true)
+            && !($salesChannelData->newDefault === null && $updateId === $salesChannelData->currentDefault)
+            && !($salesChannelData->inserts !== null && \in_array($updateId, $salesChannelData->inserts, true));
     }
 
     /**
-     * @param array<string, mixed> $channel
+     * @phpstan-assert-if-true !null $salesChannelData->currentDefault
      */
-    private function validUpdateCase(array $channel): bool
+    private function isInvalidDeleteCase(SalesChannelData $salesChannelData): bool
     {
-        $updateId = $channel['updateId'];
+        if ($salesChannelData->currentDefault === null) {
+            return false;
+        }
 
-        return \in_array($updateId, $channel['state'], true)
-            || empty($channel['new_default']) && $updateId === $channel['current_default']
-            || isset($channel['inserts']) && \in_array($updateId, $channel['inserts'], true);
+        return \in_array($salesChannelData->currentDefault, $salesChannelData->deletions, true);
     }
 
     /**
-     * @param array<string, mixed> $channel
-     */
-    private function validDeleteCase(array $channel): bool
-    {
-        return !\in_array($channel['current_default'], $channel['deletions'], true);
-    }
-
-    /**
-     * @param array<string, list<string>> $channel
-     *
      * @return list<string>
      */
-    private function getDuplicates(array $channel): array
+    private function getDuplicates(SalesChannelData $salesChannelData): array
     {
-        return array_values(array_intersect($channel['state'], $channel['inserts']));
-    }
-
-    /**
-     * @param array<string, mixed> $inserts
-     */
-    private function writeInsertViolationExceptions(array $inserts, PreWriteValidationEvent $event): void
-    {
-        if (!$inserts) {
-            return;
+        if ($salesChannelData->inserts === null) {
+            throw SalesChannelException::invalidMappingOperation('Inserts are not allowed to be null while calling this method.');
         }
 
-        $violations = new ConstraintViolationList();
-        $salesChannelIds = array_keys($inserts);
-
-        foreach ($salesChannelIds as $id) {
-            $violations->add(new ConstraintViolation(
-                \sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
-                \sprintf(self::INSERT_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
-                ['{{ salesChannelId }}' => $id],
-                null,
-                '/',
-                null,
-                null,
-                self::INSERT_VALIDATION_CODE
-            ));
-        }
-
-        $this->writeViolationException($violations, $event);
+        return array_values(array_intersect($salesChannelData->state, $salesChannelData->inserts));
     }
 
     /**
@@ -291,73 +260,47 @@ class SalesChannelValidator implements EventSubscriberInterface
             }
         }
 
-        $this->writeViolationException($violations, $event);
+        $event->getExceptions()->add(new WriteConstraintViolationException($violations));
     }
 
     /**
-     * @param array<string, mixed> $deletions
+     * @param array<string, string> $invalidRecords
      */
-    private function writeDeleteViolationExceptions(array $deletions, PreWriteValidationEvent $event): void
-    {
-        if (!$deletions) {
+    private function writeViolationExceptions(
+        array $invalidRecords,
+        string $messageTemplate,
+        string $validationCode,
+        PreWriteValidationEvent $event
+    ): void {
+        if (!$invalidRecords) {
             return;
         }
 
         $violations = new ConstraintViolationList();
-        $salesChannelIds = array_keys($deletions);
-
-        foreach ($salesChannelIds as $id) {
+        foreach (array_keys($invalidRecords) as $id) {
             $violations->add(new ConstraintViolation(
-                \sprintf(self::DELETE_VALIDATION_MESSAGE, $id),
-                \sprintf(self::DELETE_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
+                \sprintf($messageTemplate, $id),
+                \sprintf($messageTemplate, '{{ salesChannelId }}'),
                 ['{{ salesChannelId }}' => $id],
                 null,
                 '/',
                 null,
                 null,
-                self::DELETE_VALIDATION_CODE
+                $validationCode
             ));
         }
 
-        $this->writeViolationException($violations, $event);
+        $event->getExceptions()->add(new WriteConstraintViolationException($violations));
     }
 
     /**
-     * @param array<string, mixed> $updates
-     */
-    private function writeUpdateViolationExceptions(array $updates, PreWriteValidationEvent $event): void
-    {
-        if (!$updates) {
-            return;
-        }
-
-        $violations = new ConstraintViolationList();
-        $salesChannelIds = array_keys($updates);
-
-        foreach ($salesChannelIds as $id) {
-            $violations->add(new ConstraintViolation(
-                \sprintf(self::UPDATE_VALIDATION_MESSAGE, $id),
-                \sprintf(self::UPDATE_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
-                ['{{ salesChannelId }}' => $id],
-                null,
-                '/',
-                null,
-                null,
-                self::UPDATE_VALIDATION_CODE
-            ));
-        }
-
-        $this->writeViolationException($violations, $event);
-    }
-
-    /**
-     * @param array<string> $salesChannelIds
+     * @param list<string> $salesChannelIds
      *
-     * @return list<array<string, string>>
+     * @return CurrentLanguageStates
      */
     private function fetchCurrentLanguageStates(array $salesChannelIds): array
     {
-        /** @var list<array<string, mixed>> $result */
+        /** @var CurrentLanguageStates $result */
         $result = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(sales_channel.id)) AS sales_channel_id,
             LOWER(HEX(sales_channel.language_id)) AS current_default,
@@ -374,31 +317,32 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $mapping
-     * @param list<array<string, mixed>> $states
-     *
-     * @return array<string, mixed>
+     * @param CurrentLanguageStates $states
      */
-    private function mergeCurrentStatesWithMapping(array $mapping, array $states): array
+    private function mergeCurrentStatesWithMapping(Mapping $mapping, array $states): void
     {
-        foreach ($states as $record) {
-            $id = (string) $record['sales_channel_id'];
-            $mapping[$id]['current_default'] = $record['current_default'];
-            $mapping[$id]['state'][] = $record['language_id'];
-            $mapping[$id]['inserts'] = array_filter(
-                $mapping[$id]['inserts'] ?? [],
-                fn ($value) => $value !== $record['language_id']
-            );
-            if (empty($mapping[$id]['inserts'])) {
-                unset($mapping[$id]['inserts']);
-            }
+        if ($states === []) {
+            return;
         }
 
-        return $mapping;
-    }
+        foreach ($states as $record) {
+            $id = $record['sales_channel_id'];
+            if (!$mapping->has($id)) {
+                continue;
+            }
 
-    private function writeViolationException(ConstraintViolationList $violations, PreWriteValidationEvent $event): void
-    {
-        $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+            $salesChannelData = $mapping->get($id);
+
+            $salesChannelData->currentDefault = $record['current_default'];
+            $salesChannelData->state[] = $record['language_id'];
+            $salesChannelData->inserts = array_values(array_filter(
+                $salesChannelData->inserts ?? [],
+                static fn (string $value): bool => $value !== $record['language_id']
+            ));
+
+            if ($salesChannelData->inserts === []) {
+                $salesChannelData->inserts = null;
+            }
+        }
     }
 }

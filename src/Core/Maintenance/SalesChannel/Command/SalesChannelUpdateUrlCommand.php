@@ -81,7 +81,7 @@ class SalesChannelUpdateUrlCommand extends Command
     {
         $validator = Validation::createValidator();
 
-        $previousUrlConstraints = [new NotBlank(), new Url()];
+        $previousUrlConstraints = [new NotBlank()];
         $previousUrlViolations = $validator->validate($previousUrl, $previousUrlConstraints);
         if (\count($previousUrlViolations) > 0) {
             foreach ($previousUrlViolations as $violation) {
@@ -91,7 +91,7 @@ class SalesChannelUpdateUrlCommand extends Command
             return false;
         }
 
-        $newUrlConstraints = [new NotBlank(), new Url(), new NotEqualTo($previousUrl)];
+        $newUrlConstraints = [new NotBlank(), new Url(requireTld: false), new NotEqualTo($previousUrl)];
         $newUrlViolations = $validator->validate($newUrl, $newUrlConstraints);
         if (\count($newUrlViolations) > 0) {
             foreach ($newUrlViolations as $violation) {

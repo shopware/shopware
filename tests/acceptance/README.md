@@ -322,18 +322,35 @@ This is expected since there is no baseline image to compare against. Playwright
 
 
 ### Updating Screenshots
-If your UI changes intentionally, you may need to update the reference (base image) screenshots.
-To update the reference screenshot you can use the **--update-snapshots** flag (or **-u**) flag.
+When a visual assertion fails because a UI change is expected, the baseline
+snapshots that live next to the spec file should be refreshed (for example
+`tests/acceptance/tests/Visual/Storefront/Account.spec.ts-snapshots/`).
+Each file name is derived from the value provided to `toHaveScreenshot`/`assertScreenshot` and
+the current operating system and project name are appended automatically by Playwright (for example
+`Account-Login-Page-Visual-linux.png`).
 
-```
-npx playwright test --update-snapshots
-```
+Baseline updates are managed through the Visual Tests GitHub Actions workflow, which can
+regenerate the snapshot assets for you when UI changes are intentional.
 
-You can also update only some specific snapshots using test name:
+When a comparison fails the `*-actual.png`, `*-expected.png`, and `*-diff.png` files are written
+to the `playwright-report` (or `test-results`) directory. Those should be reviewed before the new
+baseline images are committed to ensure the visual change is intentional.
 
-```
-npx playwright test -u "**/test_name*.spec.ts"
-```
+### Updating Expected Screenshots in GitHub Actions
+
+The visual suite can be run from GitHub Actions under **Visual Tests**. Three inputs are provided
+by the workflow dispatch form:
+
+- **Update snapshots** – toggles the `--update-snapshots` flag so baselines are refreshed when
+  differences are detected. When changes are found, a pull request is opened with the updated
+  `*-snapshots/*.png` assets so they can be reviewed and merged.
+- **Report to Currents** – enables the optional [Currents](https://currents.dev/) integration for
+  the execution.
+- **Filter** – passes the provided value through to Playwright's `--grep` option, allowing tests to
+  be included or excluded in the CI run using the same filtering syntax used locally.
+
+When the workflow is triggered, the branch to be validated should be chosen. This allows snapshots
+to be refreshed without running anything locally while still leveraging PR review for the new baselines.
 
 ### Debugging Visual Tests
 The best way to debug visual test failures is by reviewing the "Actual" and "Expected" images in the Playwright HTML report or any other reporting tool you use. The "Diff" view highlights discrepancies between screenshots, making it easier to identify differences.

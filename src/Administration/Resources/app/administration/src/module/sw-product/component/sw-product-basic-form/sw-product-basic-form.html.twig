@@ -63,6 +63,7 @@
 
         <mt-text-field
             v-model="product.productNumber"
+            required
             :error="productProductNumberError"
             :disabled="!allowEdit"
             :label="$tc('sw-product.basicForm.labelProductNumber')"

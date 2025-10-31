@@ -70,7 +70,7 @@ export default async function (): Promise<void> {
     Shopware.Utils.EventBus.on('telemetry', pushTelemetryEventToAmplitude);
 }
 
-async function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes>) {
+function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes>) {
     if (isEventOfType('page_change', telemetryEvent)) {
         amplitude.track('Page Viewed', {
             sw_route_from_name: telemetryEvent.eventData.from.name,

@@ -23,7 +23,7 @@ class UserApiService extends ApiService {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        const response = this.httpClient
+        return this.httpClient
             .get('/_info/me', {
                 params,
                 headers,
@@ -31,11 +31,6 @@ class UserApiService extends ApiService {
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
-
-        this.addLoad(response);
-        this.resolveInitialization();
-
-        return response;
     }
 
     /**

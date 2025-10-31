@@ -24,6 +24,8 @@ class PresignedUploadUrlGenerator
 
     private readonly ?string $region;
 
+    private readonly string $root;
+
     private readonly bool $enabled;
 
     /**
@@ -42,6 +44,7 @@ class PresignedUploadUrlGenerator
             $this->s3Client = null;
             $this->bucket = null;
             $this->region = null;
+            $this->root = '';
             return;
         }
 
@@ -50,6 +53,7 @@ class PresignedUploadUrlGenerator
 
         $this->bucket = $s3Config['bucket'];
         $this->region = $s3Config['region'];
+        $this->root = trim($s3Config['root'] ?? '', '/');
 
         $credentials = $s3Config['credentials'] ?? [];
 
@@ -107,7 +111,11 @@ class PresignedUploadUrlGenerator
             );
 
             $paths = $this->mediaPathStrategy->generate([$location]);
-            $s3Key = $paths[$mediaId] ?? throw MediaException::strategyNotFound('media-path-strategy');
+            $mediaPath = $paths[$mediaId] ?? throw MediaException::strategyNotFound('media-path-strategy');
+
+            // Prepend root prefix for S3 upload (S3 filesystems may have root prefix like "N/X/O/JP2R5/")
+            // But return mediaPath (without root) for database storage
+            $s3Key = $this->root !== '' ? $this->root . '/' . ltrim($mediaPath, '/') : $mediaPath;
 
             $expiresAt = new \DateTimeImmutable("+{$this->expirationMinutes} minutes");
 
@@ -125,7 +133,7 @@ class PresignedUploadUrlGenerator
             return [
                 'url' => $presignedUrl,
                 'mediaId' => $mediaId,
-                's3Key' => $s3Key,
+                's3Key' => $mediaPath, // Return path without root prefix (for database storage)
                 'expiresAt' => $expiresAt->format('c'),
             ];
         } catch (\Exception $e) {
@@ -139,13 +147,18 @@ class PresignedUploadUrlGenerator
 
     /**
      * Verify that a file was successfully uploaded to S3
+     *
+     * @param string $s3Key The S3 key (path), may or may not include root prefix
      */
     public function verifyUpload(string $s3Key): bool
     {
         try {
+            // Ensure root prefix is included if configured
+            $fullS3Key = $this->ensureRootPrefix($s3Key);
+            
             $this->s3Client->headObject([
                 'Bucket' => $this->bucket,
-                'Key' => $s3Key,
+                'Key' => $fullS3Key,
             ]);
 
             return true;
@@ -157,14 +170,18 @@ class PresignedUploadUrlGenerator
     /**
      * Get file metadata from S3
      *
+     * @param string $s3Key The S3 key (path), may or may not include root prefix
      * @return array{size: int, lastModified: string, etag: string}|null
      */
     public function getFileMetadata(string $s3Key): ?array
     {
         try {
+            // Ensure root prefix is included if configured
+            $fullS3Key = $this->ensureRootPrefix($s3Key);
+            
             $result = $this->s3Client->headObject([
                 'Bucket' => $this->bucket,
-                'Key' => $s3Key,
+                'Key' => $fullS3Key,
             ]);
 
             return [
@@ -221,5 +238,26 @@ class PresignedUploadUrlGenerator
     private function isS3Configured(): bool
     {
         return !empty($this->bucket);
+    }
+
+    /**
+     * Ensure S3 key includes root prefix if configured
+     *
+     * @param string $s3Key The S3 key (may or may not already include root)
+     * @return string The full S3 key with root prefix
+     */
+    private function ensureRootPrefix(string $s3Key): string
+    {
+        if ($this->root === '') {
+            return $s3Key;
+        }
+
+        // If key already starts with root, return as-is
+        if (str_starts_with($s3Key, $this->root . '/')) {
+            return $s3Key;
+        }
+
+        // Otherwise, prepend root
+        return $this->root . '/' . ltrim($s3Key, '/');
     }
 }

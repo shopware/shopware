@@ -6,7 +6,7 @@
     position: relative;
 
     &::before {
-        content: '';
+        content: "";
         width: 3px;
         height: var(--scale-size-20);
         background: var(--color-background-tertiary-default);

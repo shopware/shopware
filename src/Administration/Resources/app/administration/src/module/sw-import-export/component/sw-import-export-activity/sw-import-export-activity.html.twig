@@ -81,12 +81,6 @@
         </template>
         {% endblock %}
 
-        {% block sw_import_export_activity_listing_userName %}
-        <template #column-userName="{ item }">
-            {{ item.user.firstName }} {{ item.user.lastName }}
-        </template>
-        {% endblock %}
-
         {% block sw_import_export_activity_listing_actions %}
         <template #actions="{ item }">
             {% block sw_import_export_activity_listing_actions_show_results %}

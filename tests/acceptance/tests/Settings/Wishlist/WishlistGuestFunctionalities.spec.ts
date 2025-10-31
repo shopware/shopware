@@ -26,10 +26,7 @@ test.describe('Wishlist Guest Functionalities', () => {
             throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
         }
 
-        const cacheResponse = await TestDataService.AdminApiClient.delete('_action/cache');
-        if (!cacheResponse.ok()) {
-            throw new Error(`Failed to clear cache: ${cacheResponse.status()} ${cacheResponse.statusText()}`);
-        }
+        await TestDataService.clearCaches();
     });
 
     test.afterEach(async ({ TestDataService }) => {
@@ -38,7 +35,7 @@ test.describe('Wishlist Guest Functionalities', () => {
                 data: { null: originalConfig }
             });
 
-            await TestDataService.AdminApiClient.delete('_action/cache');
+            await TestDataService.clearCaches();
         }
     });
 
@@ -61,11 +58,16 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
         // Wait for banner to disappear
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
 
-        // Wait for cookie to actually be set (critical for wishlist functionality)
-        await ShopCustomer.expects.poll(async () => {
+        // Wait for cookies to be set (critical for wishlist functionality)
+        await ShopCustomer.expects(async () => {
             const cookies = await StorefrontHome.page.context().cookies();
-            return cookies.find(c => c.name === 'cookie-preference')?.value;
-        }, { timeout: 10000 }).toBe('1');
+            const cookiePreference = cookies.find(c => c.name === 'cookie-preference')?.value;
+            const wishlistCookie = cookies.find(c => c.name === 'wishlist-enabled')?.value;
+            await ShopCustomer.expects(cookiePreference).toBe('1');
+            await ShopCustomer.expects(wishlistCookie).toBe('1');
+        }).toPass({
+            intervals: [1_000, 2_500],
+        });
     });
 
     const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);

@@ -11,6 +11,10 @@
         margin-bottom: var(--scale-size-8);
     }
 
+    .recommended-plugins__headline-main {
+        margin-top: 0;
+    }
+
     .recommended-plugins__description {
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);

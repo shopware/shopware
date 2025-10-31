@@ -32,17 +32,17 @@
             {% endblock %}
 
             {% block sw_settings_listing_default_sales_channel_setting_visibility %}
-                <mt-link
-                    v-if="salesChannel.length > 0"
-                    class="sw-settings-listing-default-sales-channel__quick-link"
-                    as="button"
-                    type="internal"
-                    variant="primary"
-                    @click="displayAdvancedVisibility"
-                    @keydown.enter="displayAdvancedVisibility"
-                >
-                    {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
-                </mt-link>
+            <mt-link
+                v-if="salesChannel.length > 0"
+                class="sw-settings-listing-default-sales-channel__quick-link"
+                as="button"
+                type="internal"
+                variant="primary"
+                @click="displayAdvancedVisibility"
+                @keydown.enter="displayAdvancedVisibility"
+            >
+                {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
+            </mt-link>
             {% endblock %}
         </div>
         {% endblock %}

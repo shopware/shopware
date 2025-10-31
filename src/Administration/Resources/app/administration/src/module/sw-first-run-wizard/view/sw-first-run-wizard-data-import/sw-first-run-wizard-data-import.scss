@@ -54,6 +54,10 @@
     }
 
     .sw-loader-info-text {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
         margin-top: var(--scale-size-32);
         position: relative;
         width: 100%;

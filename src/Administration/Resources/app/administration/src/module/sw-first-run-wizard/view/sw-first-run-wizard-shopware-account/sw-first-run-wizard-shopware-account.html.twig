@@ -7,6 +7,18 @@
             alt=""
         >
         <div>
+            <div
+                v-if="accountError"
+                class="sw-first-run-wizard-shopware-account__error"
+            >
+                <mt-banner
+                    :title="$tc('global.default.error')"
+                    variant="critical"
+                >
+                    {{ $tc('sw-first-run-wizard.error.messageLoginDataInvalid') }}
+                </mt-banner>
+            </div>
+
             <h5 class="headline">
                 {{ $tc('sw-first-run-wizard.shopwareAccount.headline') }}
             </h5>
@@ -53,18 +65,6 @@
                     {{ $tc('sw-first-run-wizard.shopwareAccount.forgotPasswordText') }}
                 </a>
             </p>
-
-            <div
-                v-if="accountError"
-                class="sw-first-run-wizard-shopware-account__error"
-            >
-                <mt-banner
-                    :title="$tc('global.default.error')"
-                    variant="critical"
-                >
-                    {{ $tc('sw-first-run-wizard.error.messageLoginDataInvalid') }}
-                </mt-banner>
-            </div>
         </div>
     </sw-container>
 </div>

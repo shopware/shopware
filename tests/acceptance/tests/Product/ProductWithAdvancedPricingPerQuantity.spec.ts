@@ -76,7 +76,7 @@ test(
                 await ShopCustomer.goesTo(StorefrontHome.url());
                 await ShopCustomer.expects(
                     StorefrontHome.productListItems.filter({ hasText: product.name }).locator('.product-price-wrapper')
-                ).toContainText('From €70.00');
+                ).toContainText(`From ${currencyIcon}70.00`);
             }).toPass({
                 intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
             });

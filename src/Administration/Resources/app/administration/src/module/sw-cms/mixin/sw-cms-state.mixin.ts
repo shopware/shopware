@@ -1,7 +1,6 @@
 import { defineComponent } from 'vue';
 import '../store/cms-page.store';
 import type { CmsSlotConfig } from '../service/cms.service';
-import Entities = EntitySchema.Entities;
 
 type WithSlotConfig = {
     slotConfig?: {
@@ -9,8 +8,7 @@ type WithSlotConfig = {
     };
 };
 
-type ContentEntity<T extends keyof Entities> = Entity<T> & WithSlotConfig;
-
+type ContentEntity<T extends keyof EntitySchema.Entities> = Entity<T> & WithSlotConfig;
 /**
  * @private
  * @sw-package discovery

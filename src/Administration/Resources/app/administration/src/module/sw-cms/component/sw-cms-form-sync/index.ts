@@ -23,6 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
     inject: ['cmsService'],
     mixins: [
         Shopware.Mixin.getByName('cms-state'),
+        Shopware.Mixin.getByName('cms-element'),
     ],
     props: {
         element: {
@@ -36,6 +37,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
     created() {
+        /**
+         * Initialize the slot config, so using default or fallback values for incomplete config objects
+         * is not interpreted as a change made by the user, once the watchers are registered.
+         */
+        this.initElementConfig();
         this.createFieldWatcher();
     },
     methods: {

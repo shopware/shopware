@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
-import '../../mixin/sw-cms-state.mixin';
+import { setupCmsEnvironment } from '../../test-utils';
 
 const { set } = Shopware.Utils.object;
 
@@ -71,6 +71,10 @@ async function createWrapper(props = {}, options = {}, route = categoryDetailCms
 }
 
 describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
+    beforeAll(() => {
+        setupCmsEnvironment();
+    });
+
     beforeEach(() => {
         Shopware.Store.get('swCategoryDetail').$reset();
     });

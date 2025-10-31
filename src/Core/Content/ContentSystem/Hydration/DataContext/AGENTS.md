@@ -22,7 +22,7 @@ Five strategies control how provider data distributes to direct children:
 4. **Sliced**: Data split into chunks across children (use for: column layouts)
 5. **Iterator**: Round-robin distribution (use for: even distribution across slots)
 
-See `DistributionStrategyInterface` implementations for details.
+All distribution configs support `consumer_alias` field. See `DistributionStrategyInterface` implementations for details.
 
 ### Context Path Resolution
 

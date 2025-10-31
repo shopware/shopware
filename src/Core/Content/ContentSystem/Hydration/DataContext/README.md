@@ -64,6 +64,8 @@ Consumers can request nested properties from context using dot notation (e.g., `
 
 Five strategies control how provider data splits across multiple consumers. Strategy selected by provider's distribution config.
 
+All distribution configs support optional `consumer_alias` field. Null (default) uses provider's context key as consumer property name. Non-null value overrides this with alias for all direct children. Useful when provider key ('featuredProducts') differs from desired consumer property ('product').
+
 ### Broadcast
 
 Same data to all consumers. Simple case where every consumer gets identical copy.

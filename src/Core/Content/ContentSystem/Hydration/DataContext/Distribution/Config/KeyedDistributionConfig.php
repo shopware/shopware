@@ -14,7 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 readonly class KeyedDistributionConfig implements DistributionConfig
 {
     public function __construct(
-        public string $keyProperty = 'data_key'
+        public string $keyProperty = 'data_key',
+        public ?string $consumerAlias = null
     ) {
     }
 
@@ -23,18 +24,25 @@ readonly class KeyedDistributionConfig implements DistributionConfig
         return DistributionStrategy::Keyed;
     }
 
+    public function getConsumerAlias(): ?string
+    {
+        return $this->consumerAlias;
+    }
+
     public function toArray(): array
     {
         return [
             'distribution' => 'keyed',
             'key_property' => $this->keyProperty,
+            'consumer_alias' => $this->consumerAlias,
         ];
     }
 
     public static function fromArray(array $data): self
     {
         return new self(
-            keyProperty: $data['key_property'] ?? 'data_key'
+            keyProperty: $data['key_property'] ?? 'data_key',
+            consumerAlias: $data['consumer_alias'] ?? null
         );
     }
 }

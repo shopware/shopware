@@ -79,16 +79,13 @@ export class Telemetry {
         const loginService = Shopware.Service('loginService');
 
         loginService.addOnLoginListener(() => {
-            const shopId = Shopware.Store.get('context').app.config.shopId;
             const currentUser = Shopware.Store.get('session').currentUser;
 
-            if (shopId && currentUser?.id) {
-                this.dispatchEvent('identify', {
-                    userId: `${shopId}:${currentUser.id}`,
-                    locale: null,
-                    isAdmin: currentUser.admin || null,
-                });
-            }
+            this.dispatchEvent('identify', {
+                userId: currentUser?.id || null,
+                locale: null,
+                isAdmin: currentUser?.admin || null,
+            });
         });
 
         loginService.addOnLogoutListener(() => {

@@ -83,9 +83,10 @@ function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes
     }
 
     if (isEventOfType('identify', telemetryEvent)) {
-        const previousUserId = amplitude.getUserId();
-        const newUserId = telemetryEvent.eventData.userId;
+        const shopId = Shopware.Store.get('context').app.config.shopId;
+        const newUserId = `${shopId}:${telemetryEvent.eventData.userId}`;
 
+        const previousUserId = amplitude.getUserId();
         amplitude.setUserId(newUserId);
         // TODO: add more user properties via amplitude.identify();
 

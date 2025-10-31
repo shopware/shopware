@@ -18,7 +18,7 @@ type AnalyticsEvents = {
         [key: string]: TrackableType;
     };
     identify: {
-        userId: string;
+        userId: string | null;
         locale: string | null;
         isAdmin: boolean | null;
     };

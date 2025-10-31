@@ -15,19 +15,20 @@ test(
     }) => {
         const product = await TestDataService.createBasicProduct();
         const rule = await TestDataService.createBasicRule();
+
         const priceResponse = await AdminApiContext.post('./product-price', {
             data: {
                 productId: product.id,
                 ruleId: rule.id,
                 price: [
                     {
-                        currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                        currencyId: SalesChannelBaseConfig.currentCurrencyId,
                         gross: 8.99,
                         linked: false,
                         net: 7.55,
                     },
                     {
-                        currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                        currencyId: SalesChannelBaseConfig.currentCurrencyId,
                         gross: 8.99,
                         linked: false,
                         net: 7.55,

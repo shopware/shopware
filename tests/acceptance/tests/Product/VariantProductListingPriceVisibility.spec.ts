@@ -1,4 +1,10 @@
-import { test, PropertyGroup, getCurrencySymbolFromLocale, getLocale } from '@fixtures/AcceptanceTest';
+import {
+    test,
+    PropertyGroup,
+    getCurrencySymbolFromLocale,
+    getLocale,
+    getCurrencyCodeFromLocale,
+} from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I should see the correct listing price and normal price for variant products with differing prices.',
@@ -6,7 +12,7 @@ test(
         tag: ['@Product, @Variant', '@Storefront'],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail }) => {
-        const currency = await TestDataService.getCurrency('EUR');
+        const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale(getLocale()));
         const prices = [
             {
                 currencyId: currency.id,

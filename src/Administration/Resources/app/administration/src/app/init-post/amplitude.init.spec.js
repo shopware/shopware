@@ -6,33 +6,23 @@ jest.mock('@amplitude/analytics-browser', () => ({
     init: jest.fn(),
     track: jest.fn(),
     setUserId: jest.fn(),
+    getUserId: jest.fn(),
     setTransport: jest.fn(),
     flush: jest.fn(),
     reset: jest.fn(),
 }));
 
 describe('src/app/post-init/amplitude.init.ts', () => {
-    const anything = { asymmetricMatch: () => true };
-
     let mockLoginService;
-    let mockUserService;
 
     beforeEach(() => {
         mockLoginService = {
-            addOnLoginListener: jest.fn(),
             addOnLogoutListener: jest.fn(),
-        };
-
-        mockUserService = {
-            getUser: jest.fn(),
         };
 
         Shopware.Service = jest.fn((serviceName) => {
             if (serviceName === 'loginService') {
                 return mockLoginService;
-            }
-            if (serviceName === 'userService') {
-                return mockUserService;
             }
             return undefined;
         });
@@ -169,148 +159,119 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit('telemetry', telemetryEvent);
 
             expect(track).toHaveBeenCalled();
-            expect(track).toHaveBeenCalledWith(trackedData.eventName, trackedData.properties, anything);
+            expect(track).toHaveBeenCalledWith(trackedData.eventName, trackedData.properties);
         });
     });
 
     describe('user identification', () => {
         const testShopId = 'knneBsx7LiKySnUq';
         const testUserId = '8b8ebef4-7fa3-4844-ab7e-120463ea558b';
-        let originalShopId = null;
 
         beforeEach(() => {
             jest.clearAllMocks();
 
-            mockUserService.getUser.mockResolvedValue({
-                data: {
-                    id: testUserId,
-                    username: 'test-user',
-                },
-            });
-
-            originalShopId = Shopware.Store.get('context').app.config.shopId;
             Shopware.Store.get('context').app.config.shopId = testShopId;
-
-            global.repositoryFactoryMock.responses.addResponse({
-                method: 'Post',
-                url: '/search/user',
-                status: 200,
-                response: {
-                    data: [
-                        {
-                            id: testUserId,
-                            attributes: {
-                                username: 'test-user',
-                            },
-                        },
-                    ],
-                },
-            });
-        });
-
-        afterEach(() => {
-            if (originalShopId !== null) {
-                Shopware.Store.get('context').app.config.shopId = originalShopId;
-                originalShopId = null;
-            }
-        });
-
-        it('should set user ID when login listener is triggered', async () => {
-            const amplitude = await import('@amplitude/analytics-browser');
-
-            let loginCallback;
-            mockLoginService.addOnLoginListener.mockImplementationOnce((callback) => {
-                loginCallback = callback;
-            });
-
-            await initAmplitude();
-
-            await loginCallback();
-
-            expect(mockUserService.getUser).toHaveBeenCalled();
-            expect(amplitude.setUserId).toHaveBeenCalledWith(expect.stringContaining(testUserId));
         });
 
         it('should set user ID in format "shopId:userId"', async () => {
             const amplitude = await import('@amplitude/analytics-browser');
 
-            let loginCallback;
-            mockLoginService.addOnLoginListener.mockImplementationOnce((callback) => {
-                loginCallback = callback;
-            });
-
             await initAmplitude();
 
-            await loginCallback();
+            const identifyEvent = new TelemetryEvent('identify', {
+                userId: testUserId,
+            });
+
+            Shopware.Utils.EventBus.emit('telemetry', identifyEvent);
 
             expect(amplitude.setUserId).toHaveBeenCalledWith(`${testShopId}:${testUserId}`);
         });
 
-        it('should update user ID when a different user logs in', async () => {
+        it('should update user ID when a different user identifies', async () => {
             const amplitude = await import('@amplitude/analytics-browser');
-
-            mockUserService.getUser
-                .mockResolvedValueOnce({
-                    data: {
-                        id: 'user-first',
-                        username: 'admin',
-                    },
-                })
-                .mockResolvedValueOnce({
-                    data: {
-                        id: 'user-second',
-                        username: 'editor',
-                    },
-                });
-
-            let loginCallback;
-            mockLoginService.addOnLoginListener.mockImplementationOnce((callback) => {
-                loginCallback = callback;
-            });
 
             await initAmplitude();
 
-            await loginCallback();
+            const firstIdentifyEvent = new TelemetryEvent('identify', {
+                userId: testUserId,
+            });
 
-            expect(amplitude.setUserId).toHaveBeenCalledWith(expect.stringContaining('user-first'));
+            Shopware.Utils.EventBus.emit('telemetry', firstIdentifyEvent);
+
+            expect(amplitude.setUserId).toHaveBeenCalledWith(`${testShopId}:${testUserId}`);
 
             amplitude.setUserId.mockClear();
 
-            await loginCallback();
+            const anotherUserId = '48dad3c3-89b9-47a1-bf67-a1cd6fc68952';
+            const secondIdentifyEvent = new TelemetryEvent('identify', {
+                userId: anotherUserId,
+            });
 
-            expect(amplitude.setUserId).toHaveBeenCalledWith(expect.stringContaining('user-second'));
+            Shopware.Utils.EventBus.emit('telemetry', secondIdentifyEvent);
+
+            expect(amplitude.setUserId).toHaveBeenCalledWith(`${testShopId}:${anotherUserId}`);
         });
     });
 
     describe('login and logout tracking', () => {
-        it('should track Login event when login listener is triggered', async () => {
-            const { track } = await import('@amplitude/analytics-browser');
+        const testShopId = 'knneBsx7LiKySnUq';
 
-            let loginCallback;
-            mockLoginService.addOnLoginListener.mockImplementationOnce((callback) => {
-                loginCallback = callback;
-            });
+        beforeEach(() => {
+            jest.clearAllMocks();
 
-            await initAmplitude();
-
-            await loginCallback();
-
-            expect(track).toHaveBeenCalledWith('Login', anything, anything);
+            Shopware.Store.get('context').app.config.shopId = testShopId;
         });
 
-        it('should track Logout event when logout listener is triggered', async () => {
+        it('should track Login event when a identify telemetry event with a different userId arrives', async () => {
             const amplitude = await import('@amplitude/analytics-browser');
 
-            let logoutCallback;
-            mockLoginService.addOnLogoutListener.mockImplementationOnce((callback) => {
-                logoutCallback = callback;
+            let amplitudeUserId = null;
+            jest.spyOn(amplitude, 'setUserId').mockImplementation((userId) => {
+                amplitudeUserId = userId;
             });
+            jest.spyOn(amplitude, 'getUserId').mockImplementation(() => amplitudeUserId);
 
             await initAmplitude();
 
-            await logoutCallback();
+            let newUserId = 'newUserId-1';
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('identify', {
+                    userId: newUserId,
+                }),
+            );
+            expect(amplitude.track).toHaveBeenCalledWith('Login');
 
-            expect(amplitude.track).toHaveBeenCalledWith('Logout', anything, anything);
+            newUserId = 'newUserId-2';
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('identify', {
+                    userId: newUserId,
+                }),
+            );
+            expect(amplitude.track).toHaveBeenCalledWith('Login');
+
+            const sameUserId = newUserId;
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('identify', {
+                    userId: sameUserId,
+                }),
+            );
+
+            expect(amplitude.track).toHaveBeenCalledTimes(2);
+        });
+
+        it('should track Logout event when a reset telemetry event arrives', async () => {
+            const amplitude = await import('@amplitude/analytics-browser');
+
+            await initAmplitude();
+
+            const resetEvent = new TelemetryEvent('reset', {});
+
+            Shopware.Utils.EventBus.emit('telemetry', resetEvent);
+
+            expect(amplitude.track).toHaveBeenCalledWith('Logout');
         });
     });
 });

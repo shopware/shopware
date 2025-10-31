@@ -9,7 +9,6 @@ import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telem
  * @private
  */
 export default async function (): Promise<void> {
-
     Shopware.Service('loginService').addOnLogoutListener(() => {
         amplitude.setTransport('beacon');
     });
@@ -88,7 +87,7 @@ function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes
 
         const previousUserId = amplitude.getUserId();
         amplitude.setUserId(newUserId);
-        // TODO: add more user properties via amplitude.identify();
+        // add more user properties via amplitude.identify(); ?
 
         if (newUserId && previousUserId !== newUserId) {
             amplitude.track('Login');

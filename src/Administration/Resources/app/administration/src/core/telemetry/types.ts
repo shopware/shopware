@@ -22,7 +22,7 @@ type AnalyticsEvents = {
         locale: string | null;
         isAdmin: boolean | null;
     };
-    reset: {};
+    reset: object;
 };
 
 type EventTypes = keyof AnalyticsEvents;

@@ -36,6 +36,7 @@
     .sw-label-region,
     .sw-label-category {
         &.sw-label {
+            background: var(--color-background-secondary-default);
             font-size: var(--font-size-2xs);
             font-weight: var(--font-weight-medium);
             text-align: center;

@@ -149,7 +149,7 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
             // Single context provider uses broadcast strategy
             return new ContextProvider(
                 type: $type,
-                config: new BroadcastDistributionConfig()
+                config: BroadcastDistributionConfig::fromArray($config)
             );
         }
 
@@ -158,15 +158,11 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
         $strategy = DistributionStrategy::from($strategyName);
 
         $distributionConfig = match ($strategy) {
-            DistributionStrategy::Indexed => new IndexedDistributionConfig(),
-            DistributionStrategy::Keyed => new KeyedDistributionConfig(
-                keyProperty: $config['key_property'] ?? 'data_key'
-            ),
-            DistributionStrategy::Sliced => new SlicedDistributionConfig(
-                sliceSize: $config['slice_size'] ?? 10
-            ),
-            DistributionStrategy::Iterator => new IteratorDistributionConfig(),
-            DistributionStrategy::Broadcast => new BroadcastDistributionConfig(),
+            DistributionStrategy::Indexed => IndexedDistributionConfig::fromArray($config),
+            DistributionStrategy::Keyed => KeyedDistributionConfig::fromArray($config),
+            DistributionStrategy::Sliced => SlicedDistributionConfig::fromArray($config),
+            DistributionStrategy::Iterator => IteratorDistributionConfig::fromArray($config),
+            DistributionStrategy::Broadcast => BroadcastDistributionConfig::fromArray($config),
         };
 
         return new ContextProvider(

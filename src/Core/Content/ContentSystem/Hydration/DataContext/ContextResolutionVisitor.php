@@ -116,9 +116,12 @@ class ContextResolutionVisitor implements ElementVisitor
 
         $strategy = $this->findStrategy($distribution);
 
+        $distributionConfig = $providerElement->getProvidesContext()[$contextKey]->getDistribution();
+        $consumerKey = $distributionConfig->getConsumerAlias() ?? $contextKey;
+
         if ($strategy === null) {
             foreach ($consumers as $consumer) {
-                $this->setContextForConsumer($consumer, $contextKey, $data);
+                $this->setContextForConsumer($consumer, $consumerKey, $data);
             }
 
             return;
@@ -133,7 +136,7 @@ class ContextResolutionVisitor implements ElementVisitor
 
         foreach ($consumers as $index => $consumer) {
             if (isset($distributed[$index])) {
-                $this->setContextForConsumer($consumer, $contextKey, $distributed[$index]);
+                $this->setContextForConsumer($consumer, $consumerKey, $distributed[$index]);
             }
         }
     }

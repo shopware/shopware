@@ -1933,7 +1933,8 @@
                 "provides_context": {
                   "featuredProducts": {
                     "type": "collection",
-                    "distribution": "indexed"
+                    "distribution": "indexed",
+                    "consumer_alias": "product"
                   }
                 },
                 "slots": {
@@ -2093,7 +2094,8 @@
                 "provides_context": {
                   "sectionProducts": {
                     "type": "collection",
-                    "distribution": "keyed"
+                    "distribution": "keyed",
+                    "consumer_alias": "product"
                   }
                 },
                 "slots": {

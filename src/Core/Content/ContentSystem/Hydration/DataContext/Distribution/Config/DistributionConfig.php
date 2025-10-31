@@ -14,6 +14,12 @@ interface DistributionConfig
     public function getStrategy(): DistributionStrategy;
 
     /**
+     * Returns the property name consumers should use to receive context.
+     * Null means use the provider's context key.
+     */
+    public function getConsumerAlias(): ?string;
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(): array;

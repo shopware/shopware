@@ -803,8 +803,21 @@ Fields:
   - `"keyed"` - Children receive data by their `data_key` property
   - `"sliced"` - Data split into chunks for each child
   - `"iterator"` - Round-robin distribution
+- `consumer_alias` (optional) - Property name consumers use to receive context. When not specified, consumers use the provider's context key. Useful when provider key ("featuredProducts") differs from what consumers receive ("product")
 
 Note: The context key in `provides_context` typically matches a property name loaded by `data_requirements`.
+
+Example with consumer alias:
+```json
+"provides_context": {
+  "featuredProducts": {
+    "type": "collection",
+    "distribution": "indexed",
+    "consumer_alias": "product"
+  }
+}
+```
+Children receive context as "product" property instead of "featuredProducts".
 
 ### Consumer Configuration
 

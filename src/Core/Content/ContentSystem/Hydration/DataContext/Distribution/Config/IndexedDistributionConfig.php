@@ -13,18 +13,33 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 readonly class IndexedDistributionConfig implements DistributionConfig
 {
+    public function __construct(
+        public ?string $consumerAlias = null
+    ) {
+    }
+
     public function getStrategy(): DistributionStrategy
     {
         return DistributionStrategy::Indexed;
     }
 
+    public function getConsumerAlias(): ?string
+    {
+        return $this->consumerAlias;
+    }
+
     public function toArray(): array
     {
-        return ['distribution' => 'indexed'];
+        return [
+            'distribution' => 'indexed',
+            'consumer_alias' => $this->consumerAlias,
+        ];
     }
 
     public static function fromArray(array $data): self
     {
-        return new self();
+        return new self(
+            consumerAlias: $data['consumer_alias'] ?? null
+        );
     }
 }

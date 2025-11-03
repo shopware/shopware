@@ -147,14 +147,6 @@ class AccountProfilePageLoaderTest extends TestCase
 
     public function testNoCustomerException(): void
     {
-        $pageLoader = new AccountProfilePageLoader(
-            $this->genericPageLoader,
-            $this->eventDispatcher,
-            $this->salutationRoute,
-            $this->salutationSorter,
-            $this->translator,
-        );
-
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
         static::expectException(CustomerNotLoggedInException::class);

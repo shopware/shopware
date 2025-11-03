@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Service;
 
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -23,6 +24,7 @@ class ConfigurationService
      * @internal
      *
      * @param BundleInterface[] $bundles
+     * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
         private readonly iterable $bundles,

@@ -157,13 +157,6 @@ async function createWrapper(defaultFolderId, privileges = []) {
 }
 
 describe('components/media/sw-media-folder-item', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should provide correct folder color for product module', async () => {
         const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
         await wrapper.vm.$nextTick();

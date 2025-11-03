@@ -65,11 +65,16 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'mediaId' => $media->getId(),
                 'width' => 987,
                 'height' => 987,
+                'mediaThumbnailSize' => [
+                    'width' => 987,
+                    'height' => 987,
+                ],
             ],
             [
                 'mediaId' => $media->getId(),
                 'width' => 150,
                 'height' => 150,
+                'mediaThumbnailSizeId' => $this->thumbnailSize150Id,
             ],
         ], $this->context);
 
@@ -97,9 +102,10 @@ class GenerateThumbnailsHandlerTest extends TestCase
         static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
+            // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
             static::assertTrue(
-                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
-                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
+                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80)
             );
 
             $path = $thumbnail->getPath();
@@ -124,6 +130,10 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'mediaId' => $media->getId(),
                 'width' => 987,
                 'height' => 987,
+                'mediaThumbnailSize' => [
+                    'width' => 987,
+                    'height' => 987,
+                ],
             ],
         ], $this->context);
 
@@ -154,9 +164,10 @@ class GenerateThumbnailsHandlerTest extends TestCase
         static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
+            // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
             static::assertTrue(
-                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
-                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
+                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80)
             );
 
             $path = $thumbnail->getPath();

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']])]
 #[Package('inventory')]
 final readonly class AdminSearchController
 {
@@ -28,7 +30,7 @@ final readonly class AdminSearchController
     ) {
     }
 
-    #[Route(path: '/api/_admin/es-search', name: 'api.admin.es-search', methods: ['POST'], defaults: ['_routeScope' => ['administration']])]
+    #[Route(path: '/api/_admin/es-search', name: 'api.admin.es-search', methods: ['POST'])]
     public function elastic(Request $request, Context $context): Response
     {
         if ($this->adminEsHelper->getEnabled() === false) {

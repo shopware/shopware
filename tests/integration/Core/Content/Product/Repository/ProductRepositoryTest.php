@@ -3408,6 +3408,7 @@ class ProductRepositoryTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => self::TEST_LOCALE_ID,
                         'code' => self::TEST_LANGUAGE_LOCALE_CODE,

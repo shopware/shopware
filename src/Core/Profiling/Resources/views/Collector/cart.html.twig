@@ -1,0 +1,363 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        {{ include('@Profiling/Collector/cart.svg', {height: 24}) }}
+        <span class="sf-toolbar-value">{{ collector.itemCount }} items</span>
+    {% endset %}
+
+    {% set text %}
+        <div class="sf-toolbar-info-piece">
+            <b>Total Items</b>
+            <span>{{ collector.itemCount }}</span>
+        </div>
+
+        <div class="sf-toolbar-info-piece">
+            <b>Cart Total</b>
+            <span>{{ collector.cartTotal|format_currency(collector.currency) }}</span>
+        </div>
+
+        {% if collector.cart is not null and collector.cart.lineItems is defined %}
+            {% for lineItem in collector.cart.lineItems %}
+                {% if loop.index <= 3 %}
+                    <div class="sf-toolbar-info-piece">
+                        <b>{{ lineItem.label }}</b>
+                        <span>{{ lineItem.quantity }} × {{ lineItem.price.unitPrice|format_currency(collector.currency) }}</span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            {% if collector.itemCount > 3 %}
+                <div class="sf-toolbar-info-piece">
+                    <span class="sf-toolbar-status">+{{ collector.itemCount - 3 }} more</span>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true }) }}
+{% endblock %}
+
+{% block menu %}
+    {# This left-hand menu appears when using the full-screen profiler. #}
+    <span class="label {{ collector.itemCount == 0 ? 'disabled' }}">
+        <span class="icon">{{ include('@Profiling/Collector/cart.svg') }}</span>
+        <strong>Cart</strong>
+        <span class="count">
+            <span>{{ collector.itemCount }}</span>
+        </span>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Cart Information</h2>
+
+    {% if collector.cart is null %}
+        <div class="empty">
+            <p>No cart available.</p>
+        </div>
+    {% else %}
+        <div class="metrics">
+            <div class="metric">
+                <span class="value">{{ collector.itemCount }}</span>
+                <span class="label">Items in Cart</span>
+            </div>
+            <div class="metric">
+                <span class="value">{{ collector.cartTotal|format_currency(collector.currency) }}</span>
+                <span class="label">Cart Total</span>
+            </div>
+        </div>
+
+        {% if collector.cart.lineItems is defined and collector.cart.lineItems|length > 0 %}
+            <h3>Line Items</h3>
+            <table class="cart-line-item-table">
+                <thead>
+                    <tr>
+                        <th class="text-right">Quantity</th>
+                        <th>Item</th>
+                        <th>Type</th>
+                        <th class="text-right">Unit Price</th>
+                        <th class="text-right">Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lineItem in collector.cart.lineItems %}
+                        <tr>
+                            <td class="font-normal text-right nowrap">{{ lineItem.quantity }}</td>
+                            <td class="font-normal">
+                                <span class="expandable-block-title" data-toggle="code-{{ loop.index }}">
+                                    {{ lineItem.label }}
+                                    <span class="sf-toggle-icon">
+                                        <svg class="icon icon-expand" width="12" height="12" viewbox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill="#AAA" d="M10.28 6.28L3.989 11.5 2.979 10.28l4.251-3.99-4.414-4.014 1.022-1.202 6.388 5.157.054.066z"/>
+                                        </svg>
+                                    </span>
+                                </span>
+                            </td>
+                            <td class="font-normal">{{ lineItem.type }}</td>
+                            <td class="font-normal text-right nowrap">{{ lineItem.price.unitPrice|format_currency(collector.currency) }}</td>
+                            <td class="font-normal text-right nowrap">{{ lineItem.price.totalPrice|format_currency(collector.currency) }}</td>
+                        </tr>
+                        <tr class="code-block-row hidden" id="code-{{ loop.index }}">
+                            <td colspan="5">
+                                {{ dump(lineItem) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th class="font-normal" colspan="4">Subtotal</th>
+                        <th class="font-normal text-right nowrap">{{ collector.cart.price.positionPrice|format_currency(collector.currency) }}</th>
+                    </tr>
+
+                    {% if collector.cart.deliveries is defined and collector.cart.deliveries|length > 0 %}
+                        <tr>
+                            <th class="font-normal" colspan="4">Shipping</th>
+                            <th class="font-normal text-right nowrap">{{ collector.cart.deliveries|first.shippingCosts.totalPrice|format_currency(collector.currency) }}</th>
+                        </tr>
+                    {% endif %}
+
+                    {% if collector.cart.price.calculatedTaxes is defined %}
+                        {% for tax in collector.cart.price.calculatedTaxes %}
+                            <tr>
+                                <td class="font-normal" colspan="4">{{ tax.taxRate }}% VAT</td>
+                                <td class="font-normal text-right nowrap">{{ tax.tax|format_currency(collector.currency) }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+
+                    <tr class="status-success">
+                        <th class="font-normal" colspan="4">Total</th>
+                        <th class="font-normal text-right nowrap">{{ collector.cartTotal|format_currency(collector.currency) }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        {% else %}
+            <div class="empty">
+                <p>Cart contains no items.</p>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    {# Display Cart Collectors and Processors #}
+    <h2>Cart Services</h2>
+    <div class="sf-tabs">
+        <div class="tab">
+            <h3 class="tab-title">Collectors
+                <span class="badge">{{ collector.collectors|length }}</span>
+            </h3>
+            <div class="tab-content">
+                {% if collector.collectors is empty %}
+                    <div class="empty">
+                        <p>No collectors found.</p>
+                    </div>
+                {% else %}
+                    <table class="collectors-table profiler-table">
+                        <thead>
+                            <tr>
+                                <th class="col-service-id">Service ID</th>
+                                <th class="col-priority text-right">Priority</th>
+                                <th class="col-decoration">Decoration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for col in collector.collectors %}
+                                <tr>
+                                    <td class="font-normal service-id">{{ col.serviceId }}</td>
+                                    <td class="font-normal text-right priority-cell">{{ col.priority }}</td>
+                                    <td class="font-normal decoration-cell">
+                                        {% if col.decoratedBy|length > 0 %}
+                                            <div class="decorator-chips">
+                                                {% for decorator in col.decoratedBy %}
+                                                    <span class="chip" title="priority: {{ decorator.priority }}">{{ decorator.serviceId }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <span class="muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tab">
+            <h3 class="tab-title">Processors
+                <span class="badge">{{ collector.processors|length }}</span>
+            </h3>
+            <div class="tab-content">
+                {% if collector.processors is empty %}
+                    <div class="empty">
+                        <p>No processors found.</p>
+                    </div>
+                {% else %}
+                    <table class="processors-table profiler-table">
+                        <thead>
+                            <tr>
+                                <th class="col-service-id">Service ID</th>
+                                <th class="col-priority text-right">Priority</th>
+                                <th class="col-decoration">Decoration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proc in collector.processors %}
+                                <tr>
+                                    <td class="font-normal service-id">{{ proc.serviceId }}</td>
+                                    <td class="font-normal text-right priority-cell">{{ proc.priority }}</td>
+                                    <td class="font-normal decoration-cell">
+                                        {% if proc.decoratedBy|length > 0 %}
+                                            <div class="decorator-chips">
+                                                {% for decorator in proc.decoratedBy %}
+                                                    <span class="chip" title="priority: {{ decorator.priority }}">{{ decorator.serviceId }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <span class="muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .profiler-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .profiler-table thead th {
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--table-border-color, #ddd);
+            padding: 8px 10px;
+            font-weight: 600;
+        }
+        .profiler-table tbody td {
+            padding: 8px 10px;
+            border-top: 1px solid var(--table-border-color, #eee);
+            vertical-align: top;
+        }
+        .profiler-table tbody tr:nth-child(odd) {
+            background-color: #fbfbfc;
+        }
+        .profiler-table tbody tr:hover {
+            background-color: #f3f6f9;
+        }
+
+        .col-service-id {
+            width: 70%;
+        }
+        .col-priority {
+            width: 10%;
+        }
+        .col-decoration {
+            width: 20%;
+        }
+
+        .service-id {
+            word-break: break-word;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+        }
+        .class-name {
+            white-space: nowrap;
+        }
+        .priority-cell {
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .decoration-cell {
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        .decorator-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: #eef2f7;
+            border: 1px solid #dbe3ee;
+            font-size: 11px;
+            color: #334155;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .muted {
+            color: #98a2b3;
+        }
+    </style>
+
+    {% if collector.cart is not null and collector.cart.lineItems is defined and collector.cart.lineItems|length > 0 %}
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleElements = document.querySelectorAll('.expandable-block-title');
+                toggleElements.forEach(function(element) {
+                    element.addEventListener('click', function() {
+                        const targetId = this.getAttribute('data-toggle');
+                        const targetElement = document.getElementById(targetId);
+
+                        if (targetElement.classList.contains('hidden')) {
+                            targetElement.classList.remove('hidden');
+                            this.classList.add('expanded');
+                        } else {
+                            targetElement.classList.add('hidden');
+                            this.classList.remove('expanded');
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <style>
+            .cart-line-item-table tfoot {
+                border-top: 1px solid var(--table-border-color);
+            }
+
+            .expandable-block-title {
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+            }
+
+            .expandable-block-title .sf-toggle-icon {
+                margin-left: 5px;
+                transition: transform 0.2s;
+            }
+
+            tr:has(.expandable-block-title.expanded) td {
+                border-bottom: none;
+            }
+
+            .expandable-block-title.expanded .sf-toggle-icon {
+                transform: rotate(90deg);
+            }
+
+            .code-block-row td {
+                border-top: none;
+                padding-top: 0;
+            }
+
+            .code-block-row.hidden {
+                display: none;
+            }
+        </style>
+    {% endif %}
+{% endblock %}

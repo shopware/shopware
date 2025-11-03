@@ -23,7 +23,7 @@ class SCSSValidator
         if (!\array_key_exists('value', $data)
             || !isset($data['value'])
             || $data['value'] === ''
-            || $data['value'] === false) {
+            || ($data['value'] === false && !\in_array($data['type'], ['checkbox', 'switch', 'boolean', 'bool'], true))) {
             return null;
         }
 
@@ -43,13 +43,6 @@ class SCSSValidator
             'text' => self::validateTypeText($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
             default => $data['value'],
         };
-    }
-
-    private static function isHex(string $hexCode): bool
-    {
-        preg_match('/^[a-f0-9]*$/i', $hexCode, $parsed);
-
-        return isset($parsed[0]) && $parsed[0] === $hexCode;
     }
 
     /**
@@ -91,23 +84,28 @@ class SCSSValidator
 
             preg_match('/body\{background-color:(.*);/i', $parsed, $parsedValue);
 
-            if (
-                !self::isValidColorName($value)
-                || !isset($parsedValue[1])
-                || trim($parsedValue[1]) !== $value
-            ) {
-                if (
-                    !empty($parsedValue[1])
-                    && trim($parsedValue[1]) !== $value
-                ) {
-                    return trim($parsedValue[1]);
-                }
+            /**
+             * If the parsed value is not a valid color, throw an exception.
+             */
+            if (!isset($parsedValue[1]) || !self::isValidColorName($parsedValue[1])) {
+                throw ThemeException::InvalidScssValue($value, $type, $name);
+            }
 
+            /**
+             * The SCSS compiler has an issue and compiles invalid hsl and rgb colors to hex.
+             * Therefore the compiler does not crash, and the parsed value is valid, but the original color is invalid.
+             * This could lead to compiler crashes at a later stage, for example, when using the color in a mixin.
+             */
+            if ((str_starts_with($value, 'hsl') && !self::isHSL($value))
+                || (str_starts_with($value, 'rgb') && !self::isRGB($value))) {
                 throw ThemeException::InvalidScssValue($value, $type, $name);
             }
 
             return $value;
         } catch (\Throwable $exception) {
+            /**
+             * If the color could not be compiled at all, throw an exception.
+             */
             if ($sanitize !== true) {
                 throw ThemeException::InvalidScssValue($value, $type, $name);
             }
@@ -174,17 +172,10 @@ class SCSSValidator
 
     private static function isValidColorName(mixed $value): bool
     {
-        return (
-            str_starts_with($value, '#')
-            && self::isHex(substr($value, 1))
-        ) || str_starts_with($value, 'rgb')
-                || str_starts_with($value, 'rgba')
-                || str_starts_with($value, 'hsl')
-                || str_starts_with($value, 'hsla')
-                || (
-                    !str_starts_with($value, '#')
-                    && Colors::colorNameToRGBa($value) !== null
-                );
+        return (str_starts_with($value, '#') && self::isHex(substr($value, 1)))
+            || (str_starts_with($value, 'hsl') && self::isHSL($value))
+            || (str_starts_with($value, 'rgb') && self::isRGB($value))
+            || (!str_starts_with($value, '#') && Colors::colorNameToRGBa($value) !== null);
     }
 
     private static function initVariables(string $value, string $varVal): string
@@ -199,7 +190,7 @@ class SCSSValidator
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private static function extractSCSSvars(string $value): array
     {
@@ -211,5 +202,160 @@ class SCSSValidator
         }
 
         return $vars;
+    }
+
+    private static function isHex(string $hexCode): bool
+    {
+        preg_match('/^[a-f0-9]*$/i', $hexCode, $parsed);
+
+        return isset($parsed[0]) && $parsed[0] === $hexCode;
+    }
+
+    /**
+     * Validates if the given HSL code is valid.
+     *
+     * It supports both classic and modern syntax.
+     * Will forward to isHSLA for classic syntax with 'hsla'.
+     * Supports SCSS functions like hue(), saturation(), lightness().
+     *
+     * The relative color syntax is not supported.
+     * It will fail in combination with SCSS color functions.
+     * Patterns like `hsl(from <color> H S L[ / A])` are not valid.
+     */
+    private static function isHSL(string $hslCode): bool
+    {
+        if (!str_starts_with($hslCode, 'hsl')) {
+            return false;
+        }
+
+        if (str_starts_with($hslCode, 'hsla')) {
+            return self::isHSLA($hslCode);
+        }
+
+        $hue = '(?:360(?:\.0+)?|3[0-5]\d(?:\.\d+)?|[12]\d{2}(?:\.\d+)?|[1-9]?\d(?:\.\d+)?)';
+        $percent = '(?:100|[1-9]?\d)%';
+        $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
+
+        // SCSS function call pattern (e.g., hue($var), saturation($var))
+        $scssFunction = '[a-z-]+\([^)]+\)';
+
+        // Allow either numeric values or SCSS functions
+        $hueOrFunction = '(?:' . $hue . '(?:deg)?|' . $scssFunction . ')';
+        $percentOrFunction = '(?:' . $percent . '|' . $scssFunction . ')';
+        $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
+
+        // Modern: hsl(h s% l% / a?)  (spaces; optional / alpha)
+        $patternModern = '/^hsl\(\s*' . $hueOrFunction . '\s+' . $percentOrFunction . '\s+' . $percentOrFunction . '(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
+
+        // Legacy: hsl(h, s%, l%)  (commas; no alpha)
+        $patternLegacy = '/^hsl\(\s*' . $hueOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $percentOrFunction . '\s*\)$/i';
+
+        return preg_match($patternModern, $hslCode) === 1 || preg_match($patternLegacy, $hslCode) === 1;
+    }
+
+    /**
+     * Validates if the given HSLA code is valid.
+     * Supports SCSS functions like hue(), saturation(), lightness().
+     *
+     * The relative color syntax is not supported.
+     * It will fail in combination with SCSS color functions.
+     * Patterns like `hsla(from <color> H S L A)` are not valid.
+     */
+    private static function isHSLA(string $hslaCode): bool
+    {
+        $hue = '(?:360(?:\.0+)?|3[0-5]\d(?:\.\d+)?|[12]\d{2}(?:\.\d+)?|[1-9]?\d(?:\.\d+)?)';
+        $percent = '(?:100|[1-9]?\d)%';
+        $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
+
+        // SCSS function call pattern (e.g., hue($var), saturation($var))
+        $scssFunction = '[a-z-]+\([^)]+\)';
+
+        // Allow either numeric values or SCSS functions
+        $hueOrFunction = '(?:' . $hue . '(?:deg)?|' . $scssFunction . ')';
+        $percentOrFunction = '(?:' . $percent . '|' . $scssFunction . ')';
+        $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
+
+        // Legacy HSLA: hsla(h, s%, l%, a)
+        $patternHsla = '/^hsla\(\s*' . $hueOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
+
+        return preg_match($patternHsla, $hslaCode) === 1;
+    }
+
+    /**
+     * Validates if the given RGB code is valid.
+     *
+     * It supports both classic and modern syntax.
+     * Allows SCSS variables, hex colors, and SCSS functions like red(), green(), blue().
+     * Will forward to isRGBA for classic syntax with 'rgba'.
+     *
+     * The relative color syntax is not supported.
+     * It will fail in combination with SCSS color functions.
+     * Patterns like `rgb(from <color> R G B[ / A])` are not valid.
+     */
+    private static function isRGB(string $rgbCode): bool
+    {
+        if (!str_starts_with($rgbCode, 'rgb')) {
+            return false;
+        }
+
+        if (str_starts_with($rgbCode, 'rgba')) {
+            return self::isRGBA($rgbCode);
+        }
+
+        $rgbValue = '(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)';
+        $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
+
+        // SCSS function call pattern (e.g., red($var), green($var))
+        $scssFunction = '[a-z-]+\([^)]+\)';
+
+        // Allow either numeric values or SCSS functions
+        $rgbOrFunction = '(?:' . $rgbValue . '|' . $scssFunction . ')';
+        $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
+
+        // Modern: rgb(r g b / a?)  (spaces; optional / alpha)
+        $patternModern = '/^rgb\(\s*' . $rgbOrFunction . '\s+' . $rgbOrFunction . '\s+' . $rgbOrFunction . '(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
+
+        // Legacy: rgb(r, g, b)  (commas; no alpha)
+        $patternLegacy = '/^rgb\(\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*\)$/i';
+
+        // SCSS variable or hex color format: rgb($variable / alpha?) or rgb(#fff / alpha?)
+        $scssVariable = '\$(?![0-9])[a-zA-Z0-9-_]+';
+        $hexColor = '#[a-f0-9]{3,8}';
+        $patternRgbWithColorOrVariable = '/^rgb\(\s*(?:' . $scssVariable . '|' . $hexColor . ')(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
+
+        return preg_match($patternModern, $rgbCode) === 1
+            || preg_match($patternLegacy, $rgbCode) === 1
+            || preg_match($patternRgbWithColorOrVariable, $rgbCode) === 1;
+    }
+
+    /**
+     * Validates if the given RGBA code is valid.
+     * Allows SCSS variables, hex colors, and SCSS functions like red(), green(), blue(), alpha().
+     *
+     * The relative color syntax is not supported.
+     * It will fail in combination with SCSS color functions.
+     * Patterns like `rgba(from <color> R G B A)` are not valid.
+     */
+    private static function isRGBA(string $rgbaCode): bool
+    {
+        $rgbValue = '(?:25[0-5]|2[0-4]\d|1?\d?\d|(?:100|[1-9]?\d)%)';
+        $alpha = '(?:0?\.\d+|1(?:\.0+)?|0|(?:100|[1-9]?\d)%)';
+
+        // SCSS function call pattern (e.g., red($var), green($var))
+        $scssFunction = '[a-z-]+\([^)]+\)';
+
+        // Allow either numeric values or SCSS functions
+        $rgbOrFunction = '(?:' . $rgbValue . '|' . $scssFunction . ')';
+        $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
+
+        // Classic 4-value format: rgba(r, g, b, a)
+        $patternRgba = '/^rgba\(\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
+
+        // SCSS variable or hex color format: rgba($variable, alpha) or rgba(#fff, alpha)
+        $scssVariable = '\$(?![0-9])[a-zA-Z0-9-_]+';
+        $hexColor = '#[a-f0-9]{3,8}';
+        $patternRgbaWithColorOrVariable = '/^rgba\(\s*(?:' . $scssVariable . '|' . $hexColor . ')\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
+
+        return preg_match($patternRgba, $rgbaCode) === 1 || preg_match($patternRgbaWithColorOrVariable, $rgbaCode) === 1;
     }
 }

@@ -172,11 +172,6 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should initialize with correct default values', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.measurementUnits).toEqual({

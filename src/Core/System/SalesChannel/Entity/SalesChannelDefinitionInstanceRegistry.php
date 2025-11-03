@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
@@ -28,6 +30,8 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 
     /**
      * @throws SalesChannelRepositoryNotFoundException
+     *
+     * @return SalesChannelRepository<covariant EntityCollection<covariant Entity>>
      */
     public function getSalesChannelRepository(string $entityName): SalesChannelRepository
     {

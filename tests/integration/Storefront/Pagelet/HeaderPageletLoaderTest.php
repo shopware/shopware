@@ -193,6 +193,7 @@ class HeaderPageletLoaderTest extends TestCase
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
+                'active' => true,
                 'translationCodeId' => $localeId,
             ],
         ], Context::createDefaultContext());

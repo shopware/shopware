@@ -147,7 +147,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     },
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-ignore-class': true,
                     'sw-context-menu-item': true,
@@ -203,6 +202,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-error-summary': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
@@ -443,11 +443,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         ];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be handled change data', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -542,8 +537,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.product.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.product.messageEmptyTitle');
     });
 
     it('should be selected taxRate on click change tax field', async () => {

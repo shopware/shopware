@@ -115,7 +115,7 @@ export default {
                 },
                 {
                     property: 'profileName',
-                    dataIndex: 'profile.label',
+                    dataIndex: 'profile.technicalName',
                     label: 'sw-import-export.activity.columns.profile',
                     allowResize: true,
                     primary: false,
@@ -153,8 +153,8 @@ export default {
                     primary: false,
                 },
                 {
-                    property: 'user.lastName',
-                    dataIndex: 'user.lastName',
+                    property: 'username',
+                    dataIndex: 'user.username',
                     label: 'sw-import-export.activity.columns.user',
                     allowResize: true,
                     primary: false,

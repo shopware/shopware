@@ -52,11 +52,6 @@ describe('components/form/sw-form-field-renderer', () => {
         global.repositoryFactoryMock.showError = false;
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
             slots: {

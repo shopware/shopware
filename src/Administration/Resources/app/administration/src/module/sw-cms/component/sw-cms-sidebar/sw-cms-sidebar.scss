@@ -3,7 +3,7 @@
 .sw-cms-sidebar {
     .sw-sidebar-item {
         .sw-sidebar-item__headline {
-            border-bottom: 1px solid $color-gray-300;
+            border-bottom: 1px solid var(--color-border-primary-default);
             padding: 25px 25px 0;
             margin: 0;
         }
@@ -11,7 +11,7 @@
 
     .sw-cms-sidebar__navigator-section {
         padding: 12px 24px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         .sw-cms-sidebar__navigator-section-header {
             font-weight: $font-weight-semi-bold;
@@ -44,7 +44,7 @@
 
     .sw-cms-sidebar__block-category {
         padding: 12px 24px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         .sw-field {
             margin: 0;
@@ -90,7 +90,7 @@
     .sw-cms-sidebar__layout-assignment-content,
     .sw-cms-sidebar__layout-set-as-default-content {
         padding: 25px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
     }
 
     .sw-cms-sidebar__layout-assignment-headline,

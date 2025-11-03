@@ -52,8 +52,13 @@ class SortingListingProcessor extends AbstractListingProcessor
         $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
         if ($currentSorting !== null) {
+            $fallbackSorting = null;
+            if ($this->hasQueriesOrTerm($criteria)) {
+                $fallbackSorting = new FieldSorting('_score', FieldSorting::DESCENDING);
+            }
+
             $criteria->addSorting(
-                ...$currentSorting->createDalSorting()
+                ...$currentSorting->createDalSorting($fallbackSorting)
             );
         }
 
@@ -71,6 +76,11 @@ class SortingListingProcessor extends AbstractListingProcessor
         }
 
         $result->setAvailableSortings($sortings);
+    }
+
+    private function hasQueriesOrTerm(Criteria $criteria): bool
+    {
+        return !empty($criteria->getQueries()) || $criteria->getTerm();
     }
 
     private function getCurrentSorting(ProductSortingCollection $sortings, Request $request, string $salesChannelId): ?ProductSortingEntity

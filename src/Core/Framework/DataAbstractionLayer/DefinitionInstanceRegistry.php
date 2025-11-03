@@ -33,6 +33,8 @@ class DefinitionInstanceRegistry
 
     /**
      * @throws EntityRepositoryNotFoundException
+     *
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
      */
     public function getRepository(string $entityName): EntityRepository
     {

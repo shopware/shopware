@@ -4,7 +4,7 @@ import './sw-review-detail.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -24,21 +24,21 @@ export default {
 
     shortcuts: {
         'SYSTEMKEY+S': {
+            method: 'onSave',
             active() {
                 return this.acl.can('review.editor');
             },
-            method: 'onSave',
         },
         ESCAPE: 'onCancel',
     },
 
     data() {
         return {
-            isLoading: null,
-            isSaveSuccessful: false,
-            reviewId: null,
             review: {},
+            reviewId: null,
+            isLoading: false,
             customFieldSets: null,
+            isSaveSuccessful: false,
         };
     },
 
@@ -66,11 +66,7 @@ export default {
         },
 
         languageCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
-
-            return criteria;
+            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC', false));
         },
 
         tooltipSave() {
@@ -130,6 +126,7 @@ export default {
                 path: 'review',
                 scope: this,
             });
+
             if (this.$route.params.id) {
                 this.reviewId = this.$route.params.id.toLowerCase();
 
@@ -140,17 +137,25 @@ export default {
 
         loadEntityData() {
             this.isLoading = true;
-            const criteria = new Criteria(1, 25);
-            criteria.addAssociation('customer');
-            criteria.addAssociation('salesChannel');
-            criteria.addAssociation('product');
 
-            const context = { ...Shopware.Context.api, inheritance: true };
+            const criteria = new Criteria(1, 25)
+                .addAssociation('customer')
+                .addAssociation('salesChannel')
+                .addAssociation('product');
 
-            this.repository.get(this.reviewId, context, criteria).then((review) => {
-                this.review = review;
-                this.isLoading = false;
-            });
+            const context = {
+                ...Shopware.Context.api,
+                inheritance: true,
+            };
+
+            this.repository
+                .get(this.reviewId, context, criteria)
+                .then((review) => {
+                    this.review = review;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         loadCustomFieldSets() {
@@ -160,12 +165,15 @@ export default {
         },
 
         onSave() {
+            this.isLoading = true;
             this.isSaveSuccessful = false;
+
             const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
 
             this.repository
                 .save(this.review)
                 .then(() => {
+                    this.loadEntityData();
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {
@@ -176,8 +184,8 @@ export default {
         },
 
         onSaveFinish() {
-            this.loadEntityData();
             this.isSaveSuccessful = false;
+            this.isLoading = false;
         },
 
         onCancel() {

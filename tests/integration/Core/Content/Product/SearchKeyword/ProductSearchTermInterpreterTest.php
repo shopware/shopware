@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Defaults;
@@ -31,6 +32,9 @@ class ProductSearchTermInterpreterTest extends TestCase
 
     private ProductSearchTermInterpreterInterface $interpreter;
 
+    /**
+     * @var EntityRepository<ProductSearchConfigCollection>
+     */
     private EntityRepository $productSearchConfigRepository;
 
     private string $productSearchConfigId;

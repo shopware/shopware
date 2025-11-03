@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
@@ -21,13 +23,16 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
 
+    final public const QUERY_EVENT_NAME = 'sitemap.query.landing_page';
+
     /**
      * @internal
      */
     public function __construct(
         private readonly ConfigHandler $configHandler,
         private readonly Connection $connection,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -56,6 +61,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $ids = array_column($landingPages, 'id');
 
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
         $seoUrls = $this->getSeoUrls($ids, 'frontend.landing.page', $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
@@ -68,6 +74,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$landingPage['id']])) {
                 $url->setLoc($seoUrls[$landingPage['id']]['seo_path_info']);
             } else {
+                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                 $url->setLoc($this->router->generate('frontend.landing.page', ['landingPageId' => $landingPage['id']]));
             }
 
@@ -83,7 +90,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $nextOffset = null;
         if (\count($landingPages) === $limit) {
-            $nextOffset = $offset + $limit;
+            $nextOffset = (int) $offset + $limit;
         }
 
         return new UrlResult($urls, $nextOffset);
@@ -118,6 +125,10 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
+
+        $this->eventDispatcher->dispatch(
+            new SitemapQueryEvent($query, $limit, $offset, $context, self::QUERY_EVENT_NAME)
+        );
 
         /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
         $result = $query->executeQuery()->fetchAllAssociative();

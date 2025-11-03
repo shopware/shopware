@@ -488,4 +488,31 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
             'Metric system',
         );
     });
+
+    it('should set initial measurement unit when opening the create modal', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                domains: [],
+                currencies: [],
+                languages: [],
+                measurementUnits: {
+                    system: 'metric',
+                    units: {
+                        length: 'metre',
+                        weight: 'kilogram',
+                    },
+                },
+            },
+        });
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+
+        expect(wrapper.vm.currentDomain.measurementUnits).toEqual({
+            system: 'metric',
+            units: {
+                length: 'metre',
+                weight: 'kilogram',
+            },
+        });
+    });
 });

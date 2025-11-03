@@ -28,6 +28,7 @@ class PluginUpdateAllCommandTest extends TestCase
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())->method('refreshPlugins');
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
             $this->createPlugin('Test2'),
@@ -48,6 +49,7 @@ class PluginUpdateAllCommandTest extends TestCase
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())->method('refreshPlugins');
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
             $this->createPlugin('Test2', false, '2.0.0'),
@@ -69,6 +71,7 @@ class PluginUpdateAllCommandTest extends TestCase
         $pluginService->expects($this->once())->method('refreshPlugins');
 
         $updateAblePlugin = $this->createPlugin('Test2', upgradeVersion: '1.0.1');
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
             $updateAblePlugin,
@@ -104,6 +107,7 @@ class PluginUpdateAllCommandTest extends TestCase
         $pluginService->expects($this->once())->method('refreshPlugins');
 
         $updateAblePlugin = $this->createPlugin('Test2', upgradeVersion: '1.0.1');
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
             $updateAblePlugin,

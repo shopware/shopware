@@ -49,7 +49,6 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                 },
-                'sw-empty-state': true,
                 'sw-context-menu-item': true,
                 'sw-modal': {
                     template: `
@@ -65,6 +64,15 @@ async function createWrapper(privileges = []) {
                 'sw-data-grid-column-boolean': true,
                 'sw-pagination': true,
                 'sw-time-ago': true,
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
         },
     });
@@ -91,12 +99,6 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
                 },
             },
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to edit a review', async () => {

@@ -24,10 +24,13 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     /**
      * @internal
+     *
+     * @param list<string> $allowedRoutes
      */
     public function __construct(
         private readonly SymfonyRouter $decorated,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly array $allowedRoutes = [],
     ) {
     }
 
@@ -159,7 +162,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function removePrefix(string $subject, string $prefix): string
     {
-        if (!$prefix || mb_strpos($subject, $prefix) !== 0) {
+        if (!$prefix || !str_starts_with($subject, $prefix)) {
             return $subject;
         }
 
@@ -194,6 +197,10 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
+        if (\in_array($name, $this->allowedRoutes, true)) {
+            return true;
+        }
+
         return str_starts_with($name, 'frontend.')
             || str_starts_with($name, 'widgets.')
             || str_starts_with($name, 'payment.');

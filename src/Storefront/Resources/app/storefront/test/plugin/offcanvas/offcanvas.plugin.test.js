@@ -280,7 +280,7 @@ describe('OffCanvas tests', () => {
             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
                 Open Bootstrap offcanvas
             </button>
-            
+
             <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
@@ -315,5 +315,37 @@ describe('OffCanvas tests', () => {
 
         // Ensure the hard-coded Bootstrap offcanvas is still in the DOM
         expect(document.getElementById('offcanvasExample')).toBeTruthy();
+    });
+
+    it('should properly dispose Bootstrap instances when removing existing offcanvas', () => {
+        jest.useFakeTimers();
+
+        // Open first offcanvas
+        OffCanvas.open('First offcanvas');
+        jest.runAllTimers();
+
+        const firstOffcanvas = document.querySelector('.js-offcanvas-singleton');
+        expect(firstOffcanvas).toBeTruthy();
+
+        // Mock bootstrap.Offcanvas.getInstance and dispose
+        const mockDispose = jest.fn();
+        const mockInstance = { dispose: mockDispose };
+        const getInstanceSpy = jest.spyOn(bootstrap.Offcanvas, 'getInstance').mockReturnValue(mockInstance);
+
+        // Open second offcanvas (should remove first one)
+        OffCanvas.open('Second offcanvas');
+        jest.runAllTimers();
+
+        // Verify dispose was called on the first offcanvas instance
+        expect(getInstanceSpy).toHaveBeenCalledWith(firstOffcanvas);
+        expect(mockDispose).toHaveBeenCalled();
+
+        // Verify only one offcanvas exists
+        const allOffcanvas = document.querySelectorAll('.js-offcanvas-singleton');
+        expect(allOffcanvas.length).toBe(1);
+        expect(allOffcanvas[0].innerHTML).toBe('Second offcanvas');
+
+        // Cleanup
+        getInstanceSpy.mockRestore();
     });
 });

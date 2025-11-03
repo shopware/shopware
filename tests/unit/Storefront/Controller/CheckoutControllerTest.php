@@ -25,7 +25,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Controller\CheckoutController;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
@@ -66,8 +66,6 @@ class CheckoutControllerTest extends TestCase
 
     private OffcanvasCartPageLoader&MockObject $offcanvasCartPageLoaderMock;
 
-    private SystemConfigService&MockObject $configMock;
-
     private AbstractLogoutRoute&MockObject $logoutRouteMock;
 
     private AbstractCartLoadRoute&MockObject $cartLoadRouteMock;
@@ -81,7 +79,6 @@ class CheckoutControllerTest extends TestCase
         $this->orderServiceMock = $this->createMock(OrderService::class);
         $this->paymentProcessorMock = $this->createMock(PaymentProcessor::class);
         $this->offcanvasCartPageLoaderMock = $this->createMock(OffcanvasCartPageLoader::class);
-        $this->configMock = $this->createMock(SystemConfigService::class);
         $this->logoutRouteMock = $this->createMock(AbstractLogoutRoute::class);
         $this->cartLoadRouteMock = $this->createMock(AbstractCartLoadRoute::class);
 
@@ -93,7 +90,6 @@ class CheckoutControllerTest extends TestCase
             $this->orderServiceMock,
             $this->paymentProcessorMock,
             $this->offcanvasCartPageLoaderMock,
-            $this->configMock,
             $this->logoutRouteMock,
             $this->cartLoadRouteMock,
             $this->createMock(HeaderPageletLoaderInterface::class),
@@ -135,7 +131,13 @@ class CheckoutControllerTest extends TestCase
     public function testGetCartRedirectOnShippingErrors(): void
     {
         $cart = new Cart(Uuid::randomHex());
-        $cart->addErrors(new ShippingMethodChangedError('old', 'new'));
+        $cart->addErrors(new ShippingMethodChangedError(
+            oldShippingMethodId: Uuid::randomHex(),
+            oldShippingMethodName: 'old',
+            newShippingMethodId: Uuid::randomHex(),
+            newShippingMethodName: 'new',
+            reason: 'reason',
+        ));
 
         $cartPage = new CheckoutCartPage();
         $cartPage->setCart($cart);
@@ -157,7 +159,13 @@ class CheckoutControllerTest extends TestCase
     public function testGetCartRedirectOnShippingErrorsPreventLoop(): void
     {
         $cart = new Cart(Uuid::randomHex());
-        $cart->addErrors(new ShippingMethodChangedError('old', 'new'));
+        $cart->addErrors(new ShippingMethodChangedError(
+            oldShippingMethodId: Uuid::randomHex(),
+            oldShippingMethodName: 'old',
+            newShippingMethodId: Uuid::randomHex(),
+            newShippingMethodName: 'new',
+            reason: 'reason',
+        ));
 
         $cartPage = new CheckoutCartPage();
         $cartPage->setCart($cart);
@@ -251,7 +259,13 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
-        $cart->addErrors(new ShippingMethodChangedError('old', 'new'));
+        $cart->addErrors(new ShippingMethodChangedError(
+            oldShippingMethodId: Uuid::randomHex(),
+            oldShippingMethodName: 'old',
+            newShippingMethodId: Uuid::randomHex(),
+            newShippingMethodName: 'new',
+            reason: 'reason',
+        ));
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
@@ -342,18 +356,13 @@ class CheckoutControllerTest extends TestCase
 
     public function testFinishPageGuestLogout(): void
     {
-        $customer = new CustomerEntity();
-        $customer->setGuest(true);
-
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn($customer);
+        $context = Generator::generateSalesChannelContext();
 
         $page = new CheckoutFinishPage();
         $page->setPaymentFailed(false);
+        $page->setLogoutCustomer(true);
 
         $this->finishPageLoaderMock->method('load')->willReturn($page);
-
-        $this->configMock->method('get')->willReturn(true);
 
         $this->logoutRouteMock->expects($this->once())->method('logout');
 
@@ -365,18 +374,13 @@ class CheckoutControllerTest extends TestCase
 
     public function testFinishPageNoGuestLogout(): void
     {
-        $customer = new CustomerEntity();
-        $customer->setGuest(false);
-
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn($customer);
+        $context = Generator::generateSalesChannelContext();
 
         $page = new CheckoutFinishPage();
         $page->setPaymentFailed(false);
+        $page->setLogoutCustomer(false);
 
         $this->finishPageLoaderMock->method('load')->willReturn($page);
-
-        $this->configMock->method('get')->willReturn(true);
 
         $this->logoutRouteMock->expects($this->never())->method('logout');
 
@@ -609,7 +613,13 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
-        $cart->addErrors(new ShippingMethodChangedError('old', 'new'));
+        $cart->addErrors(new ShippingMethodChangedError(
+            oldShippingMethodId: Uuid::randomHex(),
+            oldShippingMethodName: 'old',
+            newShippingMethodId: Uuid::randomHex(),
+            newShippingMethodName: 'new',
+            reason: 'reason',
+        ));
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());

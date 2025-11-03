@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Administration\Service\AdminSearcher;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('framework')]
 class AdminSearchController extends AbstractController
 {
@@ -38,7 +41,7 @@ class AdminSearchController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_admin/search', name: 'api.admin.search', defaults: ['_routeScope' => ['administration']], methods: ['POST'])]
+    #[Route(path: '/api/_admin/search', name: 'api.admin.search', methods: ['POST'])]
     public function search(Request $request, Context $context): Response
     {
         $criteriaCollection = $this->buildSearchEntities($request, $context);

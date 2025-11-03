@@ -17,7 +17,7 @@ class BillingAddressSalutationMissingError extends SalutationMissingError
             'A salutation needs to be defined for the billing address "%s %s, %s %s".',
             $address->getFirstName(),
             $address->getLastName(),
-            $address->getZipcode(),
+            (string) $address->getZipcode(),
             $address->getCity()
         );
 
@@ -36,6 +36,7 @@ class BillingAddressSalutationMissingError extends SalutationMissingError
     public function getRoute(): ?ErrorRoute
     {
         return new ErrorRoute(
+            /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12969) */
             'frontend.account.address.edit.page',
             $this->parameters
         );

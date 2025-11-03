@@ -2,99 +2,176 @@
 
 namespace Shopware\Core\System\Snippet\Service;
 
+use GuzzleHttp\Psr7\Exception\MalformedUriException;
+use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\SnippetException;
-use Shopware\Core\System\Snippet\Struct\Language;
-use Shopware\Core\System\Snippet\Struct\LanguageCollection;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class TranslationConfigLoader
+class TranslationConfigLoader extends AbstractTranslationConfigLoader
 {
-    private const TRANSLATION_CONFIG_DIR = __DIR__ . '/../../Resources';
+    private const REPOSITORY_URL = 'repository-url';
 
-    private const TRANSLATION_CONFIG_FILE = '/translation.yaml';
+    private const METADATA_URL = 'metadata-url';
 
-    public static function load(): TranslationConfig
+    public function __construct(
+        private readonly Filesystem $configReader,
+    ) {
+    }
+
+    public function getDecorated(): AbstractTranslationConfigLoader
     {
-        $config = self::parseConfig();
+        throw new DecorationPatternException(self::class);
+    }
 
-        $url = $config['repository-url'];
-        \assert(\is_string($url), 'The repository-url in the translation config must be a string.');
+    public function load(): TranslationConfig
+    {
+        $config = $this->parseConfig();
 
-        /** @var list<string> $locales */
-        $locales = $config['locales'];
-        \assert(\is_array($locales), 'The locales in the translation config must be an array.');
+        $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
+        $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
 
         /** @var list<string> $plugins */
         $plugins = $config['plugins'];
         \assert(\is_array($plugins), 'The plugins in the translation config must be an array.');
 
         $languages = $config['languages'] ?? [];
+        $excludedLocales = $config['excluded-locales'] ?? [];
 
+        $locales = [];
         $languageData = [];
+
         foreach ($languages as $language) {
+            $locales[] = $language['locale'];
             $languageData[] = new Language($language['locale'], $language['name']);
         }
 
-        $pluginMapping = self::getPluginMapping($config);
+        $pluginMapping = $this->getPluginMapping($config['plugin-mapping'] ?? []);
 
-        return new TranslationConfig($url, $locales, $plugins, new LanguageCollection($languageData), $pluginMapping);
+        return new TranslationConfig(
+            $repositoryUrl,
+            $locales,
+            $plugins,
+            new LanguageCollection($languageData),
+            $pluginMapping,
+            $metadataUrl,
+            $excludedLocales,
+        );
     }
 
-    public static function getMappedPluginName(Plugin $plugin): string
+    protected function getRelativeConfigurationPath(): string
     {
-        $config = self::parseConfig();
-        $mapping = self::getPluginMapping($config);
+        return __DIR__ . '/../../Resources';
+    }
 
-        $name = $plugin->getName();
-
-        return $mapping[$name] ?? $name;
+    protected function getConfigFilename(): string
+    {
+        return 'translation.yaml';
     }
 
     /**
      * @return array<string, mixed>
      */
-    private static function parseConfig(): array
+    private function parseConfig(): array
     {
-        $path = realpath(self::TRANSLATION_CONFIG_DIR);
+        $configPath = \realpath($this->getRelativeConfigurationPath());
 
-        if ($path === false) {
-            throw SnippetException::translationConfigurationDirectoryDoesNotExist(self::TRANSLATION_CONFIG_DIR);
+        if ($configPath === false) {
+            throw SnippetException::translationConfigurationDirectoryDoesNotExist($this->getRelativeConfigurationPath());
         }
 
-        $path .= self::TRANSLATION_CONFIG_FILE;
-        $content = file_get_contents($path);
+        $configFilePath = Path::join($configPath, $this->getConfigFilename());
+        try {
+            $content = $this->configReader->readFile($configFilePath);
+        } catch (IOException $e) {
+            throw SnippetException::translationConfigurationFileDoesNotExist($this->getConfigFilename(), $e);
+        }
 
-        if ($content === false) {
-            throw SnippetException::translationConfigurationFileDoesNotExist(self::TRANSLATION_CONFIG_FILE);
+        if (empty(\trim($content))) {
+            throw SnippetException::translationConfigurationFileIsEmpty($this->getConfigFilename());
         }
 
         return Yaml::parse($content);
     }
 
     /**
-     * @param array<string, mixed> $config
-     *
-     * @return array<string, string>
+     * @param list<array{plugin: string, name: string}> $pluginMappingsConfig
      */
-    private static function getPluginMapping(array $config): array
+    private function getPluginMapping(array $pluginMappingsConfig): PluginMappingCollection
     {
-        $result = [];
-        $mapping = $config['plugin-mapping'] ?? [];
+        $pluginMappings = new PluginMappingCollection();
 
-        foreach ($mapping as $data) {
-            $plugin = $data['plugin'];
-            $name = $data['name'];
-
-            $result[$plugin] = $name;
+        foreach ($pluginMappingsConfig as $pluginMappingConfig) {
+            $pluginMappings->set(
+                $pluginMappingConfig['plugin'],
+                new PluginMapping(
+                    $pluginMappingConfig['plugin'],
+                    $pluginMappingConfig['name']
+                )
+            );
         }
 
-        return $result;
+        return $pluginMappings;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function getUrlFromConfigByType(string $type, array $config): Uri
+    {
+        $url = $config[$type];
+
+        if (!\is_string($url)) {
+            $exception = new \InvalidArgumentException(\sprintf('"%s" in the translation config must be a string.', $type));
+
+            try {
+                $encodedUrl = json_encode($url, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                $encodedUrl = \sprintf('Unable to convert %s to string.', $type);
+                $exception = $e;
+            }
+
+            throw SnippetException::invalidRepositoryUrl($encodedUrl, $exception);
+        }
+
+        return $this->getValidatedUrl($url, $type);
+    }
+
+    private function getValidatedUrl(string $urlString, string $type): Uri
+    {
+        if (\mb_strlen(\trim($urlString)) < 1) {
+            throw SnippetException::invalidRepositoryUrl(
+                $urlString,
+                new \InvalidArgumentException(\sprintf('"%s" in the translation config must not be empty.', $type))
+            );
+        }
+
+        try {
+            $url = new Uri($urlString);
+        } catch (MalformedUriException $e) {
+            throw SnippetException::invalidRepositoryUrl($urlString, $e);
+        }
+
+        if (empty($url->getScheme()) || empty($url->getHost())) {
+            throw SnippetException::invalidRepositoryUrl(
+                $urlString,
+                new MalformedUriException(\sprintf('"%s" must contain a schema and a host.', $type))
+            );
+        }
+
+        return $url;
     }
 }

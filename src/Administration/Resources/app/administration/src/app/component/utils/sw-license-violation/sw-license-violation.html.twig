@@ -13,67 +13,68 @@
     </span>
 
     <table class="sw-license-violation__table">
-        <tr>
-            <th width="200px">
-                {{ $tc('sw-license-violation.table.plugin') }}
-            </th>
-            <th>{{ $tc('sw-license-violation.table.warning') }}</th>
-            <th width="350px"></th>
-        </tr>
+        <thead>
+            <tr>
+                <th width="200px">
+                    {{ $tc('sw-license-violation.table.plugin') }}
+                </th>
+                <th>{{ $tc('sw-license-violation.table.warning') }}</th>
+                <th width="350px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr
+                v-for="violation in violations"
+                :key="violation.name"
+            >
+                <td class="sw-license-violation__table-name">
+                    <template v-if="getPluginForViolation(violation)">
+                        <img
+                            v-if="getPluginForViolation(violation).icon || getPluginForViolation(violation).iconRaw"
+                            :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
+                            alt=""
+                        >
+                        <strong>
+                            {{ (getPluginForViolation(violation).translated && getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label}}
+                        </strong>
+                    </template>
 
-        <tr
-            v-for="violation in violations"
-            :key="violation.name"
-        >
+                    <template v-else>
+                        <p>
+                            <strong>{{ violation.name }}</strong>
+                        </p>
+                    </template>
+                </td>
 
-            <td class="sw-license-violation__table-name">
-                <template v-if="getPluginForViolation(violation)">
-                    <img
-                        v-if="getPluginForViolation(violation).icon || getPluginForViolation(violation).iconRaw"
-                        :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
-                        alt=""
+                <td>{{ violation.extensions.licenseViolation.text }}</td>
+
+                <td class="sw-license-violation__table-actions">
+                    <div
+                        v-for="action in violation.extensions.licenseViolation.actions"
+                        :key="action.externalLink"
+                        class="sw-license-violation__table-actions-wrap"
                     >
-                    <strong>
-                        {{ (getPluginForViolation(violation).translated && getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label}}
-                    </strong>
-                </template>
+                        <mt-button
+                            class="sw-license-violation__table-action-remove"
+                            variant="critical"
+                            ghost
+                            size="small"
+                            @click.prevent="deletePlugin(violation)"
+                        >
+                            {{ $tc('sw-license-violation.deletePlugin') }}
+                        </mt-button>
 
-                <template v-else>
-                    <p>
-                        <strong>{{ violation.name }}</strong>
-                    </p>
-                </template>
-            </td>
-
-            <td>{{ violation.extensions.licenseViolation.text }}</td>
-
-            <td class="sw-license-violation__table-actions">
-                <div
-                    v-for="action in violation.extensions.licenseViolation.actions"
-                    :key="action.externalLink"
-                    class="sw-license-violation__table-actions-wrap"
-                >
-                    <mt-button
-                        class="sw-license-violation__table-action-remove"
-                        variant="critical"
-                        ghost
-                        size="small"
-                        @click.prevent="deletePlugin(violation)"
-                    >
-                        {{ $tc('sw-license-violation.deletePlugin') }}
-                    </mt-button>
-
-                    <mt-button
-                        :link="action.externalLink"
-                        ghost
-                        size="small"
-                        variant="secondary"
-                    >{{ action.label }}
-                    </mt-button>
-                </div>
-            </td>
-
-        </tr>
+                        <mt-button
+                            :link="action.externalLink"
+                            ghost
+                            size="small"
+                            variant="secondary"
+                        >{{ action.label }}
+                        </mt-button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
     </table>
 
     <template #modal-footer>

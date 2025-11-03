@@ -69,12 +69,6 @@ async function createWrapper(options = {}) {
 }
 
 describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.exists()).toBe(true);
-        wrapper.unmount();
-    });
-
     it('should show loading state initially', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

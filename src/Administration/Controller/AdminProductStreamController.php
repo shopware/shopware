@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('framework')]
 class AdminProductStreamController extends AbstractController
 {
@@ -36,7 +38,7 @@ class AdminProductStreamController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_admin/product-stream-preview/{salesChannelId}', name: 'api.admin.product-stream-preview', defaults: ['_routeScope' => ['administration']], methods: ['POST'])]
+    #[Route(path: '/api/_admin/product-stream-preview/{salesChannelId}', name: 'api.admin.product-stream-preview', methods: ['POST'])]
     public function productStreamPreview(string $salesChannelId, Request $request, Context $context): JsonResponse
     {
         $salesChannelContext = $this->salesChannelContextService->get(

@@ -1,5 +1,5 @@
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/placeholder.mixin';
@@ -25,6 +25,7 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => ({
+                        save: () => Promise.resolve(),
                         get: () => {
                             return Promise.resolve({
                                 id: '1a2b3c',
@@ -92,71 +93,74 @@ describe('module/sw-review/page/sw-review-detail', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to save the review', async () => {
         const wrapper = await createWrapper();
 
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
-        expect(saveButton.attributes().disabled).toBeTruthy();
+        expect(saveButton.attributes().disabled).toBe('true');
     });
 
     it('should be able to save the review', async () => {
         global.activeAclRoles = ['review.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            isLoading: false,
-        });
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ isLoading: false });
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
-        expect(saveButton.attributes().disabled).toBeFalsy();
+        expect(saveButton.attributes().disabled).toBe('false');
     });
 
     it('should not be able to edit review fields', async () => {
         const wrapper = await createWrapper();
-
         await wrapper.setData({ isLoading: false });
+        await flushPromises();
 
         const languageField = wrapper.find('.sw-review__language-select');
         const activeField = wrapper.findComponent('.status-switch');
         const commentField = wrapper.find('.sw-review__comment-field');
 
-        expect(languageField.attributes().disabled).toBeTruthy();
+        expect(languageField.attributes().disabled).toBe('true');
         expect(activeField.props().disabled).toBe(true);
-        expect(commentField.attributes().disabled).toBeTruthy();
+        expect(commentField.attributes().disabled).toBe('true');
     });
 
     it('should be able to edit review fields', async () => {
         global.activeAclRoles = ['review.editor'];
 
         const wrapper = await createWrapper();
-
         await wrapper.setData({ isLoading: false });
+        await flushPromises();
 
         const languageField = wrapper.find('.sw-review__language-select');
-        const activeField = wrapper.find('.status-switch');
+        const activeField = wrapper.find('.status-switch input');
         const commentField = wrapper.find('.sw-review__comment-field');
 
-        expect(languageField.attributes().disabled).toBeFalsy();
-        expect(activeField.attributes().disabled).toBeFalsy();
-        expect(commentField.attributes().disabled).toBeFalsy();
+        expect(languageField.attributes().disabled).toBe('false');
+        expect(activeField.attributes()).not.toHaveProperty('disabled');
+        expect(commentField.attributes().disabled).toBe('false');
     });
 
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         if (!Shopware.Feature.isActive('V6_8_0_0')) {
             // eslint-disable-next-line jest/no-conditional-expect
             expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         }
+    });
+
+    it('should render loading indicator on save', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-review-detail__save-action');
+        expect(saveButton.attributes('is-loading')).toBe('false');
+
+        await saveButton.trigger('click');
+        expect(saveButton.attributes('is-loading')).toBe('true');
     });
 });

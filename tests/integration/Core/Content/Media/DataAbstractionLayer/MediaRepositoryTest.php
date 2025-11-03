@@ -117,6 +117,10 @@ class MediaRepositoryTest extends TestCase
                             'width' => 100,
                             'height' => 200,
                             'highDpi' => false,
+                            'mediaThumbnailSize' => [
+                                'width' => 100,
+                                'height' => 200,
+                            ],
                         ],
                     ],
                 ],
@@ -178,6 +182,10 @@ class MediaRepositoryTest extends TestCase
                                 'width' => 100,
                                 'height' => 200,
                                 'highDpi' => true,
+                                'mediaThumbnailSize' => [
+                                    'width' => 100,
+                                    'height' => 200,
+                                ],
                             ],
                         ],
                         'mediaFolder' => [
@@ -302,6 +310,10 @@ class MediaRepositoryTest extends TestCase
                             'width' => 100,
                             'height' => 200,
                             'highDpi' => true,
+                            'mediaThumbnailSize' => [
+                                'width' => 100,
+                                'height' => 200,
+                            ],
                         ],
                     ],
                 ],

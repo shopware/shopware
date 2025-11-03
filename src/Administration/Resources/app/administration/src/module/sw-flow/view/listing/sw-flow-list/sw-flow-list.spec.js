@@ -94,7 +94,11 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                     },
                 },
 
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             mocks: {
                 $route: {

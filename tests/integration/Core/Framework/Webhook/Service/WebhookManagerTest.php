@@ -198,7 +198,7 @@ class WebhookManagerTest extends TestCase
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
-    public function testDoesNotDispatchBusinessEventIfAppUrlChangeWasDetected(): void
+    public function testDoesNotDispatchBusinessEventIfShopIdFingerprintsHaveChanged(): void
     {
         $appId = Uuid::randomHex();
         $aclRoleId = Uuid::randomHex();

@@ -113,6 +113,12 @@ class SyncServiceTest extends TestCase
         ];
 
         $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+        $exists = $this->connection->fetchAllAssociative(
+            'SELECT id FROM product_media WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['media-2']))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        static::assertEmpty($exists);
     }
 
     public function testSingleOperationWithDeletesAndWrites(): void

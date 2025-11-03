@@ -39,7 +39,7 @@ class PromotionLineItemRuleTest extends TestCase
 
         static::assertEquals([
             'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([
+            'operator' => [new NotBlank(), new Choice(choices: [
                 Rule::OPERATOR_EQ,
                 Rule::OPERATOR_NEQ,
             ])],

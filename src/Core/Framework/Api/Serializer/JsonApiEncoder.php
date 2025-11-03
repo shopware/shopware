@@ -31,7 +31,9 @@ class JsonApiEncoder
     private array $serializeCache = [];
 
     /**
-     * @param EntityCollection<covariant Entity>|Entity|null $data
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param TEntityCollection|Entity|null $data
      * @param array<string, mixed> $metaData
      *
      * @throws ApiException
@@ -49,7 +51,7 @@ class JsonApiEncoder
         $result->setSingleResult($data instanceof Entity);
         $result->setMetaData($metaData);
 
-        $fields = new ResponseFields($criteria->getIncludes());
+        $fields = new ResponseFields($criteria->getIncludes(), $criteria->getExcludes());
 
         $this->encodeData($fields, $definition, $data, $result);
 
@@ -125,7 +127,9 @@ class JsonApiEncoder
     }
 
     /**
-     * @param Entity|EntityCollection<covariant Entity> $data
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param Entity|TEntityCollection $data
      */
     private function encodeData(ResponseFields $fields, EntityDefinition $definition, Entity|EntityCollection $data, JsonApiEncodingResult $result): void
     {

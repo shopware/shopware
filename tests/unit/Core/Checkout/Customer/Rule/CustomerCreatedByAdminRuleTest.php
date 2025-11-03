@@ -31,7 +31,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         static::assertArrayHasKey('shouldCustomerBeCreatedByAdmin', $constraints, 'Constraint shouldCustomerBeCreatedByAdmin not found in Rule');
         static::assertEquals($constraints['shouldCustomerBeCreatedByAdmin'], [
             new NotNull(),
-            new Type(['type' => 'bool']),
+            new Type(type: 'bool'),
         ]);
     }
 

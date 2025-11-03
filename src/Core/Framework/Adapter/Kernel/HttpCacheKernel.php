@@ -21,8 +21,6 @@ class HttpCacheKernel extends HttpCache
 {
     final public const MAINTENANCE_WHITELIST_HEADER = 'sw-maintenance-whitelist';
 
-    private StoreInterface $store;
-
     /**
      * @internal
      *
@@ -30,15 +28,13 @@ class HttpCacheKernel extends HttpCache
      */
     public function __construct(
         HttpKernelInterface $kernel,
-        StoreInterface $store,
+        private StoreInterface $store,
         SurrogateInterface $surrogate,
         array $options,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly bool $externalReverseProxyEnabled
+        private readonly bool $externalReverseProxyEnabled,
     ) {
-        $this->store = $store;
-
-        parent::__construct($kernel, $store, $surrogate, $options);
+        parent::__construct($kernel, $this->store, $surrogate, $options);
     }
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response

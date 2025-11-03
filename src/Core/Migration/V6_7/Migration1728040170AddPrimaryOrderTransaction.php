@@ -37,7 +37,12 @@ class Migration1728040170AddPrimaryOrderTransaction extends MigrationStep
 
         do {
             $ids = $connection->fetchFirstColumn(
-                'SELECT `id` FROM `order` WHERE `primary_order_transaction_id` IS NULL LIMIT :limit',
+                'SELECT `id` FROM `order` WHERE `primary_order_transaction_id` IS NULL AND EXISTS (
+                 SELECT 1
+                 FROM `order_transaction`
+                 WHERE `order_transaction`.`order_id` = `order`.`id`
+                   AND `order_transaction`.`order_version_id` = `order`.`version_id`
+             ) LIMIT :limit',
                 ['limit' => $updateLimit],
                 ['limit' => ParameterType::INTEGER]
             );

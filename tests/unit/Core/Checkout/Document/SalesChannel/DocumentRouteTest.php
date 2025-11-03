@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -37,7 +39,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $this->createMock(EntityRepository::class)
+            $this->createMock(EntityRepository::class),
+            new GuestAuthenticator(),
         );
 
         static::expectException(DocumentException::class);
@@ -61,7 +64,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            new GuestAuthenticator(),
         );
 
         static::expectException(DocumentException::class);
@@ -87,7 +91,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            new GuestAuthenticator(),
         );
 
         static::expectException(CustomerNotLoggedInException::class);
@@ -122,7 +127,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            new GuestAuthenticator(),
         );
 
         $request = new Request();
@@ -170,6 +176,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $this->createMock(DocumentGenerator::class),
             $documentRepository,
+            new GuestAuthenticator(),
         );
 
         $request = new Request([
@@ -215,7 +222,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $this->createMock(DocumentGenerator::class),
-            $documentRepository
+            $documentRepository,
+            new GuestAuthenticator(),
         );
 
         $request = new Request();
@@ -262,6 +270,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $this->createMock(DocumentGenerator::class),
             $documentRepository,
+            new GuestAuthenticator(),
         );
 
         $request = new Request([
@@ -310,6 +319,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $this->createMock(DocumentGenerator::class),
             $documentRepository,
+            new GuestAuthenticator(),
         );
 
         $request = new Request([
@@ -351,14 +361,15 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            new GuestAuthenticator(),
         );
 
         $request = new Request();
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        static::expectException(CustomerNotLoggedInException::class);
+        static::expectException(CustomerException::class);
         static::expectExceptionMessage('Customer is not logged in.');
 
         $route->download('documentId', $request, $context);
@@ -393,7 +404,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            new GuestAuthenticator(),
         );
 
         $request = new Request();

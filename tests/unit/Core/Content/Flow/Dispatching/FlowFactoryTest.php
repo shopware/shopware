@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
@@ -51,8 +52,8 @@ class FlowFactoryTest extends TestCase
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->expects($this->once())
-            ->method('get')
-            ->willReturn($order);
+            ->method('getEntities')
+            ->willReturn(new OrderCollection([$order]));
 
         $orderRepo = $this->createMock(EntityRepository::class);
         $orderRepo->expects($this->once())

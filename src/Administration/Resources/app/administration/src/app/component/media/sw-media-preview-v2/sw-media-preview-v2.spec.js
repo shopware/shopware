@@ -38,11 +38,6 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         );
     };
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render broken icon when file type is unknown', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
@@ -269,4 +264,22 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
 
         expect(wrapper.vm.sourceSet).toBe('');
     });
+
+    it.each([
+        { mimeType: 'video/quicktime', shouldShowWarning: true },
+        { mimeType: 'video/mp4', shouldShowWarning: false },
+    ])(
+        'should show warning icon if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)',
+        async ({ mimeType, shouldShowWarning }) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                imagePreviewFailed: true,
+                trueSource: { mimeType, thumbnails: [] },
+            });
+            await flushPromises();
+
+            const warningIcon = wrapper.find('.sw-media-preview-v2__warning-icon');
+            expect(warningIcon.exists()).toBe(shouldShowWarning);
+        },
+    );
 });

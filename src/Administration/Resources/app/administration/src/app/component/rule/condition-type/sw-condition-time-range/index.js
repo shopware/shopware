@@ -52,11 +52,26 @@ export default {
                 this.condition.value.toTime = toTime;
             },
         },
+        timezone: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.timezone;
+            },
+            set(timezone) {
+                this.ensureValueExist();
+                this.condition.value.timezone = timezone;
+            },
+        },
 
         ...mapPropertyErrors('condition', [
             'value.fromTime',
             'value.toTime',
+            'value.timezone',
         ]),
+
+        timezoneOptions() {
+            return Shopware.Service('timezoneService').getTimezoneOptions();
+        },
 
         currentError() {
             return this.conditionValueFromTimeError || this.conditionValueToTimeError;

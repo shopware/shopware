@@ -114,10 +114,6 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
         wrapper = await createWrapper({}, ['product.editor']);
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to change the length unit', async () => {
         expect(wrapper.vm.product.height).toBe(2000);
         // eslint-disable-next-line jest/prefer-to-have-length

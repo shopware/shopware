@@ -12,7 +12,6 @@ test('As an admin, I want to create documents and make sure they contain certain
     Login,
     AddCreditItem,
     CreateInvoice,
-
     }) => {
 
     const product = await TestDataService.createBasicProduct();
@@ -20,31 +19,30 @@ test('As an admin, I want to create documents and make sure they contain certain
     const orderId = order.id;
 
     await test.step('Go to documents settings page and activate documents in customer accounts', async () => {
-        await ShopAdmin.attemptsTo(AddCreditItem(orderId));
-        await ShopAdmin.attemptsTo(CreateInvoice(orderId));
         await ShopAdmin.goesTo(AdminDocumentListing.url());
         await AdminDocumentListing.invoiceLink.click();
         await ShopAdmin.expects(AdminDocumentDetail.documentTypeSelect).toContainText('Invoice');
         await AdminDocumentDetail.showInAccountSwitch.check();
         await AdminDocumentDetail.saveButton.click();
         await ShopAdmin.expects(AdminDocumentDetail.saveButton).not.toBeDisabled();
-        });
+        await ShopAdmin.attemptsTo(AddCreditItem(orderId));
+        await ShopAdmin.attemptsTo(CreateInvoice(orderId));
+    });
 
     await test.step('Go to order detail page and check for credit item', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'general'));
         await ShopAdmin.expects(AdminOrderDetail.lineItemsTable).toContainText('CreditItem');
-        });
+    });
 
     await test.step('Go to documents tab and send invoice', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(orderId, 'documents'));
         await ShopAdmin.expects(AdminOrderDetail.documentType).toContainText('Invoice');
         await AdminOrderDetail.contextMenuButton.click();
         await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
-        await AdminOrderDetail.contextMenuSendDocument.click();
-        await ShopAdmin.expects(AdminOrderDetail.sendDocumentModal).toBeVisible();
-        await AdminOrderDetail.sendDocumentButton.click();
+        await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Mark as sent').click();
+        await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
         await ShopAdmin.expects(AdminOrderDetail.sentCheckmark).toBeVisible();
-        });
+    });
 
     await test.step('Log into customer account and check the order document', async () => {
         await ShopCustomer.attemptsTo(Login());

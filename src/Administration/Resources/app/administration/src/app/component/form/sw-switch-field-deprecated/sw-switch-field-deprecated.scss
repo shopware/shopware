@@ -1,10 +1,10 @@
 @import "~scss/variables";
 
-$sw-field--switch-color-border: $color-gray-300;
-$sw-field--switch-color-background: $color-white;
-$sw-field--switch-color-text: $color-darkgray-200;
-$sw-field--switch-color-focus: $color-shopware-brand-500;
-$sw-field--switch-color-error: $color-crimson-500;
+$sw-field--switch-color-border: var(--color-border-primary-default);
+$sw-field--switch-color-background: var(--color-icon-static-default);
+$sw-field--switch-color-text: var(--color-text-primary-default);
+$sw-field--switch-color-focus: var(--color-interaction-primary-default);
+$sw-field--switch-color-error: var(--color-interaction-critical-default);
 
 .sw-field--switch {
     margin-top: 24px;
@@ -76,10 +76,10 @@ $sw-field--switch-color-error: $color-crimson-500;
             }
 
             &:disabled ~ .sw-field__switch-state {
-                background: $color-gray-100;
+                background: var(--color-interaction-secondary-disabled);
 
                 .sw-field__switch-state-knob {
-                    background: $sw-field--switch-color-border;
+                    background: var(--color-icon-primary-disabled);
                 }
             }
 
@@ -92,7 +92,7 @@ $sw-field--switch-color-error: $color-crimson-500;
             }
 
             &:checked:disabled ~ .sw-field__switch-state {
-                background: $color-gray-100;
+                background: var(--color-interaction-primary-disabled);
             }
         }
 
@@ -102,13 +102,13 @@ $sw-field--switch-color-error: $color-crimson-500;
             height: 16px;
             z-index: 1;
             text-align: center;
-            background: $sw-field--switch-color-border;
-            border-radius: 8px;
+            background: var(--color-interaction-secondary-disabled);
+            border-radius: var(--border-radius-round);
 
             .sw-field__switch-state-knob {
-                transition: all 0.3s ease-in-out;
-                width: 10px;
-                height: 10px;
+                transition: 200ms left cubic-bezier(0.23, 1, 0.32, 1);
+                width: var(--scale-size-10);
+                height: var(--scale-size-10);
                 position: absolute;
                 top: 3px;
                 left: 3px;
@@ -161,7 +161,7 @@ $sw-field--switch-color-error: $color-crimson-500;
                 background: $sw-field--switch-color-error;
 
                 .sw-field__switch-state-knob {
-                    background: darken($sw-field--switch-color-error, 5%);
+                    background: var(--color-icon-static-default);
                 }
             }
 
@@ -203,8 +203,8 @@ $sw-field--switch-color-error: $color-crimson-500;
 
     &:focus-within {
         .sw-field__switch-state {
-            border-color: $color-shopware-brand-500;
-            box-shadow: 0 0 4px $color-shopware-brand-500;
+            outline-offset: var(--scale-size-2);
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
         }
     }
 

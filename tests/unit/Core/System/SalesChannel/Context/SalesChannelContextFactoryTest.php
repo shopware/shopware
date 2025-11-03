@@ -56,6 +56,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
+        $customer->setActive(true);
         $customer->setLastPaymentMethodId(Uuid::randomHex());
         $customer->setDefaultBillingAddressId(Uuid::randomHex());
         $customer->setDefaultShippingAddressId(Uuid::randomHex());
@@ -171,5 +172,215 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
         static::assertSame($generatedContext->getPaymentMethod(), $baseContext->getPaymentMethod());
+    }
+
+    public function testCustomerIsNullIfInactive(): void
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+
+        $basePaymentMethod = new PaymentMethodEntity();
+        $basePaymentMethod->setId(Uuid::randomHex());
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setActive(false);
+        $customer->setLastPaymentMethodId(Uuid::randomHex());
+        $customer->setDefaultBillingAddressId(Uuid::randomHex());
+        $customer->setDefaultShippingAddressId(Uuid::randomHex());
+        $customer->setGroupId(Uuid::randomHex());
+
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setFactor(1);
+
+        $billingAddress = new CustomerAddressEntity();
+        $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $shippingAddress = new CustomerAddressEntity();
+        $shippingAddress->setId($customer->getDefaultShippingAddressId());
+        $shippingAddress->setCountry($country);
+        $addresses = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
+
+        $baseContext = new BaseSalesChannelContext(
+            Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
+            $salesChannel,
+            $currency,
+            new CustomerGroupEntity(),
+            new TaxCollection(),
+            $basePaymentMethod,
+            new ShippingMethodEntity(),
+            new ShippingLocation($country, null, null),
+            new CashRoundingConfig(2, 0.01, true),
+            new CashRoundingConfig(2, 0.01, true),
+            Generator::createLanguageInfo(),
+            MeasurementUnits::createDefaultUnits()
+        );
+
+        $options = [
+            SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
+        ];
+
+        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
+        $baseSalesChannelContextFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with($salesChannel->getId(), $options)
+            ->willReturn($baseContext);
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [
+                static function (Criteria $criteria, Context $context) use ($customer) {
+                    return new EntitySearchResult(
+                        CustomerDefinition::ENTITY_NAME,
+                        1,
+                        new CustomerCollection([$customer]),
+                        null,
+                        $criteria,
+                        $context
+                    );
+                },
+            ],
+            new CustomerDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
+        $addressRepository = new StaticEntityRepository(
+            [
+                static function (Criteria $criteria, Context $context) use ($addresses) {
+                    return new EntitySearchResult(
+                        CustomerAddressDefinition::ENTITY_NAME,
+                        2,
+                        $addresses,
+                        null,
+                        $criteria,
+                        $context
+                    );
+                },
+            ],
+            new CustomerAddressDefinition(),
+        );
+
+        $factory = new SalesChannelContextFactory(
+            $customerRepository,
+            $this->createMock(EntityRepository::class),
+            $addressRepository,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(TaxDetector::class),
+            [],
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(EntityRepository::class),
+            $baseSalesChannelContextFactory,
+        );
+
+        $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
+        static::assertNull($generatedContext->getCustomer());
+    }
+
+    public function testCustomerIsSetIfActive(): void
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+
+        $basePaymentMethod = new PaymentMethodEntity();
+        $basePaymentMethod->setId(Uuid::randomHex());
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setActive(true);
+        $customer->setLastPaymentMethodId(Uuid::randomHex());
+        $customer->setDefaultBillingAddressId(Uuid::randomHex());
+        $customer->setDefaultShippingAddressId(Uuid::randomHex());
+        $customer->setGroupId(Uuid::randomHex());
+
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setFactor(1);
+
+        $billingAddress = new CustomerAddressEntity();
+        $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $shippingAddress = new CustomerAddressEntity();
+        $shippingAddress->setId($customer->getDefaultShippingAddressId());
+        $shippingAddress->setCountry($country);
+        $addresses = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
+
+        $baseContext = new BaseSalesChannelContext(
+            Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
+            $salesChannel,
+            $currency,
+            new CustomerGroupEntity(),
+            new TaxCollection(),
+            $basePaymentMethod,
+            new ShippingMethodEntity(),
+            new ShippingLocation($country, null, null),
+            new CashRoundingConfig(2, 0.01, true),
+            new CashRoundingConfig(2, 0.01, true),
+            Generator::createLanguageInfo(),
+            MeasurementUnits::createDefaultUnits()
+        );
+
+        $options = [
+            SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
+        ];
+
+        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
+        $baseSalesChannelContextFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with($salesChannel->getId(), $options)
+            ->willReturn($baseContext);
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [
+                static function (Criteria $criteria, Context $context) use ($customer) {
+                    return new EntitySearchResult(
+                        CustomerDefinition::ENTITY_NAME,
+                        1,
+                        new CustomerCollection([$customer]),
+                        null,
+                        $criteria,
+                        $context
+                    );
+                },
+            ],
+            new CustomerDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
+        $addressRepository = new StaticEntityRepository(
+            [
+                static function (Criteria $criteria, Context $context) use ($addresses) {
+                    return new EntitySearchResult(
+                        CustomerAddressDefinition::ENTITY_NAME,
+                        2,
+                        $addresses,
+                        null,
+                        $criteria,
+                        $context
+                    );
+                },
+            ],
+            new CustomerAddressDefinition(),
+        );
+
+        $factory = new SalesChannelContextFactory(
+            $customerRepository,
+            $this->createMock(EntityRepository::class),
+            $addressRepository,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(TaxDetector::class),
+            [],
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(EntityRepository::class),
+            $baseSalesChannelContextFactory,
+        );
+
+        $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
+        static::assertSame($customer, $generatedContext->getCustomer());
     }
 }

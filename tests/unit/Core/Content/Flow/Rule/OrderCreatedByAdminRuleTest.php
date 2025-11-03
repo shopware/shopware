@@ -60,7 +60,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
         static::assertArrayHasKey('shouldOrderBeCreatedByAdmin', $constraints, 'Constraint shouldOrderBeCreatedByAdmin not found in Rule');
         static::assertEquals($constraints['shouldOrderBeCreatedByAdmin'], [
             new NotNull(),
-            new Type(['type' => 'bool']),
+            new Type(type: 'bool'),
         ]);
     }
 

@@ -173,6 +173,7 @@ class Generator extends TestCase
             $customer->setGroup($currentCustomerGroup);
             $customer->setSalesChannelId($salesChannel->getId());
             $customer->setSalesChannel($salesChannel);
+            $customer->setGuest(false);
         }
 
         $itemRounding ??= clone $baseContext->getRounding();

@@ -237,6 +237,7 @@ export default {
             };
             item.price = {
                 taxRules: [{ taxRate: 0 }],
+                calculatedTaxes: [{ taxRate: 0, tax: 0 }],
                 unitPrice: 0,
                 quantity: 1,
                 totalPrice: 0,
@@ -366,7 +367,7 @@ export default {
         showTaxValue(item) {
             return (this.isCreditItem(item.id) || this.isPromotionItem(item)) && item.price.taxRules.length > 1
                 ? this.$tc('sw-order.detailBase.textCreditTax')
-                : `${item.price.taxRules[0].taxRate} %`;
+                : `${item.price.calculatedTaxes[0].taxRate} %`;
         },
 
         checkItemPrice(price, item) {
@@ -449,6 +450,7 @@ export default {
                 !this.itemCreatedFromProduct(item.id) &&
                 item.priceDefinition &&
                 item.priceDefinition.taxRules &&
+                item.price?.taxRules[0].taxRate === item.price.calculatedTaxes[0].taxRate &&
                 !this.isCreditItem(item.id)
             );
         },

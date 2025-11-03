@@ -128,6 +128,8 @@ class MediaEntity extends Entity
 
     protected ?DocumentCollection $documents = null;
 
+    protected ?DocumentCollection $a11yDocuments = null;
+
     protected ?AppPaymentMethodCollection $appPaymentMethods = null;
 
     /**
@@ -568,6 +570,16 @@ class MediaEntity extends Entity
     public function setDocuments(DocumentCollection $documents): void
     {
         $this->documents = $documents;
+    }
+
+    public function getA11yDocuments(): ?DocumentCollection
+    {
+        return $this->a11yDocuments;
+    }
+
+    public function setA11yDocuments(DocumentCollection $a11yDocuments): void
+    {
+        $this->a11yDocuments = $a11yDocuments;
     }
 
     public function getAppPaymentMethods(): ?AppPaymentMethodCollection

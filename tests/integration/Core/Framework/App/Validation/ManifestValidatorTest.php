@@ -27,8 +27,15 @@ class ManifestValidatorTest extends TestCase
     public function testValidate(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
-
-        $this->manifestValidator->validate($manifest, Context::createDefaultContext());
+        $error = null;
+        $message = '';
+        try {
+            $this->manifestValidator->validate($manifest, Context::createDefaultContext());
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     #[DataProvider('invalidManifestProvider')]

@@ -108,6 +108,7 @@ export default function createCustomFieldService() {
         'promotion',
         'product_stream',
         'property_group',
+        'property_group_option',
         'product_review',
         'country',
         'currency',

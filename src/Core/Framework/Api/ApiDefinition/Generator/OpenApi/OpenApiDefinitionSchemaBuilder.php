@@ -568,6 +568,7 @@ class OpenApiDefinitionSchemaBuilder
     private function getRelationShipEntity(Property $relationship): string
     {
         /** @var array<mixed> $relationshipData */
+        // @phpstan-ignore varTag.type (the data is a array instead of an property object here)
         $relationshipData = $relationship->properties['data'];
         $type = $relationshipData['type'];
         $entity = '';
@@ -587,6 +588,7 @@ class OpenApiDefinitionSchemaBuilder
         $entityName = $this->snakeCaseToCamelCase($entity);
 
         /** @var array<mixed> $relationshipData */
+        // @phpstan-ignore varTag.type (the data is a array instead of an property object here)
         $relationshipData = $relationship->properties['data'];
         $type = $relationshipData['type'];
 

@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -32,6 +34,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<CmsPageCollection> $cmsPageRepository
      */
     public function __construct(
         private readonly EntityRepository $categoryRepository,
@@ -158,7 +163,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
                 $commaSeparatedCategories = implode(', ', \array_slice($categories, 0, -1));
                 $categories = [
                     $commaSeparatedCategories,
-                    end($categories),
+                    array_last($categories),
                 ];
             }
             ++$max;

@@ -211,7 +211,7 @@ final readonly class OrderStockSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return list<array{id: string, product_id: string, quantity: int}>
+     * @return list<array{id: string, product_id: string, quantity: string}>
      */
     private function fetchOrderLineItemsForOrder(string $orderId): array
     {
@@ -232,7 +232,7 @@ final readonly class OrderStockSubscriber implements EventSubscriberInterface
             'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
         ];
 
-        /** @var list<array{id: string, product_id: string, quantity: int}> $result */
+        /** @var list<array{id: string, product_id: string, quantity: string}> $result */
         $result = $this->connection->fetchAllAssociative($sql, $params);
 
         return $result;

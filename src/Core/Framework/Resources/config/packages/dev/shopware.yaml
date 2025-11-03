@@ -2,7 +2,9 @@ shopware:
     api:
         api_browser:
             auth_required: false
-
+    cache:
+        invalidation:
+            delay_enabled: false
     media:
         enable_url_upload_feature: true
         enable_url_validation: false

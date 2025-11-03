@@ -49,7 +49,7 @@ class UnusedMediaPurger
     /**
      * @internal This method is used only by the media:delete-unused command and is subject to change
      *
-     * @return \Generator<array<MediaEntity>>
+     * @return \Generator<list<MediaEntity>>
      */
     public function getNotUsedMedia(?int $limit = 50, ?int $offset = null, ?int $gracePeriodDays = null, ?string $folderEntity = null): \Generator
     {
@@ -66,7 +66,7 @@ class UnusedMediaPurger
         if ($offset !== null) {
             $criteria->setOffset($offset);
 
-            /** @var array<string> $ids */
+            /** @var list<string> $ids */
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $ids = $this->dispatchEvent($ids);
@@ -123,9 +123,9 @@ class UnusedMediaPurger
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<MediaEntity>
+     * @return list<MediaEntity>
      */
     public function searchMedia(array $ids, Context $context): array
     {
@@ -143,9 +143,9 @@ class UnusedMediaPurger
     }
 
     /**
-     * @param array<string> $mediaIds
+     * @param list<string> $mediaIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function filterOutNewMedia(array $mediaIds, int $gracePeriodDays, Context $context): array
     {
@@ -153,20 +153,20 @@ class UnusedMediaPurger
             return $mediaIds;
         }
 
-        $threeDaysAgo = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
-        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $threeDaysAgo->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $maxUploadedAt = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
+        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $maxUploadedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $criteria = new Criteria($mediaIds);
         $criteria->addFilter($rangeFilter);
 
-        /** @var array<string> $ids */
+        /** @var list<string> $ids */
         $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
         return $ids;
     }
 
     /**
-     * @return \Generator<int, array<string>>
+     * @return \Generator<int, list<string>>
      */
     private function getUnusedMediaIds(Context $context, int $limit, ?int $offset = null, ?string $folderEntity = null): \Generator
     {
@@ -179,26 +179,26 @@ class UnusedMediaPurger
         if ($offset !== null) {
             $criteria->setOffset($offset);
 
-            /** @var array<string> $ids */
+            /** @var list<string> $ids */
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
             return yield $this->dispatchEvent($ids);
         }
 
         while (!empty($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds())) {
-            /** @var array<string> $ids */
+            /** @var non-empty-list<string> $ids */
             $unusedIds = $this->dispatchEvent($ids);
 
             yield $unusedIds;
 
-            $criteria->setOffset($criteria->getOffset() + $limit);
+            $criteria->setOffset((int) $criteria->getOffset() + $limit);
         }
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function dispatchEvent(array $ids): array
     {

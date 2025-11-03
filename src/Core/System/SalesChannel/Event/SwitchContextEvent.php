@@ -58,4 +58,9 @@ class SwitchContextEvent implements ShopwareSalesChannelEvent
     {
         $this->parameters[$key] = $value;
     }
+
+    public function deleteParameter(string $key): void
+    {
+        unset($this->parameters[$key]);
+    }
 }

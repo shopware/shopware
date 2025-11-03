@@ -463,6 +463,10 @@ export default {
         },
 
         onQuantityEndChange(price, priceGroup) {
+            if (price.quantityEnd !== null && price.quantityEnd < price.quantityStart) {
+                price.quantityEnd = null;
+                return;
+            }
             // when not last price
             if (priceGroup.prices.indexOf(price) + 1 !== priceGroup.prices.length) {
                 return;

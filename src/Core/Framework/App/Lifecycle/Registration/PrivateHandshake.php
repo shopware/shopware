@@ -15,6 +15,7 @@ class PrivateHandshake implements AppHandshakeInterface
 {
     public function __construct(
         private readonly string $shopUrl,
+        #[\SensitiveParameter]
         private readonly string $secret,
         private readonly string $appEndpoint,
         private readonly string $appName,

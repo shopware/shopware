@@ -1,0 +1,24 @@
+{
+    "components": {
+        "x-parameter-groups": {
+            "test-parameter-group": [
+                {
+                    "name": "page",
+                    "in": "query",
+                    "description": "Search result page",
+                    "schema": {
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Number of items per result page",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ]
+        }
+    }
+}

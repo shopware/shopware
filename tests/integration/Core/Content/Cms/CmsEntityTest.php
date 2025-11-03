@@ -14,6 +14,8 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -59,7 +61,7 @@ class CmsEntityTest extends TestCase
     {
         $definition = static::getContainer()->get($entityDefinitionClass);
         static::assertInstanceOf(EntityDefinition::class, $definition);
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<EntityCollection<Entity>> $repository */
         $repository = static::getContainer()->get($definition->getEntityName() . '.repository');
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 

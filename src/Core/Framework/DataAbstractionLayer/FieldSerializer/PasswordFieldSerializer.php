@@ -86,11 +86,11 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
 
         $minPasswordLength = $this->configService->getInt($configKey);
 
-        if ($minPasswordLength === 0) {
+        if ($minPasswordLength < 1) {
             return $constraints;
         }
 
-        $constraints[] = new Length(['min' => $minPasswordLength]);
+        $constraints[] = new Length(min: $minPasswordLength);
 
         return $constraints;
     }

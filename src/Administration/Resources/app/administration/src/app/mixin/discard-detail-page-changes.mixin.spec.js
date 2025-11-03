@@ -68,10 +68,6 @@ describe('src/app/mixin/discard-detail-page-changes.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should call the entity discardChanges function on route params id change', async () => {
         expect(wrapper.vm.product.discardChanges).not.toHaveBeenCalled();
 

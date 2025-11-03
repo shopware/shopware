@@ -44,32 +44,6 @@ class SyncControllerTest extends TestCase
         $this->gateway->reset('message_queue_stats');
     }
 
-    public static function invalidPayloadProvider(): \Generator
-    {
-        yield 'Invalid payload format' => [
-            json_encode([
-                [
-                    'action' => 'delete',
-                    'entity' => 'product',
-                    'payload' => [
-                        'test' => true,
-                    ],
-                ],
-            ], \JSON_THROW_ON_ERROR),
-            'Invalid payload. Should contain a list of associative arrays',
-        ];
-
-        yield 'Malformed JSON payload' => [
-            'not a json',
-            'The JSON payload is malformed.',
-        ];
-
-        yield 'Missing required keys' => [
-            json_encode(['delete-mapping' => 'action:delete'], \JSON_THROW_ON_ERROR),
-            'Invalid payload format. Expected an array of operations.',
-        ];
-    }
-
     public function testMultipleProductInsert(): void
     {
         $id1 = Uuid::randomHex();
@@ -546,7 +520,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/sync', $data, ['HTTP_Fail-On-Error' => 'true']);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
@@ -571,5 +545,31 @@ class SyncControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         static::assertSame(Response::HTTP_BAD_REQUEST, (int) $response['errors'][0]['status']);
         static::assertSame($message, $response['errors'][0]['detail']);
+    }
+
+    public static function invalidPayloadProvider(): \Generator
+    {
+        yield 'Invalid payload format' => [
+            json_encode([
+                [
+                    'action' => 'delete',
+                    'entity' => 'product',
+                    'payload' => [
+                        'test' => true,
+                    ],
+                ],
+            ], \JSON_THROW_ON_ERROR),
+            'Invalid payload. Should contain a list of associative arrays',
+        ];
+
+        yield 'Malformed JSON payload' => [
+            'not a json',
+            'Parameter type json is invalid.',
+        ];
+
+        yield 'Missing required keys' => [
+            json_encode(['delete-mapping' => 'action:delete'], \JSON_THROW_ON_ERROR),
+            'Invalid payload format. Expected an array of operations.',
+        ];
     }
 }

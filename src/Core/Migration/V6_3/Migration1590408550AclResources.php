@@ -53,7 +53,7 @@ class Migration1590408550AclResources extends MigrationStep
     }
 
     /**
-     * @return array<string, array{priv: string}>
+     * @return array<string, list<array{priv: string}>>
      */
     private function getRoles(Connection $connection): array
     {
@@ -64,7 +64,7 @@ class Migration1590408550AclResources extends MigrationStep
                     ON `role`.id = `resource`.acl_role_id
         ');
 
-        /** @var array<string, array{priv: string}> $grouped */
+        /** @var array<string, list<array{priv: string}>> $grouped */
         $grouped = FetchModeHelper::group($roles);
 
         return $grouped;

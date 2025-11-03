@@ -220,7 +220,9 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
 
     private function getFetchAllAssociativeConnection(string $id): Connection
     {
-        $config[]['configuration_value'] = json_encode(['_value' => $id], \JSON_THROW_ON_ERROR);
+        $config = [
+            ['configuration_value' => json_encode(['_value' => $id], \JSON_THROW_ON_ERROR)],
+        ];
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')

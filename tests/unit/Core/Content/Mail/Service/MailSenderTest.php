@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Content\Mail\Service\MailSender;
@@ -29,7 +30,15 @@ class MailSenderTest extends TestCase
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            $this->createMock(LoggerInterface::class),
+            0,
+            $messageBus
+        );
         $mail = new Email();
 
         $mailer
@@ -46,7 +55,15 @@ class MailSenderTest extends TestCase
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, null);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            $this->createMock(LoggerInterface::class),
+            0,
+            null
+        );
         $mail = new Email();
 
         $mailer
@@ -64,8 +81,18 @@ class MailSenderTest extends TestCase
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
-        $text = str_repeat('a', MailSender::MAIL_MESSAGE_SIZE_LIMIT);
+        $maxMessageSizeKiB = 1024;
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            $this->createMock(LoggerInterface::class),
+            $maxMessageSizeKiB,
+            $messageBus
+        );
+        static::assertIsInt($maxMessageSizeKiB);
+        $text = str_repeat('a', $maxMessageSizeKiB * 1024);
         $mail = new Email(null, new TextPart($text));
 
         $testStruct = new ArrayStruct();
@@ -99,8 +126,12 @@ class MailSenderTest extends TestCase
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $messageBus);
+        $logger = $this->createMock(LoggerInterface::class);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus);
         $mail = new Email();
+
+        $logger->expects($this->once())
+            ->method('info');
 
         $fileSystem
             ->expects($this->never())
@@ -120,7 +151,15 @@ class MailSenderTest extends TestCase
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 5, $messageBus);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            5,
+            $this->createMock(LoggerInterface::class),
+            0,
+            $messageBus
+        );
 
         $mail = new Email();
         $mail->text('foobar');

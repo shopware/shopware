@@ -67,12 +67,6 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
         localStorage.removeItem('lastActivity');
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(false);
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should update user activity on mousemove', async () => {
         wrapper = await createWrapper(false);
 

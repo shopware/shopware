@@ -1,4 +1,8 @@
+{% block sw_product_measurement_form %}
 <div class="sw-product-measurement-form">
+
+    {% block sw_product_measurement_form_extra_field_before %}
+    {% endblock %}
     <div class="sw-product-measurement-form__description-group">
         <i18n-t
             tag="p"
@@ -17,10 +21,12 @@
         </i18n-t>
     </div>
 
+    {% block sw_product_measurement_form_width_height_container %}
     <sw-container
         columns="1fr 1fr"
         gap="0 32px"
     >
+        {% block sw_product_measurement_form_width_field %}
         <sw-inherit-wrapper
             v-model:value="product.width"
             :has-parent="!!parentProduct.id"
@@ -33,7 +39,8 @@
                     :model-value="props.currentValue"
                     :default-unit="lengthUnit"
                     :label="$t('sw-product.settingsForm.labelWidth')"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :placeholder="$t('sw-product.settingsForm.placeholderWidth')"
                     :min="0"
                     :step="1"
@@ -41,11 +48,15 @@
                     :disabled="props.isInherited || !allowEdit"
                     @update:model-value="props.updateCurrentValue"
                     @update:default-unit="onUpdateLengthUnit($event, 'width')"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
         </sw-inherit-wrapper>
+        {% endblock %}
 
+        {% block sw_product_measurement_form_height_field %}
         <sw-inherit-wrapper
             v-model:value="product.height"
             :has-parent="!!parentProduct.id"
@@ -58,7 +69,8 @@
                     :model-value="props.currentValue"
                     :default-unit="lengthUnit"
                     :label="$t('sw-product.settingsForm.labelHeight')"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :placeholder="$t('sw-product.settingsForm.placeholderHeight')"
                     :min="0"
                     :step="1"
@@ -66,16 +78,22 @@
                     :disabled="props.isInherited || !allowEdit"
                     @update:model-value="props.updateCurrentValue"
                     @update:default-unit="onUpdateLengthUnit($event, 'height')"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
         </sw-inherit-wrapper>
+        {% endblock %}
     </sw-container>
+    {% endblock %}
 
+    {% block sw_product_measurement_form_length_weight_container %}
     <sw-container
         columns="1fr 1fr"
         gap="0 32px"
     >
+        {% block sw_product_measurement_form_length_field %}
         <sw-inherit-wrapper
             v-model:value="product.length"
             :has-parent="!!parentProduct.id"
@@ -88,7 +106,8 @@
                     :model-value="props.currentValue"
                     :default-unit="lengthUnit"
                     :label="$t('sw-product.settingsForm.labelLength')"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :placeholder="$t('sw-product.settingsForm.placeholderLength')"
                     :min="0"
                     :step="1"
@@ -96,11 +115,15 @@
                     :disabled="props.isInherited || !allowEdit"
                     @update:model-value="props.updateCurrentValue"
                     @update:default-unit="onUpdateLengthUnit($event, 'length')"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
         </sw-inherit-wrapper>
+        {% endblock %}
 
+        {% block sw_product_measurement_form_weight_field %}
         <sw-inherit-wrapper
             v-model:value="product.weight"
             :has-parent="!!parentProduct.id"
@@ -113,7 +136,8 @@
                     :model-value="props.currentValue"
                     :default-unit="weightUnit"
                     :label="$t('sw-product.settingsForm.labelWeight')"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :placeholder="$t('sw-product.settingsForm.placeholderWeight')"
                     :min="0"
                     :step="1"
@@ -121,9 +145,17 @@
                     :disabled="props.isInherited || !allowEdit"
                     @update:model-value="props.updateCurrentValue"
                     @update:default-unit="onUpdateWeightUnit"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
         </sw-inherit-wrapper>
+        {% endblock %}
     </sw-container>
+    {% endblock %}
+
+    {% block sw_product_measurement_form_extra_field_after %}
+    {% endblock %}
 </div>
+{% endblock %}

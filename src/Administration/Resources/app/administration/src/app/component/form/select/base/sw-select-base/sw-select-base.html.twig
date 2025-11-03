@@ -41,7 +41,8 @@
                 <mt-icon
                     class="sw-select__select-indicator sw-select__select-indicator-clear"
                     name="regular-times-s"
-                    size="16px"
+                    size="var(--scale-size-16)"
+                    color="var(--color-icon-primary-default)"
                 />
             </button>
 
@@ -49,7 +50,8 @@
                 class="sw-select__select-indicator sw-select__select-indicator-expand"
                 :class="{ 'sw-select__select-indicator-expand--rotated': !expanded }"
                 name="regular-chevron-up-xs"
-                size="10px"
+                color="var(--color-icon-primary-default)"
+                size="var(--scale-size-10)"
                 @click="toggleExpand"
             />
         </div>

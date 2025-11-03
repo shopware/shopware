@@ -532,6 +532,10 @@ class FileSaverTest extends TestCase
                     'width' => 100,
                     'height' => 100,
                     'highDpi' => false,
+                    'mediaThumbnailSize' => [
+                        'width' => 100,
+                        'height' => 100,
+                    ],
                 ],
             ],
         ]], $context);

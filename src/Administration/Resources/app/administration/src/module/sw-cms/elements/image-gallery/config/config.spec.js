@@ -77,6 +77,15 @@ async function createWrapper(activeTab = 'content') {
                     'mt-popover-deprecated': {
                         template: '<div class="mt-popover-deprecated"><slot></slot></div>',
                     },
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
             },
             props: {
@@ -123,6 +132,10 @@ async function createWrapper(activeTab = 'content') {
                             value: true,
                         },
                         magnifierOverGallery: {
+                            source: 'static',
+                            value: false,
+                        },
+                        useFetchPriorityOnFirstItem: {
                             source: 'static',
                             value: false,
                         },

@@ -59,7 +59,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
         $rows = $this->connection->fetchAllAssociative(
             'SELECT active, error_count FROM webhook WHERE id = :id',
-            ['id' => $webhookId]
+            ['id' => Uuid::fromHexToBytes($webhookId)]
         );
 
         /** @var array{active: int, error_count: int} $webhook */
@@ -75,7 +75,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
         if ($webhookErrorCount >= self::MAX_WEBHOOK_ERROR_COUNT) {
             $params = array_merge($params, [
                 'error_count' => 0,
-                'active' => false,
+                'active' => 0,
             ]);
         }
 

@@ -19,6 +19,7 @@ export default {
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -57,6 +58,10 @@ export default {
         useNaturalSorting() {
             return this.sortBy === 'property.name';
         },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
     },
 
     methods: {
@@ -68,11 +73,43 @@ export default {
             this.showDeleteModal = false;
         },
 
+        usePropertyCriteria(id) {
+            const criteria = new Criteria();
+
+            criteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.equals('options.groupId', id),
+                    Criteria.equals('properties.groupId', id),
+                    Criteria.equals('configuratorSettings.option.groupId', id),
+                ]),
+            );
+            criteria.setTotalCountMode(0);
+            criteria.setLimit(1);
+
+            return criteria;
+        },
+
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.propertyRepository.delete(id).then(() => {
-                this.getList();
+            return this.productRepository.searchIds(this.usePropertyCriteria(id)).then((result) => {
+                if (result.data.length > 0) {
+                    this.createNotificationError({
+                        message: this.$t('sw-property.list.errorDelete'),
+                    });
+                    return Promise.resolve();
+                }
+
+                return this.propertyRepository
+                    .delete(id)
+                    .then(() => {
+                        this.getList();
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: this.$t('global.default.error'),
+                        });
+                    });
             });
         },
 

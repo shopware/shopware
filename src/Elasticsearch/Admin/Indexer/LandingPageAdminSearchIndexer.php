@@ -4,12 +4,15 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -49,6 +52,27 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
     public function getIterator(): IterableQuery
     {
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
+    }
+
+    public function getUpdatedIds(EntityWrittenContainerEvent $event): array
+    {
+        $ids = [];
+
+        $translations = $event->getPrimaryKeysWithPropertyChange(LandingPageTranslationDefinition::ENTITY_NAME, [
+            'name',
+        ]);
+
+        $tags = $event->getPrimaryKeysWithPropertyChange(LandingPageTagDefinition::ENTITY_NAME, [
+            'tagId',
+        ]);
+
+        foreach (array_merge($translations, $tags) as $pks) {
+            if (isset($pks['landingPageId'])) {
+                $ids[] = $pks['landingPageId'];
+            }
+        }
+
+        return \array_values(\array_unique($ids));
     }
 
     public function globalData(array $result, Context $context): array

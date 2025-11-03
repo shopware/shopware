@@ -2,34 +2,86 @@
     v-for="sidebar in sidebars"
     :key="sidebar.locationId"
 >
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -->
+    <div
+        v-if="activeSidebar && activeSidebar.resizable && activeSidebar.locationId === sidebar.locationId && sidebarDisplayOptions.isOverlayMode"
+        class="sw-sidebar-renderer-backdrop"
+        :class="{ 'is-resizing': sidebarDisplayOptions.isResizing }"
+        @click="closeSidebar(sidebar.locationId)"
+    ></div>
+
     <aside
         class="sw-sidebar-renderer"
-        :class="{ 'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId }"
-        :style="{ display: (activeSidebar && activeSidebar.locationId === sidebar.locationId) ? 'flex' : 'none' }"
+        :class="{
+            'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
+            'is-resizing': sidebarDisplayOptions.isResizing,
+            'is-overlay': activeSidebar && activeSidebar.resizable && sidebarDisplayOptions.isOverlayMode,
+        }"
+        :style="{
+            width: sidebarDisplayOptions.currentWidth,
+            maxWidth: sidebarDisplayOptions.availableWidth
+        }"
     >
-        <header class="sw-sidebar-renderer__header">
-            <h3 class="sw-sidebar-renderer__title">
-                {{ $tc(sidebar.title) }}
-            </h3>
+        <div
+            class="sw-sidebar-renderer__overlay"
+            :class="{
+                'sw-sidebar-renderer__overlay-resizable': activeSidebar && activeSidebar.resizable,
+            }"
+            :style="{
+                width: sidebarDisplayOptions.currentWidth
+            }"
+        >
+            <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+            <div
+                v-if="activeSidebar && activeSidebar.resizable"
+                class="sw-sidebar-renderer__resize-handle"
+                @mousedown="startSidebarResize"
+            ></div>
+            <header class="sw-sidebar-renderer__header">
+                <div class="sw-sidebar-renderer__header-content">
+                    <h3 class="sw-sidebar-renderer__title">
+                        {{ $tc(sidebar.title) }}
+                    </h3>
+                    <mt-button
+                        v-if="sidebarDisplayOptions.isOverlayMode && sidebarDisplayOptions.isCollapsable"
+                        show-front-icon="true"
+                        class="sw-sidebar-renderer__button-collapse"
+                        :aria-label="$tc('sidebar.ariaLabelButtonCollapse')"
+                        variant="secondary"
+                        @click="collapseSidebar"
+                    >
 
-            <button
-                class="sw-sidebar-renderer__button-close"
-                :aria-label="$tc('sidebar.ariaLabelButtonClose')"
-                @click="closeSidebar(sidebar.locationId)"
-            >
-                <mt-icon
-                    name="regular-times-xs"
-                    size="12px"
+                        <template #iconFront>
+                            <mt-icon
+                                name="regular-long-arrow-right"
+                                size="12px"
+                            />
+                        </template>
+
+                        {{ $tc('sidebar.buttonCollapse') }}
+
+                    </mt-button>
+                </div>
+
+                <button
+                    class="sw-sidebar-renderer__button-close"
+                    :aria-label="$tc('sidebar.ariaLabelButtonClose')"
+                    @click="closeSidebar(sidebar.locationId)"
+                >
+                    <mt-icon
+                        name="regular-times-xs"
+                        size="12px"
+                    />
+                </button>
+            </header>
+
+            <section class="sw-sidebar-renderer__content">
+                <sw-iframe-renderer
+                    :src="sidebar.baseUrl"
+                    :location-id="sidebar.locationId"
+                    :full-screen="false"
                 />
-            </button>
-        </header>
-
-        <section class="sw-sidebar-renderer__content">
-            <sw-iframe-renderer
-                :src="sidebar.baseUrl"
-                :location-id="sidebar.locationId"
-                :full-screen="false"
-            />
-        </section>
+            </section>
+        </div>
     </aside>
 </template>

@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +15,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('checkout')]
 class CustomSnippetFormatController
 {
@@ -51,7 +53,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getCoreSnippets(): array
     {
@@ -61,7 +63,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getPluginSnippets(): array
     {
@@ -81,7 +83,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getSnippetsFromDir(string $directory): array
     {

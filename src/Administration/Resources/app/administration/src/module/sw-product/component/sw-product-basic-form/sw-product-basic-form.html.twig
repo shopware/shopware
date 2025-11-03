@@ -63,6 +63,7 @@
 
         <mt-text-field
             v-model="product.productNumber"
+            required
             :error="productProductNumberError"
             :disabled="!allowEdit"
             :label="$tc('sw-product.basicForm.labelProductNumber')"
@@ -80,15 +81,15 @@
         :label="$tc('sw-product.basicForm.labelDescription')"
     >
         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-            <mt-text-editor
+            <sw-text-editor
                 :key="isInherited"
                 :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
                 :disabled="isInherited || !allowEdit"
-                :model-value="currentValue"
+                :value="currentValue"
                 sanitize-input
                 sanitize-field-name="product_translation.description"
-                @update:model-value="updateCurrentValue"
+                @update:value="updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>
@@ -110,6 +111,7 @@
                     :error="productMarkAsTopsellerError"
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
+                    :inherited-value="parentProduct.markAsTopseller"
                     :help-text="highlightHelpText"
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="props.isInherited || !allowEdit"

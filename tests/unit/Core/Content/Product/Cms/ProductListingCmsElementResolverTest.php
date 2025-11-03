@@ -31,6 +31,7 @@ class ProductListingCmsElementResolverTest extends TestCase
     public function testGetType(): void
     {
         $route = $this->createMock(AbstractProductListingRoute::class);
+        /** @var StaticEntityRepository<ProductSortingCollection> */
         $repository = new StaticEntityRepository([]);
 
         $resolver = new ProductListingCmsElementResolver($route, $repository);
@@ -40,6 +41,7 @@ class ProductListingCmsElementResolverTest extends TestCase
     public function testGetCollectReturnsNull(): void
     {
         $route = $this->createMock(AbstractProductListingRoute::class);
+        /** @var StaticEntityRepository<ProductSortingCollection> */
         $repository = new StaticEntityRepository([]);
 
         $slot = new CmsSlotEntity();
@@ -85,6 +87,7 @@ class ProductListingCmsElementResolverTest extends TestCase
             ]),
         ]);
 
+        /** @var StaticEntityRepository<ProductSortingCollection> */
         $repository = new StaticEntityRepository([$sorting]);
 
         $resolver = new ProductListingCmsElementResolver($route, $repository);
@@ -134,6 +137,7 @@ class ProductListingCmsElementResolverTest extends TestCase
             ]),
         ]);
 
+        /** @var StaticEntityRepository<ProductSortingCollection> */
         $repository = new StaticEntityRepository([$sorting]);
 
         $resolver = new ProductListingCmsElementResolver($route, $repository);

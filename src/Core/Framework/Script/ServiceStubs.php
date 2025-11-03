@@ -25,8 +25,6 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 #[Package('framework')]
 final class ServiceStubs
 {
-    private string $hook;
-
     /**
      * @var array<string, array{deprecation?: string, service: object}>
      */
@@ -35,9 +33,8 @@ final class ServiceStubs
     /**
      * @internal
      */
-    public function __construct(string $hook)
+    public function __construct(private readonly string $hook)
     {
-        $this->hook = $hook;
     }
 
     /**

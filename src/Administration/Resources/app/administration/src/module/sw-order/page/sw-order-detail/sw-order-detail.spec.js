@@ -88,11 +88,6 @@ async function createWrapper(order = {}) {
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should remove version id when beforeunload event is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());

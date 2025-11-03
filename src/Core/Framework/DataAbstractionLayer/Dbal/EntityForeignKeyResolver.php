@@ -167,8 +167,10 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        // prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
-        if ($definition->getClass() === LanguageDefinition::class) {
+        // prevent cascade delete and set null foreign key check for language definition,
+        // otherwise all ids of language translations have to be checked
+        // RestrictDelete is processed as usual to enable foreign key checks
+        if (!$restrictDeleteOnlyFirstLevel && $definition->getClass() === LanguageDefinition::class) {
             return [];
         }
 

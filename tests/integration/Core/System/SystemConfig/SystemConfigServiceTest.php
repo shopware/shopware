@@ -9,11 +9,13 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
-use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
-use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
+use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -98,8 +100,7 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
-            $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'string\'. But is of type \'array\'');
+            $this->expectExceptionObject(SystemConfigException::invalidSettingValueException('foo.bar', 'string', 'array'));
         }
         $actual = $this->systemConfigService->getString('foo.bar');
         static::assertSame($expected, $actual);
@@ -131,8 +132,7 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
-            $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'int\'. But is of type \'array\'');
+            $this->expectExceptionObject(SystemConfigException::invalidSettingValueException('foo.bar', 'int', 'array'));
         }
         $actual = $this->systemConfigService->getInt('foo.bar');
         static::assertSame($expected, $actual);
@@ -164,8 +164,7 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
-            $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'float\'. But is of type \'array\'');
+            $this->expectExceptionObject(SystemConfigException::invalidSettingValueException('foo.bar', 'float', 'array'));
         }
         $actual = $this->systemConfigService->getFloat('foo.bar');
         static::assertSame($expected, $actual);
@@ -319,7 +318,12 @@ class SystemConfigServiceTest extends TestCase
     public function testDeleteNonExisting(): void
     {
         $this->systemConfigService->delete('not.found');
+        $actual = $this->systemConfigService->get('not.found');
+        static::assertNull($actual);
+
         $this->systemConfigService->delete('not.found', TestDefaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('not.found', TestDefaults::SALES_CHANNEL);
+        static::assertNull($actual);
     }
 
     public function testDelete(): void
@@ -340,13 +344,13 @@ class SystemConfigServiceTest extends TestCase
 
     public function testGetDomainEmptyThrows(): void
     {
-        $this->expectException(InvalidDomainException::class);
+        $this->expectExceptionObject(SystemConfigException::invalidDomain('Empty domain'));
         $this->systemConfigService->getDomain('');
     }
 
     public function testGetDomainOnlySpacesThrows(): void
     {
-        $this->expectException(InvalidDomainException::class);
+        $this->expectExceptionObject(SystemConfigException::invalidDomain('Empty domain'));
         $this->systemConfigService->getDomain('     ');
     }
 
@@ -386,5 +390,80 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.bar', 'test', TestDefaults::SALES_CHANNEL);
 
         static::assertTrue($called);
+    }
+
+    public function testDeleteExtensionConfigurationDeletesAcrossAllSalesChannels(): void
+    {
+        $extensionName = 'SwagTest';
+        $configKey1 = $extensionName . '.config.testSetting1';
+        $configKey2 = $extensionName . '.config.testSetting2';
+
+        // Create three records, 2 global and 1 sales channel specific
+        $this->systemConfigService->set($configKey1, 'global_value');
+        $this->systemConfigService->set($configKey1, 'sales_channel_value', TestDefaults::SALES_CHANNEL);
+        $this->systemConfigService->set($configKey2, true);
+
+        // Verify that the records exist
+        static::assertSame('global_value', $this->systemConfigService->get($configKey1));
+        static::assertSame('sales_channel_value', $this->systemConfigService->get($configKey1, TestDefaults::SALES_CHANNEL));
+        static::assertTrue($this->systemConfigService->getBool($configKey2));
+        static::assertTrue($this->systemConfigService->getBool($configKey2, TestDefaults::SALES_CHANNEL));
+
+        // Add event listeners to capture dispatched events, structured by scope
+        $dispatchedEvents = [];
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listener = function (
+            BeforeSystemConfigMultipleChangedEvent|SystemConfigMultipleChangedEvent|SystemConfigChangedHook $event
+        ) use (&$dispatchedEvents): void {
+            $eventClass = $event::class;
+
+            if ($event instanceof SystemConfigChangedHook) {
+                $payload = $event->getWebhookPayload();
+                static::assertArrayHasKey('salesChannelId', $payload);
+                $salesChannelId = $payload['salesChannelId'];
+            } else {
+                $salesChannelId = $event->getSalesChannelId();
+            }
+
+            $scope = $salesChannelId === null ? 'global' : 'sales_channel';
+            $dispatchedEvents[$eventClass][$scope][] = $event;
+        };
+
+        $this->addEventListener($eventDispatcher, BeforeSystemConfigMultipleChangedEvent::class, $listener);
+        $this->addEventListener($eventDispatcher, SystemConfigMultipleChangedEvent::class, $listener);
+        $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, $listener);
+
+        $this->systemConfigService->deleteExtensionConfiguration($extensionName, [
+            ['elements' => [['name' => 'testSetting1'], ['name' => 'testSetting2']]],
+        ]);
+
+        // Reset the memoized values
+        $this->getContainer()->get(MemoizedSystemConfigStore::class)->reset();
+
+        // All records should be deleted
+        static::assertNull($this->systemConfigService->get($configKey1));
+        static::assertNull($this->systemConfigService->get($configKey1, TestDefaults::SALES_CHANNEL));
+        static::assertFalse($this->systemConfigService->getBool($configKey2));
+        static::assertFalse($this->systemConfigService->getBool($configKey2, TestDefaults::SALES_CHANNEL));
+
+        // Assert that the events were dispatched correctly for the global scope
+        static::assertCount(1, $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]['global']);
+        static::assertCount(1, $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['global']);
+        static::assertCount(1, $dispatchedEvents[SystemConfigChangedHook::class]['global']);
+
+        // Assert that the events were dispatched correctly for the sales channel scope
+        static::assertCount(1, $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]['sales_channel']);
+        static::assertCount(1, $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['sales_channel']);
+        static::assertCount(1, $dispatchedEvents[SystemConfigChangedHook::class]['sales_channel']);
+
+        // Assert content of bulk events
+        $globalMultipleEvent = $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['global'][0];
+        static::assertInstanceOf(SystemConfigMultipleChangedEvent::class, $globalMultipleEvent);
+        static::assertEquals([$configKey1, $configKey2], array_keys($globalMultipleEvent->getConfig()));
+
+        $salesChannelMultipleEvent = $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['sales_channel'][0];
+        static::assertInstanceOf(SystemConfigMultipleChangedEvent::class, $salesChannelMultipleEvent);
+        static::assertEquals([$configKey1, $configKey2], array_keys($salesChannelMultipleEvent->getConfig()));
     }
 }

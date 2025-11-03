@@ -6,6 +6,7 @@ use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
@@ -32,6 +33,7 @@ class MailerTransportDecoratorTest extends TestCase
 
     private Filesystem $filesystem;
 
+    /** @var MockObject&EntityRepository<DocumentCollection> */
     private MockObject&EntityRepository $documentRepository;
 
     private MailerTransportDecorator $decorator;

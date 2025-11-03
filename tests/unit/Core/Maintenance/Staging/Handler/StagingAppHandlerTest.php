@@ -9,7 +9,6 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\Maintenance\Staging\Handler\StagingAppHandler;
-use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -39,18 +38,17 @@ class StagingAppHandlerTest extends TestCase
                 return 1;
             });
 
-        $configService = new StaticSystemConfigService();
-        $configService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, 'test');
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider->expects($this->once())
+            ->method('deleteShopId');
 
-        $handler = new StagingAppHandler($connection, $configService);
+        $handler = new StagingAppHandler($connection, $shopIdProvider);
         $handler->__invoke(new SetupStagingEvent(
             Context::createDefaultContext(),
             $this->createMock(SymfonyStyle::class),
             false,
             []
         ));
-
-        static::assertNull($configService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
 
         static::assertSame(['app', 'integration'], $tables);
         static::assertSame(['app_id', 'integration_id'], $ids);

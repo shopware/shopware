@@ -5,7 +5,8 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
-use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -33,6 +34,9 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaDefaultFolderCollection> $defaultFolderRepository
+     * @param EntityRepository<MediaFolderCollection> $folderRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,
@@ -196,8 +200,10 @@ class MediaGenerator implements DemodataGeneratorInterface
             return $mediaFolderId;
         }
 
-        /** @var MediaDefaultFolderEntity $defaultFolder */
-        $defaultFolder = $defaultFolders->first();
+        $defaultFolder = $defaultFolders->getEntities()->first();
+        if (!$defaultFolder) {
+            return $mediaFolderId;
+        }
 
         if ($defaultFolder->getFolder()) {
             return $defaultFolder->getFolder()->getId();

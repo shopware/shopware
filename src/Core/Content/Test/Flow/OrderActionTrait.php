@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -39,6 +41,9 @@ trait OrderActionTrait
 
     private IdsCollection $ids;
 
+    /**
+     * @var ?EntityRepository<CustomerCollection>
+     */
     private ?EntityRepository $customerRepository = null;
 
     private function createCustomerAndLogin(): void
@@ -153,6 +158,8 @@ trait OrderActionTrait
 
     private function cancelOrder(): void
     {
+        $this->getContainer()->get(SystemConfigService::class)->set('core.cart.enableOrderRefunds', true);
+
         $this->browser
             ->request(
                 'POST',

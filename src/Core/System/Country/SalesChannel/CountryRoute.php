@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\System\Country\SalesChannel;
 
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\Event\CountryCriteriaEvent;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -15,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('fundamentals@discovery')]
 class CountryRoute extends AbstractCountryRoute
 {
@@ -28,7 +30,8 @@ class CountryRoute extends AbstractCountryRoute
      */
     public function __construct(
         private readonly SalesChannelRepository $countryRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -40,10 +43,7 @@ class CountryRoute extends AbstractCountryRoute
     #[Route(path: '/store-api/country', name: 'store-api.country', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
     public function load(Request $request, Criteria $criteria, SalesChannelContext $context): CountryRouteResponse
     {
-        $this->dispatcher->dispatch(new AddCacheTagEvent(
-            self::buildName($context->getSalesChannelId()),
-            self::ALL_TAG
-        ));
+        $this->cacheTagCollector->addTag(self::buildName($context->getSalesChannelId()), self::ALL_TAG);
 
         $criteria->setTitle('country-route');
         $criteria->addFilter(new EqualsFilter('active', true));

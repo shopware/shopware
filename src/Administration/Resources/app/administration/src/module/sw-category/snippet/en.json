@@ -1,0 +1,263 @@
+{
+  "sw-category": {
+    "general": {
+      "mainMenuItemIndex": "Categories",
+      "mainMenuItemList": "Overview",
+      "descriptionTextModule": "Manage categories here.",
+      "headlineCategories": "Categories",
+      "placeholderSearchBar": "Search categories...",
+      "buttonCreate": "Create category",
+      "buttonSafeCategory": "Save",
+      "descriptionLabel": "Description",
+      "messageSaveSuccess": "Category \"{name}\" has been saved.",
+      "useAsLogo": "Use as display image",
+      "treeHeadline": "Categories",
+      "treeHeadSelected": "{count} selected",
+      "emptyStateHeadline": "No category selected",
+      "errorNavigationEntryPoint": "This category is defined as a {entryPointLabel} of at least one Sales Channel and can therefore not be deleted.",
+      "errorNavigationEntryPointMultiple": "One or more categories are defined as a main navigation of at least one Sales Channel and can therefore not be deleted.",
+      "actions": {
+        "actionsDisabledInLanguage": "Categories can only be created in the default language.",
+        "createSub": "New subcategory",
+        "createBefore": "New category before",
+        "createAfter": "New category after"
+      }
+    },
+    "view": {
+      "general": "General",
+      "cms": "Layout",
+      "products": "Products",
+      "customEntity": "Custom Entities",
+      "seo": "SEO",
+      "columnInfoHeader": "Footer element",
+      "columnInfo": "This category sets up a designated column in the footer. The category name will be displayed as a headline for the column. All categories on the first level below this category are displayed as rows below the column headline."
+    },
+    "base": {
+      "general": {
+        "categoryNameLabel": "Name",
+        "headlineInformationCard": "General",
+        "isCategoryActiveLabel": "Active",
+        "useAsLink": "Use as link",
+        "labelCategoryTags": "Tags",
+        "labelCategoryTagsPlaceholder": "Enter tags individually...",
+        "types": {
+          "title": "Category type",
+          "page": "Page / List",
+          "folder": "Structuring element / Entry point",
+          "customEntity": "Custom Entity",
+          "link": "Link",
+          "linkUnavailable": "Link (not selectable if category is defined as entry point)",
+          "help": "A structure category is not callable by itself, but is only used for outlining purposes.",
+          "helpText": {
+            "page": "A page / list has associated products and can be accessed directly with the assigned layout.",
+            "folder": "A structuring element / entry point will only be displayed in the structure if it has children and is not directly accessible except it is assigned as an entry point of a Sales Channel.",
+            "link": "A link allows for reference to a product, another category, a landing page or an external site."
+          }
+        }
+      },
+      "entry-point-card": {
+        "cardTitle": "Navigation",
+        "labelEntryPoint": "Entry point",
+        "placeholderEntryPoint": "Select entry point...",
+        "existingNavigationDescription": "You have assigned this category as an entry point for the main navigation in these Sales Channels:",
+        "labelSalesChannelsAdd": "Sales Channel assignment",
+        "placeholderSalesChannels": "Add Sales Channels...",
+        "buttonConfigureHome": "Configure home page",
+        "types": {
+          "labelMainNavigation": "Main navigation",
+          "helpTextMainNavigation": "The entry point for the main navigation is a mandatory field for Sales Channels. If you assign this category as the entry point for the Main navigation to one or more Sales Channels, you can only change this assignment on the sales channel itself.",
+          "labelFooterNavigation": "Footer navigation",
+          "helpTextFooterNavigation": "If you assign this category as the entry point for the Footer navigation to one or more Sales Channels, the categories on the next level will be columns. This allows you to divide your footer navigation into several areas.",
+          "labelServiceNavigation": "Footer service navigation",
+          "helpTextServiceNavigation": "If you assign this category as the entry point for the Service navigation to one or more Sales Channels, the categories on the next level will be displayed as a second navigation in the footer area."
+        }
+      },
+      "entry-point-modal": {
+        "modalTitle": "Configure home page",
+        "salesChannelSelection": "Sales Channel",
+        "showInMainNavigation": "Show in main navigation",
+        "mainNavigationName": "Display name",
+        "mainNavigationNamePlaceholder": "Enter alternative home page name...",
+        "mainNavigationNameHelpText": "By default this category is displayed as \"home\". Enter an alternative display name if the default configuration doesn't fit the current Sales Channel.",
+        "layoutHeadline": "Layout",
+        "seoSettingsHeadline": "SEO settings",
+        "metaTitleLabel": "Meta title",
+        "metaTitlePlaceholder": "Enter meta title...",
+        "metaDescriptionLabel": "Meta description",
+        "metaDescriptionPlaceholder": "Enter meta description...",
+        "seoKeywordsLabel": "SEO keywords",
+        "seoKeywordsPlaceholder": "Enter one or more keywords..."
+      },
+      "seo": {
+        "title": "SEO",
+        "labelMetaTitle": "Meta title",
+        "labelMetaDescription": "Description",
+        "labelKeywords": "Keywords",
+        "placeholderMetaTitle": "Enter meta title...",
+        "placeholderMetaDescription": "Enter a description...",
+        "placeholderKeywords": "Enter one or more keywords..."
+      },
+      "menu": {
+        "title": "Menu settings",
+        "visible": "Hide in navigation",
+        "imageLabel": "Display image",
+        "descriptionLabel": "Description",
+                "descriptionPlaceholder": "Enter description..."
+      },
+      "customEntity": {
+        "cardTitle": "Assigned articles",
+        "assignment": {
+          "label": "Entry type",
+          "helpText": "Select the post type to be displayed in this category."
+        },
+        "instanceAssignment": {
+          "title": "Title",
+          "label": "Entries",
+          "placeholder": "Search and assign entries...",
+          "emptyState": {
+            "title": "No entries assigned"
+          }
+        }
+      },
+      "cms": {
+        "title": "Layout assignment",
+        "changeLayout": "Change layout",
+        "changeLayoutEmpty": "Assign layout",
+        "editInPagebuilder": "Edit in designer",
+        "editInPagebuilderEmpty": "Create new layout",
+        "editContent": "Edit content",
+        "defaultTitle": "Default layout",
+        "defaultDesc": "Category page"
+      },
+      "link": {
+        "title": "Customisable link",
+        "mainTypeLabel": "Link type",
+        "mainTypePlaceholder": "Choose a link type...",
+        "internalTypeLabel": "Entity",
+        "internalTypePlaceholder": "Choose an entity...",
+        "categoryPlaceholder": "Choose a category...",
+        "productPlaceholder": "Choose a product...",
+        "landingPagePlaceholder": "Choose a landing page...",
+        "example": "Example:",
+        "internalExampleText": "/my-category",
+        "externalDesc": "To set external links, insert the complete web address:",
+        "internalDesc": "If you want to create an internal link, just add the path that follows the domain:",
+        "linkLabel": "Link destination",
+        "linkNewTabLabel": "Open in new tab",
+        "categoryHelpText": "Internal links to categories support the following category types: {types}.",
+        "type": {
+          "internal": "Internal",
+          "external": "External"
+        },
+        "linkHasProtocol": "Use protocol"
+      },
+      "products": {
+        "productAssignmentHeadline": "Product assignment",
+        "productAssignmentPlaceholder": "Search and assign products...",
+        "productAssignmentLabel": "Products",
+        "productAssignmentEmptyStateDescription": "No products assigned",
+        "productStreamAssignmentEmptyStateDescription": "No dynamic product group assigned",
+        "columnNameLabel": "Name",
+        "columnManufacturerLabel": "Manufacturer",
+        "productAssignmentTypeLabel": "Type",
+        "productAssignmentTypeManualLabel": "Manual selection",
+        "productAssignmentTypeStreamLabel": "Dynamic product group",
+        "productAssignmentTypeStreamPlaceholder": "Search and assign dynamic product groups...",
+        "alertManualAssignedProductsOnAssignmentTypeStream": "There are still manually assigned products in this category. Those products will not be visible in this category but may be visible in parent categories.",
+        "dynamicProductGroupDetailLinkText": "Dynamic product group details",
+        "dynamicProductGroupInvalidMessage": "The selected dynamic product group is not valid. Please verify your dynamic product group details.",
+        "dynamicProductGroupHelpText": {
+          "label": "Products belong to a dynamic product group if they meet the conditions of that product group. Conditions can be defined within the {link} module.",
+          "linkText": "dynamic product groups",
+          "videoUrl": "",
+          "videoLink": ""
+        }
+      }
+    },
+    "modal": {
+      "textDeleteConfirm": "Are you sure you really want to delete the category \"{name}\"?",
+      "textDeleteChildrenConfirm": "All subcategories will be deleted too.",
+      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected categories?"
+    },
+    "entry-point-overwrite-modal": {
+      "textBefore": "You already assigned an entry point to the following Sales Channel: | You already assigned entry points to the following Sales Channels:",
+      "textAfter": "Should this assignment be overwritten? | Should these assignments be overwritten?"
+    }
+  },
+  "sw-landing-page": {
+    "view": {
+      "general": "General",
+      "cms": "Layout"
+    },
+    "general": {
+      "placeholderSearchBar": "Search landing pages...",
+      "treeHeadSelected": "{count} selected",
+      "buttonCreate": "Add landing page",
+      "treeHeadline": "Landing pages",
+      "actions": {
+        "actionsDisabledInLanguage": "Landing pages can only be created in the system default language."
+      }
+    },
+    "base": {
+      "general": {
+        "labelName": "Name",
+        "headlineInformationCard": "General",
+        "isActiveLabel": "Active",
+        "labelTags": "Tags",
+        "labelTagsPlaceholder": "Enter tags individually..."
+      },
+      "seo": {
+        "title": "SEO",
+        "titleGeneralInformation": "General information",
+        "titleSocialMedia": "Social Media",
+        "labelSalesChannel": "Sales Channels",
+        "labelMetaTitle": "Meta title",
+        "labelSocialMediaTitle": "Title",
+        "labelMetaDescription": "Meta description",
+        "labelSocialMediaDescription": "Description",
+        "labelKeywords": "SEO keywords",
+        "labelUrl": "SEO URL",
+        "labelPreviewImage": "Preview image",
+        "placeholderSalesChannel": "Choose a Sales Channel...",
+        "placeholderMetaTitle": "Enter meta title...",
+        "placeholderSocialMediaTitle": "Enter social media title...",
+        "placeholderMetaDescription": "Enter a meta description...",
+        "placeholderSocialMediaDescription": "Enter description...",
+        "placeholderKeywords": "Enter one or more keywords...",
+        "placeholderUrl": "Enter URL...",
+        "socialMediaPreview": "Social media preview",
+        "searchResultPreview": "Search result preview",
+        "helpTextMetaTitle": "Meta titles should not be longer than 70 characters. Excess text will be truncated by Google and the title will not be fully displayed in the SERP snippet.",
+        "helpTextMetaDescription": "The possible length for meta descriptions on Google is about 175 characters and is trimmed according to pixel width. However, it is recommended to aim for a length of about 150 characters so that the description is not cut off in the SERP snippet. Shopware allows a maximum length of 255 characters.",
+        "notification": {
+          "noLayoutAssigned": "For this landing page, no layout has been assigned. Without a layout, the landing page is not accessible via SEO."
+        }
+      },
+      "cms": {
+        "title": "Layout assignment",
+        "changeLayout": "Change layout",
+        "changeLayoutEmpty": "Assign layout",
+        "editInPagebuilder": "Edit in designer",
+        "editInPagebuilderEmpty": "Create new layout",
+        "editContent": "Edit content",
+        "defaultTitle": "Default layout",
+        "defaultDesc": "Category page",
+        "cmsLayoutModalHeadline": "Landing page"
+      }
+    },
+    "modal": {
+      "textDeleteConfirm": "Are you sure you really want to delete the landing page \"{name}\"?",
+      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected landing pages?"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "category": {
+        "label": "Categories"
+      },
+      "landing_page": {
+        "label": "Landing pages"
+      }
+    }
+  }
+}

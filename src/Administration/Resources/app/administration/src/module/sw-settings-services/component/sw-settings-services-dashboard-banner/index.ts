@@ -17,7 +17,11 @@ export default Shopware.Component.wrapComponentConfig({
 
         return {
             isHidden: true,
-            servicesGraphics: assetFilter('/administration/administration/static/img/services/services-graphic.svg'),
+            // eslint-disable-next-line max-len
+            servicesGraphicLight: assetFilter(
+                '/administration/administration/static/img/services/services-graphic-light.svg',
+            ),
+            servicesGraphicDark: assetFilter('/administration/administration/static/img/services/services-graphic-dark.svg'),
         };
     },
 

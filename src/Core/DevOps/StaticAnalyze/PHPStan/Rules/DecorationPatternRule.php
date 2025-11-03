@@ -12,10 +12,10 @@ use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Shopware\Core\Framework\App\AppUrlChangeResolver\AbstractAppUrlChangeStrategy;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\AbstractShopIdChangeStrategy;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
@@ -42,7 +42,7 @@ class DecorationPatternRule implements Rule
         RefreshableAppDryRun::class,
         RefreshableAppDryRun::class,
         AbstractAppLifecycle::class,
-        AbstractAppUrlChangeStrategy::class,
+        AbstractShopIdChangeStrategy::class,
     ];
 
     public function getNodeType(): string

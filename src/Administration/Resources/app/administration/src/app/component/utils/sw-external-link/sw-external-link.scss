@@ -4,24 +4,29 @@
     display: inline-flex;
     align-items: center;
     color: var(--color-text-brand-default);
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
     text-decoration: underline;
     cursor: pointer;
 
-    &:hover,
-    &:focus {
+    &:hover {
         color: var(--color-text-brand-hover);
     }
 
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline-offset: var(--scale-size-2);
+        border-radius: var(--border-radius-xs);
+    }
+
     &__icon {
-        margin-left: 4px;
+        margin-left: var(--scale-size-4);
     }
 
     &--small {
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-xs);
 
         .sw-external-link__icon {
-            margin-left: 2px;
+            margin-left: var(--scale-size-2);
         }
     }
 }

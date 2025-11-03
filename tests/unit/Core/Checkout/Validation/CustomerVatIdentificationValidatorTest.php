@@ -61,7 +61,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             ->method('buildViolation')
             ->willReturn($builder);
 
-        $constraint = new CustomerVatIdentification(['countryId' => Uuid::randomHex(), 'shouldCheck' => true]);
+        $constraint = new CustomerVatIdentification(countryId: Uuid::randomHex(), shouldCheck: true);
 
         $this->validator->validate(['abc'], $constraint);
     }

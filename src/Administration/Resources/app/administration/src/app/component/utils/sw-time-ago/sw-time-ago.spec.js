@@ -122,14 +122,6 @@ describe('src/app/component/utils/sw-time-ago', () => {
     });
 
     describe('date property as string', () => {
-        it('should be a Vue.JS component', async () => {
-            const wrapper = await createWrapper({
-                date: '2025-06-24T15:00:00.000+00:00',
-            });
-
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         describe('past dates', () => {
             it('should show the correct time for less than one minute', async () => {
                 const wrapper = await createWrapper({
@@ -232,14 +224,6 @@ describe('src/app/component/utils/sw-time-ago', () => {
     });
 
     describe('date property as object', () => {
-        it('should be a Vue.JS component', async () => {
-            const wrapper = await createWrapper({
-                date: new Date('2025-06-24T15:00:00.000+00:00'),
-            });
-
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         describe('past dates', () => {
             it('should show the correct time for less than one minute', async () => {
                 const wrapper = await createWrapper({

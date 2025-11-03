@@ -488,4 +488,155 @@ describe('core/factory/cache-adapter.factory.js', () => {
         // expect no warning in the console
         expect(console.warn).toHaveBeenCalledTimes(0);
     });
+
+    it('should cache config endpoints indefinitely without timeout', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+
+        const configMeRequest = {
+            url: '_info/config-me',
+            method: 'get',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true,
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1,
+        };
+
+        // do first request
+        cacheAdapter(configMeRequest);
+
+        // expect that the original adapter was called only once
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+        // expect no warning in the console
+        expect(console.warn).not.toHaveBeenCalled();
+
+        // set timer 3 seconds forward (beyond normal timeout)
+        jest.advanceTimersByTime(3000);
+
+        // do second request
+        cacheAdapter(configMeRequest);
+
+        // expect that the original adapter was still called only once
+        // because config endpoints are cached indefinitely
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+
+        // expect a warning in the console about duplicate requests
+        expect(console.warn).toHaveBeenCalledTimes(1);
+        expect(console.warn.mock.calls[0][1]).toContain('Duplicated requests happening in short amount of time');
+    });
+
+    it('should cache config endpoints with query parameters', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+
+        const configMeRequestWithParams = {
+            url: '_info/config-me?keys[]=search.preferences',
+            method: 'get',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true,
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1,
+        };
+
+        // do first request
+        cacheAdapter(configMeRequestWithParams);
+
+        // expect that the original adapter was called only once
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+        // expect no warning in the console
+        expect(console.warn).not.toHaveBeenCalled();
+
+        // set timer 3 seconds forward (beyond normal timeout)
+        jest.advanceTimersByTime(3000);
+
+        // do second request
+        cacheAdapter(configMeRequestWithParams);
+
+        // expect that the original adapter was still called only once
+        // because config endpoints are cached indefinitely
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+
+        // expect a warning in the console about duplicate requests
+        expect(console.warn).toHaveBeenCalledTimes(1);
+        expect(console.warn.mock.calls[0][1]).toContain('Duplicated requests happening in short amount of time');
+    });
+
+    it('should clear config endpoint cache when PATCH request is made to config endpoint', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+
+        const configMeRequest = {
+            url: '_info/config-me',
+            method: 'get',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true,
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1,
+        };
+
+        const configMePostRequest = {
+            url: '_info/config-me',
+            method: 'patch',
+            data: '{"search.preferences": {"enabled": true}}',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true,
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1,
+        };
+
+        // Cache a config request
+        cacheAdapter(configMeRequest);
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+        expect(Object.keys(requestCaches)).toHaveLength(1);
+
+        // Make a POST request to modify config
+        cacheAdapter(configMePostRequest);
+        expect(mockAdapter).toHaveBeenCalledTimes(2);
+
+        // Config cache should be cleared
+        expect(Object.keys(requestCaches)).toHaveLength(0);
+
+        // Next GET request should not use cache
+        cacheAdapter(configMeRequest);
+        expect(mockAdapter).toHaveBeenCalledTimes(3);
+    });
 });

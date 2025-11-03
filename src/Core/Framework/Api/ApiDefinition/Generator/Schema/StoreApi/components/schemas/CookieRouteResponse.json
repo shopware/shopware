@@ -1,0 +1,114 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": [],
+  "components": {
+    "schemas": {
+      "CookieRouteResponse": {
+        "type": "object",
+        "description": "Response containing cookie groups and their configuration hash.",
+        "properties": {
+          "apiAlias": {
+            "type": "string",
+            "enum": ["cookie_groups_hash"]
+          },
+          "elements": {
+            "type": "array",
+            "description": "Collection of cookie groups",
+            "items": {
+              "$ref": "#/components/schemas/CookieGroup"
+            }
+          },
+          "hash": {
+            "type": "string",
+            "description": "Hash of the current cookie configuration. Can be used to detect changes in cookie configuration.",
+            "example": "f86b6a872cb83dbd22d838ceda1aa3d4"
+          }
+        },
+        "required": ["elements", "hash", "apiAlias"],
+        "example": {
+          "apiAlias": "cookie_groups_hash",
+          "elements": [
+            {
+              "isRequired": true,
+              "description": "Cookies required for this shop to function:",
+              "name": "Technically required",
+              "entries": [
+                {
+                  "name": "Session",
+                  "hidden": false,
+                  "cookie": "session-",
+                  "apiAlias": "cookie_entry"
+                },
+                {
+                  "name": "Timezone",
+                  "hidden": false,
+                  "cookie": "timezone",
+                  "apiAlias": "cookie_entry"
+                },
+                {
+                  "value": "1",
+                  "expiration": 30,
+                  "name": "Cookie preferences",
+                  "hidden": true,
+                  "cookie": "cookie-preference",
+                  "apiAlias": "cookie_entry"
+                }
+              ],
+              "apiAlias": "cookie_group"
+            },
+            {
+              "isRequired": false,
+              "description": "Cookies used for statistics and shop performance metrics.",
+              "name": "Statistics",
+              "entries": [
+                {
+                  "value": "1",
+                  "expiration": 30,
+                  "name": "Google Analytics",
+                  "hidden": false,
+                  "cookie": "google-analytics-enabled",
+                  "apiAlias": "cookie_entry"
+                }
+              ],
+              "apiAlias": "cookie_group"
+            },
+            {
+              "isRequired": false,
+              "description": "Allows Google to collect personal data for online advertising and marketing.",
+              "name": "Marketing",
+              "entries": [
+                {
+                  "value": "1",
+                  "expiration": 30,
+                  "name": "Google Advertising",
+                  "hidden": false,
+                  "cookie": "google-ads-enabled",
+                  "apiAlias": "cookie_entry"
+                }
+              ],
+              "apiAlias": "cookie_group"
+            },
+            {
+              "isRequired": false,
+              "name": "Comfort features",
+              "entries": [
+                {
+                  "value": "1",
+                  "expiration": 30,
+                  "name": "YouTube video",
+                  "hidden": false,
+                  "cookie": "youtube-video",
+                  "apiAlias": "cookie_entry"
+                }
+              ],
+              "apiAlias": "cookie_group"
+            }
+          ],
+          "hash": "f86b6a872cb83dbd22d838ceda1aa3d4"
+        }
+      }
+    }
+  }
+}
+

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersSubscriber;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -36,7 +37,7 @@ class ContextAwareCacheHeadersSubscriberTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $request = $this->createRequest(['api', StoreApiRouteScope::ID], $context);
+        $request = $this->createRequest([ApiRouteScope::ID, StoreApiRouteScope::ID], $context);
 
         $response = new Response();
 

@@ -47,8 +47,12 @@ import Store from 'src/app/store';
 import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
+import CMS from '../module/sw-cms/constant/sw-cms.constant';
+import CUSTOMER from '../module/sw-customer/constant/sw-customer.constant';
+import FLOW from '../module/sw-flow/constant/flow.constant';
 import InAppPurchase from './in-app-purchase';
 import ExtensionApi from './extension-api';
+import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
 
@@ -278,6 +282,12 @@ class ShopwareClass implements CustomShopwareProperties {
         },
     };
 
+    public Constants: CustomShopwareConstants = {
+        CMS: CMS,
+        CUSTOMER: CUSTOMER,
+        FLOW: FLOW,
+    } as CustomShopwareConstants;
+
     public Helper = {
         FlatTreeHelper: FlatTreeHelper,
         MiddlewareHelper: MiddlewareHelper,
@@ -301,6 +311,8 @@ class ShopwareClass implements CustomShopwareProperties {
     public _private = {
         ApiServices: ApiServices,
     };
+
+    public Telemetry = Telemetry;
 }
 
 const ShopwareInstance = new ShopwareClass();

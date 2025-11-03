@@ -191,6 +191,7 @@
         <sw-sales-channel-defaults-select
             v-if="!isProductComparison"
             :sales-channel="salesChannel"
+            :criteria="languageCriteria"
             property-name="languages"
             :property-label="$tc('sw-sales-channel.detail.labelInputLanguages')"
             default-property-name="languageId"

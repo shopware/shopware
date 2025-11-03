@@ -107,6 +107,7 @@
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter" public="false">
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <tag name="twig.extension"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\HreflangLoaderInterface" class="Shopware\Core\Content\Seo\HreflangLoader">

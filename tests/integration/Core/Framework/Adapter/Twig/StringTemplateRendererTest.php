@@ -36,19 +36,44 @@ class StringTemplateRendererTest extends TestCase
         $testDate = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $context = Context::createDefaultContext();
 
-        /** @var CoreExtension $coreExtension */
         $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
+        static::assertInstanceOf(CoreExtension::class, $coreExtension);
         $coreExtension->setTimezone('Europe/London');
         $this->stringTemplateRenderer->initialize();
         $renderedTime = $this->stringTemplateRenderer->render($templateMock, ['testDate' => $testDate], $context);
 
-        /** @var CoreExtension $coreExtension */
         $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
+        static::assertInstanceOf(CoreExtension::class, $coreExtension);
         $coreExtension->setTimezone('Europe/Berlin');
         $this->stringTemplateRenderer->initialize();
 
         $renderedWithTimezone = $this->stringTemplateRenderer->render($templateMock, ['testDate' => $testDate], $context);
 
         static::assertNotSame($renderedTime, $renderedWithTimezone);
+    }
+
+    public function testRenderWithTimezone(): void
+    {
+        $templateMock = '{{ testDate|format_date(pattern="HH:mm") }}';
+        $testDate = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+        $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
+        static::assertInstanceOf(CoreExtension::class, $coreExtension);
+        $coreExtension->setTimezone('Europe/London');
+        $this->stringTemplateRenderer->initialize();
+
+        $renderedWithoutTimezone = $this->stringTemplateRenderer->render(
+            $templateMock,
+            ['testDate' => $testDate],
+            Context::createDefaultContext()
+        );
+
+        $renderedWithTimezone = $this->stringTemplateRenderer->render(
+            $templateMock,
+            ['testDate' => $testDate, 'timezone' => 'Europe/Berlin'],
+            Context::createDefaultContext()
+        );
+
+        static::assertNotSame($renderedWithoutTimezone, $renderedWithTimezone);
     }
 }

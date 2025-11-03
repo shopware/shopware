@@ -61,6 +61,7 @@
             <argument type="service" id="cms_page.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute" public="true">

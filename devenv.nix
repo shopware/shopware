@@ -24,6 +24,8 @@ in {
   process.manager.implementation = lib.mkDefault "honcho";
 
   dotenv.disableHint = true;
+  cachix.enable = false;
+  devenv.warnOnNewVersion = false;
 
   languages.javascript = {
     enable = lib.mkDefault true;
@@ -92,7 +94,7 @@ in {
 
   services.mysql = {
     enable = true;
-    package = pkgs.mysql80;
+    package = pkgs.mysql84;
     initialDatabases = lib.mkDefault [{ name = "shopware"; }];
     ensureUsers = lib.mkDefault [
       {

@@ -272,8 +272,8 @@ class EntityWriteResultFactory
             // after resolving the mapping entities - we resolve the parent for related entity (maybe inherited for products, or sub domain entities)
             $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped);
 
-            foreach ($nested as $entity => $primaryKeys) {
-                $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
+            foreach ($nested as $nestedEntity => $nestedPrimaryKeys) {
+                $mapping[$nestedEntity] = array_merge($mapping[$nestedEntity] ?? [], $nestedPrimaryKeys);
             }
         }
 

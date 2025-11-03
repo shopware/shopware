@@ -86,7 +86,7 @@ class CartItemAddRouteTest extends TestCase
         $cartLocker
             ->expects($this->once())
             ->method('locked')
-            ->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
+            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $cartItemAddRoute = $this->createCartItemAddRoute(null, $cartLocker);
 
@@ -125,7 +125,7 @@ class CartItemAddRouteTest extends TestCase
 
         if ($cartLocker === null) {
             $cartLocker = $this->createMock(CartLocker::class);
-            $cartLocker->method('locked')->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
+            $cartLocker->method('locked')->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
         }
 
         return new CartItemAddRoute(

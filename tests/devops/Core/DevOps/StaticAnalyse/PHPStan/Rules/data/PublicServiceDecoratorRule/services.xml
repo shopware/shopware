@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Mock public service that gets decorated -->
+        <service id="translator" public="true" />
+
+        <!-- Mock non-public service -->  
+        <service id="some.non.public.service" public="false" />
+
+        <!-- Test case 1: Decorator of public service that is not public (should trigger error) -->
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\PublicServiceDecoratorRule\NonPublicDecorator" 
+                 decorates="translator" 
+                 public="false">
+            <tag name="container.decorator" id="translator" />
+        </service>
+
+        <!-- Test case 2: Decorator of public service that is public (should NOT trigger error) -->
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\PublicServiceDecoratorRule\PublicDecorator" 
+                 decorates="translator" 
+                 public="true">
+
+            <tag name="container.decorator" id="translator" />
+        </service>
+
+        <!-- Test case 3: Decorator of non-public service that is not public (should NOT trigger error) -->
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\PublicServiceDecoratorRule\DecoratorOfNonPublicService" 
+                 decorates="some.non.public.service" 
+                 public="false">
+
+            <tag name="container.decorator" id="some.non.public.service" />
+        </service>
+
+        <!-- Test case 4: Decorator of non-exists service that is not public (should trigger error) -->
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\PublicServiceDecoratorRule\NonExistDecorator"
+                 decorates="some.non.exists.service"
+                 public="false">
+
+            <tag name="container.decorator" id="some.non.exists.service" />
+        </service>
+    </services>
+</container>

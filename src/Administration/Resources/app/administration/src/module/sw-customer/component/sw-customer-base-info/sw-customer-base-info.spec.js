@@ -87,10 +87,6 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the birthday', async () => {
         expect(wrapper.find('.sw-customer-base__label-birthday').text()).toBe('22/12/1992');
     });

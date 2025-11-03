@@ -155,6 +155,10 @@ export default {
             return this.repositoryFactory.create('product');
         },
 
+        propertyRepository() {
+            return this.repositoryFactory.create('property_group_option');
+        },
+
         syncRepository() {
             return this.repositoryFactory.create('product', null, {
                 useSync: true,
@@ -209,12 +213,11 @@ export default {
         },
 
         productCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
 
             criteria.getAssociation('media').addSorting(Criteria.sort('position', 'ASC'));
             criteria.addAssociation('media.media');
-
-            criteria.getAssociation('properties').addSorting(Criteria.sort('name', 'ASC', true));
 
             criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
 
@@ -245,7 +248,6 @@ export default {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
-                .addAssociation('featureSet')
                 .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer').addAssociation('media');
@@ -736,6 +738,19 @@ export default {
                         product.purchasePrices = this.getDefaultPurchasePrices();
                     }
 
+                    if (product.propertyIds?.length > 0) {
+                        const propertyCriteria = new Criteria(1, null);
+                        propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
+                        propertyCriteria.setIds(product.propertyIds);
+                        propertyCriteria.addFilter(Criteria.equals('productProperties.id', product.id));
+
+                        const result = await this.propertyRepository.search(propertyCriteria);
+                        result.source = product.properties.source;
+
+                        product._origin.properties = cloneDeep(result);
+                        product.properties = result;
+                    }
+
                     Shopware.Store.get('swProductDetail').product = product;
 
                     if (this.product.parentId) {
@@ -770,8 +785,20 @@ export default {
 
             return this.productRepository
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
-                .then((res) => {
-                    Shopware.Store.get('swProductDetail').parentProduct = res;
+                .then(async (parent) => {
+                    if (parent.propertyIds?.length > 0) {
+                        const propertyCriteria = new Criteria(1, null);
+                        propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
+                        propertyCriteria.setIds(parent.propertyIds);
+
+                        const result = await this.propertyRepository.search(propertyCriteria);
+                        result.source = parent.properties.source;
+
+                        parent._origin.properties = cloneDeep(result);
+                        parent.properties = result;
+                    }
+
+                    Shopware.Store.get('swProductDetail').parentProduct = parent;
                 })
                 .then(() => {
                     Shopware.Store.get('swProductDetail').setLoading([
@@ -948,10 +975,8 @@ export default {
 
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (type.isPlainObject(pageOverrides)) {
-                this.product.slotConfig = cloneDeep(pageOverrides);
+            if (type.isEmpty(this.product.slotConfig)) {
+                this.product.slotConfig = null;
             }
 
             if (!this.entityValidationService.validate(this.product, this.customValidate, this.ignoreFieldsValidation)) {
@@ -1018,13 +1043,41 @@ export default {
         },
 
         onSaveFinished(response) {
+            if (response !== 'success' && response !== 'empty') {
+                const errorCode = response?.response?.data?.errors?.[0]?.code;
+
+                if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
+                    const titleSaveError = this.$tc('global.default.error');
+                    const messageSaveError = this.$t('sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
+                        productNo: response.response.data.errors[0].meta.parameters.number,
+                    });
+
+                    this.createNotificationError({
+                        title: titleSaveError,
+                        message: messageSaveError,
+                    });
+                    return;
+                }
+
+                const errorDetail = response?.response?.data?.errors?.[0]?.detail;
+                const titleSaveError = this.$tc('global.default.error');
+                const messageSaveError =
+                    errorDetail ?? this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
+
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError,
+                });
+                return;
+            }
+
             if (this.updateSeoPromises.length === 0) {
                 this.isSaveSuccessful = true;
 
                 return;
             }
 
-            if (response === 'empty' && this.updateSeoPromises.length > 0) {
+            if (response === 'empty') {
                 response = 'success';
             }
 
@@ -1052,34 +1105,6 @@ export default {
                         }
 
                         default: {
-                            const errorCode = response?.response?.data?.errors?.[0]?.code;
-
-                            if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
-                                const titleSaveError = this.$tc('global.default.error');
-                                const messageSaveError = this.$t(
-                                    'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
-                                    {
-                                        productNo: response.response.data.errors[0].meta.parameters.number,
-                                    },
-                                );
-
-                                this.createNotificationError({
-                                    title: titleSaveError,
-                                    message: messageSaveError,
-                                });
-                                break;
-                            }
-
-                            const errorDetail = response?.response?.data?.errors?.[0]?.detail;
-                            const titleSaveError = this.$tc('global.default.error');
-                            const messageSaveError =
-                                errorDetail ??
-                                this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
-
-                            this.createNotificationError({
-                                title: titleSaveError,
-                                message: messageSaveError,
-                            });
                             break;
                         }
                     }
@@ -1123,12 +1148,6 @@ export default {
                         this.updateSeoPromises.push(this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId));
                     });
                 }
-            }
-
-            if (this.product.media) {
-                this.product.media.forEach((medium, index) => {
-                    medium.position = index;
-                });
             }
 
             return new Promise((resolve) => {
@@ -1239,6 +1258,9 @@ export default {
             return true;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getCmsPageOverrides() {
             if (this.currentPage === null) {
                 return null;
@@ -1271,6 +1293,9 @@ export default {
             return slotOverrides;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         deleteSpecifcKeys(sections) {
             if (!sections) {
                 return;

@@ -1,5 +1,3 @@
-import CMS from '../../../constant/sw-cms.constant';
-
 /**
  * @private
  * @sw-package discovery
@@ -41,7 +39,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                                 url: null,
                                 newTab: false,
                                 mediaId: null,
-                                fileName: CMS.MEDIA.previewMountain,
+                                fileName: Shopware.Constants.CMS.MEDIA.previewMountain,
                                 mediaUrl: null,
                             },
                         ],

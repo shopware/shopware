@@ -52,12 +52,6 @@ async function createWrapper() {
 }
 
 describe('src/app/component/tree/sw-tree-item', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled context menu', async () => {
         const wrapper = await createWrapper();
 

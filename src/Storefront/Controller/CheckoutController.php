@@ -18,13 +18,14 @@ use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
@@ -46,7 +47,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class CheckoutController extends StorefrontController
 {
@@ -63,7 +64,6 @@ class CheckoutController extends StorefrontController
         private readonly OrderService $orderService,
         private readonly PaymentProcessor $paymentProcessor,
         private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader,
-        private readonly SystemConfigService $config,
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly AbstractCartLoadRoute $cartLoadRoute,
         private readonly HeaderPageletLoaderInterface $headerPageletLoader,
@@ -192,7 +192,7 @@ class CheckoutController extends StorefrontController
             );
         }
 
-        if ($context->getCustomer()->getGuest() && $this->config->get('core.cart.logoutGuestAfterCheckout', $context->getSalesChannelId())) {
+        if ($page->isLogoutCustomer()) {
             $this->logoutRoute->logout($context, $dataBag);
         }
 

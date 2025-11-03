@@ -10,6 +10,8 @@ describe('src/app/init-post/index.ts', () => {
             userInformation: expect.any(Function),
             worker: expect.any(Function),
             usageData: expect.any(Function),
+            amplitude: expect.any(Function),
+            productAnalytics: expect.any(Function),
         });
     });
 });

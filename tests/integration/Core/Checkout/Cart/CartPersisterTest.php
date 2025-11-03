@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\Cart\ProductNotFoundError;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -154,9 +156,34 @@ class CartPersisterTest extends TestCase
         static::assertNotEmpty($token);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRecalculationCartShouldNotBeSaved(): void
     {
         $cartBehavior = new CartBehavior([], true, true);
+
+        $cart = new Cart('existing');
+        $cart->setBehavior($cartBehavior);
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        static::getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertFalse($token);
+    }
+
+    public function testSkipPersistenceCartShouldNotBeSaved(): void
+    {
+        $cartBehavior = new CartBehavior([CheckoutPermissions::SKIP_CART_PERSISTENCE => true], true);
 
         $cart = new Cart('existing');
         $cart->setBehavior($cartBehavior);

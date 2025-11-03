@@ -19,12 +19,20 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
      * does not initialize the 3d scene
      */
     async init() {
+        const modalWrapper = document.querySelector('.zoom-modal-wrapper');
+        const modal = modalWrapper?.querySelector('.zoom-modal');
+        modal?.addEventListener('hidden.bs.modal', () => {
+            this.dive?.start();
+        });
+        modal?.addEventListener('shown.bs.modal', () => {
+            this.dive?.stop();
+        });
+
         await loadDIVE();
 
         if (!this.el) {
             return;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         this.sliderIndex = Number(this.options.sliderPosition);
 
         this.spatialProductSliderRenderUtil = new SpatialProductSliderRenderUtil(this);

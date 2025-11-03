@@ -219,12 +219,6 @@ responses.addResponse({
 });
 
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     linkDataProvider.forEach((link) => {
         it(`parses ${link.type} URLs correctly`, async () => {
             const wrapper = await createWrapper(link.buttonConfig);

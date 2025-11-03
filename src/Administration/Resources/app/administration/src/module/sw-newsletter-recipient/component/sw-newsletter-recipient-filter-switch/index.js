@@ -1,9 +1,9 @@
 import template from './sw-newsletter-recipient-filter-switch.html.twig';
+import './sw-newsletter-recipient-filter-switch.scss';
 
 /**
  * @sw-package after-sales
  */
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

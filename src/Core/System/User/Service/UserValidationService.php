@@ -10,12 +10,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\User\UserCollection;
 
 #[Package('fundamentals@framework')]
 class UserValidationService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<UserCollection> $userRepo
      */
     public function __construct(private readonly EntityRepository $userRepo)
     {

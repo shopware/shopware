@@ -11,12 +11,14 @@ use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
 {
@@ -40,7 +42,7 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.update-lineitem', methods: ['PATCH'])]
     public function change(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
-        return $this->cartLocker->locked($cart->getToken(), function () use ($request, $cart, $context) {
+        return $this->cartLocker->locked($context, function () use ($request, $cart, $context) {
             $itemsToUpdate = $request->request->all('items');
 
             /** @var array<mixed> $item */

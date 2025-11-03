@@ -20,6 +20,7 @@ const allowUrlList = [
     '/search/order',
     '/search/customer',
     '/_info/me',
+    '/_info/config-me',
 ];
 
 /**
@@ -36,6 +37,7 @@ const flushCacheUrls = [
     '_action/sync',
     '/product-visibility',
     'product-visibility',
+    '/_info/config-me',
 ];
 
 // the timeout at which the response in the cache gets cleared
@@ -71,7 +73,10 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         }
 
         // ignore requests which are not in the allowedUrlList
-        const isNotInAllowList = !allowUrlList.includes(config?.url);
+        const isNotInAllowList = !allowUrlList.some((url) =>
+            config?.url?.replace(/^\//, '').startsWith(url.replace(/^\//, '')),
+        );
+
         if (isNotInAllowList) {
             return originalAdapter(config);
         }
@@ -97,12 +102,15 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         // create a new one with the original adapter
         requestCaches[requestHash] = originalAdapter(config);
 
-        // remove the request cache entry after 1.5 seconds
-        setTimeout(() => {
-            if (requestCaches[requestHash]) {
-                delete requestCaches[requestHash];
-            }
-        }, requestCacheTimeout);
+        // Only set timeout for non-config endpoints (config endpoints cached indefinitely)
+        if (!config?.url?.includes('_info/')) {
+            // remove the request cache entry after 1.5 seconds
+            setTimeout(() => {
+                if (requestCaches[requestHash]) {
+                    delete requestCaches[requestHash];
+                }
+            }, requestCacheTimeout);
+        }
 
         // return a clone of the created request from the request cache
         return cloneResponse(requestCaches[requestHash]);

@@ -26,6 +26,8 @@ import {
     get,
     set,
     pick,
+    unset,
+    has,
 } from './utils/object.utils';
 import { warn, error } from './utils/debug.utils';
 import { currency, date, dateWithUserTimezone, fileSize, md5, toISODate } from './utils/format.utils';
@@ -52,6 +54,8 @@ export const object = {
     get: get,
     set: set,
     pick: pick,
+    unset: unset,
+    has: has,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

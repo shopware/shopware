@@ -43,9 +43,9 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test',
             $this->createMock(TagAwareAdapterInterface::class),
-            false
+            false,
+            true
         );
 
         $invalidator->invalidate([]);
@@ -70,9 +70,9 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod',
             $this->createMock(TagAwareAdapterInterface::class),
-            false
+            false,
+            true
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -97,8 +97,8 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test',
             $this->createMock(TagAwareAdapterInterface::class),
+            false,
             false
         );
 
@@ -127,9 +127,9 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([$request]),
-            'prod',
             $this->createMock(TagAwareAdapterInterface::class),
-            false
+            false,
+            true
         );
 
         $invalidator->invalidate(['foo']);
@@ -153,9 +153,9 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod',
             $this->createMock(TagAwareAdapterInterface::class),
-            false
+            false,
+            true
         );
 
         $invalidator->invalidate(['foo']);
@@ -182,8 +182,8 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test',
             $this->createMock(TagAwareAdapterInterface::class),
+            false,
             false
         );
 
@@ -212,8 +212,8 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test',
             $this->createMock(TagAwareAdapterInterface::class),
+            false,
             false
         );
 
@@ -234,8 +234,8 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod',
             new TagAwareAdapter($adapter, $adapter),
+            true,
             true
         );
 
@@ -264,9 +264,9 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod',
             new TagAwareAdapter($adapter, $adapter),
-            false
+            false,
+            true
         );
 
         $invalidator->invalidate(['foo']);

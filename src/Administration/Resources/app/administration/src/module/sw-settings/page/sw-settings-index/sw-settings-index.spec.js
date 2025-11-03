@@ -163,11 +163,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         Shopware.Store.get('settingsItems').settingsGroups = {};
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain any settings items', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.settingsGroups).not.toEqual({});

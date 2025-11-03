@@ -65,12 +65,6 @@ const createSelect = async (
 };
 
 describe('components/sw-entity-many-to-many-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createSelect();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should use the provided associations in the criteria', async () => {
         const criteria = new Criteria(1, 25);
         criteria.addAssociation('testAssociation');

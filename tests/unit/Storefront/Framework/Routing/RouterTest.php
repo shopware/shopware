@@ -38,13 +38,15 @@ class RouterTest extends TestCase
             $routeCollection = new RouteCollection();
             $routeCollection->add('frontend.home.page', new Route('/', ['_controller' => 'Shopware\Storefront\Controller\HomeController::index']));
             $routeCollection->add('frontend.navigation.page', new Route('/navigation/{navigationId}', ['_controller' => 'Shopware\Storefront\Controller\NavigationController::index']));
+            $routeCollection->add('custom.route', new Route('/custom-route', ['_controller' => 'Shopware\Storefront\Controller\CustomController::index']));
 
             $this->collection = $routeCollection;
         }, $symfonyRouter, SymfonyRouter::class)();
 
         $router = new Router(
             $symfonyRouter,
-            $stack
+            $stack,
+            $case->allowedRoutes,
         );
         $router->setContext(new RequestContext('', 'GET', $case->host));
 
@@ -54,122 +56,122 @@ class RouterTest extends TestCase
     }
 
     /**
-     * @return UrlCase[][]
+     * @return \Generator<list<UrlCase>>
      */
-    public static function urlCases(): array
+    public static function urlCases(): \Generator
     {
         $id = Uuid::randomHex();
 
-        return [
-            'test-home-page-without-suffix' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/', '', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/de/', '/de', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-and-slash' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/de/', '/de/', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-without-slash' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/de/', 'de', 'frontend.home.page'),
-            ],
-            'test-home-page-with-null' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/', null, 'frontend.home.page'),
-            ],
-            'test-navigation-page-with-de' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, "/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id]),
-            ],
-            'test-home-page-without-suffix-relative' => [
-                new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, '', '', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-relative' => [
-                new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, 'de/', '/de', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-and-slash-relative' => [
-                new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, 'de/', '/de/', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-without-slash-relative' => [
-                new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, 'de/', 'de', 'frontend.home.page'),
-            ],
-            'test-home-page-with-null-relative' => [
-                new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, '', null, 'frontend.home.page'),
-            ],
-            'test-navigation-page-with-de-relative' => [
-                new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, "de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id]),
-            ],
-            'test-home-page-without-suffix-absolute-url' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/', '', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-absolute-url' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/de/', '/de', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-and-slash-absolute-url' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/de/', '/de/', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-without-slash-absolute-url' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/de/', 'de', 'frontend.home.page'),
-            ],
-            'test-home-page-with-null-absolute-url' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/', null, 'frontend.home.page'),
-            ],
-            'test-navigation-page-with-de-absolute-url' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, "http://test.de/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id]),
-            ],
-            'test-home-page-without-suffix-network-path' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/', '', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-network-path' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/de/', '/de', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-and-slash-network-path' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/de/', '/de/', 'frontend.home.page'),
-            ],
-            'test-home-page-with-de-without-slash-network-path' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/de/', 'de', 'frontend.home.page'),
-            ],
-            'test-home-page-with-null-network-path' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/', null, 'frontend.home.page'),
-            ],
-            'test-navigation-page-with-de-network-path' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, "//test.de/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id]),
-            ],
-
-            'test-home-page-without-suffix-absolute-url-with-port' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/', '', 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-home-page-with-de-absolute-url-with-port' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/de/', '/de', 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-home-page-with-de-and-slash-absolute-url-with-port' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/de/', '/de/', 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-home-page-with-de-without-slash-absolute-url-with-port' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/de/', 'de', 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-home-page-with-null-absolute-url-with-port' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/', null, 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-navigation-page-with-de-absolute-url-with-port' => [
-                new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, "http://test.de:8000/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id], 'test.de:8000'),
-            ],
-            'test-home-page-without-suffix-network-path-with-port' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/', '', 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-home-page-with-de-network-path-with-port' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/de/', '/de', 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-home-page-with-de-and-slash-network-path-with-port' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/de/', '/de/', 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-home-page-with-de-without-slash-network-path-with-port' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/de/', 'de', 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-home-page-with-null-network-path-with-port' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/', null, 'frontend.home.page', [], 'test.de:8000'),
-            ],
-            'test-navigation-page-with-de-network-path-with-port' => [
-                new UrlCase(UrlGeneratorInterface::NETWORK_PATH, "//test.de:8000/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id], 'test.de:8000'),
-            ],
+        yield 'test-home-page-without-suffix' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/', '', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/de/', '/de', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-and-slash' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/de/', '/de/', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-without-slash' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/de/', 'de', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-null' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, '/', null, 'frontend.home.page'),
+        ];
+        yield 'test-navigation-page-with-de' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_PATH, "/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id]),
+        ];
+        yield 'test-home-page-without-suffix-relative' => [
+            new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, '', '', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-relative' => [
+            new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, 'de/', '/de', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-and-slash-relative' => [
+            new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, 'de/', '/de/', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-without-slash-relative' => [
+            new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, 'de/', 'de', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-null-relative' => [
+            new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, '', null, 'frontend.home.page'),
+        ];
+        yield 'test-navigation-page-with-de-relative' => [
+            new UrlCase(UrlGeneratorInterface::RELATIVE_PATH, "de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id]),
+        ];
+        yield 'test-home-page-without-suffix-absolute-url' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/', '', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-absolute-url' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/de/', '/de', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-and-slash-absolute-url' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/de/', '/de/', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-without-slash-absolute-url' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/de/', 'de', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-null-absolute-url' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/', null, 'frontend.home.page'),
+        ];
+        yield 'test-navigation-page-with-de-absolute-url' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, "http://test.de/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id]),
+        ];
+        yield 'test-home-page-without-suffix-network-path' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/', '', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-network-path' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/de/', '/de', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-and-slash-network-path' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/de/', '/de/', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-de-without-slash-network-path' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/de/', 'de', 'frontend.home.page'),
+        ];
+        yield 'test-home-page-with-null-network-path' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de/', null, 'frontend.home.page'),
+        ];
+        yield 'test-navigation-page-with-de-network-path' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, "//test.de/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id]),
+        ];
+        yield 'test-home-page-without-suffix-absolute-url-with-port' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/', '', 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-home-page-with-de-absolute-url-with-port' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/de/', '/de', 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-home-page-with-de-and-slash-absolute-url-with-port' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/de/', '/de/', 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-home-page-with-de-without-slash-absolute-url-with-port' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/de/', 'de', 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-home-page-with-null-absolute-url-with-port' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de:8000/', null, 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-navigation-page-with-de-absolute-url-with-port' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, "http://test.de:8000/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id], 'test.de:8000'),
+        ];
+        yield 'test-home-page-without-suffix-network-path-with-port' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/', '', 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-home-page-with-de-network-path-with-port' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/de/', '/de', 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-home-page-with-de-and-slash-network-path-with-port' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/de/', '/de/', 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-home-page-with-de-without-slash-network-path-with-port' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/de/', 'de', 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-home-page-with-null-network-path-with-port' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, '//test.de:8000/', null, 'frontend.home.page', [], 'test.de:8000'),
+        ];
+        yield 'test-navigation-page-with-de-network-path-with-port' => [
+            new UrlCase(UrlGeneratorInterface::NETWORK_PATH, "//test.de:8000/de/navigation/{$id}", '/de', 'frontend.navigation.page', ['navigationId' => $id], 'test.de:8000'),
+        ];
+        yield 'test-custom-route-allowed-with-base-url' => [
+            new UrlCase(UrlGeneratorInterface::ABSOLUTE_URL, 'http://test.de/de/custom-route', '/de', 'custom.route', allowedRoutes: ['custom.route']),
         ];
     }
 }
@@ -181,6 +183,7 @@ class UrlCase
 {
     /**
      * @param array<string, string> $params
+     * @param list<string> $allowedRoutes
      */
     public function __construct(
         public int $type,
@@ -188,7 +191,8 @@ class UrlCase
         public ?string $baseUrl,
         public string $route,
         public array $params = [],
-        public string $host = 'test.de'
+        public string $host = 'test.de',
+        public array $allowedRoutes = [],
     ) {
     }
 }

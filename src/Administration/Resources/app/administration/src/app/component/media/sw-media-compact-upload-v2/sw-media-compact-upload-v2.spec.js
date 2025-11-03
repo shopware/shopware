@@ -66,10 +66,6 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
         );
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 

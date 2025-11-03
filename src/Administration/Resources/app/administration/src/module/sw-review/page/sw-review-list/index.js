@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -22,8 +22,8 @@ export default {
 
     data() {
         return {
-            isLoading: false,
             items: null,
+            isLoading: false,
             sortBy: 'status,createdAt',
         };
     },
@@ -84,15 +84,14 @@ export default {
         },
 
         criteria() {
-            const criteria = new Criteria(this.page, this.limit);
-
-            criteria.setTerm(this.term);
+            const criteria = new Criteria(this.page, this.limit)
+                .setTerm(this.term)
+                .addAssociation('customer')
+                .addAssociation('product');
 
             this.sortBy.split(',').forEach((sorting) => {
                 criteria.addSorting(Criteria.sort(sorting, this.sortDirection, this.naturalSorting));
             });
-            criteria.addAssociation('customer');
-            criteria.addAssociation('product');
 
             return criteria;
         },
@@ -117,12 +116,20 @@ export default {
         getList() {
             this.isLoading = true;
 
-            const context = { ...Shopware.Context.api, inheritance: true };
-            return this.repository.search(this.criteria, context).then((result) => {
-                this.total = result.total;
-                this.items = result;
-                this.isLoading = false;
-            });
+            const context = {
+                ...Shopware.Context.api,
+                inheritance: true,
+            };
+
+            return this.repository
+                .search(this.criteria, context)
+                .then((result) => {
+                    this.total = result.total;
+                    this.items = result;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onDelete(option) {

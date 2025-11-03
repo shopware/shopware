@@ -14,12 +14,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('after-sales')]
-class OrderAmountService
+readonly class OrderAmountService
 {
     public function __construct(
-        private readonly Connection $connection,
-        private readonly CashRounding $rounding,
-        private readonly bool $timeZoneSupportEnabled,
+        private Connection $connection,
+        private CashRounding $rounding,
+        private bool $timeZoneSupportEnabled,
     ) {
     }
 

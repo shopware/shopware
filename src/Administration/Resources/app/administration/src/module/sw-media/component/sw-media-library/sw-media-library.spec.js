@@ -79,18 +79,17 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                     },
                 },
                 mediaService: {},
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
         },
     });
 }
 
 describe('src/module/sw-media/component/sw-media-library/index', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should allow loading of additional folders', async () => {
         const wrapper = await createWrapper({
             folderAmount: [
@@ -454,5 +453,17 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(wrapper.vm.mediaRepository.get).toHaveBeenCalledWith(refreshMediaItem.id, expect.any(Object));
         expect(wrapper.vm.items).not.toContainEqual(refreshMediaItem);
         expect(wrapper.vm.selectedItems).not.toContainEqual(refreshMediaItem);
+    });
+
+    it('should show Add folder button when canCreateFolder is true', async () => {
+        const wrapper = await createWrapper();
+
+        let addFolderButton = wrapper.find('.sw-media-index__create-folder-action');
+        expect(addFolderButton.exists()).toBe(false);
+
+        await wrapper.setProps({ allowCreateFolder: true });
+
+        addFolderButton = wrapper.find('.sw-media-index__create-folder-action');
+        expect(addFolderButton.exists()).toBe(true);
     });
 });

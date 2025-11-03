@@ -2,8 +2,10 @@
 
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
+use League\Flysystem\Filesystem;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * @internal
@@ -11,63 +13,24 @@ use Shopware\Core\System\Snippet\Service\TranslationLoader;
 #[Package('discovery')]
 trait SnippetFileTrait
 {
-    private function createSnippetFiles(): void
+    private function createSnippetFixtures(Filesystem $filesystem, TranslationLoader $loader): void
     {
-        $paths = [
-            'platform' => TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Platform',
-            'plugin' => TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Plugins/activePlugin',
+        $platformPath = Path::join($loader->getLocalePath('es-ES'), 'Platform');
+        $activePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
+        $inactivePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'inactivePlugin');
+
+        $translationFiles = [
+            Path::join($platformPath, 'storefront.json') => '{"shop_storefront": "Platform storefront"}',
+            Path::join($platformPath, 'administration.json') => '{"shop_administration": "Platform admin"}',
+            Path::join($platformPath, 'messages.es-ES.base.json') => '{"shop_base": "Platform base"}',
+            Path::join($activePluginPath, 'storefront.json') => '{"plugin_storefront": "Plugin storefront"}',
+            Path::join($activePluginPath, 'administration.json') => '{"plugin_administration": "Plugin admin"}',
+            Path::join($activePluginPath, 'messages.es-ES.base.json') => '{"plugin_base": "Platform base"}',
+            Path::join($inactivePluginPath, 'storefront.json') => '{"inactive_storefront": "Inactive plugin"}',
         ];
 
-        $files = [
-            'administration.json',
-            'storefront.json',
-            'messages.es-ES.base.json',
-        ];
-
-        foreach ($paths as $scope => $path) {
-            if (!is_dir($path)) {
-                mkdir($path, 0777, true);
-            }
-
-            if ($scope === 'platform') {
-                $snippet = ['shop' => 'Demo Shop'];
-            } else {
-                $snippet = ['plugin' => 'activePlugin'];
-            }
-
-            foreach ($files as $file) {
-                $filePath = $path . '/' . $file;
-                if (!is_file($filePath)) {
-                    file_put_contents($filePath, json_encode($snippet, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE));
-                }
-            }
+        foreach ($translationFiles as $file => $content) {
+            $filesystem->write($file, $content);
         }
-    }
-
-    private function cleanupSnippetFiles(): void
-    {
-        $dir = TranslationLoader::TRANSLATION_DESTINATION . '/es-ES';
-
-        if (!\is_dir($dir)) {
-            // If the directory does not exist, there's nothing to clean up.
-            return;
-        }
-
-        $items = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($items as $item) {
-            static::assertInstanceOf(\SplFileInfo::class, $item);
-
-            if ($item->isDir()) {
-                rmdir($item->getPathname());
-            } else {
-                unlink($item->getPathname());
-            }
-        }
-
-        rmdir($dir);
     }
 }

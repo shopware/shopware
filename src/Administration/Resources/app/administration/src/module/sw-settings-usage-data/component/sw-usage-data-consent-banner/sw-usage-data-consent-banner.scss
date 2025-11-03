@@ -1,14 +1,16 @@
 @import "~scss/variables";
 
 .sw-usage-data-consent-banner {
-    background: $color-white;
+    background: var(--color-elevation-surface-raised);
     max-width: $content-width;
     margin: 0 auto var(--scale-size-40);
-    border-radius: $border-radius-lg;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 10%), 0 2px 1px 0 rgba(0, 0, 0, 6%), 0 1px 1px 0 rgba(0, 0, 0, 8%);
+    border-radius: var(--border-radius-card);
+    border: 1px solid var(--color-border-primary-default);
     position: relative;
 
     &--not-accepted {
+        transform-style: preserve-3d;
+
         &::after {
             content: "";
             position: absolute;
@@ -18,10 +20,11 @@
                 linear-gradient(
                     -45deg,
                     transparent 45%,
-                    $color-shopware-brand-300 48%,
-                    $color-module-purple-300 52%,
+                    var(--color-border-brand-selected) 48%,
+                    var(--color-border-accent-default) 52%,
                     transparent 55%
                 );
+            transform: translateZ(-1px);
             background-size: 400%;
             z-index: -1;
             opacity: 0;
@@ -51,12 +54,12 @@
 
     &__content {
         padding: 32px;
-        border-radius: $border-radius-lg $border-radius-lg 0 0;
+        border-radius: var(--border-radius-card) var(--border-radius-card) 0 0;
         overflow: hidden;
-        color: $color-darkgray-700;
-        font-weight: $font-weight-medium;
-        font-size: $font-size-xs;
-        line-height: 1.8;
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-medium);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         background-size: contain;
         background-position: bottom center;
         background-repeat: no-repeat;
@@ -64,53 +67,61 @@
         container: consent-content / inline-size;
 
         &-headline {
-            font-size: 24px;
-            font-weight: 700;
-            line-height: 1.4;
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            line-height: var(--font-line-height-xl);
             letter-spacing: 0.15px;
-            margin-bottom: 8px;
-            color: $color-darkgray-700;
+            margin-bottom: var(--scale-size-8);
+            color: var(--color-text-primary-default);
         }
 
         &-subheadline {
-            margin-bottom: 12px;
-            font-weight: 700;
+            margin-bottom: var(--scale-size-12);
+            font-weight: var(--font-weight-bold);
             line-height: 1.4;
-            color: $color-darkgray-700;
+            color: var(--color-text-primary-default);
         }
 
         a {
-            font-weight: $font-weight-medium;
-            font-size: $font-size-xs;
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+
+            &:focus-visible {
+                outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+                outline-offset: var(--scale-size-2);
+                border-radius: var(--border-radius-xs);
+            }
         }
 
         &-description {
-            margin-bottom: 20px;
+            margin-bottom: var(--scale-size-20);
         }
 
         &-data-shared-list {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-gap: 20px;
-            margin-bottom: 24px;
+            grid-gap: var(--scale-size-20);
+            margin-bottom: var(--scale-size-24);
 
             li {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                background-color: $color-white;
-                border: 1px solid $color-gray-300;
-                padding: 24px 8px;
-                border-radius: $border-radius-lg;
+                background-color: var(--color-interaction-secondary-default);
+                border: 1px solid var(--color-border-primary-default);
+                padding: var(--scale-size-24) var(--scale-size-8);
+                border-radius: var(--border-radius-l);
                 transition: background-color 0.1s ease;
                 cursor: help;
                 list-style: none;
-                font-size: $font-size-xs;
-                font-weight: $font-weight-bold;
+                font-size: var(--font-size-xs);
+                line-height: var(--font-line-height-xs);
+                font-weight: var(--font-weight-bold);
 
                 &:hover {
-                    background-color: $color-gray-50;
+                    background-color: var(--color-interaction-secondary-hover);
                 }
             }
         }
@@ -118,14 +129,14 @@
         @container consent-content (width < 780px) {
             &-data-shared-list {
                 grid-template-columns: repeat(2, 1fr);
-                grid-gap: 16px;
+                grid-gap: var(--scale-size-16);
             }
         }
 
         @container consent-content (width < 500px) {
             &-data-shared-list {
                 grid-template-columns: 1fr;
-                grid-gap: 12px;
+                grid-gap: var(--scale-size-12);
             }
         }
 
@@ -133,7 +144,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-bottom: 24px;
+            margin-bottom: var(--scale-size-24);
 
             li {
                 display: flex;
@@ -157,24 +168,24 @@
         }
 
         &-details-description {
-            font-weight: $font-weight-regular;
+            font-weight: var(--font-weight-regular);
             line-height: 1.6;
-            color: $color-darkgray-200;
+            color: var(--color-text-secondary-default);
         }
     }
 
     &__footer {
         padding: 20px 32px;
         min-height: 80px;
-        background: $color-white;
-        border-top: 1px solid $color-gray-300;
+        background: var(--color-elevation-surface-raised);
+        border-top: 1px solid var(--color-border-primary-default);
         container: consent-footer / inline-size;
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         flex-wrap: wrap;
-        gap: 16px;
-        border-radius: 0 0 $border-radius-lg $border-radius-lg;
+        gap: var(--scale-size-16);
+        border-radius: 0 0 var(--border-radius-card) var(--border-radius-card);
 
         &-decline-button {
             text-decoration: underline;
@@ -214,9 +225,9 @@
         }
 
         &-authorization-message {
-            font-size: $font-size-xxs;
-            line-height: $line-height-sm;
-            color: $color-darkgray-200;
+            font-size: var(--font-size-2xs);
+            line-height: var(--font-line-height-2xs);
+            color: var(--color-text-secondary-default);
             text-align: right;
             max-width: 420px;
         }

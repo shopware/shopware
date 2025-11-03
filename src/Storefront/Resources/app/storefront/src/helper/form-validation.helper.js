@@ -1,3 +1,5 @@
+import CookieStorageHelper from './storage/cookie-storage.helper';
+
 /**
  * @module FormValidation
  *
@@ -91,10 +93,12 @@ export default class FormValidation {
      * @private
      */
     _initDefaultValidators() {
-        this.addValidator('required', this.validateRequired, window.validationMessages['required']);
-        this.addValidator('email', this.validateEmail, window.validationMessages['email']);
-        this.addValidator('confirmation', this.validateConfirmation, window.validationMessages['confirmation']);
-        this.addValidator('minLength', this.validateMinLength, window.validationMessages['minLength']);
+        const validationMessages = window.validationMessages;
+        this.addValidator('required', this.validateRequired, validationMessages['required']);
+        this.addValidator('email', this.validateEmail, validationMessages['email']);
+        this.addValidator('confirmation', this.validateConfirmation, validationMessages['confirmation']);
+        this.addValidator('minLength', this.validateMinLength, validationMessages['minLength']);
+        this.addValidator('grecaptcha', this.validateGrecaptcha, validationMessages['grecaptcha']);
     }
 
     /**
@@ -116,7 +120,7 @@ export default class FormValidation {
             return false;
         }
 
-        if (errorMessage && errorMessage.length) {
+        if (errorMessage?.length) {
             this.errorMessages.set(validatorName, errorMessage);
         }
 
@@ -340,6 +344,39 @@ export default class FormValidation {
         const minLength = minLengthAttr ? minLengthAttr : this.config.defaultMinLength;
 
         return value.length >= minLength;
+    }
+
+    /**
+     * Validates Google reCAPTCHA v3/v2 cookies.
+     * Checks if the required cookies are set to allow reCAPTCHA functionality.
+     * This validates that users have accepted cookies before trying to use reCAPTCHA.
+     * Dispatches a custom event to show the cookie bar if validation fails.
+     *
+     * @param {string} _value - The field value (unused for cookie validation)
+     * @param {HTMLElement} field
+     * @returns {boolean}
+     */
+    validateGrecaptcha(_value, field) {
+        if (!(field instanceof HTMLElement)) {
+            console.error('[FormValidation]: Missing or invalid required parameter "field".');
+            return true;
+        }
+
+        const fieldName = field.getAttribute('name');
+
+        if (!window.useDefaultCookieConsent || (fieldName !== '_grecaptcha_v3' && fieldName !== '_grecaptcha_v2')) {
+            return true;
+        }
+
+        const grecaptchaCookie = CookieStorageHelper.getItem('_GRECAPTCHA');
+        const grecaptchaCookieAccepted = grecaptchaCookie === '1';
+
+        if (!grecaptchaCookieAccepted) {
+            const showCookieBarEvent = new CustomEvent('showCookieBar');
+            document.dispatchEvent(showCookieBarEvent);
+        }
+
+        return grecaptchaCookieAccepted;
     }
 
     /**

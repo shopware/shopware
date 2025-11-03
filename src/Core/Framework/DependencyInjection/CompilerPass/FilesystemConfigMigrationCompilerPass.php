@@ -19,6 +19,11 @@ class FilesystemConfigMigrationCompilerPass implements CompilerPassInterface
             $typeKey = $key . '.type';
             $configKey = $key . '.config';
             $visibilityKey = $key . '.visibility';
+
+            if (!$container->hasParameter($visibilityKey)) {
+                $container->setParameter($visibilityKey, '%shopware.filesystem.public.visibility%');
+            }
+
             if ($container->hasParameter($typeKey)) {
                 continue;
             }
@@ -28,7 +33,6 @@ class FilesystemConfigMigrationCompilerPass implements CompilerPassInterface
             $container->setParameter($key, '%shopware.filesystem.public%');
             $container->setParameter($typeKey, '%shopware.filesystem.public.type%');
             $container->setParameter($configKey, '%shopware.filesystem.public.config%');
-            $container->setParameter($visibilityKey, '%shopware.filesystem.public.visibility%');
         }
 
         if (!$container->hasParameter('shopware.filesystem.public.url')) {

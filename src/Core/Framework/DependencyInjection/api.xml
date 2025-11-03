@@ -59,6 +59,8 @@
         <service id="Shopware\Core\Framework\Api\Controller\HealthCheckController" public="true">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\SystemCheck\SystemChecker"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
+            <argument type="string">%shopware.api.static_token.health_check%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">
@@ -219,6 +221,7 @@
 
         <service id="Shopware\Core\Framework\Api\OAuth\UserRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\Config\LoginConfigService"/>
         </service>
 
         <!-- Scopes -->
@@ -285,6 +288,8 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\UserService\UserService"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\ExternalTokenService"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
@@ -303,6 +308,7 @@
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="user_access_key.repository"/>
             <argument type="service" id="Shopware\Core\System\User\UserDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

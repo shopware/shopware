@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -18,6 +19,8 @@ class AppTemplateIterator implements \IteratorAggregate
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<TemplateCollection> $templateRepository
      */
     public function __construct(
         private readonly \IteratorAggregate $templateIterator,

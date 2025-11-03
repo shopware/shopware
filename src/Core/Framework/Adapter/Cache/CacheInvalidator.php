@@ -32,9 +32,9 @@ class CacheInvalidator
         private readonly EventDispatcherInterface $dispatcher,
         private readonly LoggerInterface $logger,
         private readonly RequestStack $requestStack,
-        private readonly string $environment,
         TagAwareAdapterInterface $httpCacheStore,
-        private readonly bool $softPurge
+        private readonly bool $softPurge,
+        private readonly bool $useDelayedCache
     ) {
         $this->httpCacheStore = new Psr16Cache($httpCacheStore);
     }
@@ -50,7 +50,7 @@ class CacheInvalidator
             return;
         }
 
-        if ($force || $this->shouldForceInvalidate()) {
+        if ($force || $this->shouldForceInvalidate() || !$this->useDelayedCache) {
             $this->purge($tags);
 
             return;
@@ -105,7 +105,6 @@ class CacheInvalidator
 
     private function shouldForceInvalidate(): bool
     {
-        return $this->environment === 'test' // immediately invalidate in test environment, to make tests deterministic
-            || $this->requestStack->getMainRequest()?->headers->get(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE) === '1';
+        return $this->requestStack->getMainRequest()?->headers->get(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE) === '1';
     }
 }

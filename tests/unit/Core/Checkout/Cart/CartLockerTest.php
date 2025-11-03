@@ -7,7 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\Store\InMemoryStore;
 
 /**
@@ -30,7 +32,8 @@ class CartLockerTest extends TestCase
     public function testLockedExecutesClosure(): void
     {
         $called = false;
-        $result = $this->locker->locked('test-token', function () use (&$called) {
+        $context = Generator::generateSalesChannelContext(token: 'test-token');
+        $result = $this->locker->locked($context, function () use (&$called) {
             $called = true;
 
             return 'test-result';
@@ -43,13 +46,14 @@ class CartLockerTest extends TestCase
     public function testLockedAcquiresAndReleasesLock(): void
     {
         $token = 'test-token';
+        $context = Generator::generateSalesChannelContext(token: $token);
         $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
 
         // Lock should be available before
         static::assertTrue($lock->acquire());
         $lock->release();
 
-        $this->locker->locked($token, function () use ($lock): void {
+        $this->locker->locked($context, function () use ($lock): void {
             // Lock should not be available during the execution of the closure
             static::assertFalse($lock->acquire(false));
         });
@@ -62,10 +66,11 @@ class CartLockerTest extends TestCase
     public function testLockedReleasesLockOnException(): void
     {
         $token = 'test-token';
+        $context = Generator::generateSalesChannelContext(token: $token);
         $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
 
         try {
-            $this->locker->locked($token, function (): void {
+            $this->locker->locked($context, function (): void {
                 throw new \Exception('test');
             });
         } catch (\Exception) {
@@ -80,14 +85,32 @@ class CartLockerTest extends TestCase
     public function testLockedThrowsExceptionOnFailure(): void
     {
         $token = 'test-token';
+        $context = Generator::generateSalesChannelContext(token: $token);
         $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
         $lock->acquire();
 
         $this->expectExceptionObject(CartException::cartLocked($token));
 
-        $this->locker->locked($token, function (): void {
+        $this->locker->locked($context, function (): void {
             // This should not be executed
         });
+    }
+
+    public function testRecursiveUsageShouldNotThrowException(): void
+    {
+        $token = 'test-token';
+        $context = Generator::generateSalesChannelContext(token: $token);
+
+        $this->locker->locked($context, function () use ($context): void {
+            $firstLock = $context->getCartLock();
+            static::assertInstanceOf(LockInterface::class, $firstLock);
+
+            $this->locker->locked($context, function () use ($context, $firstLock): void {
+                static::assertSame($context->getCartLock(), $firstLock);
+            });
+        });
+
+        static::assertNull($context->getCartLock());
     }
 
     public function testGetLockKey(): void

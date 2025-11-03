@@ -41,6 +41,12 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testSync(): void
     {
+        $this->fs->dumpFile($this->projectDir . '/src/Bundle2/composer.json', json_encode([
+            'require' => [
+                'foo/bar' => '1.0.0',
+            ],
+        ], \JSON_THROW_ON_ERROR));
+
         $this->fs->dumpFile($this->projectDir . '/src/Bundle1/composer.json', json_encode([
             'require' => [
                 'symfony/symfony' => '5.2.0',
@@ -58,6 +64,7 @@ class SyncComposerVersionCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
         $output = $this->getOutput($tester);
         static::assertStringContainsString('Updating composer.json of "Bundle1" bundle', $output);
+        static::assertStringNotContainsString('Updating composer.json of "Bundle2" bundle', $output);
         static::assertStringContainsString('Composer dependencies of bundles synced with the root composer.json file', $output);
     }
 

@@ -270,6 +270,11 @@ class OrderLineItemEntity extends Entity
         $this->payload = $payload;
     }
 
+    public function setPayloadValue(string $key, mixed $value): void
+    {
+        $this->payload[$key] = $value;
+    }
+
     public function getParentId(): ?string
     {
         return $this->parentId;

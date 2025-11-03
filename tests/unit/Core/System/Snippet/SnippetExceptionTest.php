@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Snippet;
 
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -109,6 +110,26 @@ class SnippetExceptionTest extends TestCase
         static::assertSame('Translation configuration file does not exist: "file.json".', $exception->getMessage());
     }
 
+    public function testTranslationConfigurationFileDoesNotExistWithPrevious(): void
+    {
+        $exception = SnippetException::translationConfigurationFileDoesNotExist('file.json', new \Exception('Previous exception message'));
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXIST, $exception->getErrorCode());
+        static::assertSame('Translation configuration file does not exist: "file.json".', $exception->getMessage());
+        static::assertInstanceOf(\Exception::class, $exception->getPrevious());
+        static::assertSame('Previous exception message', $exception->getPrevious()->getMessage());
+    }
+
+    public function testTranslationConfigurationFileIsEmpty(): void
+    {
+        $exception = SnippetException::translationConfigurationFileIsEmpty('file.json');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_TRANSLATION_CONFIGURATION_FILE_IS_EMPTY, $exception->getErrorCode());
+        static::assertSame('Translation configuration file exists, but is empty: "file.json".', $exception->getMessage());
+    }
+
     public function testLocaleDoesNotExist(): void
     {
         $locale = 'non-existent-locale';
@@ -127,5 +148,29 @@ class SnippetExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SnippetException::SNIPPET_CONFIGURED_LANGUAGE_DOES_NOT_EXIST, $exception->getErrorCode());
         static::assertSame('The configured language "non-existent-language" does not exist.', $exception->getMessage());
+    }
+
+    public function testInvalidRepositoryUrl(): void
+    {
+        $exception = SnippetException::invalidRepositoryUrl('http://localhost:8000', new \Exception('Invalid URL'));
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL, $exception->getErrorCode());
+        static::assertSame('The repository URL "http://localhost:8000" is invalid: Invalid URL', $exception->getMessage());
+    }
+
+    public function testTranslationMetadataDownloadFailed(): void
+    {
+        $exception = SnippetException::translationMetadataDownloadFailed(
+            new Uri('http://localhost:8000/metadata.json'),
+            new \Exception('Network error'),
+        );
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_TRANSLATION_METADATA_DOWNLOAD_FAILED, $exception->getErrorCode());
+        static::assertSame(
+            'Failed to download translation metadata from "http://localhost:8000/metadata.json": Network error',
+            $exception->getMessage()
+        );
     }
 }

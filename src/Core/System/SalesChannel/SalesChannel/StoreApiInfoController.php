@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,12 +16,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
 class StoreApiInfoController
 {
-    private const API_SCOPE_STORE = 'store-api';
-
     /**
      * @internal
      *
@@ -34,7 +33,12 @@ class StoreApiInfoController
     ) {
     }
 
-    #[Route(path: '/store-api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.openapi3', methods: ['GET'])]
+    #[Route(
+        path: '/store-api/_info/openapi3.json',
+        name: 'store-api.info.openapi3',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function info(Request $request): JsonResponse
     {
         $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
@@ -49,7 +53,12 @@ class StoreApiInfoController
         return new JsonResponse($data);
     }
 
-    #[Route(path: '/store-api/_info/open-api-schema.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.open-api-schema', methods: ['GET'])]
+    #[Route(
+        path: '/store-api/_info/open-api-schema.json',
+        name: 'store-api.info.open-api-schema',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function openApiSchema(): JsonResponse
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::STORE_API);
@@ -57,7 +66,12 @@ class StoreApiInfoController
         return new JsonResponse($data);
     }
 
-    #[Route(path: '/store-api/_info/stoplightio.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.stoplightio', methods: ['GET'])]
+    #[Route(
+        path: '/store-api/_info/stoplightio.html',
+        name: 'store-api.info.stoplightio',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function stoplightIoInfoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
@@ -82,12 +96,17 @@ class StoreApiInfoController
         return $response;
     }
 
-    #[Route(path: '/store-api/_info/routes', name: 'store-api.info.routes', methods: ['GET'], defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'])]
+    #[Route(
+        path: '/store-api/_info/routes',
+        name: 'store-api.info.routes',
+        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
+        methods: ['GET']
+    )]
     public function getRoutes(): JsonResponse
     {
         $endpoints = array_map(
-            fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
-            $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_STORE)
+            static fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
+            $this->apiRouteInfoResolver->getApiRoutes(StoreApiRouteScope::ID)
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);

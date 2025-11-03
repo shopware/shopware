@@ -38,7 +38,7 @@ class PasswordValidationFactoryTest extends TestCase
         static::assertCount(2, $constraints);
         static::assertContainsEquals(new NotBlank(), $constraints);
         static::assertContainsEquals(
-            new Length(['min' => 10, 'max' => 4096, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG']),
+            new Length(min: 10, max: 4096, maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG'),
             $constraints
         );
     }
@@ -55,7 +55,7 @@ class PasswordValidationFactoryTest extends TestCase
         static::assertCount(2, $constraints);
         static::assertContainsEquals(new NotBlank(), $constraints);
         static::assertContainsEquals(
-            new Length(['min' => 10, 'max' => 4096, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG']),
+            new Length(min: 10, max: 4096, maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG'),
             $constraints
         );
     }

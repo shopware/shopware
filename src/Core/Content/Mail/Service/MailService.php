@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -150,7 +149,7 @@ class MailService extends AbstractMailService
      */
     private function createMail(array &$data, array $templateData, Context $context): ?Email
     {
-        $testMode = ($this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) && $this->systemConfigService->getBool('shopware.staging.mailing.disable_delivery')) || !empty($data['testMode']);
+        $testMode = $this->systemConfigService->getBool('shopware.staging.mailing.disable_delivery') || !empty($data['testMode']);
 
         $salesChannel = $this->getSalesChannel($data, $templateData, $context);
 

@@ -232,6 +232,16 @@ frame-ancestors 'none';
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\Validation\RouteBlocklistService">
+            <argument type="service" id="router"/>
+            <argument type="service" id="cache.object"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlockedValidator">
+            <argument type="service" id="Shopware\Core\Framework\Routing\Validation\RouteBlocklistService"/>
+            <tag name="validator.constraint_validator"/>
+        </service>
+
         <!-- Custom Entity -->
         <service id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService">
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator"/>

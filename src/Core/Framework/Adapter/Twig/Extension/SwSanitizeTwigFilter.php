@@ -34,8 +34,12 @@ class SwSanitizeTwigFilter extends AbstractExtension implements ResetInterface
     /**
      * @param array<string, mixed> $options
      */
-    public function sanitize(string $text, ?array $options = [], bool $override = false): string
+    public function sanitize(?string $text, ?array $options = [], bool $override = false): string
     {
+        if ($text === null) {
+            return '';
+        }
+
         $options ??= [];
 
         $hash = Hasher::hash($options);

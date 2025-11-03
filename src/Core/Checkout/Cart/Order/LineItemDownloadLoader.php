@@ -26,7 +26,7 @@ class LineItemDownloadLoader
     /**
      * @param mixed[][] $lineItems
      *
-     * @return array<int, array<int, array{position: int, mediaId: string, accessGranted: bool}>>
+     * @return array<int, list<array{position: int, mediaId: string, accessGranted: bool}>>
      */
     public function load(array $lineItems, Context $context): array
     {
@@ -57,7 +57,7 @@ class LineItemDownloadLoader
     /**
      * @param array<string, int> $lineItemKeys
      *
-     * @return array<int, array<int, array{position: int, mediaId: string, accessGranted: bool}>>
+     * @return array<int, list<array{position: int, mediaId: string, accessGranted: bool}>>
      */
     private function getLineItemDownloadPayload(array $lineItemKeys, Context $context): array
     {

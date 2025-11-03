@@ -184,6 +184,7 @@ export default {
         classes() {
             return {
                 'has--error': !!this.error,
+                'is--disabled': this.disabled,
                 [this.$attrs.class]: !!this.$attrs.class,
             };
         },
@@ -210,10 +211,18 @@ export default {
         softWraps() {
             this.editor.session.setOption('wrap', this.softWraps);
         },
+
+        disabled(value) {
+            this.editor.setReadOnly(value);
+        },
     },
 
     mounted() {
         this.mountedComponent();
+    },
+
+    beforeUnmount() {
+        this.beforeUnmountedComponent();
     },
 
     unmounted() {
@@ -235,6 +244,13 @@ export default {
             }
 
             this.$emit('mounted');
+        },
+
+        beforeUnmountedComponent() {
+            if (this.editor) {
+                this.editor.off('input', this.onInput);
+                this.editor.off('blur', this.onBlur);
+            }
         },
 
         destroyedComponent() {
@@ -321,6 +337,7 @@ export default {
                         }
                     };
 
+                    // eslint-disable-next-line listeners/no-missing-remove-event-listener
                     this.editor.commands.on('afterExec', startCallback);
                 } else {
                     textCompleterClonedPlain.identifierRegexps = null;

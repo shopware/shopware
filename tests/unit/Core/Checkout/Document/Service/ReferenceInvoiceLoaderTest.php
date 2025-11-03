@@ -53,7 +53,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{orderVersionId: string, versionId: string, invoiceOrderVersionId: string}>
+     * @return iterable<string, array{orderVersionId: string, versionId: string, invoiceOrderVersionId: string}>
      */
     public static function invoicesDataProvider(): iterable
     {

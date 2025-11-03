@@ -1,13 +1,16 @@
 shopware.installer:
     header_title: Instalace
-    menuitem_welcome: Spustit
-    menuitem_requirements: 'Systémové předpoklady'
-    menuitem_database-configuration: 'Konfigurace databáze'
-    menuitem_database-import: Instalace
-    menuitem_edition: 'Licence softwaru Shopware'
-    menuitem_configuration: Konfigurace
-    menuitem_finish: Hotovo
-    menuitem_license: VOP
+    menuitem:
+        start: Spustit
+        configure_php: Binární soubor PHP
+        download: Stažení
+        requirements: Systémové předpoklady
+        license: VOP
+        database-configuration: Konfigurace databáze
+        database-import: Instalace
+        configuration: Konfigurace obchodu
+        translation: Stažení jazyků
+        finish: Hotovo
     license_incorrect: 'Zadaný licenční klíč je neplatný.'
     license_does_not_match: 'Zadaný licenční klíč neodpovídá žádné komerční verzi softwaru Shopware'
     license_domain_error: 'Zadaný licenční klíč je neplatný pro doménu: '
@@ -20,37 +23,42 @@ shopware.installer:
     select_language_bs-BA: Bosenština
     select_language_cs-CZ: Čeština
     select_language_da-DK: Dánština
-    select_language_de-DE: Německy
+    select_language_de-DE: Němčina (Německo)
+    select_language_de-CH: Němčina (Švýcarsko)
+    select_language_de-AT: Němčina (Rakousko)
     select_language_el-GR: Řečtina
-    select_language_en-US: Anglicky (Spojené státy americké)
-    select_language_en-GB: Anglicky (Spojené království)
-    select_language_es-ES: Španělsky
+    select_language_en-US: Angličtina (Spojené státy)
+    select_language_en-GB: Angličtina (Spojené království)
+    select_language_es-ES: Španělština
     select_language_fi-FI: Finština
-    select_language_fr-FR: Francouzsky
+    select_language_fr-FR: Francouzština
     select_language_hi-IN: Hindština
     select_language_hr-HR: Chorvatština
     select_language_hu-HU: Maďarština
     select_language_id-ID: Indonéština
-    select_language_it-IT: Italsky
+    select_language_it-IT: Italština
     select_language_ko-KR: Korejština
     select_language_lv-LV: Lotyština
-    select_language_nl-NL: Holandsky
-    select_language_nn-NO: Norský
-    select_language_pl-PL: Polsky
-    select_language_pt-PT: Portugalsky
+    select_language_nl-NL: Nizozemština
+    select_language_nn-NO: Norština
+    select_language_pl-PL: Polština
+    select_language_pt-PT: Portugalština
     select_language_ro-RO: Rumunština
     select_language_ru-RU: Ruština
     select_language_sk-SK: Slovenština
     select_language_sl-SI: Slovinština
     select_language_sr-RS: Srbština
-    select_language_sv-SE: Švédský
+    select_language_sv-SE: Švédština
     select_language_tr-TR: Turečtina
     select_language_uk-UA: Ukrajinština
     select_language_vi-VN: Vietnamština
-    welcome_title: 'Vítejte v aplikaci Shopware 6'
     language-selection_select_language: 'Jazyk průvodce instalací'
-    welcome_header: 'Vaše instalace softwaru Shopware'
-    welcome_message: 'Těší nás, že chcete být součástí naší celosvětové komunity Shopware! Nyní vás provedeme krok za krokem procesem instalace. Pokud budete mít otázky, podívejte se nejdříve na naše <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Fórum</a>, kontaktujte nás telefonicky na čísle <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> nebo nám napište <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome:
+        title: 'Vítejte v aplikaci Shopware 6'
+        header: 'Vaše instalace softwaru Shopware'
+        message: >
+            Jsme rádi, že se připojujete k naší globální komunitě Shopware! Tento instalační program vás provede
+            všemi kroky potřebnými k hladké instalaci Shopware 6.
     requirements_header: 'Systémové předpoklady'
     requirements_header_files: 'Soubory a adresáře'
     requirements_header_system: Systém
@@ -157,7 +165,6 @@ shopware.installer:
         <p>
             Přejeme hodně zábavy a úspěchů s vaším novým online obchodem!
         </p>"
-    menuitem_translation: 'Stažení jazyků'
     configuration_admin_shop_headline: 'Data obchodu'
     configuration_admin_language_headline: 'Jazyky'
     configuration_admin_language_select_all: 'Vybrat vše'
@@ -173,3 +180,10 @@ shopware.installer:
     finish_continue: 'Pokračovat do obchodu'
     translations_install_error_message: 'Při instalaci překladů se něco pokazilo.'
     translations_install_retry_link: 'Klikněte zde pro opakování'
+    help:
+        title: Potřebujete pomoc?
+        support_channel: Vyberte si kanál podpory, který vám nejvíce vyhovuje
+        forum: Fórum
+        phone_number_call: +492555928850
+        phone_number_formatted: (+49) 2555 928850
+        email: E-mail

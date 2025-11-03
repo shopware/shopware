@@ -49,7 +49,7 @@ class UnusedMediaPurger
     /**
      * @internal This method is used only by the media:delete-unused command and is subject to change
      *
-     * @return \Generator<array<MediaEntity>>
+     * @return \Generator<list<MediaEntity>>
      */
     public function getNotUsedMedia(?int $limit = 50, ?int $offset = null, ?int $gracePeriodDays = null, ?string $folderEntity = null): \Generator
     {
@@ -123,9 +123,9 @@ class UnusedMediaPurger
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<MediaEntity>
+     * @return list<MediaEntity>
      */
     public function searchMedia(array $ids, Context $context): array
     {
@@ -143,9 +143,9 @@ class UnusedMediaPurger
     }
 
     /**
-     * @param array<string> $mediaIds
+     * @param list<string> $mediaIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function filterOutNewMedia(array $mediaIds, int $gracePeriodDays, Context $context): array
     {
@@ -166,7 +166,7 @@ class UnusedMediaPurger
     }
 
     /**
-     * @return \Generator<int, array<string>>
+     * @return \Generator<int, list<string>>
      */
     private function getUnusedMediaIds(Context $context, int $limit, ?int $offset = null, ?string $folderEntity = null): \Generator
     {
@@ -196,9 +196,9 @@ class UnusedMediaPurger
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function dispatchEvent(array $ids): array
     {

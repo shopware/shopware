@@ -109,4 +109,29 @@ class SalesChannelContextTest extends TestCase
         static::assertTrue($called);
         static::assertEmpty($salesChannelContext->getPermissions());
     }
+
+    public function testSalesChannelContextStateFunctionPassesResetsAndKeepsState(): void
+    {
+        $manualState = 'manual-state';
+        $closureState = 'closure-state';
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->addState($manualState);
+
+        static::assertTrue($salesChannelContext->hasState($manualState));
+        static::assertTrue($salesChannelContext->getContext()->hasState($manualState));
+        static::assertFalse($salesChannelContext->hasState($closureState));
+        static::assertFalse($salesChannelContext->getContext()->hasState($closureState));
+
+        $closureStates = $salesChannelContext->state(static function (SalesChannelContext $closureContext): array {
+            return $closureContext->getStates();
+        }, $closureState);
+
+        static::assertContains($closureState, $closureStates);
+        static::assertContains($manualState, $closureStates);
+        static::assertTrue($salesChannelContext->hasState($manualState));
+        static::assertTrue($salesChannelContext->getContext()->hasState($manualState));
+        static::assertFalse($salesChannelContext->hasState($closureState));
+        static::assertFalse($salesChannelContext->getContext()->hasState($closureState));
+    }
 }

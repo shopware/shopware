@@ -31,6 +31,6 @@ class StateMachineStateTranslationCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return StateMachineStateEntity::class;
+        return StateMachineStateTranslationEntity::class;
     }
 }

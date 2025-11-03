@@ -21,6 +21,12 @@
         alt=""
     />
 
+    <mt-icon
+        v-if="action.meteorIcon && action.view !== 'item'"
+        :name="action.meteorIcon"
+        size="14px"
+    />
+
     <span class="sw-context-menu-item__text">
         {{ $tc(buttonLabel ?? '') }}
     </span>

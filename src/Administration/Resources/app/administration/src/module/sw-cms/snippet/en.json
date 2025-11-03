@@ -12,6 +12,16 @@
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
       "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>."
     },
+    "inherit": {
+      "tooltip": "This field does not exist on the base layout and cannot be inherited.",
+      "formBanner": "This layout has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back.",
+      "unlinkNotice": "Some inherited fields have been unlinked.",
+      "unlinkAllButton": "Reset all fields.",
+      "unlinkAllConfirmText": "Are you sure you want to reset all fields? This will permanently delete all unlinked content.",
+      "unlinkFieldConfirmText": "Are you sure you want to restore inheritance? This will remove all custom data of this field and restore values from the parent element.",
+      "unlinkAllTitle": "Reset all fields",
+      "unlinkFieldTitle": "Restore inheritance"
+    },
     "sorting": {
       "labelSort": "Sort by:",
       "labelSortByNameAsc": "Name, ascending",
@@ -255,7 +265,12 @@
             "useFetchPriorityOnFirstItem": "Load first image with higher priority",
             "useFetchPriorityOnFirstItemHelpText": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
             "linkNewTab": "Open link in new tab",
-            "linkTo": "Link target"
+            "linkTo": "Link target",
+            "fetchPriorityHigh": "Fetch priority high"
+          },
+          "helpText": {
+            "fetchPriorityHigh": "Activate this option if the image is the first one on the page. The image will then be assigned the attribute 'fetchpriority=\"high\"', telling the browser to load it with higher priority. This can help improve the Largest Contentful Paint (LCP).",
+            "isDecorative": "When this option is enabled, the image information will not be read out by screen readers. This means that the \"alt\" and \"title\" tags will remain empty."
           },
           "placeholder": {
             "enterMinHeight": "Enter a minimum height...",
@@ -285,6 +300,7 @@
         "label": "Image slider",
         "config": {
           "label": {
+            "sliderItems": "Images",
             "navigationArrows": "Arrow navigation",
             "navigationPositionNone": "None",
             "navigationPositionInside": "Inside",
@@ -600,6 +616,7 @@
       },
       "html": {
         "label": "HTML",
+        "labelContent": "Content",
         "config": {
           "warning": "Unfiltered HTML code can lead to security risks. Please only insert HTML code from trusted sources and test your changes before publishing them."
         }

@@ -45,45 +45,53 @@
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_content_products %}
-                <sw-entity-single-select
+                <sw-cms-inherit-wrapper
                     v-if="!isProductPageType"
-                    ref="cmsProductSelection"
-                    v-model:value="element.config.product.value"
-                    entity="product"
-                    class="sw-cms-el-config-cross-selling__products"
-                    :label="$tc('sw-cms.elements.crossSelling.config.label.selection')"
-                    :placeholder="$tc('sw-cms.elements.crossSelling.config.placeholder.selection')"
-                    :criteria="productCriteria"
-                    :context="productSelectContext"
-                    show-clearable-button
-                    @update:value="onProductChange"
+                    field="product"
+                    :element="element"
+                    :label="$t('sw-cms.elements.crossSelling.config.label.selection')"
                 >
-                    {% block sw_entity_single_select_variant_selected_item %}
-                    <template #selection-label-property="{ item }">
-                        <sw-product-variant-info
-                            :variations="item.variation"
+                    <template #default="{ isInherited }">
+                        <sw-entity-single-select
+                            ref="cmsProductSelection"
+                            v-model:value="element.config.product.value"
+                            entity="product"
+                            class="sw-cms-el-config-cross-selling__products"
+                            :placeholder="$tc('sw-cms.elements.crossSelling.config.placeholder.selection')"
+                            :criteria="productCriteria"
+                            :context="productSelectContext"
+                            show-clearable-button
+                            :disabled="isInherited"
+                            @update:value="onProductChange"
                         >
-                            {{ item.translated.name || item.name }}
-                        </sw-product-variant-info>
-                    </template>
-                    {% endblock %}
-
-                    {% block sw_entity_single_select_variant_result_item %}
-                    <template #result-item="{ item, index }">
-                        <sw-select-result
-                            v-bind="{ item, index }"
-                        >
-                            {% block sw_entity_single_select_base_results_list_result_label %}
-                            <span class="sw-select-result__result-item-text">
-                                <sw-product-variant-info :variations="item.variation">
+                            {% block sw_entity_single_select_variant_selected_item %}
+                            <template #selection-label-property="{ item }">
+                                <sw-product-variant-info
+                                    :variations="item.variation"
+                                >
                                     {{ item.translated.name || item.name }}
                                 </sw-product-variant-info>
-                            </span>
+                            </template>
                             {% endblock %}
-                        </sw-select-result>
+
+                            {% block sw_entity_single_select_variant_result_item %}
+                            <template #result-item="{ item, index }">
+                                <sw-select-result
+                                    v-bind="{ item, index }"
+                                >
+                                        {% block sw_entity_single_select_base_results_list_result_label %}
+                                    <span class="sw-select-result__result-item-text">
+                                        <sw-product-variant-info :variations="item.variation">
+                                            {{ item.translated.name || item.name }}
+                                        </sw-product-variant-info>
+                                    </span>
+                                        {% endblock %}
+                                </sw-select-result>
+                            </template>
+                            {% endblock %}
+                        </sw-entity-single-select>
                     </template>
-                    {% endblock %}
-                </sw-entity-single-select>
+                </sw-cms-inherit-wrapper>
                 {% endblock %}
             </sw-container>
             {% endblock %}
@@ -94,28 +102,51 @@
                 class="sw-cms-el-config-cross-selling__tab-options"
             >
                 {% block sw_cms_element_cross_selling_config_options_box_layout %}
-                <mt-select
-                    v-model="element.config.boxLayout.value"
-                    :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-                    :options="boxLayoutOptions"
-                />
+                <sw-cms-inherit-wrapper
+                    field="boxLayout"
+                    :element="element"
+                    :label="$t('sw-cms.elements.productBox.config.label.layoutType')"
+                >
+                    <template #default="{ isInherited }">
+                        <mt-select
+                            v-model="element.config.boxLayout.value"
+                            :options="boxLayoutOptions"
+                            :disabled="isInherited"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_options_display_mode %}
-                <mt-select
-                    v-model="element.config.displayMode.value"
-                    :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-                    :options="displayModeOptions"
-                />
+                <sw-cms-inherit-wrapper
+                    field="displayMode"
+                    :element="element"
+                    :label="$t('sw-cms.elements.general.config.label.displayMode')"
+                >
+                    <template #default="{ isInherited }">
+                        <mt-select
+                            v-model="element.config.displayMode.value"
+                            :options="displayModeOptions"
+                            :disabled="isInherited"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_options_min_width %}
-
-                <mt-text-field
-                    v-model="element.config.elMinWidth.value"
-                    :label="$tc('sw-cms.elements.crossSelling.config.label.minWidth')"
-                    :placeholder="$tc('sw-cms.elements.crossSelling.config.placeholder.minWidth')"
-                />
+                <sw-cms-inherit-wrapper
+                    field="elMinWidth"
+                    :element="element"
+                    :label="$t('sw-cms.elements.crossSelling.config.label.minWidth')"
+                >
+                    <template #default="{ isInherited }">
+                        <mt-text-field
+                            v-model="element.config.elMinWidth.value"
+                            :placeholder="$tc('sw-cms.elements.crossSelling.config.placeholder.minWidth')"
+                            :disabled="isInherited"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
                 {% endblock %}
             </sw-container>
             {% endblock %}

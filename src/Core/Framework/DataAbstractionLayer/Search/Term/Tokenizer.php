@@ -33,7 +33,6 @@ class Tokenizer implements TokenizerInterface
         }
 
         $string = mb_strtolower(html_entity_decode($string), 'UTF-8');
-        $string = trim(str_replace(['/', '\\'], ' ', $string));
         $string = str_replace('<', ' <', $string);
         $string = strip_tags($string);
 

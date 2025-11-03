@@ -186,7 +186,15 @@ export default {
     methods: {
         async createdComponent() {
             this.initElementConfig('image-gallery');
+            this.initGalleryItems();
+            this.initConfig();
+        },
 
+        mountedComponent() {
+            this.updateColumnWidth();
+        },
+
+        async initGalleryItems() {
             const { source: sliderItemsSource, value: sliderItemsValue } = this.element.config.sliderItems;
 
             if (sliderItemsSource === 'static' && sliderItemsValue && sliderItemsValue.length > 0) {
@@ -202,12 +210,6 @@ export default {
                     return searchResult.get(mediaId);
                 });
             }
-
-            this.initConfig();
-        },
-
-        mountedComponent() {
-            this.updateColumnWidth();
         },
 
         initConfig() {

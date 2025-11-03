@@ -12,6 +12,16 @@
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
       "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
     },
+    "inherit": {
+      "tooltip": "Dieses Feld existiert nicht im Basis-Layout und kann nicht vererbt werden.",
+      "formBanner": "Dieses Layout erbt Felder. Das bedeutet, dass Inhalt geerbt wird, solange der Status aktiv ist. Die Vererbung dieser Felder kann durch Klicken auf das Verknüpfungssymbol aufgehoben, bzw. wiederhergestellt werden.",
+      "unlinkNotice": "Die Vererbung mancher Felder wurde aufgehoben.",
+      "unlinkAllButton": "Alle Felder zurücksetzen.",
+      "unlinkAllConfirmText": "Möchtest Du wirklich alle Felder zurücksetzen? Dadurch werden alle überschriebenen Inhalte dauerhaft gelöscht.",
+      "unlinkFieldConfirmText": "Möchtest Du wirklich dieses Feld zurücksetzen? Dadurch werden überschriebene Inhalte dauerhaft gelöscht.",
+      "unlinkAllTitle": "Alle Felder zurücksetzen",
+      "unlinkFieldTitle": "Feld zurücksetzen"
+    },
     "sorting": {
       "labelSort": "Sortieren nach:",
       "labelSortByNameAsc": "Name, aufsteigend",
@@ -290,6 +300,7 @@
         "label": "Bild-Slider",
         "config": {
           "label": {
+            "sliderItems": "Bilder",
             "navigationArrows": "Pfeil-Navigation",
             "navigationPositionNone": "Keine",
             "navigationPositionInside": "Innen",
@@ -605,6 +616,7 @@
       },
       "html": {
         "label": "HTML",
+        "labelContent": "Inhalt",
         "config": {
           "warning": "Ungefilterter HTML-Code kann zu Sicherheitsrisiken führen. Bitte füge nur HTML-Code von vertrauenswürdigen Quellen ein und teste deine Änderung vor der Veröffentlichung."
         }

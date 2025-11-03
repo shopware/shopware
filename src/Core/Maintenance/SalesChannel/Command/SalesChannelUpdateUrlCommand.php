@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -66,11 +65,6 @@ class SalesChannelUpdateUrlCommand extends Command
         }
 
         $payload = $this->buildUpdatePayload($domains, $newUrl);
-        if ($payload === []) {
-            $io->warning('All matching domains already have the new URL. No updates needed.');
-
-            return self::SUCCESS;
-        }
 
         $this->salesChannelDomainRepository->update($payload, $context);
 
@@ -79,18 +73,13 @@ class SalesChannelUpdateUrlCommand extends Command
 
     private function validateUrls(string $previousUrl, string $newUrl, SymfonyStyle $io): bool
     {
-        $validator = Validation::createValidator();
-
-        $previousUrlConstraints = [new NotBlank()];
-        $previousUrlViolations = $validator->validate($previousUrl, $previousUrlConstraints);
-        if (\count($previousUrlViolations) > 0) {
-            foreach ($previousUrlViolations as $violation) {
-                $io->error('Previous URL: ' . $violation->getMessage());
-            }
+        if ($previousUrl === '') {
+            $io->error('Previous URL: This value can not be empty');
 
             return false;
         }
 
+        $validator = Validation::createValidator();
         $newUrlConstraints = [new NotBlank(), new Url(requireTld: false), new NotEqualTo($previousUrl)];
         $newUrlViolations = $validator->validate($newUrl, $newUrlConstraints);
         if (\count($newUrlViolations) > 0) {
@@ -109,10 +98,7 @@ class SalesChannelUpdateUrlCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('url', $url));
 
-        $entities = $this->salesChannelDomainRepository->search($criteria, $context)->getEntities();
-        \assert($entities instanceof SalesChannelDomainCollection);
-
-        return $entities;
+        return $this->salesChannelDomainRepository->search($criteria, $context)->getEntities();
     }
 
     /**
@@ -122,12 +108,7 @@ class SalesChannelUpdateUrlCommand extends Command
     {
         $payload = [];
 
-        /** @var SalesChannelDomainEntity $domain */
         foreach ($domains as $domain) {
-            if ($newUrl === $domain->getUrl()) {
-                continue;
-            }
-
             $payload[] = [
                 'id' => $domain->getId(),
                 'url' => $newUrl,

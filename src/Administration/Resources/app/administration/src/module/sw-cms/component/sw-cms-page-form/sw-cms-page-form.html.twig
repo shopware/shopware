@@ -3,6 +3,14 @@
     v-responsive="{ 'is--compact': el => el.width <= 1620, timeout: 100 }"
     class="sw-cms-page-form"
 >
+    <mt-banner
+        v-if="!!contentEntity"
+        class="sw-cms-page-form__banner-inheritance"
+        icon="link-horizontal"
+        variant="inherited"
+    >
+        {{ $t('sw-cms.inherit.formBanner') }}
+    </mt-banner>
 
     {% block sw_cms_page_form_content %}
     <template
@@ -124,7 +132,6 @@
                         :key="blockIndex"
                         class="sw-cms-page-form__element-config"
                     >
-
                         <template v-if="displayNotification(section, block)">
                             <mt-banner variant="info">
                                 {{ $tc('sw-cms.blocks.blockDisableState') }}
@@ -132,12 +139,14 @@
                         </template>
 
                         {% block sw_cms_page_form_element_config %}
-                        <component
-                            :is="cmsElements[element.type].configComponent"
-                            :element="element"
-                            :element-data="cmsElements[element.type]"
-                            @element-update="elementUpdate"
-                        />
+                        <sw-cms-form-sync :element="element">
+                            <component
+                                :is="cmsElements[element.type].configComponent"
+                                :element="element"
+                                :element-data="cmsElements[element.type]"
+                                @element-update="elementUpdate"
+                            />
+                        </sw-cms-form-sync>
                         {% endblock %}
                     </div>
                     {% endblock %}

@@ -123,11 +123,7 @@ class ProductListingLoader
             return true;
         }
 
-        if (\in_array('optionIds', $fields, true)) {
-            return true;
-        }
-
-        return false;
+        return \in_array('optionIds', $fields, true);
     }
 
     private function addGrouping(Criteria $criteria): void

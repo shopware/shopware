@@ -56,3 +56,8 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enables Product Analytics which collects usage data in the Administration."
+      - name: REPEATED_PAYMENT_FINALIZE
+        default: false
+        major: true
+        toggleable: true
+        description: "This allows repeated calls to the /payment/finalize-transaction endpoint with the same token without throwing a 'token expired' exception."

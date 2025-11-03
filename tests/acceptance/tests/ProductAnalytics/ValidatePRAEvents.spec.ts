@@ -116,32 +116,28 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     await test.step('Validate captured requests for product analytics', async () => {
 
         const events = parseCapturedEvents(captured);
-        expect(events).toHaveLength(8);
+        expect(events).toHaveLength(6);
 
         const eventIds = events.map(e => e.event_id);
-        expect(eventIds).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+        expect(eventIds).toEqual([1, 2, 3, 4, 5, 6]);
 
         const eventTypes = events.map(e => e.event_type);
         expect(eventTypes).toEqual([
             'Link Visited',   // event_id 1
             'Page Viewed',    // event_id 2
-            'Page Viewed',    // event_id 3
+            'Link Visited',   // event_id 3
             'Page Viewed',    // event_id 4
-            'Link Visited',   // event_id 5
+            'Button Click',   // event_id 5
             'Page Viewed',    // event_id 6
-            'Button Click',   // event_id 7
-            'Page Viewed',    // event_id 8
         ]);
 
         const [
             firstLinkVisited,    // event_id 1
             pageViewed,          // event_id 2
-            pageViewed2,         // event_id 3
-            pageViewed3,         // event_id 4
-            linkVisited,         // event_id 5
-            pageViewedDetail,    // event_id 6
-            buttonClicked,       // event_id 7
-            pageViewedBackToDash,// event_id 8
+            linkVisited,         // event_id 3
+            pageViewedDetail,    // event_id 4
+            buttonClicked,       // event_id 5
+            pageViewedBackToDash,// event_id 6
         ] = events;
 
         // ----------------------
@@ -165,45 +161,21 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewEventProps.sw_route_to_href).toBe('/sw/order/index');
         expect(pageViewEventProps.sw_page_name).toBe('sw.order.index');
         expect(pageViewEventProps.sw_page_path).toBe('/sw/order/index');
+        expect(pageViewEventProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
 
         // ----------------------
-        // event_id = 3: Page Viewed (order listing, query param present)
-        // ----------------------
-        const pageViewed2Props = pageViewed2.event_properties;
-
-        expect(pageViewed2Props.sw_route_from_name).toBe('sw.order.index');
-        expect(pageViewed2Props.sw_route_from_href).toBe('/sw/order/index');
-        expect(pageViewed2Props.sw_route_to_name).toBe('sw.order.index');
-        expect(pageViewed2Props.sw_route_to_href).toBe('/sw/order/index');
-        expect(pageViewed2Props.sw_route_to_query).toBe('limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
-        expect(pageViewed2Props.sw_page_name).toBe('sw.order.index');
-        expect(pageViewed2Props.sw_page_path).toBe('/sw/order/index');
-
-        // ----------------------
-        // event_id = 4: Page Viewed (order listing, grid.filter.order=null added to query)
-        // ----------------------
-        const pageViewed3Props = pageViewed3.event_properties;
-
-        expect(pageViewed3Props.sw_route_from_name).toBe('sw.order.index');
-        expect(pageViewed3Props.sw_route_from_href).toBe('/sw/order/index');
-        expect(pageViewed3Props.sw_route_to_name).toBe('sw.order.index');
-        expect(pageViewed3Props.sw_route_to_href).toBe('/sw/order/index');
-        expect(pageViewed3Props.sw_route_to_query).toBe('limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false&grid.filter.order=null');
-        expect(pageViewed3Props.sw_page_name).toBe('sw.order.index');
-        expect(pageViewed3Props.sw_page_path).toBe('/sw/order/index');
-
-        // ----------------------
-        // event_id = 5: Link Visited (clicking into order detail from listing)
+        // event_id = 3: Link Visited (clicking into order detail from listing)
         // ----------------------
         const linkVisitedProps = linkVisited.event_properties;
 
-        expect(linkVisitedProps.sw_link_href).toContain('#/sw/order/detail/');
+        expect(linkVisitedProps.sw_link_href).toContain(`#/sw/order/detail/${order.id}`);
+        expect(linkVisitedProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false&grid.filter.order=null')
         expect(linkVisitedProps.sw_link_type).toBe('internal');
         expect(linkVisitedProps.sw_page_path).toBe('/sw/order/index');
         expect(linkVisitedProps.sw_page_name).toBe('sw.order.index');
 
         // ----------------------
-        // event_id = 6: Page Viewed (order detail.general)
+        // event_id = 4: Page Viewed (order detail.general)
         // ----------------------
         const pageViewedDetailProps = pageViewedDetail.event_properties;
 
@@ -216,7 +188,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewedDetailProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
 
         // ----------------------
-        // event_id = 7: Button Click
+        // event_id = 5: Button Click
         // ----------------------
         const buttonEventProps = buttonClicked.event_properties;
 
@@ -226,7 +198,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(buttonEventProps.sw_page_name).toBe('sw.order.detail.general');
 
         // ----------------------
-        // event_id = 8: final Page Viewed (back to dashboard)
+        // event_id = 6: final Page Viewed (back to dashboard)
         // ----------------------
         const pageViewedBackToDashProps = pageViewedBackToDash.event_properties;
 

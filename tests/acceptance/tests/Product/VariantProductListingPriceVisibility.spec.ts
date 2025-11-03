@@ -11,7 +11,7 @@ test(
     {
         tag: ['@Product, @Variant', '@Storefront'],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale(getLocale()));
         const prices = [
             {
@@ -29,6 +29,12 @@ test(
                     gross: 50,
                     net: 50,
                 },
+            },
+            {
+                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                gross: 10,
+                linked: false,
+                net: 8.4,
             },
         ];
 

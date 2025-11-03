@@ -15,14 +15,13 @@ test(
     }) => {
         const product = await TestDataService.createBasicProduct();
         const rule = await TestDataService.createBasicRule();
-
         const priceResponse = await AdminApiContext.post('./product-price', {
             data: {
                 productId: product.id,
                 ruleId: rule.id,
                 price: [
                     {
-                        currencyId: SalesChannelBaseConfig.currentCurrencyId,
+                        currencyId: SalesChannelBaseConfig.defaultCurrencyId,
                         gross: 8.99,
                         linked: false,
                         net: 7.55,
@@ -37,7 +36,6 @@ test(
                 quantityStart: 1,
             },
         });
-        console.log('===priceResponse: ', priceResponse);
         expect(priceResponse.ok()).toBeTruthy();
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

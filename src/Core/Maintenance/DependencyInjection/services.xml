@@ -56,7 +56,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelUpdateUrlCommand">
+        <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelReplaceUrlCommand">
             <argument type="service" id="sales_channel_domain.repository"/>
             <tag name="console.command"/>
         </service>

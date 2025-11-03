@@ -23,11 +23,11 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[AsCommand(
-    name: 'sales-channel:update:url',
-    description: 'Updates a sales channel with a new URL',
+    name: 'sales-channel:replace:url',
+    description: 'Replaces the URL of a sales channel with a new URL',
 )]
 #[Package('discovery')]
-class SalesChannelUpdateUrlCommand extends Command
+class SalesChannelReplaceUrlCommand extends Command
 {
     /**
      * @internal

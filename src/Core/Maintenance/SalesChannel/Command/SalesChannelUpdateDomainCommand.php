@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\SalesChannel\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[AsCommand(
     name: 'sales-channel:update:domain',
-    description: 'Updates a sales channel domain',
+    description: 'Updates a sales channel domain with a new domain for all or specific sales channels',
 )]
 #[Package('discovery')]
 class SalesChannelUpdateDomainCommand extends Command
@@ -48,7 +49,7 @@ class SalesChannelUpdateDomainCommand extends Command
 
         $criteria = new Criteria();
         $criteria->addFilter(
-            new NotFilter(NotFilter::CONNECTION_OR, [
+            new NotFilter(MultiFilter::CONNECTION_OR, [
                 new PrefixFilter('url', 'default.headless'),
             ])
         );

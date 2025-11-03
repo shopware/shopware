@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelUpdateUrlCommand;
+use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelReplaceUrlCommand;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -21,7 +21,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @internal
  */
 #[Package('framework')]
-class SalesChannelUpdateUrlCommandTest extends TestCase
+class SalesChannelReplaceUrlCommandTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
@@ -39,13 +39,13 @@ class SalesChannelUpdateUrlCommandTest extends TestCase
         $domain = $this->domainRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if ($domain === null) {
-            static::markTestSkipped('SalesChannelUpdateUrlCommandTests need storefront channel to be active');
+            static::markTestSkipped('SalesChannelReplaceUrlCommandTests need storefront channel to be active');
         }
     }
 
     public function testUpdateUrlCommand(): void
     {
-        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelUpdateUrlCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelReplaceUrlCommand::class));
         $commandTester->execute([
             'previous-url' => EnvironmentHelper::getVariable('APP_URL'),
             'new-url' => 'https://www.new-url.com',
@@ -54,7 +54,7 @@ class SalesChannelUpdateUrlCommandTest extends TestCase
         static::assertSame(
             Command::SUCCESS,
             $commandTester->getStatusCode(),
-            "\"bin/console sales-channel:update:url\" returned errors:\n" . $commandTester->getDisplay()
+            "\"bin/console sales-channel:replace:url\" returned errors:\n" . $commandTester->getDisplay()
         );
 
         $criteria = $this->getStorefrontDomainCriteria();
@@ -67,7 +67,7 @@ class SalesChannelUpdateUrlCommandTest extends TestCase
 
     public function testUpdateWithNonExistentPreviousUrl(): void
     {
-        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelUpdateUrlCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelReplaceUrlCommand::class));
         $commandTester->execute([
             'previous-url' => 'https://this-url-doesnt-exist.com',
             'new-url' => 'https://www.new-url.com',
@@ -76,17 +76,17 @@ class SalesChannelUpdateUrlCommandTest extends TestCase
         static::assertSame(
             Command::FAILURE,
             $commandTester->getStatusCode(),
-            '"bin/console sales-channel:update:url" returned no errors.'
+            '"bin/console sales-channel:replace:url" returned no errors.'
         );
         static::assertSame(
-            trim($commandTester->getDisplay()),
-            '[ERROR] No sales channels found with URL https://this-url-doesnt-exist.com'
+            '[ERROR] No sales channels found with URL https://this-url-doesnt-exist.com',
+            trim($commandTester->getDisplay())
         );
     }
 
     public function testUpdateWithIncorrectNewUrl(): void
     {
-        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelUpdateUrlCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelReplaceUrlCommand::class));
         $commandTester->execute([
             'previous-url' => EnvironmentHelper::getVariable('APP_URL'),
             'new-url' => 'this-is-not-a-url',
@@ -95,17 +95,17 @@ class SalesChannelUpdateUrlCommandTest extends TestCase
         static::assertSame(
             Command::FAILURE,
             $commandTester->getStatusCode(),
-            '"bin/console sales-channel:update:url" returned no errors.'
+            '"bin/console sales-channel:replace:url" returned no errors.'
         );
         static::assertSame(
-            trim($commandTester->getDisplay()),
-            '[ERROR] New URL: This value is not a valid URL.'
+            '[ERROR] New URL: This value is not a valid URL.',
+            trim($commandTester->getDisplay())
         );
     }
 
     public function testUpdateWithIdenticalUrls(): void
     {
-        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelUpdateUrlCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelReplaceUrlCommand::class));
         $commandTester->execute([
             'previous-url' => EnvironmentHelper::getVariable('APP_URL'),
             'new-url' => EnvironmentHelper::getVariable('APP_URL'),
@@ -114,7 +114,7 @@ class SalesChannelUpdateUrlCommandTest extends TestCase
         static::assertSame(
             Command::FAILURE,
             $commandTester->getStatusCode(),
-            '"bin/console sales-channel:update:url" returned no errors.'
+            '"bin/console sales-channel:replace:url" returned no errors.'
         );
         static::assertSame(
             trim($commandTester->getDisplay()),

@@ -184,6 +184,7 @@ export default {
         classes() {
             return {
                 'has--error': !!this.error,
+                'is--disabled': this.disabled,
                 [this.$attrs.class]: !!this.$attrs.class,
             };
         },
@@ -209,6 +210,10 @@ export default {
 
         softWraps() {
             this.editor.session.setOption('wrap', this.softWraps);
+        },
+
+        disabled(value) {
+            this.editor.setReadOnly(value);
         },
     },
 

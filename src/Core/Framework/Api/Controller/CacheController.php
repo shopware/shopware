@@ -100,11 +100,8 @@ class CacheController extends AbstractController
             return $this->getUsedCache($adapter);
         }
 
-        $name = $adapter::class;
-        \assert(\is_string($name));
-        $parts = explode('\\', $name);
-        $name = str_replace('Adapter', '', array_last($parts));
+        $parts = explode('\\', $adapter::class);
 
-        return $name;
+        return str_replace('Adapter', '', array_last($parts));
     }
 }

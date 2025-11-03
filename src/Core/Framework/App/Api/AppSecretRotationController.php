@@ -35,7 +35,7 @@ class AppSecretRotationController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/app/secret/rotate', name: 'api.action.app.secret.rotate', methods: ['POST'])]
+    #[Route(path: '/api/_action/app-system/secret/rotate', name: 'api.action.app.secret.rotate', methods: ['POST'])]
     public function rotate(Context $context): JsonResponse
     {
         $integrationId = $this->extractIntegrationIdOrFail($context);

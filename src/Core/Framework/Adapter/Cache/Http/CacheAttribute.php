@@ -18,11 +18,13 @@ readonly class CacheAttribute
     public function __construct(
         public ?int $maxAge = null,
         public ?int $sMaxAge = null,
+        public ?string $policyModifier = null,
         /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         *
          * @var list<string>|null
          */
         public ?array $states = null,
-        public ?string $policyModifier = null,
     ) {
     }
 }

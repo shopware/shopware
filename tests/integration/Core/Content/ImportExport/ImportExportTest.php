@@ -1878,7 +1878,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $errorRecord = $invalid[0];
         static::assertArrayHasKey('_error', $errorRecord);
         static::assertSame(
-            'Cannot update product because it does not exist in the database. This import profile only allows updates to existing records.',
+            'The product record was not found. This import profile only allows updates to existing records.',
             $errorRecord['_error']
         );
     }

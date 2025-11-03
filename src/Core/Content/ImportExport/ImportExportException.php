@@ -322,7 +322,7 @@ class ImportExportException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::UPDATE_ENTITY_NOT_FOUND,
-            'Cannot update {{ entity }} because it does not exist in the database. This import profile only allows updates to existing records.',
+            'The {{ entity }} record was not found. This import profile only allows updates to existing records.',
             ['entity' => $entityName]
         );
     }

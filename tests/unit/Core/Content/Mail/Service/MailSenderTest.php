@@ -37,10 +37,10 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
-            false,
             $this->createMock(LoggerInterface::class),
             0,
-            $messageBus
+            $messageBus,
+            false,
         );
         $mail = new Email();
 
@@ -64,10 +64,10 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
-            false,
             $this->createMock(LoggerInterface::class),
             0,
-            null
+            null,
+            false,
         );
         $mail = new Email();
 
@@ -93,10 +93,10 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
-            false,
             $this->createMock(LoggerInterface::class),
             $maxMessageSizeKiB,
-            $messageBus
+            $messageBus,
+            false,
         );
         static::assertIsInt($maxMessageSizeKiB);
         $text = str_repeat('a', $maxMessageSizeKiB * 1024);
@@ -135,7 +135,7 @@ class MailSenderTest extends TestCase
         $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
         $logger = $this->createMock(LoggerInterface::class);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, false, $logger, 0, $messageBus);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus, false);
         $mail = new Email();
 
         $logger->expects($this->once())
@@ -160,7 +160,7 @@ class MailSenderTest extends TestCase
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(true);
         $logger = $this->createMock(LoggerInterface::class);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, true, $logger, 0, $messageBus);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus, true);
         $mail = new Email();
 
         $logger->expects($this->once())
@@ -190,10 +190,10 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
-            false,
             $this->createMock(LoggerInterface::class),
             0,
-            $messageBus
+            $messageBus,
+            false,
         );
         $mail = new Email();
 
@@ -218,10 +218,10 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             5,
-            false,
             $this->createMock(LoggerInterface::class),
             0,
-            $messageBus
+            $messageBus,
+            false,
         );
 
         $mail = new Email();

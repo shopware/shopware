@@ -39,10 +39,10 @@ class MailSender extends AbstractMailSender
         private readonly FilesystemOperator $filesystem,
         private readonly SystemConfigService $configService,
         private readonly int $maxContentLength,
-        private readonly bool $disableDeliveryInStagingMode,
         private readonly LoggerInterface $logger,
         private readonly int $messageMaxKiBSize,
-        private readonly ?MessageBusInterface $messageBus = null,
+        private readonly ?MessageBusInterface $messageBus,
+        private readonly bool $disableDeliveryInStagingMode,
     ) {
     }
 

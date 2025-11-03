@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;

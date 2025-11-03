@@ -25,7 +25,6 @@ test(
             street: 'Ebbinghof 10',
             city: 'Schöppingen',
             country: `${nonShippableCountry.name} (Delivery not possible)`,
-            state: 'Hamburg',
             postalCode: '48624',
         };
 
@@ -55,7 +54,6 @@ test(
             await StorefrontAccountLogin.shippingAddressPostalCodeInput.fill(registrationData.postalCode);
             await StorefrontAccountLogin.shippingAddressCityInput.fill(registrationData.city);
             await StorefrontAccountLogin.shippingAddressCountryInput.selectOption({ label: shippableCountry.name });
-            await StorefrontAccountLogin.shippingAddressStateInput.selectOption({ label: registrationData.state });
             await StorefrontAccountLogin.registerButton.click();
             const customerId = (await TestDataService.getCustomerByEmail(customer.email)).id;
             TestDataService.addCreatedRecord('customer', customerId);

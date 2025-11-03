@@ -8,6 +8,7 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -81,7 +82,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             throw PaymentException::invalidToken($token);
         }
 
-        if (!$this->has($token)) {
+        if (!($savedToken = $this->getSavedToken($token))) {
             throw PaymentException::tokenInvalidated($token);
         }
 
@@ -97,13 +98,18 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             $jwtToken->claims()->get('sub'),
             $jwtToken->claims()->get('ful'),
             $expires->getTimestamp(),
-            $errorUrl
+            $errorUrl,
+            (bool) $savedToken['consumed']
         );
     }
 
     public function invalidateToken(string $token): bool
     {
-        $this->delete($token);
+        if (Feature::isActive('REPEATED_PAYMENT_FINALIZE')) {
+            $this->connection->update('payment_token', ['consumed' => 1], ['token' => self::normalize($token)]);
+        } else {
+            $this->delete($token);
+        }
 
         return false;
     }
@@ -124,11 +130,15 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         );
     }
 
-    private function has(string $token): bool
+    /**
+     * @return false|array<string, mixed>
+     */
+    private function getSavedToken(string $token): bool|array
     {
-        $valid = $this->connection->fetchOne('SELECT token FROM payment_token WHERE token = :token', ['token' => self::normalize($token)]);
-
-        return $valid !== false;
+        return $this->connection->fetchAssociative(
+            'SELECT token, consumed FROM payment_token WHERE token = :token',
+            ['token' => self::normalize($token)]
+        );
     }
 
     private static function normalize(string $token): string

@@ -241,6 +241,7 @@
     "scripts-descriptions": {
         "admin:code-mods": "Run admin code mods",
         "admin:create:test": "Create a admin test blueprint",
+        "admin:generate-blocks-list": "Generate the list of all blocks. Used to track block changes in the administration.",
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
@@ -310,6 +311,7 @@
     "scripts": {
         "admin:code-mods": "@npm:admin run code-mods --",
         "admin:create:test": "@npm:admin run create-test",
+        "admin:generate-blocks-list": "@npm:admin run generate-blocks-list",
         "admin:generate-data-set-list": [
             "@npm:admin run generate-data-set-list"
         ],

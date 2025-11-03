@@ -38,27 +38,50 @@
         >
 
             {% block sw_cms_el_form_config_content_form_type %}
-            <mt-select
-                v-model="element.config.type.value"
-                :label="$tc('sw-cms.elements.form.config.label.type')"
-                :options="formTypeOptions"
-            />
+            <sw-cms-inherit-wrapper
+                field="type"
+                :element="element"
+                :label="$t('sw-cms.elements.form.config.label.type')"
+            >
+                <template #default="{ isInherited }">
+                    <mt-select
+                        v-model="element.config.type.value"
+                        :options="formTypeOptions"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
             {% endblock %}
 
             {% block sw_cms_el_form_config_content_form_title %}
-
-            <mt-text-field
-                v-model="element.config.title.value"
-                :label="$tc('sw-cms.elements.form.config.label.title')"
-            />
+            <sw-cms-inherit-wrapper
+                field="title"
+                :element="element"
+                :label="$t('sw-cms.elements.form.config.label.title')"
+            >
+                <template #default="{ isInherited }">
+                    <mt-text-field
+                        v-model="element.config.title.value"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
             {% endblock %}
 
             {% block sw_cms_el_form_config_content_form_confirmation_text %}
-            <mt-textarea
+            <sw-cms-inherit-wrapper
                 v-if="element.config.type.value === 'contact'"
-                v-model="element.config.confirmationText.value"
-                :label="$tc('sw-cms.elements.form.config.label.confirmationText')"
-            />
+                field="confirmationText"
+                :element="element"
+                :label="$t('sw-cms.elements.form.config.label.confirmationText')"
+            >
+                <template #default="{ isInherited }">
+                    <mt-textarea
+                        v-model="element.config.confirmationText.value"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
             {% endblock %}
         </sw-container>
         {% endblock %}
@@ -68,14 +91,22 @@
             v-else-if="active === 'options' && element.config.type.value === 'contact'"
             class="sw-cms-el-config-form__tab-options"
         >
-            <sw-tagged-field
-                :value="element.config.mailReceiver.value"
-                :class="getLastMailClass"
-                :label="$tc('sw-cms.elements.form.config.label.receiverEmail')"
-                name="mailReceiver"
-                placeholder="john@doe.com"
-                @update:value="updateMailReceiver"
-            />
+            <sw-cms-inherit-wrapper
+                field="mailReceiver"
+                :element="element"
+                :label="$t('sw-cms.elements.form.config.label.receiverEmail')"
+            >
+                <template #default="{ isInherited }">
+                    <sw-tagged-field
+                        v-model:value="element.config.mailReceiver.value"
+                        :class="getLastMailClass"
+                        name="mailReceiver"
+                        placeholder="john@doe.com"
+                        :disabled="isInherited"
+                        @update:value="updateMailReceiver"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
         </sw-container>
         {% endblock %}
     </template>

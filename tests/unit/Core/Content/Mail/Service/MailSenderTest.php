@@ -10,6 +10,7 @@ use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
 use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -29,12 +30,14 @@ class MailSenderTest extends TestCase
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
         $mailSender = new MailSender(
             $mailer,
             $fileSystem,
             $configService,
             0,
+            false,
             $this->createMock(LoggerInterface::class),
             0,
             $messageBus
@@ -54,12 +57,14 @@ class MailSenderTest extends TestCase
         $mailer = $this->createMock(MailerInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
         $mailSender = new MailSender(
             $mailer,
             $fileSystem,
             $configService,
             0,
+            false,
             $this->createMock(LoggerInterface::class),
             0,
             null
@@ -80,6 +85,7 @@ class MailSenderTest extends TestCase
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
         $maxMessageSizeKiB = 1024;
         $mailSender = new MailSender(
@@ -87,6 +93,7 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
+            false,
             $this->createMock(LoggerInterface::class),
             $maxMessageSizeKiB,
             $messageBus
@@ -125,9 +132,10 @@ class MailSenderTest extends TestCase
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
         $logger = $this->createMock(LoggerInterface::class);
-        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, false, $logger, 0, $messageBus);
         $mail = new Email();
 
         $logger->expects($this->once())
@@ -144,18 +152,73 @@ class MailSenderTest extends TestCase
         $mailSender->send($mail);
     }
 
+    public function testSendMailWithDisabledDeliveryInStagingMode(): void
+    {
+        $mailer = $this->createMock(MailerInterface::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(true);
+        $logger = $this->createMock(LoggerInterface::class);
+        $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, true, $logger, 0, $messageBus);
+        $mail = new Email();
+
+        $logger->expects($this->once())
+            ->method('info');
+
+        $fileSystem
+            ->expects($this->never())
+            ->method('write');
+
+        $messageBus
+            ->expects($this->never())
+            ->method('dispatch');
+
+        $mailSender->send($mail);
+    }
+
+    public function testSendMailWithEnabledDeliveryInStagingMode(): void
+    {
+        $mailer = $this->createMock(MailerInterface::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
+        $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
+        $mailSender = new MailSender(
+            $mailer,
+            $fileSystem,
+            $configService,
+            0,
+            false,
+            $this->createMock(LoggerInterface::class),
+            0,
+            $messageBus
+        );
+        $mail = new Email();
+
+        $mailer
+            ->expects($this->once())
+            ->method('send')
+            ->with($mail);
+
+        $mailSender->send($mail);
+    }
+
     public function testSendMailWithToMuchContent(): void
     {
         $mailer = $this->createMock(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
+        $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
         $mailSender = new MailSender(
             $mailer,
             $fileSystem,
             $configService,
             5,
+            false,
             $this->createMock(LoggerInterface::class),
             0,
             $messageBus

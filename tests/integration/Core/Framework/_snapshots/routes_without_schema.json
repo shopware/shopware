@@ -5,7 +5,6 @@
     "/_action/access-key/user",
     "/_action/acl/additional_privileges",
     "/_action/acl/privileges",
-    "/_action/app/secret/rotate",
     "/_action/attribute-set/relations",
     "/_action/calculate-price",
     "/_action/calculate-prices",

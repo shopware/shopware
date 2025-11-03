@@ -159,14 +159,14 @@ jobs:
           api-gen loadSchema --apiType=store
 
       - name: Upload OpenApi StoreAPI schema
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # 5.0.0
         with:
           name: storeApiSchema.json
           path: ./api-types/storeApiSchema.json
           retention-days: 1
 
       - name: Run OpenAPI Snapshot Action
-        uses: patzick/explore-openapi-snapshot@5d02271994580c9e65222c55a6f3dfe19522de05 # v1.1.0
+        uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
         with:
           schema-file: "./api-types/storeApiSchema.json"
           project: "shopware-store-api"
@@ -187,7 +187,7 @@ jobs:
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
       - name: Upload OpenApi AdminAPI schema
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # 5.0.0
         with:
           name: adminApiSchema.json
           path: ./api-types/adminApiSchema.json

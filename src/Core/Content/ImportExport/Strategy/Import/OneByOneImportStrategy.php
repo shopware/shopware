@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Strategy\Import;
 
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -44,14 +46,24 @@ class OneByOneImportStrategy implements ImportStrategyService
         $updateEntities = $config->get('updateEntities') ?? true;
 
         try {
-            if ($createEntities === true && $updateEntities === false) {
-                $result = $this->repository->create([$record], $context);
-            } elseif ($createEntities === false && $updateEntities === true) {
-                $result = $this->repository->update([$record], $context);
-            } else {
-                // expect that both create and update are true -> upsert
-                // both false isn't possible via admin (but still results in an upsert)
-                $result = $this->repository->upsert([$record], $context);
+            try {
+                if ($createEntities === true && $updateEntities === false) {
+                    $result = $this->repository->create([$record], $context);
+                } elseif ($createEntities === false && $updateEntities === true) {
+                    $result = $this->repository->update([$record], $context);
+                } else {
+                    // expect that both create and update are true -> upsert
+                    // both false isn't possible via admin (but still results in an upsert)
+                    $result = $this->repository->upsert([$record], $context);
+                }
+            } catch (WriteTypeIntendException $exception) {
+                if ($createEntities === false && $updateEntities === true) {
+                    throw ImportExportException::updateEntityNotFound(
+                        $this->repository->getDefinition()->getEntityName()
+                    );
+                }
+
+                throw $exception;
             }
 
             $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);

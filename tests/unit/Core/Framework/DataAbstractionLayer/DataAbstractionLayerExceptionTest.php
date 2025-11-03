@@ -114,6 +114,15 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('Merging of version version-id is locked, as the merge is already running by another process.', $e->getMessage());
     }
 
+    public function testEntityNotVersionAware(): void
+    {
+        $e = DataAbstractionLayerException::entityNotVersionAware('entity-name');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::ENTITY_NOT_VERSION_AWARE, $e->getErrorCode());
+        static::assertSame('Entity "entity-name" is not version aware', $e->getMessage());
+    }
+
     public function testExpectedArray(): void
     {
         $e = DataAbstractionLayerException::expectedArray('some/path/0');

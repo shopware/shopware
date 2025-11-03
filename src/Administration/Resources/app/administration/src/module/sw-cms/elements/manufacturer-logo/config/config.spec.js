@@ -23,6 +23,10 @@ const defaultProps = {
                 source: 'static',
                 value: null,
             },
+            ariaLabel: {
+                source: 'static',
+                value: null,
+            },
             newTab: {
                 source: 'static',
                 value: true,
@@ -40,6 +44,10 @@ const defaultProps = {
                 value: null,
             },
             isDecorative: {
+                source: 'static',
+                value: false,
+            },
+            fetchPriorityHigh: {
                 source: 'static',
                 value: false,
             },
@@ -80,6 +88,7 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
                     'mt-switch': true,
+                    'sw-container': true,
                 },
                 provide: {
                     repositoryFactory: {

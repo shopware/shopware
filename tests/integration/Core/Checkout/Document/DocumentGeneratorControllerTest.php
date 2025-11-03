@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -12,6 +14,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\DocumentGeneratorController;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -40,6 +45,7 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('after-sales')]
+#[CoversClass(DocumentGeneratorController::class)]
 class DocumentGeneratorControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -161,83 +167,78 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertSame($expectedContentType, $response->headers->get('content-type'));
     }
 
-    public function testCreateDocuments(): void
-    {
-        $order1 = $this->createOrder($this->customerId, $this->context);
-        $order2 = $this->createOrder($this->customerId, $this->context);
-        $this->createDocument(InvoiceRenderer::TYPE, $order1->getId(), [
-            'documentType' => 'invoice',
-            'custom' => [
-                'invoiceNumber' => '1100',
-            ],
-        ], $this->context);
-
-        $this->createDocument(InvoiceRenderer::TYPE, $order2->getId(), [
-            'documentType' => 'invoice',
-            'documentRangerType' => 'document_invoice',
-            'custom' => [
-                'invoiceNumber' => '1101',
-            ],
-        ], $this->context);
-
-        $requests = [
-            'invoice' => [
-                [
-                    'orderId' => $order1->getId(),
-                ],
-                [
-                    'orderId' => $order2->getId(),
-                ],
-            ],
-            'credit_note' => [
-                [
-                    'orderId' => $order1->getId(),
-                ],
-                [
-                    'orderId' => $order2->getId(),
-                ],
-            ],
-            'delivery_note' => [
-                [
-                    'orderId' => $order1->getId(),
-                ],
-                [
-                    'orderId' => $order2->getId(),
-                ],
-            ],
-            'storno' => [
-                [
-                    'orderId' => $order1->getId(),
-                ],
-                [
-                    'orderId' => $order2->getId(),
-                ],
-            ],
-        ];
-
-        $documentIds = [];
-
-        foreach ($requests as $type => $payload) {
-            $this->getBrowser()->jsonRequest(
-                'POST',
-                \sprintf('/api/_action/order/document/%s/create', $type),
-                $payload
-            );
-
-            $response = $this->getBrowser()->getResponse();
-            static::assertSame(200, $response->getStatusCode());
-            $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
-            static::assertNotEmpty($response);
-            static::assertNotEmpty($data = $response['data']);
-            static::assertCount(2, $data);
-
-            $documentIds = [...$documentIds, ...$this->getDocumentIds($data)];
+    #[DataProvider('documentGenerationDataProvider')]
+    public function testCreateDocuments(
+        string $documentType,
+        bool $requiresExistingInvoice,
+        bool $requiresCreditItem,
+    ): void {
+        $orders = [];
+        for ($i = 0; $i < 2; ++$i) {
+            $orders[] = $this->createOrder($this->customerId, $this->context);
         }
 
+        if ($requiresExistingInvoice) {
+            $this->generateInvoice($orders);
+        }
+
+        if ($requiresCreditItem) {
+            $this->createCreditItems($orders);
+        }
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            \sprintf('/api/_action/order/document/%s/create', $documentType),
+            [
+                [
+                    'orderId' => $orders[0]->getId(),
+                ],
+                [
+                    'orderId' => $orders[1]->getId(),
+                ],
+            ]
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+        $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotEmpty($response);
+        $data = $response['data'];
+        static::assertNotEmpty($data);
+        static::assertCount(2, $data);
+
+        $documentIds = $this->getDocumentIds($data);
         $documents = $this->getDocumentByDocumentIds($documentIds);
 
         static::assertNotEmpty($documents);
-        static::assertCount(8, $documents);
+        static::assertCount(2, $documents);
+    }
+
+    public static function documentGenerationDataProvider(): \Generator
+    {
+        yield 'create invoice' => [
+            'documentType' => 'invoice',
+            'requiresExistingInvoice' => false,
+            'requiresCreditItem' => false,
+        ];
+
+        yield 'create credit note' => [
+            'documentType' => 'credit_note',
+            'requiresExistingInvoice' => true,
+            'requiresCreditItem' => true,
+        ];
+
+        yield 'create delivery note' => [
+            'documentType' => 'delivery_note',
+            'requiresExistingInvoice' => false,
+            'requiresCreditItem' => false,
+        ];
+
+        yield 'create storno' => [
+            'documentType' => 'storno',
+            'requiresExistingInvoice' => true,
+            'requiresCreditItem' => false,
+        ];
     }
 
     public function testCreateDocumentWithInvalidDocumentTypeName(): void
@@ -261,7 +262,42 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertSame('DOCUMENT__INVALID_RENDERER_TYPE', $response['errors'][0]['code']);
+        static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
+    }
+
+    public function testCreateDocumentWithInvalidDocumentConfig(): void
+    {
+        $order = $this->createOrder($this->customerId, $this->context);
+        $content = [
+            [
+                'orderId' => $order->getId(),
+                'fileType' => FileTypes::PDF,
+                'config' => [
+                    'documentDate' => 121212,
+                    'documentNumber' => true,
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/order/document/receipt/create',
+            $content
+        );
+
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
+
+        static::assertNotEmpty($response['errors']);
+        static::assertCount(2, $response['errors']);
+
+        static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/documents/0/config/documentNumber', $response['errors'][0]['source']['pointer']);
+
+        static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $response['errors'][1]['code']);
+        static::assertSame('/documents/0/config/documentDate', $response['errors'][1]['source']['pointer']);
     }
 
     public function testCreateWithoutDocumentsParameter(): void
@@ -277,7 +313,7 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertSame('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        static::assertSame(DocumentException::INVALID_REQUEST_PARAMETER_CODE, $response['errors'][0]['code']);
     }
 
     public function testCreateStornoDocumentsWithoutInvoiceDocument(): void
@@ -304,7 +340,7 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertArrayHasKey($order->getId(), $response['errors']);
         $error = $response['errors'][$order->getId()][0];
-        static::assertSame('Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: ' . $order->getId(), $error['detail']);
+        static::assertSame('Unable to generate document. Can not generate cancellation invoice document because no invoice document exists. OrderId: ' . $order->getId(), $error['detail']);
     }
 
     public function testDownloadNoDocuments(): void
@@ -486,5 +522,55 @@ class DocumentGeneratorControllerTest extends TestCase
         }
 
         return $collection;
+    }
+
+    /**
+     * @param array<int, OrderEntity> $orders
+     */
+    private function generateInvoice(array $orders): void
+    {
+        foreach ($orders as $index => $order) {
+            static::assertInstanceOf(OrderEntity::class, $order);
+
+            $invoiceConfig = new DocumentConfiguration();
+            $invoiceConfig->setDocumentNumber('INVOICE-' . (string) $index + 1);
+
+            $operationInvoiceA = new DocumentGenerateOperation(
+                $order->getId(),
+                FileTypes::PDF,
+                $invoiceConfig->jsonSerialize()
+            );
+
+            $invoice = $this->documentGenerator->generate(
+                InvoiceRenderer::TYPE,
+                [$order->getId() => $operationInvoiceA],
+                $this->context
+            )->getSuccess()->first();
+
+            static::assertNotNull($invoice);
+        }
+    }
+
+    /**
+     * @param array<int, OrderEntity> $orders
+     */
+    private function createCreditItems(array $orders): void
+    {
+        foreach ($orders as $order) {
+            $this->orderRepository->upsert([[
+                'id' => $order->getId(),
+                'lineItems' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'identifier' => Uuid::randomHex(),
+                        'quantity' => 1,
+                        'label' => 'Credit item',
+                        'type' => LineItem::CREDIT_LINE_ITEM_TYPE,
+                        'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
+                    ],
+                ],
+            ]], $this->context);
+        }
     }
 }

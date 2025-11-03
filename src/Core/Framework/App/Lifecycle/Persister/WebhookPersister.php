@@ -66,7 +66,7 @@ class WebhookPersister
      */
     private function deleteOldWebhooks(array $toBeRemoved): void
     {
-        $this->connection->executeQuery(
+        $this->connection->executeStatement(
             'DELETE FROM webhook WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList(array_keys($toBeRemoved))],
             ['ids' => ArrayParameterType::STRING],

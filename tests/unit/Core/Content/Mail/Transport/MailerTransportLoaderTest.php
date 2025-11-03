@@ -13,7 +13,6 @@ use Shopware\Core\Content\Mail\Transport\MailerTransportLoader;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -25,6 +24,7 @@ use Symfony\Component\Mailer\Transport\SendmailTransportFactory;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
+use Symfony\Component\Mailer\Transport\Transports;
 
 /**
  * @internal
@@ -50,7 +50,7 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $trans);
 
-        $decorated = ReflectionHelper::getPropertyValue($trans, 'decorated');
+        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($trans);
 
         static::assertInstanceOf(EsmtpTransport::class, $decorated);
     }
@@ -72,7 +72,7 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
 
-        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mailer);
 
         static::assertInstanceOf(SendmailTransport::class, $decorated);
     }
@@ -102,7 +102,7 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
 
-        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mailer);
 
         static::assertInstanceOf(EsmtpTransport::class, $decorated);
     }
@@ -143,7 +143,7 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
 
-        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mailer);
 
         static::assertInstanceOf(EsmtpTransport::class, $decorated);
     }
@@ -219,7 +219,7 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
 
-        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mailer);
 
         static::assertInstanceOf(NullTransport::class, $decorated);
     }
@@ -247,20 +247,20 @@ class MailerTransportLoaderTest extends TestCase
             'fallback' => 'null://localhost:25',
         ];
 
-        $transports = ReflectionHelper::getPropertyValue($loader->fromStrings($dsns), 'transports');
+        $transports = (new \ReflectionProperty(Transports::class, 'transports'))->getValue($loader->fromStrings($dsns));
         static::assertArrayHasKey('main', $transports);
         static::assertArrayHasKey('fallback', $transports);
 
         $mainMailer = $transports['main'];
         static::assertInstanceOf(MailerTransportDecorator::class, $mainMailer);
 
-        $decorated = ReflectionHelper::getPropertyValue($mainMailer, 'decorated');
+        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mainMailer);
         static::assertInstanceOf(EsmtpTransport::class, $decorated);
 
         $fallbackMailer = $transports['fallback'];
         static::assertInstanceOf(MailerTransportDecorator::class, $fallbackMailer);
 
-        $decorated = ReflectionHelper::getPropertyValue($fallbackMailer, 'decorated');
+        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($fallbackMailer);
         static::assertInstanceOf(NullTransport::class, $decorated);
     }
 

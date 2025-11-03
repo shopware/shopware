@@ -323,6 +323,12 @@
                     "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
                     "default": false
                 },
+                "message_max_kib_size": {
+                    "type": "integer",
+                    "default": 1024,
+                    "title": "Defines the maximum message size in KiB. Messages exceeding this size will be rejected with an exception. If set to 0, no limit is enforced.",
+                    "description": "The current default value of 1024 KiB (1 MiB) is the maximum size supported by AWS SQS, which is most restrictive among the supported transports. See https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html"
+                },
                 "stats": {
                     "type": [
                         "object",
@@ -1004,33 +1010,56 @@
                     },
                     "title": "Reverse proxy configuration"
                 },
-                "store_api": {
+                "policies": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "public": { "type": "boolean" },
+                            "private": { "type": "boolean" },
+                            "no_cache": { "type": "boolean" },
+                            "no_store": { "type": "boolean" },
+                            "no_transform": { "type": "boolean" },
+                            "must_revalidate": { "type": "boolean" },
+                            "proxy_revalidate": { "type": "boolean" },
+                            "immutable": { "type": "boolean" },
+                            "max_age": { "type": "integer", "minimum": 0 },
+                            "s_maxage": { "type": "integer", "minimum": 0 },
+                            "stale_while_revalidate": { "type": "integer", "minimum": 0 },
+                            "stale_if_error": { "type": "integer", "minimum": 0 }
+                        }
+                    },
+                    "title": "Named cache control policies"
+                },
+                "default_policies": {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
-                        "default_ttl": {
-                            "type": "integer",
-                            "default": 900,
-                            "title": "Default TTL for Store API cache responses in seconds"
+                        "storefront": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "cacheable": { "type": ["string", "null"] },
+                                "uncacheable": { "type": ["string", "null"] }
+                            }
                         },
-                        "stale_while_revalidate": {
-                            "type": [
-                                "integer",
-                                "null"
-                            ],
-                            "default": 3600,
-                            "title": "Stale while revalidate value for Store API cache responses in seconds"
-                        },
-                        "stale_if_error": {
-                            "type": [
-                                "integer",
-                                "null"
-                            ],
-                            "default": 7200,
-                            "title": "Stale if error value for Store API cache responses in seconds"
+                        "store_api": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "cacheable": { "type": ["string", "null"] },
+                                "uncacheable": { "type": ["string", "null"] }
+                            }
                         }
                     },
-                    "title": "Store API cache configuration"
+                    "title": "Default policies per area"
+                },
+                "route_policies": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" },
+                    "title": "Route name to policy mapping",
+                    "description": "Map route names to cache policies. Supports route#modifier pattern for granular script endpoint control (e.g., 'frontend.script_endpoint#hook-name')."
                 }
             }
         },

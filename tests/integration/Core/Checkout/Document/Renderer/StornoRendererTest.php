@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -83,8 +84,22 @@ class StornoRendererTest extends TestCase
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
     }
 
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(Translator::class)->reset();
+        parent::tearDown();
+    }
+
     public function testDocumentSnapshot(): void
     {
+        $translator = static::getContainer()->get(Translator::class);
+        $translator->injectSettings(
+            $this->salesChannelContext->getSalesChannelId(),
+            $this->salesChannelContext->getLanguageId(),
+            'en-GB',
+            $this->salesChannelContext->getContext()
+        );
+
         $cart = $this->generateDemoCart([19]);
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
@@ -107,6 +122,7 @@ class StornoRendererTest extends TestCase
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
             [
+                'documentComment' => '<script></script>This is a cancellation invoice.',
                 'custom' => [
                     'invoiceNumber' => '1001',
                 ],
@@ -230,7 +246,7 @@ class StornoRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $errors);
         static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertSame(
-            "Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: $orderId",
+            "Unable to generate document. Can not generate cancellation invoice document because no invoice document exists. OrderId: $orderId",
             $errors[$orderId]->getMessage()
         );
     }

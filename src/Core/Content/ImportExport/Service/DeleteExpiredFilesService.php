@@ -26,10 +26,9 @@ class DeleteExpiredFilesService
     public function countFiles(Context $context): int
     {
         $criteria = $this->buildCriteria();
-        $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        return $this->fileRepository->search($criteria, $context)->getTotal();
+        return $this->fileRepository->searchIds($criteria, $context)->getTotal();
     }
 
     public function deleteFiles(Context $context): void
@@ -47,7 +46,7 @@ class DeleteExpiredFilesService
         $criteria->addFilter(new RangeFilter(
             'expireDate',
             [
-                RangeFilter::LT => date(\DATE_ATOM),
+                RangeFilter::LT => (new \DateTimeImmutable('-30 days'))->format(\DATE_ATOM),
             ]
         ));
 

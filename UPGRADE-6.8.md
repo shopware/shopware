@@ -1,4 +1,69 @@
 # 6.8.0.0
+## Introduced in 6.7.3.0
+## Removal of deprecated controller variables
+The following will be removed in Shopware 6.8.0:
+* Twig variables `controllerName` and `controllerAction`
+* CSS classes `is-ctl-*` and `is-act-*`
+* JavaScript window properties `window.controllerName` and `window.actionName`
+## Removal of "sw-empty-state"
+* The old `sw-empty-state` component will be removed in the next major version. Please use the new `mt-empty-state` component instead.
+
+Before:
+```html
+<sw-empty-state title="short title" subline="longer subline" />
+```
+After:
+```html
+<mt-empty-state title="short title" description="longer description"/>
+```
+## Removal of properties in `ResolveRemoteThumbnailUrlExtension`
+
+The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed. Set the values directly into the `mediaEntity` property.
+## Removal of `hasChildren` variable 
+
+The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
+## Removal of `$options` parameter in custom validator's constraints
+
+The `$options` of all Shopware's custom validator constraint are removed, if you use one of them, please use named argument instead
+
+```php
+// Before:
+new CustomerEmailUnique(['salesChannelContext' => $context])
+```
+to
+
+```php
+new CustomerEmailUnique(salesChannelContext: $context)
+```
+
+Affected constraints are:
+
+```
+\Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique
+\Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches
+\Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification
+\Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode
+\Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists
+\Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists
+```
+## Removal of `app:url-change:resolve` command alias
+* Use `app:shop-id:change` instead of `app:url-change:resolve`
+## Refactor of providing cookies
+
+The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
+Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
+The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
+Use `name` and `description` instead.
+## Removal of `ZugferdDocument::getPrice()`
+The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
+## Removed `TaskScheduler::getNextExecutionTime()`
+The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.
+
+## Snippet Validation command
+The command `snippets:validate` has been renamed to `translation:validate`.
+
+## SnippetValidator
+The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
 
 ## Introduced in 6.7.2.0
 

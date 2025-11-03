@@ -42,6 +42,7 @@ class CookieRoute extends AbstractCookieRoute
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups($request, $salesChannelContext);
         $hash = $this->generateCookieConfigurationHash($cookieGroups);
+        $this->setCookieConfigHashValue($cookieGroups, $hash);
 
         return new CookieRouteResponse($cookieGroups, $hash);
     }
@@ -98,6 +99,17 @@ class CookieRoute extends AbstractCookieRoute
             return Hasher::hash($hashData);
         } catch (UtilException $e) {
             throw CookieException::hashGenerationFailed('Cookie configuration processing failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Sets the cookie-config-hash entry value to the generated hash for output purposes.
+     */
+    private function setCookieConfigHashValue(CookieGroupCollection $cookieGroups, string $hash): void
+    {
+        $cookie = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED)?->getEntries()?->get(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        if ($cookie) {
+            $cookie->value = $hash;
         }
     }
 }

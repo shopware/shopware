@@ -142,6 +142,7 @@
             <directory>tests/integration/Core/Framework/Log</directory>
             <directory>tests/integration/Core/Framework/MessageQueue</directory>
             <directory>tests/integration/Core/Framework/Migration</directory>
+            <directory>tests/integration/Core/Framework/Notification</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch3">

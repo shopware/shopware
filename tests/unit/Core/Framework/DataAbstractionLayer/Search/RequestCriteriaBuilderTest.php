@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -837,6 +838,233 @@ class RequestCriteriaBuilderTest extends TestCase
             $this->staticDefinitionRegistry->get(ProductDefinition::class),
             Context::createDefaultContext()
         );
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('searchInfoHeaderProvider')]
+    public function testIncludeSearchInfoHeader(array $data, bool $expectedState): void
+    {
+        $request = new Request();
+        $request->setMethod(Request::METHOD_POST);
+
+        if (isset($data['headerValue'])) {
+            $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, $data['headerValue']);
+        }
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame($expectedState, $criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO));
+    }
+
+    /**
+     * @return iterable<string, array{data: array{headerValue?: string}, expectedState: bool}>
+     */
+    public static function searchInfoHeaderProvider(): iterable
+    {
+        yield 'no header set (default behavior)' => [
+            'data' => [],
+            'expectedState' => false,
+        ];
+
+        yield 'header set to 1 (enable search info)' => [
+            'data' => ['headerValue' => '1'],
+            'expectedState' => false,
+        ];
+
+        yield 'header set to 0 (disable search info)' => [
+            'data' => ['headerValue' => '0'],
+            'expectedState' => true,
+        ];
+
+        yield 'header set to other value (enable search info)' => [
+            'data' => ['headerValue' => 'anything'],
+            'expectedState' => false,
+        ];
+    }
+
+    public function testCriteriaParameter(): void
+    {
+        $criteriaData = [
+            'limit' => 25,
+            'page' => 2,
+            'filter' => [
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ],
+            'sort' => [
+                ['field' => 'id', 'order' => 'ASC'],
+            ],
+            'includes' => ['product', 'category'],
+        ];
+
+        // Compress and encode the criteria data
+        $jsonData = json_encode($criteriaData, \JSON_THROW_ON_ERROR);
+        $encodedCriteria = self::gzipAndBase64UrlEncode($jsonData);
+
+        $request = new Request(['_criteria' => $encodedCriteria]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(25, $criteria->getLimit());
+        static::assertSame(25, $criteria->getOffset()); // page 2 with limit 25 = offset 25
+        static::assertCount(1, $criteria->getFilters());
+        static::assertCount(1, $criteria->getSorting());
+        static::assertSame(['product', 'category'], $criteria->getIncludes());
+    }
+
+    public function testCriteriaParameterTakesPrecedenceOverIndividualParameters(): void
+    {
+        $criteriaData = [
+            'limit' => 50,
+            'page' => 1,
+            'filter' => [
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ],
+        ];
+
+        // Compress and encode the criteria data
+        $jsonData = json_encode($criteriaData, \JSON_THROW_ON_ERROR);
+        $encodedCriteria = self::gzipAndBase64UrlEncode($jsonData);
+
+        // Add conflicting individual parameters
+        $request = new Request([
+            '_criteria' => $encodedCriteria,
+            'limit' => 10, // This should be ignored
+            'page' => 3,   // This should be ignored
+            'filter' => [  // This should be ignored
+                ['type' => 'equals', 'field' => 'name', 'value' => 'test'],
+            ],
+        ]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        // Should use values from _criteria parameter, not individual parameters
+        static::assertSame(50, $criteria->getLimit());
+        static::assertSame(0, $criteria->getOffset()); // page 1 with limit 50 = offset 0
+        static::assertCount(1, $criteria->getFilters());
+
+        // Verify the filter is from _criteria, not individual parameter
+        $filter = $criteria->getFilters()[0];
+        static::assertSame(['product.active'], $filter->getFields());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function invalidCriteriaParameterProvider(): iterable
+    {
+        yield 'too long criteria string' => [
+            str_repeat('a', 1024 * 128 + 1),
+            'The _criteria parameter is too long',
+        ];
+
+        yield 'invalid base64 data' => [
+            'invalid_base64_data',
+            'Unable to decompress gzipped data',
+        ];
+
+        yield 'invalid base64 format' => [
+            'invalid-base64-format-with-special-chars!@#$%',
+            'Unable to decode base64 data',
+        ];
+
+        // Create invalid JSON data, compress and encode it
+        $encodedInvalidJson = self::gzipAndBase64UrlEncode('{"limit": 25, "invalid": }');
+        yield 'invalid JSON data' => [
+            $encodedInvalidJson,
+            'Invalid JSON data',
+        ];
+
+        yield 'invalid criteria not array' => [
+            self::gzipAndBase64UrlEncode('"just a string"'),
+            'Criteria data must be an array',
+        ];
+    }
+
+    #[DataProvider('invalidCriteriaParameterProvider')]
+    #[WithoutErrorHandler]
+    public function testInvalidCriteriaParameterThrowsException(string $encodedCriteria, string $expectedMessage): void
+    {
+        $request = new Request(['_criteria' => $encodedCriteria]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidCriteriaParameter($expectedMessage));
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testCriteriaParameterPreparedInJS(): void
+    {
+        // This is a real-world example of encoded criteria
+        $encodedCriteria = 'H4sIAHfzwmgAA31UTW_bMAz9LzrnsO2Y25ChWLEVKNbuNBQGI7M2UVny9JHMK_rfR0qu7CRdT5Yp8j3q8UnPytBAUW0_ftioETpU208bRVab1GJQ22elh9DIRhOM47xfilq1UXEakT85tlF74_TTtcS1s4_U8aKFCLID-qnzLtn2BluCG9dK2VlUPXDhK03GEh7BDgtVpl0Kd844_wYU94Q6krO3LpB8T8DnvXqMy-pMv6IN9Jdsl_teAVUAC0POKrirulkIrhm9a5PO0g0zyRz6gQfCoxTNMCy59jTmFjfKQ2Tqzwf0wsiQYHQyELHd9QgjhnjrSZ_u_CciHEvoOwVBrrmOKaQr8GhjHmOZsQcbcgH_uNzVdStI3P6IPlKGHcCmR9Ax-QwS0P30JvN5F8IdGsNU8g8HIAN7g3dRJswJKUQ3XBGajMo_OTxghHuKRlqT9ZcTUSTyDaej86WV5HUPgTFxDCu1myJ11Zx3aiT2adhbbkYAjtTGnr89UteLl5M3NbupqVInO28UsFbijKpuM2ZdpcBSHdHvBDZSnHhpWP4SXvUrLhybonJ1Vw6eTyJ75bxyuZjvpQozTyPfLscD5KWMwcvcr8hE9CIJGhw4kOUtzitvBI-oFJ1Oc4lFF0Ekgq7z2LF75UYUevHL9F6r5eTru0BhNDDdy3W6wFgJdXng2b5aXoiv-GdX3pzXu1d6WDtlbeBzQDaveHLBfXh5-Qd2KWaANAUAAA';
+        $request = new Request(['_criteria' => $encodedCriteria]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        // Verify basic criteria properties
+        static::assertSame(10, $criteria->getLimit());
+        static::assertSame(10, $criteria->getOffset());
+
+        // Verify includes are properly set
+        $includes = $criteria->getIncludes();
+        static::assertIsArray($includes);
+        static::assertArrayHasKey('product', $includes);
+        static::assertArrayHasKey('media', $includes);
+        static::assertArrayHasKey('product_media', $includes);
+        static::assertArrayHasKey('calculated_price', $includes);
+
+        // Verify specific includes contain expected fields
+        static::assertContains('name', $includes['product']);
+        static::assertContains('description', $includes['product']);
+        static::assertContains('ratingAverage', $includes['product']);
+        static::assertContains('url', $includes['media']);
+        static::assertContains('width', $includes['media']);
+        static::assertContains('height', $includes['media']);
+    }
+
+    /**
+     * We would like to support base64 URL encoding without padding as described in RFC 4648.
+     */
+    private static function base64UrlEncode(string $data): string
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    private static function gzipAndBase64UrlEncode(string $data): string
+    {
+        $gzippedData = gzencode($data);
+        static::assertNotFalse($gzippedData, 'Gzip compressing failed');
+
+        return self::base64UrlEncode($gzippedData);
     }
 
     public function testCriteriaParameter(): void

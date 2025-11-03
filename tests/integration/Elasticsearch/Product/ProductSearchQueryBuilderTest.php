@@ -197,7 +197,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             static::assertSame(
                 $ids->get($expectedProduct),
                 $resultIds[$key],
-                \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key]))
+                \sprintf('Expected product %s at position %d to be there, but got "%s"', $expectedProduct, $key, (string) $ids->getKey($resultIds[$key]))
             );
         }
     }
@@ -475,15 +475,12 @@ class ProductSearchQueryBuilderTest extends TestCase
         });
 
         $definition = static::getContainer()->get(ElasticsearchIndexingUtils::class);
+
         $class = new \ReflectionClass($definition);
-        $reflectionProperty = $class->getProperty('customFieldsTypes');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($definition, []);
+        $class->getProperty('customFieldsTypes')->setValue($definition, []);
 
         $service = new \ReflectionClass($this->customFieldService);
-        $reflectionProperty = $service->getProperty('customFields');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($this->customFieldService, [
+        $service->getProperty('customFields')->setValue($this->customFieldService, [
             'evolvesTo' => CustomFieldTypes::SELECT,
             'evolvesText' => CustomFieldTypes::TEXT,
         ]);

@@ -283,6 +283,36 @@ class AnnotatePackageProcessorTest extends TestCase
 
         static::assertEquals($expected, $handler($record));
     }
+
+    public function testAnnotateCommandWithBogusLogData(): void
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
+        $packageService = new PackageService($requestStack, $container);
+        $handler = new AnnotatePackageProcessor($packageService);
+
+        $context = [
+            // In the case, someone reassigned $exception = $exception->getMessage() or similar before passing it into context
+            'exception' => 'This is not an exception',
+        ];
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            $context
+        );
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
+
+        static::assertEquals($expected, $handler($record));
+    }
 }
 
 /**

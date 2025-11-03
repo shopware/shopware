@@ -55,8 +55,8 @@ shopware:
         default: false
         major: false
         toggleable: true
-        description: "Experimental! Enables Product Analytics which collects usage data in the Administration"
-      - name: STORE_API_CACHE
+        description: "Experimental! Enables Product Analytics which collects usage data in the Administration."
+      - name: HTTP_CACHE_POLICIES
         default: false
         major: false
         toggleable: true

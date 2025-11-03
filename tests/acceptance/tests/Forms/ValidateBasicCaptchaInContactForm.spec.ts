@@ -2,7 +2,7 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I expect to see and use a basic captcha function on the contact form.',
-    { tag: '@form @contact' },
+    { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel, TestDataService, InstanceMeta }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');

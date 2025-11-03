@@ -6,7 +6,10 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\SalesChannelRequest;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -51,7 +54,7 @@ class HttpCacheKeyGenerator
      *
      * @return string A key for the given request
      */
-    public function generate(Request $request): string
+    public function generate(Request $request, ?Response $response = null): string
     {
         $event = new HttpCacheKeyEvent($request);
 
@@ -59,7 +62,7 @@ class HttpCacheKeyGenerator
 
         $event->add('hash', $this->cacheHash);
 
-        $this->addCookies($request, $event);
+        $this->addCookies($request, $response, $event);
 
         $this->dispatcher->dispatch($event);
 
@@ -91,23 +94,23 @@ class HttpCacheKeyGenerator
         );
     }
 
-    private function addCookies(Request $request, HttpCacheKeyEvent $event): void
+    private function addCookies(Request $request, ?Response $response, HttpCacheKeyEvent $event): void
     {
         // this will be changed within v6.6 lane that we only use the context cache cookie and developers can change the cookie instead
         // with this change, the reverse proxies are much easier to configure
-        if ($request->cookies->has(self::CONTEXT_CACHE_COOKIE)) {
+        if ($cacheCookie = $this->getCookieValue($request, $response, self::CONTEXT_CACHE_COOKIE)) {
             $event->add(
                 self::CONTEXT_CACHE_COOKIE,
-                $request->cookies->get(self::CONTEXT_CACHE_COOKIE, '')
+                $cacheCookie
             );
 
             return;
         }
 
-        if ($request->cookies->has(self::CURRENCY_COOKIE)) {
+        if ($currencyCookie = $this->getCookieValue($request, $response, self::CURRENCY_COOKIE)) {
             $event->add(
                 self::CURRENCY_COOKIE,
-                $request->cookies->get(self::CURRENCY_COOKIE, '')
+                $currencyCookie
             );
 
             return;
@@ -119,5 +122,33 @@ class HttpCacheKeyGenerator
                 $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
             );
         }
+    }
+
+    /**
+     * get Cookie value, if exists use response cookie value instead of request cookie value as request cookies can be overwritten by the client
+     */
+    private function getCookieValue(Request $request, ?Response $response, string $cookieName): ?string
+    {
+        if ($response) {
+            $cookie = Cookie::create($cookieName);
+
+            $responseCookies = $response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY);
+
+            $responseCookie = $responseCookies[$cookie->getDomain()][$cookie->getPath()][$cookieName] ?? null;
+
+            if ($responseCookie) {
+                // if the response contains the cookie, we use it instead of the request cookie
+                // as the request cookie can be overwritten by the client
+                // however the response cookie is only set if it differs from the request cookie,
+                // so we need to fall back to the request cookie when the response cookie is not set
+                return $responseCookie->getValue();
+            }
+        }
+
+        if ($request->cookies->has($cookieName)) {
+            return (string) $request->cookies->get($cookieName);
+        }
+
+        return null;
     }
 }

@@ -126,7 +126,7 @@ class ScriptStoreApiRoute
         $symfonyResponse->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
 
         $item->tag($cacheConfig->getCacheTags());
-        $item->expiresAfter($cacheConfig->getMaxAge());
+        $item->expiresAfter($cacheConfig->getSharedMaxAge());
 
         $this->cache->save($item);
     }

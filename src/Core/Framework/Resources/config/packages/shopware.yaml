@@ -135,6 +135,35 @@ shopware:
             - 'klar_cpid'
             - 'klar_adid'
 
+        # Cache policies (feature flag HTTP_CACHE_POLICIES)
+        policies:
+            no_cache_private:
+                private: true
+                no_cache: true
+                max_age: 0
+                s_maxage: 0
+
+            store_api.cacheable:
+                public: true
+                s_maxage: 0
+                stale_while_revalidate: 3600
+                stale_if_error: 7200
+
+            storefront.cacheable:
+                public: true
+                max_age: 600
+                s_maxage: 3600
+                stale_while_revalidate: 60
+                stale_if_error: 300
+
+        default_policies:
+            storefront:
+                cacheable: storefront.cacheable
+                uncacheable: no_cache_private
+            store_api:
+                cacheable: store_api.cacheable
+                uncacheable: no_cache_private
+
     profiler:
         integrations: []
     filesystem:
@@ -155,8 +184,8 @@ shopware:
         theme:
         asset:
         sitemap:
-        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html"]
-        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml"]
+        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html", "vtt", "srt", "sub", "ass", "ssa"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml", "vtt", "srt", "sub", "ass", "ssa"]
         private_local_download_strategy: "php"
         private_local_path_prefix: ""
         batch_write_size: 250
@@ -195,6 +224,8 @@ shopware:
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
+        static_token: # Optionally used for 'Authorization: Static ...' header in addition to normal bearer authorization for specific HTTP endpoints
+            health_check: ''
         rate_limiter:
             login:
                 enabled: true
@@ -568,6 +599,7 @@ shopware:
         default: []
 
     messenger:
+        message_max_kib_size: 1024 # in KiB
         scheduled_task:
             requeue_timeout: 12 # requeue stuck messages after 12 hours
         routing_overwrite:

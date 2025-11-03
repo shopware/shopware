@@ -38,6 +38,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(
     name: 'dal:create:hydrators',
@@ -53,6 +55,7 @@ class CreateHydratorCommand extends Command
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
+        private readonly Filesystem $filesystem,
         string $rootDir
     ) {
         parent::__construct();
@@ -67,16 +70,14 @@ class CreateHydratorCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->hasInactiveFeatureFlag()) {
-            throw new \RuntimeException('You have to enable all feature flags when running this command. Simply add FEATURE_ALL=major to your .env file');
-        }
-
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate hydrators');
 
-        if (!\is_dir($this->dir)) {
-            mkdir($this->dir);
+        if ($this->hasInactiveFeatureFlag()) {
+            $io->info('Note that if definitions are dependent on feature flags, make sure to activate these feature flags, in order to consider them in the hydrators');
         }
+
+        $this->filesystem->mkdir($this->dir);
 
         $entities = $this->registry->getDefinitions();
         $classes = [];
@@ -124,8 +125,8 @@ class CreateHydratorCommand extends Command
             $file = rtrim($this->dir, '/') . '/' . $file;
 
             try {
-                file_put_contents($file, $content);
-            } catch (\Throwable $e) {
+                $this->filesystem->dumpFile($file, $content);
+            } catch (IOException $e) {
                 $output->writeln($e->getMessage());
             }
         }
@@ -149,8 +150,8 @@ EOF;
 
             $content = str_replace('#services#', implode("\n\n", $services), $content);
 
-            file_put_contents($file, $content);
-        } catch (\Throwable $e) {
+            $this->filesystem->dumpFile($file, $content);
+        } catch (IOException $e) {
             $output->writeln($e->getMessage());
         }
 
@@ -176,7 +177,7 @@ EOF;
 
         $file = rtrim($this->dir, '/') . '/' . $file;
 
-        $content = (string) file_get_contents($file);
+        $content = $this->filesystem->readFile($file);
 
         if (str_contains($content, 'getHydratorClass')) {
             return null;
@@ -307,6 +308,10 @@ EOF;
         return implode('', $parts) . 'Hydrator';
     }
 
+    /**
+     * @param list<string> $fields
+     * @param list<string> $calls
+     */
     private function renderClass(EntityDefinition $definition, string $namespace, string $class, array $fields, array $calls): string
     {
         $template = <<<EOF
@@ -453,12 +458,6 @@ EOF;
 
     private function hasInactiveFeatureFlag(): bool
     {
-        foreach (Feature::getAll() as $enabled) {
-            if ($enabled === false) {
-                return true;
-            }
-        }
-
-        return false;
+        return \in_array(false, Feature::getAll(), true);
     }
 }

@@ -71,7 +71,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -2029,7 +2028,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{from: int, to: int, expected: string[], rules?: string[]}>
+     * @return iterable<string, array{from: int, to: int, expected: string[], rules?: string[]}>
      */
     public function providerCheapestPriceFilter(): iterable
     {
@@ -2917,7 +2916,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{min: float, max: float, rules: string[]}>
+     * @return iterable<string, array{min: float, max: float, rules: string[]}>
      */
     private function providerCheapestPriceAggregation(): iterable
     {
@@ -2964,7 +2963,7 @@ class ElasticsearchProductTest extends TestCase
 
         $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
 
-        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
+        (new \ReflectionProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes'))->setValue(
             $this->utils,
             ['product' => $customMapping],
         );

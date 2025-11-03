@@ -142,6 +142,7 @@ import type SsoInvitationService from './core/service/api/sso-invitation.service
 import type CMSConstant from './module/sw-cms/constant/sw-cms.constant';
 import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.constant';
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
+import type SnippetApiService from './core/service/api/snippet.api.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -281,7 +282,7 @@ declare global {
         searchTypeService: $TSFixMe;
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
         shortcutService: $TSFixMe;
-        snippetService: $TSFixMe;
+        snippetService: SnippetApiService;
         stateStyleDataProviderService: StateStyleService;
         storeService: StoreApiService;
         systemConfigApiService: SystemConfigApiService;
@@ -328,6 +329,7 @@ declare global {
     interface InitPostContainer extends SubContainer<'init-post'> {}
     interface InitPreContainer extends SubContainer<'init-pre'> {
         state: $TSFixMe;
+        apiServices: Promise<typeof ApiServiceFactory>;
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'> {

@@ -193,6 +193,11 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
             ->scalarNode('max_limit')->end()
+            ->arrayNode('static_token')
+                ->children()
+                    ->scalarNode('health_check')->end()
+                ->end()
+            ->end()
             ->arrayNode('api_browser')
                 ->children()
                 ->booleanNode('auth_required')
@@ -888,6 +893,57 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
                 ->scalarNode('soft_purge')->defaultValue(false)->end()
+                ->arrayNode('policies')
+                    ->useAttributeAsKey('name')
+                    ->defaultValue([])
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->booleanNode('public')->defaultNull()->end()
+                            ->booleanNode('private')->defaultNull()->end()
+                            ->booleanNode('no_cache')->defaultNull()->end()
+                            ->booleanNode('no_store')->defaultNull()->end()
+                            ->booleanNode('no_transform')->defaultNull()->end()
+                            ->booleanNode('must_revalidate')->defaultNull()->end()
+                            ->booleanNode('proxy_revalidate')->defaultNull()->end()
+                            ->booleanNode('immutable')->defaultNull()->end()
+                            ->integerNode('max_age')->min(0)->defaultNull()->end()
+                            ->integerNode('s_maxage')->min(0)->defaultNull()->end()
+                            ->integerNode('stale_while_revalidate')->min(0)->defaultNull()->end()
+                            ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('default_policies')
+                    ->info('Default cache policies per area. Currently only "storefront" and "store_api" are supported.')
+                    ->useAttributeAsKey('area')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('cacheable')
+                                ->info('Policy name to use for cacheable responses')
+                                ->defaultNull()
+                            ->end()
+                            ->scalarNode('uncacheable')
+                                ->info('Policy name to use for uncacheable responses')
+                                ->defaultNull()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->validate()
+                        ->ifTrue(function ($areas) {
+                            $allowedAreas = ['storefront', 'store_api'];
+                            $providedAreas = array_keys($areas);
+
+                            return !empty(array_diff($providedAreas, $allowedAreas));
+                        })
+                        ->thenInvalid('Only "storefront" and "store_api" areas are currently supported in default_policies. Config contains unsupported area(s): %s')
+                    ->end()
+                ->end()
+                ->arrayNode('route_policies')
+                    ->useAttributeAsKey('route')
+                    ->defaultValue([])
+                    ->scalarPrototype()->end()
+                ->end()
                 ->arrayNode('cookies')
                     ->performNoDeepMerging()
                     ->scalarPrototype()->end()
@@ -926,14 +982,33 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->arrayNode('store_api')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->integerNode('default_ttl')->defaultValue(1800)->end()
-                        ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
-                        ->scalarNode('stale_if_error')->defaultValue(null)->end()
-                    ->end()
-                ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(function (array $config) {
+                    $policies = array_keys($config['policies'] ?? []);
+
+                    // Check default_policies references
+                    foreach ((array) ($config['default_policies'] ?? []) as $defaults) {
+                        if (!\is_array($defaults)) {
+                            continue;
+                        }
+                        foreach ($defaults as $name) {
+                            if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                                return true;
+                            }
+                        }
+                    }
+
+                    // Check route_policies references
+                    foreach ((array) ($config['route_policies'] ?? []) as $name) {
+                        if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+                ->thenInvalid('Configuration references unknown cache policies. All policy names in default_policies and route_policies must be defined under shopware.http_cache.policies.')
             ->end()
         ->end();
 
@@ -952,6 +1027,7 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
+                ->integerNode('message_max_kib_size')->defaultValue(1024)->end()
                 ->arrayNode('scheduled_task')
                     ->children()
                         ->integerNode('requeue_timeout')->defaultValue(12)->end()

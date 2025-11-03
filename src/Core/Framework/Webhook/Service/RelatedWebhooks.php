@@ -36,7 +36,7 @@ class RelatedWebhooks
     /**
      * Fetch the id's of all similar webhooks (same event, url, live config)
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function fetchIds(string $webhookId): array
     {
@@ -50,7 +50,7 @@ class RelatedWebhooks
             ['id' => Uuid::fromHexToBytes($webhookId)],
         );
 
-        /** @var array<string> $result */
+        /** @var list<string> $result */
         return $result;
     }
 }

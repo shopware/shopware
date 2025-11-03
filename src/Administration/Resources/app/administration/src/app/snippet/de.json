@@ -53,6 +53,7 @@
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
       "notificationSaveErrorMessageRequiredFieldsInvalid": "Bitte fülle alle Pflichtfelder aus.",
+      "notificationSaveErrorMessageRequiredField": "Dieses Feld ist ein Pflichtfeld.",
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
       "messageDeleteSuccess": "\"{name}\" gelöscht.",
@@ -437,7 +438,8 @@
     "sw-media-preview-v2": {
       "fallbackVideoTagSupport": "Dein Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Dein Browser unterstützt diesen Audio-Tag nicht",
-      "textNoMedia": "Kein Medium verfügbar"
+      "textNoMedia": "Kein Medium verfügbar",
+      "warningUnsupportedFormat": "Format \"{format}\" wird möglicherweise nicht in allen Browsern unterstützt."
     },
     "sw-media-upload": {
       "buttonFileUpload": "Dateien hochladen",
@@ -1598,6 +1600,7 @@
     "messageNoResultSubline": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch die Konfiguration Deiner Suche.",
     "messageNoResultSublineBefore": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch",
     "messageNoResultSublineLink": "die Konfiguration",
+    "messageNoResultLink": "Zu den Sucheinstellungen",
     "messageNoResultSublineAfter": "Deiner Suche."
   },
   "sw-restricted-rules": {

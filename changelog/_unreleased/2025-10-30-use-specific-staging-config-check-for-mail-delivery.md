@@ -9,4 +9,4 @@ author_github: @M-arcus
 ___
 # Upgrade Information
 ## Staging configuration
-The disabled delivery check in `MailSender` now checks for the Staging Mode `core.staging`, the `shopware.staging.mailing.disable_delivery` configuration and the config setting `shopware.mailing.disable_delivery`.
+The disabled delivery check in `MailSender` now checks for the Staging Mode `core.staging`, the `shopware.staging.mailing.disable_delivery` configuration and the config setting `shopware.mailing.disable_delivery`. Regardless of Mode the config setting `shopware.mailing.disable_delivery` always allows to disable mail delivery.

@@ -37,7 +37,7 @@ export default {
             type: Object,
             required: false,
             default: () => {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addSorting(Criteria.sort('name'));
 
                 return criteria;

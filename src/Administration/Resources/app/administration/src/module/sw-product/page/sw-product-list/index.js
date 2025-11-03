@@ -122,7 +122,7 @@ export default {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('name'));
 
             return criteria;

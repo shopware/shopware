@@ -140,7 +140,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$forceUpdate();
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('480px');
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('545px');
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
         });
 
@@ -163,7 +163,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('480px');
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('545px');
             expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '480');
         });
 
@@ -284,7 +284,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`545px`);
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
             expect(window.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function));
             expect(eventListener).toBeDefined();
@@ -294,7 +294,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${1400 - MAIN_CONTENT_MIN_SIZE}px`);
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`545px`);
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
 
             // Restore original method

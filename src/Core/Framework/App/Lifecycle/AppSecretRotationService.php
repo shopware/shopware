@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationCollection;
-use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -71,6 +70,9 @@ class AppSecretRotationService
         string $trigger
     ): void {
         $app = $this->loadApp($appId, $context);
+
+        $currentIntegrationId = $app->getIntegrationId();
+
         $manifest = $this->resolveManifest($app);
 
         $this->logger->info('Starting app secret rotation', [
@@ -79,30 +81,21 @@ class AppSecretRotationService
             'trigger' => $trigger,
         ]);
 
-        $currentIntegrationId = $app->getIntegrationId();
-
-        // stage new integration with new credentials.
-        $integration = new IntegrationEntity();
-        $appIntegration = $app->getIntegration();
-        if ($appIntegration === null) {
-            throw AppException::missingIntegration();
-        }
-        $integration->setLabel($appIntegration->getLabel());
-        $integration->setAccessKey(AccessKeyHelper::generateAccessKey('integration'));
-        $integration->setSecretAccessKey(AccessKeyHelper::generateSecretAccessKey());
-        $app->setIntegration($integration);
+        // Generate new access key and secret
+        $newAccessKey = AccessKeyHelper::generateAccessKey('integration');
+        $newSecret = AccessKeyHelper::generateSecretAccessKey();
 
         try {
-            $this->registrationService->registerApp($manifest, $app, $integration->getSecretAccessKey(), $context);
+            $this->registrationService->registerApp($manifest, $app, $newSecret, $context);
             // Commit the new integration to the app and schedule deletion of the old one to allow in-flight requests to complete.
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $integration, $currentIntegrationId): void {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $newAccessKey, $newSecret, $currentIntegrationId): void {
                 $this->appRepository->update([
                     [
                         'id' => $app->getId(),
                         'integration' => [
-                            'label' => $integration->getLabel(),
-                            'accessKey' => $integration->getAccessKey(),
-                            'secretAccessKey' => $integration->getSecretAccessKey(),
+                            'label' => $app->getIntegration()?->getLabel() ?? '',
+                            'accessKey' => $newAccessKey,
+                            'secretAccessKey' => $newSecret,
                         ],
                     ],
                 ], $context);

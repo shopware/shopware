@@ -58,10 +58,6 @@ class AppSecretRotationServiceTest extends TestCase
         $integration = $app->getIntegration();
         static::assertNotNull($integration);
 
-        $oldIntegrationId = $app->getIntegrationId();
-        static::assertIsString($oldIntegrationId);
-        $oldSecretKey = $integration->getSecretAccessKey();
-
         $manifest = Manifest::createFromXmlFile($appDir . '/manifest.xml');
         $setup = $manifest->getSetup();
         static::assertNotNull($setup);
@@ -94,11 +90,12 @@ class AppSecretRotationServiceTest extends TestCase
         $newIntegrationId = $updatedApp->getIntegrationId();
         static::assertIsString($newIntegrationId);
         $newSecretKey = $updatedIntegration->getSecretAccessKey();
-        static::assertNotSame($oldSecretKey, $newSecretKey);
+        static::assertNotSame($integration->getSecretAccessKey(), $newSecretKey);
+        static::assertNotSame($integration->getId(), $newIntegrationId);
 
         // Verify old integration was soft-deleted
-        $criteria = new Criteria([$oldIntegrationId]);
-        $oldIntegration = $this->integrationRepository->search($criteria, $this->context)->get($oldIntegrationId);
+        $criteria = new Criteria([$integration->getId()]);
+        $oldIntegration = $this->integrationRepository->search($criteria, $this->context)->first();
 
         static::assertInstanceOf(IntegrationEntity::class, $oldIntegration);
         static::assertNotNull($oldIntegration->getDeletedAt());
@@ -134,12 +131,6 @@ class AppSecretRotationServiceTest extends TestCase
         $integration = $app->getIntegration();
         static::assertNotNull($integration);
 
-        // Store original values to verify they don't change after failure
-        $oldIntegrationId = $app->getIntegrationId();
-        static::assertIsString($oldIntegrationId);
-        $oldSecretKey = $integration->getSecretAccessKey();
-        $oldAppSecret = $app->getAppSecret();
-
         // Generate proper proof same way as initial registration
         $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
         $shopUrl = $_SERVER['APP_URL'];
@@ -169,13 +160,13 @@ class AppSecretRotationServiceTest extends TestCase
             static::assertNotNull($unchangedIntegration);
 
             // Integration should be the same
-            static::assertSame($oldIntegrationId, $unchangedApp->getIntegrationId());
+            static::assertSame($integration->getId(), $unchangedApp->getIntegrationId());
 
             // Secret key should be unchanged
-            static::assertSame($oldSecretKey, $unchangedIntegration->getSecretAccessKey());
+            static::assertSame($integration->getSecretAccessKey(), $unchangedIntegration->getSecretAccessKey());
 
             // App secret should be unchanged
-            static::assertSame($oldAppSecret, $unchangedApp->getAppSecret());
+            static::assertSame($app->getAppSecret(), $unchangedApp->getAppSecret());
         }
     }
 

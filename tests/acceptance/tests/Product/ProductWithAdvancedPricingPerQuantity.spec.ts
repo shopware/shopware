@@ -15,6 +15,7 @@ test(
         ChangeProductQuantity,
     }) => {
         const product = await TestDataService.createProductWithPriceRange();
+        console.log('===product: ', product);
         const currencyIcon = getCurrencySymbolFromLocale(getLocale());
         await test.step('Testing price ranges are available on product detail page @product', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

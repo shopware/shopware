@@ -37,6 +37,7 @@ test(
                 quantityStart: 1,
             },
         });
+        console.log('===priceResponse: ', priceResponse);
         expect(priceResponse.ok()).toBeTruthy();
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

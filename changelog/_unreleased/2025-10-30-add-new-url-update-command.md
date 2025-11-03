@@ -7,3 +7,10 @@ author_github: @M-arcus
 # Core
 * Added new console command `sales-channel:update:url` to update the url of sales channels
 * Changed `sales-channel:update:domain` to filter out headless channels earlier
+___
+# Upgrade Information
+## Sales Channel Update URL Command
+A new `sales-channel:update:url` command was added to update the url of a sales channel.
+```bash
+bin/console sales-channel:update:url <previous_url> <new_url>
+```

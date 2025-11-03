@@ -43,8 +43,6 @@ if (process.env['ADMIN_URL']) {
     process.env['ADMIN_URL'] = process.env['APP_URL'] + 'admin/';
 }
 
-console.log('===playwright config process.env: ', process.env);
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -57,7 +55,7 @@ export default defineConfig({
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
     /* There are still some issues with running the tests in parallel */
-    workers: process.env.CI ? 1 : 3,
+    workers: process.env.CI ? 1 : 1,
 
     reporter: 'html',
 

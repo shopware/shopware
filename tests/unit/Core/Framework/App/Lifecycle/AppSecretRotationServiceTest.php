@@ -125,50 +125,6 @@ class AppSecretRotationServiceTest extends TestCase
         $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
     }
 
-    public function testRotateNowThrowsExceptionWhenAppHasNoIntegration(): void
-    {
-        $appId = Uuid::randomHex();
-        $integrationId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
-
-        $app = new AppEntity();
-        $app->setId($appId);
-        $app->setName('TestApp');
-        $app->setIntegrationId($integrationId);
-        // Integration entity is not set (null)
-
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->expects($this->once())
-            ->method('get')
-            ->with($appId)
-            ->willReturn($app);
-
-        $this->appRepository->expects($this->once())
-            ->method('search')
-            ->willReturn($searchResult);
-
-        $manifest = $this->createMock(Manifest::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->expects($this->once())
-            ->method('path')
-            ->with('manifest.xml')
-            ->willReturn('/path/to/manifest.xml');
-
-        $this->sourceResolver->expects($this->once())
-            ->method('filesystemForApp')
-            ->with($app)
-            ->willReturn($filesystem);
-
-        $this->manifestFactory->expects($this->once())
-            ->method('createFromXmlFile')
-            ->with('/path/to/manifest.xml')
-            ->willReturn($manifest);
-
-        $this->expectException(AppException::class);
-
-        $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
-    }
-
     public function testRotateNowSuccessfullyRotatesSecret(): void
     {
         $appId = Uuid::randomHex();

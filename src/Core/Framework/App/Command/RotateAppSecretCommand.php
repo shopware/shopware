@@ -56,7 +56,7 @@ class RotateAppSecretCommand extends Command
         }
 
         $appNames = $this->getAppNamesToRotate($name);
-        if (empty($appNames)) {
+        if ($appNames === []) {
             $io->note('No active apps found.');
 
             return self::SUCCESS;
@@ -96,7 +96,7 @@ class RotateAppSecretCommand extends Command
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getAppNamesToRotate(?string $name): array
     {
@@ -106,11 +106,11 @@ class RotateAppSecretCommand extends Command
 
         $activeApps = $this->activeAppsLoader->getActiveApps();
 
-        return array_map(fn (array $app) => $app['name'], $activeApps);
+        return array_values(array_map(fn (array $app) => $app['name'], $activeApps));
     }
 
     /**
-     * @param array<string> $appNames
+     * @param list<string> $appNames
      */
     private function fetchApps(array $appNames, Context $context): AppCollection
     {

@@ -1,25 +1,10 @@
 import { defineComponent } from 'vue';
-import { type EnrichedSlotData, type RuntimeSlot, type CmsSlotConfig } from '../service/cms.service';
+import { type RuntimeSlot } from '../service/cms.service';
+import './sw-cms-state.mixin';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
-const { isEmpty } = types;
-const { cloneDeep, merge } = Shopware.Utils.object;
-
-interface Translation {
-    languageId: string;
-}
-
-interface TranslationWithSlotConfig extends Translation {
-    slotConfig?: {
-        [slotId: string]: CmsSlotConfig;
-    };
-}
-
-interface Entity {
-    translations: Translation[];
-    translated?: TranslationWithSlotConfig;
-}
+const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
 
 /**
  * @private
@@ -29,6 +14,10 @@ export default Mixin.register(
     'cms-element',
     defineComponent({
         inject: ['cmsService'],
+
+        mixins: [
+            Mixin.getByName('cms-state'),
+        ],
 
         props: {
             element: {
@@ -57,69 +46,61 @@ export default Mixin.register(
             cmsElements() {
                 return this.cmsService.getCmsElementRegistry();
             },
-
-            category(): Entity | null {
-                try {
-                    return Shopware.Store.get('swCategoryDetail')?.category as Entity;
-                } catch {
-                    return null;
-                }
-            },
-
-            product(): Entity | null {
-                try {
-                    return Shopware.Store.get('swProductDetail')?.product as Entity;
-                } catch {
-                    return null;
-                }
-            },
-
-            landingPage() {
-                try {
-                    return Shopware.Store.get('swCategoryDetail')?.landingPage as Entity;
-                } catch {
-                    return null;
-                }
-            },
-
-            moduleEntity() {
-                const name = this.$route.name?.toString() || '';
-
-                if (name.startsWith('sw.category.landingPageDetail')) {
-                    return this.landingPage;
-                }
-
-                if (name.startsWith('sw.category.')) {
-                    return this.category;
-                }
-
-                if (name.startsWith('sw.product.')) {
-                    return this.product;
-                }
-
-                return null;
-            },
-
-            configOverride(): EnrichedSlotData {
-                const entitySlotConfig = this.getEntitySlotConfig();
-
-                const config = merge(
-                    cloneDeep(this.element?.translated?.config ?? {}),
-                    cloneDeep(entitySlotConfig ?? {}),
-                ) as unknown as EnrichedSlotData;
-
-                if (config && !isEmpty(config)) {
-                    return config;
-                }
-
-                return (this.element?.config ?? {}) as unknown as EnrichedSlotData;
-            },
         },
-
         methods: {
-            initElementConfig(elementName: string) {
-                const defaultConfig = this.defaultConfig || this.cmsElements[elementName]?.defaultConfig || {};
-                this.element.config = merge(cloneDeep(defaultConfig), cloneDeep(this.configOverride));
+            initElementConfig() {
+                this.initBaseConfig();
+                this.applyContentOverride();
+            },
+
+            initBaseConfig() {
+                if (!this.element.type) {
+                    return;
+                }
+
+                const config = merge({}, this.cmsElements[this.element.type]?.defaultConfig, this.defaultConfig);
+
+                if (!this.element.config) {
+                    set(this.element, 'config', {});
+                }
+
+                Object.entries(config).forEach(
+                    ([
+                        key,
+                        value,
+                    ]) => {
+                        const path = `config.${key}`;
+
+                        if (has(this.element, path)) {
+                            return;
+                        }
+
+                        const newValue: unknown = get(this.element, `translated.${path}`, value);
+
+                        set(this.element, path, newValue);
+                    },
+                );
+            },
+
+            applyContentOverride() {
+                if (!this.contentEntity || !this.contentEntity.slotConfig || !this.element.id) {
+                    return;
+                }
+
+                const overrideConfig = this.contentEntity.slotConfig[this.element.id];
+
+                if (!overrideConfig) {
+                    return;
+                }
+
+                Object.entries(overrideConfig).forEach(
+                    ([
+                        key,
+                        value,
+                    ]) => {
+                        set(this.element, `config.${key}`, value);
+                    },
+                );
             },
 
             initElementData(elementName: string) {
@@ -134,24 +115,6 @@ export default Mixin.register(
 
             getDemoValue(mappingPath: string) {
                 return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
-            },
-
-            getEntitySlotConfig() {
-                const entity = this.moduleEntity;
-
-                if (!entity) {
-                    return null;
-                }
-
-                const translation = (entity.translated ?? this.getDefaultTranslations(entity)) as TranslationWithSlotConfig;
-
-                return translation?.slotConfig?.[this.element.id] ?? null;
-            },
-
-            getDefaultTranslations(entity: Entity) {
-                return entity.translations?.find((translation) => {
-                    return translation.languageId === Shopware.Context.api.systemLanguageId;
-                });
             },
         },
     }),

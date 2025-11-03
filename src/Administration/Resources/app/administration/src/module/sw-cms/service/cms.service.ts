@@ -31,6 +31,9 @@ type CmsSlotData = {
 
 type RuntimeSlot = Entity<'cms_slot'> & {
     config: CmsSlotConfig;
+    translated?: {
+        config: CmsSlotConfig;
+    };
     data: {
         [key: string]: CmsSlotData;
     };

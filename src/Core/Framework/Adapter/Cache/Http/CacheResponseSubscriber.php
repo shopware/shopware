@@ -443,6 +443,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         return new CacheAttribute(
             null,
             $sMaxAge,
+            null,
             $states,
         );
     }

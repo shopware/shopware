@@ -1,0 +1,29 @@
+<div
+    v-if="hasOverrides"
+    class="sw-category-layout-card__desc-reset"
+>
+    <mt-icon
+        name="regular-link-horizontal-slash"
+        size="16px"
+        color="var(--color-module-purple-900)"
+    />
+
+    {{ $t('sw-cms.inherit.unlinkNotice') }} <mt-link
+        variant="critical"
+        as="button"
+        @click="showModal = true;"
+    >
+        {{ $t('sw-cms.inherit.unlinkAllButton') }}
+    </mt-link>
+
+    <sw-confirm-modal
+        v-if="showModal"
+        type="delete"
+        :text="$t('sw-cms.inherit.unlinkAllConfirmText')"
+        :title="$t('sw-cms.inherit.unlinkAllTitle')"
+        :text-confirm="$t('sw-cms.inherit.unlinkAllTitle')"
+        @confirm="onConfirm"
+        @cancel="showModal = false;"
+        @close="showModal = false;"
+    />
+</div>

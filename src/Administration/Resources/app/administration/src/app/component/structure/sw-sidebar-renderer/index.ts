@@ -14,9 +14,9 @@ export default Shopware.Component.wrapComponentConfig({
 
     setup() {
         const MAIN_CONTENT_MIN_SIZE = 1400;
-        const MIN_SIDEBAR_WIDTH = 480;
+        const MIN_SIDEBAR_WIDTH = 545;
 
-        const sidebarSetWidth = ref(480);
+        const sidebarSetWidth = ref(545);
         const isResizing = ref(false);
         const windowWidth = ref(window.innerWidth);
 

@@ -29,7 +29,7 @@ async function createWrapper(propsOverride) {
             },
             global: {
                 provide: {
-                    cmsService: {},
+                    cmsService: Shopware.Service('cmsService'),
                 },
                 stubs: {
                     'sw-tabs': {
@@ -68,6 +68,15 @@ async function createWrapper(propsOverride) {
                     'router-link': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
             },
         },

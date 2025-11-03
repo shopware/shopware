@@ -38,6 +38,12 @@ export default {
             required: false,
             default: () => ['enter'],
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

@@ -72,45 +72,38 @@
                     variant="secondary"
                     @click="openLayoutModal"
                 >
-                    {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
+                    {{ $t(cmsPage ? 'sw-category.base.cms.changeLayout' : 'sw-category.base.cms.changeLayoutEmpty') }}
                 </mt-button>
                 {% endblock %}
 
-                {% block sw_category_detail_layout_desc_actions_designer %}
-                <mt-button
-                    class="sw-category-detail-layout__open-in-pagebuilder"
-                    size="small"
-                    :disabled="!acl.can('category.editor')"
-                    variant="secondary"
-                    @click="openInPagebuilder"
-                >
-                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder') : $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
-                </mt-button>
-                {% endblock %}
+                <sw-context-button class="sw-category-layout-card__desc-actions-menu">
+                    {% block sw_category_detail_layout_desc_actions_designer %}
+                    <sw-context-menu-item
+                        class="sw-category-detail-layout__open-in-pagebuilder"
+                        :disabled="!acl.can('category.editor')"
+                        @click="openInPagebuilder"
+                    >
+                        {{ $t('global.default.edit') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
 
-                {% block sw_category_detail_layout_desc_actions_remove %}
-                <mt-button
-                    v-if="cmsPage"
-                    size="small"
-                    :disabled="!acl.can('category.editor')"
-                    class="sw-category-detail-layout__layout-reset"
-                    square
-                    variant="secondary"
-                    @click="onLayoutReset"
-                >
-                    <mt-icon
-                        name="regular-trash"
-                        size="16px"
-                    />
-                </mt-button>
-                {% endblock %}
-
+                    {% block sw_category_detail_layout_desc_actions_remove %}
+                    <sw-context-menu-item
+                        v-if="cmsPage"
+                        :disabled="!acl.can('category.editor')"
+                        class="sw-category-detail-layout__layout-reset"
+                        @click="onLayoutReset"
+                    >
+                        {{ $t('global.default.delete') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </sw-context-button>
             </div>
             {% endblock %}
 
+            <sw-cms-reset-inheritance />
         </div>
         {% endblock %}
-
     </div>
 </mt-card>
 {% endblock %}

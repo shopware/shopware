@@ -223,7 +223,7 @@ class Entity extends Struct
 
         $class = static::class;
         $class = explode('\\', $class);
-        $class = end($class);
+        $class = array_last($class);
 
         $entityName = preg_replace(
             '/_entity$/',

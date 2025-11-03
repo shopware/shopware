@@ -163,17 +163,19 @@ export default {
 
         onChangeMinHeight(value) {
             this.element.config.minHeight.value = value === null ? '' : value;
-
-            this.$emit('element-update', this.element);
+            this.emitUpdate();
         },
 
         onChangeDisplayMode() {
-            this.$emit('element-update', this.element);
+            this.emitUpdate();
         },
 
         onChangeIsDecorative(value) {
             this.element.config.isDecorative.value = value;
+            this.emitUpdate();
+        },
 
+        emitUpdate() {
             this.$emit('element-update', this.element);
         },
     },

@@ -78,6 +78,15 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     'sw-ai-copilot-badge': true,
                     'mt-switch': MtSwitch,
                     'mt-url-field': MtUrlField,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
             },
             props: {

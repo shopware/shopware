@@ -80,7 +80,7 @@ class SalesChannelReplaceUrlCommand extends Command
         }
 
         $validator = Validation::createValidator();
-        $newUrlConstraints = [new NotBlank(), new Url(requireTld: false), new NotEqualTo($previousUrl)];
+        $newUrlConstraints = [new Url(requireTld: false), new NotEqualTo($previousUrl)];
         $newUrlViolations = $validator->validate($newUrl, $newUrlConstraints);
         if (\count($newUrlViolations) > 0) {
             foreach ($newUrlViolations as $violation) {

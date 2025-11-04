@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class Random
 {
+    /**
+     * @return non-empty-string
+     */
     public static function getBytes(int $length): string
     {
         if ($length <= 0) {
@@ -39,6 +42,9 @@ class Random
         return random_int($min, $max);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public static function getString(int $length, ?string $charlist = null): string
     {
         if ($length < 1) {
@@ -70,6 +76,8 @@ class Random
 
     /**
      * @see https://tools.ietf.org/html/rfc4648
+     *
+     * @return non-empty-string
      */
     public static function getBase64UrlString(int $length): string
     {
@@ -81,6 +89,9 @@ class Random
         return str_replace(['+', '/'], ['-', '_'], $base64);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public static function getAlphanumericString(int $length): string
     {
         $charlist = implode('', range('a', 'z')) . implode('', range('A', 'Z')) . implode('', range(0, 9));

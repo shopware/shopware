@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -42,33 +41,19 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(ImitateCustomerTokenGenerator::class, 'generate', 'v6.8.0.0', 'parse'));
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            $tokenData = [
-                'salesChannelId' => $salesChannelId,
-                'customerId' => $customerId,
-                'userId' => $userId,
-            ];
+        $tokenData = [
+            'salesChannelId' => $salesChannelId,
+            'customerId' => $customerId,
+            'userId' => $userId,
+        ];
 
-            $data = json_encode($tokenData);
+        $data = json_encode($tokenData);
 
-            if ($data === false) {
-                throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
-            }
-
-            return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . time());
+        if ($data === false) {
+            throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
         }
 
-        $now = new \DateTimeImmutable('@' . time());
-
-        return $this->configuration->builder()
-            ->identifiedBy(Uuid::randomHex())
-            ->issuedAt($now)
-            ->canOnlyBeUsedAfter($now)
-            ->expiresAt($now->modify(\sprintf('+%d seconds', self::TOKEN_LIFETIME)))
-            ->withClaim('salesChannelId', $salesChannelId)
-            ->withClaim('customerId', $customerId)
-            ->getToken($this->configuration->signer(), $this->configuration->signingKey())
-            ->toString();
+        return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . time());
     }
 
     /**

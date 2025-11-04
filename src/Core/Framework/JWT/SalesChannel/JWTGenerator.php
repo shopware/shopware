@@ -31,6 +31,8 @@ abstract class JWTGenerator
 
     /**
      * @param T $jwt
+     *
+     * @return non-empty-string
      */
     public function encode(JWTStruct $jwt): string
     {

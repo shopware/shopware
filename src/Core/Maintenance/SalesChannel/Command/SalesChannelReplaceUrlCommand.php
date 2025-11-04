@@ -8,13 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotEqualTo;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validation;
@@ -57,16 +57,17 @@ class SalesChannelReplaceUrlCommand extends Command
             return self::FAILURE;
         }
 
-        $domains = $this->findDomainsByUrl($previousUrl, $context);
-        if ($domains->count() === 0) {
+        $domain = $this->findDomainByUrl($previousUrl, $context);
+        if (!$domain instanceof SalesChannelDomainEntity) {
             $io->error('No sales channels found with URL ' . $previousUrl);
 
             return self::FAILURE;
         }
 
-        $payload = $this->buildUpdatePayload($domains, $newUrl);
-
-        $this->salesChannelDomainRepository->update($payload, $context);
+        $this->salesChannelDomainRepository->update([[
+            'id' => $domain->getId(),
+            'url' => $newUrl,
+        ]], $context);
 
         return self::SUCCESS;
     }
@@ -93,28 +94,12 @@ class SalesChannelReplaceUrlCommand extends Command
         return true;
     }
 
-    private function findDomainsByUrl(string $url, Context $context): SalesChannelDomainCollection
+    private function findDomainByUrl(string $url, Context $context): ?SalesChannelDomainEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('url', $url));
+        $criteria->setLimit(1);
 
-        return $this->salesChannelDomainRepository->search($criteria, $context)->getEntities();
-    }
-
-    /**
-     * @return array<int, array<string, string>>
-     */
-    private function buildUpdatePayload(SalesChannelDomainCollection $domains, string $newUrl): array
-    {
-        $payload = [];
-
-        foreach ($domains as $domain) {
-            $payload[] = [
-                'id' => $domain->getId(),
-                'url' => $newUrl,
-            ];
-        }
-
-        return $payload;
+        return $this->salesChannelDomainRepository->search($criteria, $context)->first();
     }
 }

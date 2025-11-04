@@ -869,33 +869,32 @@ export default {
                 seoUrls.map((seoUrl) => {
                     if (seoUrl.seoPathInfo) {
                         seoUrl.isModified = true;
-                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId)
-                            .catch((error) => {
-                                if (error.response && error.response.data && error.response.data.errors) {
-                                    error.response.data.errors.forEach((apiError) => {
-                                        const messageKey = `global.error-codes.${apiError.detail}`;
-                                        const params = apiError.meta?.parameters || {};
-                                        const translatedMessage = this.$tc(messageKey, 1, params);
+                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
+                            if (error.response && error.response.data && error.response.data.errors) {
+                                error.response.data.errors.forEach((apiError) => {
+                                    const messageKey = `global.error-codes.${apiError.detail}`;
+                                    const params = apiError.meta?.parameters || {};
+                                    const translatedMessage = this.$tc(messageKey, 1, params);
 
-                                        const errorMessage = translatedMessage !== messageKey
+                                    const errorMessage =
+                                        translatedMessage !== messageKey
                                             ? translatedMessage
-                                            : apiError.detail
-                                                || apiError.title
-                                                || this.$tc('global.notification.unspecifiedSaveErrorMessage');
+                                            : apiError.detail ||
+                                              apiError.title ||
+                                              this.$tc('global.notification.unspecifiedSaveErrorMessage');
 
-                                        this.createNotificationError({
-                                            message: errorMessage,
-                                        });
-                                    });
-                                } else {
                                     this.createNotificationError({
-                                        message: error.message
-                                            || this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                                        message: errorMessage,
                                     });
-                                }
+                                });
+                            } else {
+                                this.createNotificationError({
+                                    message: error.message || this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                                });
+                            }
 
-                                return Promise.reject(error);
-                            });
+                            return Promise.reject(error);
+                        });
                     }
 
                     return Promise.resolve();

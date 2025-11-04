@@ -174,7 +174,7 @@ class AppSecretRotationServiceTest extends TestCase
             ->method('registerApp')
             ->with(
                 $manifest,
-                $app,
+                $appId,
                 static::matchesRegularExpression('/^[A-Za-z0-9_-]+$/'),
                 $context
             );

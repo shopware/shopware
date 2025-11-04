@@ -86,7 +86,7 @@ class AppSecretRotationService
         $newSecret = AccessKeyHelper::generateSecretAccessKey();
 
         try {
-            $this->registrationService->registerApp($manifest, $app, $newSecret, $context);
+            $this->registrationService->registerApp($manifest, $appId, $newSecret, $context);
             // Commit the new integration to the app and schedule deletion of the old one to allow in-flight requests to complete.
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $newAccessKey, $newSecret, $currentIntegrationId): void {
                 $this->appRepository->update([

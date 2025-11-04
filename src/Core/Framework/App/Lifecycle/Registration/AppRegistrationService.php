@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -33,22 +34,30 @@ class AppRegistrationService
         private readonly EntityRepository $appRepository,
         private readonly string $shopUrl,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly string $shopwareVersion
+        private readonly string $shopwareVersion,
     ) {
     }
 
-    public function registerApp(Manifest $manifest, AppEntity $app, #[\SensitiveParameter] string $secretAccessKey, Context $context): void
+    public function registerApp(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): void
     {
         if (!$manifest->getSetup()) {
             return;
         }
 
+        $app = $this->fetchApp($id, $context);
+
         try {
-            $appName = $manifest->getMetadata()->getName();
             $appResponse = $this->registerWithApp($manifest, $app, $context);
 
             $secret = $appResponse['secret'];
             $confirmationUrl = $appResponse['confirmation_url'];
+
+            if ($secret === $app->getAppSecret()) {
+                throw AppException::registrationFailed(
+                    $app->getName(),
+                    'The new app secret returned from the App must be different from the current one.'
+                );
+            }
 
             // Sign confirmation with dual signatures for re-registration
             // shopware-shop-signature (new secret) + shopware-shop-signature-previous (current secret)
@@ -62,13 +71,13 @@ class AppRegistrationService
                 $data = json_decode($response->getBody()->getContents(), true);
 
                 if (isset($data['error']) && \is_string($data['error'])) {
-                    throw AppException::registrationFailed($appName, $data['error']);
+                    throw AppException::registrationFailed($app->getName(), $data['error']);
                 }
             }
 
-            throw AppException::registrationFailed($appName, $e->getMessage(), $e);
+            throw AppException::registrationFailed($app->getName(), $e->getMessage(), $e);
         } catch (GuzzleException $e) {
-            throw AppException::registrationFailed($appName, $e->getMessage(), $e);
+            throw AppException::registrationFailed($app->getName(), $e->getMessage(), $e);
         }
     }
 
@@ -196,5 +205,18 @@ class AppRegistrationService
     private function signPayload(array $body, #[\SensitiveParameter] string $secret): string
     {
         return hash_hmac('sha256', json_encode($body, \JSON_THROW_ON_ERROR), $secret);
+    }
+
+    private function fetchApp(string $id, Context $context): AppEntity
+    {
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('integration');
+
+        $app = $this->appRepository->search($criteria, $context)->get($id);
+        if (!$app instanceof AppEntity) {
+            throw AppException::notFoundByField($id, 'id');
+        }
+
+        return $app;
     }
 }

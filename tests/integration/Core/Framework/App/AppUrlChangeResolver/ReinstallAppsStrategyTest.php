@@ -65,7 +65,7 @@ class ReinstallAppsStrategyTest extends TestCase
             ->method('registerApp')
             ->with(
                 static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
-                static::callback(static fn (AppEntity $appEntity): bool => $appEntity->getId() === $app->getId()),
+                $app->getId(),
                 static::isString(),
                 static::isInstanceOf(Context::class)
             );

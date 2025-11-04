@@ -44,7 +44,7 @@ class ContentElementHydrator
             }
         }
 
-        foreach ($element->getSlots()->allElements() as $child) {
+        foreach ($element->allSlotElements() as $child) {
             $this->hydrateElement($child, $context);
         }
     }

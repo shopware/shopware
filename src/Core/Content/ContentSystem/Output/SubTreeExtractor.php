@@ -39,7 +39,7 @@ class SubTreeExtractor
             return $root;
         }
 
-        foreach ($root->getSlots()->allElements() as $child) {
+        foreach ($root->allSlotElements() as $child) {
             $found = $this->findElement($child, $targetId);
             if ($found !== null) {
                 return $found;

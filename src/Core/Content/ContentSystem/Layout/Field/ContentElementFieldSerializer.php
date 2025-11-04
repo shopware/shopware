@@ -8,7 +8,6 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\ElementSlots;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -125,8 +124,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         // Lazy-loaded to break circular dependency
         $slotsField = new ElementSlotsField('slots', 'slots');
         $slots = isset($data['slots']) && \is_array($data['slots'])
-            ? ($this->elementSlotsSerializer->decode($slotsField, $data['slots']) ?? ElementSlots::empty())
-            : ElementSlots::empty();
+            ? ($this->elementSlotsSerializer->decode($slotsField, $data['slots']) ?? [])
+            : [];
 
         return new ContentElement(
             id: $data['id'],
@@ -160,8 +159,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             $array['data_requirements'] = $serializedRequirements;
         }
 
-        if (!$element->getSlots()->isEmpty()) {
-            $array['slots'] = $this->elementSlotsSerializer->serializeElementSlots($element->getSlots());
+        if ($element->hasSlots()) {
+            $array['slots'] = $this->elementSlotsSerializer->serializeSlots($element->getSlots());
         }
 
         $providers = $element->getProvidesContext();

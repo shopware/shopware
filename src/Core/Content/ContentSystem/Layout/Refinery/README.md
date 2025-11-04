@@ -83,7 +83,7 @@ class CustomRefiner implements LayoutRefinerInterface
     private function applyProductCustomizations(ContentElement $element, string $productId): void
     {
         // Custom logic here
-        foreach ($element->getSlots()->allElements() as $child) {
+        foreach ($element->allSlotElements() as $child) {
             $this->applyProductCustomizations($child, $productId);
         }
     }

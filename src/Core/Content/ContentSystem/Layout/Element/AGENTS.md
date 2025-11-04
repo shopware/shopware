@@ -4,8 +4,7 @@
 
 ## Source Code References
 
-- `ContentElement` - Tree aggregate root
-- `ElementSlots` (Slot/) - Slots container
+- `ContentElement` - Tree aggregate root (slots stored as `array<string, SlotContent>`)
 - `SlotContent` (Slot/) - Collection of elements per slot
 - `ContextProvider`, `ContextConsumer` (Context/) - Context definitions
 - `ContextDependencyAnalyzer` (Context/) - Analyzes context dependency chains
@@ -27,18 +26,18 @@ $value = $element->getProperty('nonExistent');  // null, NOT exception
 $value = $element->getProperty('exists') ?? 'default';
 ```
 
-### Generator Pattern: allElements()
+### Generator Pattern: allSlotElements()
 
 Memory-efficient tree traversal. DO NOT convert to array.
 
 ```php
 // Right: Direct iteration
-foreach ($element->getSlots()->allElements() as $childElement) {
+foreach ($element->allSlotElements() as $childElement) {
     // Process each element
 }
 
 // Wrong: Converting to array
-$all = iterator_to_array($slots->allElements());  // DON'T DO THIS
+$all = iterator_to_array($element->allSlotElements());  // DON'T DO THIS
 ```
 
 ## Context System
@@ -107,8 +106,9 @@ Replaces placeholders with values from ResolvedData. Only scalar values replaced
 
 - **Constructor**: Requires `id` and `type`, rest optional with defaults
 - **Property access**: Null-safe getters, use `hasProperty()` or null coalescing
-- **Slots**: Multiple elements per slot (SlotContent is collection)
-- **Generator**: `allElements()` for memory-efficient traversal
+- **Slots**: Array of SlotContent, multiple elements per slot (SlotContent is collection)
+- **Generator**: `allSlotElements()` for memory-efficient traversal of direct slot elements
+- **Slot access**: `getSlots()` returns `array<string, SlotContent>`, use `hasSlots()` or `slotsIsEmpty()` to check
 - **Context**: Provider exposes, consumer receives, matched by key
 - **Context redistribution**: `ContextConsumer::$redistribute` auto-generates provider (see ContextConsumer class)
 - **Data requirements**: Key determines property storage after hydration

@@ -6,7 +6,6 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\ElementSlots;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PathFinderVisitor;
 use Shopware\Core\Framework\Log\Package;
@@ -134,7 +133,7 @@ class ElementTreeUtil
             type: $currentElement->getType(),
             dataRequirements: $currentElement->getDataRequirements(),
             properties: $currentElement->getProperties(),
-            slots: new ElementSlots([$slotName => new SlotContent([$child])]),
+            slots: [$slotName => new SlotContent([$child])],
             contextDefinitions: new ContextDefinitions(
                 $currentElement->getProvidesContext(),
                 $currentElement->getAcceptsContext()
@@ -160,7 +159,7 @@ class ElementTreeUtil
      */
     private function findDirectChild(ContentElement $parent, string $childId): ?ContentElement
     {
-        foreach ($parent->getSlots()->allElements() as $child) {
+        foreach ($parent->allSlotElements() as $child) {
             if ($child->getId() === $childId) {
                 return $child;
             }

@@ -13,7 +13,21 @@ class ContextConsumer
 {
     public function __construct(
         public readonly ContextType $type,
-        public readonly bool $required
+        public readonly bool $required,
+        public readonly bool $redistribute = false,
+        public readonly ?string $consumerAlias = null
     ) {
+    }
+
+    /**
+     * Returns the provider key that this consumer generates when redistribute is enabled.
+     */
+    public function getGeneratedProviderKey(string $consumerKey): ?string
+    {
+        if (!$this->redistribute) {
+            return null;
+        }
+
+        return $this->consumerAlias ?? $consumerKey;
     }
 }

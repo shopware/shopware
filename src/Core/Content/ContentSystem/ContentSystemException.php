@@ -43,6 +43,9 @@ class ContentSystemException extends HttpException
     public const INVALID_CATEGORY_PATH = 'CONTENT_SYSTEM__INVALID_CATEGORY_PATH';
     public const INVALID_LANDING_PAGE_PATH = 'CONTENT_SYSTEM__INVALID_LANDING_PAGE_PATH';
     public const CONTEXT_PATH_NOT_RESOLVABLE = 'CONTENT_SYSTEM__CONTEXT_PATH_NOT_RESOLVABLE';
+    public const REDISTRIBUTE_DOTTED_PATH = 'CONTENT_SYSTEM__REDISTRIBUTE_DOTTED_PATH';
+    public const REDISTRIBUTE_CONFLICT = 'CONTENT_SYSTEM__REDISTRIBUTE_CONFLICT';
+    public const CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE = 'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE';
 
     public static function contentNotFound(string $pathInfo): self
     {
@@ -327,6 +330,36 @@ class ContentSystemException extends HttpException
             self::INVALID_LANDING_PAGE_PATH,
             'Invalid landing page path format: "{{ path }}". Expected format: /landing-page/{landingPageId}',
             ['path' => $path]
+        );
+    }
+
+    public static function redistributeWithDottedPath(string $contextKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REDISTRIBUTE_DOTTED_PATH,
+            'Context key "{{ key }}" uses dot notation and cannot be redistributed. Only base keys support redistribution.',
+            ['key' => $contextKey]
+        );
+    }
+
+    public static function redistributeConflict(string $contextKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REDISTRIBUTE_CONFLICT,
+            'Context key "{{ key }}" has both redistribute:true and explicit provides_context. Use one or the other.',
+            ['key' => $contextKey]
+        );
+    }
+
+    public static function consumerAliasWithoutRedistribute(string $contextKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
+            'Context key "{{ key }}" has consumer_alias but redistribute is not true. consumer_alias requires redistribute:true.',
+            ['key' => $contextKey]
         );
     }
 

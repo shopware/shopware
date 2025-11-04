@@ -1,39 +1,17 @@
-# Field
-
 @README.md
-
-## Purpose
-
-DAL Serialization Infrastructure. **These are technical infrastructure, not architectural modules.**
-
-## Source Code References
-
-- `ContentElementField` + `ContentElementFieldSerializer` - ContentElement tree serialization
-- `ElementSlotsField` + `ElementSlotsFieldSerializer` - Slot collection serialization
-- `DataRequirementsField` + Serializer - Data requirement map serialization
-- `ContextProvidersField` + Serializer - Context provider serialization
-- `ContextConsumersField` + Serializer - Context consumer serialization
 
 ## Constraints
 
-### Field + Serializer Pairs
+### Parse-Time Redistribution Expansion
 
-Each field has matching serializer. See respective classes for implementation.
+`ContentElementFieldSerializer::expandRedistributeFlags()` generates virtual providers from `redistribute: true` during deserialization.
 
-### Five Custom Field Types
+**Key Methods:**
 
-1. **ContentElementField**: Serializes ContentElement trees (JSON storage, recursive)
-2. **ElementSlotsField**: Serializes slot collections (JSON storage)
-3. **DataRequirementsField**: Serializes data requirement maps (JSON storage, indexed by key)
-4. **ContextProvidersField**: Serializes context providers (JSON storage)
-5. **ContextConsumersField**: Serializes context consumers (JSON storage)
+- `expandRedistributeFlags(array $providers, array $consumers): array` - Generates virtual providers from redistribute flags
+- `isVirtualProvider(string $providerKey, array $consumers): bool` - Identifies auto-generated providers
 
-All serialize to JSON in database.
-
-## Quick Reference
-
-- **Purpose**: DAL serialization infrastructure, not domain modules
-- **Five types**: ContentElement, ElementSlots, DataRequirements, ContextProviders, ContextConsumers
-- **Storage**: All serialize to JSON
-- **Usage**: Only in EntityDefinition field definitions
-- **Serialization**: Automatic via repository, recursive for nested structures
+**Validation Rules:**
+- Rejects dotted paths (e.g., `product.cover`) with redistribute
+- Detects conflicts with explicit providers for same key
+- Throws exceptions for invalid configurations

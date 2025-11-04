@@ -20,8 +20,6 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Serializes context consumers map to/from JSON.
- *
  * @internal
  */
 #[Package('discovery')]
@@ -100,16 +98,26 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Public for ContentElementFieldSerializer to serialize nested consumers.
+     * Serializes ContextConsumer to array format.
      *
      * @return array<string, mixed>
      */
     public function serializeContextConsumer(ContextConsumer $consumer): array
     {
-        return [
+        $data = [
             'type' => $consumer->type->value,
             'required' => $consumer->required,
         ];
+
+        if ($consumer->redistribute) {
+            $data['redistribute'] = true;
+        }
+
+        if ($consumer->consumerAlias !== null) {
+            $data['consumer_alias'] = $consumer->consumerAlias;
+        }
+
+        return $data;
     }
 
     protected function getConstraints(Field $field): array
@@ -126,7 +134,7 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Deserializes a context consumer from configuration array.
+     * Creates ContextConsumer from config array, validates consumer_alias requires redistribute
      *
      * @param array<string, mixed> $config
      */
@@ -134,10 +142,19 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
     {
         $type = ContextType::from($config['type'] ?? 'single');
         $required = $config['required'] ?? false;
+        $redistribute = $config['redistribute'] ?? false;
+        $consumerAlias = $config['consumer_alias'] ?? null;
+
+        // Validate: consumer_alias requires redistribute: true
+        if ($consumerAlias !== null && !$redistribute) {
+            throw ContentSystemException::consumerAliasWithoutRedistribute($key);
+        }
 
         return new ContextConsumer(
             type: $type,
-            required: $required
+            required: $required,
+            redistribute: $redistribute,
+            consumerAlias: $consumerAlias
         );
     }
 }

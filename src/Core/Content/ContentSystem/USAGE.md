@@ -803,11 +803,14 @@ Fields:
   - `"keyed"` - Children receive data by their `data_key` property
   - `"sliced"` - Data split into chunks for each child
   - `"iterator"` - Round-robin distribution
-- `consumer_alias` (optional) - Property name consumers use to receive context. When not specified, consumers use the provider's context key. Useful when provider key ("featuredProducts") differs from what consumers receive ("product")
+- `consumer_alias` (optional) - Renames context key for child elements. Allows reusable components to work with different data sources without modification.
 
 Note: The context key in `provides_context` typically matches a property name loaded by `data_requirements`.
 
-Example with consumer alias:
+**Consumer Alias Example:**
+
+**Use case:** You have reusable product card components that expect data as `"product"`. Your homepage loads featured products as `"featuredProducts"`, but you want to use the same product cards without modifying them.
+
 ```json
 "provides_context": {
   "featuredProducts": {
@@ -817,7 +820,8 @@ Example with consumer alias:
   }
 }
 ```
-Children receive context as "product" property instead of "featuredProducts".
+
+The provider loads data as `featuredProducts`, but child components receive it as `product`. This lets you reuse the same product card in homepage (featuredProducts), categories (categoryProducts), and search (searchResults) - all expecting `product` internally.
 
 ### Consumer Configuration
 
@@ -922,21 +926,15 @@ Consumers can request nested properties from context using dot notation. When a 
 
 Strategy determines how provider data is distributed to direct children.
 
-**Broadcast** - All direct children receive identical data
-Use case: Product detail page where all children display the same product
+**Broadcast** - All children receive identical data (e.g., product detail page with shared product)
 
-**Indexed** - Children receive data based on position. Child at index N gets data[N]
-Use case: Top 3 products in specific slots
+**Indexed** - Children receive data by position: child[N] gets data[N] (e.g., top 3 products in specific slots)
 
-**Keyed** - Children receive data based on their `data_key` property matching keys in provider's data
-Use case: Different product types in different sections (featured, sale, new arrivals)
-Consumer needs: `"properties": {"data_key": "featured"}`
+**Keyed** - Children receive data by matching their `data_key` property to provider keys (e.g., different sections for featured/sale/new products). Consumers need `"properties": {"data_key": "featured"}`.
 
-**Sliced** - Provider data split into chunks, each child gets a chunk
-Use case: 12 products displayed across 3 columns (4 products per column)
+**Sliced** - Data split into chunks per child (e.g., 12 products across 3 columns = 4 per column)
 
-**Iterator** - Distributes items round-robin across children
-Use case: 10 products across 3 slots with even distribution
+**Iterator** - Round-robin distribution (e.g., 10 products distributed evenly across 3 slots)
 
 ### Context Flow Rules
 
@@ -959,6 +957,87 @@ Context flows from ancestors to descendants, never sideways or upward.
 Distribution strategy applies only to direct children. Deeper descendants do NOT receive context unless intermediate elements explicitly re-provide it.
 
 Practical implication: Place consumers as direct children of provider for strategies to work as intended. For multi-level context, intermediate elements must both accept and re-provide context.
+
+### Context Redistribution
+
+**The Problem:** You build reusable layout components (product cards, content blocks, sliders) that need to work in different places - homepage grids, category listings, search results. When you nest these components inside container elements (grids, sections, columns), the container needs to pass data through to the nested components.
+
+**Example scenario:** A product grid contains product cards. The grid receives product data and needs to pass it to each card. Without redistribution, you must configure both `accepts_context` (to receive data) AND `provides_context` (to pass it along) on the grid - verbose and repetitive.
+
+**The Solution:** Use `redistribute: true` to automatically pass context through container elements.
+
+**Comparison:**
+
+```json
+// Without redistribution - manual configuration (verbose)
+"accepts_context": {"product": {"type": "single", "required": true}},
+"provides_context": {"product": {"type": "single", "distribution": "broadcast"}}
+
+// With redistribution - automatic pass-through (concise)
+"accepts_context": {"product": {"type": "single", "required": true, "redistribute": true}}
+```
+
+Both produce identical results. The container automatically passes data to all children.
+
+#### Consumer Alias with Redistribution
+
+You can rename the context key when redistributing. Useful when your reusable component expects different naming than what it receives.
+
+**Example:** Container receives `featuredProduct`, but child product cards expect `product`:
+
+```json
+"accepts_context": {
+  "featuredProduct": {
+    "type": "single",
+    "required": true,
+    "redistribute": true,
+    "consumer_alias": "product"
+  }
+}
+```
+
+Container accepts `featuredProduct`, children receive `product`. Reuse the same product card components everywhere.
+
+#### Choosing Your Approach
+
+**Use `redistribute: true` for simple pass-through:**
+- Container elements that just pass data to children unchanged
+- All children need the same data (automatic broadcast)
+- Quick setup with minimal configuration
+
+**Use full `provides_context` configuration for advanced scenarios:**
+- Different distribution strategies (indexed, keyed, sliced, iterator) - see [Distribution Strategies](#distribution-strategies)
+- Need specific nested properties like `product.cover`
+- Transforming or splitting data before passing to children
+
+#### Reusable Components in Nested Layouts
+
+**Real-world scenario:** You build a product card component that shows title, price, and image. This card should work whether placed directly on a page, inside a grid, within a section, or nested in a slider. Each container just needs to pass the product data through.
+
+**Build once, use anywhere:** Redistribution cascades through multiple container levels automatically. Your reusable components work in any context without reconfiguration.
+
+**Example:** Product page → content section → product card → title element
+
+```json
+{
+  "id": "product-page",
+  "provides_context": {"product": {"type": "single", "distribution": "broadcast"}},
+  "slots": {
+    "main": [{
+      "id": "content-section",
+      "accepts_context": {"product": {"type": "single", "required": true, "redistribute": true}},
+      "slots": {
+        "content": [{
+          "id": "product-title",
+          "accepts_context": {"product.name": {"type": "single", "required": true}}
+        }]
+      }
+    }]
+  }
+}
+```
+
+The `content-section` container automatically passes product data to nested components. Move this section to different pages - it still works.
 
 ### Context Example
 

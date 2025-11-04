@@ -123,8 +123,8 @@ jobs:
 
   openapi-lint:
     runs-on: ubuntu-24.04
-    permissions:
-      id-token: write
+    # permissions:
+    #   id-token: write
     env:
       APP_ENV: prod
       APP_URL: http://localhost:8000

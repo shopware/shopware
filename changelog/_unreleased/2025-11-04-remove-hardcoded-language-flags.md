@@ -1,6 +1,6 @@
 ---
 title: Remove hardcoded language flags from storefront
-issue: NEXT-4750
+issue: 4750
 flag: v6.8.0.0
 author: Björn Meyer
 author_email: b.meyer@shopware.com

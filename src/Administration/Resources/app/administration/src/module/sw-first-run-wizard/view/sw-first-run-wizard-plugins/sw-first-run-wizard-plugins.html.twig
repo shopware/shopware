@@ -1,8 +1,9 @@
 {% block sw_first_run_wizard_plugins %}
 <div class="sw-first-run-wizard-plugins">
-    <h3 class="recommended-plugins__headline">
+    <h3 class="recommended-plugins__headline recommended-plugins__headline-main">
         {{ $tc('sw-first-run-wizard.recommendedPlugins.headline') }}
     </h3>
+
     <p
         class="recommended-plugins__description"
         v-html="$tc('sw-first-run-wizard.recommendedPlugins.message')"
@@ -10,6 +11,7 @@
 
     <div class="select-region">
         <p>{{ $tc('sw-first-run-wizard.recommendedPlugins.availableInRegion') }}</p>
+
         <div class="regions">
             <sw-label
                 v-for="region in regions"
@@ -32,6 +34,7 @@
         class="select-category"
     >
         <p>{{ $tc('sw-first-run-wizard.recommendedPlugins.category') }}</p>
+
         <div class="categories">
             <sw-label
                 v-for="category in categories"

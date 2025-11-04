@@ -4,6 +4,8 @@ import { TelemetryEvent } from './types';
 import TaggedButtons from './ElementQueries/tagged-buttons';
 
 describe('src/core/telemetry/index.js', () => {
+    let mockLoginService;
+
     beforeEach(() => {
         global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         jest.useFakeTimers({
@@ -11,6 +13,18 @@ describe('src/core/telemetry/index.js', () => {
         });
 
         document.body = document.createElement('body');
+
+        mockLoginService = {
+            addOnLoginListener: jest.fn(),
+            addOnLogoutListener: jest.fn(),
+        };
+
+        Shopware.Service = jest.fn((serviceName) => {
+            if (serviceName === 'loginService') {
+                return mockLoginService;
+            }
+            return undefined;
+        });
     });
 
     it('throws exception if initialized twice', () => {
@@ -25,7 +39,7 @@ describe('src/core/telemetry/index.js', () => {
 
     describe('manual tracking', () => {
         it('should track a custom event', () => {
-            const telemetry = new Telemetry([]);
+            const telemetry = new Telemetry({ queries: [] });
             const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
             telemetry.track({ test: 'test-action' });
@@ -36,23 +50,50 @@ describe('src/core/telemetry/index.js', () => {
                 new TelemetryEvent('programmatic', { test: 'test-action' }),
             );
         });
+    });
 
-        it('should track identify events', () => {
-            const telemetry = new Telemetry([]);
+    describe('user changes', () => {
+        it('should dispatch identify event when user logs in', () => {
+            const telemetry = new Telemetry({ queries: [] });
             const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
-            telemetry.identify('user-id', 'device-id', 'en-US', ['product:read']);
+            const currentUser = {
+                id: '8b8ebef4-7fa3-4844-ab7e-120463ea558b',
+                admin: true,
+            };
+            Shopware.Store.get('session').currentUser = currentUser;
 
-            expect(eventBusSpy).toHaveBeenCalled();
+            let loginCallback;
+            mockLoginService.addOnLoginListener.mockImplementation((callback) => {
+                loginCallback = callback;
+            });
+
+            telemetry.initialize();
+            loginCallback();
+
             expect(eventBusSpy).toHaveBeenCalledWith(
                 'telemetry',
                 new TelemetryEvent('identify', {
-                    userId: 'user-id',
-                    deviceId: 'device-id',
-                    locale: 'en-US',
-                    permissions: ['product:read'],
+                    userId: currentUser.id,
+                    locale: null,
+                    isAdmin: currentUser.admin,
                 }),
             );
+        });
+
+        it('should dispatch reset event when user logs out', () => {
+            const telemetry = new Telemetry({ queries: [] });
+            const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+            let logoutCallback;
+            mockLoginService.addOnLogoutListener.mockImplementation((callback) => {
+                logoutCallback = callback;
+            });
+
+            telemetry.initialize();
+            logoutCallback();
+
+            expect(eventBusSpy).toHaveBeenCalledWith('telemetry', new TelemetryEvent('reset', {}));
         });
     });
 
@@ -210,7 +251,7 @@ describe('src/core/telemetry/index.js', () => {
 
     describe('debug', () => {
         it('registers a listener if debug is turned on', async () => {
-            const telemetry = new Telemetry({ queries: [] }, true);
+            const telemetry = new Telemetry({ queries: [] });
             telemetry.initialize();
 
             const onSpy = jest.spyOn(Shopware.Utils.EventBus, 'on');
@@ -226,7 +267,7 @@ describe('src/core/telemetry/index.js', () => {
         });
 
         it('collects all observed nodes when debug is turned on', async () => {
-            const telemetry = new Telemetry({ queries: [TaggedButtons] }, true);
+            const telemetry = new Telemetry({ queries: [TaggedButtons] });
 
             telemetry.initialize();
             telemetry.debug = true;

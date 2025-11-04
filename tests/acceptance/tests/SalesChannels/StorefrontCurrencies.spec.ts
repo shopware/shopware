@@ -1,4 +1,4 @@
-import { getCurrencyCodeFromLocale, getCurrencySymbolFromLocale, getLocale, test } from '@fixtures/AcceptanceTest';
+import { getCurrencySymbolFromLocale, getLocale, test } from '@fixtures/AcceptanceTest';
 
 test(
     'Shop customers should be able to view products in different currencies.',

@@ -1,5 +1,4 @@
-import { test } from '@fixtures/AcceptanceTest';
-import { getLocale, getCurrencySymbolFromLocale } from '@shopware-ag/acceptance-test-suite';
+import { test, getLocale, getCurrencySymbolFromLocale } from '@fixtures/AcceptanceTest';
 
 const currencyIcon = getCurrencySymbolFromLocale(getLocale());
 test(

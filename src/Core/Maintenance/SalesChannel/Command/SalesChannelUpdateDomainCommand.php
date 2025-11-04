@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[AsCommand(
     name: 'sales-channel:update:domain',
-    description: 'Updates a sales channel domain with a new domain for all or specific sales channels',
+    description: 'Updates the sales channel domain with a new domain for all or specific sales channels matching the previous domain, except headless sales channels',
 )]
 #[Package('discovery')]
 class SalesChannelUpdateDomainCommand extends Command

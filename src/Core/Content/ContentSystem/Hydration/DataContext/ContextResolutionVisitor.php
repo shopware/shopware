@@ -8,15 +8,13 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Visitor implementing context resolution with provider shadowing.
+ * Visitor implementing direct-children-only context distribution.
  *
  * @internal
  */
 #[Package('discovery')]
 class ContextResolutionVisitor implements ElementVisitor
 {
-    private readonly DataContextStack $stack;
-
     /**
      * @param iterable<DistributionStrategyInterface> $strategies
      */
@@ -24,7 +22,6 @@ class ContextResolutionVisitor implements ElementVisitor
         private readonly iterable $strategies,
         private readonly ContextPathResolver $pathResolver
     ) {
-        $this->stack = new DataContextStack();
     }
 
     public function enter(ContentElement $element): void
@@ -38,8 +35,6 @@ class ContextResolutionVisitor implements ElementVisitor
                 $distribution = $distributionConfig->getStrategy()->value;
 
                 if ($data !== null) {
-                    $this->stack->push($contextKey, $data, $distribution);
-
                     $this->distributeContextToChildren(
                         $element,
                         $contextKey,
@@ -50,52 +45,11 @@ class ContextResolutionVisitor implements ElementVisitor
                 }
             }
         }
-
-        $acceptsContext = $element->getAcceptsContext();
-        if ($acceptsContext !== []) {
-            foreach ($acceptsContext as $contextKey => $consumerDef) {
-                if ($element->hasProperty($contextKey)) {
-                    continue;
-                }
-
-                [$baseKey, $path] = ContextPathResolver::parseContextKey($contextKey);
-
-                if (!$this->stack->has($baseKey)) {
-                    continue;
-                }
-
-                $contextData = $this->stack->get($baseKey);
-                if ($contextData === null) {
-                    continue;
-                }
-
-                if ($path === []) {
-                    $element->setProperty($contextKey, $contextData->data);
-                    continue;
-                }
-
-                $resolvedValue = $this->pathResolver->resolvePath(
-                    $contextData->data,
-                    $path,
-                    $consumerDef->required,
-                    $contextKey,
-                    $element->getId()
-                );
-
-                $element->setProperty($contextKey, $resolvedValue);
-            }
-        }
     }
 
     public function leave(ContentElement $element): void
     {
-        $providesContext = $element->getProvidesContext();
-
-        if ($providesContext !== []) {
-            foreach ($providesContext as $contextKey => $providerDef) {
-                $this->stack->pop($contextKey);
-            }
-        }
+        // No-op: direct-children-only distribution requires no cleanup
     }
 
     /**
@@ -108,16 +62,16 @@ class ContextResolutionVisitor implements ElementVisitor
         string $distribution,
         array $config
     ): void {
-        $consumers = $providerElement->collectConsumers($contextKey);
+        $distributionConfig = $providerElement->getProvidesContext()[$contextKey]->getDistribution();
+        $consumerKey = $distributionConfig->getConsumerAlias() ?? $contextKey;
+
+        $consumers = $providerElement->collectConsumers($consumerKey);
 
         if ($consumers === []) {
             return;
         }
 
         $strategy = $this->findStrategy($distribution);
-
-        $distributionConfig = $providerElement->getProvidesContext()[$contextKey]->getDistribution();
-        $consumerKey = $distributionConfig->getConsumerAlias() ?? $contextKey;
 
         if ($strategy === null) {
             foreach ($consumers as $consumer) {

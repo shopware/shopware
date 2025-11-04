@@ -767,7 +767,7 @@ Example: A product page with title, price, and images all showing the same produ
 
 ### Provider Configuration
 
-Provider exposes data as context for descendants using `provides_context`.
+Provider exposes data as context for direct children using `provides_context`.
 
 ```json
 {
@@ -956,9 +956,9 @@ Context flows from ancestors to descendants, never sideways or upward.
   Consumer (title)               ← Siblings cannot share
 ```
 
-Distribution strategy applies only to direct children. Deeper descendants always receive like broadcast.
+Distribution strategy applies only to direct children. Deeper descendants do NOT receive context unless intermediate elements explicitly re-provide it.
 
-Practical implication: Place consumers as direct children of provider for strategies to work as intended.
+Practical implication: Place consumers as direct children of provider for strategies to work as intended. For multi-level context, intermediate elements must both accept and re-provide context.
 
 ### Context Example
 

@@ -26,10 +26,10 @@ Elements declare what they need via DataRequirements. Hydrator satisfies require
 
 After loading, DataContextResolver walks tree:
 - Elements with ContextProvider expose data as context
-- Context flows down tree to descendant consumers
+- Context flows to direct children only
 - Elements with ContextConsumer receive context in properties
 
-Context scoped to subtree - provider only affects descendants. See DataContext/ for distribution algorithm.
+Context scoped to immediate children only - provider only affects direct children. Deeper descendants require explicit re-providing. See DataContext/ for distribution algorithm.
 
 ## DataRequirement Structure
 

@@ -1640,7 +1640,8 @@
                 "provides_context": {
                   "products": {
                     "type": "collection",
-                    "distribution": "iterator"
+                    "distribution": "iterator",
+                    "consumer_alias": "product"
                   }
                 },
                 "slots": {
@@ -1785,7 +1786,8 @@
                 "provides_context": {
                   "products": {
                     "type": "collection",
-                    "distribution": "iterator"
+                    "distribution": "iterator",
+                    "consumer_alias": "product"
                   }
                 },
                 "slots": {
@@ -1854,7 +1856,8 @@
                       "provides_context": {
                         "products": {
                           "type": "collection",
-                          "distribution": "iterator"
+                          "distribution": "iterator",
+                          "consumer_alias": "product"
                         }
                       },
                       "slots": {
@@ -1947,9 +1950,15 @@
                         "mediaHeight": 400
                       },
                       "accepts_context": {
-                        "featuredProducts": {
+                        "product": {
                           "type": "single",
                           "required": true
+                        }
+                      },
+                      "provides_context": {
+                        "product": {
+                          "type": "single",
+                          "distribution": "broadcast"
                         }
                       },
                       "slots": {
@@ -1961,7 +1970,7 @@
                               "size": "large"
                             },
                             "accepts_context": {
-                              "featuredProducts.cover": {
+                              "product.cover": {
                                 "type": "single",
                                 "required": true
                               }
@@ -1974,7 +1983,7 @@
                               "style": "manufacturer-badge"
                             },
                             "accepts_context": {
-                              "featuredProducts.manufacturer.name": {
+                              "product.manufacturer.name": {
                                 "type": "single",
                                 "required": false
                               }
@@ -1991,9 +2000,15 @@
                         "mediaHeight": 300
                       },
                       "accepts_context": {
-                        "featuredProducts": {
+                        "product": {
                           "type": "single",
                           "required": true
+                        }
+                      },
+                      "provides_context": {
+                        "product": {
+                          "type": "single",
+                          "distribution": "broadcast"
                         }
                       },
                       "slots": {
@@ -2005,7 +2020,7 @@
                               "size": "medium"
                             },
                             "accepts_context": {
-                              "featuredProducts.cover": {
+                              "product.cover": {
                                 "type": "single",
                                 "required": true
                               }
@@ -2027,6 +2042,12 @@
                           "required": true
                         }
                       },
+                      "provides_context": {
+                        "product": {
+                          "type": "single",
+                          "distribution": "broadcast"
+                        }
+                      },
                       "slots": {
                         "overlay": [
                           {
@@ -2036,7 +2057,7 @@
                               "size": "medium"
                             },
                             "accepts_context": {
-                              "featuredProducts.cover": {
+                              "product.cover": {
                                 "type": "single",
                                 "required": true
                               }
@@ -2191,7 +2212,8 @@
           "provides_context": {
             "spreadProducts": {
               "type": "collection",
-              "distribution": "sliced"
+              "distribution": "sliced",
+              "consumer_alias": "products"
             }
           },
           "slots": {
@@ -2454,7 +2476,8 @@
                 "provides_context": {
                   "products": {
                     "type": "collection",
-                    "distribution": "iterator"
+                    "distribution": "iterator",
+                    "consumer_alias": "product"
                   }
                 },
                 "slots": {
@@ -2518,7 +2541,8 @@
           "provides_context": {
             "bundleProducts": {
               "type": "collection",
-              "distribution": "broadcast"
+              "distribution": "broadcast",
+              "consumer_alias": "products"
             }
           },
           "slots": {

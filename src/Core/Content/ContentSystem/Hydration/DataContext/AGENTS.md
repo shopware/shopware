@@ -4,13 +4,9 @@
 
 ## Coding Patterns
 
-### Stack-Based Scoping with Immediate Distribution
+### Direct-Children-Only Distribution
 
-Context distribution uses two mechanisms: stack (for descendants) and immediate distribution (for direct children). See `ContextResolutionVisitor::enter()` and `distributeContextToChildren()` for implementation.
-
-### Shadow Semantics
-
-Inner providers shadow outer for same context key. Last pushed value wins - consumers receive from innermost provider. See `DataContextStack` for implementation.
+Context distributed only to immediate children. Deeper descendants require explicit re-providing. See `ContextResolutionVisitor::enter()` and `distributeContextToChildren()` for implementation.
 
 ### Distribution Strategies
 
@@ -33,7 +29,7 @@ Consumers can use dot notation in context keys to access nested properties: `pro
 - `ContextPathResolver::resolvePath()` traverses Struct objects using `getVars()`
 - Only works with Struct instances (all DAL entities)
 - Path resolution happens in `ContextResolutionVisitor::setContextForConsumer()`
-- Stack lookups use base key, then resolve path on retrieved data
+- Direct distribution lookups use base key, then resolve path on retrieved data
 - Throws exception if `required: true` and path fails
 
 **Usage**:
@@ -44,25 +40,16 @@ Consumers can use dot notation in context keys to access nested properties: `pro
 }
 
 // System resolves automatically:
-// 1. Finds "product" in stack/distribution
+// 1. Finds "product" in direct distribution from parent
 // 2. Calls getVars() on product entity
 // 3. Returns $vars['cover']
 ```
 
-## Common Mistakes
-
-### 1. Modifying Stack During Traversal
-
-**Wrong**: Manual stack manipulation during resolution
-
-**Right**: Use provider/consumer definitions, let resolver handle stack
-
 ## Quick Reference
 
-- **Two mechanisms**: Stack (descendants) + Immediate distribution (direct children)
-- **Shadow semantics**: Inner provider shadows outer for same context key
-- **Strategy scope**: Only applies to direct children, deeper descendants use stack
-- **Stack manipulation**: Never push/pop manually, use provider/consumer definitions
+- **Single mechanism**: Direct distribution to immediate children only
+- **Re-providing required**: Multi-level context needs explicit `accepts_context` + `provides_context` at each level
+- **Strategy scope**: Only applies to direct children
 - **Strategies**: Broadcast (shared), Indexed (position), Keyed (named), Sliced (chunks), Iterator (round-robin)
 - **Path resolution**: Use dot notation in context keys (`product.cover`) to access nested Struct properties
 - **Path requirements**: Only Struct objects, `getVars()` used for traversal, arbitrary depth supported

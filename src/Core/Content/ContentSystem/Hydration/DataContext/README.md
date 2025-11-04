@@ -13,29 +13,23 @@ Avoids tight coupling because intermediate elements don't need to know about con
 - `DataContextResolver` - Entry point, orchestrates distribution
 - `DistributionStrategy` - Determines which consumers receive which context
 - `ContextResolutionVisitor` - Traverses tree, resolves context
-- `DataContextStack` - Stack of active contexts during traversal
 - `ContextType` - Context type identifier
 
 ## Distribution Algorithm
 
-Stack-based scoping with immediate distribution:
+Direct-children-only distribution:
 
 ```
-Walk tree with context stack:
+Walk tree:
   On element.enter():
     If element provides context:
-      1. Push context to stack
-      2. Immediately distribute to direct children via strategy
-
-    If element accepts context and property not set:
-      Get context value from stack
+      Immediately distribute to direct children via strategy
 
   On element.leave():
-    If element provides context:
-      Pop context from stack
+    (No-op)
 ```
 
-Inner providers shadow outer providers for same context key. Consumers without property value get from stack. Direct children of provider receive via immediate distribution, deeper descendants get from stack.
+Context distributed ONLY to direct children. Deeper descendants do NOT receive context automatically. Multi-level context requires explicit re-providing: intermediate elements must both accept (`accepts_context`) and re-provide (`provides_context`) context for their children.
 
 ## Context Path Resolution
 
@@ -44,7 +38,7 @@ Consumers can request nested properties from context using dot notation (e.g., `
 **How it works**:
 1. Consumer declares context key with path: `"product.cover"` or `"product.manufacturer.name"`
 2. System extracts base key (`product`) and path segments (`["cover"]` or `["manufacturer", "name"]`)
-3. Looks up base key in context stack or direct distribution
+3. Looks up base key in direct distribution from parent
 4. Uses `getVars()` on Struct objects to traverse path
 5. Validates each segment exists and is Struct (for intermediate values)
 6. Returns final value or throws exception if required

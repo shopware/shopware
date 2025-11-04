@@ -157,9 +157,6 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             Shopware.Store.get('sidebar').sidebars[0].active = true;
             await wrapper.vm.$nextTick();
             await dragSidebarToWidth(wrapper, 700);
-            
-            await wrapper.vm.$nextTick();
-            await wrapper.vm.$nextTick();
 
             await wrapper.find('.sw-sidebar-renderer__button-collapse').trigger('click');
             await wrapper.vm.$nextTick();

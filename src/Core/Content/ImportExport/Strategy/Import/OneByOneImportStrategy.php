@@ -46,24 +46,14 @@ class OneByOneImportStrategy implements ImportStrategyService
         $updateEntities = $config->get('updateEntities') ?? true;
 
         try {
-            try {
-                if ($createEntities === true && $updateEntities === false) {
-                    $result = $this->repository->create([$record], $context);
-                } elseif ($createEntities === false && $updateEntities === true) {
-                    $result = $this->repository->update([$record], $context);
-                } else {
-                    // expect that both create and update are true -> upsert
-                    // both false isn't possible via admin (but still results in an upsert)
-                    $result = $this->repository->upsert([$record], $context);
-                }
-            } catch (WriteTypeIntendException $exception) {
-                if ($createEntities === false && $updateEntities === true) {
-                    throw ImportExportException::updateEntityNotFound(
-                        $this->repository->getDefinition()->getEntityName()
-                    );
-                }
-
-                throw $exception;
+            if ($createEntities === true && $updateEntities === false) {
+                $result = $this->repository->create([$record], $context);
+            } elseif ($createEntities === false && $updateEntities === true) {
+                $result = $this->repository->update([$record], $context);
+            } else {
+                // expect that both create and update are true -> upsert
+                // both false isn't possible via admin (but still results in an upsert)
+                $result = $this->repository->upsert([$record], $context);
             }
 
             $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
@@ -73,6 +63,15 @@ class OneByOneImportStrategy implements ImportStrategyService
 
             return new ImportResult([$result], []);
         } catch (\Throwable $exception) {
+            if ($exception instanceof WriteTypeIntendException
+                && $createEntities === false
+                && $updateEntities === true
+            ) {
+                $exception = ImportExportException::updateEntityNotFound(
+                    $this->repository->getDefinition()->getEntityName()
+                );
+            }
+
             $event = new ImportExportExceptionImportRecordEvent($exception, $record, $row, $config, $context);
             $this->eventDispatcher->dispatch($event);
 

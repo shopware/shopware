@@ -26,12 +26,8 @@
                                 {% block layout_header_actions_language_widget_content_inner %}
                                     {% if not feature('v6.8.0.0') %}
                                         <span aria-hidden="true" class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></span>
-                                        <span class="top-bar-nav-text d-none d-md-inline">{{ context.languageInfo.name }}</span>
-                                    {% else %}
-                                        <span class="top-bar-nav-text d-none d-md-inline">
-                                            {{ context.languageInfo.name }}
-                                        </span>
                                     {% endif %}
+                                    <span class="top-bar-nav-text d-none d-md-inline">{{ context.languageInfo.name }}</span>
                                 {% endblock %}
                             </button>
 
@@ -50,13 +46,13 @@
                                                 <button class="dropdown-item d-flex align-items-center gap-2{% if isActiveLanguage %} active{% endif %}" type="submit" name="languageId" id="{{ position }}-{{ language.id }}" value="{{ language.id }}">
                                                     {% block layout_header_actions_languages_widget_form_items_flag_inner %}
                                                         {% if not feature('v6.8.0.0') %}
-                                                                <span aria-hidden="true" class="top-bar-list-icon language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></span>
+                                                            <span aria-hidden="true" class="top-bar-list-icon language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></span>
+                                                            {{ language.name }}
                                                         {% else %}
-                                                                {% if language.translationCode.translated.name and language.translationCode.translated.territory %}
-                                                                    {{ language.translationCode.translated.name }} ({{ language.translationCode.translated.territory }})
-                                                                {% else %}
-                                                                    {{ language.name }}
-                                                                {% endif %}
+                                                            {% set languageDisplay = language.translationCode.translated.name and language.translationCode.translated.territory
+                                                                ? language.translationCode.translated.name ~ ' (' ~ language.translationCode.translated.territory ~ ')'
+                                                                : (language.translationCode.translated.name ?: language.name) %}
+                                                            {{ languageDisplay }}
                                                         {% endif %}
                                                     {% endblock %}
                                                 </button>

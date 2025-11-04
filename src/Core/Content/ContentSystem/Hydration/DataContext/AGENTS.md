@@ -56,3 +56,4 @@ Consumers can use dot notation in context keys to access nested properties: `pro
 - **Error handling**: `required: true` throws exception, `required: false` returns null
 - **Implementation**: See ContextResolutionVisitor for visitor pattern, ContextPathResolver for path logic
 - **Interface**: All strategies implement DistributionStrategyInterface
+- **Redistribution shorthand**: `redistribute: true` in consumer auto-generates broadcast provider (parse-time, implemented in `ContentElementFieldSerializer`)

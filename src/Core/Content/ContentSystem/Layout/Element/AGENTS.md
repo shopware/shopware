@@ -110,6 +110,7 @@ Replaces placeholders with values from ResolvedData. Only scalar values replaced
 - **Slots**: Multiple elements per slot (SlotContent is collection)
 - **Generator**: `allElements()` for memory-efficient traversal
 - **Context**: Provider exposes, consumer receives, matched by key
+- **Context redistribution**: `ContextConsumer::$redistribute` auto-generates provider (see ContextConsumer class)
 - **Data requirements**: Key determines property storage after hydration
 - **Visitor**: Depth-first, enter/leave hooks, don't mutate during traversal
 - **Placeholders**: `{{key}}` syntax, replaced during refinement

@@ -3,8 +3,11 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Field;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\BroadcastDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\ElementSlots;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -84,7 +87,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Public to allow ElementSlotsFieldSerializer to recursively deserialize nested elements.
+     * Deserializes ContentElement from array format (supports recursive element trees).
      *
      * @param array<string, mixed> $data
      */
@@ -106,15 +109,18 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         $contextProvidersField = new ContextProvidersField('provides_context', 'providesContext');
         $contextConsumersField = new ContextConsumersField('accepts_context', 'acceptsContext');
 
+        // Null default matches decode() return type; ?? [] used below for type safety
         $providers = isset($data['provides_context']) && \is_array($data['provides_context'])
             ? $this->contextProvidersSerializer->decode($contextProvidersField, $data['provides_context'])
-            : [];
+            : null;
 
         $consumers = isset($data['accepts_context']) && \is_array($data['accepts_context'])
             ? $this->contextConsumersSerializer->decode($contextConsumersField, $data['accepts_context'])
-            : [];
+            : null;
 
-        $contextDefinitions = new ContextDefinitions($providers ?? [], $consumers ?? []);
+        $providers = $this->expandRedistributeFlags($providers ?? [], $consumers ?? []);
+
+        $contextDefinitions = new ContextDefinitions($providers, $consumers ?? []);
 
         // Lazy-loaded to break circular dependency
         $slotsField = new ElementSlotsField('slots', 'slots');
@@ -133,8 +139,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes a ContentElement to array format for storage.
-     * Public to allow ElementSlotsFieldSerializer to use it for recursive serialization.
+     * Serializes ContentElement to array format (supports recursive serialization).
      *
      * @return array<string, mixed>
      */
@@ -146,7 +151,6 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             'properties' => $this->serializeProperties($element->getProperties()),
         ];
 
-        // Serialize data requirements
         $dataRequirements = $element->getDataRequirements();
         if ($dataRequirements !== []) {
             $serializedRequirements = [];
@@ -156,21 +160,27 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             $array['data_requirements'] = $serializedRequirements;
         }
 
-        // Serialize slots
         if (!$element->getSlots()->isEmpty()) {
             $array['slots'] = $this->elementSlotsSerializer->serializeElementSlots($element->getSlots());
         }
 
-        // Serialize context definitions
         $providers = $element->getProvidesContext();
         $consumers = $element->getAcceptsContext();
 
         if ($providers !== []) {
             $serializedProviders = [];
             foreach ($providers as $key => $provider) {
+                // Skip virtual providers - they'll be regenerated on deserialization
+                if ($this->isVirtualProvider($key, $consumers)) {
+                    continue;
+                }
+
                 $serializedProviders[$key] = $this->contextProvidersSerializer->serializeContextProvider($provider);
             }
-            $array['provides_context'] = $serializedProviders;
+
+            if ($serializedProviders !== []) {
+                $array['provides_context'] = $serializedProviders;
+            }
         }
 
         if ($consumers !== []) {
@@ -217,5 +227,59 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         }
 
         return $serialized;
+    }
+
+    /**
+     * Checks if provider is virtual (auto-generated from redistribute flag, not persisted)
+     *
+     * @param array<string, ContextConsumer> $consumers
+     */
+    private function isVirtualProvider(string $providerKey, array $consumers): bool
+    {
+        foreach ($consumers as $consumerKey => $consumer) {
+            $generatedKey = $consumer->getGeneratedProviderKey($consumerKey);
+
+            if ($generatedKey === $providerKey) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Generates virtual broadcast providers from consumer redistribute flags (parse-time only)
+     *
+     * @param array<string, ContextProvider> $providers
+     * @param array<string, ContextConsumer> $consumers
+     *
+     * @return array<string, ContextProvider>
+     */
+    private function expandRedistributeFlags(array $providers, array $consumers): array
+    {
+        foreach ($consumers as $contextKey => $consumer) {
+            if (!$consumer->redistribute) {
+                continue;
+            }
+
+            // Validate: no dotted paths with redistribute
+            if (str_contains($contextKey, '.')) {
+                throw ContentSystemException::redistributeWithDottedPath($contextKey);
+            }
+
+            $providerKey = $consumer->consumerAlias ?? $contextKey;
+
+            // Validate: no conflict with explicit provider
+            if (isset($providers[$providerKey])) {
+                throw ContentSystemException::redistributeConflict($contextKey);
+            }
+
+            $providers[$providerKey] = new ContextProvider(
+                type: $consumer->type,
+                config: new BroadcastDistributionConfig(consumerAlias: null)
+            );
+        }
+
+        return $providers;
     }
 }

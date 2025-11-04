@@ -1952,13 +1952,8 @@
                       "accepts_context": {
                         "product": {
                           "type": "single",
-                          "required": true
-                        }
-                      },
-                      "provides_context": {
-                        "product": {
-                          "type": "single",
-                          "distribution": "broadcast"
+                          "required": true,
+                          "redistribute": true
                         }
                       },
                       "slots": {
@@ -2002,13 +1997,8 @@
                       "accepts_context": {
                         "product": {
                           "type": "single",
-                          "required": true
-                        }
-                      },
-                      "provides_context": {
-                        "product": {
-                          "type": "single",
-                          "distribution": "broadcast"
+                          "required": true,
+                          "redistribute": true
                         }
                       },
                       "slots": {
@@ -2039,13 +2029,8 @@
                       "accepts_context": {
                         "product": {
                           "type": "single",
-                          "required": true
-                        }
-                      },
-                      "provides_context": {
-                        "product": {
-                          "type": "single",
-                          "distribution": "broadcast"
+                          "required": true,
+                          "redistribute": true
                         }
                       },
                       "slots": {
@@ -2131,8 +2116,27 @@
                       "accepts_context": {
                         "product": {
                           "type": "single",
-                          "required": true
+                          "required": true,
+                          "redistribute": true
                         }
+                      },
+                      "slots": {
+                        "overlay": [
+                          {
+                            "id": "featured-overlay-text",
+                            "type": "Sw:Content:Text",
+                            "properties": {
+                              "text": "Featured Product",
+                              "style": "badge"
+                            },
+                            "accepts_context": {
+                              "product": {
+                                "type": "single",
+                                "required": false
+                              }
+                            }
+                          }
+                        ]
                       }
                     },
                     {
@@ -2331,7 +2335,8 @@
                 "accepts_context": {
                   "product": {
                     "type": "single",
-                    "required": false
+                    "required": false,
+                    "redistribute": true
                   }
                 },
                 "slots": {
@@ -2357,7 +2362,8 @@
                       "accepts_context": {
                         "product": {
                           "type": "single",
-                          "required": false
+                          "required": false,
+                          "redistribute": true
                         }
                       },
                       "slots": {
@@ -2565,11 +2571,28 @@
                 "accepts_context": {
                   "products": {
                     "type": "collection",
-                    "required": true
+                    "required": true,
+                    "redistribute": true,
+                    "consumer_alias": "bundleItems"
                   }
                 },
                 "slots": {
-                  "default": []
+                  "default": [
+                    {
+                      "id": "bundle-item-1",
+                      "type": "Sw:Content:Text",
+                      "properties": {
+                        "text": "Bundle items available below",
+                        "style": "info"
+                      },
+                      "accepts_context": {
+                        "bundleItems": {
+                          "type": "collection",
+                          "required": false
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             ]

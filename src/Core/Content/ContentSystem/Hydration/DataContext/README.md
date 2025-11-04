@@ -54,6 +54,10 @@ Consumers can request nested properties from context using dot notation (e.g., `
 
 **Implementation**: See `ContextPathResolver` class for path parsing and resolution logic.
 
+## Virtual Providers from Redistribution
+
+Redistribution shorthand (`redistribute: true`) auto-generates broadcast providers at parse-time.
+
 ## Distribution Strategies
 
 Five strategies control how provider data splits across multiple consumers. Strategy selected by provider's distribution config.

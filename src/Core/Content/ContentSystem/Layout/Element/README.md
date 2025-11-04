@@ -12,27 +12,23 @@ ContentElement contains:
 - `id`: Unique identifier
 - `type`: Element type
 - `properties`: Configuration map (may contain `{{placeholder}}` strings)
-- `slots`: ElementSlots containing named slots
+- `slots`: Named slots (`array<string, SlotContent>`)
 - `dataRequirements`: What data to load (indexed by key)
 - `contextDefinitions`: Providers and consumers for context distribution
 
 ### Slot Structure
 
-`ElementSlots` contains `array<string, SlotContent>` - each slot has a name and can hold multiple elements (not just one). Common misconception: one element per slot. Reality: SlotContent is a collection.
+Slots are stored as `array<string, SlotContent>` - each slot has a name and can hold multiple elements (not just one). Common misconception: one element per slot. Reality: SlotContent is a collection.
 
 ```php
 // Slot "header" can contain multiple elements
-slots->get("header") → SlotContent([$element1, $element2])
+$element->getSlots()["header"] → SlotContent([$element1, $element2])
 
 // Iterate all elements from all slots
-slots->allElements() → Generator yielding all elements
+$element->allSlotElements() → Generator yielding all elements
 ```
 
-`allElements()` is a generator for memory efficiency. Doesn't build intermediate array. Visitor pattern uses this for tree traversal.
-
-### API(JSON) Serialization
-
-When serialized to JSON (e.g., in API responses), ElementSlots spreads its slot names at the top level to avoid double nesting. This means `element.slots` serializes to `{"slotName": SlotContent, "apiAlias": "..."}` instead of `{"slots": {"slotName": ...}}`.
+`allSlotElements()` is a generator for memory efficiency. Doesn't build intermediate array. Visitor pattern uses this for tree traversal.
 
 ## Visitor Pattern
 
@@ -83,6 +79,6 @@ Context distribution handled by DataContextResolver during hydration. See Hydrat
 
 - Context/: ContextProvider, ContextConsumer, ContextDefinitions
 - DataRequirement/: DataRequirement structure
-- Slot/: ElementSlots container
+- Slot/: SlotContent container for elements within a slot
 - TreeUtil/: ElementTreeUtil for tree manipulation
 - Visitor/: ElementVisitor interface, PlaceholderCollectorVisitor

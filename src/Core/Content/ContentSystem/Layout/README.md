@@ -31,7 +31,7 @@ Elements form tree via slots. Visitor pattern for traversal. Placeholders resolv
 
 Field/ contains custom DAL field types for serializing complex structures:
 - `ContentElementField`: Serializes element trees
-- `ElementSlotsField`: Serializes slot collections
+- `ElementSlotsField`: Serializes slot arrays (`array<string, SlotContent>`)
 - `DataRequirementsField`: Serializes data requirements
 - `ContextProvidersField`, `ContextConsumersField`: Serializes context definitions
 

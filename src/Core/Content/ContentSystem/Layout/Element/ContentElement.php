@@ -7,7 +7,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\ElementSlots;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PlaceholderCollectorVisitor;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
@@ -26,13 +26,14 @@ class ContentElement extends Struct
     /**
      * @param array<string, DataRequirement> $dataRequirements Indexed by key
      * @param array<string, mixed> $properties
+     * @param array<string, SlotContent> $slots Named slots containing child elements
      */
     public function __construct(
         protected string $id,
         protected string $type,
         protected array $dataRequirements = [],
         protected array $properties = [],
-        protected ElementSlots $slots = new ElementSlots([]),
+        protected array $slots = [],
         protected ContextDefinitions $contextDefinitions = new ContextDefinitions([], [])
     ) {
     }
@@ -91,16 +92,39 @@ class ContentElement extends Struct
         $this->properties = $properties;
     }
 
-    public function getSlots(): ElementSlots
+    /**
+     * @return array<string, SlotContent>
+     */
+    public function getSlots(): array
     {
         return $this->slots;
+    }
+
+    /**
+     * Yields all direct child elements from all slots (one level only).
+     * For recursive tree traversal, use traverse() with an ElementVisitor.
+     *
+     * @return \Generator<ContentElement>
+     */
+    public function allSlotElements(): \Generator
+    {
+        foreach ($this->slots as $slotContent) {
+            foreach ($slotContent as $element) {
+                yield $element;
+            }
+        }
+    }
+
+    public function hasSlots(): bool
+    {
+        return !empty($this->slots);
     }
 
     public function traverse(ElementVisitor $visitor): void
     {
         $visitor->enter($this);
 
-        foreach ($this->slots->allElements() as $child) {
+        foreach ($this->allSlotElements() as $child) {
             $child->traverse($visitor);
         }
 
@@ -143,7 +167,7 @@ class ContentElement extends Struct
     {
         $consumers = [];
 
-        foreach ($this->slots->allElements() as $child) {
+        foreach ($this->allSlotElements() as $child) {
             if ($child->acceptsContext($contextKey)) {
                 $consumers[] = $child;
             }
@@ -160,7 +184,7 @@ class ContentElement extends Struct
             }
         }
 
-        foreach ($this->slots->allElements() as $child) {
+        foreach ($this->allSlotElements() as $child) {
             $child->replacePlaceholders($specification);
         }
     }

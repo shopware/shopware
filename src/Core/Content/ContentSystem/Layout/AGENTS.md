@@ -17,7 +17,7 @@
 ContentElement contains:
 - `type`: Element type identifier
 - `properties`: Configuration values (may contain placeholders like `{{productId}}`)
-- `slots`: Named slots containing child elements (ElementSlots)
+- `slots`: Named slots containing child elements (`array<string, SlotContent>`)
 - `dataRequirements`: What data to load (source + criteria)
 - `contextDefinitions`: Providers/consumers for context distribution
 
@@ -34,7 +34,7 @@ System won't re-run placeholder resolution. See Refinery/AGENTS.md for details.
 Field/ contains custom DAL field types for persisting complex structures:
 
 - `ContentElementField` - Serializes element trees to JSON
-- `ElementSlotsField` - Serializes slot collections
+- `ElementSlotsField` - Serializes slot arrays (`array<string, SlotContent>`)
 - `DataRequirementsField` - Serializes data requirement maps
 - `ContextProvidersField`/`ContextConsumersField` - Serializes context definitions
 
@@ -43,7 +43,7 @@ These are **technical infrastructure, not domain concepts**. Only interact with 
 ## Quick Reference
 
 - **Tree structure**: Aggregate root with slots, visitor pattern for traversal
-- **Generator**: `allElements()` for memory efficiency, don't convert to array
+- **Generator**: `allSlotElements()` for memory-efficient traversal of direct slot elements
 - **Property access**: Use `hasProperty()` or null coalescing
 - **Placeholders**: `{{key}}` syntax, replaced during refinement
 - **Custom fields**: DAL infrastructure in Field/, not architectural modules

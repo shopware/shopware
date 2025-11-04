@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Field;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\ElementSlots;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -50,8 +48,8 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
 
         $value = $data->getValue();
 
-        if ($value instanceof ElementSlots) {
-            $value = $this->serializeElementSlots($value);
+        if (\is_array($value)) {
+            $value = $this->serializeSlots($value);
         }
 
         if ($value !== null) {
@@ -61,7 +59,10 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    public function decode(Field $field, mixed $value): ?ElementSlots
+    /**
+     * @return array<string, SlotContent>|null
+     */
+    public function decode(Field $field, mixed $value): ?array
     {
         if (!$field instanceof ElementSlotsField) {
             throw ContentSystemException::invalidFieldType(ElementSlotsField::class, $field::class);
@@ -83,16 +84,25 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes ElementSlots to array format for storage.
-     * Public to allow ContentElementFieldSerializer to use it for recursive serialization.
+     * Serializes slots array to format for storage.
+     *
+     * @param array<string, SlotContent> $slots
      *
      * @return array<string, array<int, array<string, mixed>>>
      */
-    public function serializeElementSlots(ElementSlots $slots): array
+    public function serializeSlots(array $slots): array
     {
         $data = [];
 
         foreach ($slots as $slotName => $slotContent) {
+            if (!$slotContent instanceof SlotContent) {
+                throw ContentSystemException::invalidFieldValueType(
+                    "slots[{$slotName}]",
+                    SlotContent::class,
+                    get_debug_type($slotContent)
+                );
+            }
+
             $elements = [];
             foreach ($slotContent as $element) {
                 $elements[] = $this->elementSerializer->serializeContentElement($element);
@@ -117,11 +127,13 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Deserializes slots data into ElementSlots by recursively deserializing nested elements.
+     * Deserializes slots data into array by recursively deserializing nested elements.
      *
      * @param array<string, array<int, array<string, mixed>>|array<string, mixed>> $slotsData
+     *
+     * @return array<string, SlotContent>
      */
-    private function deserializeSlots(array $slotsData): ElementSlots
+    private function deserializeSlots(array $slotsData): array
     {
         $slots = [];
 
@@ -142,6 +154,6 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
             }
         }
 
-        return new ElementSlots($slots);
+        return $slots;
     }
 }

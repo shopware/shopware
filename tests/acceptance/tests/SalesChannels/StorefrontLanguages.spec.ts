@@ -31,8 +31,9 @@ test('Shop customers should be able to view products in different languages.', {
 
     await test.step('Customer can select a different language', async () => {
         await StorefrontHome.languagesDropdown.click();
-        await StorefrontHome.languagesMenuOptions.getByText('Deutsch').click();
+        // Use exact: false to work with both "Deutsch" and "Deutsch (Deutschland)"
+        await StorefrontHome.languagesMenuOptions.getByText('Deutsch', { exact: false }).click();
         await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('Deutsch');
         await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
     });
-})
+});

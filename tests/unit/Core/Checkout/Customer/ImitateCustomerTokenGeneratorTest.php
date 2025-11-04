@@ -10,10 +10,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
+use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -75,6 +80,38 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
         $token = $this->generate(self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID, time() - ImitateCustomerTokenGenerator::TOKEN_LIFETIME - 1);
 
         $this->imitateCustomerTokenGenerator->validate($token, self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
+    }
+
+    public function testEncodeDecode(): void
+    {
+        $tokenStruct = new ImitateCustomerToken();
+        $tokenStruct->salesChannelId = self::SALES_CHANNEL_ID;
+        $tokenStruct->customerId = self::CUSTOMER_ID;
+        $tokenStruct->iss = self::USER_ID;
+        $token = $this->imitateCustomerTokenGenerator->encode($tokenStruct);
+
+        $decodedToken = $this->imitateCustomerTokenGenerator->decode($token);
+
+        static::assertSame(self::SALES_CHANNEL_ID, $decodedToken->salesChannelId);
+        static::assertSame(self::CUSTOMER_ID, $decodedToken->customerId);
+        static::assertSame(self::USER_ID, $decodedToken->iss);
+    }
+
+    public function testConstraint(): void
+    {
+        $tokenStruct = new ImitateCustomerToken();
+        $token = $this->imitateCustomerTokenGenerator->encode($tokenStruct);
+
+        $this->dataValidator
+            ->expects($this->once())
+            ->method('validate')
+            ->with(static::isArray(), static::callback(function (DataValidationDefinition $constraints) {
+                $property = $constraints->getProperty('iss');
+
+                return $property === [new Type('string'), new NotBlank(), new NotNull()];
+            }));
+
+        $this->imitateCustomerTokenGenerator->decode($token);
     }
 
     private function generate(string $salesChannelId, string $customerId, string $userId, int $time): string

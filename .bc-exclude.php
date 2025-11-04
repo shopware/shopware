@@ -41,6 +41,7 @@ return [
 
         // No break as mixed is the top type, and every other type is a subtype of mixed
         preg_quote('The parameter $value of Shopware\Storefront\Event\StorefrontRenderEvent#setParameter() changed from no type to mixed', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Util\Random::getRandomArrayElement() changed from no type to mixed', '/'),
 
         // No break as the `{get,set}SeoLink()` changes have not been released
         preg_quote('REMOVED: Property Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity#$seoLink was removed', '/'),

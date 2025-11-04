@@ -30,8 +30,6 @@ use Symfony\Component\Validator\Validation;
 class SalesChannelReplaceUrlCommand extends Command
 {
     /**
-     * @internal
-     *
      * @param EntityRepository<SalesChannelDomainCollection> $salesChannelDomainRepository
      */
     public function __construct(private readonly EntityRepository $salesChannelDomainRepository)
@@ -83,15 +81,15 @@ class SalesChannelReplaceUrlCommand extends Command
         $validator = Validation::createValidator();
         $newUrlConstraints = [new Url(requireTld: false), new NotEqualTo($previousUrl)];
         $newUrlViolations = $validator->validate($newUrl, $newUrlConstraints);
-        if (\count($newUrlViolations) > 0) {
-            foreach ($newUrlViolations as $violation) {
-                $io->error('New URL: ' . $violation->getMessage());
-            }
-
-            return false;
+        if (\count($newUrlViolations) === 0) {
+            return true;
         }
 
-        return true;
+        foreach ($newUrlViolations as $violation) {
+            $io->error('New URL: ' . $violation->getMessage());
+        }
+
+        return false;
     }
 
     private function findDomainByUrl(string $url, Context $context): ?SalesChannelDomainEntity

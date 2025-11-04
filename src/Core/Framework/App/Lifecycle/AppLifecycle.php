@@ -220,7 +220,7 @@ class AppLifecycle extends AbstractAppLifecycle
         // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
         if (!$app->getAppSecret() && $manifest->getSetup()) {
             try {
-                $this->registrationService->registerApp($manifest, $app, $secretAccessKey, $context);
+                $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
             } catch (AppRegistrationException $e) {
                 $this->removeAppAndRole($app, $context);
 

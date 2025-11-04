@@ -421,10 +421,6 @@
         <service id="Shopware\Core\Framework\App\Api\AppSecretRotationController" public="true">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\AppPrinter">

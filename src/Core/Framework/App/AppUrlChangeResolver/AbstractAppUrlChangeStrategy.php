@@ -71,6 +71,6 @@ abstract class AbstractAppUrlChangeStrategy
             ],
         ], $context);
 
-        $this->registrationService->registerApp($manifest, $app, $secret, $context);
+        $this->registrationService->registerApp($manifest, $app->getId(), $secret, $context);
     }
 }

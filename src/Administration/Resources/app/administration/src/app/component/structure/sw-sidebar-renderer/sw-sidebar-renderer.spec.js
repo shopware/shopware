@@ -104,7 +104,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
     describe('resize functionality', () => {
         const PAGE_WIDTH = 2600;
-        const MAIN_CONTENT_MIN_SIZE = 1400;
+        const MAIN_CONTENT_MIN_SIZE = 1300;
 
         beforeEach(() => {
             window.innerWidth = PAGE_WIDTH;

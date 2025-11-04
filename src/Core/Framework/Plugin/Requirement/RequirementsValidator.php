@@ -212,7 +212,7 @@ class RequirementsValidator
                 continue;
             }
 
-            $pluginPath = \sprintf('%s/%s', $this->projectDir, $pluginEntity->getPath());
+            $pluginPath = \sprintf('%s/%s', $this->projectDir, (string) $pluginEntity->getPath());
 
             $installedPluginComposerPackage = $pluginPackages[$pluginComposerName] ?? $this->getComposer($pluginPath)->getPackage();
 

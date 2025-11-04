@@ -35,7 +35,7 @@ class ShippingMethodChangedError extends Error
             '%s shipping is not available for your current cart, the shipping was changed to %s. Reason: %s',
             $oldShippingMethodName,
             $newShippingMethodName,
-            $reason,
+            $reason ?? 'No reason provided.',
         );
 
         parent::__construct($this->message);
@@ -65,6 +65,8 @@ class ShippingMethodChangedError extends Error
     public function getId(): string
     {
         if (Feature::isActive('v6.8.0.0')) {
+            \assert($this->oldShippingMethodId !== null && $this->newShippingMethodId !== null);
+
             return \sprintf('%s-%s-%s', self::KEY, $this->oldShippingMethodId, $this->newShippingMethodId);
         }
 

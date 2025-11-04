@@ -23,6 +23,7 @@ class ThemeException extends HttpException
     public const ERROR_LOADING_RUNTIME_CONFIG = 'THEME__ERROR_LOADING_RUNTIME_CONFIG';
     public const ERROR_LOADING_FROM_PLUGIN_REGISTRY = 'THEME__ERROR_LOADING_THEME_FROM_PLUGIN_REGISTRY';
     public const THEME_ASSIGNMENT = 'THEME__THEME_ASSIGNMENT';
+    public const THEME_CREATION_FAILURE = 'THEME__THEME_CREATION_FAILURE';
 
     /**
      * @deprecated tag:v6.8.0 - will be removed, as the exception is no longer needed, use RestrictDeleteViolationException instead
@@ -158,6 +159,15 @@ class ThemeException extends HttpException
             self::ERROR_LOADING_FROM_PLUGIN_REGISTRY,
             'Error loading theme with technical name "{{ technicalName }}" from plugin registry',
             ['technicalName' => $technicalName]
+        );
+    }
+
+    public static function themeCreationFailure(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::THEME_CREATION_FAILURE,
+            $message,
         );
     }
 

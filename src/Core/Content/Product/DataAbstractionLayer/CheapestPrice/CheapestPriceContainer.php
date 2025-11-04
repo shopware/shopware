@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -48,11 +49,19 @@ class CheapestPriceContainer extends Struct
 
         $prices = [];
         $defaultWasAdded = false;
+        $source = $context->getSource();
+        $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
+
         foreach ($this->value as $variantId => $group) {
             foreach ($ruleIds as $ruleId) {
                 $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
 
                 if ($price === null) {
+                    continue;
+                }
+
+                // Check sales channel availability
+                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
                     continue;
                 }
 
@@ -275,5 +284,20 @@ class CheapestPriceContainer extends Struct
         }
 
         return $this->getCurrencyPrice($collection, Defaults::CURRENCY, false);
+    }
+
+    /**
+     * @param array<mixed> $price
+     */
+    private function isVariantPriceAvailableInSalesChannel(array $price, string $salesChannelId): bool
+    {
+        // If no sales channel IDs are stored, assume it's available everywhere
+        if (!\array_key_exists('sales_channel_ids', $price)) {
+            return true;
+        }
+
+        $salesChannelIds = $price['sales_channel_ids'] ?? [];
+
+        return \in_array($salesChannelId, $salesChannelIds, true);
     }
 }

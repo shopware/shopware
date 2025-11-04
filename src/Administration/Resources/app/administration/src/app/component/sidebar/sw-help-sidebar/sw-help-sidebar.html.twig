@@ -51,37 +51,27 @@
                     <ul class="sw-help-sidebar__support-content">
                         {% block sw_help_sidebar_support_documentation %}
                         <li class="sw-help-sidebar__support-item">
-                            <sw-external-link
+                            <mt-link
                                 class="sw-help-sidebar__support-item-link"
-                                :href="$tc('help-center.sidebar.support.documentation.href')"
+                                as="a"
+                                type="external"
+                                :to="$tc('help-center.sidebar.support.documentation.href')"
                             >
-                                <mt-icon
-                                    class="sw-help-sidebar__support-item-icon"
-                                    name="solid-content"
-                                    color="var(--color-icon-primary-default)"
-                                    size="var(--scale-size-16)"
-                                    aria-hidden="true"
-                                />
-                                {{ $tc('help-center.sidebar.support.documentation.text') }}
-                            </sw-external-link>
+                                <span>{{ $tc('help-center.sidebar.support.documentation.text') }}</span>
+                            </mt-link>
                         </li>
                         {% endblock %}
 
                         {% block sw_help_sidebar_support_create_support_request %}
                         <li class="sw-help-sidebar__support-item">
-                            <sw-external-link
+                            <mt-link
                                 class="sw-help-sidebar__support-item-link"
-                                :href="$tc('help-center.sidebar.support.createSupportRequest.href')"
+                                as="a"
+                                type="external"
+                                :to="$tc('help-center.sidebar.support.createSupportRequest.href')"
                             >
-                                <mt-icon
-                                    class="sw-help-sidebar__support-item-icon"
-                                    name="solid-comments"
-                                    color="var(--color-icon-primary-default)"
-                                    size="var(--scale-size-16)"
-                                    aria-hidden="true"
-                                />
                                 {{ $tc('help-center.sidebar.support.createSupportRequest.text') }}
-                            </sw-external-link>
+                            </mt-link>
                         </li>
                         {% endblock %}
 

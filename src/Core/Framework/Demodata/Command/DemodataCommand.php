@@ -83,7 +83,7 @@ class DemodataCommand extends Command
         $this->ensureAllDependenciesArePresent();
 
         if ($this->kernelEnv !== 'prod') {
-            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follows `APP_ENV=prod bin/console framework:demodata`');
+            $output->writeln('Demo data command requires the app environment set to production to run. Execute it with: `APP_ENV=prod bin/console framework:demodata`');
 
             return self::INVALID;
         }

@@ -59,6 +59,7 @@
             <argument type="service" id="logger"/>
             <argument>%shopware.messenger.message_max_kib_size%</argument>
             <argument type="abstract" id="message bus"/>
+            <argument>%shopware.staging.mailing.disable_delivery%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Mail\Service\MailFactory" public="true">

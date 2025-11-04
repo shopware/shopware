@@ -759,11 +759,12 @@ class ProductBuilder
         }
 
         foreach ($grouped as &$group) {
-            usort($group, fn (array $a, array $b) => $a['quantityStart'] <=> $b['quantityStart']);
+            usort($group, static fn (array $a, array $b) => $a['quantityStart'] <=> $b['quantityStart']);
         }
+        unset($group);
 
         $mapped = [];
-        foreach ($grouped as &$group) {
+        foreach ($grouped as $group) {
             $group = array_reverse($group);
 
             $end = null;

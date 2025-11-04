@@ -1,7 +1,6 @@
 {% block sw_settings_list %}
 {% block sw_settings_document_index %}
 <sw-page class="sw-settings-document-list">
-
     {% block sw_settings_document_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -17,11 +16,14 @@
         {% block sw_settings_document_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_document_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            <span>{{ $tc('sw-settings.index.title') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
-            /> {{ $tc('sw-settings-document.list.textHeadline') }}
+            />
+
+            <span>{{ $tc('sw-settings-document.list.textHeadline') }}</span>
             {% endblock %}
 
             {% block sw_settings_document_list_smart_bar_header_amount %}
@@ -74,9 +76,7 @@
                         :selectable="false"
                         table
                     >
-                        <template
-                            #columns="{ item }"
-                        >
+                        <template #columns="{ item }">
                             {% block sw_product_list_grid_columns %}
 
                             {% block sw_settings_document_list_columns_name %}
@@ -85,16 +85,12 @@
                                 flex="minmax(100px, 1fr)"
                                 :label="$tc('sw-settings-document.list.columnName')"
                             >
-
                                 {% block sw_settings_document_list_columns_name_link %}
-                                <router-link
-                                    :title="$tc('sw-settings-document.list.contextMenuEdit')"
-                                    :to="{ name: 'sw.settings.document.detail', params: { id: item.id } }"
-                                >
-                                    {% block sw_settings_document_list_columns_name_link_inner %}
+                                <mt-link :to="{ name: 'sw.settings.document.detail', params: { id: item.id } }">
+                                        {% block sw_settings_document_list_columns_name_link_inner %}
                                     {{ item.name }}
-                                    {% endblock %}
-                                </router-link>
+                                        {% endblock %}
+                                </mt-link>
                                 {% endblock %}
                             </sw-grid-column>
                             {% endblock %}
@@ -124,6 +120,7 @@
                                         {{ $tc('sw-settings-document.list.global') }}
                                     </sw-label>
                                 </div>
+
                                 <ul
                                     v-if="!item.global"
                                     class="sw-list sw-document-list__label-wrapper"
@@ -151,7 +148,6 @@
                                 label=""
                             >
                                 <sw-context-button>
-
                                     {% block sw_settings_document_list_columns_actions_edit %}
                                     <sw-context-menu-item
                                         class="sw-document-list__edit-action"

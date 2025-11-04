@@ -25,7 +25,6 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -383,7 +382,7 @@ class ThumbnailServiceTest extends TestCase
         $thumbnailSizeEntity->setWidth($preferredThumbnailSize['width']);
         $thumbnailSizeEntity->setHeight($preferredThumbnailSize['height']);
 
-        $method = ReflectionHelper::getMethod(ThumbnailService::class, 'calculateThumbnailSize');
+        $method = new \ReflectionMethod(ThumbnailService::class, 'calculateThumbnailSize');
         $calculatedSize = $method->invokeArgs($this->thumbnailService, [$imageSize, $thumbnailSizeEntity, $mediaFolderConfigEntity]);
 
         static::assertSame($expectedSize, $calculatedSize);

@@ -141,6 +141,16 @@
                 :alt="mimeType"
             >
             {% endblock %}
+            {% block sw_media_preview_v2_unsupported_format_warning %}
+            <mt-icon
+                v-if="showUnsupportedFormatWarning"
+                v-tooltip.bottom="{ message: $t('global.sw-media-preview-v2.warningUnsupportedFormat', { format: mimeType }) }"
+                name="regular-exclamation-triangle"
+                size="16px"
+                color="var(--color-warning-500)"
+                class="sw-media-preview-v2__warning-icon"
+            />
+            {% endblock %}
             <mt-icon
                 v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon"

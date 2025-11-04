@@ -67,6 +67,7 @@ class DataAbstractionLayerException extends HttpException
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
     public const EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE = 'FRAMEWORK__EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE';
+    public const REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID = 'FRAMEWORK__REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
     public const MISSING_FIELD_VALUE = 'FRAMEWORK__MISSING_FIELD_VALUE';
     public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
@@ -188,6 +189,15 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_CRITERIA_IDS,
             'Invalid ids provided in criteria. {{ reason }}. Ids: {{ ids }}.',
             ['ids' => print_r($ids, true), 'reason' => $reason]
+        );
+    }
+
+    public static function repositoryIteratorExpectedStringLastId(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID,
+            'Expected string as last element of ids array.'
         );
     }
 

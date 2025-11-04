@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
-use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
@@ -16,7 +15,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,12 +34,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
     private bool $contextWasChanged = false;
 
     /**
-     * @param array<string> $cookies
-     *
      * @internal
      */
     public function __construct(
-        private readonly array $cookies,
         private readonly CartService $cartService,
         private readonly int $defaultTtl,
         private readonly bool $httpCacheEnabled,
@@ -49,9 +44,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
         private readonly RequestStack $requestStack,
         private readonly ?string $staleWhileRevalidate,
         private readonly ?string $staleIfError,
-        private readonly EventDispatcherInterface $dispatcher,
-        private readonly CacheRelevantRulesResolver $ruleResolver,
         private readonly SalesChannelContextService $contextService,
+        private readonly CacheHashService $cacheHashService,
     ) {
     }
 
@@ -128,19 +122,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
             return;
         }
 
-        if ($context->getCustomer() || $cart->getLineItems()->count() > 0 || $context->getCurrencyId() !== $context->getSalesChannel()->getCurrencyId()) {
-            $newValue = $this->buildCacheHash($request, $context);
-
-            if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
-                $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
-                $cookie->setSecureDefault($request->isSecure());
-
-                $response->headers->setCookie($cookie);
-            }
-        } elseif ($request->cookies->has(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE)) {
-            $response->headers->removeCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
-            $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
-        }
+        $this->cacheHashService->applyCacheHash($request, $context, $cart, $response);
 
         /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
         $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
@@ -253,41 +235,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
         }
 
         return false;
-    }
-
-    private function buildCacheHash(Request $request, SalesChannelContext $context): string
-    {
-        $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
-
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
-            $ruleIds = $context->getRuleIdsByAreas($ruleAreas);
-        } else {
-            $ruleIds = $context->getRuleIds();
-        }
-
-        $ruleIds = array_unique($ruleIds);
-        sort($ruleIds);
-
-        $parts = [
-            HttpCacheCookieEvent::RULE_IDS => $ruleIds,
-            HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
-            HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-            HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
-            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-        ];
-
-        foreach ($this->cookies as $cookie) {
-            if (!$request->cookies->has($cookie)) {
-                continue;
-            }
-
-            $parts[$cookie] = $request->cookies->get($cookie);
-        }
-
-        $event = new HttpCacheCookieEvent($request, $context, $parts);
-        $this->dispatcher->dispatch($event);
-
-        return $event->getHash();
     }
 
     /**

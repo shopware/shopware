@@ -391,9 +391,9 @@ export default {
         getMeteorElementEventsHandler(element, mapInheritance) {
             const eventHandler = {};
 
-            eventHandler['update:value'] = mapInheritance.updateCurrentValue;
-            eventHandler['inheritance-remove'] = mapInheritance.removeInheritance;
-            eventHandler['inheritance-restore'] = mapInheritance.restoreInheritance;
+            eventHandler['update:value'] = mapInheritance?.updateCurrentValue;
+            eventHandler['inheritance-remove'] = mapInheritance?.removeInheritance;
+            eventHandler['inheritance-restore'] = mapInheritance?.restoreInheritance;
 
             return eventHandler;
         },

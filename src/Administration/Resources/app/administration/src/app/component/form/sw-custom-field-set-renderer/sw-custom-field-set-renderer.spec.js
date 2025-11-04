@@ -590,7 +590,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await flushPromises();
                 // Wait 55ms (because of debounce in colorpicker component)
                 await new Promise((resolve) => {
-                    setTimeout(resolve, 1000);
+                    setTimeout(resolve, 60);
                 });
             },
         },

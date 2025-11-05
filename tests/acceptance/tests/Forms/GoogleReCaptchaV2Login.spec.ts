@@ -45,23 +45,7 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
             throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
         }
 
-        // Clear cache to ensure config takes effect
-        const cacheResponse = await TestDataService.AdminApiClient.delete('_action/cache');
-        if (!cacheResponse.ok()) {
-            throw new Error(`Failed to clear cache: ${cacheResponse.status()} ${cacheResponse.statusText()}`);
-        }
-
-        // Verify the config was actually set
-        const verifyResponse = await TestDataService.AdminApiClient.get('_action/system-config?domain=core.basicInformation');
-        if (!verifyResponse.ok()) {
-            throw new Error(`Failed to verify system config: ${verifyResponse.status()} ${verifyResponse.statusText()}`);
-        }
-        const verifyConfig = await verifyResponse.json();
-
-        const captchaActive = verifyConfig['core.basicInformation.activeCaptchasV2']?.googleReCaptchaV2?.isActive;
-        if (!captchaActive) {
-            throw new Error('Failed to configure reCAPTCHA V2: isActive is not true');
-        }
+        await TestDataService.clearCaches();
     });
 
     test.afterEach(async ({ TestDataService }) => {
@@ -71,8 +55,7 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
                 data: { null: originalConfig }
             });
 
-            // Clear cache after restoring
-            await TestDataService.AdminApiClient.delete('_action/cache');
+            await TestDataService.clearCaches();
         }
     });
 
@@ -94,19 +77,17 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
                 await verifyRecaptchaScriptNotLoaded(StorefrontAccountLogin.page, test, 'V2');
             });
 
-            await test.step('Accept cookies and verify _GRECAPTCHA cookie is registered', async () => {
-                const promiseCookieGroupsRequest = StorefrontAccountLogin.page.waitForResponse(
-                    resp => resp.url().includes('cookie/groups')
-                );
-
+            await test.step('Accept cookies and verify _GRECAPTCHA cookie is set', async () => {
                 await acceptTechnicalRequiredCookies();
 
-                const cookieGroupsResponse = await promiseCookieGroupsRequest;
-                const cookieGroups = await cookieGroupsResponse.json();
-                const technicalRequiredCookies = cookieGroups.elements.find(group => group.name === 'Technically required');
-                const grecaptchaEntry = technicalRequiredCookies?.entries?.find(entry => entry.cookie === '_GRECAPTCHA');
-
-                ShopCustomer.expects(grecaptchaEntry).toBeTruthy();
+                // Wait for _GRECAPTCHA cookie to be set (with retry to handle config propagation delay)
+                await ShopCustomer.expects(async () => {
+                    const cookies = await StorefrontAccountLogin.page.context().cookies();
+                    const grecaptchaCookie = cookies.find(c => c.name === '_GRECAPTCHA');
+                    await ShopCustomer.expects(grecaptchaCookie).toBeTruthy();
+                }).toPass({
+                    intervals: [1_000, 2_500],
+                });
 
                 await waitForRecaptchaScriptLoaded(StorefrontAccountLogin.page);
                 await verifyRecaptchaProtectionNotice(StorefrontAccountLogin.page, test, 'V2');

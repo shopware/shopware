@@ -2,7 +2,7 @@
 
 This guide walks you through how to properly document changes in Shopware releases. The goal is to make sure all developer-facing updates and important upgrade changes are logged clearly, structured well, and easy to find.
 
-- Related doc: [Documenting a Release in Shopware](../delivery-process/documenting-a-release.md)
+- Related doc: [Changelog and Release Info Process](../adr/2025-10-28-changelog-release-info-process.md)
 
 ## Why This Process Exists
 To have a structured and automated workflow:

@@ -4,12 +4,15 @@ namespace Shopware\Core\Framework\JWT\Struct;
 
 use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ExtendableInterface;
+use Shopware\Core\Framework\Struct\ExtendableTrait;
 use Shopware\Core\Framework\Struct\VariablesAccessTrait;
 
 #[Package('checkout')]
-class JWTStruct
+class JWTStruct implements ExtendableInterface
 {
     use VariablesAccessTrait;
+    use ExtendableTrait;
 
     /**
      * Issuer of the JWT

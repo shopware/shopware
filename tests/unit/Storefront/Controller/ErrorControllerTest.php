@@ -9,6 +9,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoaderInterface;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,8 +43,10 @@ class ErrorControllerTest extends TestCase
 
         $this->controller = new ErrorControllerTestClass(
             $this->errorTemplateResolver,
+            $this->createMock(HeaderPageletLoaderInterface::class),
             $this->systemConfigService,
             $this->errorPageLoader,
+            $this->createMock(FooterPageletLoaderInterface::class)
         );
 
         $containerBuilder = new ContainerBuilder();

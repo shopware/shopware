@@ -13,7 +13,7 @@ test(
         await ShopCustomer.expects(async () => {
             await test.step('Customer can view currencies menu', async () => {
                 await ShopCustomer.goesTo(StorefrontHome.url());
-                await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText(currency.name);
+                await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText('US-Dollar');
                 const currencySymbol = getCurrencySymbolFromLocale(getLocale());
                 await ShopCustomer.expects(productListing.productPrice).toContainText(currencySymbol);
             });

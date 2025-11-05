@@ -7,6 +7,7 @@ import { TelemetryEvent, type EventTypes, type EventPayload, type ElementQuery, 
 import AnchorTags from './ElementQueries/anchor-tags';
 import ProductAnalyticsTag from './ElementQueries/product-analytics-tag';
 import TaggedButtons from './ElementQueries/tagged-buttons';
+
 /**
  * @private
  */
@@ -37,6 +38,7 @@ export class Telemetry {
 
         this.initializeObservables();
         this.initializePageChanges();
+        this.initializeUserChanges();
         this.initializeDebugListener();
 
         this.#initialized = true;
@@ -54,15 +56,6 @@ export class Telemetry {
         this.dispatchEvent('programmatic', eventData);
     }
 
-    identify(userId: string, deviceId: string, locale: string, permissions: string[]) {
-        this.dispatchEvent('identify', {
-            userId,
-            locale,
-            deviceId,
-            permissions,
-        });
-    }
-
     private initializePageChanges(): void {
         void Shopware.Application.viewInitialized.then(() => {
             // @ts-expect-error router is available after viewInitialized is fulfilled
@@ -72,8 +65,31 @@ export class Telemetry {
                 if (!this.isInitialized) {
                     return;
                 }
+
+                if (to.name === from.name) {
+                    return;
+                }
+
                 this.dispatchEvent('page_change', { from, to });
             });
+        });
+    }
+
+    private initializeUserChanges(): void {
+        const loginService = Shopware.Service('loginService');
+
+        loginService.addOnLoginListener(() => {
+            const currentUser = Shopware.Store.get('session').currentUser;
+
+            this.dispatchEvent('identify', {
+                userId: currentUser?.id || null,
+                locale: null,
+                isAdmin: currentUser?.admin || null,
+            });
+        });
+
+        loginService.addOnLogoutListener(() => {
+            this.dispatchEvent('reset', {});
         });
     }
 

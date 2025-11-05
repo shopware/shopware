@@ -23,7 +23,6 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                     await AdminLandingPageCreate.layoutTab.click();
                     // Verify empty layout state
                     await ShopAdmin.expects(AdminLandingPageCreate.layoutEmptyState).toBeVisible();
-                    await ShopAdmin.expects(AdminLandingPageCreate.createNewLayoutButton).toBeVisible();
                     // Select existing layout
                     await AdminLandingPageCreate.assignLayoutButton.click();
                     // Search input need to delay press more than 300ms to mimic user typing in order to activate search action

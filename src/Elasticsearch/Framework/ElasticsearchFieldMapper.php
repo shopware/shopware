@@ -79,10 +79,10 @@ class ElasticsearchFieldMapper
      *
      * This method is commonly used to handle associations, such as product names and descriptions in different languages.
      *
-     * @param array<int, array{id: string, languageId?: string}> $items An array of items with language information.
+     * @param array<int, array<string, string|null>> $items An array of items with language information.
      * @param list<string> $translatedFields An array of fields to be translated.
      *
-     * @return list<array<string, array<string, string>>> An array of items with nested arrays containing translated values.
+     * @return list<array<string, string|int|array<string, string|null>|null>> An array of items with nested arrays containing translated values.
      *
      * @example
      *
@@ -130,15 +130,15 @@ class ElasticsearchFieldMapper
 
             foreach ($translatedFields as $field) {
                 if (!empty($item[$field])) {
+                    /** @phpstan-ignore offsetAccess.nonOffsetAccessible (It is hard to tell PHPStan that not `id` and `_count` are accessed, but translated fields like `name` and `description`) */
                     $groupedItems[$itemId][$field][$item['languageId']] = $item[$field];
                 } elseif (!isset($groupedItems[$itemId][$field])) {
+                    /** @phpstan-ignore offsetAccess.nonOffsetAccessible (It is hard to tell PHPStan that not `id` and `_count` are accessed, but translated fields like `name` and `description`) */
                     $groupedItems[$itemId][$field][$item['languageId']] = null;
                 }
             }
         }
 
-        // Convert grouped items into a numerically indexed array. Somehow PHPStan cannot resolve it
-        /** @phpstan-ignore argument.unresolvableType, function.unresolvableReturnType */
         return array_values($groupedItems);
     }
 

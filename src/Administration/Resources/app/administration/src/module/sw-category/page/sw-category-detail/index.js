@@ -4,8 +4,7 @@ import './sw-category-detail.scss';
 
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
-const { cloneDeep, merge } = Shopware.Utils.object;
-const { isPlainObject, isArray, isEqual } = Shopware.Utils.types;
+const { isArray, isEmpty, isEqual } = Shopware.Utils.types;
 
 /**
  * @sw-package discovery
@@ -409,21 +408,6 @@ export default {
                     return null;
                 }
 
-                if (this.category.slotConfig !== null) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (this.category.slotConfig[slot.id]) {
-                                    if (slot.config === null) {
-                                        slot.config = {};
-                                    }
-                                    merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
-                                }
-                            });
-                        });
-                    });
-                }
-
                 this.updateCmsPageDataMapping();
                 this.cmsPageState.setCurrentPage(cmsPage);
 
@@ -460,21 +444,6 @@ export default {
                 const cmsPage = response.get(cmsPageId);
                 if (cmsPageId !== this.cmsPageId) {
                     return null;
-                }
-
-                if (this.landingPage.slotConfig !== null) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (this.landingPage.slotConfig[slot.id]) {
-                                    if (slot.config === null) {
-                                        slot.config = {};
-                                    }
-                                    merge(slot.config, cloneDeep(this.landingPage.slotConfig[slot.id]));
-                                }
-                            });
-                        });
-                    });
                 }
 
                 this.updateCmsPageDataMappingForLandingPage();
@@ -654,10 +623,8 @@ export default {
         async onSave() {
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (isPlainObject(pageOverrides)) {
-                this.category.slotConfig = cloneDeep(pageOverrides);
+            if (isEmpty(this.category.slotConfig)) {
+                this.category.slotConfig = null;
             }
 
             if (!this.entryPointOverwriteConfirmed) {
@@ -732,10 +699,8 @@ export default {
         onSaveLandingPage() {
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (isPlainObject(pageOverrides)) {
-                this.landingPage.slotConfig = cloneDeep(pageOverrides);
+            if (isEmpty(this.landingPage.slotConfig)) {
+                this.landingPage.slotConfig = null;
             }
 
             if (this.landingPageId !== 'create') {
@@ -794,6 +759,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         extractSlotOverrides(origin, changes) {
             const slotOverrides = {};
 
@@ -836,6 +804,9 @@ export default {
             return slotOverrides;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         getCmsPageOverrides() {
             if (this.cmsPage === null) {
                 return null;
@@ -848,6 +819,9 @@ export default {
             return this.extractSlotOverrides(origin, changes);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         deleteSpecifcKeys(sections) {
             if (!sections) {
                 return;

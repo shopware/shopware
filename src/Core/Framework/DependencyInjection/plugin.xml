@@ -71,6 +71,7 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginManagementService">

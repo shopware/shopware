@@ -121,6 +121,13 @@ export default {
             return new Criteria(1, 500);
         },
 
+        salesChannelCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
+
+            return criteria;
+        },
+
         showVariantModal() {
             return !!this.productEntityVariantModal;
         },
@@ -166,6 +173,7 @@ export default {
                     property: 'visibilities.salesChannel',
                     label: this.$tc('sw-product.filters.salesChannelsFilter.label'),
                     placeholder: this.$tc('sw-product.filters.salesChannelsFilter.placeholder'),
+                    criteria: this.salesChannelCriteria,
                 },
                 'categories-filter': {
                     property: 'categories',

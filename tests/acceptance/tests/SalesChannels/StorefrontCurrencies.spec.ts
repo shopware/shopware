@@ -3,7 +3,7 @@ import { getCurrencySymbolFromLocale, getLocale, test } from '@fixtures/Acceptan
 test(
     'Shop customers should be able to view products in different currencies.',
     { tag: ['@Currencies', '@Storefront'] },
-    async ({ ShopCustomer, TestDataService, StorefrontHeader, StorefrontHome }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontHeader, StorefrontHome, ChangeStorefrontCurrency }) => {
         const salesChannelId = TestDataService.defaultSalesChannel.id;
         const currency = await TestDataService.createCurrency();
         await TestDataService.assignSalesChannelCurrency(salesChannelId, currency.id);

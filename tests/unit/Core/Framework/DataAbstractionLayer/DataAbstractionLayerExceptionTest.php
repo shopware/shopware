@@ -277,7 +277,7 @@ class DataAbstractionLayerExceptionTest extends TestCase
 
     public function testInvalidCriteriaParameter(): void
     {
-        $e = DataAbstractionLayerException::invalidCriteriaParameter('error message');
+        $e = DataAbstractionLayerException::invalidCompressedCriteriaParameter('error message');
 
         static::assertSame('Invalid _criteria parameter: error message', $e->getMessage());
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());

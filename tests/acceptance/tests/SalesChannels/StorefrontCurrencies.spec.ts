@@ -4,6 +4,7 @@ test('Shop customers should be able to view products in different currencies.', 
     ShopCustomer,
     TestDataService,
     StorefrontHome,
+    StorefrontHeader,
     ChangeStorefrontCurrency,
 }) => {
 
@@ -17,8 +18,8 @@ test('Shop customers should be able to view products in different currencies.', 
     await ShopCustomer.expects(async () => {
         await test.step('Customer can view currencies menu', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText('Euro');
-            await ShopCustomer.expects(productListing.productPrice).toContainText('€');
+            await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText('US-Dollar');
+            await ShopCustomer.expects(productListing.productPrice).toContainText('$');
         });
     }).toPass({
         intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
@@ -26,7 +27,7 @@ test('Shop customers should be able to view products in different currencies.', 
 
     await test.step('Customer can select a different currency', async () => {
         await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
-        await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText(currency.name);
+        await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText(currency.name);
         await ShopCustomer.expects(productListing.productPrice).toContainText(currency.isoCode);
     });
 })

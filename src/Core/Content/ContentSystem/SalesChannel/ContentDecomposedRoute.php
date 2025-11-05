@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\RenderingSpecificationFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
-class ContentRoute extends AbstractContentRoute
+class ContentDecomposedRoute extends AbstractContentDecomposedRoute
 {
     /**
      * @param iterable<RenderingSpecificationFactoryInterface> $renderingSpecificationFactories
@@ -27,30 +28,32 @@ class ContentRoute extends AbstractContentRoute
     public function __construct(
         private readonly ContentRouteLoader $contentRouteLoader,
         private readonly iterable $renderingSpecificationFactories,
+        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider
     ) {
     }
 
-    public function getDecorated(): AbstractContentRoute
+    public function getDecorated(): AbstractContentDecomposedRoute
     {
         throw new DecorationPatternException(self::class);
     }
 
     #[Route(
-        path: '/store-api/content/{path}',
-        name: 'store-api.content.detail',
+        path: '/store-api/content-decomposed/{path}',
+        name: 'store-api.content.decomposed',
         requirements: ['path' => '.+'],
         defaults: [
             '_httpCache' => true,
             'excludes' => [
                 'content_element' => [
                     'dataRequirements',
+                    'properties',
                     'contextDefinitions',
                 ],
             ],
         ],
         methods: ['GET', 'POST']
     )]
-    public function load(string $path, Request $request, SalesChannelContext $context): ContentRouteResponse
+    public function load(string $path, Request $request, SalesChannelContext $context): ContentDecomposedRouteResponse
     {
         // Try factories in priority order (Chain of Responsibility pattern)
         // Tagged iterator provides factories in priority order (highest first)
@@ -69,6 +72,6 @@ class ContentRoute extends AbstractContentRoute
 
         $contentPage = $this->contentRouteLoader->load($renderingSpecification, $context);
 
-        return new ContentRouteResponse($contentPage);
+        return new ContentDecomposedRouteResponse($contentPage->getDecomposedContentPage($this->configSerializerProvider));
     }
 }

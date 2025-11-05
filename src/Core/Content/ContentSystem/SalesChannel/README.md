@@ -1,26 +1,37 @@
 # SalesChannel
 
-Store API entry point for content system. Single route orchestrates full pipeline.
+Store API entry point for content system. Two routes provide different response formats: full and decomposed.
 
 ## Key Classes
 
-- `AbstractContentRoute` - Abstract route base
-- `ContentRoute` - Concrete implementation
-- `ContentRouteLoader` - Pipeline orchestrator
-- `ContentRouteResponse` - Response wrapper
+- `AbstractContentRoute` - Abstract route base for full format
+- `ContentRoute` - Full format endpoint implementation
+- `AbstractContentDecomposedRoute` - Abstract route base for decomposed format
+- `ContentDecomposedRoute` - Decomposed format endpoint implementation
+- `ContentRouteLoader` - Pipeline orchestrator (shared)
+- `ContentRouteResponse` - Full format response wrapper
+- `ContentDecomposedRouteResponse` - Decomposed format response wrapper
 
-## Endpoint
+## Endpoints
 
-`GET|POST /store-api/content/{path}?elementId={id}` - Supports GET and POST methods. Optional `elementId` for partial rendering.
+Two endpoints share pipeline but differ in response format:
+
+**Full Format:** `GET|POST /store-api/content/{path}?elementId={id}`
+- Returns `ContentPage` with complete element trees (properties embedded)
+- Simpler client integration, larger payloads
+
+**Decomposed Format:** `GET|POST /store-api/content-decomposed/{path}?elementId={id}`
+- Returns `DecomposedContentPage` with skeletons + deduplicated data + assignments
+- Optimized for deduplication, requires client reconstruction
 
 ## Query Parameters
 
-The endpoint accepts optional query parameters:
+Both endpoints accept optional query parameters:
 - `elementId`: String - Request only specific element and its descendants (partial rendering)
 
 ## Pipeline Orchestration
 
-ContentRoute delegates to context factories via Chain of Responsibility pattern to create RenderingSpecification. ContentRouteLoader then orchestrates three phases:
+Both routes delegate to context factories via Chain of Responsibility pattern to create RenderingSpecification. ContentRouteLoader then orchestrates three phases:
 
 1. **Factory Selection**: Iterate context factories in DI priority order, first non-null RenderingSpecification wins
 2. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
@@ -28,17 +39,19 @@ ContentRoute delegates to context factories via Chain of Responsibility pattern 
 
 If `elementId` query parameter is present, SubTreeExtractor performs partial rendering after hydration.
 
-ContentRoute transforms result to DecomposedContentPage for API response.
+**Response Format Difference:**
+- ContentRoute returns `ContentPage` directly (full element trees)
+- ContentDecomposedRoute calls `ContentPage::getDecomposedContentPage()` for decomposed format
 
-Returns ContentPage containing:
+Both response types contain:
 - `layoutId`: Layout UUID
-- `elements`: Iterable of hydrated ContentElement trees (root elements)
+- `elements` or `skeletons`: Hydrated ContentElement trees (root elements)
 - `layoutName`: Layout name
 - `layoutVersion`: Layout version ID
 
 ## HTTP Cache
 
-Route decorated with `_httpCache: true`. Response cached based on sales channel, URL, customer group. Invalidation happens when:
+Both routes decorated with `_httpCache: true`. Response cached based on sales channel, URL, customer group. Invalidation happens when:
 - Content routes modified
 - Content layouts modified
 - Assigned entities modified
@@ -54,6 +67,6 @@ Returns 404 if:
 
 ContentSystemException thrown with specific error codes.
 
-## Extension Point
+## Extension Points
 
-Decorate AbstractContentRoute to modify pipeline (add logging, validation, transformations). Don't break pipeline order - phases must run sequentially.
+Decorate `AbstractContentRoute` or `AbstractContentDecomposedRoute` to modify pipeline (add logging, validation, transformations). Don't break pipeline order - phases must run sequentially.

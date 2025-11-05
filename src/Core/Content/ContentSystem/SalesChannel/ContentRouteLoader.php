@@ -52,7 +52,7 @@ class ContentRouteLoader
 
         return new ContentPage(
             layoutId: $specification->layoutId,
-            elements: $elements,
+            elements: iterator_to_array($elements, false),
             layoutName: $refinedLayout->layoutEntity->getName(),
             layoutVersion: $refinedLayout->layoutEntity->getVersionId()
         );

@@ -2,25 +2,25 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
-use Shopware\Core\Content\ContentSystem\Output\Struct\DecomposedContentPage;
+use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
  * @final
  *
- * @extends StoreApiResponse<DecomposedContentPage>
+ * @extends StoreApiResponse<ContentPage>
  */
 #[Package('discovery')]
 class ContentRouteResponse extends StoreApiResponse
 {
     public function __construct(
-        DecomposedContentPage $decomposedContentPage,
+        ContentPage $contentPage,
     ) {
-        parent::__construct($decomposedContentPage);
+        parent::__construct($contentPage);
     }
 
-    public function getDecomposedContentPage(): DecomposedContentPage
+    public function getContentPage(): ContentPage
     {
         return $this->object;
     }

@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
+import { TestDataService, type FixtureTypes, type Task } from '@fixtures/AcceptanceTest';
 
 export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
     CreateRule: async ({ ShopAdmin, AdminApiContext, TestDataService }, use) => {

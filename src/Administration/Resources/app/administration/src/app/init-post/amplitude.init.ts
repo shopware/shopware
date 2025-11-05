@@ -9,6 +9,10 @@ import type { TelemetryEvent, EventTypes, TrackableType } from '../../core/telem
  * @private
  */
 export default async function (): Promise<void> {
+    Shopware.Service('loginService').addOnLogoutListener(() => {
+        amplitude.setTransport('beacon');
+    });
+
     let defaultLanguageName = '';
 
     try {
@@ -47,7 +51,6 @@ export default async function (): Promise<void> {
     });
 
     // check for consent
-    // identify user
 
     amplitude.init('a04bb926f471ce883bc219814fc9577', undefined, {
         autocapture: false,
@@ -75,6 +78,33 @@ function pushTelemetryEventToAmplitude(telemetryEvent: TelemetryEvent<EventTypes
             sw_route_to_href: telemetryEvent.eventData.to.path,
             sw_route_to_query: telemetryEvent.eventData.to.fullPath.split('?')[1],
         });
+        return;
+    }
+
+    if (isEventOfType('identify', telemetryEvent)) {
+        const shopId = Shopware.Store.get('context').app.config.shopId;
+        const newUserId = `${shopId}:${telemetryEvent.eventData.userId}`;
+
+        const previousUserId = amplitude.getUserId();
+        amplitude.setUserId(newUserId);
+        // add more user properties via amplitude.identify(); ?
+
+        if (newUserId && previousUserId !== newUserId) {
+            amplitude.track('Login');
+        }
+
+        return;
+    }
+
+    if (isEventOfType('reset', telemetryEvent)) {
+        amplitude.track('Logout');
+
+        // we need a timeout if we want to include the click on the logout button
+        setTimeout(() => {
+            amplitude.flush();
+            amplitude.reset();
+        }, 0);
+
         return;
     }
 

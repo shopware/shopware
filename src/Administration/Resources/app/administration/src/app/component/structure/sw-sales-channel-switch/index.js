@@ -3,6 +3,7 @@
  */
 import template from './sw-sales-channel-switch.html.twig';
 
+const { Criteria } = Shopware.Data;
 const { debug } = Shopware.Utils;
 
 /**
@@ -40,6 +41,16 @@ export default {
             type: String,
             required: false,
             default: '',
+        },
+        salesChannelCriteria: {
+            type: Object,
+            required: false,
+            default: () => {
+                const criteria = new Criteria(1, 25);
+                criteria.addSorting(Criteria.sort('name'));
+
+                return criteria;
+            },
         },
     },
 

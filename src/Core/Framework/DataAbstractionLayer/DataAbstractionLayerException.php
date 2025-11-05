@@ -98,7 +98,7 @@ class DataAbstractionLayerException extends HttpException
     public const PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND = 'FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND';
     public const ENTITY_NOT_VERSIONABLE = 'FRAMEWORK__DAL_ENTITY_NOT_VERSIONABLE';
     public const INVALID_UUID = 'FRAMEWORK__DAL_INVALID_UUID';
-    public const INVALID_CRITERIA_PARAMETER = 'FRAMEWORK__INVALID_COMPRESSED_CRITERIA_PARAMETER';
+    public const INVALID_COMPRESSED_CRITERIA_PARAMETER = 'FRAMEWORK__INVALID_COMPRESSED_CRITERIA_PARAMETER';
 
     public const DBAL_UNMAPPED_FIELD = 'FRAMEWORK__DBAL_UNMAPPED_FIELD';
 
@@ -1044,7 +1044,7 @@ class DataAbstractionLayerException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::INVALID_CRITERIA_PARAMETER,
+            self::INVALID_COMPRESSED_CRITERIA_PARAMETER,
             'Invalid _criteria parameter: {{ message }}',
             ['message' => $message]
         );

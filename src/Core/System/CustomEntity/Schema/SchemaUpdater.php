@@ -277,8 +277,26 @@ class SchemaUpdater
                     break;
 
                 case 'one-to-many':
-                    // for one-to-many association, we don't need to add some columns in the custom entity table
-                    $reference = $this->createTable($schema, $field['reference']);
+                    $reference = null;
+                    $fieldReference = $field['reference'];
+
+                    // if field has attribute ignore-missing-reference is true, skip create table
+                    $ignoreMissingReference = $field['ignoreMissingReference'] ?? false;
+
+                    if (!$ignoreMissingReference) {
+                        // for one-to-many association, we don't need to add some columns in the custom entity table
+                        $reference = $this->createTable($schema, $fieldReference);
+                    }
+
+                    /**
+                     * Check if reference table exists
+                     * If not, skip the creation of the one-to-many association
+                     */
+                    if (!$schema->hasTable($fieldReference)) {
+                        continue 2;
+                    }
+
+                    $reference = $reference ?? $schema->getTable($fieldReference);
 
                     $foreignKey = $table->getName() . '_' . self::id($field['name']);
                     if ($reference->hasColumn($foreignKey)) {

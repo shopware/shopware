@@ -140,6 +140,7 @@
         <xs:attribute type="xs:boolean" name="inherited" />
         <xs:attribute type="xs:boolean" name="reverse-required" default="false" />
         <xs:attribute type="on-delete" name="on-delete" use="required" />
+        <xs:attribute type="xs:boolean" name="ignore-missing-reference" default="false" />
     </xs:complexType>
 
     <xs:complexType name="field-one-to-one-type">

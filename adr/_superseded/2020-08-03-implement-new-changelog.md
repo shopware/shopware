@@ -5,6 +5,10 @@ area: core
 tags: [changelog]
 ---
 
+> **Status:** Superseded on 2025-10-28  
+> This ADR has been replaced by [2025-10-28-changelog-release-info-process.md](../2025-10-28-changelog-release-info-process.md).  
+> The new ADR describes the curated in-repo `RELEASE_INFO` / `UPGRADE` workflow and supersedes the per-PR changelog file system.
+
 ## Context
 The current workflow for writing technical changelog is not very suited for a trunk based development and branching process. There are some major issues with the current workflow of using one file with a fixed version number:
 

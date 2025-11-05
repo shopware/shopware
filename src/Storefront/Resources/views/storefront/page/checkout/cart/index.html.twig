@@ -14,6 +14,10 @@
                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: 'danger', list: messages.danger } %}
             </div>
         {% endif %}
+
+        <div class="row mt-4">
+            {% sw_include '@Storefront/storefront/component/checkout/add-product-by-number.html.twig' %}
+        </div>
     {% else %}
         {{ parent() }}
     {% endif %}
@@ -72,47 +76,57 @@
 
         {% block page_checkout_cart_add_product_and_shipping %}
             <div class="row">
-                {% block page_checkout_cart_add_product %}
-                    <div class="col-md-5 cart-add-product-container">
-                        <form action="{{ path('frontend.checkout.product.add-by-number') }}" method="post">
-                            {% block page_checkout_cart_add_product_redirect %}
-                                <input type="hidden"
-                                       name="redirectTo"
-                                       value="frontend.checkout.cart.page">
-                            {% endblock %}
+                {% if feature('v6.8.0.0') %}
+                    {% sw_include '@Storefront/storefront/component/checkout/add-product-by-number.html.twig' %}
+                {% else %}
+                    {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product will be moved to add-product-by-number.html.twig #}
+                    {% block page_checkout_cart_add_product %}
+                        <div class="col-md-5 cart-add-product-container">
+                            <form action="{{ path('frontend.checkout.product.add-by-number') }}" method="post">
+                                {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_redirect will be moved to add-product-by-number.html.twig #}
+                                {% block page_checkout_cart_add_product_redirect %}
+                                    <input type="hidden"
+                                           name="redirectTo"
+                                           value="frontend.checkout.cart.page">
+                                {% endblock %}
 
-                            {% block page_checkout_cart_add_product_label %}
-                                <label class="visually-hidden" for="addProductInput">
-                                    {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
-                                </label>
-                            {% endblock %}
+                                {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_label will be moved to add-product-by-number.html.twig #}
+                                {% block page_checkout_cart_add_product_label %}
+                                    <label class="visually-hidden" for="addProductInput">
+                                        {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
+                                    </label>
+                                {% endblock %}
 
-                            {% block page_checkout_cart_add_product_input_group %}
-                                <div class="input-group">
-                                    {% block page_checkout_cart_add_product_input %}
-                                        <input type="text"
-                                               name="number"
-                                               class="form-control"
-                                               id="addProductInput"
-                                               placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}"
-                                               aria-label="{{ 'checkout.addProductLabel'|trans|striptags }}"
-                                               aria-describedby="addProductButton"
-                                               required="required">
-                                    {% endblock %}
+                                {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_input_group will be moved to add-product-by-number.html.twig #}
+                                {% block page_checkout_cart_add_product_input_group %}
+                                    <div class="input-group">
+                                        {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_input will be moved to add-product-by-number.html.twig #}
+                                        {% block page_checkout_cart_add_product_input %}
+                                            <input type="text"
+                                                   name="number"
+                                                   class="form-control"
+                                                   id="addProductInput"
+                                                   placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}"
+                                                   aria-label="{{ 'checkout.addProductLabel'|trans|striptags }}"
+                                                   aria-describedby="addProductButton"
+                                                   required="required">
+                                        {% endblock %}
 
-                                    {% block page_checkout_cart_add_product_submit %}
-                                        <button class="btn btn-outline-secondary add-product-button"
-                                                type="submit"
-                                                aria-labelledby="addProductInput"
-                                                id="addProductButton">
-                                            {% sw_icon 'checkmark' %}
-                                        </button>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </form>
-                    </div>
-                {% endblock %}
+                                        {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_submit will be moved to add-product-by-number.html.twig #}
+                                        {% block page_checkout_cart_add_product_submit %}
+                                            <button class="btn btn-outline-secondary add-product-button"
+                                                    type="submit"
+                                                    aria-labelledby="addProductInput"
+                                                    id="addProductButton">
+                                                {% sw_icon 'checkmark' %}
+                                            </button>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </form>
+                        </div>
+                    {% endblock %}
+                {% endif %}
 
                 {% block page_checkout_cart_shipping_costs %}
                     <div class="col-md-7 cart-shipping-costs-container">

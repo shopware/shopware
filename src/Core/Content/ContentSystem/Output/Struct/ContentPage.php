@@ -14,9 +14,12 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ContentPage extends Struct
 {
+    /**
+     * @param iterable<ContentElement> $elements
+     */
     public function __construct(
         protected string $layoutId,
-        protected ContentElement $layout,
+        protected iterable $elements,
         protected string $layoutName,
         protected ?string $layoutVersion,
     ) {
@@ -27,9 +30,12 @@ class ContentPage extends Struct
         return $this->layoutId;
     }
 
-    public function getLayout(): ContentElement
+    /**
+     * @return iterable<ContentElement>
+     */
+    public function getElements(): iterable
     {
-        return $this->layout;
+        return $this->elements;
     }
 
     public function getLayoutName(): string
@@ -53,13 +59,17 @@ class ContentPage extends Struct
     public function getDecomposedContentPage(
         DataLoaderConfigSerializerProvider $configSerializerProvider
     ): DecomposedContentPage {
-        $skeleton = clone $this->layout;
-
+        $skeletons = [];
         $visitor = new PropertiesExtractionVisitor($configSerializerProvider);
-        $skeleton->traverse($visitor);
+
+        foreach ($this->elements as $element) {
+            $skeleton = clone $element;
+            $skeleton->traverse($visitor);
+            $skeletons[] = $skeleton;
+        }
 
         return new DecomposedContentPage(
-            skeleton: $skeleton,
+            skeletons: $skeletons,
             data: $visitor->getData(),
             assignments: $visitor->getAssignments(),
             layoutId: $this->layoutId,

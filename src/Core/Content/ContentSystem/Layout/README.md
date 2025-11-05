@@ -27,6 +27,14 @@ ContentElement contains:
 
 Elements form tree via slots. Visitor pattern for traversal. Placeholders resolved after entity ID resolution.
 
+## Multi-Root Layouts
+
+ContentLayoutEntity can contain multiple root elements (`array<ContentElement>`). Each root is an independent tree with separate context scope.
+
+**Critical Constraint:** Context providers in one root element CANNOT provide context to elements in another root. Context distribution is tree-scoped (within a single root's descendants), not layout-scoped.
+
+**Element ID Uniqueness:** Element IDs should be unique across all root elements in the layout, not just within a single tree. Partial rendering (`?elementId=xyz`) searches across all roots and returns the first match.
+
 ## Custom DAL Fields
 
 Field/ contains custom DAL field types for serializing complex structures:

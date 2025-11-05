@@ -32,7 +32,7 @@ ContentRoute transforms result to DecomposedContentPage for API response.
 
 Returns ContentPage containing:
 - `layoutId`: Layout UUID
-- `layout`: Hydrated ContentElement tree (root element)
+- `elements`: Iterable of hydrated ContentElement trees (root elements)
 - `layoutName`: Layout name
 - `layoutVersion`: Layout version ID
 

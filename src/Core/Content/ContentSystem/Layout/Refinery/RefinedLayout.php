@@ -14,10 +14,12 @@ class RefinedLayout
 {
     /**
      * @internal
+     *
+     * @param iterable<ContentElement> $elements
      */
     public function __construct(
         public readonly ContentLayoutEntity $layoutEntity,
-        public readonly ContentElement $rootElement,
+        public readonly iterable $elements,
     ) {
     }
 }

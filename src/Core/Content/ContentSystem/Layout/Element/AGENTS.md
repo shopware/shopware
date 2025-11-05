@@ -15,6 +15,13 @@
 
 ## Constraints
 
+### Multi-Root Context Isolation
+
+Layouts can have multiple root elements (`array<ContentElement>`). Each root is an independent context tree:
+- Context providers in root #1 cannot provide to root #2
+- Context distribution is tree-scoped, not layout-scoped
+- Element IDs must be unique across all roots for partial rendering
+
 ### Property Accessors (Null-Safe)
 
 All property getters return null for missing keys. Never throw exceptions.

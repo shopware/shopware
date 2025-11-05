@@ -19,7 +19,10 @@ class ContentLayoutEntity extends Entity
 
     protected string $version;
 
-    protected ContentElement $layout;
+    /**
+     * @var array<ContentElement>
+     */
+    protected array $layout;
 
     /**
      * @var array<string, mixed>|null
@@ -46,12 +49,18 @@ class ContentLayoutEntity extends Entity
         $this->version = $version;
     }
 
-    public function getLayout(): ContentElement
+    /**
+     * @return array<ContentElement>
+     */
+    public function getLayout(): array
     {
         return $this->layout;
     }
 
-    public function setLayout(ContentElement $layout): void
+    /**
+     * @param array<ContentElement> $layout
+     */
+    public function setLayout(array $layout): void
     {
         $this->layout = $layout;
     }

@@ -54,7 +54,17 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         $value = $data->getValue();
 
         if ($value instanceof ContentElement) {
-            $value = $this->serializeContentElement($value);
+            $value = [$this->serializeContentElement($value)];
+        } elseif (\is_array($value)) {
+            $serializedElements = [];
+            foreach ($value as $element) {
+                if ($element instanceof ContentElement) {
+                    $serializedElements[] = $this->serializeContentElement($element);
+                } else {
+                    $serializedElements[] = $element;
+                }
+            }
+            $value = $serializedElements;
         }
 
         if ($value !== null) {
@@ -64,7 +74,10 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    public function decode(Field $field, mixed $value): ?ContentElement
+    /**
+     * @return array<ContentElement>|null
+     */
+    public function decode(Field $field, mixed $value): ?array
     {
         if (!$field instanceof ContentElementField) {
             throw ContentSystemException::invalidFieldType(ContentElementField::class, $field::class);
@@ -82,7 +95,37 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('layout', 'array', \gettype($value));
         }
 
-        return $this->decodeElement($value);
+        if ($value === []) {
+            return [];
+        }
+
+        // Multi-root format (indexed array)
+        if (\array_is_list($value)) {
+            $elements = [];
+            foreach ($value as $index => $elementData) {
+                if (!\is_array($elementData)) {
+                    throw ContentSystemException::invalidFieldValueType(
+                        "layout[$index]",
+                        'array',
+                        \gettype($elementData)
+                    );
+                }
+                $elements[] = $this->decodeElement($elementData);
+            }
+
+            // TODO: Add validation to ensure element IDs are unique across all trees
+            // Element IDs must be unique across all root elements and their descendants
+            // to support partial rendering with ?elementId parameter
+
+            return $elements;
+        }
+
+        // Invalid: not a proper indexed array
+        throw ContentSystemException::invalidFieldValueType(
+            'layout',
+            'indexed array of elements',
+            'associative array'
+        );
     }
 
     /**

@@ -46,6 +46,12 @@ See `SubTreeExtractor::extract()` for implementation.
 - Discards ancestors and siblings
 - Returns reduced tree (or null if ID not found)
 
+### Multi-Root Extraction
+
+See `ContentRouteLoader::applyPartialRendering()` - iterates roots, returns first match.
+
+**Edge case:** If same elementId exists in multiple roots, only first occurrence returned.
+
 ## Quick Reference
 
 - **Pipeline**: After hydration, before response serialization

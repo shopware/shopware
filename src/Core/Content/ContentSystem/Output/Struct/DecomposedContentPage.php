@@ -15,11 +15,12 @@ use Shopware\Core\Framework\Struct\Struct;
 class DecomposedContentPage extends Struct
 {
     /**
+     * @param array<ContentElement> $skeletons Element skeletons with properties extracted
      * @param array<string, mixed> $data Extracted property values (deduplicated)
      * @param array<string, array<string, string>> $assignments Element → property → refId mapping
      */
     public function __construct(
-        protected ContentElement $skeleton,
+        protected array $skeletons,
         protected array $data,
         protected array $assignments,
         protected string $layoutId,
@@ -28,9 +29,12 @@ class DecomposedContentPage extends Struct
     ) {
     }
 
-    public function getSkeleton(): ContentElement
+    /**
+     * @return array<ContentElement>
+     */
+    public function getSkeletons(): array
     {
-        return $this->skeleton;
+        return $this->skeletons;
     }
 
     /**

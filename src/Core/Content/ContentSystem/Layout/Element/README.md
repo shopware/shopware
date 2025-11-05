@@ -60,7 +60,8 @@ Elements provide/consume context via string keys. Provider exposes data at prope
 - Providers/consumers matched by context key (e.g., "product", "category")
 - Provider has ContextProvider definition for key, exposes `element->getProperty(key)`
 - Consumer has ContextConsumer definition for key, receives value in `element->setProperty(key, value)`
-- Context flows down tree only (ancestors → descendants)
+- Context flows down tree only (ancestors → descendants within the SAME root element tree)
+- Multi-root layouts: Context providers in one root element CANNOT provide to elements in other root trees
 
 ### Context Methods
 

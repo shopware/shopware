@@ -39,48 +39,52 @@ class ContentRouteLoader
         RenderingSpecification $specification,
         SalesChannelContext $salesChannelContext
     ): ContentPage {
-        // Wrap refinement exceptions with context for debugging. The refinement phase can fail
-        // due to: layout entity not found in DB, refiner execution errors, or placeholder
-        // resolution issues. Wrapping preserves the original exception as cause while clearly
-        // indicating which pipeline phase failed (refinement vs routing, hydration, etc.).
+        // Wrap refinement exceptions to indicate pipeline phase (refinement vs routing/hydration)
         try {
             $refinedLayout = $this->refinedLayoutBuilder->build($specification->layoutId, $specification, $salesChannelContext);
         } catch (\Throwable $e) {
             throw ContentSystemException::layoutRefineryFailed($specification->layoutId, $e->getMessage(), $e);
         }
 
-        $this->hydrationService->hydrate($refinedLayout, $salesChannelContext);
+        $hydratedElements = $this->hydrationService->hydrate($refinedLayout->elements, $salesChannelContext);
 
-        $rootElement = $this->applyPartialRendering(
-            $refinedLayout->rootElement,
-            $specification
-        );
+        $elements = $this->applyPartialRendering($hydratedElements, $specification);
 
         return new ContentPage(
             layoutId: $specification->layoutId,
-            layout: $rootElement,
+            elements: $elements,
             layoutName: $refinedLayout->layoutEntity->getName(),
             layoutVersion: $refinedLayout->layoutEntity->getVersionId()
         );
     }
 
+    /**
+     * @param iterable<ContentElement> $elements
+     *
+     * @return \Generator<ContentElement>
+     */
     private function applyPartialRendering(
-        ContentElement $rootElement,
+        iterable $elements,
         RenderingSpecification $specification
-    ): ContentElement {
+    ): \Generator {
         $targetElementId = $specification->targetElementId;
         // Treat empty string as null - query parameters can be empty when ?elementId is
         // present without a value. Both cases mean "no partial rendering requested".
         if ($targetElementId === null || $targetElementId === '') {
-            return $rootElement;
+            yield from $elements;
+
+            return;
         }
 
-        $targetElement = $this->subTreeExtractor->extract($rootElement, $targetElementId);
+        foreach ($elements as $element) {
+            $targetElement = $this->subTreeExtractor->extract($element, $targetElementId);
+            if ($targetElement !== null) {
+                yield $targetElement;
 
-        if ($targetElement === null) {
-            throw ContentSystemException::elementNotFound($targetElementId);
+                return;
+            }
         }
 
-        return $targetElement;
+        throw ContentSystemException::elementNotFound($targetElementId);
     }
 }

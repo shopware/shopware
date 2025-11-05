@@ -34,6 +34,16 @@ Root              (discarded)
 
 SubTreeExtractor finds target element by ID, clones it with descendants. Ancestors and siblings discarded for reduced payload size.
 
+### Multi-Root Search Behavior
+
+When layout contains multiple root elements, SubTreeExtractor searches trees sequentially:
+- Iterates root elements in order
+- Searches each tree for target element ID
+- Returns first match found, stops searching remaining roots
+- Throws exception only if NO match found in ANY root
+
+**Edge case:** If same elementId exists in multiple roots, only first occurrence returned.
+
 ## Characteristics
 
 Output operates on hydrated trees with these characteristics:

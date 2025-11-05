@@ -40,9 +40,23 @@ class RefinedLayoutBuilder
             throw ContentSystemException::layoutNotFound($layoutEntityId);
         }
 
-        $contentLayout = $layoutEntity->getLayout();
-        $refinedLayout = $this->refinery->refine($contentLayout, $specification, $salesChannelContext);
+        $contentLayouts = $layoutEntity->getLayout();
 
-        return new RefinedLayout($layoutEntity, $refinedLayout);
+        return new RefinedLayout($layoutEntity, $this->refineElements($contentLayouts, $specification, $salesChannelContext));
+    }
+
+    /**
+     * @param array<\Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement> $contentLayouts
+     *
+     * @return \Generator<\Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement>
+     */
+    private function refineElements(
+        array $contentLayouts,
+        RenderingSpecification $specification,
+        SalesChannelContext $salesChannelContext
+    ): \Generator {
+        foreach ($contentLayouts as $element) {
+            yield $this->refinery->refine($element, $specification, $salesChannelContext);
+        }
     }
 }

@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\ContentSystem\Hydration;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayout;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -23,10 +22,25 @@ class ContentElementHydrator
     ) {
     }
 
-    public function hydrate(RefinedLayout $refinedLayout, SalesChannelContext $context): void
+    /**
+     * @param iterable<ContentElement> $elements
+     *
+     * @return \Generator<ContentElement>
+     */
+    public function hydrate(iterable $elements, SalesChannelContext $context): \Generator
     {
-        $this->hydrateElement($refinedLayout->rootElement, $context);
-        $this->contextResolver->resolve($refinedLayout->rootElement);
+        // Phase 1: Data loading (two-phase constraint - must complete before context resolution)
+        $loadedElements = [];
+        foreach ($elements as $element) {
+            $this->hydrateElement($element, $context);
+            $loadedElements[] = $element;
+        }
+
+        // Phase 2: Context resolution (providers may expose loaded data as context)
+        foreach ($loadedElements as $element) {
+            $this->contextResolver->resolve($element);
+            yield $element;
+        }
     }
 
     private function hydrateElement(ContentElement $element, SalesChannelContext $context): void

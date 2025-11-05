@@ -128,6 +128,17 @@
             <tag name="shopware.cart.validator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\Cleanup\CleanupPaymentTokenTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Payment\Cleanup\CleanupPaymentTokenTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <!-- Sales Channel API -->
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" public="true">
             <argument type="service" id="sales_channel.payment_method.repository"/>

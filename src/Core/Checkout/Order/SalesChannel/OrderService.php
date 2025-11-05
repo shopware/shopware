@@ -190,11 +190,7 @@ class OrderService
             return true;
         }
 
-        if (\in_array($state, self::ALLOWED_TRANSACTION_STATES, true)) {
-            return true;
-        }
-
-        return false;
+        return \in_array($state, self::ALLOWED_TRANSACTION_STATES, true);
     }
 
     private function validateCart(Cart $cart, Context $context): void

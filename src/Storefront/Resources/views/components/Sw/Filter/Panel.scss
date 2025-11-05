@@ -3,7 +3,7 @@
     justify-content: space-between;
     align-items: start;
     gap: 0.5rem;
-    background-color: $white;
+    background-color: var(--bs-body-bg);
     position: sticky;
     top: 0;
     z-index: 2;

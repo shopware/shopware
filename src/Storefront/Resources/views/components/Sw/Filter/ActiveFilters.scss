@@ -1,5 +1,4 @@
 .sw-active-filters {
-    @extend .container;
     display: flex;
     flex-flow: wrap;
     align-items: center;
@@ -9,18 +8,17 @@
 }
 
 .sw-active-filter__item {
-    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
-    --#{$prefix}btn-border-color: #{$input-border-color};
-    --#{$prefix}btn-hover-border-color: #{$primary};
-    --#{$prefix}btn-hover-color: #{$primary};
-    --#{$prefix}btn-hover-bg: #{$gray-100};
-    --#{$prefix}btn-active-border-color: #{$primary};
-    --#{$prefix}btn-active-color: #{$primary};
-    --#{$prefix}btn-font-weight: #{$font-weight-normal};
-    --#{$prefix}btn-border-radius: #{$border-radius-pill};
-    --#{$prefix}btn-padding-y: 0.125rem;
-    --#{$prefix}btn-line-height: 1.625rem;
-    @extend .btn;
+    --bs-btn-focus-box-shadow: 0 0 0 0.125rem var(--bs-white), 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+    --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-hover-border-color: var(--bs-primary);
+    --bs-btn-hover-color: var(--bs-primary);
+    --bs-btn-hover-bg: var(--bs-gray-100);
+    --bs-btn-active-border-color: var(--bs-primary);
+    --bs-btn-active-color: var(--bs-primary);
+    --bs-btn-font-weight: var(--bs-body-font-weight);
+    --bs-btn-border-radius: var(--bs-border-radius-pill);
+    --bs-btn-padding-y: 0.125rem;
+    --bs-btn-line-height: 1.625rem;
     display: flex;
     align-items: center;
 }
@@ -46,12 +44,10 @@
 }
 
 .sw-active-filters__btn-reset-all {
-    --#{$prefix}btn-font-weight: #{$font-weight-normal};
-    --#{$prefix}btn-border-radius: #{$border-radius-pill};
-    --#{$prefix}btn-padding-y: 0.125rem;
-    --#{$prefix}btn-line-height: 1.625rem;
-    @extend .btn;
-    @extend .btn-outline-danger;
+    --bs-btn-font-weight: var(--bs-body-font-weight);
+    --bs-btn-border-radius: var(--bs-border-radius-pill);
+    --bs-btn-padding-y: 0.125rem;
+    --bs-btn-line-height: 1.625rem;
 
     &.is--hidden {
         display: none;

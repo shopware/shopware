@@ -43,7 +43,7 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
         await AdminRuleListing.gridCell.getByText(testConfig.ruleName).click();
 
         // general card
-        await ShopAdmin.expects(AdminRuleDetail.smartBarHeader).toHaveText(testConfig.ruleName);
+        await ShopAdmin.expects(AdminRuleDetail.header).toHaveText(testConfig.ruleName);
         await ShopAdmin.expects(AdminRuleDetail.nameInput).toHaveValue(testConfig.ruleName);
         await ShopAdmin.expects(AdminRuleDetail.priorityInput).toHaveValue(testConfig.rulePriority.toString());
         await ShopAdmin.expects(AdminRuleDetail.descriptionInput).toHaveValue(testConfig.ruleDescription);

@@ -87,34 +87,101 @@ class SalesChannelRequestContextResolverTest extends TestCase
         static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }
 
+    public function testRequestSalesChannelCurrencyDoesNotOverwriteContextData(): void
+    {
+        $this->createTestSalesChannel();
+
+        $eurCurrencyId = $this->getCurrencyId('EUR');
+        $contextPersister = static::getContainer()->get(SalesChannelContextPersister::class);
+        $contextPersister->save($this->ids->get('token'), [SalesChannelContextService::CURRENCY_ID => $eurCurrencyId], $this->ids->get('sales-channel'));
+
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
+
+        $currencyId = $this->getCurrencyId('USD');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $this->ids->get('sales-channel'));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->ids->get('token'));
+
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+
+        $eventDidRun = false;
+        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $eurCurrencyId): void {
+            $eventDidRun = true;
+            static::assertSame($eurCurrencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+            static::assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+        };
+
+        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+
+        $resolver->resolve($request);
+
+        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+
+        static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+    }
+
+    public function testRequestCurrencyHeaderDoesOverwriteContextData(): void
+    {
+        $this->createTestSalesChannel();
+
+        $eurCurrencyId = $this->getCurrencyId('EUR');
+        $contextPersister = static::getContainer()->get(SalesChannelContextPersister::class);
+        $contextPersister->save($this->ids->get('token'), [SalesChannelContextService::CURRENCY_ID => $eurCurrencyId], $this->ids->get('sales-channel'));
+
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
+
+        $currencyId = $this->getCurrencyId('USD');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $this->ids->get('sales-channel'));
+        $request->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $currencyId);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->ids->get('token'));
+
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+
+        $eventDidRun = false;
+        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $currencyId): void {
+            $eventDidRun = true;
+            static::assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+            static::assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+        };
+
+        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+
+        $resolver->resolve($request);
+
+        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+
+        static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+    }
+
     #[DataProvider('domainData')]
-    public function testContextCurrency(string $url, string $currencyCode, string $expectedCode): void
+    public function testContextCurrency(string $currencyCode): void
     {
         $this->createTestSalesChannel();
         $currencyId = $this->getCurrencyId($currencyCode);
-        $expectedCurrencyId = $expectedCode !== $currencyCode ? $this->getCurrencyId($expectedCode) : $currencyId;
 
         $context = $this->contextService->get(
             new SalesChannelContextServiceParameters($this->ids->get('sales-channel'), $this->ids->get('token'), Defaults::LANGUAGE_SYSTEM, $currencyId)
         );
 
-        static::assertSame($expectedCurrencyId, $context->getContext()->getCurrencyId());
+        static::assertSame($currencyId, $context->getContext()->getCurrencyId());
     }
 
     /**
-     * @return list<array{0: string, 1: string, 2: string}>
+     * @return list<array{0: string}>
      */
     public static function domainData(): array
     {
         return [
             [
-                'http://test.store/en-eur',
-                'EUR',
                 'EUR',
             ],
             [
-                'http://test.store/en-usd',
-                'USD',
                 'USD',
             ],
         ];
@@ -163,7 +230,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $this->createTestSalesChannel();
         $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
-        $phpunit = $this;
         $currencyId = $this->getCurrencyId('USD');
 
         $request = new Request();
